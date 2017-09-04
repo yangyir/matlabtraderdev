@@ -1,0 +1,9 @@
+2017-08-11:short open 0.49 lots of TF1712.CFE at 97.415; long open 1 lots of T1712.CFE at 94.665
+2017-08-11:long close 0.00 lots of TF1712.CFE at 97.415; short close 0 lots of T1712.CFE at 94.685
+2017-08-11:short open 0.49 lots of TF1712.CFE at 97.420; long open 1 lots of T1712.CFE at 94.685
+2017-08-11:long close 0.00 lots of TF1712.CFE at 97.415; short close 0 lots of T1712.CFE at 94.685
+2017-08-11:short open 0.49 lots of TF1712.CFE at 97.425; long open 1 lots of T1712.CFE at 94.685
+2017-08-11:long close 0.00 lots of TF1712.CFE at 97.400; short close 0 lots of T1712.CFE at 94.665
+2017-08-11:short open 0.49 lots of TF1712.CFE at 97.410; long open 1 lots of T1712.CFE at 94.670
+2017-08-11:long close 0.00 lots of TF1712.CFE at 97.410; short close 0 lots of T1712.CFE at 94.675
+2017-08-11:short open 0.49 lots of TF1712.CFE at 97.415; long open 1 lots of T1712.CFE at 94.675
