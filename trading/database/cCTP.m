@@ -35,8 +35,12 @@ classdef cCTP < cDataSource
         %end of printinfo
         
         function [ret] = login(obj)
-            [ret] = mdlogin(obj.addr_,obj.broker_,obj.investor_,obj.pwd_);
-            obj.isconnected_ = ret;
+            if ~obj.isconnected_
+                [ret] = mdlogin(obj.addr_,obj.broker_,obj.investor_,obj.pwd_);
+                obj.isconnected_ = ret;
+            else
+                ret = obj.isconnected_;
+            end
         end
         %login
         

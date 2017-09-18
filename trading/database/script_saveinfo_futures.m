@@ -3,7 +3,12 @@
 %and then save the info into the prespecified folder and text files
 conn = cBloomberg;
 %%
-dir_ = [getenv('DATAPATH'),'futuresinfo\'];
+dir_ = [getenv('DATAPATH'),'info_futures\'];
+try
+    cd(dir_);
+catch
+    mkdir(dir_);
+end
 
 %%
 %base metals
