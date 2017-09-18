@@ -1,27 +1,26 @@
-%% 初始化 WIND matlab
-if ~exist('w','var') || ~isa(w,'windmatlab')
-    w = windmatlab;
-end
+%% init local connection
+if ~exist('conn','var') || ~isa(conn,'cLocal'), conn = cLocal;end
 
 %% 初始化 pairs
-leg1 = 'TF1709.CFE';
-leg2 = 'T1709.CFE';
-% leg1 = 'TF1712.CFE';
-% leg2 = 'T1712.CFE';
-pairs = [leg1,',',leg2];
-%% 初始化前一个交易日的历史数据(Bloomberg)
-fut1 = windcode2contract(leg1(1:length(leg1)-4));
-fut2 = windcode2contract(leg2(1:length(leg2)-4));
-date_from = '08-May-2017';
-date_to = '09-Aug-2017';
-freq = '1m';
+codes = {'TF1712';'T1712'};
+instruments = cell(size(codes,1),1);
+for i = 1:size(codes,1)
+    instruments{i} = cFutures(codes{i});
+    instruments{i}.loadinfo([codes{i},'_info.txt']);
+end
 
-data1 = fut1.getTimeSeries('connection','bloomberg','fromdate',date_from,...
-    'todate',date_to,'fields',{'close','volume'},'frequency',freq);
-data2 = fut2.getTimeSeries('connection','bloomberg','fromdate',date_from,...
-    'todate',date_to,'fields',{'close','volume'},'frequency',freq);
-[t,idx1,idx2] = intersect(data1(:,1),data2(:,1));
-externaldata = [t,data1(idx1,2),data2(idx2,2)];
+%% 初始化前一个交易日的历史数据(Bloomberg)
+date_from = '09-Aug-2017';
+date_to = '13-Sep-2017';
+interval = 1;
+
+data = cell(size(codes,1),1);
+for i = 1:size(codes,1)
+    data{i} = conn.intradaybar(instruments{i},date_from,date_to,interval,'trade');
+end
+
+[t,idx1,idx2] = intersect(data{1}(:,1),data{2}(:,1));
+externaldata = [t,data{1}(idx1,end),data{2}(idx2,end)];
 
 
 %% 初始化前一个交易日的历史数据(WIND)
@@ -29,7 +28,7 @@ externaldata = [t,data1(idx1,2),data2(idx2,2)];
 lastBusDate = datestr(getlastbusinessdate(today),'yyyy-mm-dd');
 startBusDate = datestr(businessdate(lastBusDate,-1),'yyyy-mm-dd');
 
-[externaldata_leg1,~,~,t_leg1] = w.wsi(leg1,'close',[startBusDate,' 09:15:00'],[lastBusDate,' 15:15:00']);
+[externaldata_leg1,~,~,t_leg1] = w.wsi(instrument_5y,'close',[startBusDate,' 09:15:00'],[lastBusDate,' 15:15:00']);
 [externaldata_leg2,~,~,t_leg2] = w.wsi(leg2,'close',[startBusDate,' 09:15:00'],[lastBusDate,' 15:15:00']);
 % 此处需要对历史数据做一下处理
 externaldata_leg1 = [t_leg1,externaldata_leg1];
@@ -40,8 +39,8 @@ externaldata = [t,externaldata_leg1(idx1,2),externaldata_leg2(idx2,2)];
 %% 初始化交易model
 lookbackPeriod = 270;
 rebalancePeriod = 60;
-upperBound = 1.65;
-lowerBound = -1.65;
+upperBound = 3;
+lowerBound = -3;
 
 model_replay = struct('LookbackPeriod',lookbackPeriod,...
     'RebalancePeriod',rebalancePeriod,...

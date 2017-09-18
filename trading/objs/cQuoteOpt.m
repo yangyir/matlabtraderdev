@@ -42,8 +42,6 @@ classdef cQuoteOpt < cQuoteFut
         theta
         %riskless rate
         riskless_rate
-        %init flag
-        init_flag = false
     end
     
     methods
@@ -61,7 +59,7 @@ classdef cQuoteOpt < cQuoteFut
                 obj.opt_type = optiontype;
                 obj.opt_strike = str2double(strike);
                 obj.opt_expiry_date1 = expiry;
-                obj.opt_expiry_date2 = datestr(expiry,'yyyymmdd');
+                obj.opt_expiry_date2 = datestr(expiry,'yyyy-mm-dd');
             
                 obj.init_flag = true;
             else
@@ -69,10 +67,12 @@ classdef cQuoteOpt < cQuoteFut
             end
         end
         
-        function obj = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,underlier_quote_)
+        function obj = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,underlier_quote_,calcgreeks)
             if ~obj.init_flag
                 obj.init(codestr);
             end
+            
+            if nargin == 10, calcgreeks = true; end
             
             update@cQuoteFut(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_);
             %note: we always use the mid price to imply the volatility
@@ -95,6 +95,7 @@ classdef cQuoteOpt < cQuoteFut
             bds = gendates('fromdate',obj.update_date1,'todate',obj.opt_expiry_date1);
             obj.opt_business_tau = length(bds)/252;
             
+            if ~calcgreeks, return; end
             %calculate implied vols
             if obj.opt_american
                 mid = 0.5*(obj.bid_underlier + obj.ask_underlier);
@@ -112,6 +113,7 @@ classdef cQuoteOpt < cQuoteFut
                 error('not implemeneted')
             end
             
+
             %calculate delta/gamma
             if obj.opt_american
                 midUp = mid*(1+0.005);
@@ -162,10 +164,23 @@ classdef cQuoteOpt < cQuoteFut
                 error('not implemeneted')
             end
             
-            
-            
-            
-            
+        end
+        %
+        
+        function print(obj)
+            fprintf('%s ',obj.update_time2);   
+            fprintf('trade:%4.1f;',obj.last_trade);
+            fprintf('delta:%4.2f;',obj.delta);
+            fprintf('gamma:%4.2f;',obj.gamma);
+            fprintf('theta:%4.2f;',obj.theta);
+            fprintf('vega:%4.2f;',obj.vega);
+            fprintf('iv:%4.2f;',obj.impvol);
+            fprintf('tau:%2.2f:',obj.opt_business_tau);
+            fprintf('instrument:%s\n',obj.code_ctp);
+                
+                
+                
+                
         end
         
     end

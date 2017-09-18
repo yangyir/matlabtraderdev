@@ -16,6 +16,7 @@ flag = false;
 opt_type = '';
 opt_strike = [];
 underlierstr = '';
+opt_expiry = [];
 
 if ~ischar(codestr), return; end
 

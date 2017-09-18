@@ -23,7 +23,7 @@ function output = listedoptinfo(conn,asset,tenor,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('PrintOutput',false,@islogical);
-    p.addParameter('NumberOfStrikes',5,@islogical);
+    p.addParameter('NumberOfStrikes',5,@isnumeric);
     p.parse(varargin{:});
     printoutput = p.Results.PrintOutput;
     nStrikes = p.Results.NumberOfStrikes;

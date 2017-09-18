@@ -62,7 +62,7 @@ if ((strcmpi(assetName,'nickel') && (curr_mm==1 || curr_mm==5 || curr_mm==9))...
         mid_month_date = mid_month_date+2;
     end
     if curr_dd>mid_month_date
-        curr_mm = curr_mm+6;
+        curr_mm = curr_mm+1;
         if curr_mm>12
             curr_mm=curr_mm-12;
             curr_yy=curr_yy+1;

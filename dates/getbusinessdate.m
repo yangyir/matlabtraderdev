@@ -37,7 +37,22 @@ else
     end
 end
 
-bd = datetime(y,m,d);
+ystr = num2str(y);
+if m < 10
+    mstr = ['0',num2str(m)];
+else
+    mstr = num2str(m);
+end
+
+if d < 10
+    dstr = ['0',num2str(d)];
+else
+    dstr = num2str(d);
+end
+
+
+% bd = datetime(y,m,d);
+bd = [ystr,'-',mstr,'-',dstr];
 if ~isholiday(bd)
     num = num - 1;
 end

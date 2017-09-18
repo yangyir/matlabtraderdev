@@ -143,7 +143,9 @@ contractList = contractList(1:count);
 %
 %note:we'd better re-produce the continouous futures(index) from its first
 %contract and then cut off from the obsevation period start date
-firstFuturesIdx = 1;
+% firstFuturesIdx = 1;
+firstFuturesIdx = find(expiries>0);
+firstFuturesIdx = firstFuturesIdx(1);
 
 for i = firstFuturesIdx:length(contractList)
 %     expiry = contractList{i}.Expiry;
