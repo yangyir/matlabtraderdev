@@ -682,8 +682,9 @@ classdef cWatcher < handle
     methods (Access = private)
         % private function to init quotes
         function obj = init_quotes(obj)
-            if isempty(obj.qs)
-                ns = obj.countsingles;
+            nq = size(obj.qs,1);
+            ns = obj.countsingles;
+            if nq ~= ns
                 nu = obj.countunderliers;
                 obj.qs = cell(ns+nu,1);
                 %here we only initiate the quotes for option legs but not
@@ -714,7 +715,6 @@ classdef cWatcher < handle
                     q.init(obj.underliers{i});
                     obj.qs{ns+i} = q;
                 end
-                
             end
         end
         

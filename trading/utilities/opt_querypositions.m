@@ -34,13 +34,14 @@ function [opt_delta,opt_gamma,opt_vega,opt_theta] = opt_querypositions(instrumen
         fprintf('gamma:%5.0f; ',gamma_i);
         fprintf('theta:%5.0f; ',theta_i);
         fprintf('vega:%8.0f; ',vega_i);
-        fprintf('pos:%d ',pos_i(1).total_position);
+        fprintf('pos:%d ',pos_i(1).total_position*pos_i.direction);
         opt_delta = opt_delta + delta_i; 
         opt_gamma = opt_gamma + gamma_i;
         opt_vega = opt_vega + vega_i;
         opt_theta = opt_theta + theta_i;
         fprintf('\n');
     end
+    fprintf('\n');
     
 
 end

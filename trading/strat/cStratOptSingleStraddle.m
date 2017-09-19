@@ -20,7 +20,7 @@ classdef cStratOptSingleStraddle < cStrat
         end
         
         function [] = querypositions(obj,counter,qms)
-            opt_querypositions(obj.instruments_,counter,qms)
+            opt_querypositions(obj.instruments_,counter,qms);
         end
         
     end

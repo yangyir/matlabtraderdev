@@ -13,7 +13,7 @@ if nargin < 3
 end
 
 dir_ = getenv('DATAPATH');
-dir_info_ = [dir_,'futuresinfo\'];
+dir_info_ = [dir_,'info_futures\'];
 dir_data_ = [dir_,'intradaybar\',code_ctp,'\'];
 try
     cd(dir_data_);

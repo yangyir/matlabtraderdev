@@ -1,6 +1,6 @@
 %%
-pathdefs = regexp(matlabpath,';','split');
-cd(pathdefs{1});
+pathhome = getenv('HOME');
+cd(pathhome);
 clear all;
 clc;
 %%

@@ -10,13 +10,6 @@ q_5y = qms_ctp.getquote(bnd_5y);
 q_10y = qms_ctp.getquote(bnd_10y);
 
 %%
-qms_ctp.refresh;
-spd_bid = q_10y.yield_ask1 - q_5y.yield_bid1;
-spd = q_10y.yield_last_trade - q_5y.yield_last_trade;
-spd_ask = q_10y.yield_bid1 - q_5y.yield_ask1;
-fprintf('bid:%2.1f;ask:%2.1f;trade:%2.1f;10y:%2.2f\n',spd_bid*100,spd_ask*100,spd*100,q_10y.yield_last_trade)
-
-%%
 c_govtbond_curvesloping = c_kim;
 pos_5y = c_govtbond_curvesloping.queryPositions(code_5y);
 pos_10y = c_govtbond_curvesloping.queryPositions(code_10y);    
@@ -35,6 +28,12 @@ fprintf('parallel carry risk 1bp up:%+4.0f; 1bp dn:%+4.0f\n',riskparallelup,risk
 riskslopeup = (pxup_10y-q_10y.last_trade)*pos_10y.total_position*pos_10y.direction*1e4;
 riskslopedn = (pxdn_10y-q_10y.last_trade)*pos_10y.total_position*pos_10y.direction*1e4;
 fprintf('slope carry risk 1bp up:%+4.0f; 1bp dn:%+4.0f\n',riskslopeup,riskslopedn);
+%%
+qms_ctp.refresh;
+spd_bid = q_10y.yield_ask1 - q_5y.yield_bid1;
+spd = q_10y.yield_last_trade - q_5y.yield_last_trade;
+spd_ask = q_10y.yield_bid1 - q_5y.yield_ask1;
+fprintf('bid:%2.1f;ask:%2.1f;trade:%2.1f;10y:%2.2f\n',spd_bid*100,spd_ask*100,spd*100,q_10y.yield_last_trade)
 
 %%
 % trade one leg
