@@ -1,6 +1,6 @@
 function portfolio = opt_loadpositions(fn)
 
-    pos_dir_ = [getenv('DATAPATH'),'pos_opt\'];
+    pos_dir_ = [getenv('DATAPATH'),'pos_option\'];
     
     fid = fopen([pos_dir_,fn,'.txt'],'r');
         

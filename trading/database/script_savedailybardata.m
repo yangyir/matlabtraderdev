@@ -41,5 +41,8 @@ fprintf('done for saving daily bar data for precious metal futures\n');
 %%
 % agriculture for options
 ag_codes_ctp = {'m1801';'m1805';'SR801';'SR805'};
-
+for i = 1:size(ag_codes_ctp,1)
+    savedailybarfrombloomberg(conn,ag_codes_ctp{i},override);
+end
+fprintf('done for saving daily bar data for agriculture futures\n');
 

@@ -15,7 +15,7 @@ function [] = opt_savepositions(options,underliers,counter,qms)
         error('opt_savepositions:invalid qms input......')
     end
     
-    opt_dir_ = [getenv('DATAPATH'),'pos_opt\'];
+    opt_dir_ = [getenv('DATAPATH'),'pos_option\'];
     try
         cd(opt_dir_);
     catch

@@ -40,7 +40,8 @@ coldefs = {'date','open','high','low','close'};
 permission = 'w';
 usedatestr = false;
 startdate = f.first_trade_date1;
-enddate = min(getlastbusinessdate,f.last_trade_date1);
+lbd = getlastbusinessdate;
+enddate = min(lbd,f.last_trade_date1);
 
 fn_ = [f.code_ctp,'_daily.txt'];
 %first check whether fn_ exists
@@ -52,14 +53,21 @@ for j = 1:nfiles
     end
 end
 
-%second check whether the instrument is expired
-%todo:
-
 if ~flag || (flag && override)
     data = bbg.history(f,{'px_open','px_high','px_low','px_last'},startdate,enddate);
     cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
 end
-    
+
+if flag && ~override
+    data = cDataFileIO.loadDataFromTxtFile(fn_);
+    lastcob = data(end,1);
+    if lastcob < enddate
+        data_new = bbg.history(f,{'px_open','px_high','px_low','px_last'},businessdate(lastcob,1),enddate);
+        data = [data,data_new];
+        cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
+    end    
+end
+
 fprintf('done daily bar with %s\n',code_ctp);
 
 end
