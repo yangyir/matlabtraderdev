@@ -46,3 +46,18 @@ for i = 1:size(ag_codes_ctp,1)
 end
 fprintf('done for saving daily bar data for agriculture futures\n');
 
+%%
+% options
+opt_codes_ctp = {'m1801-C-2600';'m1801-P-2600';...
+    'm1801-C-2650';'m1801-P-2650';...
+    'm1801-C-2700';'m1801-P-2700';...
+    'm1801-C-2750';'m1801-P-2750';...
+    'm1801-C-2800';'m1801-P-2800'};
+for i = 1:size(opt_codes_ctp,1)
+    savedailybarfrombloomberg(conn,opt_codes_ctp{i},override);
+end
+fprintf('done for saving daily bar data for listed commodity options\n');
+
+
+
+

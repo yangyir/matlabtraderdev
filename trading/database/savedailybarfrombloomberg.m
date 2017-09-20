@@ -13,7 +13,6 @@ if nargin < 3
 end
 
 dir_ = getenv('DATAPATH');
-dir_info_ = [dir_,'info_futures\'];
 dir_data_ = [dir_,'dailybar\',code_ctp,'\'];
 try
     cd(dir_data_);
@@ -21,14 +20,19 @@ catch
     mkdir(dir_data_);
 end
 
-
 %first try to load information from local drive
-f = cFutures(code_ctp);
+if isoptchar(code_ctp)
+    f = cOption(code_ctp);
+    dir_info_ = [dir_,'info_option\'];
+else
+    f = cFutures(code_ctp);
+    dir_info_ = [dir_,'info_futures\'];
+end
 fn_info_ = [dir_info_,code_ctp,'_info.txt'];
 f.loadinfo(fn_info_);
 if isempty(f.contract_size)
     %not loaded
-    f.init(bbg.ds_);
+    f.init(bbg);
     f.saveinfo(fn_info_);
 end
 
