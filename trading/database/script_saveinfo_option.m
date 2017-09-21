@@ -19,7 +19,6 @@ catch
     mkdir(opt_dir_);
 end
 
-
 %%
 %soymeal
 futures_code_ctp_soymeal = {'m1801';'m1805'};

@@ -38,8 +38,8 @@ fprintf('bid:%2.1f;ask:%2.1f;trade:%2.1f;10y:%2.2f\n',spd_bid*100,spd_ask*100,sp
 %%
 % trade one leg
 % user input
-direction = -1;
-offset = -1;
+direction = 1;
+offset = 1;
 unit = 1;
 
 %trading part related codes

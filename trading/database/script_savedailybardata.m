@@ -47,17 +47,51 @@ end
 fprintf('done for saving daily bar data for agriculture futures\n');
 
 %%
-% options
-opt_codes_ctp = {'m1801-C-2600';'m1801-P-2600';...
-    'm1801-C-2650';'m1801-P-2650';...
-    'm1801-C-2700';'m1801-P-2700';...
-    'm1801-C-2750';'m1801-P-2750';...
-    'm1801-C-2800';'m1801-P-2800'};
-for i = 1:size(opt_codes_ctp,1)
-    savedailybarfrombloomberg(conn,opt_codes_ctp{i},override);
+% % options
+% opt_codes_ctp = {'m1801-C-2600';'m1801-P-2600';...
+%     'm1801-C-2650';'m1801-P-2650';...
+%     'm1801-C-2700';'m1801-P-2700';...
+%     'm1801-C-2750';'m1801-P-2750';...
+%     'm1801-C-2800';'m1801-P-2800'};
+% for i = 1:size(opt_codes_ctp,1)
+%     savedailybarfrombloomberg(conn,opt_codes_ctp{i},override);
+% end
+% fprintf('done for saving daily bar data for listed commodity options\n');
+
+%%
+%soymeal
+futures_code_ctp_soymeal = {'m1801';'m1805'};
+strikes_soymeal = [2600;2650;2700;2750;2800];
+c_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
+p_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
+
+for i = 1:size(futures_code_ctp_soymeal,1)
+    for j = 1:size(strikes_soymeal,1)
+        c_code_ = [futures_code_ctp_soymeal{i},'-C-',num2str(strikes_soymeal(j))];
+        savedailybarfrombloomberg(conn,c_code_,override);
+        %
+        p_code_ = [futures_code_ctp_soymeal{i},'-P-',num2str(strikes_soymeal(j))];
+        savedailybarfrombloomberg(conn,p_code_,override);
+    end  
 end
-fprintf('done for saving daily bar data for listed commodity options\n');
+fprintf('done for soymeal options......\n');
 
+%%
+%white sugar
+futures_code_ctp_sugar = {'SR801';'SR805'};
+strikes_sugar = [6000;6100;6200;6300;6400];
+c_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
+p_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
 
+for i = 1:size(futures_code_ctp_sugar,1)
+    for j = 1:size(strikes_sugar,1)
+        c_code_ = [futures_code_ctp_sugar{i},'C',num2str(strikes_sugar(j))];
+        savedailybarfrombloomberg(conn,c_code_,override);
+        %
+        p_code_ = [futures_code_ctp_sugar{i},'P',num2str(strikes_sugar(j))];
+        savedailybarfrombloomberg(conn,p_code_,override);
+    end  
+end
+fprintf('done for white sugar options......\n');
 
 

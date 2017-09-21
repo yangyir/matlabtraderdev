@@ -1,4 +1,4 @@
-function [output] = opt_pnlbreakdown(opt,cobdate,volume)
+function [output] = opt_pnlbreakdown_rt(opt,quotes,volume)
 %function to break down the pnl attribution of the input option from the
 %previous business date as of the input cobdate to cobdate
 if nargin < 3, volume = 1; end
@@ -16,22 +16,39 @@ elseif ~isa(opt,'cOption')
 end
 
 %%
+idx = 0;
+for i = 1:size(quotes,1)
+    if strcmpi(opt.code_ctp,quotes{i}.code_ctp)
+        idx = i;
+        break
+    end
+end
+try
+    q = quotes{idx};
+catch e
+    error(e.message)
+end
+
+%%
 underlier = opt.code_ctp_underlier;
 mult = opt.contract_size; 
 data = cDataFileIO.loadDataFromTxtFile([underlier,'_daily.txt']);
+
+cobdate = q.update_date1;
 predate = businessdate(cobdate,-1);
 price1_underlier = data(data(:,1)==datenum(predate),end);
-price2_underlier = data(data(:,1)==datenum(cobdate),end);
-if isempty(price1_underlier) || isempty(price2_underlier)
+if isempty(price1_underlier)
     error(['underlier ',underlier,' historical price not saved!'])
 end
+price2_underlier = q.last_trade_underlier;
 
 data = cDataFileIO.loadDataFromTxtFile([opt.code_ctp,'_daily.txt']);
 pv1_opt = data(data(:,1)==datenum(predate),end);
-pv2_opt = data(data(:,1)==datenum(cobdate),end);
-if isempty(pv1_opt) || isempty(pv2_opt)
+if isempty(pv1_opt)
     error(['underlier ',underlier,' historical price not saved!'])
 end
+pv2_opt = q.last_trade;
+
 
 %%
 k = opt.opt_strike;

@@ -18,7 +18,9 @@ function [opt_delta,opt_gamma,opt_vega,opt_theta] = opt_querypositions(instrumen
     
     qms.refresh;
     opts = instruments.getinstrument;
-    for i = 1:size(opts)
+    
+    fprintf('\n');
+    for i = 1:size(opts,1)
         q_i = qms.getquote(opts{i});
         if isempty(q_i), continue; end
         code_i = opts{i}.code_ctp;
@@ -34,14 +36,14 @@ function [opt_delta,opt_gamma,opt_vega,opt_theta] = opt_querypositions(instrumen
         fprintf('gamma:%5.0f; ',gamma_i);
         fprintf('theta:%5.0f; ',theta_i);
         fprintf('vega:%8.0f; ',vega_i);
-        fprintf('pos:%d ',pos_i(1).total_position*pos_i.direction);
+        fprintf('pos:%4d ',pos_i(1).total_position*pos_i.direction);
         opt_delta = opt_delta + delta_i; 
         opt_gamma = opt_gamma + gamma_i;
         opt_vega = opt_vega + vega_i;
         opt_theta = opt_theta + theta_i;
         fprintf('\n');
     end
-    fprintf('\n');
+
     
 
 end
