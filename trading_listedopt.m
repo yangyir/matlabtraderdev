@@ -8,12 +8,16 @@ code3 = 'm1801-C-2750';
 code4 = 'm1801-P-2750';
 code5 = 'm1801-C-2650';
 code6 = 'm1801-P-2650';
+code7 = 'm1801-C-2800';
+code8 = 'm1801-P-2800';
 wopt.addsingle(code1);
 wopt.addsingle(code2);
 wopt.addsingle(code3);
 wopt.addsingle(code4);
 wopt.addsingle(code5);
 wopt.addsingle(code6);
+wopt.addsingle(code7);
+wopt.addsingle(code8);
 
 %%
 wopt.refresh;
@@ -21,6 +25,7 @@ q = wopt.qs;
 strike1 = q{1}.opt_strike;
 strike2 = q{3}.opt_strike;
 strike3 = q{5}.opt_strike;
+strike4 = q{7}.opt_strike;
 
 fprintf('\nIV:');
 for i = 1:size(q,1)-1
@@ -39,6 +44,11 @@ elseif (strike3-last_trade)*(strike1-last_trade)<=0
     k2 = strike1;
     idx1 = 5;
     idx2 = 1;
+elseif (strike2-last_trade)*(strike4-last_trade)<=0
+    k1 = strike2;
+    k2 = strike4;
+    idx1 = 7;
+    idx2 = 3;
 end
 
 v2_opt = (last_trade-k1)/(k2-k1);
@@ -123,7 +133,7 @@ for i = 1:n
     fprintf('gamma:%5.0f; ',gamma_i);
     fprintf('theta:%5.0f; ',theta_i);
     fprintf('vega:%8.0f; ',vega_i);
-    fprintf('pos:%d ',pos_i(1).total_position);
+    fprintf('pos:%d ',pos_i(1).direction*pos_i(1).total_position);
     opt_delta = opt_delta + delta_i; 
     opt_gamma = opt_gamma + gamma_i;
     opt_vega = opt_vega + vega_i;
