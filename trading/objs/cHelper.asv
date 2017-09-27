@@ -1,6 +1,6 @@
 classdef cHelper < handle
     methods (Static)
-        function [pnltbl,risktbl] = pnlrisk1(p,d1)
+        function [pnltbl,risktbl] = pnl1(p,d1)
             %calculate the pnl and its breakdown of the portfolio at the
             %end of d1 from the previous business date
             %note:this is a day to day pnl calculation
@@ -18,7 +18,6 @@ classdef cHelper < handle
             deltacarry = zeros(p.count+1,1);
             gammacarry = zeros(p.count+1,1);
             vegacarry = zeros(p.count+1,1);
-            ivcarry = zeros(p.count+1,1);
             
             rownames = cell(p.count+1,1);
             
@@ -38,7 +37,6 @@ classdef cHelper < handle
                 deltacarry(i) = output.deltacarry;
                 gammacarry(i) = output.gammacarry;
                 vegacarry(i) = output.vegacarry;
-                ivcarry(i) = output.iv2;
             end
             total(end) = sum(total(1:end-1));
             theta(end) = sum(theta(1:end-1));
@@ -48,18 +46,13 @@ classdef cHelper < handle
             unexplained(end) = sum(unexplained(1:end-1));
             %
             deltacarry(end) = sum(deltacarry(1:end-1));
-            gammacarry(end) = sum(gammacarry(1:end-1));
-            thetacarry(end) = sum(thetacarry(1:end-1));
-            vegacarry(end) = sum(vegacarry(1:end-1));
+            
             
             rownames{end} = 'total';
             
             
             pnltbl = table(total,theta,delta,gamma,vega,unexplained,...
-                'RowNames',rownames);
-            
-            risktbl = table(thetacarry,deltacarry,gammacarry,vegacarry,ivcarry,...
-                'RowNames',rownames);
+                'RowNames',rownames);    
         end
         %end of pnl1
         
@@ -70,6 +63,10 @@ classdef cHelper < handle
         end
         %end of pnl2
         
+        function risktbl = risk1(p,d1)
+            
+        end
+        %end of risktbl
         
     end
 end

@@ -247,6 +247,24 @@ classdef cStrat < handle
         end
         %end of placenewentrusts
         
+        function indices = matchquoteindex(obj,quotes)
+            list = obj.instruments_.getinstrument;
+            n = obj.count;
+            indices = zeros(n);
+            for i = 1:n
+                qidx = 0;
+                for j = 1:size(quotes)
+                    if strcmpi(list{i}.code_ctp,quotes{j}.code_ctp)
+                        qidx = j;
+                        break
+                    end
+                end
+                if qidx == 0, error('cStrat:matchquoteindex:invalid quotes'); end
+                indices(i) = qidx;
+            end
+        end
+        %end of matchquoteindex
+        
     end
         
     methods (Abstract)

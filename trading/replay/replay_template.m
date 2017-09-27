@@ -2,13 +2,7 @@
 % properly, i.e. are there any errors within the code. please note that
 % replay itself is not back testing as it is much slower and it checks all
 % the codes relates to the trading part.
-%%
-% init qms for replay. as we know that we only use the local '.txt' file
-% for replay
-if ~(exist('qms_replay','var') && isa(qms_replay,'cQMS'))
-    qms_replay = cQMS;
-    qms_replay.setdatasource('local');
-end
+replay_init;
 %%
 % init the instrument(s) used in replay and register instrument(s) with the
 % qms

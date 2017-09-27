@@ -18,7 +18,7 @@ classdef cTradingSystem < handle
     
     properties (Hidden = true, GetAccess = public, SetAccess = public)
         mode_@char = 'realtimemanualtrading'
-        replayinterval_@double = 1
+        replayinterval_@double = 0
     end
     
     properties (Hidden = true, GetAccess = private, SetAccess = private)
