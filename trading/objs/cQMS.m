@@ -106,8 +106,15 @@ classdef cQMS < handle
                 return
             end
             
-            [flag, idx] = self.watcher_.hassingle(instrument.code_ctp);
-            if ~flag
+            for i = 1:size(self.watcher_.qs,1)
+                if strcmpi(instrument.code_ctp,self.watcher_.qs{i}.code_ctp)
+                    idx = i;
+                    break
+                end
+            end
+            
+%             [flag, idx] = self.watcher_.hassingle(instrument.code_ctp);
+            if idx == 0
                 quote = {};
             else
                 quote = self.watcher_.qs{idx};

@@ -3,11 +3,11 @@
 entrusts_govtbond_curvesloping = EntrustArray;
 code_5y = 'TF1712';bnd_5y = cFutures(code_5y);bnd_5y.loadinfo([code_5y,'_info.txt']);
 code_10y = 'T1712';bnd_10y = cFutures(code_10y);bnd_10y.loadinfo([code_10y,'_info.txt']);
-qms_ctp.registerinstrument(bnd_5y);
-qms_ctp.registerinstrument(bnd_10y);
-qms_ctp.refresh;
-q_5y = qms_ctp.getquote(bnd_5y);
-q_10y = qms_ctp.getquote(bnd_10y);
+qms_govtbond_ctp.registerinstrument(bnd_5y);
+qms_govtbond_ctp.registerinstrument(bnd_10y);
+qms_govtbond_ctp.refresh;
+q_5y = qms_govtbond_ctp.getquote(bnd_5y);
+q_10y = qms_govtbond_ctp.getquote(bnd_10y);
 
 %%
 c_govtbond_curvesloping = c_kim;
@@ -29,7 +29,7 @@ riskslopeup = (pxup_10y-q_10y.last_trade)*pos_10y.total_position*pos_10y.directi
 riskslopedn = (pxdn_10y-q_10y.last_trade)*pos_10y.total_position*pos_10y.direction*1e4;
 fprintf('slope carry risk 1bp up:%+4.0f; 1bp dn:%+4.0f\n',riskslopeup,riskslopedn);
 %%
-qms_ctp.refresh;
+qms_govtbond_ctp.refresh;
 spd_bid = q_10y.yield_ask1 - q_5y.yield_bid1;
 spd = q_10y.yield_last_trade - q_5y.yield_last_trade;
 spd_ask = q_10y.yield_bid1 - q_5y.yield_ask1;
@@ -44,7 +44,7 @@ offset = 1;
 unit = 1;
 
 %trading part related codes
-qms_ctp.refresh;
+qms_govtbond_ctp.refresh;
 v2 = 7*unit;
 v1 = round(v2*q_10y.duration/q_5y.duration);
 

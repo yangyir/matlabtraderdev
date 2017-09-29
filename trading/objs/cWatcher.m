@@ -636,7 +636,7 @@ classdef cWatcher < handle
         %end of getquotes
         
         function quote = getquote(obj,codestr)
-            n = obj.countsingles;
+            n = size(obj.qs,1);
             for i = 1:n
                 if strcmpi(codestr,obj.qs{i}.code_ctp)
                     quote = obj.qs{i};

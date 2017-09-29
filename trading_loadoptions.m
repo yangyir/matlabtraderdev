@@ -71,12 +71,12 @@ end
 
 %%
 fprintf('listed option loaded......\n');
-fprintf('\tcall soymeal\n');
+fprintf('\tcalls m1801\n');
 disp(opt_c_m1801);
-fprintf('\tput soymeal\n');
+fprintf('\tputs m1801\n');
 disp(opt_c_m1801);
-fprintf('\tcall sugar\n');
+fprintf('\tcalls SR801\n');
 disp(opt_p_SR801);
-fprintf('\tput sugar\n');
+fprintf('\tputs SR801\n');
 disp(opt_p_SR801);
 

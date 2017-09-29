@@ -50,11 +50,19 @@ end
 % init qms
 try
     if ctp_proceed
-        if ~exist('qms_ctp','var') || ~isa(qms_ctp,'cQMS')
-            qms_ctp = cQMS;
-            qms_ctp.setdatasource('ctp');
+        if ~exist('qms_opt_ctp','var') || ~isa(qms_opt_ctp,'cQMS')
+            qms_opt_ctp = cQMS;
+            qms_opt_ctp.setdatasource('ctp');
         end 
     end
+    %
+    if ctp_proceed
+        if ~exist('qms_govtbond_ctp','var') || ~isa(qms_govtbond_ctp,'cQMS')
+            qms_govtbond_ctp = cQMS;
+            qms_govtbond_ctp.setdatasource('ctp');
+        end 
+    end
+    %
 catch e
     fprintf([e.message,'......\n']);
 end
@@ -97,17 +105,17 @@ if ctp_proceed
     end
 end
 
-%%
-% init contracts
-if ~exist('TF1712','var') || ~isa(TF1712,'cFutures')
-    TF1712 = cFutures('TF1712');TF1712.loadinfo('TF1712_info.txt');
-end
-if ~exist('T1712','var') || ~isa(T1712,'cFutures')
-    T1712 = cFutures('T1712');T1712.loadinfo('T1712_info.txt');
-end
+% %%
+% % init contracts
+% if ~exist('TF1712','var') || ~isa(TF1712,'cFutures')
+%     TF1712 = cFutures('TF1712');TF1712.loadinfo('TF1712_info.txt');
+% end
+% if ~exist('T1712','var') || ~isa(T1712,'cFutures')
+%     T1712 = cFutures('T1712');T1712.loadinfo('T1712_info.txt');
+% end
 
 %%
-fprintf('trading init finishes......\n');
+fprintf('trading login finishes......\n');
 
 
 

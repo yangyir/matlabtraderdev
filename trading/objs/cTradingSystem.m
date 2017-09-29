@@ -360,7 +360,7 @@ classdef cTradingSystem < handle
                 pause(obj.pause_interval_);
                 obj.loadportfoliofromcounter
             elseif strcmpi(obj.mode_,'realtimemanualtrading')
-                %this is the mode we update the signals only and the
+                %this is the mode we update the market only and the
                 %trading is done via other functions
                 %todo
             end
