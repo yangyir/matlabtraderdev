@@ -48,7 +48,7 @@ fprintf('done for saving daily bar data for agriculture futures\n');
 
 
 %%
-s%soymeal
+%soymeal
 futures_code_ctp_soymeal = {'m1801';'m1805'};
 strikes_soymeal = [2600;2650;2700;2750;2800;2850];
 c_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
