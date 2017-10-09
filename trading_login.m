@@ -48,18 +48,34 @@ if ctp_proceed
 end
 %%
 % init qms
+% qms for listed options
 try
+    % for soymeal listed options
     if ctp_proceed
-        if ~exist('qms_opt_ctp','var') || ~isa(qms_opt_ctp,'cQMS')
-            qms_opt_ctp = cQMS;
-            qms_opt_ctp.setdatasource('ctp');
+        if ~exist('qms_opt_m','var') || ~isa(qms_opt_m,'cQMS')
+            qms_opt_m = cQMS;
+            qms_opt_m.setdatasource('ctp');
         end 
     end
-    %
+    % for sugar listed options
     if ctp_proceed
-        if ~exist('qms_govtbond_ctp','var') || ~isa(qms_govtbond_ctp,'cQMS')
-            qms_govtbond_ctp = cQMS;
-            qms_govtbond_ctp.setdatasource('ctp');
+        if ~exist('qms_opt_sr','var') || ~isa(qms_opt_sr,'cQMS')
+            qms_opt_sr = cQMS;
+            qms_opt_sr.setdatasource('ctp');
+        end 
+    end
+    % for govtbond futures
+    if ctp_proceed
+        if ~exist('qms_fut_govtbond','var') || ~isa(qms_fut_govtbond,'cQMS')
+            qms_fut_govtbond = cQMS;
+            qms_fut_govtbond.setdatasource('ctp');
+        end 
+    end
+    % for other futures
+    if ctp_proceed
+        if ~exist('qms_fut','var') || ~isa(qms_fut,'cQMS')
+            qms_fut = cQMS;
+            qms_fut.setdatasource('ctp');
         end 
     end
     %
@@ -86,38 +102,32 @@ catch e
 end
     
 %%
-% init watcher
-if ctp_proceed
-    try
-        if ~exist('wfut','var')
-            wfut = cWatcher;
-            wfut.ds = md_ctp;
-            wfut.conn = 'ctp';
-        end
-        
-        if ~exist('wopt','var')
-            wopt = cWatcher;
-            wopt.ds = md_ctp;
-            wopt.conn = 'ctp';
-        end
-    catch e
-        fprintf([e.message,'......\n']);
-    end
-end
-
-% %%
-% % init contracts
-% if ~exist('TF1712','var') || ~isa(TF1712,'cFutures')
-%     TF1712 = cFutures('TF1712');TF1712.loadinfo('TF1712_info.txt');
-% end
-% if ~exist('T1712','var') || ~isa(T1712,'cFutures')
-%     T1712 = cFutures('T1712');T1712.loadinfo('T1712_info.txt');
+% % init watcher
+% if ctp_proceed
+%     try
+%         if ~exist('wfut','var')
+%             wfut = cWatcher;
+%             wfut.ds = md_ctp;
+%             wfut.conn = 'ctp';
+%         end
+%         
+%         if ~exist('wopt','var')
+%             wopt = cWatcher;
+%             wopt.ds = md_ctp;
+%             wopt.conn = 'ctp';
+%         end
+%     catch e
+%         fprintf([e.message,'......\n']);
+%     end
 % end
 
 %%
 fprintf('trading login finishes......\n');
 
-
+clear hh
+clear ans
+clear versioninfo
+clear ctp_proceed
 
 
 

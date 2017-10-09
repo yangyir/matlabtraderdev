@@ -1,4 +1,3 @@
-
 classdef cStratOptSingleStraddle < cStrat
     properties
         portfolio_@cPortfolio
@@ -69,7 +68,7 @@ classdef cStratOptSingleStraddle < cStrat
                 for j = 1:n
                     instrument = obj.portfolio_.instrument_list{j};
                     if strcmpi(codes{i},instrument.code_ctp)
-                        v2(i) = p.instrument_volume(j);
+                        v2(i) = obj.portfolio_.instrument_volume(j);
                         break
                     end
                 end
@@ -89,54 +88,10 @@ classdef cStratOptSingleStraddle < cStrat
             %note:real-time pnl and carry risk
             [pnltbl,risktbl] = cHelper.pnlrisk2(obj.portfolio_,quotes,obj.costs_);
             %print real-time pnl table
-            fprintf('\nPnL table.....\n');
-            rownames = pnltbl.Properties.RowNames;
-            fprintf('%11s','ticker');
-            fprintf('%13s','total');
-            fprintf('%10s','theta');
-            fprintf('%10s','delta');
-            fprintf('%11s','gamma');
-            fprintf('%11s','vega');
-            fprintf('%11s','other');
-            fprintf('%10s','volume');
-            fprintf('%11s','ivbase');
-            fprintf('%12s','ivcarry');
-            fprintf('\n');
-            for i = 1:size(rownames,1);
-                fprintf('%12s',rownames{i});
-                fprintf('%12.0f',pnltbl.total(i));
-                fprintf('%10.0f',pnltbl.theta(i));
-                fprintf('%10.0f',pnltbl.delta(i));
-                fprintf('%10.0f',pnltbl.gamma(i));
-                fprintf('%12.0f',pnltbl.vega(i));
-                fprintf('%10.0f',pnltbl.unexplained(i));
-                fprintf('%10.0f',pnltbl.volume(i));
-                fprintf('%10.1f%%',pnltbl.ivbase(i)*100);
-                fprintf('%10.1f%%',pnltbl.ivcarry(i)*100);
-                fprintf('\n');
-            end
+            printpnltbl(pnltbl);
             %
             %print real-time risk table
-            fprintf('\nRisk table.....\n');
-            rownames = risktbl.Properties.RowNames;
-            fprintf('%11s','ticker');
-            fprintf('%13s','theta(r)');
-            fprintf('%12s','delta(r)');
-            fprintf('%12s','gamma(r)');
-            fprintf('%12s','vega(r)');
-            fprintf('%11s','volume');
-            fprintf('%11s','ivcarry');
-            fprintf('\n');
-            for i = 1:size(rownames,1);
-                fprintf('%12s',rownames{i});
-                fprintf('%11.0f',risktbl.thetacarry(i));
-                fprintf('%12.0f',risktbl.deltacarry(i));
-                fprintf('%12.0f',risktbl.gammacarry(i));
-                fprintf('%12.0f',risktbl.vegacarry(i));
-                fprintf('%10.0f',risktbl.volume(i));
-                fprintf('%10.1f%%',risktbl.ivcarry(i)*100);
-                fprintf('\n');
-            end
+            printrisktbl(risktbl);
         end
         %end of pnlrisk2
         
@@ -159,7 +114,6 @@ classdef cStratOptSingleStraddle < cStrat
                 price = data(data(:,1) == bd,5);
                 if isempty(price), error('price not found!'); end
                 
-%                 volume = obj.portfolio_.instrument_volume(i);
                 volume = risktbl.volume(i);
                 if isa(sec,'cFutures')
                     costs{i} = struct('code',sec.code_ctp,...

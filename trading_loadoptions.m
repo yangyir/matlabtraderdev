@@ -1,7 +1,3 @@
-if ~(exist('conn','var') && isa(conn,'cBloomberg'))
-    conn = cBloomberg;
-end
-
 fut_dir_ = [getenv('DATAPATH'),'info_futures\'];
 opt_dir_ = [getenv('DATAPATH'),'info_option\'];
 %%
@@ -19,6 +15,9 @@ for i = 1:size(strikes_soymeal,1)
         opt_c_m1801{i}.loadinfo(fn);
         fclose(fid);
     else
+        if ~(exist('conn','var') && isa(conn,'cBloomberg'))
+            conn = cBloomberg;
+        end
         opt_c_m1801{i}.init(conn);
         opt_c_m1801{i}.saveinfo(fn);
     end
@@ -31,6 +30,9 @@ for i = 1:size(strikes_soymeal,1)
         opt_p_m1801{i}.loadinfo(fn);
         fclose(fid);
     else
+        if ~(exist('conn','var') && isa(conn,'cBloomberg'))
+            conn = cBloomberg;
+        end
         opt_p_m1801{i}.init(conn);
         opt_p_m1801{i}.saveinfo(fn);
     end
@@ -52,6 +54,9 @@ for i = 1:size(strikes_sugar,1)
         opt_c_SR801{i}.loadinfo(fn);
         fclose(fid);
     else
+        if ~(exist('conn','var') && isa(conn,'cBloomberg'))
+            conn = cBloomberg;
+        end
         opt_c_SR801{i}.init(conn);
         opt_c_SR801{i}.saveinfo(fn);
     end
@@ -64,6 +69,9 @@ for i = 1:size(strikes_sugar,1)
         opt_p_SR801{i}.loadinfo(fn);
         fclose(fid);
     else
+        if ~(exist('conn','var') && isa(conn,'cBloomberg'))
+            conn = cBloomberg;
+        end
         opt_p_SR801{i}.init(conn);
         opt_p_SR801{i}.saveinfo(fn);
     end

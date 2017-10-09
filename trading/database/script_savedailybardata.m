@@ -46,22 +46,11 @@ for i = 1:size(ag_codes_ctp,1)
 end
 fprintf('done for saving daily bar data for agriculture futures\n');
 
-%%
-% % options
-% opt_codes_ctp = {'m1801-C-2600';'m1801-P-2600';...
-%     'm1801-C-2650';'m1801-P-2650';...
-%     'm1801-C-2700';'m1801-P-2700';...
-%     'm1801-C-2750';'m1801-P-2750';...
-%     'm1801-C-2800';'m1801-P-2800'};
-% for i = 1:size(opt_codes_ctp,1)
-%     savedailybarfrombloomberg(conn,opt_codes_ctp{i},override);
-% end
-% fprintf('done for saving daily bar data for listed commodity options\n');
 
 %%
-%soymeal
+s%soymeal
 futures_code_ctp_soymeal = {'m1801';'m1805'};
-strikes_soymeal = [2600;2650;2700;2750;2800];
+strikes_soymeal = [2600;2650;2700;2750;2800;2850];
 c_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 p_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 

@@ -19,6 +19,7 @@ classdef cHelper < handle
             deltacarry = zeros(p.count+1,1);
             gammacarry = zeros(p.count+1,1);
             vegacarry = zeros(p.count+1,1);
+            ivbase = zeros(p.count+1,1);
             ivcarry = zeros(p.count+1,1);
             
             rownames = cell(p.count+1,1);
@@ -39,6 +40,7 @@ classdef cHelper < handle
                 deltacarry(i) = output.deltacarry;
                 gammacarry(i) = output.gammacarry;
                 vegacarry(i) = output.vegacarry;
+                ivbase(i) = output.iv1;
                 ivcarry(i) = output.iv2;
             end
             total(end) = sum(total(1:end-1));
@@ -59,6 +61,7 @@ classdef cHelper < handle
             
             
             pnltbl = table(total,theta,delta,gamma,vega,unexplained,volume,...
+                 ivbase,ivcarry,...
                 'RowNames',rownames);
             
             risktbl = table(thetacarry,deltacarry,gammacarry,vegacarry,...
