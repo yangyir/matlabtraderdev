@@ -196,27 +196,9 @@ classdef cStratOptSingleStraddle < cStrat
                 fprintf('\n');
             else
                 %group the information by underlier
-                
-                
-                opt_delta = zeros(nu,1);
-                for i = 1:nu
-                    opts = cInstrumentArray;
-                    for j = 1:size(list_opt,1)
-                        if strcmpi(list_opt{j}.code_ctp_underlier,list_u{i}.code_ctp);
-                            opts.addinstrument(list_opt{j});
-                        end
-                    end
-                    opt_querypositions(opts,counter,qms);
-                    
-                end
+                %todo
                 
             end
-            
-            
-            
-            
-            
-            
         end
         %end of querypositions
         
@@ -234,7 +216,8 @@ classdef cStratOptSingleStraddle < cStrat
             strikes = sort(strikes);
                 
         end
-        %
+        %end of getstrikes
+        
         function tbl = pivottable(obj)
             nu = obj.countunderliers;
             no = obj.count;
@@ -322,7 +305,7 @@ classdef cStratOptSingleStraddle < cStrat
                 fprintf('%6.1f ',ac);
                 fprintf('%6.1f%% ',ivc*100);
                 fprintf('%6.0f ',strike);
-                fprintf('%14s ', obj.pivottable_{i,3});
+                fprintf('%14s ', obj.pivottable_{i,4});
                 fprintf('%6.1f ',bp);
                 fprintf('%6.1f ',ap);
                 fprintf('%6.1f%% ',ivp*100);
