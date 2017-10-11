@@ -2476,3 +2476,26 @@ CTPCounter::HandleReturnTrade
 CTPCounter::HandleReturnOrder
 CTPCounter::HandleReturnOrder
 CTPCounter::HandleReturnTrade
+CTPCounter::HandleConnected
+CTPCounter::HandleUserLoginResponse
+CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleConnected
+CTPCounter::HandleUserLoginResponse
+CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleDisconnected Reason : 4097
+CTPCounter::HandleConnected
+CTPCounter::HandleUserLoginResponse
+CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleConnected
+CTPCounter::HandleUserLoginResponse
+CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleConnected
+CTPCounter::HandleUserLoginResponse
+CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleReturnOrder
+报单已提交
+CTPCounter::HandleReturnOrder
+CTPCounter::HandleReturnOrder
+CTPCounter::HandleReturnTrade
+CTPCounter::HandleReturnOrder
+CTPCounter::HandleReturnTrade
