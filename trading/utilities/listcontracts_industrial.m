@@ -78,11 +78,12 @@ while i<=n
         if ~strcmpi(exchange,'.CZC')
             contracts{i,1} = [wcode,yy_str(end-1:end),mm_str,exchange];
         else
-            if yy>2010
-                contracts{i,1} = [wcode,yy_str(end),mm_str,exchange];
-            else
-                contracts{i,1} = [wcode,yy_str(end-1:end),mm_str,exchange];
-            end
+            %             if yy>2010
+%                 contracts{i,1} = [wcode,yy_str(end),mm_str,exchange];
+%             else
+%                 contracts{i,1} = [wcode,yy_str(end-1:end),mm_str,exchange];
+%             end
+            contracts{i,1} = [wcode,yy_str(end-1:end),mm_str,exchange];
         end
     else
         futcode = getfutcode(str2double(mm_str));

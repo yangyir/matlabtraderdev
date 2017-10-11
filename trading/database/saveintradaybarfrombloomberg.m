@@ -40,7 +40,8 @@ coldefs = {'datetime','open','high','low','close'};
 permission = 'w';
 usedatestr = true;
 startdate = f.first_trade_date1;
-enddate = min(businessdate(today,-1),f.last_trade_date1);
+lbd = getlastbusinessdate;
+enddate = min(lbd,f.last_trade_date1);
 bds = gendates('fromdate',startdate,'todate',enddate);
 
 for i = 1:size(bds,1)
