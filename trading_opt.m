@@ -18,7 +18,7 @@ qms_opt_m.refresh;
 stratopt.querypositions(c_ly,qms_opt_m);
 
 %%
-opt_savepositions(stratopt.instruments_,stratopt.underliers_,c_ly,qms_bbg)
+opt_savepositions(stratopt.instruments_,stratopt.underliers_,c_ly,qms_local)
 
 %%
 lastbd = getlastbusinessdate;
