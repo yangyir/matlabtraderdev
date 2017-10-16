@@ -2476,3 +2476,4 @@ CTPCounter::HandleReturnTrade
 CTPCounter::HandleReturnOrder
 CTPCounter::HandleReturnOrder
 CTPCounter::HandleReturnTrade
+CTPCounter::HandleDisconnected Reason : 4097
