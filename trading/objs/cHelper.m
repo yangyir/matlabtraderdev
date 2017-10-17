@@ -148,6 +148,58 @@ classdef cHelper < handle
         end
         %end of pnl2
         
+        function [summarytbl,tradestbl] = tradesummary(counter)
+            if ~isa(counter,'CounterCTP')
+                error('cHelper:tradesummary:invalid counter input')
+            end
+            trades = counter.queryTrades;
+            tradestbl = cell(size(trades,2),5);
+            for i = 1:size(trades,2)
+                tradestbl{i,1} = trades(i).asset_code;
+                tradestbl{i,2} = trades(i).direction;
+                tradestbl{i,3} = trades(i).volume;
+                tradestbl{i,4} = trades(i).trade_price;
+                tradestbl{i,5} = trades(i).trade_time;
+            end
+            
+            % some pivot table function
+            code_list = unique(tradestbl(:,1));
+            ncode = size(code_list,1);
+            summarytbl = cell(2*ncode,4);
+            for i = 1:ncode
+                summarytbl{2*i-1,1} = code_list{i};
+                summarytbl{2*i,1} = code_list{i};
+                summarytbl{2*i-1,2} = 1;
+                summarytbl{2*i,2} = -1;
+                count_b = 0;
+                notional_b = 0;
+                count_s = 0;
+                notional_s = 0;
+                for j = 1:size(trades,2)
+                    if strcmpi(trades(j).asset_code,code_list{i})
+                        if trades(j).direction == 1
+                            count_b = count_b + trades(j).volume;
+                            notional_b = notional_b + trades(j).volume*trades(j).trade_price;
+                        elseif trades(j).direction == -1
+                            count_s = count_s - trades(j).volume;
+                            notional_s = notional_s + trades(j).volume*trades(j).trade_price;
+                        end
+                    end
+                end
+                summarytbl{2*i-1,3} = count_b;
+                if count_b ~= 0
+                    summarytbl{2*i-1,4} = notional_b/count_b;
+                end
+                summarytbl{2*i,3} = count_s;
+                if count_s ~= 0
+                    summarytbl{2*i,4} = notional_s/count_s;
+                end
+                
+            end
+        end
+        %end of tradesummary
+        
+        
         
     end
 end
