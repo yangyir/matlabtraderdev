@@ -181,7 +181,7 @@ classdef cHelper < handle
                             count_b = count_b + trades(j).volume;
                             notional_b = notional_b + trades(j).volume*trades(j).trade_price;
                         elseif trades(j).direction == -1
-                            count_s = count_s - trades(j).volume;
+                            count_s = count_s + trades(j).volume;
                             notional_s = notional_s + trades(j).volume*trades(j).trade_price;
                         end
                     end
