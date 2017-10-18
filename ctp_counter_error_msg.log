@@ -3240,3 +3240,5 @@ CTPCounter::HandleReturnTrade
 Error occurs : can't Find Entrust
 CTPCounter::HandleDisconnected Reason : 8193
 CTPCounter::HandleDisconnected Reason : 8193
+CTPCounter::HandleConnected
+CTPCounter::HandleDisconnected Reason : 4097
