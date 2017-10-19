@@ -1,7 +1,7 @@
 fut_dir_ = [getenv('DATAPATH'),'info_futures\'];
 opt_dir_ = [getenv('DATAPATH'),'info_option\'];
 %%
-strikes_soymeal = [2600;2650;2700;2750;2800;2850];
+strikes_soymeal = [2600;2650;2700;2750;2800;2850;2900];
 fut_m1801 = cFutures('m1801');
 fut_m1801.loadinfo([fut_dir_,'m1801_info.txt']);
 opt_c_m1801 = cell(size(strikes_soymeal));

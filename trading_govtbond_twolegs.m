@@ -38,9 +38,9 @@ fprintf('bid:%2.1f;ask:%2.1f;trade:%2.1f;10y:%2.2f\n',spd_bid*100,spd_ask*100,sp
 %%
 % trade one leg
 % user input
-c_govtbond_curvesloping = c_ly;
-direction = 1;
-offset = 1;
+c_govtbond_curvesloping = c_kim;
+direction = -1;
+offset = -1;
 unit = 1;
 
 %trading part related codes
