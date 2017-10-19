@@ -75,8 +75,8 @@ function buckets = getintradaybuckets(varargin)
         a_open = 60*str2double(a{1}(1:2))+str2double(a{1}(end-1:end));
         a_close = 60*str2double(a{2}(1:2))+str2double(a{2}(end-1:end));
         for i = 1:length(buckets)
-            if (buckets(i) >= m_open && buckets(i) <= m_close) || ...
-               (buckets(i) >= a_open && buckets(i) <= a_close)
+            if (buckets(i) >= m_open && buckets(i) < m_close) || ...
+               (buckets(i) >= a_open && buckets(i) < a_close)
                 use(i) = 1;
             end
         end    
@@ -85,13 +85,13 @@ function buckets = getintradaybuckets(varargin)
             e_close = 60*str2double(e{2}(1:2))+str2double(e{2}(end-1:end));
             for i = 1:length(buckets)
                 if e_close > m_open
-                    if (buckets(i) >= e_open && buckets(i) <= e_close)
+                    if (buckets(i) >= e_open && buckets(i) < e_close)
                         use(i) = 1;
                     end
                 else
                     % overnight trades
                     if (buckets(i) >= e_open && buckets(i) <= minutes_per_day) || ...
-                       (buckets(i) >= 0 && buckets(i) <= e_close)
+                       (buckets(i) >= 0 && buckets(i) < e_close)
                         use(i) = 1;
                     end
                 end
