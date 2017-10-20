@@ -8,6 +8,11 @@ classdef cMDEFut < handle
         mode_@char = 'realtime'
     end
     
+    properties
+        % replay mode specific
+        
+    end
+    
     properties (Access = private)
         ticks_count_@double = 0
         candles_count_@double
@@ -42,11 +47,11 @@ classdef cMDEFut < handle
                 'ExecutionMode', 'fixedSpacing',...
                 'StartDelay', min(obj.timer_interval_,5));
             y = year(dtstr);
-            m = month(tstr);
-            d = day(tstr);
-            hh = hour(tstr);
-            mm = minute(tstr);
-            ss = second(tstr);
+            m = month(dtstr);
+            d = day(dtstr);
+            hh = hour(dtstr);
+            mm = minute(dtstr);
+            ss = second(dtstr);
             startat(obj.timer_,y,m,d,hh,mm,ss);
         end
         %end of startat
