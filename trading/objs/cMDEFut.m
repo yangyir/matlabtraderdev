@@ -6,11 +6,83 @@ classdef cMDEFut < handle
         ticks_@cell
         candles_@cell
         mode_@char = 'realtime'
+        candle_freq_@double = 1
     end
     
+    %%
+    % historical candles
+    properties
+        hist_candles_@cell
+    end
+    
+    methods
+        function indicators = calc_technical_indicators(obj,name,instrument,varargin)
+            
+        end
+        % end of calc_technical_indicators
+    end
+    
+    %%
     properties (Access = private)
         ticks_count_@double = 0
-        candles_count_@double
+        candles_count_@double = 0
+    end
+    
+    methods
+        function candlesticks = getcandles(obj,instrument)
+            if obj.candles_count_ == 0
+                return
+            end
+            instruments = obj.qms_.instruments_.getinstrument;
+            ns = size(instruments,1);
+            if nargin < 2    
+                candlesticks = cell(ns,1);
+                for i = 1:ns
+                    candlestick = obj.candles_{i};
+                    candlestick = candlestick(1:obj.candles_count_,:);
+                    candlesticks{i} = candlestick;
+                end
+            else
+               for i = 1:ns
+                   if strcmpi(instruments{i}.code_ctp,instrument.code_ctp)
+                       candlesticks = cell(1,1);
+                       candlestick = obj.candles_{i};
+                       candlestick = candlestick(1:obj.candles_count_,:);
+                       candlesticks{1} = candlestick;
+                       break
+                   end
+               end
+            end
+        end
+        %end of getlastcandles
+        
+        function candlesticks = getlastcandle(obj,varargin)
+            if obj.candles_count_ == 0
+                return
+            end
+            instruments = obj.qms_.instruments_.getinstrument;
+            ns = size(instruments,1);
+            if nargin < 2    
+                candlesticks = cell(ns,1);
+                for i = 1:ns
+                    candlestick = obj.candles_{i};
+                    candlestick = candlestick(obj.candles_count_,:);
+                    candlesticks{i} = candlestick;
+                end
+            else
+               for i = 1:ns
+                   if strcmpi(instruments{i}.code_ctp,instrument.code_ctp)
+                       candlesticks = cell(1,1);
+                       candlestick = obj.candles_{i};
+                       candlestick = candlestick(obj.candles_count_,:);
+                       candlesticks{1} = candlestick;
+                       break
+                   end
+               end
+            end
+        end
+        %end of getlastcandle
+        
     end
     
     methods
@@ -114,7 +186,7 @@ classdef cMDEFut < handle
                 for i = 1:ns
                     fut = instruments{i};
                     buckets = getintradaybuckets2('date',today,...
-                        'frequency','1m',...
+                        'frequency',[num2str(obj.candle_freq_),'m'],...
                         'tradinghours',fut.trading_hours,...
                         'tradingbreak',fut.trading_break);
                     candle_ = [buckets,zeros(size(buckets,1),4)];
