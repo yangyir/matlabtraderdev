@@ -3,7 +3,7 @@ stratopt = cStratOptSingleStraddle;
 for i = 1:size(strikes_soymeal)
     stratopt.registerinstrument(opt_c_m1801{i});stratopt.registerinstrument(opt_p_m1801{i});
     %
-    qms_opt_m.registerinstrument(opt_c_m1801{i});qms_opt_m.registerinstrument(opt_p_m1801{i});
+%     qms_opt_m.registerinstrument(opt_c_m1801{i});qms_opt_m.registerinstrument(opt_p_m1801{i});
 end
 
 %%
