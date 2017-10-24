@@ -458,7 +458,7 @@ classdef cMDEFut < handle
     
     methods (Access = private)
         function [] = replay_timer_fcn(obj,~,event)
-            if strcmpi(obj.mode,'realtime')
+            if strcmpi(obj.mode_,'realtime')
                 dtnum = datenum(event.Data.time);
                 hh = hour(dtnum);
                 mm = minute(dtnum) + hh*60;
@@ -470,7 +470,7 @@ classdef cMDEFut < handle
                 end
             end
             
-            if strcmpi(obj.mode,'realtime')
+            if strcmpi(obj.mode_,'realtime')
                 obj.refresh;
             else
                 %for replay mode
@@ -522,8 +522,8 @@ classdef cMDEFut < handle
             count = obj.ticks_count_;
             for i = 1:ns
                 buckets = obj.candles_{i}(:,1);
-                t = obj.ticks_{i}(count,1);
-                px_trade = obj.ticks_{i}(count,4);
+                t = obj.ticks_{i}(count(i),1);
+                px_trade = obj.ticks_{i}(count(i),4);
                 idx = buckets(1:end-1)<=t & buckets(2:end)>t;
                 this_bucket = buckets(idx);
                 if ~isempty(this_bucket)
