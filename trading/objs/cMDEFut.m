@@ -1,14 +1,27 @@
 classdef cMDEFut < handle
+    %Note: the class of Market Data Engine for Futures
+    %1.it will pop the tick data and process it the candle container
+    %jobs: from 9am to 2:30am on the next day, it keeps pop tick data while
+    %it sleeps from 1:30pm until 9pm
+    %jobs:it saves tick data and candle data on 2:35am in case it trades
+    %during the night
+    %jobs:it clears its meomery on 3:00am
+    %jobs:it inits the required data on 8:30am
+    
     properties
         mode_@char = 'realtime'
+        status_@char = 'sleep';
+        
         timer_@timer
         timer_interval_@double = 0.5
+        
         qms_@cQMS
         
         %real-time data
         ticks_@cell
         candles_@cell
         candle_freq_@double
+        candles4save_@cell
         
         %historical data
         hist_candles_@cell
@@ -18,6 +31,7 @@ classdef cMDEFut < handle
     properties (Access = private)
         ticks_count_@double
         candles_count_@double
+        candles4save_count_@double
     end
     
     % candle related methods
@@ -74,13 +88,13 @@ classdef cMDEFut < handle
                 return
             end
             
-            instruments = obj.qms_.instruments_.getinstrument;
-            ns = size(instruments,1);
-            
             if ~isa(instrument,'cInstrument')
                 error('cMDEFut:getcandlefreq:invalid instrument input')
             end
             
+            instruments = obj.qms_.instruments_.getinstrument;
+            ns = size(instruments,1);
+                      
             flag = false;
             for i = 1:ns
                 if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
@@ -113,7 +127,7 @@ classdef cMDEFut < handle
                 end
             end
             
-            if ~flag, error('cMDEFut:getcandlecount:instrument not foung'); end
+            if ~flag, error('cMDEFut:getcandlecount:instrument not found'); end
             
              
         end
@@ -249,11 +263,14 @@ classdef cMDEFut < handle
             if nargin < 2
                 for i = 1:ns
                     date2 = floor(obj.candles_{i}(1,1));
+                    %intraday candles for the last 10 business dates
                     date1 = date2 - 14;
                     date2str = [datestr(date2,'yyyy-mm-dd'),' 08:59:00'];
                     date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
                     candles = ds.intradaybar(instruments{i},date1str,date2str,obj.candle_freq_(i),'trade');
                     obj.hist_candles_{i} = candles;
+                    
+                    %fill the live candles in case it is missing
                     t = now;
                     buckets = obj.candles_{i}(:,1);
                     idx = find(buckets<=t);
@@ -278,6 +295,7 @@ classdef cMDEFut < handle
                 if strcmpi(instruments{i}.code_ctp,instrument.code_ctp)
                     flag = true;
                     date2 = floor(obj.candles_{i}(1,1));
+                    %intraday candles for the last 10 business dates
                     date1 = date2 - 14;
                     date2str = [datestr(date2,'yyyy-mm-dd'),' 08:59:00'];
                     date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
@@ -330,12 +348,14 @@ classdef cMDEFut < handle
             
             % init memory candles
             if isempty(obj.candle_freq_)
+                %default value of candle frequency is one minute
                 obj.candle_freq_ = ones(ns,1);
             else
                 ns_ = size(obj.candle_freq_,1);
                 if ns_ ~= ns
                     freqs_ = ones(ns,1);
                     freqs_(1:ns_) = obj.candle_freq_;
+                    %default value of candle frequency is one minute
                     freqs_(ns_+1:ns) = 1;
                     obj.candle_freq_ = freqs_;
                 end  
@@ -381,6 +401,46 @@ classdef cMDEFut < handle
                 end
             end
             
+            %for candles4save_
+            if isempty(obj.candles4save_count_)
+                obj.candles4save_count_ = zeros(ns,1);
+            else
+                ns_ = size(obj.candles4save_count_,1);
+                if ns_ ~= ns
+                    count_ = zeros(ns,1);
+                    count_(1:ns_) = obj.candles4save_count_;
+                    count_(ns_+1:ns) = 0;
+                    obj.candles4save_count_ =  count_;
+                end
+            end
+            
+            if isempty(obj.candles4save_)
+                obj.candles4save_ = cell(ns,1);
+                for i = 1:ns
+                    fut = instruments{i};
+                    buckets = getintradaybuckets2('date',today,...
+                        'frequency','1m',...
+                        'tradinghours',fut.trading_hours,...
+                        'tradingbreak',fut.trading_break);
+                    obj.candles4save_{i} = [buckets,zeros(size(buckets,1),4)];
+                end
+            else
+                ns_ = size(obj.candles4save_,1);
+                candles = cell(ns,1);
+                if ns_ ~= ns
+                    for i = 1:ns_, candles{i} = obj.candles4save_{i};end
+                    for i = ns_+1:ns
+                        fut = instruments{i};
+                        buckets = getintradaybuckets2('date',today,...
+                            'frequency','1m',...
+                            'tradinghours',fut.trading_hours,...
+                            'tradingbreak',fut.trading_break);
+                        candles{i} = [buckets,zeros(size(buckets,1),4)];
+                    end
+                    obj.candles4save_ = candles;
+                end
+            end
+            
             % init memory for ticks
             if isempty(obj.ticks_)
                 n = 1e5;%note:this size shall be enough for day trading
@@ -413,13 +473,16 @@ classdef cMDEFut < handle
         %end of registerinstrument
         
         function [] = refresh(obj)
-            obj.qms_.refresh;
-            obj.saveticks2mem;
-            obj.updatecandleinmem;
+            if ~isempty(obj.qms_)
+                obj.qms_.refresh;
+                obj.saveticks2mem;
+                obj.updatecandleinmem;
+            end
         end
         %end of refresh
         
         function [] = start(obj)
+            obj.status_ = 'working';
             obj.timer_ = timer('Period', obj.timer_interval_,...
                 'StartFcn',@obj.start_timer_fcn,...
                 'TimerFcn', @obj.replay_timer_fcn,...
@@ -432,6 +495,7 @@ classdef cMDEFut < handle
         %end of start
         
         function [] = startat(obj,dtstr)
+            obj.status_ = 'working';
             obj.timer_ = timer('Period', obj.timer_interval_,...
                 'StartFcn',@obj.start_timer_fcn,...
                 'TimerFcn', @obj.replay_timer_fcn,...
@@ -450,6 +514,7 @@ classdef cMDEFut < handle
         %end of startat
         
         function [] = stop(obj)
+            obj.status_ = 'sleep';
             if isempty(obj.timer_), return; else stop(obj.timer_); end
         end
         %end of stop
@@ -522,10 +587,14 @@ classdef cMDEFut < handle
             count = obj.ticks_count_;
             for i = 1:ns
                 buckets = obj.candles_{i}(:,1);
+                buckets4save = obj.candles4save_{i}(:,1);
                 t = obj.ticks_{i}(count(i),1);
                 px_trade = obj.ticks_{i}(count(i),4);
                 idx = buckets(1:end-1)<=t & buckets(2:end)>t;
+                idx4save = buckets4save(1:end-1)<=t & buckets4save(2:end)>t;
                 this_bucket = buckets(idx);
+                this_bucket_save = buckets4save(idx4save);
+                %
                 if ~isempty(this_bucket)
                     this_count = find(buckets == this_bucket);
                     if this_count ~= obj.candles_count_(i)
@@ -546,6 +615,28 @@ classdef cMDEFut < handle
                         if px_trade < low, obj.candles_{i}(this_count,4) = px_trade;end
                     end
                 end
+                %
+                if ~isempty(this_bucket_save)
+                    this_count_save = find(buckets4save == this_bucket_save);
+                    if this_count_save ~= obj.candles4save_count_(i)
+                        obj.candles4save_count_(i) = this_count_save;
+                        newset = true;
+                    else
+                        newset = false;
+                    end
+                    obj.candles4save_{i}(this_count_save,5) = px_trade;
+                    if newset
+                        obj.candles4save_{i}(this_count_save,2) = px_trade;   %px_open
+                        obj.candles4save_{i}(this_count_save,3) = px_trade;   %px_high
+                        obj.candles4save_{i}(this_count_save,4) = px_trade;   %px_low
+                    else
+                        high = obj.candles4save_{i}(this_count_save,3);
+                        low = obj.candles4save_{i}(this_count_save,4);
+                        if px_trade > high, obj.candles4save_{i}(this_count_save,3) = px_trade; end
+                        if px_trade < low, obj.candles4save_{i}(this_count_save,4) = px_trade;end
+                    end
+                end
+                %
             end
         end
         %end of updatecandleinmem

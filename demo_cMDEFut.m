@@ -22,7 +22,7 @@ mde_fut.registerinstrument(ni1801);
 mde_fut.registerinstrument(zn1801);
 mde_fut.registerinstrument(al1712);
 mde_fut.setcandlefreq(trading_freq);
-mde_fut.initcandles;
+% mde_fut.initcandles;
 
 %%
 mde_fut.startat('2017-10-24 09:00:00');
