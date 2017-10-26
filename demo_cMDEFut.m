@@ -19,7 +19,7 @@ mde_fut.setcandlefreq(trading_freq);
 mde_fut.initcandles;
 
 %%
-mde_fut.startat('2017-10-24 09:00:00');
+mde_fut.startat('2017-10-26 09:00:00');
 
 %%
 mde_fut.start;
@@ -31,8 +31,8 @@ mde_fut.stop;
 % mde_fut.setreplaydate('2017-10-23');
 
 %%
-studyindicator = struct('name','WilliamR','values',{{'numofperiods',14}});
-instr = zn1801;
+studyindicator = struct('name','WilliamR','values',{{'numofperiods',144}});
+instr = al1712;
 mde_fut.settechnicalindicator(instr,studyindicator);
 wr = mde_fut.calc_technical_indicators(instr);
 fprintf('%4.2f\n',wr);

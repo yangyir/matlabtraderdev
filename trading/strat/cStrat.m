@@ -2,48 +2,73 @@ classdef cStrat < handle
     %base abstract class of strategy
     properties
         name_@char
-        stoploss_@double
-        pnl_running_@double = 0
-        pnl_close_@double = 0
-        instruments_@cInstrumentArray
-        %
-        %positive bid spread means to order a sell with a higher price
-        bidspread_ = 0;
-        %positive ask spread means to order a buy with a lower price
-        askspread_ = 0;
         
+        %trading pnl related
+        stoploss_@double
+        pnl_running_@double
+        pnl_close_@double
+        
+        %both futures and options related
+        instruments_@cInstrumentArray
         %option related
         underliers_@cInstrumentArray
+        
+        %order/entrust related
+        %positive bid spread means to order a sell with a higher price
+        bidspread_@double;
+        %positive ask spread means to order a buy with a lower price
+        askspread_@double;
+        
+        %market data engine
+        mde_fut_@cMDEFut;
+        mde_opt_@cMDEOpt;
+        
+        %portfolio/book
+        portfolio_@cPortfolio;
+        
+        %
+        auto_trade_@double
+
     end
     
     methods
         function obj = registerinstrument(obj,instrument)
-            
-            if isempty(obj.instruments_)
-                obj.instruments_ = cInstrumentArray;
-            end
-            
+            if isempty(obj.instruments_), obj.instruments_ = cInstrumentArray;end
             %check whether the instrument is an option or not
             codestr = instrument.code_ctp;
             [flag,~,~,underlierstr,~] = isoptchar(codestr);
             if flag
-                if isempty(obj.underliers_)
-                    obj.underliers_ = cInstrumentArray;
-                end
+                if isempty(obj.underliers_), obj.underliers_ = cInstrumentArray;end
                 u = cFutures(underlierstr);
                 u.loadinfo([underlierstr,'_info.txt']);
                 obj.underliers_.addinstrument(u);
             end
             obj.instruments_.addinstrument(instrument);
-                
+            
+            if isempty(obj.mde_fut_) 
+                obj.mde_fut_ = cMDEFut;
+                qms_fut = cQMS;
+                obj.mde_fut_.qms_ = qms_fut;
+            end
+            
+            if isempty(obj.mde_opt_) 
+                obj.mde_opt_ = cMDEOpt; 
+                qms_opt = cQMS;
+                obj.mde_opt_.qms_ = qms_opt;
+            end
+            
+            if ~flag
+                obj.mde_fut_.registerinstrument(instrument);
+            else
+                obj.mde_fut_.registerinstrument(u);
+                obj.mde_opt_.registerinstrument(instrument);
+            end
         end
         %end of 'registerinstrument'
         
         function obj = removeinstrument(obj,instrument)
 
-            if isempty(obj.instruments_)
-                return
-            end
+            if isempty(obj.instruments_), return; end
             
             obj.instruments_.removeinstrument(instrument);
             [flag,~,~,underlierstr,~] = isoptchar(instrument.code_ctp);
@@ -269,6 +294,7 @@ classdef cStrat < handle
         
     methods (Abstract)
         signals = gensignal(obj,portfolio,quotes)
+        
         
     end
 end
