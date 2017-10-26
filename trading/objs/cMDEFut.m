@@ -5,7 +5,7 @@ classdef cMDEFut < handle
     %it sleeps from 1:30pm until 9pm
     %jobs:it saves tick data and candle data on 2:31am in case it trades
     %during the night and it clears its meomery afterawards
-    %jobs:it inits the required data on 8:30am
+    %jobs:it inits the required data on 8:50am
     
     properties
         mode_@char = 'realtime'
@@ -26,8 +26,10 @@ classdef cMDEFut < handle
         %historical data,which is used for technical indicator calculation
         hist_candles_@cell
         
+        technical_indicator_autocalc_@double
         technical_indicator_table_@cell
         
+        %replay related properties
         replay_date1_@double
         replay_date2_@char
         replay_datetimevec_@double
@@ -52,6 +54,10 @@ classdef cMDEFut < handle
                 obj.replay_date1_ = datenum(datein);
                 obj.replay_date2_ = datein;
             end
+            %
+            %the replay time vector is on the same date as of the replay
+            %date and it starts from 9am and ends until 2:30am on the next
+            %calendar date
             dtstart = [obj.replay_date2_,' 09:00:00'];
             dtend = [datestr(obj.replay_date1_+1),' 02:30:00'];
             obj.replay_datetimevec_ = gendatetime(dtstart,dtend,struct('num',1,'str','m'));
@@ -355,10 +361,58 @@ classdef cMDEFut < handle
         
     end
     
-    %%
+    %% technical indicator interface function
     methods
-        function indicators = calc_technical_indicators(obj,instrument)
+        function [] = settechnicalindicator(obj,instrument,indicators)
+            if ~isa(instrument,'cInstrument')
+                error('cMDEFut:settechnicalindicator:invalid instrument input')
+            end
             
+            instruments = obj.qms_.instruments_.getinstrument;
+            ns = size(instruments,1);
+            
+            flag = false;
+            for i = 1:ns
+                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
+                    flag = true;
+                    if iscell(indicators)
+                        obj.technical_indicator_table_{i} = indicators;
+                    else
+                        obj.technical_indicator_table_{i} = {indicators};
+                    end
+                    break
+                end
+            end
+            if ~flag
+                error('cMDEFut:settechnicalindicator:instrument not found')
+            end
+            
+        end
+        %end of settechnicalindicator
+        
+        function [] = settechnicalindicatorautocalc(obj,instrument,calcflag)
+            if ~isa(instrument,'cInstrument')
+                error('cMDEFut:settechnicalindicatorautocalc:invalid instrument input')
+            end
+            
+            instruments = obj.qms_.instruments_.getinstrument;
+            ns = size(instruments,1);
+            
+            flag = false;
+            for i = 1:ns
+                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
+                    flag = true;
+                    obj.technical_indicator_autocalc_(i) = calcflag;
+                    break
+                end
+            end
+            if ~flag
+                error('cMDEFut:settechnicalindicatorautocalc:instrument not found')
+            end
+        end
+        %end of settechnicalindicatorautocalc
+        
+        function indicators = calc_technical_indicators(obj,instrument)
             instruments = obj.qms_.instruments_.getinstrument;
             ns = size(instruments,1);
             
@@ -375,7 +429,8 @@ classdef cMDEFut < handle
                         val = tbl{j}.values;
                         switch lower(name)
                             case 'williamr'
-                                indicators(j) = calc_wr_(obj,instrument,val{:});
+                                wr = calc_wr_(obj,instrument,val{:});
+                                indicators(j) = wr(end);
                             otherwise
                         end
                     end
@@ -387,13 +442,15 @@ classdef cMDEFut < handle
         % end of calc_technical_indicators
     end
     
-    %%
-    
+    %% register functions
     methods
         function obj = registerinstrument(obj,instrument)
             codestr = instrument.code_ctp;
             flag = isoptchar(codestr);
-            if ~flag, obj.qms_.registerinstrument(instrument);end
+            %first to make sure that it is not an option underlier
+            if flag, return; end
+            
+            obj.qms_.registerinstrument(instrument);
             
             instruments = obj.qms_.instruments_.getinstrument;
             ns = size(instruments,1);
@@ -405,13 +462,24 @@ classdef cMDEFut < handle
                 ns_ = size(obj.technical_indicator_table_,1);
                 if ns_ ~= ns
                     titable = cell(ns,1);
-                    for i = 1:ns_
-                        titable{i} = obj.technical_indicator_table_{i};
-                    end
+                    for i = 1:ns_, titable{i} = obj.technical_indicator_table_{i};end
                 end
             end
             
-            % init memory candles
+            %init of technical_indicator_autocalc_
+            if isempty(obj.technical_indicator_autocalc_)
+                obj.technical_indicator_autocalc_ = zeros(ns,1);
+            else
+                ns_ = size(obj.technical_indicator_autocalc_,1);
+                if ns_ ~= ns
+                    autocalc = zeros(ns,1);
+                    autocalc(1:ns_) = obj.technical_indicator_autocalc_;
+                    autocalc(ns_+1:ns) = 0;
+                    obj.technical_indicator_autocalc_ = autocalc;
+                end
+            end
+            
+            % init of candle freq
             if isempty(obj.candle_freq_)
                 %default value of candle frequency is one minute
                 obj.candle_freq_ = ones(ns,1);
@@ -426,23 +494,33 @@ classdef cMDEFut < handle
                 end  
             end
             
+            % init of candles_count
             if isempty(obj.candles_count_)
+                %default value of candles count is zero
                 obj.candles_count_ = zeros(ns,1);
             else
                 ns_ = size(obj.candles_count_,1);
                 if ns_ ~= ns
                     count_ = zeros(ns,1);
                     count_(1:ns_) = obj.candles_count_;
+                    %default value of candles count is zero
                     count_(ns_+1:ns) = 0;
                     obj.candles_count_ =  count_;
                 end
+            end
+            
+            % init of candles
+            if strcmpi(obj.mode_,'realtime')
+                cobdate = today;
+            else
+                cobdate = obj.replay_date1_;
             end
             
             if isempty(obj.candles_)
                 obj.candles_ = cell(ns,1);
                 for i = 1:ns
                     fut = instruments{i};
-                    buckets = getintradaybuckets2('date',today,...
+                    buckets = getintradaybuckets2('date',cobdate,...
                         'frequency',[num2str(obj.candle_freq_(i)),'m'],...
                         'tradinghours',fut.trading_hours,...
                         'tradingbreak',fut.trading_break);
@@ -456,7 +534,7 @@ classdef cMDEFut < handle
                     for i = 1:ns_, candles{i} = obj.candles_{i};end
                     for i = ns_+1:ns
                         fut = instruments{i};
-                        buckets = getintradaybuckets2('date',today,...
+                        buckets = getintradaybuckets2('date',cobdate,...
                             'frequency',[num2str(obj.candle_freq_(i)),'m'],...
                             'tradinghours',fut.trading_hours,...
                             'tradingbreak',fut.trading_break);
@@ -466,7 +544,7 @@ classdef cMDEFut < handle
                 end
             end
             
-            %for candles4save_
+            %init candles4save_count_
             if isempty(obj.candles4save_count_)
                 obj.candles4save_count_ = zeros(ns,1);
             else
@@ -479,11 +557,12 @@ classdef cMDEFut < handle
                 end
             end
             
+            %init candles4save_
             if isempty(obj.candles4save_)
                 obj.candles4save_ = cell(ns,1);
                 for i = 1:ns
                     fut = instruments{i};
-                    buckets = getintradaybuckets2('date',today,...
+                    buckets = getintradaybuckets2('date',cobdate,...
                         'frequency','1m',...
                         'tradinghours',fut.trading_hours,...
                         'tradingbreak',fut.trading_break);
@@ -496,7 +575,7 @@ classdef cMDEFut < handle
                     for i = 1:ns_, candles{i} = obj.candles4save_{i};end
                     for i = ns_+1:ns
                         fut = instruments{i};
-                        buckets = getintradaybuckets2('date',today,...
+                        buckets = getintradaybuckets2('date',cobdate,...
                             'frequency','1m',...
                             'tradinghours',fut.trading_hours,...
                             'tradingbreak',fut.trading_break);
@@ -506,7 +585,7 @@ classdef cMDEFut < handle
                 end
             end
             
-            % init memory for ticks
+            % init ticks_
             if isempty(obj.ticks_)
                 n = 1e5;%note:this size shall be enough for day trading
                 d = cell(ns,1);
@@ -522,6 +601,7 @@ classdef cMDEFut < handle
                 end
             end
             
+            % init ticks_count_
             if isempty(obj.ticks_count_)
                 obj.ticks_count_ = zeros(ns,1);
             else
@@ -546,8 +626,11 @@ classdef cMDEFut < handle
                     tnum = obj.replay_datetimevec_(n);
                     obj.qms_.refresh(datestr(tnum));
                 end
+                %save ticks data into memory
                 obj.saveticks2mem;
+                %save candles data into memory
                 obj.updatecandleinmem;
+                
             end
         end
         %end of refresh
@@ -592,6 +675,7 @@ classdef cMDEFut < handle
         
     end
     
+    %% timer functions
     methods (Access = private)
         function [] = replay_timer_fcn(obj,~,event)
             if strcmpi(obj.mode_,'realtime')
@@ -623,7 +707,7 @@ classdef cMDEFut < handle
                         code_ctp = instruments{i}.code_ctp;
                         bd = obj.candles4save_{i}(1,1);
                         dir_data_ = [dir_,'intradaybar\',code_ctp,'\'];
-                        fn_ = [dir_data_,f.code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+                        fn_ = [dir_data_,code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
                         cDataFileIO.saveDataToTxtFile(fn_,obj.candles4save_{i},coldefs,'w',true);
                     end
                     
@@ -640,8 +724,8 @@ classdef cMDEFut < handle
                     
                 end
                 
-                %init the required data on 8:30
-                if obj.candlesaveflag_ && mm == 510
+                %init the required data on 8:50
+                if obj.candlesaveflag_ && mm == 530
                     fprintf('init candles on %s......\n',datestr(dtnum));
                     instruments = obj.qms_.instruments_.getinstrument;
                     ns = size(instruments,1);
@@ -662,13 +746,15 @@ classdef cMDEFut < handle
             ns = size(instruments,1);
             indicators = zeros(ns,1);
             for i = 1:ns
-                ti = obj.calc_technical_indicators(instruments{i});
-                if ~isempty(ti)
-                    indicators(i) = ti(end);
-                    fprintf('%s %s of %s:%4.2f\n',datestr(event.Data.time),...
-                        instruments{i}.code_ctp,...
-                        obj.technical_indicator_table_{i}.name,...
-                        indicators(i));
+                if obj.technical_indicator_autocalc_(i)
+                    ti = obj.calc_technical_indicators(instruments{i});
+                    if ~isempty(ti)
+                        indicators(i) = ti(end);
+                        fprintf('%s %s of %s:%4.2f\n',datestr(event.Data.time),...
+                            instruments{i}.code_ctp,...
+                            obj.technical_indicator_table_{i}.name,...
+                            indicators(i));
+                    end
                 end
             end
         end
@@ -719,6 +805,15 @@ classdef cMDEFut < handle
                 %
                 if ~isempty(this_bucket)
                     this_count = find(buckets == this_bucket);
+                else
+                    if t >= buckets(end) && t < buckets(end)+buckets(end)-buckets(end-1)
+                        this_count = size(buckets,1);
+                    else
+                        this_count = [];
+                    end
+                end
+                
+                if ~isempty(this_count)
                     if this_count ~= obj.candles_count_(i)
                         obj.candles_count_(i) = this_count;
                         newset = true;
@@ -740,6 +835,15 @@ classdef cMDEFut < handle
                 %
                 if ~isempty(this_bucket_save)
                     this_count_save = find(buckets4save == this_bucket_save);
+                else
+                    if t >= buckets4save(end) && t < buckets4save(end)+buckets4save(end)-buckets4save(end-1)
+                        this_count_save = size(buckets4save,1);
+                    else
+                        this_count_save = [];
+                    end
+                end
+                
+                if ~isempty(this_count_save)
                     if this_count_save ~= obj.candles4save_count_(i)
                         obj.candles4save_count_(i) = this_count_save;
                         newset = true;
