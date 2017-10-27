@@ -689,6 +689,20 @@ classdef cMDEFut < handle
             
             hh = hour(dtnum);
             mm = minute(dtnum) + hh*60;
+            
+            %for friday evening market
+            if isholiday(floor(dtnum))
+                if weekday(dtnum) == 7 && mm >= 180
+                    obj.status_ = 'sleep';
+                    return
+                elseif weekday(dtnum) == 7 && mm < 180
+                    %do nothing
+                else
+                    obj.status_ = 'sleep';
+                    return
+                end
+            end
+            
             if (mm > 150 && mm < 540) || ...
                     (mm > 690 && mm < 780 ) || ...
                     (mm > 915 && mm < 1260)
@@ -722,6 +736,7 @@ classdef cMDEFut < handle
                     
                     if ~isempty(obj.hist_candles_), obj.hist_candles_ = {};end
                     
+                    obj.status_ = 'sleep';
                 end
                 
                 %init the required data on 8:50
@@ -731,10 +746,12 @@ classdef cMDEFut < handle
                     ns = size(instruments,1);
                     for i = 1:ns
                         freq = obj.getcandlefreq(instruments{i});
-                        obj.setcandlefreq(obj,freq,instruments{i});
+                        obj.setcandlefreq(freq,instruments{i});
                     end
                     
                     obj.candlesaveflag_ = false;
+                    obj.initcandles;
+                    obj.status_ = 'working';
                 end
                 
                 return
