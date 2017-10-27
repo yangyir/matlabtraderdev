@@ -1,6 +1,6 @@
 classdef cStratOptSingleStraddle < cStrat
     properties
-        portfolio_@cPortfolio
+%         portfolio_@cPortfolio
         costs_@cell
         pivottable_@cell
     end

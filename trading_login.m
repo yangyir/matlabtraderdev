@@ -1,7 +1,8 @@
 %%
 pathhome = getenv('HOME');
 cd(pathhome);
-clear all;
+%first to logoff and remove old variables
+trading_logoff;
 clc;
 %%
 % init counter
@@ -101,26 +102,6 @@ catch e
     fprintf([e.message,'......\n']);
 end
     
-%%
-% % init watcher
-% if ctp_proceed
-%     try
-%         if ~exist('wfut','var')
-%             wfut = cWatcher;
-%             wfut.ds = md_ctp;
-%             wfut.conn = 'ctp';
-%         end
-%         
-%         if ~exist('wopt','var')
-%             wopt = cWatcher;
-%             wopt.ds = md_ctp;
-%             wopt.conn = 'ctp';
-%         end
-%     catch e
-%         fprintf([e.message,'......\n']);
-%     end
-% end
-
 %%
 fprintf('trading login finishes......\n');
 
