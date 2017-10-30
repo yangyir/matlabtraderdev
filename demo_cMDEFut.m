@@ -19,7 +19,7 @@ mde_fut.setcandlefreq(trading_freq);
 mde_fut.initcandles;
 
 %%
-mde_fut.startat('2017-10-26 09:00:00');
+mde_fut.startat('2017-10-30 09:00:00');
 
 %%
 mde_fut.start;
