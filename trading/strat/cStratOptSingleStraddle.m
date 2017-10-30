@@ -164,32 +164,19 @@ classdef cStratOptSingleStraddle < cStrat
                 last_trade = q.last_trade_underlier;
                 [pos_u,ret_u] = counter.queryPositions(list_u{1}.code_ctp);
                 if ret_u
-<<<<<<< HEAD
-                    fut_delta = pos_u(2).direction*pos_u(2).total_position*last_trade*list_u{1}.contract_size;
-=======
                     fut_delta = pos_u(1).direction*pos_u(1).total_position*last_trade*list_u{1}.contract_size;
->>>>>>> 39e0c5166fe67991a8e8e60aa5d4d24ce1e9abd1
                 else
                     fut_delta = 0;
                 end
                
-<<<<<<< HEAD
-                fut_pnl = pos_u(2).direction*pos_u(2).total_position*(last_trade-pos_u(2).avg_price/list_u{1}.contract_size)*list_u{1}.contract_size;
-=======
-                fut_pnl = pos_u(1).direction*pos_u(1).total_position*(last_trade-pos_u(1).avg_price/list_u{1}.contract_size)*list_u{1}.contract_size;
->>>>>>> 39e0c5166fe67991a8e8e60aa5d4d24ce1e9abd1
-                
+                fut_pnl = pos_u(1).direction*pos_u(1).total_position*(last_trade-pos_u(1).avg_price/list_u{1}.contract_size)*list_u{1}.contract_size;               
                 fprintf('fut:%12s; ',list_u{1}.code_ctp)
                 fprintf('iv:%4.1f%%; ',NaN);
                 fprintf('delta:%9.0f; ',fut_delta);
                 fprintf('gamma:%9.0f; ',0);
                 fprintf('theta:%5.0f; ',0);
                 fprintf('vega:%8.0f; ',0);
-<<<<<<< HEAD
-                fprintf('pos:%5d; ',pos_u(2).direction*pos_u(2).total_position);
-=======
                 fprintf('pos:%5d; ',pos_u(1).direction*pos_u(1).total_position);
->>>>>>> 39e0c5166fe67991a8e8e60aa5d4d24ce1e9abd1
                 fprintf('pnl:%8.0f; ',fut_pnl);
                 fprintf('\n');
                 
