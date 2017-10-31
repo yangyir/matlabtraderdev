@@ -22,4 +22,15 @@ for i = 1:size(codes,1)
 end
 
 
+%%
+demo_strat_wr;
 
+%%
+demo_strat_wr.start;
+
+%%
+demo_strat_wr.stop;
+
+%%
+hc = demo_strat_wr.mde_fut_.hist_candles_{end-1};
+rc = demo_strat_wr.mde_fut_.candles_{end-1};

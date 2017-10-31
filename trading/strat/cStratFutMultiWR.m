@@ -235,6 +235,11 @@ classdef cStratFutMultiWR < cStrat
             end
         end
         %end of getmaxunits
+        
+        function [] = initdata(obj)
+            obj.mde_fut_.initcandles;
+        end
+        %end of initdata
             
         function signals = gensignals(obj)
             signals = cell(size(obj.count,1),1);
@@ -252,6 +257,7 @@ classdef cStratFutMultiWR < cStrat
                 end
             end
         end
+        %end of gensignals
         
         function entrusts = riskmanagement(obj,counter)
             %todo:this might be able to add to the superclass

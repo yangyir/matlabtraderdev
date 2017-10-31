@@ -147,7 +147,7 @@ classdef cStratOptSingleStraddle < cStrat
     
     %%
     methods
-        function signals = gensignal(obj,portfolio,quotes)
+        function signals = gensignals(obj)
             %todo
             
             

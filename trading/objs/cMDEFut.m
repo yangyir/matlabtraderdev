@@ -371,7 +371,7 @@ classdef cMDEFut < handle
                 if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
                     ticks = obj.ticks_{i};
                     if obj.ticks_count_ > 0
-                        tick = ticks(obj.ticks_count_,:);
+                        tick = ticks(obj.ticks_count_(i),:);
                     else
                          tick = [];
                     end
