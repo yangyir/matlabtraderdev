@@ -4,9 +4,10 @@ classdef cStrat < handle
         name_@char
         
         %trading pnl related
-        stoploss_@double
-        pnl_running_@double
-        pnl_close_@double
+        pnl_stop_@double            % stop ratio as of the margin used
+        pnl_limit_@double           % limit ratio as of the margin used
+        pnl_running_@double     % pnl for existing positions
+        pnl_close_@double       % pnl for unwind positions
         
         %both futures and options related
         instruments_@cInstrumentArray
@@ -27,12 +28,16 @@ classdef cStrat < handle
         portfolio_@cPortfolio;
         
         %
-        auto_trade_@double
+        autotrade_@double
 
     end
     
     methods
-        function obj = registerinstrument(obj,instrument)
+        function [] = registerinstrument(obj,instrument)
+            if ~isa(instrument,'cInstrument')
+                error('cStrat:registerinstrument:invalid instrument input')
+            end
+            
             if isempty(obj.instruments_), obj.instruments_ = cInstrumentArray;end
             %check whether the instrument is an option or not
             codestr = instrument.code_ctp;
@@ -45,16 +50,83 @@ classdef cStrat < handle
             end
             obj.instruments_.addinstrument(instrument);
             
-            if isempty(obj.mde_fut_) 
-                obj.mde_fut_ = cMDEFut;
-                qms_fut = cQMS;
-                obj.mde_fut_.qms_ = qms_fut;
+            %pnl_stop_
+            if isempty(obj.pnl_stop_)
+                obj.pnl_stop_ = -inf*ones(obj.count,1);
+            else
+                if size(obj.pnl_stop_,1) < obj.count
+                    obj.pnl_stop_ = [obj.pnl_stop_;-inf];
+                end
             end
             
+            %pnl_limit_
+            if isempty(obj.pnl_limit_)
+                obj.pnl_limit_ = inf*ones(obj.count,1);
+            else
+                if size(obj.pnl_limit_,1) < obj.count
+                    obj.pnl_limit_ = [obj.pnl_limit_;inf];
+                end
+            end
+            
+            %pnl_running_
+            if isempty(obj.pnl_running_)
+                obj.pnl_running_ = zeros(obj.count,1);
+            else
+                if size(obj.pnl_running_,1) < obj.count
+                    obj.pnl_running_ = [obj.pnl_running_;0];
+                end
+            end
+            
+            %pnl_close_
+            if isempty(obj.pnl_close_)
+                obj.pnl_close_ = zeros(obj.count,1);
+            else
+                if size(obj.pnl_close_,1) < obj.count
+                    obj.pnl_close_ = [obj.pnl_close_;0];
+                end
+            end
+            
+            %bidspread_
+            if isempty(obj.bidspread_)
+                obj.bidspread_ = zeros(obj.count,1);
+            else
+                if size(obj.bidspread_,1) < obj.count
+                    obj.bidspread_ = [obj.bidspread_;0];
+                end
+            end
+            
+            %askspread_
+            if isempty(obj.askspread_)
+                obj.askspread_ = zeros(obj.count,1);
+            else
+                if size(obj.askspread_,1) < obj.count
+                    obj.askspread_ = [obj.askspread_;0];
+                end
+            end
+            
+            %autotrade_
+            if isempty(obj.autotrade_)
+                obj.autotrade_ = zeros(obj.count,1);
+            else
+                if size(obj.autotrade_,1) < obj.count
+                    obj.autotrade_ = [obj.autotrade_;0];
+                end
+            end
+            
+            %mde_fut_
+            if isempty(obj.mde_fut_) 
+                obj.mde_fut_ = cMDEFut;
+                qms_fut_ = cQMS;
+                qms_fut_.setdatasource('ctp');
+                obj.mde_fut_.qms_ = qms_fut_;
+            end
+            
+            %mde_opt_
             if isempty(obj.mde_opt_) 
                 obj.mde_opt_ = cMDEOpt; 
-                qms_opt = cQMS;
-                obj.mde_opt_.qms_ = qms_opt;
+                qms_opt_ = cQMS;
+                qms_opt_.setdatasource('ctp');
+                obj.mde_opt_.qms_ = qms_opt_;
             end
             
             if ~flag
@@ -293,7 +365,7 @@ classdef cStrat < handle
     end
         
     methods (Abstract)
-        signals = gensignal(obj,portfolio,quotes)
+        signals = gensignals(obj)
         
         
     end

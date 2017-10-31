@@ -359,6 +359,33 @@ classdef cMDEFut < handle
         end
         %end of initcandles
         
+        function tick = getlasttick(obj,instrument)
+            if ~isa(instrument,'cInstrument')
+                error('cMDEFut:getlasttick:invalid instrument input')
+            end
+            
+            instruments = obj.qms_.instruments_.getinstrument;
+            ns = size(instruments,1);
+            flag = false;
+            for i = 1:ns
+                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
+                    ticks = obj.ticks_{i};
+                    if obj.ticks_count_ > 0
+                        tick = ticks(obj.ticks_count_,:);
+                    else
+                         tick = [];
+                    end
+                    flag = true;
+                    break
+                end
+            end
+            
+            if ~flag
+                error('cMDEFut:getlaststick:instrument not found')
+            end
+        end
+        %end of getlasttick
+        
     end
     
     %% technical indicator interface function
@@ -635,6 +662,38 @@ classdef cMDEFut < handle
         end
         %end of refresh
         
+        function [] = savecandles2file(obj)
+            if ~obj.candlesaveflag_
+                fprintf('save candles on %s......\n',datestr(dtnum));
+                coldefs = {'datetime','open','high','low','close'};
+                dir_ = getenv('DATAPATH');
+                
+                instruments = obj.qms_.instruments_.getinstrument;
+                ns = size(instruments,1);
+                
+                for i = 1:ns
+                    code_ctp = instruments{i}.code_ctp;
+                    bd = obj.candles4save_{i}(1,1);
+                    dir_data_ = [dir_,'intradaybar\',code_ctp,'\'];
+                    fn_ = [dir_data_,code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+                    cDataFileIO.saveDataToTxtFile(fn_,obj.candles4save_{i},coldefs,'w',true);
+                end
+                
+                obj.candlesaveflag_ = true;
+                %and clear the ticks and candles from memoery
+                obj.ticks_ = {};
+                obj.ticks_count_ = zeros(ns,1);
+                
+                obj.candles_ = {};
+                obj.candles4save_ = {};
+                obj.candles_count_ = zeros(ns,1);
+                
+                if ~isempty(obj.hist_candles_), obj.hist_candles_ = {};end
+                
+                obj.status_ = 'sleep';
+            end
+        end
+        
         function [] = start(obj)
             obj.status_ = 'working';
             obj.timer_ = timer('Period', obj.timer_interval_,...
@@ -709,34 +768,8 @@ classdef cMDEFut < handle
                 %market closed for sure
                 
                 % save candles on 2:31am
-                if ~obj.candlesaveflag_ && mm == 151
-                    fprintf('save candles on %s......\n',datestr(dtnum));
-                    coldefs = {'datetime','open','high','low','close'};
-                    dir_ = getenv('DATAPATH');
-                    
-                    instruments = obj.qms_.instruments_.getinstrument;
-                    ns = size(instruments,1);
-                    
-                    for i = 1:ns
-                        code_ctp = instruments{i}.code_ctp;
-                        bd = obj.candles4save_{i}(1,1);
-                        dir_data_ = [dir_,'intradaybar\',code_ctp,'\'];
-                        fn_ = [dir_data_,code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
-                        cDataFileIO.saveDataToTxtFile(fn_,obj.candles4save_{i},coldefs,'w',true);
-                    end
-                    
-                    obj.candlesaveflag_ = true;
-                    %and clear the ticks and candles from memoery
-                    obj.ticks_ = {};
-                    obj.ticks_count_ = zeros(ns,1);
-                    
-                    obj.candles_ = {};
-                    obj.candles4save_ = {};
-                    obj.candles_count_ = zeros(ns,1);
-                    
-                    if ~isempty(obj.hist_candles_), obj.hist_candles_ = {};end
-                    
-                    obj.status_ = 'sleep';
+                if mm == 151
+                    obj.savecandles2file;
                 end
                 
                 %init the required data on 8:50
