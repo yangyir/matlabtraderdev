@@ -50,3 +50,23 @@ for i = 1:size(pm_codes_ctp)
 end
 fprintf('done for precious metal futures......\n');
 
+%%
+black_codes_ctp = {'rb1801';'rb1805';'i1801';'i1805';'J801';'J805';...
+    'JM801';'JM805';'ZC801';'ZC805'};
+for i = 1:size(black_codes_ctp)
+    f = cFutures(black_codes_ctp{i});
+    f.init(conn);
+    f.saveinfo([dir_,black_codes_ctp{i},...
+        '_info.txt']);
+end
+fprintf('done for black futures......\n');
+
+%%
+arg_codes_ctp = {'a1801';'a1805';'ru1801';'ru1805'};
+for i = 1:size(arg_codes_ctp)
+    f = cFutures(arg_codes_ctp{i});
+    f.init(conn);
+    f.saveinfo([dir_,arg_codes_ctp{i},...
+        '_info.txt']);
+end
+fprintf('done for agriculture futures......\n');
