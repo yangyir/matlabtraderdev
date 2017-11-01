@@ -4,7 +4,7 @@ demo_strat_wr.counter_ = c_kim;
 
 %%
 fprintf('define futures......\n')
-codes = {'cu1801';'al1801';'zn1801';'pb1801';'ni1801';'rb1801';'i1801';'J801';'JM801';'ru1801'};
+codes = {'cu1801'};
 futs = cell(size(codes,1),1);
 for i = 1:size(codes,1)
     futs{i} = cFutures(codes{i});
@@ -23,11 +23,16 @@ for i = 1:size(codes,1), demo_strat_wr.setparameters(futs{1},params);end
 trading_freq = 5;
 for i = 1:size(codes,1), demo_strat_wr.settradingfreq(futs{i},trading_freq);end
 
-demo_strat_wr.setmaxunits(futs{5},128);
+maxsize = 2;
+for i = 1:size(codes,1), demo_strat_wr.setmaxunits(futs{i},maxsize);end
 
 %%
 fprintf('initiate data for strat wr......\n');
 demo_strat_wr.initdata;
+
+%%
+demo_strat_wr.loadportfoliofromcounter;
+demo_strat_wr.portfolio_.print;
 
 %%
 demo_strat_wr.start;

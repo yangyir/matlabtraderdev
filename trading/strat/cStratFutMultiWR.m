@@ -206,6 +206,9 @@ classdef cStratFutMultiWR < cStrat
                 ti = obj.mde_fut_.calc_technical_indicators(instruments{i});
                 if ~isempty(ti)
                     obj.wr_(i) = ti(end);
+                    %for debug purpose
+                    ticks = obj.mde_fut_.getlasttick(instruments{i});
+                    fprintf('%s: trade:%4.1f; williamr:%4.1f\n',instruments{i}.code_ctp,ticks(end),obj.wr_(i));
                 end
                 if obj.wr_(i) <= obj.oversold_(i)
                     signals{i} = struct('instrument',instruments{i},...

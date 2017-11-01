@@ -635,6 +635,8 @@ classdef cStrat < handle
             %market open refresh the market data
             obj.mde_fut_.refresh;
             
+            obj.riskmanagement;
+            
             signals = obj.gensignals;
             
             obj.autoplacenewentrusts(signals);

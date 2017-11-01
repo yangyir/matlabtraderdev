@@ -154,6 +154,9 @@ classdef cStratOptSingleStraddle < cStrat
         end
         %end of gensignal
         
+        function [] = autoplacenewentrusts(obj,signals)
+        end
+        
         function [] = querypositions(obj,counter,qms)
             nu = obj.countunderliers;
             list_u = obj.underliers_.getinstrument;
