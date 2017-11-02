@@ -56,6 +56,7 @@ classdef cStrat < handle
                 if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
                     obj.pnl_stop_(i) = stop;
                     obj.pnl_limit_(i) = limit;
+                    flag = true;
                     break
                 end
             end
@@ -74,6 +75,7 @@ classdef cStrat < handle
                 if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
                     stop_ = obj.pnl_stop_(i);
                     limit_ = obj.pnl_limit_(i);
+                    flag = true;
                     break
                 end
             end
@@ -89,6 +91,7 @@ classdef cStrat < handle
                 if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
                     obj.bidspread_(i) = bidspread;
                     obj.askspread_(i) = askspread;
+                    flag = true;
                     break
                 end
             end
@@ -107,6 +110,7 @@ classdef cStrat < handle
                 if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
                     bidspread = obj.bidspread_(i);
                     askspread = obj.askspread_(i);
+                    flag = true;
                     break
                 end
             end
@@ -195,6 +199,45 @@ classdef cStrat < handle
             end
         end
         %end of getmaxunits
+        
+        function [] = setautotradeflag(obj,instrument,autotrade)
+            if ~isa(instrument,'cInstrument')
+                error('cStrat:setautotradeflag:invalid instrument input')
+            end
+            instruments = obj.instruments_.getinstrument;
+            flag = false;
+            for i = 1:obj.count
+                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
+                    obj.autotrade_(i) = autotrade;
+                    flag = true;
+                    break
+                end
+            end
+            if ~flag
+                error('cStrat:setautotradeflag:instrument not found')
+            end
+        end
+        %end of setautotradeflag
+        
+        function autotrade = getautotradeflag(obj,instrument)
+            if ~isa(instrument,'cInstrument')
+                error('cStrat:getautotradeflag:invalid instrument input')
+            end
+            instruments = obj.instruments_.getinstrument;
+            flag = false;
+            autotrade = [];
+            for i = 1:obj.count
+                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
+                    autotrade = obj.autotrade_(i);
+                    flag = true;
+                    break
+                end
+            end
+            if ~flag
+                error('cStrat:getautotradeflag:instrument not found')
+            end
+        end
+        %end of getautotradeflag
         
     end
     %end of set/get methods
@@ -580,6 +623,18 @@ classdef cStrat < handle
             if isempty(obj.timer_), return; else stop(obj.timer_); end
         end
         %end of stop
+        
+        function [] = startat(obj,dtstr)
+            obj.settimer;
+            y = year(dtstr);
+            m = month(dtstr);
+            d = day(dtstr);
+            hh = hour(dtstr);
+            mm = minute(dtstr);
+            ss = second(dtstr);
+            startat(obj.timer_,y,m,d,hh,mm,ss);
+        end
+        %end of startat
         
     end
     %end of timer-related methods

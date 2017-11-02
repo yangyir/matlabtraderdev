@@ -162,7 +162,9 @@ classdef cPortfolio < handle
             
             [bool,idx] = obj.hasinstrument(instrument);
             
-            if ~bool && offset 
+            if ~bool && offset == -1
+                %note:apparently we cannot unwind positions which we dont
+                %have at all
                 error('cPortfolio:updateportfolio:internal error')
             end
                         
@@ -246,6 +248,9 @@ classdef cPortfolio < handle
         
         function [] = print(obj)
             n = obj.count;
+            if n == 0
+                fprintf('empty portfolio....\n');
+            end
             for i = 1:n
                 instrument_i = obj.instrument_list{i}.code_ctp;
                 c_ = obj.instrument_avgcost(i);

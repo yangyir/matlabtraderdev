@@ -197,7 +197,38 @@ classdef cStratFutMultiWR < cStrat
             end
         end
         %end of initdata
-            
+        
+        function [wr,wrts] = getlastwr(obj,instrument)
+            if ~isa(instrument,'cInstrument')
+                error('cStratFutMultiWR:getlastwr:invalid instrument input')
+            end
+            wrts = obj.mde_fut_.calc_technical_indicators(instrument);
+            wr = wrts(end);
+        end
+        %end of getlastwr
+        
+        function [] = printinfo(obj)
+            instruments = obj.instruments_.getinstrument;
+            for i = 1:obj.count
+                ticks = obj.mde_fut_.getlasttick(instruments{i});
+                if ~isempty(ticks)
+                    t = ticks(1);
+                    fprintf('%s %s: trade:%4.1f; williamr:%4.1f\n',...
+                        datestr(t,'yyyymmdd HH:MM:SS'),instruments{i}.code_ctp,ticks(end),obj.wr_(i));
+                else
+                    candles = obj.mde_fut_.gethistcandles(instruments{i});
+                    t = candles(end,1);
+                    fprintf('%s %s: trade:%4.1f; williamr:%4.1f\n',...
+                        datestr(t,'yyyymmdd HH:MM:SS'),instruments{i}.code_ctp,candles(end,5),obj.wr_(i));
+                end
+            end
+            fprintf('\n');
+        end
+        %end of printinfo
+    end
+    
+    %derived (abstract) methods from superclass
+    methods
         function signals = gensignals(obj)
             signals = cell(size(obj.count,1),1);
             instruments = obj.instruments_.getinstrument;
@@ -206,9 +237,6 @@ classdef cStratFutMultiWR < cStrat
                 ti = obj.mde_fut_.calc_technical_indicators(instruments{i});
                 if ~isempty(ti)
                     obj.wr_(i) = ti(end);
-                    %for debug purpose
-                    ticks = obj.mde_fut_.getlasttick(instruments{i});
-                    fprintf('%s: trade:%4.1f; williamr:%4.1f\n',instruments{i}.code_ctp,ticks(end),obj.wr_(i));
                 end
                 if obj.wr_(i) <= obj.oversold_(i)
                     signals{i} = struct('instrument',instruments{i},...
@@ -236,6 +264,13 @@ classdef cStratFutMultiWR < cStrat
                 direction = signal.direction;
                 if direction == 0, continue; end
                 
+                [flag,idx] = obj.portfolio_.hasinstrument(instrument);
+                if ~flag
+                    volume_exist = 0;
+                else
+                    volume_exist = obj.portfolio_.instrument_volume(idx);
+                end
+                
                 if volume_exist == 0
                     [volume,ii] = obj.getbaseunits(instrument);
                 else
@@ -247,16 +282,11 @@ classdef cStratFutMultiWR < cStrat
                     
                 multi = instrument.contract_size;
                 code = instrument.code_ctp;
-                if strfind(instrument.code_bbg,'TFC') || strfind(instrument.code_bbg,'TFT')
+                if isempty(strfind(instrument.code_bbg,'TFC')) || isempty(strfind(instrument.code_bbg,'TFT'))
                     multi = multi/100;
                 end
                 
-                [flag,idx] = obj.portfolio_.hasintrument(instrument);
-                if ~flag
-                    volume_exist = 0;
-                else
-                    volume_exist = obj.portfolio_.instrument_volume(idx);
-                end
+
                 
                 offset = 1;
                 tick = obj.mde_fut_.getlasttick(instrument);
@@ -277,7 +307,7 @@ classdef cStratFutMultiWR < cStrat
                 end
                 
                 e.fillEntrust(1,code,direction,price,abs(volume),offset,code);
-                counter.placeEntrust(e);
+                obj.counter_.placeEntrust(e);
                 obj.entrusts_.push(e);
                                 
                 %update portfolio and pnl_close_ as required in the

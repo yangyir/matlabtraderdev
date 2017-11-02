@@ -51,8 +51,8 @@ end
 fprintf('done for precious metal futures......\n');
 
 %%
-black_codes_ctp = {'rb1801';'rb1805';'i1801';'i1805';'J801';'J805';...
-    'JM801';'JM805';'ZC801';'ZC805'};
+black_codes_ctp = {'rb1801';'rb1805';'i1801';'i1805';'j1801';'j1805';...
+    'jm1801';'jm1805';'ZC801';'ZC805'};
 for i = 1:size(black_codes_ctp)
     f = cFutures(black_codes_ctp{i});
     f.init(conn);

@@ -314,7 +314,7 @@ classdef cMDEFut < handle
                     buckets = obj.candles_{i}(:,1);
                     idx = find(buckets<=t);
                     if isempty(idx)
-                        
+                        %todo:here we shall return an error
                     else
                         idx = idx(end);
                         candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx)),obj.candle_freq_(i),'trade');
@@ -344,6 +344,7 @@ classdef cMDEFut < handle
                     buckets = obj.candles_{i}(:,1);
                     idx = find(buckets<=t);
                     if isempty(idx)
+                        %todo:here we shall return an error
                     else
                         idx = idx(end);
                         candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx)),obj.candle_freq_(i),'trade');
@@ -373,7 +374,7 @@ classdef cMDEFut < handle
                     if obj.ticks_count_ > 0
                         tick = ticks(obj.ticks_count_(i),:);
                     else
-                         tick = [];
+                        tick = [];
                     end
                     flag = true;
                     break
