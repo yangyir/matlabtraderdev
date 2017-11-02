@@ -35,8 +35,8 @@ qms_opt_m.refresh;quotes = qms_opt_m.getquote;
 
 %%
 qms_opt_m.refresh
-idx = 1;
-sec = opt_c_m1801{idx};
+idx = 7;
+sec = opt_p_m1801{idx};
 q = qms_opt_m.getquote(sec);
 fprintf('\n%s %d %4.1f%%  %8.0f\n',q.opt_type,q.opt_strike,q.impvol*100, q.delta*q.last_trade_underlier*sec.contract_size);
 
