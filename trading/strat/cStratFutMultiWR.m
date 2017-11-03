@@ -6,7 +6,10 @@ classdef cStratFutMultiWR < cStrat
         tradingfreq_@double
         overbought_@double
         oversold_@double
-        wr_@double                  %william%R 
+        wr_@double                  %william%R
+        executionperbucket_@double
+        maxexecutionperbucket_@double
+        executionbucketnumber_@double
     end
     
     
@@ -88,6 +91,33 @@ classdef cStratFutMultiWR < cStrat
             else
                 if size(obj.maxunits_) < obj.count
                     obj.maxunits_ = [obj.maxunits_;16];
+                end
+            end
+            
+            %executionperbucket
+            if isempty(obj.executionperbucket_)
+                obj.executionperbucket_ = zeros(obj.count,1);
+            else
+                if size(obj.executionperbucket_) < obj.count
+                    obj.executionperbucket_ = [obj.executionperbucket_;0];
+                end
+            end
+            
+            %maxexecutionperbucket
+            if isempty(obj.maxexecutionperbucket_)
+                obj.maxexecutionperbucket_ = ones(obj.count,1);
+            else
+                if size(obj.maxexecutionperbucket_) < obj.count
+                    obj.maxexecutionperbucket_ = [obj.maxexecutionperbucket_;1];
+                end
+            end
+            
+            %executionbucketnumber
+            if isempty(obj.executionbucketnumber_)
+                obj.executionbucketnumber_ = zeros(obj.count,1);
+            else
+                if size(obj.executionbucketnumber_) < obj.count
+                    obj.executionbucketnumber_ = [obj.executionbucketnumber_;0];
                 end
             end
             
@@ -214,7 +244,7 @@ classdef cStratFutMultiWR < cStrat
                 if ~isempty(ticks)
                     t = ticks(1);
                     fprintf('%s %s: trade:%4.1f; williamr:%4.1f\n',...
-                        datestr(t,'yyyymmdd HH:MM:SS'),instruments{i}.code_ctp,ticks(end),obj.wr_(i));
+                        datestr(t,'yyyymmdd HH:MM:SS'),instruments{i}.code_ctp,ticks(4),obj.wr_(i));
                 else
                     candles = obj.mde_fut_.gethistcandles(instruments{i});
                     t = candles(end,1);
@@ -363,14 +393,24 @@ classdef cStratFutMultiWR < cStrat
                 end
                 
                 if ~obj.autotrade_(ii),continue;end
+                
+                %check wheter we've already executed trades within the
+                %bucket and if so check whether the maximum executed number
+                %is breached or not
+                bucketnum = obj.mde_fut_.getcandlecount(instrument);
+                if bucketnum > 0 && bucketnum == obj.executionbucketnumber_(ii);
+                    if obj.executionperbucket_(ii) ==  obj.maxexecutionperbucket_(ii)
+                        %note: if the maximum execution time is reached we
+                        %won't open up new positions for this bucket
+                        continue;
+                    end
+                end
                     
                 multi = instrument.contract_size;
                 code = instrument.code_ctp;
-                if isempty(strfind(instrument.code_bbg,'TFC')) || isempty(strfind(instrument.code_bbg,'TFT'))
+                if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
                     multi = multi/100;
                 end
-                
-
                 
                 offset = 1;
                 tick = obj.mde_fut_.getlasttick(instrument);
@@ -393,6 +433,9 @@ classdef cStratFutMultiWR < cStrat
                 e.fillEntrust(1,code,direction,price,abs(volume),offset,code);
                 obj.counter_.placeEntrust(e);
                 obj.entrusts_.push(e);
+                
+                obj.executionbucketnumber_(ii) = bucketnum;
+                obj.executionperbucket_(ii) = obj.executionperbucket_(ii)+1;
                                 
                 %update portfolio and pnl_close_ as required in the
                 %following
@@ -408,7 +451,7 @@ classdef cStratFutMultiWR < cStrat
             end
                 
         end
-        %end of placenewentrusts
+        %end of autoplacenewentrusts
         
     end
     
