@@ -541,7 +541,7 @@ classdef cStrat < handle
                     bid = tick(2);
                     ask = tick(3);
                     multi = instruments{i}.contract_size;
-                    if strfind(instruments{i}.code_bbg,'TFC') || strfind(instruments{i}.code_bbg,'TFT')
+                    if ~isempty(strfind(instruments{i}.code_bbg,'TFC')) || ~isempty(strfind(instruments{i}.code_bbg,'TFT'))
                         multi = multi/100;
                     end
                     
