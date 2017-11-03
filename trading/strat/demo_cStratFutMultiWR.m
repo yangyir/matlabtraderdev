@@ -9,8 +9,9 @@ end
 %%
 %read parameters from file
 fprintf('set parameters for strat wr......\n');
-fn_ = 'D:\GitHub\demo_tradingparams_rb.txt';
+fn_ = 'C:\Temp\demo_tradingparams_rb.txt';
 demo_strat_wr.readparametersfromtxtfile(fn_);
+disp(demo_strat_wr);
 
 %%
 %try to load positions of instruments from the counter and return empty
@@ -23,7 +24,7 @@ fprintf('initiate data for strat wr......\n');
 demo_strat_wr.initdata;
 
 %%
-demo_strat_wr.startat([datestr(today,'yyyy-mm-dd'),' 09:00:00']);
+demo_strat_wr.startat([datestr(today,'yyyy-mm-dd'),' 21:00:00']);
 
 %%
 demo_strat_wr.start;
@@ -32,4 +33,7 @@ demo_strat_wr.start;
 demo_strat_wr.stop;
 
 %%
-demo_strat_wr.printinfo
+demo_strat_wr.printinfo;
+
+%%
+

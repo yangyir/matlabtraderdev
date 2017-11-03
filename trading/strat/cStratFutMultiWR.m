@@ -246,7 +246,13 @@ classdef cStratFutMultiWR < cStrat
                     fprintf('%s %s: trade:%4.1f; williamr:%4.1f\n',...
                         datestr(t,'yyyymmdd HH:MM:SS'),instruments{i}.code_ctp,ticks(4),obj.wr_(i));
                 else
-                    candles = obj.mde_fut_.gethistcandles(instruments{i});
+                    candlecount = obj.mde_fut_.getcandlecount(instruments{i});
+                    if candlecount ~= 0
+                        candles = obj.mde_fut_.getlastcandle(instruments{i});
+                        candles = candles{1};
+                    else
+                        candles = obj.mde_fut_.gethistcandles(instruments{i});
+                    end
                     t = candles(end,1);
                     fprintf('%s %s: trade:%4.1f; williamr:%4.1f\n',...
                         datestr(t,'yyyymmdd HH:MM:SS'),instruments{i}.code_ctp,candles(end,5),obj.wr_(i));

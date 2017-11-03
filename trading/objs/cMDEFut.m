@@ -318,7 +318,8 @@ classdef cMDEFut < handle
                         %todo:here we shall return an error
                     else
                         idx = idx(end);
-                        candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx)),obj.candle_freq_(i),'trade');
+                        obj.candles_count_(i) = idx;
+                        candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),obj.candle_freq_(i),'trade');
                         for j = 1:size(candles,1)
                             obj.candles_{i}(j,2:end) = candles(j,2:end);
                         end
