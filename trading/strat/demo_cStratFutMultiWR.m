@@ -9,7 +9,7 @@ end
 %%
 %read parameters from file
 fprintf('set parameters for strat wr......\n');
-fn_ = 'C:\Users\yangyiran\Documents\GitHub\strat_wr_params_rb.txt';
+fn_ = 'D:\GitHub\demo_tradingparams_rb.txt';
 demo_strat_wr.readparametersfromtxtfile(fn_);
 
 %%
