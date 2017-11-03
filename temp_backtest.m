@@ -6,7 +6,7 @@ leg1 = cFutures(code);
 leg1.loadinfo([code,'_info.txt']);
 
 %%
-freq_ = 3;
+freq_ = 5;
 
 if freq_ == 1 || freq_ == 3
     days_ = 15;
@@ -51,9 +51,9 @@ baseunit = 1;
 maxunit = 64;
 minunit = -64;
 multiplier = leg1.contract_size;
-marginratio = 0.1;
-profitstop_rel = 0.1;
-lossstop_rel = 0.1;
+marginratio = leg1.init_margin_rate;
+profitstop_rel = inf;
+lossstop_rel = 0.01;
 
 profitstop_abs = 1e5;
 lossstop_abs = -2e5;
