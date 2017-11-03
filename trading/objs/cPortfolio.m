@@ -26,7 +26,11 @@ classdef cPortfolio < handle
         %end of hasinstrument
         
         function n = count(obj)
-            n = length(obj.instrument_list);
+            if isempty(obj)
+                n = 0;
+            else
+                n = length(obj.instrument_list);
+            end
         end
         %end of count
     
@@ -153,33 +157,30 @@ classdef cPortfolio < handle
             end
             instrument = transaction.instrument_;
             px = transaction.price_;
-            volume = transaction.volume_ * transaction.direction;
+            volume = transaction.volume_*transaction.direction_;
+            offset = transaction.offset_;
             
             [bool,idx] = obj.hasinstrument(instrument);
+            
+            if ~bool && offset == -1
+                %note:apparently we cannot unwind positions which we dont
+                %have at all
+                error('cPortfolio:updateportfolio:internal error')
+            end
                         
             if ~bool
-                n = obj.count;
-                list_ = cell(n+1,1);
-                c_ = zeros(n+1,1);
-                v_ = zeros(n+1,1);
-                list_{n+1,1} = instrument;
-                c_(n+1,1) = px;
-                v_(n+1,1) = volume;
-                for i = 1:n
-                    list_{i,1} = obj.instrument_list{i,1};
-                    c_(i,1) = obj.instrument_avgcost(i,1);
-                    v_(i,1) = obj.instrument_volume(i,1);
-                end
-                obj.instrument_list = list_;
-                obj.instrument_avgcost = c_;
-                obj.instrument_volume = v_;
+                obj.addinstrument(instrument,px,volume);
                 pnl = 0;
             else
                 avgcost_ = obj.instrument_avgcost(idx,1);
                 volume_ = obj.instrument_volume(idx,1);
+                if offset == -1 && abs(volume_) > transaction.volume_
+                    error('cPortfolio:updateportfolio:unwind transaction size exceed existing size')
+                end
+                
                 obj.instrument_volume(idx,1) = volume_+volume;
                 if obj.instrument_volume(idx,1) == 0
-                    %the position is now closed
+                    %the position is now completely unwind
                     tick_value = instrument.tick_value;
                     tick_size = instrument.tick_size;
                     pnl = (px-avgcost_)*volume_*tick_value/tick_size;
@@ -247,6 +248,9 @@ classdef cPortfolio < handle
         
         function [] = print(obj)
             n = obj.count;
+            if n == 0
+                fprintf('empty portfolio....\n');
+            end
             for i = 1:n
                 instrument_i = obj.instrument_list{i}.code_ctp;
                 c_ = obj.instrument_avgcost(i);

@@ -815,7 +815,7 @@ classdef cWatcher < handle
 
             quotes = zeros(ns+nu,7);
             
-            data = obj.ds.realtime(list_ctp);
+            data = obj.ds.realtime(list_ctp,'');
             for i = 1:ns+nu
                 mkt = data{i}.mkt;
                 level = data{i}.level;

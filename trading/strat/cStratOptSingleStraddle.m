@@ -1,6 +1,6 @@
 classdef cStratOptSingleStraddle < cStrat
     properties
-        portfolio_@cPortfolio
+%         portfolio_@cPortfolio
         costs_@cell
         pivottable_@cell
     end
@@ -147,12 +147,15 @@ classdef cStratOptSingleStraddle < cStrat
     
     %%
     methods
-        function signals = gensignal(obj,portfolio,quotes)
+        function signals = gensignals(obj)
             %todo
             
             
         end
         %end of gensignal
+        
+        function [] = autoplacenewentrusts(obj,signals)
+        end
         
         function [] = querypositions(obj,counter,qms)
             nu = obj.countunderliers;
@@ -164,20 +167,19 @@ classdef cStratOptSingleStraddle < cStrat
                 last_trade = q.last_trade_underlier;
                 [pos_u,ret_u] = counter.queryPositions(list_u{1}.code_ctp);
                 if ret_u
-                    fut_delta = pos_u.direction*pos_u.total_position*last_trade*list_u{1}.contract_size;
+                    fut_delta = pos_u(1).direction*pos_u(1).total_position*last_trade*list_u{1}.contract_size;
                 else
                     fut_delta = 0;
                 end
                
-                fut_pnl = pos_u.direction*pos_u.total_position*(last_trade-pos_u.avg_price/list_u{1}.contract_size)*list_u{1}.contract_size;
-                
+                fut_pnl = pos_u(1).direction*pos_u(1).total_position*(last_trade-pos_u(1).avg_price/list_u{1}.contract_size)*list_u{1}.contract_size;               
                 fprintf('fut:%12s; ',list_u{1}.code_ctp)
                 fprintf('iv:%4.1f%%; ',NaN);
                 fprintf('delta:%9.0f; ',fut_delta);
                 fprintf('gamma:%9.0f; ',0);
                 fprintf('theta:%5.0f; ',0);
                 fprintf('vega:%8.0f; ',0);
-                fprintf('pos:%5d; ',pos_u.direction*pos_u.total_position);
+                fprintf('pos:%5d; ',pos_u(1).direction*pos_u(1).total_position);
                 fprintf('pnl:%8.0f; ',fut_pnl);
                 fprintf('\n');
                 
