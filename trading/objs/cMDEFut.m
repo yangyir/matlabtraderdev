@@ -158,6 +158,7 @@ classdef cMDEFut < handle
             ns = size(instruments,1);
             
             flag = false;
+            n = 0;
             for i = 1:ns
                 if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
                     flag = true;
@@ -617,7 +618,7 @@ classdef cMDEFut < handle
             if isempty(obj.ticks_)
                 n = 1e5;%note:this size shall be enough for day trading
                 d = cell(ns,1);
-                for i = 1:ns, d{i} = zeros(n,4);end
+                for i = 1:ns, d{i} = zeros(n,7);end
                 obj.ticks_ = d;
             else
                 ns_ = size(obj.ticks_,1);
@@ -835,6 +836,11 @@ classdef cMDEFut < handle
                 obj.ticks_{i}(count,2) = qs{i}.bid1;
                 obj.ticks_{i}(count,3) = qs{i}.ask1;
                 obj.ticks_{i}(count,4) = qs{i}.last_trade;
+                if ~isempty(qs{i}.yield_last_trade)
+                    obj.ticks_{i}(count,5) = qs{i}.yield_last_trade;
+                    obj.ticks_{i}(count,6) = qs{i}.yield_bid1;
+                    obj.ticks_{i}(count,7) = qs{i}.yield_ask1;
+                end
                 obj.ticks_count_(i) = count;
             end
         end
