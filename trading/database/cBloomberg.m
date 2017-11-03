@@ -53,7 +53,10 @@ classdef cBloomberg < cDataSource
                 bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...
                     'todate',datenum(enddate,'yyyy-mm-dd'));
                 n = size(bds,1);
-                if n == 1
+                if n == 0
+                    data_raw_ = obj.ds_.timeseries(code_bbg,{startdate,enddate},...
+                        1,field);
+                elseif n == 1
                     enddate_ = datestr(businessdate(startdate,1),'yyyy-mm-dd');
                     data_raw_ = obj.ds_.timeseries(code_bbg,{startdate,enddate_},...
                         1,field);
