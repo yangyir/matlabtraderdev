@@ -225,6 +225,90 @@ classdef cStratFutMultiWR < cStrat
             fprintf('\n');
         end
         %end of printinfo
+        
+        function [] = readparametersfromtxtfile(obj,fn_)
+            dataArray = cDataFileIO.readDataArrayFromTxtFile(fn_,'\t','%s%s%[^\n\r]');
+            names_ = dataArray{:,1};
+            values_ = dataArray{:,2};
+            for i = 1:size(names_,1)
+                if strcmpi('code',names_{i})
+                    code = values_{i};
+                    fut = cFutures(code);
+                    fut.loadinfo([code,'_info.txt']);
+                    obj.registerinstrument(fut);
+                    break
+                end
+            end
+            
+            pnl_stop = -inf;
+            for i = 1:size(names_,1)
+                if strcmpi('stop',names_{i})
+                    pnl_stop = str2double(values_{i});
+                    break
+                end
+            end
+            
+            pnl_limit = inf;
+            for i = 1:size(names_,1)
+                if strcmpi('limit',names_{i})
+                    pnl_limit = str2double(values_{i});
+                    break
+                end
+            end
+            obj.setstoplimit(fut,pnl_stop,pnl_limit);
+            
+            bidspread = 0;
+            for i = 1:size(names_,1)
+                if strcmpi('bidspread',names_{i})
+                    bidspread = str2double(values_{i});
+                    break
+                end
+            end
+            
+            askspread = 0;
+            for i = 1:size(names_,1)
+                if strcmpi('askspread',names_{i})
+                    askspread = str2double(values_{i});
+                    break
+                end
+            end
+            obj.setbidaskspread(fut,bidspread,askspread);
+            
+            for i = 1:size(names_,1)
+                if strcmpi('baseunits',names_{i})
+                    obj.setbaseunits(fut,str2double(values_{i}));
+                elseif strcmpi('maxunits',names_{i})
+                    obj.setmaxunits(fut,str2double(values_{i}));
+                elseif strcmpi('autotrade',names_{i})
+                    obj.setautotradeflag(fut,str2double(values_{i}));
+                elseif strcmpi('numofperiods',names_{i})
+                    nop = str2double(values_{i});
+                    params = struct('numofperiods',nop);
+                    obj.setparameters(fut,params);
+                elseif strcmpi('tradingfreq',names_{i})
+                    obj.settradingfreq(fut,str2double(values_{i}));
+                end
+            end
+            
+            overbought = 0;
+            for i = 1:size(names_,1)
+                if strcmpi('overbought',names_{i})
+                    overbought = str2double(values_{i});
+                    break
+                end
+            end
+                
+            oversold = 0;
+            for i = 1:size(names_,1)
+                if strcmpi('oversold',names_{i})
+                    oversold = str2double(values_{i});
+                    break
+                end
+            end
+            obj.setboundary(fut,overbought,oversold);
+        end
+        %end of readparametersfromtxtfile
+        
     end
     
     %derived (abstract) methods from superclass
