@@ -35,6 +35,17 @@ classdef cMDEFut < handle
         replay_datetimevec_@double
         replay_count_@double = 0
         
+        %debug related properties
+        %note:debug and replay mode are very similar but debug mode is much
+        %faster
+        debug_start_dt1_@double
+        debug_start_dt2_@char
+        debug_end_dt1_@double
+        debug_end_dt2_@char
+        debug_count_@double = 0
+        debug_ticks_@double
+        
+        
     end
     
     properties (Access = private)
@@ -311,17 +322,19 @@ classdef cMDEFut < handle
                     obj.hist_candles_{i} = candles;
                     
                     %fill the live candles in case it is missing
-                    t = now;
-                    buckets = obj.candles_{i}(:,1);
-                    idx = find(buckets<=t);
-                    if isempty(idx)
-                        %todo:here we shall return an error
-                    else
-                        idx = idx(end);
-                        obj.candles_count_(i) = idx;
-                        candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),obj.candle_freq_(i),'trade');
-                        for j = 1:size(candles,1)
-                            obj.candles_{i}(j,2:end) = candles(j,2:end);
+                    if ~strcmpi(obj.mode_,'debug')
+                        t = now;
+                        buckets = obj.candles_{i}(:,1);
+                        idx = find(buckets<=t);
+                        if isempty(idx)
+                            %todo:here we shall return an error
+                        else
+                            idx = idx(end);
+                            obj.candles_count_(i) = idx;
+                            candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),obj.candle_freq_(i),'trade');
+                            for j = 1:size(candles,1)
+                                obj.candles_{i}(j,2:end) = candles(j,2:end);
+                            end
                         end
                     end
                     
@@ -655,6 +668,8 @@ classdef cMDEFut < handle
                     n = min(obj.replay_count_,size(obj.replay_datetimevec_,1));
                     tnum = obj.replay_datetimevec_(n);
                     obj.qms_.refresh(datestr(tnum));
+                elseif strcmpi(obj.mode_,'debug')
+                    obj.debug_count_ = obj.debug_count_ + 1;
                 end
                 %save ticks data into memory
                 obj.saveticks2mem;
@@ -829,20 +844,33 @@ classdef cMDEFut < handle
     methods (Access = private)
         
         function [] = saveticks2mem(obj)
-            qs = obj.qms_.getquote;
-            ns = size(obj.ticks_,1);
-            for i = 1:ns
-                count = obj.ticks_count_(i)+1;
-                obj.ticks_{i}(count,1) = qs{i}.update_time1;
-                obj.ticks_{i}(count,2) = qs{i}.bid1;
-                obj.ticks_{i}(count,3) = qs{i}.ask1;
-                obj.ticks_{i}(count,4) = qs{i}.last_trade;
-                if ~isempty(qs{i}.yield_last_trade)
-                    obj.ticks_{i}(count,5) = qs{i}.yield_last_trade;
-                    obj.ticks_{i}(count,6) = qs{i}.yield_bid1;
-                    obj.ticks_{i}(count,7) = qs{i}.yield_ask1;
+            if ~strcmpi(obj.mode_,'debug')
+                qs = obj.qms_.getquote;
+                ns = size(obj.ticks_,1);
+                for i = 1:ns
+                    count = obj.ticks_count_(i)+1;
+                    obj.ticks_{i}(count,1) = qs{i}.update_time1;
+                    obj.ticks_{i}(count,2) = qs{i}.bid1;
+                    obj.ticks_{i}(count,3) = qs{i}.ask1;
+                    obj.ticks_{i}(count,4) = qs{i}.last_trade;
+                    if ~isempty(qs{i}.yield_last_trade)
+                        obj.ticks_{i}(count,5) = qs{i}.yield_last_trade;
+                        obj.ticks_{i}(count,6) = qs{i}.yield_bid1;
+                        obj.ticks_{i}(count,7) = qs{i}.yield_ask1;
+                    end
+                    obj.ticks_count_(i) = count;
                 end
-                obj.ticks_count_(i) = count;
+            else
+                ns = size(obj.ticks_,1);
+                if ns ~= 1
+                    error('only single instrument is supported in debug mode')
+                end
+                count = obj.ticks_count_(1)+1;
+                obj.ticks_{1}(count,1) = obj.debug_ticks_(obj.debug_count_,1);
+                obj.ticks_{1}(count,2) = obj.debug_ticks_(obj.debug_count_,2);
+                obj.ticks_{1}(count,3) = obj.debug_ticks_(obj.debug_count_,2);
+                obj.ticks_{1}(count,4) = obj.debug_ticks_(obj.debug_count_,2);
+                obj.ticks_count_(1) = count;
             end
         end
         %end of saveticks2men
@@ -935,7 +963,7 @@ classdef cMDEFut < handle
             p = inputParser;
             p.CaseSensitive = false;p.KeepUnmatched = true;
             p.addRequired('Instrument', @(x) validateattributes(x,{'cInstrument'},{},'','Instrument'));
-            p.addParameter('NumOfPeriods',14,...
+            p.addParameter('NumOfPeriods',144,...
                 @(x) validateattributes(x,{'numeric'},{},'','NumOfPeriods'));
             p.parse(instrument,varargin{:});
             instrument = p.Results.Instrument;

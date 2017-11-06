@@ -3,6 +3,8 @@ classdef cStrat < handle
     properties
         name_@char
         
+        mode_@char = 'realtime'
+        
         %trading pnl related
         pnl_stop_@double            % stop ratio as of the margin used
         pnl_limit_@double           % limit ratio as of the margin used
@@ -43,6 +45,13 @@ classdef cStrat < handle
         %timer
         timer_@timer
         timer_interval_@double = 0.5
+        
+        %debug mode
+        timevec4debug_@double
+        dtstart4debug_@double
+        dtend4debug_@double
+        dtcount4debug_@double = 0
+        
 
     end
     
@@ -525,21 +534,34 @@ classdef cStrat < handle
         end
         %end of loadportfoliofromcounter
     
-        
-        function [] = riskmanagement(obj)
-            if isempty(obj.counter_), return; end
+        function [] = riskmanagement(obj,dtnum)
+            if isempty(obj.counter_) && ~strcmpi(obj.mode_,'debug'), return; end
             
             instruments = obj.instruments_.getinstrument;
             for i = 1:obj.count
+                %first to check whether this is in trading hours
+                flag = istrading(dtnum,instruments{i}.trading_hours,...
+                    'tradingbreak',instruments{i}.trading_break);
+                if ~flag, continue; end
+                                
                 [flag,idx] = obj.portfolio_.hasinstrument(instruments{i});
+                
+                
                 %calculate running pnl in case the embedded porfolio has
                 %got the instrument already
                 if flag
                     volume = obj.portfolio_.instrument_volume(idx);
+                    
+                    if volume == 0
+                        obj.pnl_running_(i) = 0;
+                        continue; 
+                    end
+                    
                     cost = obj.portfolio_.instrument_avgcost(idx);
                     tick = obj.mde_fut_.getlasttick(instruments{i});
                     bid = tick(2);
                     ask = tick(3);
+                    if bid == 0 || ask == 0, continue; end
                     multi = instruments{i}.contract_size;
                     if ~isempty(strfind(instruments{i}.code_bbg,'TFC')) || ~isempty(strfind(instruments{i}.code_bbg,'TFT'))
                         multi = multi/100;
@@ -558,9 +580,10 @@ classdef cStrat < handle
                         obj.pnl_running_(i) = 0;
                     end
                     
-                    pnl_ = obj.pnl_running_(i) + obj.pnl_close_(i);
+%                     pnl_ = obj.pnl_running_(i) + obj.pnl_close_(i);
+                    pnl_ = obj.pnl_running_(i);
                     limit_ = obj.pnl_limit_(i)*cost*abs(volume)*multi*margin;
-                    stop_ = obj.pnl_stop_(i)*cost*abs(volume)*multi*margin;
+                    stop_ = -obj.pnl_stop_(i)*cost*abs(volume)*multi*margin;
                     
                     if pnl_ >= limit_ || pnl_ <= stop_
                         % in case the pnl has either breach the limit or
@@ -570,36 +593,43 @@ classdef cStrat < handle
                         code = instruments{i}.code_ctp;
                         %firstly to withdraw all entrusts associcated with
                         %the instrument
-                        withdrawpendingentrusts(obj.counter_,code);
+                        if ~strcmpi(obj.mode_,'debug')
+                            withdrawpendingentrusts(obj.counter_,code);
+                        end
                         
                         offset = -1;
                         if volume > 0
                             %unwind sell entrust using the bid price
                             price = bid - obj.bidspread_(i);
-                        else
+                        elseif volume < 0
                             %unwind buy entrust using the ask price
                             price = ask + obj.askspread_(i);
                         end
                         
-                        e = Entrust;
-                        e.assetType = 'Future';
-                        e.multiplier = multi;
-                        e.fillEntrust(1,code,-sign(volume),price,abs(volume),offset,code);
-                        obj.counter_.placeEntrust(e);
-                        obj.entrusts_.push(e);
+                        if ~strcmpi(obj.mode_,'debug')
+                            e = Entrust;
+                            e.assetType = 'Future';
+                            e.multiplier = multi;
+                            e.fillEntrust(1,code,-sign(volume),price,abs(volume),offset,code);
+                            ret = obj.counter_.placeEntrust(e);
+                            if ret
+                                obj.entrusts_.push(e);
+                            end
+                        end
                         
-                        %update portfolio and pnl_close_ as required in the
-                        %following
-                        %assuming the entrust is completely filled
-                        t = cTransaction;
-                        t.instrument_ = instruments{i};
-                        t.price_ = price;
-                        t.volume_= abs(volume);
-                        t.direction_ = -sign(volume);
-                        t.offset_ = offset;
-                        pnl = obj.portfolio_.updateportfolio(t);
-                        obj.pnl_close_(i) = obj.pnl_close_(i) + pnl;
-                        
+                        if (~strcmpi(obj.mode_,'debug') && ret) || strcmpi(obj.mode_,'debug')
+                            %update portfolio and pnl_close_ as required in the
+                            %following
+                            %assuming the entrust is completely filled
+                            t = cTransaction;
+                            t.instrument_ = instruments{i};
+                            t.price_ = price;
+                            t.volume_= abs(volume);
+                            t.direction_ = -sign(volume);
+                            t.offset_ = offset;
+                            pnl = obj.portfolio_.updateportfolio(t);
+                            obj.pnl_close_(i) = obj.pnl_close_(i) + pnl;
+                        end
                     end
                 end
             end
@@ -615,6 +645,9 @@ classdef cStrat < handle
     methods
         function [] = start(obj)
             obj.settimer;
+            if isempty(obj.portfolio_) 
+                obj.portfolio_ = cPortfolio;
+            end
             start(obj.timer_);
         end
         %end of start
@@ -639,6 +672,36 @@ classdef cStrat < handle
     end
     %end of timer-related methods
     
+    %debug mode-related methods
+    methods
+        function [] = initdata4debug(obj,instrument,dtstart,dtend)
+            if ~isa(instrument,'cInstrument')
+                error('cStrat:initdata4debug:invalid instrument input')
+            end
+            c = bbgconnect;
+            dcell = c.timeseries(instrument.code_bbg,{datestr(dtstart),datestr(dtend)},[],'trade');
+            dnum = cell2mat(dcell(:,2:3));
+            obj.timevec4debug_ = dnum(:,1);
+            obj.dtstart4debug_ = datenum(dtstart);
+            obj.dtend4debug_ = datenum(dtend);
+            obj.dtcount4debug_ = 0;
+            c.close;
+            clear c
+            
+            obj.mode_ = 'debug';
+            obj.mde_fut_.mode_ = 'debug';
+            
+            obj.mde_fut_.debug_start_dt1_ = obj.dtstart4debug_;
+            obj.mde_fut_.debug_start_dt2_ = datestr(obj.dtstart4debug_);
+            obj.mde_fut_.debug_end_dt1_ = obj.dtend4debug_;
+            obj.mde_fut_.debug_end_dt2_ = datestr(obj.dtend4debug_);
+            obj.mde_fut_.debug_count_ = 0;
+            obj.mde_fut_.debug_ticks_ = dnum;
+            
+        end
+        %end of init4debug
+    end
+    
     
     %abstract methods
     methods (Abstract)
@@ -649,6 +712,10 @@ classdef cStrat < handle
     %timer-related private methods
     methods (Access = private)
         function [] = settimer(obj)
+            if strcmpi(obj.mode_, 'debug')
+                obj.timer_interval_ = 0.005;
+            end
+                
             obj.timer_ = timer('Period', obj.timer_interval_,...
                 'StartFcn',@obj.start_timer_fcn,...
                 'TimerFcn', @obj.replay_timer_fcn,...
@@ -660,7 +727,12 @@ classdef cStrat < handle
         %end of settimer
         
         function [] = replay_timer_fcn(obj,~,event)
-            dtnum = datenum(event.Data.time);
+            if strcmpi(obj.mode_,'debug')
+                obj.dtcount4debug_ = obj.dtcount4debug_ + 1;
+                dtnum = obj.timevec4debug_(obj.dtcount4debug_,1);
+            else
+                dtnum = datenum(event.Data.time);
+            end
             mm = minute(dtnum) + hour(dtnum)*60;
             
             %for friday evening market
@@ -690,7 +762,7 @@ classdef cStrat < handle
             %market open refresh the market data
             obj.mde_fut_.refresh;
             
-            obj.riskmanagement;
+            obj.riskmanagement(dtnum);
             
             signals = obj.gensignals;
             

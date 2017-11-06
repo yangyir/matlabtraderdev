@@ -12,7 +12,6 @@ classdef cStratFutMultiWR < cStrat
         executionbucketnumber_@double
     end
     
-    
     methods
         function obj = cStratFutMultiWR
             obj.name_ = 'multiplewr';
@@ -350,6 +349,14 @@ classdef cStratFutMultiWR < cStrat
     %derived (abstract) methods from superclass
     methods
         function signals = gensignals(obj)
+            if strcmpi(obj.mode_,'debug'), 
+                obj.printinfo; 
+                fprintf('holdings:%4.0f\tclose pnl:%4.2f\trunning pnl:%4.2f\n',...
+                    obj.portfolio_.instrument_volume(1),...
+                    obj.pnl_close_(1),...
+                    obj.pnl_running_(1));
+            end
+            
             signals = cell(size(obj.count,1),1);
             instruments = obj.instruments_.getinstrument;
             
@@ -373,7 +380,7 @@ classdef cStratFutMultiWR < cStrat
         %end of gensignals
         
         function [] = autoplacenewentrusts(obj,signals)
-            if isempty(obj.counter_), return; end
+            if isempty(obj.counter_) && ~strcmpi(obj.mode_,'debug'), return; end
             
             %now check the signals
             for i = 1:size(signals,1)
@@ -395,8 +402,10 @@ classdef cStratFutMultiWR < cStrat
                     [volume,ii] = obj.getbaseunits(instrument);
                 else
                     [maxvolume,ii] = obj.getmaxunits(instrument);
-                    volume = min(maxvolume-abs(volume_exist),abs(volume_exist));
+                    volume = max(min(maxvolume-abs(volume_exist),abs(volume_exist)),0);
                 end
+                
+                if volume == 0, continue;end
                 
                 if ~obj.autotrade_(ii),continue;end
                 
@@ -405,7 +414,7 @@ classdef cStratFutMultiWR < cStrat
                 %is breached or not
                 bucketnum = obj.mde_fut_.getcandlecount(instrument);
                 if bucketnum > 0 && bucketnum == obj.executionbucketnumber_(ii);
-                    if obj.executionperbucket_(ii) ==  obj.maxexecutionperbucket_(ii)
+                    if obj.executionperbucket_(ii) >=  obj.maxexecutionperbucket_(ii)
                         %note: if the maximum execution time is reached we
                         %won't open up new positions for this bucket
                         continue;
@@ -425,7 +434,9 @@ classdef cStratFutMultiWR < cStrat
                 
                 %firstly to unwind all existing entrusts associated with
                 %the instrument
-                withdrawpendingentrusts(obj.counter_,code);
+                if ~strcmpi(obj.mode_,'debug')
+                    withdrawpendingentrusts(obj.counter_,code);
+                end
                     
                 e = Entrust;
                 e.assetType = 'Future';
@@ -436,23 +447,33 @@ classdef cStratFutMultiWR < cStrat
                     price =  ask + obj.askspread_(ii);
                 end
                 
-                e.fillEntrust(1,code,direction,price,abs(volume),offset,code);
-                obj.counter_.placeEntrust(e);
-                obj.entrusts_.push(e);
+                if ~strcmpi(obj.mode_,'debug')
+                    e.fillEntrust(1,code,direction,price,abs(volume),offset,code);
+                    ret = obj.counter_.placeEntrust(e);
+                    if ret
+                        obj.entrusts_.push(e);
+                    end
+                end
                 
-                obj.executionbucketnumber_(ii) = bucketnum;
-                obj.executionperbucket_(ii) = obj.executionperbucket_(ii)+1;
-                                
-                %update portfolio and pnl_close_ as required in the
-                %following
-                %assuming the entrust is completely filled
-                t = cTransaction;
-                t.instrument_ = instrument;
-                t.price_ = price;
-                t.volume_= abs(volume);
-                t.direction_ = direction;
-                t.offset_ = offset;
-                obj.portfolio_.updateportfolio(t);
+                if strcmpi(obj.mode_,'debug') || (~strcmpi(obj.mode_,'debug') && ret)
+                    if obj.executionbucketnumber_(ii) ~= bucketnum;
+                        obj.executionbucketnumber_(ii) = bucketnum;
+                        obj.executionperbucket_(ii) = 1;
+                    else
+                        obj.executionperbucket_(ii) = obj.executionperbucket_(ii)+1;
+                    end
+                    
+                    %update portfolio and pnl_close_ as required in the
+                    %following
+                    %assuming the entrust is completely filled
+                    t = cTransaction;
+                    t.instrument_ = instrument;
+                    t.price_ = price;
+                    t.volume_= abs(volume);
+                    t.direction_ = direction;
+                    t.offset_ = offset;
+                    obj.portfolio_.updateportfolio(t);
+                end
             
             end
                 

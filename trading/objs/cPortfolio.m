@@ -1,9 +1,9 @@
 classdef cPortfolio < handle
     properties
        portfolio_id = 'unknown'
-       instrument_list@cell
-       instrument_avgcost@double
-       instrument_volume@double
+       instrument_list@cell = {}
+       instrument_avgcost@double = 0
+       instrument_volume@double = 0
     end
     
     methods
