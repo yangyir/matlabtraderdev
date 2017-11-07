@@ -262,85 +262,140 @@ classdef cStratFutMultiWR < cStrat
         %end of printinfo
         
         function [] = readparametersfromtxtfile(obj,fn_)
-            dataArray = cDataFileIO.readDataArrayFromTxtFile(fn_,'\t','%s%s%[^\n\r]');
-            names_ = dataArray{:,1};
-            values_ = dataArray{:,2};
+            fid = fopen(fn_,'r');
+            if fid < 0
+                error('cStratFutMultiWR:readparametersfromtxtfile:invalid file name input')
+            end
+            
+            tline = fgetl(fid);
+            lineinfo = regexp(tline,'\t','split');
+            n = size(lineinfo,2) - 1;
+            names_ = cell(100,1);
+            values_ = cell(100,n);
+            count = 0;
+            while ischar(tline)
+                count = count + 1;
+                lineinfo = regexp(tline,'\t','split');
+                names_{count} = lineinfo{1};
+                for i = 2:size(lineinfo,2)
+                    values_{count,i-1} = lineinfo{i};
+                end
+                tline = fgetl(fid);
+            end
+            names_ = names_(1:count);
+            values_ = values_(1:count,1:n);
+            
+            fclose(fid);
+            
+            futs = cell(n,1);
             for i = 1:size(names_,1)
                 if strcmpi('code',names_{i})
-                    code = values_{i};
-                    fut = cFutures(code);
-                    fut.loadinfo([code,'_info.txt']);
-                    obj.registerinstrument(fut);
+                    for j = 1:n
+                        code = values_{i,j};
+                        futs{j} = cFutures(code);
+                        futs{j}.loadinfo([code,'_info.txt']);
+                        obj.registerinstrument(futs{j});
+                    end
                     break
                 end
             end
             
-            pnl_stop = -inf;
+            pnl_stop = -inf*ones(n,1);
             for i = 1:size(names_,1)
                 if strcmpi('stop',names_{i})
-                    pnl_stop = str2double(values_{i});
+                    for j = 1:n
+                        pnl_stop(j) = str2double(values_{i,j});
+                    end
                     break
                 end
             end
             
-            pnl_limit = inf;
+            pnl_limit = inf*ones(n,1);
             for i = 1:size(names_,1)
                 if strcmpi('limit',names_{i})
-                    pnl_limit = str2double(values_{i});
+                    for j = 1:n
+                        pnl_limit(j) = str2double(values_{i,j});
+                    end
                     break
                 end
             end
-            obj.setstoplimit(fut,pnl_stop,pnl_limit);
             
-            bidspread = 0;
+            for j = 1:n
+                obj.setstoplimit(futs{j},pnl_stop(j),pnl_limit(j));
+            end
+            
+            bidspread = zeros(n,1);
             for i = 1:size(names_,1)
                 if strcmpi('bidspread',names_{i})
-                    bidspread = str2double(values_{i});
+                    for j = 1:n
+                        bidspread(j) = str2double(values_{i,j});
+                    end
                     break
                 end
             end
             
-            askspread = 0;
+            askspread = zeros(n,1);
             for i = 1:size(names_,1)
                 if strcmpi('askspread',names_{i})
-                    askspread = str2double(values_{i});
+                    for j = 1:n
+                        askspread(j) = str2double(values_{i,j});
+                    end
                     break
                 end
             end
-            obj.setbidaskspread(fut,bidspread,askspread);
+            
+            for j = 1:n
+                obj.setbidaskspread(futs{j},bidspread(j),askspread(j));
+            end
             
             for i = 1:size(names_,1)
                 if strcmpi('baseunits',names_{i})
-                    obj.setbaseunits(fut,str2double(values_{i}));
+                    for j = 1:n
+                        obj.setbaseunits(futs{j},str2double(values_{i,j}));
+                    end
                 elseif strcmpi('maxunits',names_{i})
-                    obj.setmaxunits(fut,str2double(values_{i}));
+                    for j = 1:n
+                        obj.setmaxunits(futs{j},str2double(values_{i,j}));
+                    end
                 elseif strcmpi('autotrade',names_{i})
-                    obj.setautotradeflag(fut,str2double(values_{i}));
+                    for j = 1:n
+                        obj.setautotradeflag(futs{j},str2double(values_{i,j}));
+                    end
                 elseif strcmpi('numofperiods',names_{i})
-                    nop = str2double(values_{i});
-                    params = struct('numofperiods',nop);
-                    obj.setparameters(fut,params);
+                    for j = 1:n
+                        nop = str2double(values_{i,j});
+                        params = struct('numofperiods',nop);
+                        obj.setparameters(futs{j},params);
+                    end
                 elseif strcmpi('tradingfreq',names_{i})
-                    obj.settradingfreq(fut,str2double(values_{i}));
+                    for j = 1:n
+                        obj.settradingfreq(futs{j},str2double(values_{i,j}));
+                    end
                 end
             end
             
-            overbought = 0;
+            overbought = zeros(n,1);
             for i = 1:size(names_,1)
                 if strcmpi('overbought',names_{i})
-                    overbought = str2double(values_{i});
+                    for j = 1:n
+                        overbought(j) = str2double(values_{i,j});
+                    end
                     break
                 end
             end
                 
-            oversold = 0;
+            oversold = zeros(n,1);
             for i = 1:size(names_,1)
                 if strcmpi('oversold',names_{i})
-                    oversold = str2double(values_{i});
+                    for j = 1:n
+                        oversold(j) = str2double(values_{i,j});
+                    end
                     break
                 end
             end
-            obj.setboundary(fut,overbought,oversold);
+            for j = 1:n
+                obj.setboundary(futs{j},overbought(j),oversold(j));
+            end
         end
         %end of readparametersfromtxtfile
         
