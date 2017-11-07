@@ -749,7 +749,7 @@ classdef cStrat < handle
             %market closed for sure
             if (mm > 150 && mm < 540) || (mm > 690 && mm < 780 ) || (mm > 915 && mm < 1260)               
                 % save candles on 2:31am
-                if mm == 151, obj.mde_fut_.savecandles2file; end
+                if mm == 151, obj.mde_fut_.savecandles2file(dtnum); end
                 
                 %init the required data on 8:50
                 if mm == 530

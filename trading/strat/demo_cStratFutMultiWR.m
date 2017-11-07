@@ -9,7 +9,7 @@ end
 %%
 %read parameters from file
 fprintf('set parameters for strat wr......\n');
-fn_ = 'C:\Temp\demo_tradingparams_rb.txt';
+fn_ = 'C:\Temp\trading_params_wr.txt';
 demo_strat_wr.readparametersfromtxtfile(fn_);
 % demo_strat_wr.mode_ = 'debug';
 disp(demo_strat_wr);

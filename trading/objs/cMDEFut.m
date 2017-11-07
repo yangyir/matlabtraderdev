@@ -680,7 +680,7 @@ classdef cMDEFut < handle
         end
         %end of refresh
         
-        function [] = savecandles2file(obj)
+        function [] = savecandles2file(obj,dtnum)
             if ~obj.candlesaveflag_
                 fprintf('save candles on %s......\n',datestr(dtnum));
                 coldefs = {'datetime','open','high','low','close'};

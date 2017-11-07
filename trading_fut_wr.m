@@ -17,23 +17,17 @@ disp(strat_wr);
 %%
 %try to load positions of instruments from the counter and return empty
 %portfolio in case none instruments are found
-if strcmpi(strat_wr.mode_,'realtime')
-    strat_wr.loadportfoliofromcounter;
-    strat_wr.portfolio_.print;
-end
-
-%%
-instrument = strat_wr.instruments_.getinstrument{1};
-strat_wr.initdata4debug(instrument,'2017-11-06 09:00:00','2017-11-06 15:00:00');
+% if strcmpi(strat_wr.mode_,'realtime')
+%     strat_wr.loadportfoliofromcounter;
+%     strat_wr.portfolio_.print;
+% end
 
 %%
 fprintf('initiate data for strat wr......\n');
 strat_wr.initdata;
 
 %%
-strat_wr.startat([datestr(today,'yyyy-mm-dd'),' 09:00:00']);
-
-%%
+%start the strategy
 if strcmpi(strat_wr.mode_,'debug')
     strat_wr.dtcount4debug_ = 0;
     strat_wr.mde_fut_.debug_count_ = 0;
@@ -51,6 +45,7 @@ end
 strat_wr.start;
 
 %%
+%stop the strategy
 strat_wr.stop;
 
 %%
