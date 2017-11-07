@@ -23,6 +23,14 @@ disp(strat_wr);
 % end
 
 %%
+%in case we need to manually input the positions
+% al1801 = strat_wr.instruments_.getinstrument{3};
+% zn1801 = strat_wr.instruments_.getinstrument{2};
+% strat_wr.portfolio_ = cPortfolio;
+% strat_wr.portfolio_.addinstrument(al1801,15957.5,30);
+% strat_wr.portfolio_.addinstrument(zn1801,25553.75,20);
+
+%%
 fprintf('initiate data for strat wr......\n');
 strat_wr.initdata;
 
@@ -52,4 +60,5 @@ strat_wr.stop;
 strat_wr.printinfo;
 
 %%
+strat_wr.pnl_running_
 
