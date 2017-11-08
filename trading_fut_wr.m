@@ -15,41 +15,11 @@ strat_wr.readparametersfromtxtfile(fn_);
 disp(strat_wr);
 
 %%
-%try to load positions of instruments from the counter and return empty
-%portfolio in case none instruments are found
-% if strcmpi(strat_wr.mode_,'realtime')
-%     strat_wr.loadportfoliofromcounter;
-%     strat_wr.portfolio_.print;
-% end
-
-%%
-%in case we need to manually input the positions
-% al1801 = strat_wr.instruments_.getinstrument{3};
-% zn1801 = strat_wr.instruments_.getinstrument{2};
-% strat_wr.portfolio_ = cPortfolio;
-% strat_wr.portfolio_.addinstrument(al1801,15957.5,30);
-% strat_wr.portfolio_.addinstrument(zn1801,25553.75,20);
-
-%%
 fprintf('initiate data for strat wr......\n');
 strat_wr.initdata;
 
 %%
 %start the strategy
-if strcmpi(strat_wr.mode_,'debug')
-    strat_wr.dtcount4debug_ = 0;
-    strat_wr.mde_fut_.debug_count_ = 0;
-    nticks = size(strat_wr.mde_fut_.ticks_{1},1);
-    ncandles = size(strat_wr.mde_fut_.candles_{1},1);
-    %clear up
-    strat_wr.mde_fut_.ticks_{1} = zeros(nticks,0);
-    strat_wr.mde_fut_.candles_{1}(:,2:end) = 0;
-    strat_wr.executionperbucket_ = 0;
-    strat_wr.executionbucketnumber_ = 0;
-    strat_wr.portfolio_ = cPortfolio;
-    strat_wr.pnl_close_ = 0;
-    strat_wr.pnl_running_ = 0;
-end
 strat_wr.start;
 
 %%

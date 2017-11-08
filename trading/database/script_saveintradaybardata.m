@@ -30,11 +30,16 @@ end
 fprintf('done for saving intraday bar data for govt bond futures......\n');
 
 %%
-% precious metals
+%precious metals
 pm_codes_ctp = {'au1712';'au1806';'ag1712';'ag1806'};
 
 for i = 1:size(pm_codes_ctp,1)
     saveintradaybarfrombloomberg(conn,pm_codes_ctp{i},override);
 end
 fprintf('done for saving intraday bar data for precious metal futures\n');
+
+%%
+%clear variables
+clear i
+clear override conn bm_codes_ctp govtbond_codes_ctp pm_codes_ctp
 
