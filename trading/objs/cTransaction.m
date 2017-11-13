@@ -5,6 +5,9 @@ classdef cTransaction < handle
         volume_@double
         direction_@double
         offset_@double
+        datetime1_@double
+        datetime2_@char
+        closetodayflag_@double = 0
             
     end
     

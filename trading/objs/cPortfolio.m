@@ -4,6 +4,7 @@ classdef cPortfolio < handle
        instrument_list@cell = {}
        instrument_avgcost@double = 0
        instrument_volume@double = 0
+       instrument_volume_today@double = 0
     end
     
     methods
@@ -35,14 +36,19 @@ classdef cPortfolio < handle
         %end of count
     
         
-        function obj = addinstrument(obj,instrument,px,volume)
+        function obj = addinstrument(obj,instrument,px,volume,dtnum)
             if nargin < 3
                 px = 0;
-                volume = 0;    
+                volume = 0;
+                dtnum = now;
             end
             
             if nargin == 3
                 error('cPortfolio:addinstrument:missing input of volume')
+            end
+            
+            if nargin == 4
+                dtnum = now;
             end
             
             [bool,idx] = obj.hasinstrument(instrument);
@@ -51,21 +57,33 @@ classdef cPortfolio < handle
                 list_ = cell(n+1,1);
                 c_ = zeros(n+1,1);
                 v_ = zeros(n+1,1);
+                vtoday_ = zeros(n+1,1);
                 list_{n+1,1} = instrument;
                 c_(n+1,1) = px;
                 v_(n+1,1) = volume;
+                if dtnum > getlastbusinessdate
+                    vtoday_(n+1,1) = volume;
+                end
+                
                 for i = 1:n
                     list_{i,1} = obj.instrument_list{i,1};
                     c_(i,1) = obj.instrument_avgcost(i,1);
                     v_(i,1) = obj.instrument_volume(i,1);
+                    vtoday_(i,1) = obj.instrument_volume_today(i,1);
                 end
                 obj.instrument_list = list_;
                 obj.instrument_avgcost = c_;
                 obj.instrument_volume = v_;
+                obj.instrument_volume_today = vtoday_;
             else
                 avgcost_ = obj.instrument_avgcost(idx,1);
                 volume_ = obj.instrument_volume(idx,1);
+                volume_today_ = obj.instrument_volume_today(idx,1);
                 obj.instrument_volume(idx,1) = volume_+volume;
+                if dtnum > getlastbusinessdate
+                    obj.instrument_volume_today(idx,1) = volume_today_ + volume;
+                end
+                
                 if obj.instrument_volume(idx,1) == 0
                     obj.instrument_avgcost(idx,1) = 0;
                 else
@@ -97,23 +115,28 @@ classdef cPortfolio < handle
                     obj.instrument_list = {};
                     obj.instrument_avgcost = [];
                     obj.instrument_volume = [];
+                    obj.instrument_volume_today = [];
                 else
                     list_ = cell(n-1,1);
                     c_ = zeros(n-1,1);
                     v_ = zeros(n-1,1);
+                    vtoday_ = zeros(n-1,1);
                     for i = 1:idx-1
                         list_{i,1} = obj.instrument_list{i,1};
                         c_(i,1) = obj.instrument_avgcost(i,1);
                         v_(i,1) = obj.instrument_volume(i,1);
+                        vtoday_(i,1) = obj.instrument_volume_today(i,1);
                     end
                     for i = idx+1:n
                         list_{i-1,1} = obj.instrument_list{i,1};
                         c_(i-1,1) = obj.instrument_avgcost(i,1);
                         v_(i-1,1) = obj.instrument_volume(i,1);
+                        vtoday_(i-1,1) = obj.instrument_volume_today(i,1);
                     end
                     obj.instrument_list = list_;
                     obj.instrument_avgcost = c_;
                     obj.instrument_volume = v_;
+                    obj.instrument_volume_today = vtoday_;
                 end
                 
             end
@@ -159,6 +182,12 @@ classdef cPortfolio < handle
             px = transaction.price_;
             volume = transaction.volume_*transaction.direction_;
             offset = transaction.offset_;
+            datetime1_ = transaction.datetime1_;
+            if offset == -1 && transaction.closetodayflag_
+                closetodayflag_ = 1;
+            else
+                closetodayflag_ = 0;
+            end
             
             [bool,idx] = obj.hasinstrument(instrument);
             
@@ -169,16 +198,24 @@ classdef cPortfolio < handle
             end
                         
             if ~bool
-                obj.addinstrument(instrument,px,volume);
+                obj.addinstrument(instrument,px,volume,datetime1_);
                 pnl = 0;
             else
                 avgcost_ = obj.instrument_avgcost(idx,1);
                 volume_ = obj.instrument_volume(idx,1);
-                if offset == -1 && abs(volume_) > transaction.volume_
+                voume_today_ = obj.instrument_volume_today(idx,1);
+                
+                if offset == -1 && abs(volume_) < transaction.volume_
                     error('cPortfolio:updateportfolio:unwind transaction size exceed existing size')
                 end
                 
-                obj.instrument_volume(idx,1) = volume_+volume;
+                if closetodayflag_ && abs(voume_today_) < transaction.volume_
+                    error('cPortfolio:updateportfolio:unwind transaction size exceed existing size of today')
+                end
+                
+%                 obj.instrument_volume(idx,1) = volume_+volume;
+%                 obj.instrument_volume_today(idx,1) = voume_today_ + volume_today;
+                obj.addinstrument(instrument,px,volume,datetime1_);
                 if obj.instrument_volume(idx,1) == 0
                     %the position is now completely unwind
                     tick_value = instrument.tick_value;
@@ -209,6 +246,7 @@ classdef cPortfolio < handle
                 p.instrument_list = obj.instrument_list;
                 p.instrument_avgcost = obj.instrument_avgcost;
                 p.instrument_volume = obj.instrument_volume;
+                p.instrument_volume_today = obj.instrument_volume_today;
                 return
             end
             
@@ -220,7 +258,11 @@ classdef cPortfolio < handle
                 end 
                 avgcost = portfolio.instrument_avgcost(idx);
                 volume = portfolio.instrument_volume(idx);
+                volume_today = portfolio.instrument_volume_today(idx);
+                
                 p.addinstrument(instruments,avgcost,volume);
+                p.instrument_volume_today = volume_today;
+                
                 return
             end
             
@@ -241,6 +283,8 @@ classdef cPortfolio < handle
                 avgcost = obj.instrument_avgcost(idx);
                 volume = obj.instrument_volume(idx);
                 p.addinstrument(instrument,avgcost,volume);
+                volume_today = obj.instrument_volume_today(idx);
+                p.instrument_volume_today(i) = volume_today;
             end
             
         end
@@ -255,7 +299,8 @@ classdef cPortfolio < handle
                 instrument_i = obj.instrument_list{i}.code_ctp;
                 c_ = obj.instrument_avgcost(i);
                 v_ = obj.instrument_volume(i);
-                fprintf('instrument:%s;avgcost:%4.2f;volume:%d\n',instrument_i,c_,v_);
+                vtoday_ = obj.instrument_volume_today(i);
+                fprintf('instrument:%s;avgcost:%4.2f;volume:%d;volumetoday:%d\n',instrument_i,c_,v_,vtoday_);
                 
             end
         end

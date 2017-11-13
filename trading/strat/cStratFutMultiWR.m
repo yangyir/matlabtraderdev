@@ -527,6 +527,8 @@ classdef cStratFutMultiWR < cStrat
                     t.volume_= abs(volume);
                     t.direction_ = direction;
                     t.offset_ = offset;
+                    t.datetime1_ = e.time;
+                    t.datetime2_ = datestr(e.time);
                     obj.portfolio_.updateportfolio(t);
                 end
             
