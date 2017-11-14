@@ -8,6 +8,8 @@ classdef cStrat < handle
         %trading pnl related
         pnl_stop_@double            % stop ratio as of the margin used
         pnl_limit_@double           % limit ratio as of the margin used
+        pnl_stop_type_@char
+        pnl_limit_type_@char
         pnl_running_@double     % pnl for existing positions
         pnl_close_@double       % pnl for unwind positions
         
@@ -551,6 +553,7 @@ classdef cStrat < handle
                 %got the instrument already
                 if flag
                     volume = obj.portfolio_.instrument_volume(idx);
+                    volume_today = obj.portfolio_.instrument_volume_today(idx);
                     
                     if volume == 0
                         obj.pnl_running_(i) = 0;
@@ -589,6 +592,7 @@ classdef cStrat < handle
                         % in case the pnl has either breach the limit or
                         % the stop level, we will unwind the existing
                         % positions
+                        isshfe = strcmpi(obj.portfolio_.instrument_list{idx}.exchange,'.SHF');
                         
                         code = instruments{i}.code_ctp;
                         %firstly to withdraw all entrusts associcated with
@@ -607,13 +611,40 @@ classdef cStrat < handle
                         end
                         
                         if ~strcmpi(obj.mode_,'debug')
-                            e = Entrust;
-                            e.assetType = 'Future';
-                            e.multiplier = multi;
-                            e.fillEntrust(1,code,-sign(volume),price,abs(volume),offset,code);
-                            ret = obj.counter_.placeEntrust(e);
-                            if ret
-                                obj.entrusts_.push(e);
+                            if ~isshfe
+                                e = Entrust;
+                                e.assetType = 'Future';
+                                e.multiplier = multi;
+                                e.fillEntrust(1,code,-sign(volume),price,abs(volume),offset,code);
+                                ret = obj.counter_.placeEntrust(e);
+                                if ret
+                                    obj.entrusts_.push(e);
+                                end
+                            else
+                                %we need to place either close today or
+                                %close before for shanghai futures exchange
+                                if volume_today ~= 0
+                                    e = Entrust;
+                                    e.assetType = 'Future';
+                                    e.multiplier = multi;
+                                    e.fillEntrust(1,code,-sign(volume_today),price,abs(volume_today),offset,code);
+                                    e.closetodayFlag = 1;
+                                    ret = obj.counter_.placeEntrust(e);
+                                    if ret
+                                        obj.entrusts_.push(e);
+                                    end
+                                end
+                                if volume ~= volume_today
+                                    volume_before = volume - volume_today;
+                                    e = Entrust;
+                                    e.assetType = 'Future';
+                                    e.multiplier = multi;
+                                    e.fillEntrust(1,code,-sign(volume_before),price,abs(volume_before),offset,code);
+                                    ret = obj.counter_.placeEntrust(e);
+                                    if ret
+                                        obj.entrusts_.push(e);
+                                    end
+                                end
                             end
                         end
                         
@@ -636,6 +667,74 @@ classdef cStrat < handle
             
         end
         %end of riskmangement
+        
+        function [] = unwindposition(obj,instrument)
+            if nargin < 1
+                return
+            end
+            
+            if ~isa(instrument,'cInstrument')
+                error('cStrat:unwindposition:invalid instrument input')
+            end
+            
+            [flag,idx] = obj.portfolio_.hasinstrument(instrument);
+            if ~flag, return; end
+            
+            [~,ii] = obj.getbaseunits(instrument);
+            
+            isshfe = strcmpi(obj.portfolio_.instrument_list{idx}.exchange,'.SHF');
+            volume = obj.portfolio_.instrument_volume(idx);
+            tick = obj.mde_fut_.getlasttick(instrument);
+            bid = tick(2);
+            ask = tick(3);
+            if volume > 0
+                %unwind sell entrust using the bid price
+                price = bid - obj.bidspread_(ii);
+            elseif volume < 0
+                %unwind buy entrust using the ask price
+                price = ask + obj.askspread_(ii);
+            end
+            offset = -1;
+            if ~isshfe
+                e = Entrust;
+                e.assetType = 'Future';
+                e.multiplier = multi;
+                e.fillEntrust(1,code,-sign(volume),price,abs(volume),offset,code);
+                ret = obj.counter_.placeEntrust(e);
+                if ret
+                    obj.entrusts_.push(e);
+                end
+            else
+                volume_today = obj.portfolio_.instrument_volume_today(idx);
+                volume_before = volume - volume_today;
+                if volume_today ~= 0
+                    e = Entrust;
+                    e.assetType = 'Future';
+                    e.multiplier = multi;
+                    e.fillEntrust(1,code,-sign(volume_today),price,abs(volume_today),offset,code);
+                    e.closetodayFlag = 1;
+                    ret = obj.counter_.placeEntrust(e);
+                    if ret
+                        obj.entrusts_.push(e);
+                    end 
+                end
+                if volume_before ~= 0
+                    e = Entrust;
+                    e.assetType = 'Future';
+                    e.multiplier = multi;
+                    e.fillEntrust(1,code,-sign(volume_before),price,abs(volume_before),offset,code);
+                    ret = obj.counter_.placeEntrust(e);
+                    if ret
+                        obj.entrusts_.push(e);
+                    end 
+                end
+            end
+            
+            
+            
+            
+            
+        end
         
         
     end
