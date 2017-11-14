@@ -7,9 +7,9 @@ classdef cStrat < handle
         
         %trading pnl related
         pnl_stop_@double            % stop ratio as of the margin used
+        pnl_stop_type_@cell
         pnl_limit_@double           % limit ratio as of the margin used
-        pnl_stop_type_@char
-        pnl_limit_type_@char
+        pnl_limit_type_@cell
         pnl_running_@double     % pnl for existing positions
         pnl_close_@double       % pnl for unwind positions
         
@@ -400,23 +400,23 @@ classdef cStrat < handle
         end
         %end of countunderliers
         
-        function indices = matchquoteindex(obj,quotes)
-            list = obj.instruments_.getinstrument;
-            n = obj.count;
-            indices = zeros(n);
-            for i = 1:n
-                qidx = 0;
-                for j = 1:size(quotes)
-                    if strcmpi(list{i}.code_ctp,quotes{j}.code_ctp)
-                        qidx = j;
-                        break
-                    end
-                end
-                if qidx == 0, error('cStrat:matchquoteindex:invalid quotes'); end
-                indices(i) = qidx;
-            end
-        end
-        %end of matchquoteindex
+%         function indices = matchquoteindex(obj,quotes)
+%             list = obj.instruments_.getinstrument;
+%             n = obj.count;
+%             indices = zeros(n);
+%             for i = 1:n
+%                 qidx = 0;
+%                 for j = 1:size(quotes)
+%                     if strcmpi(list{i}.code_ctp,quotes{j}.code_ctp)
+%                         qidx = j;
+%                         break
+%                     end
+%                 end
+%                 if qidx == 0, error('cStrat:matchquoteindex:invalid quotes'); end
+%                 indices(i) = qidx;
+%             end
+%         end
+%         %end of matchquoteindex
         
     end
     %end of instrument-related methods
@@ -468,35 +468,54 @@ classdef cStrat < handle
         end
         %end of breakdownopt
         
-        function pnl = calcpnl(obj, portfolio, quotes)
-            %note: the portfolio may have different instruments than the
-            %strategy itself. However, compared with the embedded
-            %intruments within the strategy, the portfolio itself includes
-            %additional information, e.g. avgcost and volume,which is
-            %essential for pnl calculation
-            
-            if ~isa(portfolio,'cPortfolio')
-                error('cStrat:calcpnl:invalid portfolio input');
+        function pnl = calcrunningpnl(obj, instrument)
+            if ~isa(instrument,'cInstrument')
+                error('cStrat:calcrunningpnl:invalid instrument input')
             end
             
-            n = obj.count;
-            %in case there is no instrument registered with the stratey,
-            %the pnl shall be always report as zero
-            if n == 0
-                pnl = 0;
-                obj.pnl_running_ = 0;
-                return
+            [flag,idx] = obj.portfolio_.hasinstrument(instrument);
+            
+            [~,ii] = obj.getbaseunits(instrument);
+            
+            pnl = 0;
+            if flag
+                volume = obj.portfolio_.instrument_volume(idx);
+                if volume == 0
+                    obj.pnl_running_(ii) = pnl;
+                    return
+                end
+                
+                cost = obj.portfolio_.instrument_avgcost(idx);
+                tick = obj.mde_fut_.getlasttick(instrument);
+                if isempty(tick)
+                    obj.pnl_running_(ii) = pnl;
+                    return
+                end
+                
+                bid = tick(2);
+                ask = tick(3);
+                if bid == 0 || ask == 0, return; end
+                
+                multi = instrument.contract_size;
+                if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
+                    multi = multi/100;
+                end
+                    
+                %the running pnl is the pnl in case the positions are
+                %completely unwind
+                if volume > 0
+                    pnl = (bid-cost)*volume*multi;
+                elseif volume < 0
+                    pnl = (ask-cost)*volume*multi;
+                end
+                obj.pnl_running_(ii) = pnl;
+                
             end
             
-            %get the sub portfolio associated with the strategy's
-            %instruments
-            p = portfolio.subportfolio(obj.instruments_);
             
-            obj.pnl_running_ = p.runningpnl(quotes);
-            pnl = obj.pnl_running_ + obj.pnl_close_;
             
         end
-        %end of calcpnl
+        %end of calcrunningpnl
         
     end
     %end of option-specific methods
@@ -541,137 +560,62 @@ classdef cStrat < handle
             
             instruments = obj.instruments_.getinstrument;
             for i = 1:obj.count
-                %first to check whether this is in trading hours
+                %firstly to check whether this is in trading hours
                 flag = istrading(dtnum,instruments{i}.trading_hours,...
                     'tradingbreak',instruments{i}.trading_break);
                 if ~flag, continue; end
-                                
+                
+                %secondly to check whether the instrument has been traded
+                %and recorded in the embedded portfolio
                 [flag,idx] = obj.portfolio_.hasinstrument(instruments{i});
                 
-                
+                if ~flag, continue; end
+                 
                 %calculate running pnl in case the embedded porfolio has
                 %got the instrument already
-                if flag
-                    volume = obj.portfolio_.instrument_volume(idx);
-                    volume_today = obj.portfolio_.instrument_volume_today(idx);
-                    
-                    if volume == 0
-                        obj.pnl_running_(i) = 0;
-                        continue; 
-                    end
-                    
-                    cost = obj.portfolio_.instrument_avgcost(idx);
-                    tick = obj.mde_fut_.getlasttick(instruments{i});
-                    bid = tick(2);
-                    ask = tick(3);
-                    if bid == 0 || ask == 0, continue; end
-                    multi = instruments{i}.contract_size;
-                    if ~isempty(strfind(instruments{i}.code_bbg,'TFC')) || ~isempty(strfind(instruments{i}.code_bbg,'TFT'))
-                        multi = multi/100;
-                    end
-                    
-                    margin = instruments{i}.init_margin_rate;
-                    if ~isempty(margin), margin = 0.1; end
-                    
-                    %the running pnl is the pnl in case the positions are
-                    %completely unwind
-                    if volume > 0
-                        obj.pnl_running_(i) = (bid-cost)*volume*multi;
-                    elseif volume < 0
-                        obj.pnl_running_(i) = (ask-cost)*volume*multi;
-                    else
-                        obj.pnl_running_(i) = 0;
-                    end
-                    
-%                     pnl_ = obj.pnl_running_(i) + obj.pnl_close_(i);
-                    pnl_ = obj.pnl_running_(i);
-                    limit_ = obj.pnl_limit_(i)*cost*abs(volume)*multi*margin;
-                    stop_ = -obj.pnl_stop_(i)*cost*abs(volume)*multi*margin;
-                    
-                    if pnl_ >= limit_ || pnl_ <= stop_
-                        % in case the pnl has either breach the limit or
-                        % the stop level, we will unwind the existing
-                        % positions
-                        isshfe = strcmpi(obj.portfolio_.instrument_list{idx}.exchange,'.SHF');
-                        
-                        code = instruments{i}.code_ctp;
-                        %firstly to withdraw all entrusts associcated with
-                        %the instrument
-                        if ~strcmpi(obj.mode_,'debug')
-                            withdrawpendingentrusts(obj.counter_,code);
-                        end
-                        
-                        offset = -1;
-                        if volume > 0
-                            %unwind sell entrust using the bid price
-                            price = bid - obj.bidspread_(i);
-                        elseif volume < 0
-                            %unwind buy entrust using the ask price
-                            price = ask + obj.askspread_(i);
-                        end
-                        
-                        if ~strcmpi(obj.mode_,'debug')
-                            if ~isshfe
-                                e = Entrust;
-                                e.assetType = 'Future';
-                                e.multiplier = multi;
-                                e.fillEntrust(1,code,-sign(volume),price,abs(volume),offset,code);
-                                ret = obj.counter_.placeEntrust(e);
-                                if ret
-                                    obj.entrusts_.push(e);
-                                end
-                            else
-                                %we need to place either close today or
-                                %close before for shanghai futures exchange
-                                if volume_today ~= 0
-                                    e = Entrust;
-                                    e.assetType = 'Future';
-                                    e.multiplier = multi;
-                                    e.fillEntrust(1,code,-sign(volume_today),price,abs(volume_today),offset,code);
-                                    e.closetodayFlag = 1;
-                                    ret = obj.counter_.placeEntrust(e);
-                                    if ret
-                                        obj.entrusts_.push(e);
-                                    end
-                                end
-                                if volume ~= volume_today
-                                    volume_before = volume - volume_today;
-                                    e = Entrust;
-                                    e.assetType = 'Future';
-                                    e.multiplier = multi;
-                                    e.fillEntrust(1,code,-sign(volume_before),price,abs(volume_before),offset,code);
-                                    ret = obj.counter_.placeEntrust(e);
-                                    if ret
-                                        obj.entrusts_.push(e);
-                                    end
-                                end
-                            end
-                        end
-                        
-                        if (~strcmpi(obj.mode_,'debug') && ret) || strcmpi(obj.mode_,'debug')
-                            %update portfolio and pnl_close_ as required in the
-                            %following
-                            %assuming the entrust is completely filled
-                            t = cTransaction;
-                            t.instrument_ = instruments{i};
-                            t.price_ = price;
-                            t.volume_= abs(volume);
-                            t.direction_ = -sign(volume);
-                            t.offset_ = offset;
-                            pnl = obj.portfolio_.updateportfolio(t);
-                            obj.pnl_close_(i) = obj.pnl_close_(i) + pnl;
-                        end
-                    end
+                
+                volume = obj.portfolio_.instrument_volume(idx);
+                obj.calcrunningpnl(instruments{i});
+                
+                %                     pnl_ = obj.pnl_running_(i) + obj.pnl_close_(i);
+                pnl_ = obj.pnl_running_(i);
+                
+                multi = instruments{i}.contract_size;
+                if ~isempty(strfind(instruments{i}.code_bbg,'TFC')) ||...
+                        ~isempty(strfind(instruments{i}.code_bbg,'TFT'))
+                    multi = multi/100;
                 end
+                
+                margin = instruments{i}.init_margin_rate;
+                if isempty(margin)
+                    margin = 0.1;
+                end
+                
+                if strcmpi(obj.pnl_limit_type_{i},'rel')
+                    limit_ = obj.pnl_limit_(i)*cost*abs(volume)*multi*margin;
+                else
+                    limit_ = obj.pnl_limit_(i);
+                end
+                
+                if strcmpi(obj.pnl_stop_type_{i},'rel')
+                    stop_ = -obj.pnl_stop_(i)*cost*abs(volume)*multi*margin;
+                else
+                    stop_ = -obj.pnl_stop_(i);
+                end
+                
+                % in case the pnl has either breach the limit or
+                % the stop level, we will unwind the existing
+                % positions
+                if pnl_ >= limit_ || pnl_ <= stop_
+                    obj.unwindposition(instruments{i});
+                end 
             end
             
         end
         %end of riskmangement
         
         function [] = unwindposition(obj,instrument)
-            if nargin < 1
-                return
-            end
+            if nargin < 1, return; end
             
             if ~isa(instrument,'cInstrument')
                 error('cStrat:unwindposition:invalid instrument input')
@@ -680,6 +624,16 @@ classdef cStrat < handle
             [flag,idx] = obj.portfolio_.hasinstrument(instrument);
             if ~flag, return; end
             
+            multi = instrument.contract_size;
+            if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
+                multi = multi/100;
+            end
+            
+            if ~strcmpi(obj.mode_,'debug')
+                withdrawpendingentrusts(obj.counter_,instrument.code_ctp);
+            end
+            
+            %note:ii is the index for 
             [~,ii] = obj.getbaseunits(instrument);
             
             isshfe = strcmpi(obj.portfolio_.instrument_list{idx}.exchange,'.SHF');
@@ -688,13 +642,31 @@ classdef cStrat < handle
             bid = tick(2);
             ask = tick(3);
             if volume > 0
-                %unwind sell entrust using the bid price
+                %place entrust with sell flag using the bid price
                 price = bid - obj.bidspread_(ii);
             elseif volume < 0
-                %unwind buy entrust using the ask price
+                %place entrust with buy flag using the ask price
                 price = ask + obj.askspread_(ii);
             end
+            %note:offset = -1 indicating unwind positions
             offset = -1;
+            
+            if strcmpi(obj.mode_,'debug')
+                %update portfolio and pnl_close_ as required in the
+                %following
+                %assuming the entrust is completely filled in debug mode
+                t = cTransaction;
+                t.instrument_ = instrument;
+                t.price_ = price;
+                t.volume_= abs(volume);
+                t.direction_ = -sign(volume);
+                t.offset_ = offset;
+                pnl = obj.portfolio_.updateportfolio(t);
+                obj.pnl_close_(ii) = obj.pnl_close_(ii) + pnl;
+                return
+            end
+            
+            %for 'realtime' mode
             if ~isshfe
                 e = Entrust;
                 e.assetType = 'Future';
@@ -703,6 +675,15 @@ classdef cStrat < handle
                 ret = obj.counter_.placeEntrust(e);
                 if ret
                     obj.entrusts_.push(e);
+                    t = cTransaction;
+                    t.instrument_ = instrument;
+                    t.price_ = price;
+                    t.volume_ = abs(volume);
+                    t.direction_ = -sign(volume);
+                    t.offset_ = offset;
+                    t.datetime1_ = now;
+                    pnl = obj.portfolio_.updateportfolio(t);
+                    obj.pnl_close_(ii) = obj.pnl_close_(ii) + pnl;
                 end
             else
                 volume_today = obj.portfolio_.instrument_volume_today(idx);
@@ -716,6 +697,15 @@ classdef cStrat < handle
                     ret = obj.counter_.placeEntrust(e);
                     if ret
                         obj.entrusts_.push(e);
+                        t = cTransaction;
+                        t.instrument_ = instrument;
+                        t.price_ = price;
+                        t.volume_ = abs(volume_today);
+                        t.direction_ = -sign(volume_today);
+                        t.offset_ = offset;
+                        t.datetime1_ = now;
+                        pnl = obj.portfolio_.updateportfolio(t);
+                        obj.pnl_close_(ii) = obj.pnl_close_(ii) + pnl;
                     end 
                 end
                 if volume_before ~= 0
@@ -726,15 +716,20 @@ classdef cStrat < handle
                     ret = obj.counter_.placeEntrust(e);
                     if ret
                         obj.entrusts_.push(e);
+                        t = cTransaction;
+                        t.instrument_ = instrument;
+                        t.price_ = price;
+                        t.volume_ = abs(volume_before);
+                        t.direction_ = -sign(volume_before);
+                        t.offset_ = offset;
+                        t.datetime1_ = now;
+                        pnl = obj.portfolio_.updateportfolio(t);
+                        obj.pnl_close_(ii) = obj.pnl_close_(ii) + pnl;
                     end 
                 end
             end
-            
-            
-            
-            
-            
         end
+        %end of unwindpositions
         
         
     end
