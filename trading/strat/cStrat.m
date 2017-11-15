@@ -6,10 +6,12 @@ classdef cStrat < handle
         mode_@char = 'realtime'
         
         %trading pnl related
-        pnl_stop_@double            % stop ratio as of the margin used
         pnl_stop_type_@cell
-        pnl_limit_@double           % limit ratio as of the margin used
+        pnl_stop_@double            % stop ratio as of the margin used
+        
         pnl_limit_type_@cell
+        pnl_limit_@double           % limit ratio as of the margin used
+                
         pnl_running_@double     % pnl for existing positions
         pnl_close_@double       % pnl for unwind positions
         
@@ -59,196 +61,232 @@ classdef cStrat < handle
     
     %set/get methods
     methods
-        function [] = setstoplimit(obj,instrument,stop,limit)
-            if ~isa(instrument,'cInstrument'), error('cStrat:setstoplimit:invalid instrument input');end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    obj.pnl_stop_(i) = stop;
-                    obj.pnl_limit_(i) = limit;
-                    flag = true;
-                    break
-                end
+        function [] = setstoptype(obj,instrument,stoptype)
+            if ~ischar(stoptype), error('cStrat:setstoptype:invalid stoptype input'); end
+            if ~(strcmpi(stoptype,'rel') || strcmpi(stoptype,'abs'))
+                error('cStrat:setstoptype:invalid stoptype input')
             end
-            if ~flag, error('cStrat:setstoplimit:instrument not found');end
+            
+            if isempty(obj.pnl_stop_type_), obj.pnl_stop_type_ = cell(obj.count,1);end
+            
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:setstoptype:instrument not found');end
+            
+            obj.pnl_stop_type_{idx} = stoptype;
+            
+        end
+        %setstoptype
+        
+        function [] = setstopamount(obj,instrument,stop)
+            if ~isnumeric(stop), error('cStrat:setstopamount:invalid stop input');end
+
+            if isempty(obj.pnl_stop_), obj.pnl_stop_ = -inf*ones(obj.count,1);end
+            
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:setstopamount:instrument not found');end
+            
+            obj.pnl_stop_(idx) = stop;
                 
         end
-        %end of 'setstoplimit'
+        %end of 'setstopamount'
         
-        function [stop_,limit_] = getstoplimit(obj,instrument)
-            if ~isa(instrument,'cInstrument'), error('cStrat:getstoplimit:invalid instrument input');end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            stop_ = [];
-            limit_ = [];
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    stop_ = obj.pnl_stop_(i);
-                    limit_ = obj.pnl_limit_(i);
-                    flag = true;
-                    break
-                end
+        function [] = setlimittype(obj,instrument,limitype)
+            if ~ischar(limitype), error('cStrat:setlimittype:invalid limitype input'); end
+            if ~(strcmpi(limitype,'rel') || strcmpi(limitype,'abs'))
+                error('cStrat:setstoptype:invalid limitype input')
             end
-            if ~flag, error('cStrat:getstoplimit:instrument not found');end
+            
+            if isempty(obj.pnl_limit_type_), obj.pnl_limit_type_ = cell(obj.count,1);end
+                
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:setlimittype:instrument not found');end
+            
+            obj.pnl_limit_type_{idx} = limitype;
+            
         end
-        %end of 'getstoplimit'
+        %setlimittype
         
-        function [] = setbidaskspread(obj,instrument,bidspread,askspread)
-            if ~isa(instrument,'cInstrument'), error('cStrat:setbidaskspread:invalid instrument input');end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    obj.bidspread_(i) = bidspread;
-                    obj.askspread_(i) = askspread;
-                    flag = true;
-                    break
-                end
-            end
-            if ~flag, error('cStrat:setbidaskspread:instrument not found');end
+        function [] = setlimitamount(obj,instrument,limit)
+            if ~isnumeric(limit), error('cStrat:setlimitamount:invalid limit input'); end
+            
+            if isempty(obj.pnl_limit_), obj.pnl_limit_ = inf*ones(obj.count,1);end
+            
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:setlimitamount:instrument not found');end
+                
+            obj.pnl_limit_(idx) = limit;
+                
+        end
+        %end of 'setlimitamount'
         
+        function type_ = getstoptype(obj,instrument)
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:getstoptype:instrument not found');end
+            type_ = obj.pnl_stop_type_{idx};
+            
+        end
+        %end of 'getstoptype'
+        
+        function amount_ = getstopamount(obj,instrument)
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:getstoptype:instrument not found');end
+            amount_ = obj.pnl_stop_(idx);
+
+        end
+        %end of 'getstoptype'
+              
+        function type_ = getlimittype(obj,instrument)
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:getlimittype:instrument not found');end
+            type_ = obj.pnl_limit_type_{idx};
+            
+        end
+        %end of 'getlimittype'
+        
+        function amount_ = getlimitamount(obj,instrument)
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:getlimitamount:instrument not found');end
+            amount_ = obj.pnl_limit_(idx);
+            
+        end
+        %end of 'getlimitamount'
+        
+        function [] = setbidspread(obj,instrument,bidspread)
+            if ~isnumeric(bidspread), error('cStrat:setbidspread:invalid bid spread input');end
+            
+            if isempty(obj.bidspread_), obj.bidspread_ = zeros(obj.count,1); end
+            
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:setbidspread:instrument not found');end
+            
+            obj.bidspread_(idx) = bidspread;
+
+        end
+        %end of setbidspread
+        
+        function [] = setaskspread(obj,instrument,askspread)
+            if ~isnumeric(askspread), error('cStrat:setaskspread:invalid bid spread input');end
+            
+            if isempty(obj.askspread_), obj.askspread_ = zeros(obj.count,1); end
+            
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:setaskspread:instrument not found');end
+            
+            obj.askspread_(idx) = askspread;
+            
         end
         %end of setbidaskspread
         
-        function [bidspread,askspread] = getbidaskspread(obj,instrument)
-            if ~isa(instrument,'cInstrument'), error('cStrat:getbidaskspread:invalid instrument input');end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            bidspread = [];
-            askspread = [];
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    bidspread = obj.bidspread_(i);
-                    askspread = obj.askspread_(i);
-                    flag = true;
-                    break
-                end
-            end
-            if ~flag, error('cStrat:getbidaskspread:instrument not found');end
+        function bidspread = getbidspread(obj,instrument)
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:getbidspread:instrument not found');end
+            bidspread = obj.bidspread_(idx);
+            
         end
-        %end of getbidaskspread
+        %end of getbidspread
         
+        function askspread = getaskspread(obj,instrument)
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            if ~flag, error('cStrat:getaskspread:instrument not found');end            
+            askspread = obj.askspread_(idx);
+
+        end
+        %end of getaskspread
+             
         function [] = setbaseunits(obj,instrument,baseunits)
-            if ~isa(instrument,'cInstrument')
-                error('cStrat:setbaseunits:invalid instrument input')
-            end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    obj.baseunits_(i) = baseunits;
-                    flag = true;
-                    break
-                end
-            end
+            if ~isnumeric(baseunits), error('cStrat:setbaseunits:invalid baseunits input');end
+            
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
             if ~flag 
                 error('cStrat:setbaseunits:instrument not found')
             end
+            obj.baseunits_(idx) = baseunits;
+            
         end
         %end of setbaseunits
         
-        function [baseunits,idx] = getbaseunits(obj,instrument)
-            if ~isa(instrument,'cInstrument')
-                error('cStrat:getbaseunits:invalid instrument input')
-            end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            baseunits = [];
-            idx = 0;
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    baseunits = obj.baseunits_(i);
-                    idx = i;
-                    flag = true;
-                    break
-                end
-            end
+        function baseunits = getbaseunits(obj,instrument)
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
             if ~flag
                 error('cStrat:getbaseunits:instrument not found')
             end
+            baseunits = obj.baseunits_(idx);
+            
         end
         %end of getbaseunit
         
         function [] = setmaxunits(obj,instrument,maxunits)
-            if ~isa(instrument,'cInstrument')
-                error('cStrat:setmaxunits:invalid instrument input')
-            end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    obj.maxunits_(i) = maxunits;
-                    flag = true;
-                    break
-                end
-            end
+            if ~isnumeric(maxunits), error('cStrat:setmaxunits:invalid baseunits input');end
+            
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
             if ~flag
                 error('cStrat:setmaxunits:instrument not found')
             end
+            obj.maxunits_(idx) = maxunits;
+            
         end
         %end of setmaxunits
         
-        function [maxunits,idx] = getmaxunits(obj,instrument)
-            if ~isa(instrument,'cInstrument')
-                error('cStrat:getmaxunits:invalid instrument input');
-            end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            maxunits = [];
-            idx = 0;
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    maxunits = obj.maxunits_(i);
-                    idx = i;
-                    flag = true;
-                    break
-                end
-            end
+        function maxunits = getmaxunits(obj,instrument)
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
             if ~flag
                 error('cStratFut:getmaxunits:instrument not found');
             end
+            maxunits = obj.maxunits_(idx);
+            
         end
         %end of getmaxunits
         
         function [] = setautotradeflag(obj,instrument,autotrade)
-            if ~isa(instrument,'cInstrument')
-                error('cStrat:setautotradeflag:invalid instrument input')
-            end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    obj.autotrade_(i) = autotrade;
-                    flag = true;
-                    break
-                end
-            end
+            if ~isnumeric(autotrade), error('cStrat:setautotradeflag:invalid autotrade input');end
+            if ~(autotrade == 0 || autotrade == 1),error('cStrat:setautotradeflag:invalid autotrade input');end
+            
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
+            
             if ~flag
                 error('cStrat:setautotradeflag:instrument not found')
             end
+            
+            obj.autotrade_(idx) = autotrade;
+            
         end
         %end of setautotradeflag
         
         function autotrade = getautotradeflag(obj,instrument)
-            if ~isa(instrument,'cInstrument')
-                error('cStrat:getautotradeflag:invalid instrument input')
-            end
-            instruments = obj.instruments_.getinstrument;
-            flag = false;
-            autotrade = [];
-            for i = 1:obj.count
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
-                    autotrade = obj.autotrade_(i);
-                    flag = true;
-                    break
-                end
-            end
+            [flag,idx] = obj.instruments_.hasinstrument(instrument);
             if ~flag
                 error('cStrat:getautotradeflag:instrument not found')
             end
+            autotrade = obj.autotrade_(idx);
+            
         end
         %end of getautotradeflag
+        
+        function [] = setmdeconnection(obj,connstr)
+            if ~(strcmpi(connstr,'bloomberg') || strcmpi(connstr,'ctp'))
+                error('cStrat:setmdeconnection:invalid connstr input')
+            end
+            
+            if isempty(obj.mde_fut_) 
+                obj.mde_fut_ = cMDEFut;
+                qms_fut_ = cQMS;
+                qms_fut_.setdatasource(connstr);
+                obj.mde_fut_.qms_ = qms_fut_;
+            else
+                obj.mde_fut_.qms_.setdatasource(connstr);
+            end
+            
+            %mde_opt_
+            if isempty(obj.mde_opt_) 
+                obj.mde_opt_ = cMDEOpt; 
+                qms_opt_ = cQMS;
+                qms_opt_.setdatasource(connstr);
+                obj.mde_opt_.qms_ = qms_opt_;
+            else
+                obj.mde_opt_.qms_.setdatasource(connstr);
+            end
+        end
+        %end setmdeconnection
         
     end
     %end of set/get methods
@@ -263,8 +301,8 @@ classdef cStrat < handle
             if isempty(obj.instruments_), obj.instruments_ = cInstrumentArray;end
             %check whether the instrument is an option or not
             codestr = instrument.code_ctp;
-            [flag,~,~,underlierstr,~] = isoptchar(codestr);
-            if flag
+            [optflag,~,~,underlierstr,~] = isoptchar(codestr);
+            if optflag
                 if isempty(obj.underliers_), obj.underliers_ = cInstrumentArray;end
                 u = cFutures(underlierstr);
                 u.loadinfo([underlierstr,'_info.txt']);
@@ -272,12 +310,38 @@ classdef cStrat < handle
             end
             obj.instruments_.addinstrument(instrument);
             
+            %pnl_stop_type_
+            if isempty(obj.pnl_stop_type_)
+                obj.pnl_stop_type_ = cell(obj.count,1);
+                for i = 1:obj.count, obj.pnl_stop_type_{i} = 'rel';end
+            else
+                if size(obj.pnl_stop_type_,1) < obj.count;
+                    type_ = cell(obj.count,1);
+                    type_(1:size(obj.pnl_stop_type_,1)) = obj.pnl_stop_type_;
+                    type_{end} = 'rel';
+                    obj.pnl_stop_type_ = type_;
+                end
+            end
+            
             %pnl_stop_
             if isempty(obj.pnl_stop_)
                 obj.pnl_stop_ = -inf*ones(obj.count,1);
             else
                 if size(obj.pnl_stop_,1) < obj.count
                     obj.pnl_stop_ = [obj.pnl_stop_;-inf];
+                end
+            end
+            
+            %pnl_limit_type_
+            if isempty(obj.pnl_limit_type_)
+                obj.pnl_limit_type_ = cell(obj.count,1);
+                for i = 1:obj.count, obj.pnl_limit_type_{i} = 'rel';end
+            else
+                if size(obj.pnl_limit_type_,1) < obj.count;
+                    type_ = cell(obj.count,1);
+                    type_(1:size(obj.pnl_limit_type_,1)) = obj.pnl_limit_type_;
+                    type_{end} = 'rel';
+                    obj.pnl_limit_type_ = type_;
                 end
             end
             
@@ -351,7 +415,7 @@ classdef cStrat < handle
                 obj.mde_opt_.qms_ = qms_opt_;
             end
             
-            if ~flag
+            if ~optflag
                 obj.mde_fut_.registerinstrument(instrument);
             else
                 obj.mde_fut_.registerinstrument(u);
@@ -360,13 +424,13 @@ classdef cStrat < handle
         end
         %end of 'registerinstrument'
         
-        function obj = removeinstrument(obj,instrument)
+        function [] = removeinstrument(obj,instrument)
 
             if isempty(obj.instruments_), return; end
             
             obj.instruments_.removeinstrument(instrument);
-            [flag,~,~,underlierstr,~] = isoptchar(instrument.code_ctp);
-            if flag
+            [optflag,~,~,underlierstr,~] = isoptchar(instrument.code_ctp);
+            if optflag
                 %note:we shall also remove the underlier in case all the
                 %options with the instrument are gone
                 list = obj.instruments_.getinstrument;
@@ -399,24 +463,6 @@ classdef cStrat < handle
             n = obj.underliers_.count;
         end
         %end of countunderliers
-        
-%         function indices = matchquoteindex(obj,quotes)
-%             list = obj.instruments_.getinstrument;
-%             n = obj.count;
-%             indices = zeros(n);
-%             for i = 1:n
-%                 qidx = 0;
-%                 for j = 1:size(quotes)
-%                     if strcmpi(list{i}.code_ctp,quotes{j}.code_ctp)
-%                         qidx = j;
-%                         break
-%                     end
-%                 end
-%                 if qidx == 0, error('cStrat:matchquoteindex:invalid quotes'); end
-%                 indices(i) = qidx;
-%             end
-%         end
-%         %end of matchquoteindex
         
     end
     %end of instrument-related methods
@@ -468,18 +514,19 @@ classdef cStrat < handle
         end
         %end of breakdownopt
         
-        function pnl = calcrunningpnl(obj, instrument)
+        function pnl = calcrunningpnl(obj, instrument)           
             if ~isa(instrument,'cInstrument')
                 error('cStrat:calcrunningpnl:invalid instrument input')
             end
             
+            %to check whether the instrument has been already traded or not
             [flag,idx] = obj.portfolio_.hasinstrument(instrument);
-            
-            [~,ii] = obj.getbaseunits(instrument);
             
             pnl = 0;
             if flag
                 volume = obj.portfolio_.instrument_volume(idx);
+                [~,ii] = obj.instruments_.hasinstrument(instrument);
+                
                 if volume == 0
                     obj.pnl_running_(ii) = pnl;
                     return
@@ -494,7 +541,10 @@ classdef cStrat < handle
                 
                 bid = tick(2);
                 ask = tick(3);
-                if bid == 0 || ask == 0, return; end
+                if bid == 0 || ask == 0
+                    obj.pnl_running_(ii) = pnl;
+                    return 
+                end
                 
                 multi = instrument.contract_size;
                 if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
@@ -511,8 +561,6 @@ classdef cStrat < handle
                 obj.pnl_running_(ii) = pnl;
                 
             end
-            
-            
             
         end
         %end of calcrunningpnl
@@ -561,15 +609,15 @@ classdef cStrat < handle
             instruments = obj.instruments_.getinstrument;
             for i = 1:obj.count
                 %firstly to check whether this is in trading hours
-                flag = istrading(dtnum,instruments{i}.trading_hours,...
+                ismarketopen = istrading(dtnum,instruments{i}.trading_hours,...
                     'tradingbreak',instruments{i}.trading_break);
-                if ~flag, continue; end
+                if ~ismarketopen, continue; end
                 
                 %secondly to check whether the instrument has been traded
                 %and recorded in the embedded portfolio
-                [flag,idx] = obj.portfolio_.hasinstrument(instruments{i});
+                [isinstrumenttraded,idx] = obj.portfolio_.hasinstrument(instruments{i});
                 
-                if ~flag, continue; end
+                if ~isinstrumenttraded, continue; end
                  
                 %calculate running pnl in case the embedded porfolio has
                 %got the instrument already
@@ -587,9 +635,7 @@ classdef cStrat < handle
                 end
                 
                 margin = instruments{i}.init_margin_rate;
-                if isempty(margin)
-                    margin = 0.1;
-                end
+                if isempty(margin), margin = 0.1;end
                 
                 if strcmpi(obj.pnl_limit_type_{i},'rel')
                     limit_ = obj.pnl_limit_(i)*cost*abs(volume)*multi*margin;
@@ -617,36 +663,35 @@ classdef cStrat < handle
         function [] = unwindposition(obj,instrument)
             if nargin < 1, return; end
             
-            if ~isa(instrument,'cInstrument')
-                error('cStrat:unwindposition:invalid instrument input')
-            end
-            
-            [flag,idx] = obj.portfolio_.hasinstrument(instrument);
+            %check whether the instrument has been registered with the
+            %strategy
+            [flag,idx_instrument] = obj.instruments_.hasinstrument(instrument);
             if ~flag, return; end
             
-            multi = instrument.contract_size;
-            if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
-                multi = multi/100;
-            end
+            %check whether the instrument has been traded already
+            [flag,idx_portfolio] = obj.portfolio_.hasinstrument(instrument);
+            if ~flag, return; end
+            
+%             multi = instrument.contract_size;
+%             if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
+%                 multi = multi/100;
+%             end
             
             if ~strcmpi(obj.mode_,'debug')
                 withdrawpendingentrusts(obj.counter_,instrument.code_ctp);
             end
             
-            %note:ii is the index for 
-            [~,ii] = obj.getbaseunits(instrument);
-            
-            isshfe = strcmpi(obj.portfolio_.instrument_list{idx}.exchange,'.SHF');
-            volume = obj.portfolio_.instrument_volume(idx);
+            isshfe = strcmpi(obj.portfolio_.instrument_list{idx_portfolio}.exchange,'.SHF');
+            volume = obj.portfolio_.instrument_volume(idx_portfolio);
             tick = obj.mde_fut_.getlasttick(instrument);
             bid = tick(2);
             ask = tick(3);
             if volume > 0
                 %place entrust with sell flag using the bid price
-                price = bid - obj.bidspread_(ii);
+                price = bid - obj.bidspread_(idx_instrument);
             elseif volume < 0
                 %place entrust with buy flag using the ask price
-                price = ask + obj.askspread_(ii);
+                price = ask + obj.askspread_(idx_instrument);
             end
             %note:offset = -1 indicating unwind positions
             offset = -1;
@@ -662,7 +707,7 @@ classdef cStrat < handle
                 t.direction_ = -sign(volume);
                 t.offset_ = offset;
                 pnl = obj.portfolio_.updateportfolio(t);
-                obj.pnl_close_(ii) = obj.pnl_close_(ii) + pnl;
+                obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                 return
             end
             
@@ -670,7 +715,7 @@ classdef cStrat < handle
             if ~isshfe
                 e = Entrust;
                 e.assetType = 'Future';
-                e.multiplier = multi;
+%                 e.multiplier = multi;
                 e.fillEntrust(1,code,-sign(volume),price,abs(volume),offset,code);
                 ret = obj.counter_.placeEntrust(e);
                 if ret
@@ -683,15 +728,15 @@ classdef cStrat < handle
                     t.offset_ = offset;
                     t.datetime1_ = now;
                     pnl = obj.portfolio_.updateportfolio(t);
-                    obj.pnl_close_(ii) = obj.pnl_close_(ii) + pnl;
+                    obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                 end
             else
-                volume_today = obj.portfolio_.instrument_volume_today(idx);
+                volume_today = obj.portfolio_.instrument_volume_today(idx_portfolio);
                 volume_before = volume - volume_today;
                 if volume_today ~= 0
                     e = Entrust;
                     e.assetType = 'Future';
-                    e.multiplier = multi;
+%                     e.multiplier = multi;
                     e.fillEntrust(1,code,-sign(volume_today),price,abs(volume_today),offset,code);
                     e.closetodayFlag = 1;
                     ret = obj.counter_.placeEntrust(e);
@@ -705,7 +750,7 @@ classdef cStrat < handle
                         t.offset_ = offset;
                         t.datetime1_ = now;
                         pnl = obj.portfolio_.updateportfolio(t);
-                        obj.pnl_close_(ii) = obj.pnl_close_(ii) + pnl;
+                        obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                     end 
                 end
                 if volume_before ~= 0
@@ -724,7 +769,7 @@ classdef cStrat < handle
                         t.offset_ = offset;
                         t.datetime1_ = now;
                         pnl = obj.portfolio_.updateportfolio(t);
-                        obj.pnl_close_(ii) = obj.pnl_close_(ii) + pnl;
+                        obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                     end 
                 end
             end
@@ -856,11 +901,26 @@ classdef cStrat < handle
             %market open refresh the market data
             obj.mde_fut_.refresh;
             
-            obj.riskmanagement(dtnum);
+            try
+                obj.riskmanagement(dtnum);
+            catch e
+                msg = ['error:cStrat:riskmanagment:',e.message,'\n'];
+                fprintf(msg);
+            end
             
-            signals = obj.gensignals;
+            try
+                signals = obj.gensignals;
+            catch e
+                msg = ['error:cStrat:gensiignals:',e.message,'\n'];
+                fprintf(msg);
+            end
             
-            obj.autoplacenewentrusts(signals);
+            try
+                obj.autoplacenewentrusts(signals);
+            catch e
+                msg = ['error:cStrat:autoplacenewentrusts:',e.message,'\n'];
+                fprintf(msg);
+            end
             
         end
         %end of replay_timer_function

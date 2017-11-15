@@ -299,57 +299,33 @@ classdef cStratFutMultiWR < cStrat
                     break
                 end
             end
-            
-            pnl_stop = -inf*ones(n,1);
+                       
             for i = 1:size(names_,1)
                 if strcmpi('stop',names_{i})
                     for j = 1:n
-                        pnl_stop(j) = str2double(values_{i,j});
+                        obj.setstopamount(futs{j},str2double(values_{i,j}));
                     end
-                    break
-                end
-            end
-            
-            pnl_limit = inf*ones(n,1);
-            for i = 1:size(names_,1)
-                if strcmpi('limit',names_{i})
+                elseif strcmpi('limit',names_{i})
                     for j = 1:n
-                        pnl_limit(j) = str2double(values_{i,j});
+                        obj.setlimitamount(futs{j},str2double(values_{i,j}));
                     end
-                    break
-                end
-            end
-            
-            for j = 1:n
-                obj.setstoplimit(futs{j},pnl_stop(j),pnl_limit(j));
-            end
-            
-            bidspread = zeros(n,1);
-            for i = 1:size(names_,1)
-                if strcmpi('bidspread',names_{i})
+                elseif strcmpi('stoptype',names_{i})
                     for j = 1:n
-                        bidspread(j) = str2double(values_{i,j});
+                        obj.setstoptype(futs{j},values_{i,j});
                     end
-                    break
-                end
-            end
-            
-            askspread = zeros(n,1);
-            for i = 1:size(names_,1)
-                if strcmpi('askspread',names_{i})
+                elseif strcmpi('limittype',names_{i})
                     for j = 1:n
-                        askspread(j) = str2double(values_{i,j});
+                        obj.setlimittype(futs{j},values_{i,j});
                     end
-                    break
-                end
-            end
-            
-            for j = 1:n
-                obj.setbidaskspread(futs{j},bidspread(j),askspread(j));
-            end
-            
-            for i = 1:size(names_,1)
-                if strcmpi('baseunits',names_{i})
+                elseif strcmpi('bidspread',names_{i})
+                    for j = 1:n
+                        obj.setbidspread(futs{j},str2double(values_{i,j}));
+                    end
+                elseif strcmpi('askspread',names_{i})
+                    for j = 1:n
+                        obj.setaskspread(futs{j},str2double(values_{i,j}));
+                    end                
+                elseif strcmpi('baseunits',names_{i})
                     for j = 1:n
                         obj.setbaseunits(futs{j},str2double(values_{i,j}));
                     end

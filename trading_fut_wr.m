@@ -32,3 +32,10 @@ strat_wr.printinfo;
 %%
 strat_wr.pnl_running_
 
+%%
+idx = 1;
+fut = strat_wr.instruments_.getinstrument{idx};
+disp(fut.code_ctp);
+%%
+strat_wr.unwindposition(fut);
+
