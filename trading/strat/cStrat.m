@@ -623,6 +623,7 @@ classdef cStrat < handle
                 %got the instrument already
                 
                 volume = obj.portfolio_.instrument_volume(idx);
+                cost = obj.portfolio_.instrument_avgcost(idx);
                 obj.calcrunningpnl(instruments{i});
                 
                 %                     pnl_ = obj.pnl_running_(i) + obj.pnl_close_(i);
@@ -676,6 +677,8 @@ classdef cStrat < handle
 %             if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
 %                 multi = multi/100;
 %             end
+
+            code = instrument.code_ctp;
             
             if ~strcmpi(obj.mode_,'debug')
                 withdrawpendingentrusts(obj.counter_,instrument.code_ctp);

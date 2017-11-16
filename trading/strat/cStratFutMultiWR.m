@@ -429,10 +429,12 @@ classdef cStratFutMultiWR < cStrat
                     volume_exist = obj.portfolio_.instrument_volume(idx);
                 end
                 
+                [~,ii] = obj.instruments_.hasinstrument(instrument);
+                
                 if volume_exist == 0
-                    [volume,ii] = obj.getbaseunits(instrument);
+                    volume = obj.getbaseunits(instrument);
                 else
-                    [maxvolume,ii] = obj.getmaxunits(instrument);
+                    maxvolume = obj.getmaxunits(instrument);
                     volume = max(min(maxvolume-abs(volume_exist),abs(volume_exist)),0);
                 end
                 
