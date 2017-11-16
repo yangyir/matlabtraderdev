@@ -873,7 +873,7 @@ classdef cMDEFut < handle
                 obj.ticks_count_(1) = count;
             end
         end
-        %end of saveticks2men
+        %end of saveticks2mem
         
         function [] = updatecandleinmem(obj)
             if isempty(obj.ticks_), return; end
