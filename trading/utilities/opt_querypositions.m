@@ -33,6 +33,9 @@ function [delta,gamma,vega,theta,pnl] = opt_querypositions(instruments,counter,q
             vega_i = pos_i.direction*pos_i.total_position*q_i.vega*opts{i}.contract_size;
             theta_i = pos_i.direction*pos_i.total_position*q_i.theta*opts{i}.contract_size;
             pnl_i = pos_i.direction*pos_i.total_position*opts{i}.contract_size*(q_i.last_trade-pos_i.avg_price/opts{i}.contract_size);
+            if isnan(pnl_i)
+                pnl_i = 0;
+            end
         else
             delta_i = pos_i.direction*pos_i.total_position*q_i.last_trade*opts{i}.contract_size;
             gamma_i = 0;
