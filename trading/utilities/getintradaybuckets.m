@@ -69,7 +69,11 @@ function buckets = getintradaybuckets(varargin)
         th = regexp(tradingHours,';','split');
         m = regexp(th{1},'-','split');
         a = regexp(th{2},'-','split');
-        e = regexp(th{3},'-','split');
+        if size(th,2) > 2
+            e = regexp(th{3},'-','split');
+        else
+            e = '';
+        end
         m_open = 60*str2double(m{1}(1:2))+str2double(m{1}(end-1:end));
         m_close = 60*str2double(m{2}(1:2))+str2double(m{2}(end-1:end));
         a_open = 60*str2double(a{1}(1:2))+str2double(a{1}(end-1:end));
