@@ -681,7 +681,7 @@ classdef cStrat < handle
             code = instrument.code_ctp;
             
             if ~strcmpi(obj.mode_,'debug')
-                withdrawpendingentrusts(obj.counter_,instrument.code_ctp);
+                withdrawpendingentrusts(obj.counter_,code);
             end
             
             isshfe = strcmpi(obj.portfolio_.instrument_list{idx_portfolio}.exchange,'.SHF');
