@@ -1,21 +1,10 @@
 classdef cQuoteOpt < cQuoteFut
     %class of quotes for listed options
     properties
-%         code_ctp
-%         code_wind
-%         code_bbg
         code_ctp_underlier
         code_wind_underlier
         code_bbg_underlier
-%         update_date1   %last update date in number
-%         update_date2   %last update date in string
-%         update_time1   %last update time in number
-%         update_time2   %last update time in string
-%         last_trade  %last trade
-%         bid   %bid_1
-%         ask   %ask_1
-%         bid_size  %bid_size_1
-%         ask_size  %ask_size_1
+
         %
         last_trade_underlier
         bid_underlier
@@ -57,7 +46,11 @@ classdef cQuoteOpt < cQuoteFut
                 obj.code_bbg_underlier = ctp2bbg(obj.code_ctp_underlier);
                 
                 obj.opt_type = optiontype;
-                obj.opt_strike = str2double(strike);
+                if ischar(strike)
+                    obj.opt_strike = str2double(strike);
+                else
+                    obj.opt_strike = strike;
+                end
                 obj.opt_expiry_date1 = expiry;
                 obj.opt_expiry_date2 = datestr(expiry,'yyyy-mm-dd');
             
@@ -106,8 +99,12 @@ classdef cQuoteOpt < cQuoteFut
                 else
                     opttype = 'put';
                 end
+                warning('off')
                 obj.impvol = bjsimpv(mid,obj.opt_strike,r,obj.update_date1,...
                     obj.opt_expiry_date1,midopt,[],r,[],opttype);
+                if isnan(obj.impvol )
+                    obj.impvol = 0.01;
+                end
             else
                 %TODO
                 error('not implemeneted')
