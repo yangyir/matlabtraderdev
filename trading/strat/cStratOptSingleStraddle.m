@@ -9,9 +9,12 @@ classdef cStratOptSingleStraddle < cStrat
         function obj = cStratOptSingleStraddle
             obj.name_ = 'optsinglestraddle';
         end
-        
-        
+        %end of cStratOptSingleStraddle
     end
+    
+    
+    
+    
     
     %%
     % real-time market data related methods
@@ -174,10 +177,19 @@ classdef cStratOptSingleStraddle < cStrat
                 else
                     fut_delta = 0;
                 end
+<<<<<<< HEAD
                
                 fut_pnl = 0;
                 for i = 1:size(pos_u,2)
                     fut_pnl = fut_pnl + pos_u(i).direction*pos_u(i).total_position*(last_trade-pos_u(i).avg_price/list_u{1}.contract_size)*list_u{1}.contract_size;
+=======
+                
+                fut_pnl = 0;
+                for i = 1:size(pos_u,2)
+                    if pos_u(i).total_position ~= 0
+                        fut_pnl = fut_pnl + pos_u(i).direction*pos_u(i).total_position*(last_trade-pos_u(i).avg_price/list_u{1}.contract_size)*list_u{1}.contract_size;
+                    end
+>>>>>>> 819de3419af96dcd82773b01853becd28924c804
                 end
                 fprintf('fut:%12s; ',list_u{1}.code_ctp)
                 fprintf('iv:%4.1f%%; ',NaN);
