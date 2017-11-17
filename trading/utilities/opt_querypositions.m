@@ -37,11 +37,17 @@ function [delta,gamma,vega,theta,pnl] = opt_querypositions(instruments,counter,q
                 pnl_i = 0;
             end
         else
-            delta_i = pos_i.direction*pos_i.total_position*q_i.last_trade*opts{i}.contract_size;
+            delta_i = 0;
+            for j = 1:size(pos_i,2)
+                delta_i = delta_i + pos_i(j).direction*pos_i(j).total_position*q_i.last_trade*opts{i}.contract_size;
+            end
             gamma_i = 0;
             vega_i = 0;
             theta_i = 0;
-            pnl_i = pos_i.direction*pos_i.total_position*opts{i}.contract_size*(q_i.last_trade-pos_i.avg_price/opts{i}.contract_size);
+            pnl_i = 0;
+            for j = 1:size(pos_i,2)
+                pnl_i = pnl_i + pos_i(j).direction*pos_i(j).total_position*opts{i}.contract_size*(q_i.last_trade-pos_i(j).avg_price/opts{i}.contract_size);
+            end
         end
         fprintf('opt:%12s; ',code_i)
         fprintf('iv:%4.1f%%; ',q_i.impvol*100);
