@@ -85,7 +85,7 @@ for i = 1:size(codelist)
         for j = idx:length(tenor)
             if isnumchar(tenor(j)),break;end
         end
-        opt_strike = tenor(j:end);
+        opt_strike = str2double(tenor(j:end));
         flag = true;
         
         break
