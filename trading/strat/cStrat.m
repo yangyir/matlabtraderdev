@@ -681,7 +681,7 @@ classdef cStrat < handle
             code = instrument.code_ctp;
             
             if ~strcmpi(obj.mode_,'debug')
-                withdrawpendingentrusts(obj.counter_,code);
+                obj.withdrawentrusts(instrument);
             end
             
             isshfe = strcmpi(obj.portfolio_.instrument_list{idx_portfolio}.exchange,'.SHF');
@@ -779,6 +779,22 @@ classdef cStrat < handle
         end
         %end of unwindpositions
         
+        
+        function [] = withdrawentrusts(obj,instrument)
+            if ~isa(instrument,'cInstrument')
+                error('cStrat:withdrawentrusts:invalid instrument input')
+            end
+            
+            for i = 1:obj.entrusts_.count
+                e = obj.entrusts_.node(i);
+                if strcmpi(e.instrumentCode,instrument.code_ctp)
+                    if ~e.is_entrust_filled || ~e.is_entrust_closed
+                        withdrawentrust(obj.counter_,e);
+                    end
+                end
+            end
+        end
+        %end of withdrawentrusts
         
     end
     %end of trading-related methods
