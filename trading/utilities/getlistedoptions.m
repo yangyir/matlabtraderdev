@@ -8,6 +8,10 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
     data = cDataFileIO.loadDataFromTxtFile(fn);
     pclose = data(data(:,1) == getlastbusinessdate,5);
     
+    if isempty(pclose)
+        error('getlistedoptions:last business close price not updated')
+    end
+    
     underlier = cFutures(code_ctp_underlier);
     underlier.loadinfo([code_ctp_underlier,'_info.txt']);
     
@@ -19,7 +23,7 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
         error('getlistedoptions:unknown underlier')
     end
     
-    strikemid = round(pclose/bucketsize,0)*bucketsize;
+    strikemid = round(pclose/bucketsize)*bucketsize;
     n = (numstrikes-1)/2;
     strikes = zeros(numstrikes,1);
     for i = 1:numstrikes
