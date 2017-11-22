@@ -3,6 +3,16 @@ classdef cStratOptMultiShortVol < cStrat
     end
     
     methods
+        function [] = clear(obj)
+            obj.instruments_.clear;
+            obj.underliers_.clear;
+            obj.mde_fut_ = {};
+            obj.mde_opt_ = {};
+            obj.counter_ = {};
+            
+        end
+        %end of clear
+        
         function obj = cStratOptMultiShortVol
             obj.name_ = 'optmultishortvol';
             if isempty(obj.instruments_), obj.instruments_ = cInstrumentArray; end
@@ -23,6 +33,10 @@ classdef cStratOptMultiShortVol < cStrat
             end
             
             obj.timer_interval_ = 60;
+            
+            if isempty(obj.portfolio_)
+                obj.portfolio_ = cPortfolio;
+            end
             
         end
         %end of cStratOptMultiShortVol
@@ -49,11 +63,65 @@ classdef cStratOptMultiShortVol < cStrat
         
     end
     
+    %trading-related
+    methods
+        function [] = shortopensingleopt(obj,ctp_code,lots)
+            instrument = cOption(ctp_code);
+            [bool, idx] = obj.instruments_.hasinstrument(instrument);
+            if bool
+                instrument = obj.instruments_.getinstrument{idx};
+                e = Entrust;
+                direction = -1;
+                offset = 1;
+                q = obj.mde_opt_.qms_.getquote(ctp_code);
+                price = q.bid1;
+                e.fillEntrust(1,ctp_code,direction,price,lots,offset,ctp_code);
+                e.assetType = 'Future';
+                e.multiplier = 10;
+                obj.entrusts_.push(e);
+                ret = obj.counter_.placeEntrust(e);
+                if ret
+                    ret = obj.counter_.queryEntrust(e);
+                    if ret && e.dealVolume > 0
+                        t = cTransaction;
+                        t.instrument_ = instrument;
+                        t.price_ = e.dealAmount./e.dealVolume;
+                        t.volume_ = e.dealVolume;
+                        t.direction_ = direction;
+                        t.offset_ = offset;
+                        t.datetime1_ = e.time;
+                        obj.portfolio_.updateportfolio(t);
+                    end
+                end
+                
+                
+            end
+        end
+        %end of shortopensigleopt
+        
+        function [] = shortclosesingleopt(obj,ctp_code,lots)
+        end
+        %end of shortclosesigleopt
+        
+        function [] = longopensingleopt(obj,ctp_code,lots)
+        end
+        %end of longopensigleopt
+        
+        function [] = longclosesingleopt(obj,ctp_code,lots)
+        end
+        %end of longopensigleopt
+        
+    end
+    
     methods
         function signals = gensignals(obj)
+            variablenotused(obj);
+            signals = {};
         end
         
         function [] = autoplacenewentrusts(obj,signals)
+            variablenotused(obj);
+            variablenotused(signals);
         end
         
     end
