@@ -1,3 +1,6 @@
 function [] = variablenotused(v)
-    if exist(v,'variable'), return; end
+    try
+        if exist(v,'variable'), return; end
+    catch
+    end
 end
