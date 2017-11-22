@@ -177,7 +177,7 @@ classdef cStratOptSingleStraddle < cStrat
                 else
                     fut_delta = 0;
                 end
-                
+               
                 fut_pnl = 0;
                 for i = 1:size(pos_u,2)
                     if pos_u(i).total_position ~= 0

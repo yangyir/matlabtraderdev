@@ -33,9 +33,7 @@ strat_wr.printinfo;
 strat_wr.pnl_running_
 
 %%
-code = 'ni1805';
+code = 'al1802';
 futs = strat_wr.instruments_.getinstrument(code);
-disp(futs{1}.code_ctp);
-%%
 strat_wr.unwindposition(futs{1});
 
