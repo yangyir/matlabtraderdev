@@ -602,31 +602,6 @@ classdef cStrat < handle
             end
         end
         %end of loadportfoliofromcounter
-        
-        function pnl = updateportfoliowithentrust(obj,e)
-            pnl = 0;
-            if isempty(obj.counter_), return; end
-            if ~isa(e,'Enstrust'), return; end
-            
-            ret = obj.counter_.queryEntrust(e);
-            if ret
-                f1 = e.is_entrust_closed;
-                f2 = e.dealVolume > 0;
-                [f3,idx] = obj.instruments_.hasinstrument(e.instrumentCode);
-                if f1&&f2&&f3
-                    instrument = obj.instruments_.getinstrument{idx};
-                    t = cTransaction;
-                    t.instrument_ = instrument;
-                    t.price_ = e.dealAmount./e.dealVolume;
-                    t.volume_ = e.dealVolume;
-                    t.direction_ = e.direction;
-                    t.offset_ = e.offsetFlag;
-                    t.datetime1_ = e.time;
-                    pnl = obj.portfolio_.updateportfolio(t);
-                end
-            end
-        end
-        %end of updateportfoliowithentrust
     
         function [] = riskmanagement(obj,dtnum)
             if isempty(obj.counter_) && ~strcmpi(obj.mode_,'debug'), return; end
@@ -697,6 +672,11 @@ classdef cStrat < handle
             %check whether the instrument has been traded already
             [flag,idx_portfolio] = obj.portfolio_.hasinstrument(instrument);
             if ~flag, return; end
+            
+%             multi = instrument.contract_size;
+%             if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
+%                 multi = multi/100;
+%             end
 
             code = instrument.code_ctp;
             
@@ -709,13 +689,12 @@ classdef cStrat < handle
             tick = obj.mde_fut_.getlasttick(instrument);
             bid = tick(2);
             ask = tick(3);
-            tick_size = obj.portfolio_.instrument_list{idx_portfolio}.tick_size;
             if volume > 0
                 %place entrust with sell flag using the bid price
-                price = bid - obj.bidspread_(idx_instrument)*tick_size;
+                price = bid - obj.bidspread_(idx_instrument);
             elseif volume < 0
                 %place entrust with buy flag using the ask price
-                price = ask + obj.askspread_(idx_instrument)*tick_size;
+                price = ask + obj.askspread_(idx_instrument);
             end
             %note:offset = -1 indicating unwind positions
             offset = -1;
@@ -725,7 +704,7 @@ classdef cStrat < handle
                 %following
                 %assuming the entrust is completely filled in debug mode
                 t = cTransaction;
-                t.instrument_ = obj.portfolio_.instrument_list{idx_portfolio};
+                t.instrument_ = instrument;
                 t.price_ = price;
                 t.volume_= abs(volume);
                 t.direction_ = -sign(volume);
@@ -739,19 +718,19 @@ classdef cStrat < handle
             if ~isshfe
                 e = Entrust;
                 e.assetType = 'Future';
+%                 e.multiplier = multi;
                 e.fillEntrust(1,code,-sign(volume),price,abs(volume),offset,code);
                 ret = obj.counter_.placeEntrust(e);
                 if ret
-%                     obj.entrusts_.push(e);
-%                     t = cTransaction;
-%                     t.instrument_ = instrument;
-%                     t.price_ = price;
-%                     t.volume_ = abs(volume);
-%                     t.direction_ = -sign(volume);
-%                     t.offset_ = offset;
-%                     t.datetime1_ = now;
-%                     pnl = obj.portfolio_.updateportfolio(t);
-                    pnl = updateportfoliowithentrust(obj,e);
+                    obj.entrusts_.push(e);
+                    t = cTransaction;
+                    t.instrument_ = instrument;
+                    t.price_ = price;
+                    t.volume_ = abs(volume);
+                    t.direction_ = -sign(volume);
+                    t.offset_ = offset;
+                    t.datetime1_ = now;
+                    pnl = obj.portfolio_.updateportfolio(t);
                     obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                 end
             else
@@ -760,39 +739,39 @@ classdef cStrat < handle
                 if volume_today ~= 0
                     e = Entrust;
                     e.assetType = 'Future';
+%                     e.multiplier = multi;
                     e.fillEntrust(1,code,-sign(volume_today),price,abs(volume_today),offset,code);
                     e.closetodayFlag = 1;
                     ret = obj.counter_.placeEntrust(e);
                     if ret
-%                         obj.entrusts_.push(e);
-%                         t = cTransaction;
-%                         t.instrument_ = instrument;
-%                         t.price_ = price;
-%                         t.volume_ = abs(volume_today);
-%                         t.direction_ = -sign(volume_today);
-%                         t.offset_ = offset;
-%                         t.datetime1_ = now;
-%                         pnl = obj.portfolio_.updateportfolio(t);
-                        pnl = updateportfoliowithentrust(obj,e);
+                        obj.entrusts_.push(e);
+                        t = cTransaction;
+                        t.instrument_ = instrument;
+                        t.price_ = price;
+                        t.volume_ = abs(volume_today);
+                        t.direction_ = -sign(volume_today);
+                        t.offset_ = offset;
+                        t.datetime1_ = now;
+                        pnl = obj.portfolio_.updateportfolio(t);
                         obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                     end 
                 end
                 if volume_before ~= 0
                     e = Entrust;
                     e.assetType = 'Future';
+                    e.multiplier = multi;
                     e.fillEntrust(1,code,-sign(volume_before),price,abs(volume_before),offset,code);
                     ret = obj.counter_.placeEntrust(e);
                     if ret
-%                         obj.entrusts_.push(e);
-%                         t = cTransaction;
-%                         t.instrument_ = instrument;
-%                         t.price_ = price;
-%                         t.volume_ = abs(volume_before);
-%                         t.direction_ = -sign(volume_before);
-%                         t.offset_ = offset;
-%                         t.datetime1_ = now;
-%                         pnl = obj.portfolio_.updateportfolio(t);
-                        pnl = updateportfoliowithentrust(obj,e);
+                        obj.entrusts_.push(e);
+                        t = cTransaction;
+                        t.instrument_ = instrument;
+                        t.price_ = price;
+                        t.volume_ = abs(volume_before);
+                        t.direction_ = -sign(volume_before);
+                        t.offset_ = offset;
+                        t.datetime1_ = now;
+                        pnl = obj.portfolio_.updateportfolio(t);
                         obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                     end 
                 end
@@ -800,54 +779,22 @@ classdef cStrat < handle
         end
         %end of unwindpositions
         
+        
         function [] = withdrawentrusts(obj,instrument)
-            if ischar(instrument)
-                code_ctp = instrument;
-            elseif isa(instrument,'cInstrument')
-                code_ctp = instrument.code_ctp;
-            else
+            if ~isa(instrument,'cInstrument')
                 error('cStrat:withdrawentrusts:invalid instrument input')
             end
             
             for i = 1:obj.entrusts_.count
                 e = obj.entrusts_.node(i);
-                if strcmpi(e.instrumentCode,code_ctp)
+                if strcmpi(e.instrumentCode,instrument.code_ctp)
                     if ~e.is_entrust_filled || ~e.is_entrust_closed
-                        ret = withdrawentrust(obj.counter_,e);
-                        if ret
-                            %the code will execute once the entrust is
-                            %successfully withdrawn
-                            if e.dealVolume > 0
-                                %we need to update the portfolio in case
-                                %the entrust is partially filled
-                                [~,idx] = obj.instruments_.hasinstrument(e.instrumentCode);
-                                instrument = obj.instruments_.getinstrument{idx};
-                                t = cTransaction;
-                                t.instrument_ = instrument;
-                                t.price_ = e.dealAmount./e.dealVolume;
-                                t.volume_ = e.dealVolume;
-                                t.direction_ = e.direction;
-                                t.offset_ = e.offsetFlag;
-                                t.datetime1_ = e.time;
-                                obj.portfolio_.updateportfolio(t);
-                            end
-                        end
+                        withdrawentrust(obj.counter_,e);
                     end
                 end
             end
         end
         %end of withdrawentrusts
-        
-        function [] = updateentrusts(obj)
-            n = obj.entrusts_.count;
-            for i = 1:n
-                e = obj.entrusts_.node(i);
-                if ~e.entrustStatus == -1
-                    updateportfoliowithentrust(obj,e);
-                end
-            end
-        end
-        %end of updateentrusts
         
     end
     %end of trading-related methods
@@ -971,15 +918,7 @@ classdef cStrat < handle
             end
             
             %market open refresh the market data
-            if ~isempty(obj.mde_fut_), obj.mde_fut_.refresh; end
-            if ~isempty(obj.mde_opt_), obj.mde_opt_.refresh; end
-            
-            try
-                obj.updateentrusts;
-            catch e
-                msg = ['error:cStrat:updateentrusts:',e.message,'\n'];
-                fprintf(msg);
-            end
+            obj.mde_fut_.refresh;
             
             try
                 obj.riskmanagement(dtnum);

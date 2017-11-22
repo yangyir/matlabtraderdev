@@ -9,18 +9,14 @@ classdef cPortfolio < handle
     
     methods
         function [bool,idx] = hasinstrument(obj,instrument)
-            if ischar(instrument)
-                code_ctp = instrument;
-            elseif isa(instrument,'cInstrument')
-                code_ctp = instrument.code_ctp;
-            else
+            if ~isa(instrument,'cInstrument')
                 error('cPortfolio:hasinstrument:cInstrument type of input expected')
             end
             n = obj.count;
             bool = false;
             idx = 0;
             for i = 1:n
-                if strcmpi(code_ctp,obj.instrument_list{i}.code_ctp)
+                if strcmpi(instrument.code_ctp,obj.instrument_list{i}.code_ctp)
                     bool = true;
                     idx = i;
                     break;
