@@ -764,16 +764,15 @@ classdef cStrat < handle
                     e.closetodayFlag = 1;
                     ret = obj.counter_.placeEntrust(e);
                     if ret
-%                         obj.entrusts_.push(e);
-%                         t = cTransaction;
-%                         t.instrument_ = instrument;
-%                         t.price_ = price;
-%                         t.volume_ = abs(volume_today);
-%                         t.direction_ = -sign(volume_today);
-%                         t.offset_ = offset;
-%                         t.datetime1_ = now;
-%                         pnl = obj.portfolio_.updateportfolio(t);
-                        pnl = updateportfoliowithentrust(obj,e);
+                        obj.entrusts_.push(e);
+                        t = cTransaction;
+                        t.instrument_ = instrument;
+                        t.price_ = price;
+                        t.volume_ = abs(volume_today);
+                        t.direction_ = -sign(volume_today);
+                        t.offset_ = offset;
+                        t.datetime1_ = now;
+                        pnl = obj.portfolio_.updateportfolio(t);
                         obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                     end 
                 end
@@ -785,15 +784,14 @@ classdef cStrat < handle
                     ret = obj.counter_.placeEntrust(e);
                     if ret
                         obj.entrusts_.push(e);
-%                         t = cTransaction;
-%                         t.instrument_ = instrument;
-%                         t.price_ = price;
-%                         t.volume_ = abs(volume_before);
-%                         t.direction_ = -sign(volume_before);
-%                         t.offset_ = offset;
-%                         t.datetime1_ = now;
-%                         pnl = obj.portfolio_.updateportfolio(t);
-                        pnl = updateportfoliowithentrust(obj,e);
+                        t = cTransaction;
+                        t.instrument_ = instrument;
+                        t.price_ = price;
+                        t.volume_ = abs(volume_before);
+                        t.direction_ = -sign(volume_before);
+                        t.offset_ = offset;
+                        t.datetime1_ = now;
+                        pnl = obj.portfolio_.updateportfolio(t);
                         obj.pnl_close_(idx_instrument) = obj.pnl_close_(idx_instrument) + pnl;
                     end 
                 end

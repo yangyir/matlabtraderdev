@@ -5,6 +5,13 @@ classdef (Abstract) cInstrument < handle
         code_bbg@char
     end
     
+    methods
+        function delete(obj)
+            variablenotused(obj);
+            clear obj;
+        end
+    end
+    
     methods (Abstract)
         init(obj,ds_)
         saveinfo(obj,fn_)

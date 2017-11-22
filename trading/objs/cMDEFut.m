@@ -376,7 +376,11 @@ classdef cMDEFut < handle
         %end of initcandles
         
         function tick = getlasttick(obj,instrument)
-            if ~isa(instrument,'cInstrument')
+            if ischar(instrument)
+                code_ctp = instrument;
+            elseif isa(instrument,'cInstrument')
+                code_ctp = instrument.code_ctp;
+            else
                 error('cMDEFut:getlasttick:invalid instrument input')
             end
             
@@ -384,7 +388,7 @@ classdef cMDEFut < handle
             ns = size(instruments,1);
             flag = false;
             for i = 1:ns
-                if strcmpi(instrument.code_ctp,instruments{i}.code_ctp)
+                if strcmpi(code_ctp,instruments{i}.code_ctp)
                     ticks = obj.ticks_{i};
                     if obj.ticks_count_ > 0
                         tick = ticks(obj.ticks_count_(i),:);

@@ -4,15 +4,33 @@ classdef cInstrumentArray < handle
     end
     
     methods
+        function delete(obj)
+            n = obj.count;
+            for i = 1:n
+                obj.list_{i}.delete;
+            end
+            obj.list_ = {};
+        end
+        
         function [bool,idx] = hasinstrument(obj,instrument)
-            if ~isa(instrument,'cInstrument')
-                error('cInstrumentArray:hasinstrument:cInstrument type of input expected')
+            if ~obj.isvalid
+                bool = false;
+                idx = 0;
+                return
+            end
+            
+            if ischar(instrument)
+                code_str = instrument;
+            elseif isa(instrument,'cInstrument')
+                code_str = instrument.code_ctp;
+            else
+                error('cInstrumentArray:hasinstrument:cInstrument or char type of input expected')
             end
             n = obj.count;
             bool = false;
             idx = 0;
             for i = 1:n
-                if strcmpi(instrument.code_ctp,obj.list_{i}.code_ctp)
+                if strcmpi(code_str,obj.list_{i}.code_ctp)
                     bool = true;
                     idx = i;
                     break;
@@ -23,11 +41,16 @@ classdef cInstrumentArray < handle
         %end of hasinstrument
         
         function n = count(obj)
-            n = length(obj.list_);
+            if ~obj.isvalid
+                n = 0;
+            else
+                n = length(obj.list_);
+            end
         end
         %end of count
     
         function obj = addinstrument(obj,instrument)
+            if ~obj.isvalid, return; end
             bool = obj.hasinstrument(instrument);
             if ~bool
                 n = obj.count;
@@ -43,6 +66,7 @@ classdef cInstrumentArray < handle
         %end of addinstrument
         
         function obj = removeinstrument(obj,instrument)
+            if ~obj.isvalid, return; end
             [bool,idx] = obj.hasinstrument(instrument);
             if ~bool
                 %a warning or error message shall be issued
@@ -67,11 +91,17 @@ classdef cInstrumentArray < handle
         %end of removeinstrument
         
         function [] = clear(obj)
+            if ~obj.isvalid, return; end
             obj.list_ = {};
         end
         %end of clear
         
         function list = getinstrument(obj,codestr)
+            if ~obj.isvalid
+                list = {};
+                return
+            end
+            
             if nargin < 2
                 list = obj.list_;
             else
