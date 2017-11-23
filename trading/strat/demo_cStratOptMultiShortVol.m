@@ -12,4 +12,10 @@ strat.mde_opt_.refresh;
 strat.mde_opt_.voltable;
 
 %%
-strat.shortopensingleopt('m1805-P-2850',5)
+strat.shortopensingleopt('m1805-C-2900',5)
+
+%%
+strat.updateentrusts
+
+%%
+strat.portfolio_.print

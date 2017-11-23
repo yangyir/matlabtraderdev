@@ -606,7 +606,7 @@ classdef cStrat < handle
         function pnl = updateportfoliowithentrust(obj,e)
             pnl = 0;
             if isempty(obj.counter_), return; end
-            if ~isa(e,'Enstrust'), return; end
+            if ~isa(e,'Entrust'), return; end
             
             ret = obj.counter_.queryEntrust(e);
             if ret
@@ -844,7 +844,7 @@ classdef cStrat < handle
             n = obj.entrusts_.count;
             for i = 1:n
                 e = obj.entrusts_.node(i);
-                if ~e.entrustStatus == -1
+                if e.entrustStatus ~= -1
                     updateportfoliowithentrust(obj,e);
                 end
             end
