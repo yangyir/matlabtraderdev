@@ -21,3 +21,22 @@ strat.portfolio_.print;
 
 %%
 [pnltbl,risktbl] = strat.pnlriskeod;
+printpnltbl(pnltbl);
+printrisktbl(risktbl);
+
+%%
+p = cPortfolio;
+for i = 1:strat.portfolio_.count
+    instrument = strat.portfolio_.instrument_list{i};
+    cost = strat.portfolio_.instrument_avgcost(i);
+    volume = strat.portfolio_.instrument_volume(i);
+    p.addinstrument(instrument,cost,volume,getlastbusinessdate);
+end
+p.print;
+
+%%
+p.addinstrument(instrument,70,5,now,1);
+%%
+p.print
+
+

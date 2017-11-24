@@ -245,10 +245,17 @@ classdef cStratOptMultiShortVol < cStrat
             
             pnltbl = cHelper.pnlrisk1(obj.portfoliobase_,getlastbusinessdate);
             
-            [~,risktbl] = cHelper.pnlrisk1(obj.portfolio_,getlastbusinessdate);
+            %the carry risk of the latest portfolio
+            [~,risktbl] = cHelper.pnlrisk1(obj.portfoliobase_,getlastbusinessdate);
             
         end
         %end of pnlriskeod
+        
+        function [pnltbl,risktbl] = pnlriskrealtime(obj)
+           
+           
+            
+        end
     end
     %end of pnl/risk related
     
