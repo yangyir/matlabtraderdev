@@ -1,4 +1,4 @@
-classdef cStratOptMultiShortVol < cStrat
+classdef cStratOpt < cStrat
     properties
         delta_underlier_@double
         %
@@ -133,8 +133,8 @@ classdef cStratOptMultiShortVol < cStrat
         end
         %end of clear
         
-        function obj = cStratOptMultiShortVol
-            obj.name_ = 'optmultishortvol';
+        function obj = cStratOpt
+            obj.name_ = 'stratopt';
             if isempty(obj.instruments_), obj.instruments_ = cInstrumentArray; end
             if isempty(obj.underliers_), obj.underliers_ = cInstrumentArray; end
             
@@ -154,16 +154,32 @@ classdef cStratOptMultiShortVol < cStrat
             
             obj.timer_interval_ = 60;
             
-            if isempty(obj.portfolio_)
-                obj.portfolio_ = cPortfolio;
-            end
+            if isempty(obj.portfolio_),obj.portfolio_ = cPortfolio;end
             
-            if isempty(obj.portfoliobase_)
-                obj.portfoliobase_ = cPortfolio;
-            end
+            if isempty(obj.portfoliobase_),obj.portfoliobase_ = cPortfolio;end
             
         end
-        %end of cStratOptMultiShortVol
+        %end of cStratOpt
+        
+        function [] = registerinstrument(obj,instrument)
+            registerinstrument@cStrat(obj,instrument);
+            obj.setlimitamount(instrument,inf);
+            obj.setlimittype(instrument,'abs');
+            obj.setstopamount(instrument,-inf);
+            obj.setstoptype(instrument,'abs');
+            obj.setautotradeflag(instrument,0);
+            obj.setbidspread(instrument,0);
+            obj.setaskspread(instrument,0);
+            obj.setriskvalue(instrument,'delta',0);
+            obj.setriskvalue(instrument,'gamma',0);
+            obj.setriskvalue(instrument,'vega',0);
+            obj.setriskvalue(instrument,'theta',0);
+            obj.setriskvalue(instrument,'deltacarry',0);
+            obj.setriskvalue(instrument,'gammacarry',0);
+            obj.setriskvalue(instrument,'vegacarry',0);
+
+        end
+        %end of registerinstrument
         
         function [] = loadoptions(obj,code_ctp_underlier,numoptions)
             if nargin < 3
@@ -174,36 +190,7 @@ classdef cStratOptMultiShortVol < cStrat
             
             for i = 1:size(calls,1)
                 obj.registerinstrument(calls{i});
-                obj.setlimitamount(calls{i},inf);
-                obj.setlimittype(calls{i},'abs');
-                obj.setstopamount(calls{i},-inf);
-                obj.setstoptype(calls{i},'abs');
-                obj.setautotradeflag(calls{i},0);
-                obj.setbidspread(calls{i},0);
-                obj.setaskspread(calls{i},0);
-                obj.setriskvalue(calls{i},'delta',0);
-                obj.setriskvalue(calls{i},'gamma',0);
-                obj.setriskvalue(calls{i},'vega',0);
-                obj.setriskvalue(calls{i},'theta',0);
-                obj.setriskvalue(calls{i},'deltacarry',0);
-                obj.setriskvalue(calls{i},'gammacarry',0);
-                obj.setriskvalue(calls{i},'vegacarry',0);
-                %
                 obj.registerinstrument(puts{i});
-                obj.setlimitamount(puts{i},inf);
-                obj.setlimittype(puts{i},'abs');
-                obj.setstopamount(puts{i},-inf);
-                obj.setstoptype(puts{i},'abs');
-                obj.setautotradeflag(puts{i},0);
-                obj.setbidspread(puts{i},0);
-                obj.setaskspread(puts{i},0);
-                obj.setriskvalue(puts{i},'delta',0);
-                obj.setriskvalue(puts{i},'gamma',0);
-                obj.setriskvalue(puts{i},'vega',0);
-                obj.setriskvalue(puts{i},'theta',0);
-                obj.setriskvalue(puts{i},'deltacarry',0);
-                obj.setriskvalue(puts{i},'gammacarry',0);
-                obj.setriskvalue(puts{i},'vegacarry',0);
                 %
                 obj.mde_opt_.registerinstrument(calls{i});
                 obj.mde_opt_.registerinstrument(puts{i});
@@ -232,7 +219,29 @@ classdef cStratOptMultiShortVol < cStrat
             end
             
         end
-        %end of loadoptions
+        %end of loadportfoliofromfile
+        
+        function [] = loadportfoliofromcounter(obj)
+            for i = 1:obj.count
+                instrument_i = obj.instruments_.getinstrument{i};
+                pos_i = loadpositionfromcounter(obj.counter_,instrument_i);
+                if pos_i.volume ~= 0
+                    obj.portfoliobase_.addinstrument(instrument_i,pos_i.carrycost,pos_i.volume,pos_i.carrydate1);
+                    obj.portfolio_.addinstrument(instrument_i,pos_i.carrycost,pos_i.volume,pos_i.carrydate1);
+                end
+            end
+            
+            for i = 1:obj.countunderliers
+                underlier_i = obj.underliers_.getinstrument{i};
+                pos_i = loadpositionfromcounter(obj.counter_,underlier_i);
+                if pos_i.volume ~= 0
+                    obj.portfoliobase_.addinstrument(underlier_i,pos_i.carrycost,pos_i.volume);
+                    obj.portfolio_.addinstrument(underlier_i,pos_i.carrycost,pos_i.volume);
+                end
+            end
+            
+        end
+        %end of loadportfoliofromcounter
         
     end
     %end of strategy initialization
@@ -261,37 +270,120 @@ classdef cStratOptMultiShortVol < cStrat
     
     %trading-related
     methods
-        function [] = shortopensingleopt(obj,ctp_code,lots)
+        function [] = shortopensingleinstrument(obj,ctp_code,lots)
             instrument = cOption(ctp_code);
-            [bool, ~] = obj.instruments_.hasinstrument(instrument);
+            [bool, idx] = obj.instruments_.hasinstrument(instrument);
+            %only place entrusts in case the instrument has been registered
+            %with the strategy
             if bool
+                isopt = isoptchar(ctp_code);
                 e = Entrust;
                 direction = -1;
                 offset = 1;
-                q = obj.mde_opt_.qms_.getquote(ctp_code);
-                price = q.bid1;
+                if isopt
+                    q = obj.mde_opt_.qms_.getquote(ctp_code);
+                else
+                    q = obj.mde_fut_.qms_.getquote(ctp_code);
+                end
+                price = q.bid1 + obj.bidspread_(idx);
                 e.fillEntrust(1,ctp_code,direction,price,lots,offset,ctp_code);
-                e.assetType = 'Future';
-                e.multiplier = 10;
                 obj.entrusts_.push(e);
                 ret = obj.counter_.placeEntrust(e);
                 if ret, obj.updateportfoliowithentrust(e); end
             end
-            
         end
-        %end of shortopensigleopt
+        %end of shortopensigleinstrument
         
-        function [] = shortclosesingleopt(obj,ctp_code,lots)
+        function [] = shortclosesingleinstrument(obj,ctp_code,lots)
+            instrument = cOption(ctp_code);
+            [f1, idx] = obj.instruments_.hasinstrument(instrument);
+            [f2,idxp] = obj.portfolio_.hasinstrument(instrument);
+            if f1&&f2
+                volume = abs(obj.portfolio_.instrument_list(idxp));
+                if volume < lots
+                    error('cStratOpt:shortclosesingleinstrument:input size exceeds existing size')
+                end
+                if volume <= 0
+                    error('cStratOpt:shortclosesingleinstrument:existing long position not found')
+                end
+                
+                isopt = isoptchar(ctp_code);
+                e = Entrust;
+                direction = -1;
+                offset = -1;
+                if isopt
+                    q = obj.mde_opt_.qms_.getquote(ctp_code);
+                else
+                    q = obj.mde_fut_.qms_.getquote(ctp_code);
+                end
+                price = q.bid1 + obj.bidspread_(idx);
+                e.fillEntrust(1,ctp_code,direction,price,lots,offset,ctp_code);
+                obj.entrusts_.push(e);
+                ret = obj.counter_.placeEntrust(e);
+                if ret
+                    pnl = obj.updateportfoliowithentrust(e); 
+                    obj.pnl_close_(idx) = obj.pnl_close_(idx) + pnl;
+                end
+            end
         end
-        %end of shortclosesigleopt
+        %end of shortclosesigleinstrument
         
-        function [] = longopensingleopt(obj,ctp_code,lots)
+        function [] = longopensingleinstrument(obj,ctp_code,lots)
+            instrument = cOption(ctp_code);
+            [bool, idx] = obj.instruments_.hasinstrument(instrument);
+            %only place entrusts in case the instrument has been registered
+            %with the strategy
+            if bool
+                isopt = isoptchar(ctp_code);
+                e = Entrust;
+                direction = 1;
+                offset = 1;
+                if isopt
+                    q = obj.mde_opt_.qms_.getquote(ctp_code);
+                else
+                    q = obj.mde_fut_.qms_.getquote(ctp_code);
+                end
+                price = q.ask + obj.askspread_(idx);
+                e.fillEntrust(1,ctp_code,direction,price,lots,offset,ctp_code);
+                obj.entrusts_.push(e);
+                ret = obj.counter_.placeEntrust(e);
+                if ret, obj.updateportfoliowithentrust(e); end
+            end
         end
-        %end of longopensigleopt
+        %end of longopensigleinstrument
         
-        function [] = longclosesingleopt(obj,ctp_code,lots)
+        function [] = longclosesingleinstrument(obj,ctp_code,lots)
+            instrument = cOption(ctp_code);
+            [f1, idx] = obj.instruments_.hasinstrument(instrument);
+            [f2,idxp] = obj.portfolio_.hasinstrument(instrument);
+            if f1&&f2
+                volume = abs(obj.portfolio_.instrument_list(idxp));
+                if volume < lots
+                    error('cStratOpt:longclosesingleinstrument:input size exceeds existing size')
+                end
+                if volume >= 0
+                    error('cStratOpt:longclosesingleinstrument:existing short position not found')
+                end
+                isopt = isoptchar(ctp_code);
+                e = Entrust;
+                direction = 1;
+                offset = -1;
+                if isopt
+                    q = obj.mde_opt_.qms_.getquote(ctp_code);
+                else
+                    q = obj.mde_fut_.qms_.getquote(ctp_code);
+                end
+                price = q.ask + obj.askspread_(idx);
+                e.fillEntrust(1,ctp_code,direction,price,lots,offset,ctp_code);
+                obj.entrusts_.push(e);
+                ret = obj.counter_.placeEntrust(e);
+                if ret
+                    pnl = obj.updateportfoliowithentrust(e); 
+                    obj.pnl_close_(idx) = obj.pnl_close_(idx) + pnl;
+                end
+            end
         end
-        %end of longopensigleopt
+        %end of longopensigleinstrument
         
     end
     

@@ -1,8 +1,21 @@
 %demo_cstratoptmultishortvol
-strat = cStratOptMultiShortVol;
-%load options
-strat.loadoptions('m1805');
-% strat.loadoptions('SR805');
+strat = cStratOpt;
+%register options
+strat.registerinstrument('m1801-C-2600');
+strat.registerinstrument('m1801-P-2600');
+strat.registerinstrument('m1801-C-2650');
+strat.registerinstrument('m1801-P-2650');
+strat.registerinstrument('m1801-C-2700');
+strat.registerinstrument('m1801-P-2700');
+strat.registerinstrument('m1801-C-2750');
+strat.registerinstrument('m1801-P-2750');
+strat.registerinstrument('m1801-C-2850');
+strat.registerinstrument('m1801-C-2900');
+strat.registerinstrument('m1801-P-2900');
+strat.registerinstrument('m1805-C-2850');
+strat.registerinstrument('m1805-C-2900');
+strat.registerinstrument('m1805-P-2800');
+strat.registerinstrument('m1805-P-2850');
 strat.setmdeconnection('bloomberg');
 
 % strat.registercounter(c_ly);

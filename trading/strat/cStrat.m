@@ -294,13 +294,16 @@ classdef cStrat < handle
     %instrument-related methods
     methods
         function [] = registerinstrument(obj,instrument)
-            if ~isa(instrument,'cInstrument')
+            if ischar(instrument)
+                codestr = instrument;
+            elseif isa(instrument,'cInstrument')
+                codestr = instrument.code_ctp;
+            else
                 error('cStrat:registerinstrument:invalid instrument input')
             end
             
             if isempty(obj.instruments_), obj.instruments_ = cInstrumentArray;end
             %check whether the instrument is an option or not
-            codestr = instrument.code_ctp;
             [optflag,~,~,underlierstr,~] = isoptchar(codestr);
             if optflag
                 if isempty(obj.underliers_), obj.underliers_ = cInstrumentArray;end
@@ -308,7 +311,19 @@ classdef cStrat < handle
                 u.loadinfo([underlierstr,'_info.txt']);
                 obj.underliers_.addinstrument(u);
             end
-            obj.instruments_.addinstrument(instrument);
+            if isa(instrument,'cInstrument')
+                obj.instruments_.addinstrument(instrument);
+            elseif ischar(instrument)
+                if optflag
+                    instrument = cOption(codestr);
+                    instrument.loadinfo([codestr,'_info.txt']);
+                    obj.instruments_.addinstrument(instrument);
+                else
+                    instrument = cFutures(codestr);
+                    instrument.loadinfo([codestr,'_info.txt']);
+                    obj.instruments_.addinstrument(instrument);
+                end
+            end
             
             %pnl_stop_type_
             if isempty(obj.pnl_stop_type_)

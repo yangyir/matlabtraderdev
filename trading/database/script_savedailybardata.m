@@ -46,6 +46,13 @@ for i = 1:size(ag_codes_ctp,1)
 end
 fprintf('done for saving daily bar data for agriculture futures\n');
 
+%%
+% agriculture for options
+black_codes_ctp = {'rb1801';'rb1805';'i1801';'i1805'};
+for i = 1:size(black_codes_ctp,1)
+    savedailybarfrombloomberg(conn,black_codes_ctp{i},override);
+end
+fprintf('done for saving daily bar data for black futures\n');
 
 %%
 %soymeal
