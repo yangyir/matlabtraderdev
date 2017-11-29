@@ -160,6 +160,12 @@ classdef cStratOptSingleStraddle < cStrat
         function [] = autoplacenewentrusts(obj,signals)
         end
         
+        function [] = riskmanagement(obj,dtnum)
+        end
+        
+        function [] = updategreeks(obj)
+        end
+        
         function [] = querypositions(obj,counter,qms)
             nu = obj.countunderliers;
             list_u = obj.underliers_.getinstrument;
