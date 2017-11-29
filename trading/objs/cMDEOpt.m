@@ -13,7 +13,7 @@ classdef cMDEOpt < handle
         
         qms_@cQMS
         
-        display_@double = 0
+        display_@double = 1
 
     end
     
@@ -149,6 +149,8 @@ classdef cMDEOpt < handle
         %end of genpivottable
         
         function tbl = displaypivottable(obj)
+            tbl = {};
+            if isempty(obj.options_), return; end
             if isempty(obj.pivottable_), obj.genpivottable; end
             
             fprintf('\t%s','ticker');

@@ -20,19 +20,21 @@ port.addinstrument(ni1801,px,v);
 fprintf('\nportfolio after adding %d lots of %s:\n',v,ni1801.code_ctp);
 port.print
 
-
+%%
 px = 94860;
 v = 2;
 port.addinstrument(ni1801,px,v);
 fprintf('\nportfolio after adding %d lots of %s again:\n',v,ni1801.code_ctp);
 port.print
 
+%%
 px = 96000;
 v = -4;
 port.addinstrument(ni1801,px,v);
 fprintf('\nportfolio after adding %d lots of %s again:\n',v,ni1801.code_ctp);
 port.print
 
+%%
 port.removeinstrument(ni1801);
 fprintf('\nportfolio after removing %s:\n',ni1801.code_ctp);
 port.print

@@ -55,6 +55,7 @@ classdef cHelper < handle
             gammacarry(end) = sum(gammacarry(1:end-1));
             thetacarry(end) = sum(thetacarry(1:end-1));
             vegacarry(end) = sum(vegacarry(1:end-1));
+            ivbase(end) = NaN;
             ivcarry(end) = NaN;
             
             rownames{end} = 'total';

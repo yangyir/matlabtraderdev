@@ -1,8 +1,12 @@
-function portfolio = opt_loadpositions(fn)
+function portfolio = opt_loadpositions(fn,dateinput)
 
     pos_dir_ = [getenv('DATAPATH'),'pos_option\'];
     
-    fid = fopen([pos_dir_,fn,'.txt'],'r');
+    if ~isempty(strfind(fn,'.txt'))
+        fid = fopen(pos_dir_,fn,'r');
+    else
+        fid = fopen([pos_dir_,fn,'.txt'],'r');
+    end
         
     if fid < 0, return; end
     
@@ -27,7 +31,16 @@ function portfolio = opt_loadpositions(fn)
         end
         v_i = str2double(lineinfo{2});
         cost_i = str2double(lineinfo{3});
-        portfolio.addinstrument(instrument,cost_i,v_i);
+        if nargin < 2
+            portfolio.addinstrument(instrument,cost_i,v_i);
+        else
+            if ischar(dateinput)
+                dateinputnum = datenum(dateinput);
+            else
+                dateinputnum = dateinput;
+            end
+            portfolio.addinstrument(instrument,cost_i,v_i,dateinputnum);
+        end
         
         line_ = fgetl(fid);
     end

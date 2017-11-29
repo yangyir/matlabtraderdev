@@ -106,6 +106,7 @@ classdef cQMS < handle
                 return
             end
             
+            idx = 0;
             for i = 1:size(self.watcher_.qs,1)
                 if ischar(instrument)
                     if strcmpi(instrument,self.watcher_.qs{i}.code_ctp)
