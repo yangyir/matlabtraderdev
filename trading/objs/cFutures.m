@@ -24,7 +24,7 @@ classdef cFutures < cInstrument
         
         holidays@char = 'shanghai'
         
-        init_margin_rate@double
+        init_margin_rate
         
     end
     
