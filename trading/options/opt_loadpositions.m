@@ -36,6 +36,8 @@ function portfolio = opt_loadpositions(fn,dateinput)
         else
             if ischar(dateinput)
                 dateinputnum = datenum(dateinput);
+            else
+                dateinputnum = dateinput;
             end
             portfolio.addinstrument(instrument,cost_i,v_i,dateinputnum);
         end

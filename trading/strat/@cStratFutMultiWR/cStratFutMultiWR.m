@@ -515,6 +515,14 @@ classdef cStratFutMultiWR < cStrat
         end
         %end of autoplacenewentrusts
         
+        function [] = updategreeks(obj)
+            obj.updategreeks_futmultiwr
+        end
+            
+        function [] = riskmanagement(obj,dtnum)
+            obj.riskmanagement_futmultiwr(dtnum)
+        end
+        
     end
     
     methods
@@ -525,7 +533,8 @@ classdef cStratFutMultiWR < cStrat
     end
     
     methods (Access = private)
-
+        riskmanagement_futmultiwr(obj,dtnum)
+        updategreeks_futmultiwr(obj)
         
         
         
