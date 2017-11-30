@@ -25,7 +25,13 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             volume = strategy.getbaseunits(instrument);
         else
             maxvolume = strategy.getmaxunits(instrument);
-            volume = max(min(maxvolume-abs(volume_exist),abs(volume_exist)),0);
+            executiontype = strategy.getexecutiontype(instrument);
+            if strcmpi(executiontype,'martingale')
+                volume = max(min(maxvolume-abs(volume_exist),abs(volume_exist)),0);
+            elseif strcmpi(executiontype,'fixed')
+                n = strategy.getbaseunits(instrument);
+                volume = max(min(maxvolume-abs(volume_exist),n),0);
+            end
         end
 
         if volume == 0, continue;end
@@ -60,9 +66,9 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         end
         
         if direction < 0
-            [ret,e] = strategy.shortopensingleinstrument(instrument,abs(volume));
+            [ret,e] = strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));
         else
-            [ret,e] = strategy.longopensingleinstrument(instrument,abs(volume));
+            [ret,e] = strategy.longopensingleinstrument(instrument.code_ctp,abs(volume));
         end
 
 %         e = Entrust;

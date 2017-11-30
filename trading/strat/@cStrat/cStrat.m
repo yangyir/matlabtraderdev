@@ -182,9 +182,9 @@ classdef cStrat < handle
         
         %long/short open/close positions
         [ret,e] = shortopensingleinstrument(obj,code_ctp,lots)
-        [ret,e] = shortclosesingleinstrument(obj,code_ctp,lots)
+        [ret,e] = shortclosesingleinstrument(obj,code_ctp,lots,closetodayflag)
         [ret,e] = longopensingleinstrument(obj,ctp_code,lots)
-        [ret,e] = longclosesingleinstrument(obj,ctp_code,lots)
+        [ret,e] = longclosesingleinstrument(obj,ctp_code,lots,closetodayflag)
         
         [] = unwindposition(obj,instrument)
         pnl = calcrunningpnl(obj, instrument)

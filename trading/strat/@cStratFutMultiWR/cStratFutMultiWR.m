@@ -10,6 +10,7 @@ classdef cStratFutMultiWR < cStrat
         executionperbucket_@double
         maxexecutionperbucket_@double
         executionbucketnumber_@double
+        executiontype_@cell
     end
     
     methods
@@ -24,7 +25,15 @@ classdef cStratFutMultiWR < cStrat
         [] = registerinstrument(obj,instrument)
         [] = setparameters(obj,instrument,params)
         [] = settradingfreq(obj,instrument,freq)
+        freq = gettradingfreq(obj,instrument)
         [] = setboundary(obj,instrument,overbought,oversold)
+        [overbought,oversold] = getboundary(obj,instrument)
+        [] = setexecutionperbucket(obj,instrument,value)
+        n = getexecutionperbucket(obj,instrument)
+        [] = setmaxexecutionperbucket(obj,instrument,value)
+        n = getmaxexecutionperbucket(obj,instrument)
+        [] = setexecutiontype(obj,instrument,typein)
+        typeout = getexecutiontype(obj,instrument)
         [wr,wrts] = getlastwr(obj,instrument)
         [] = printinfo(obj)
         [] = readparametersfromtxtfile(obj,fn_)

@@ -4,7 +4,7 @@ function [] = updateentrusts(strategy)
 %the closed entrust from the pending entrust array and insert the entrust
 %into the finished entrust array. For the entrust which is closed, the
 %portfolio shall be updated
-    n = strategy.entrustspending_.count;
+    n = strategy.entrustspending_.latest;
     for i = n:-1:1
         e = strategy.entrustspending_.node(i);
         f1 = strategy.counter_.queryEntrust(e);

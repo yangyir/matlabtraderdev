@@ -33,7 +33,12 @@ strat_wr.printinfo;
 strat_wr.pnl_running_
 
 %%
-code = 'al1802';
-futs = strat_wr.instruments_.getinstrument(code);
-strat_wr.unwindposition(futs{1});
+code = 'ni1805';
+strat_wr.longopensingleinstrument(code,1);
+%%
+strat_wr.withdrawentrusts(code);
+%%
+strat_wr.shortclosesingleinstrument(code,1,1);
 
+%%
+strat_wr.portfolio_.print;

@@ -4,7 +4,7 @@ function pnl = updateportfoliowithentrust(strategy,e)
     if ~isa(e,'Entrust'), return; end
 
     f0 = strategy.counter_.queryEntrust(e);
-    f1 = e.is_entrust_close;
+    f1 = e.is_entrust_closed;
     f2 = e.dealVolume > 0;
     [f3,idx] = strategy.instruments_.hasinstrument(e.instrumentCode);
     if f0&&f1&&f2&&f3
@@ -19,5 +19,18 @@ function pnl = updateportfoliowithentrust(strategy,e)
         pnl = strategy.portfolio_.updateportfolio(t);
         strategy.pnl_close_(idx) = strategy.pnl_close_(idx) + pnl;
     end
+    
+    if f1
+        n = strategy.entrustspending_.latest;
+        for i = n:-1:1
+            if strategy.entrustspending_.node(i).entrustNo == e.entrustNo
+                rmidx = i;
+                strategy.entrustspending_.removeByIndex(rmidx);
+                break
+            end
+        end
+        strategy.entrustsfinished_.push(e);
+    end
+
 end
 %end of updateportfoliowithentrust

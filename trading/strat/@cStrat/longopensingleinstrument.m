@@ -14,6 +14,11 @@ function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots)
     else
         instrument = cFutures(ctp_code);
     end
+    instrument.loadinfo([ctp_code,'_info.txt']);
+    multi = instrument.contract_size;
+    if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
+        multi = multi/100;
+    end
     
     [bool, idx] = strategy.instruments_.hasinstrument(instrument);
     if ~bool
@@ -32,9 +37,10 @@ function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots)
         q = strategy.mde_fut_.qms_.getquote(ctp_code);
     end
     
-    price = q.ask1 + strategy.askspread_(idx)*instrument.tick_size;
+    price = q.ask1 - strategy.askspread_(idx)*instrument.tick_size;
     e.fillEntrust(1,ctp_code,direction,price,lots,offset,ctp_code);
-    
+    if ~isopt, e.assetType = 'Future'; end
+    e.multiplier = multi;
     ret = strategy.counter_.placeEntrust(e);
     if ret
         strategy.entrusts_.push(e);

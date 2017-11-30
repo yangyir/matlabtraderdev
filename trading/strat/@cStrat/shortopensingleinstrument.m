@@ -14,6 +14,11 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots)
     else
         instrument = cFutures(ctp_code);
     end
+    instrument.loadinfo([ctp_code,'_info.txt']);
+    multi = instrument.contract_size;
+    if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
+        multi = multi/100;
+    end
     
     [bool, idx] = strategy.instruments_.hasinstrument(instrument);
     if ~bool
@@ -34,6 +39,8 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots)
     
     orderprice = q.bid1 + strategy.bidspread_(idx)*instrument.tick_size;
     e.fillEntrust(1,ctp_code,direction,orderprice,lots,offset,ctp_code);
+    if ~isopt, e.assetType = 'Future'; end
+    e.multiplier = multi;
     
     ret = strategy.counter_.placeEntrust(e);
     if ret

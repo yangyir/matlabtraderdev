@@ -166,6 +166,9 @@ classdef cStratOptSingleStraddle < cStrat
         function [] = updategreeks(obj)
         end
         
+        function [] = initdata(obj)
+        end
+        
         function [] = querypositions(obj,counter,qms)
             nu = obj.countunderliers;
             list_u = obj.underliers_.getinstrument;
