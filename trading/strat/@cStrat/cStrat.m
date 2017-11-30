@@ -22,20 +22,22 @@ classdef cStrat < handle
         
         %order/entrust related
         %positive bid spread means to order a sell with a higher price
-        bidspread_@double;
+        bidspread_@double
         %positive ask spread means to order a buy with a lower price
-        askspread_@double;
+        askspread_@double
         
          %size related
         baseunits_@double
         maxunits_@double
         
         %market data engine
-        mde_fut_@cMDEFut;
-        mde_opt_@cMDEOpt;
+        mde_fut_@cMDEFut
+        mde_opt_@cMDEOpt
         
         %portfolio/book
-        portfolio_@cPortfolio;
+        portfolio_@cPortfolio
+        %the portfolio as of last business date
+        portfoliobase_@cPortfolio
         
         %
         autotrade_@double
@@ -89,6 +91,15 @@ classdef cStrat < handle
         [] = registerinstrument(obj,instrument)
         [] = removeinstrument(obj,instrument)
         
+        function [] = clear(obj)
+            obj.instruments_.clear;
+            obj.underliers_.clear;
+            obj.mde_fut_ = {};
+            obj.mde_opt_ = {};
+            obj.counter_ = {};    
+        end
+        %end of clear
+        
         function n = count(obj)
             n = obj.instruments_.count;
         end
@@ -104,6 +115,7 @@ classdef cStrat < handle
     
     %option-specific methods
     methods
+        %note:todo:this method might be removed later
         function [strikes,calls,puts] = breakdownopt(obj,underlier)
             if ~isa(underlier,'cInstrument')
                 error('cStrat:breakdownopt:invalid underlier input')
@@ -159,16 +171,20 @@ classdef cStrat < handle
         [] = registercounter(obj,counter)
         [] = loadportfoliofromcounter(obj)
         
+        %local-file related
+        [] = loadportfoliofromfile(obj,fn,dateinput)
+        [] = saveportfoliotofile(obj,fn,clearportfolio)
+        
         %process portfolio with entrusts
         pnl = updateportfoliowithentrust(obj,e)
         [] = updateentrusts(obj)
         [] = withdrawentrusts(obj,instrument)
         
         %long/short open/close positions
-        [] = shortopensingleinstrument(obj,code_ctp,lots)
-        [] = shortclosesingleinstrument(obj,code_ctp,lots)
-        [] = longopensingleinstrument(obj,ctp_code,lots)
-        [] = longclosesingleinstrument(obj,ctp_code,lots)
+        [ret,e] = shortopensingleinstrument(obj,code_ctp,lots)
+        [ret,e] = shortclosesingleinstrument(obj,code_ctp,lots)
+        [ret,e] = longopensingleinstrument(obj,ctp_code,lots)
+        [ret,e] = longclosesingleinstrument(obj,ctp_code,lots)
         
         [] = unwindposition(obj,instrument)
         pnl = calcrunningpnl(obj, instrument)
@@ -225,6 +241,7 @@ classdef cStrat < handle
         [] = autoplacenewentrusts(obj,signals)
         [] = updategreeks(obj)
         [] = riskmanagement(obj,dtnum)
+        [] = initdata(obj)
     end
     
     %timer-related private methods

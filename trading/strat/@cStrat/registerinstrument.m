@@ -141,5 +141,15 @@ function [] = registerinstrument(strategy,instrument)
         strategy.mde_fut_.registerinstrument(u);
         strategy.mde_opt_.registerinstrument(instrument);
     end
+    
+    if isempty(strategy.portfolio_)
+        p = cPortfolio;
+        strategy.portfolio_ = p;
+    end
+    
+    if isempty(strategy.portfoliobase_)
+        p = cPortfolio;
+        strategy.portfoliobase_ = p;
+    end
 end
 %end of 'registerinstrument'

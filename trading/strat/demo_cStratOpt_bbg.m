@@ -9,7 +9,6 @@ strat.portfolio_.print;
 %%
 strat.mde_opt_.refresh;
 strat.mde_fut_.refresh;
-strat.mde_opt_.voltable;
 strat.updategreeks;
 
 %%

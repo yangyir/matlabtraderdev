@@ -1,18 +1,18 @@
-function [] = updategreeks(strategy)
-    n = strategy.count;
+function [] = updategreeks_opt(stratopt)
+    n = stratopt.count;
     %real-time greeks
     for i = 1:n
-        opt = strategy.instruments_.getinstrument{i};
+        opt = stratopt.instruments_.getinstrument{i};
         if ~isa(opt,'cOption'), continue;end
         mult = opt.contract_size;
-        q = strategy.mde_opt_.qms_.getquote(opt);
+        q = stratopt.mde_opt_.qms_.getquote(opt);
 
         if ~isempty(q)
             px = q.last_trade_underlier;
-            strategy.setriskvalue(opt,'delta',q.delta*mult*px);
-            strategy.setriskvalue(opt,'gamma',q.gamma*mult*px);
-            strategy.setriskvalue(opt,'vega',q.vega*mult);
-            strategy.setriskvalue(opt,'theta',q.theta*mult);
+            stratopt.setriskvalue(opt,'delta',q.delta*mult*px);
+            stratopt.setriskvalue(opt,'gamma',q.gamma*mult*px);
+            stratopt.setriskvalue(opt,'vega',q.vega*mult);
+            stratopt.setriskvalue(opt,'theta',q.theta*mult);
             %note:the implied vol from the quote object is using
             %the mid price of both the option and its underlier
             %                     obj.setriskvalue(opt,'impvol',q.impvol);
@@ -34,7 +34,7 @@ function [] = updategreeks(strategy)
             else
                 iv = blkimpv(pv_fut,k,r,tau,pv_opt,[],[],{optclass});
             end
-            strategy.setriskvalue(opt,'impvol',iv);
+            stratopt.setriskvalue(opt,'impvol',iv);
 
             bump = 0.005;
             pxup = px*(1+bump);
@@ -62,12 +62,12 @@ function [] = updategreeks(strategy)
                 end
             end
             %thetacarry
-            strategy.setriskvalue(opt,'thetacarry',q.theta*mult);
+            stratopt.setriskvalue(opt,'thetacarry',q.theta*mult);
             %deltacarry
             deltacarry = (pvcarryup-pvcarrydn)/(pxup-pxdn);
             gammacarry = (pvcarryup+pvcarrydn-2*pvcarry)/(bump*px)^2*px/100;
-            strategy.setriskvalue(opt,'deltacarry',deltacarry*mult*px);
-            strategy.setriskvalue(opt,'gammacarry',gammacarry*mult*px);
+            stratopt.setriskvalue(opt,'deltacarry',deltacarry*mult*px);
+            stratopt.setriskvalue(opt,'gammacarry',gammacarry*mult*px);
             %vegacarry
             if opt.opt_american
                 if strcmpi(opt.opt_type,'C')
@@ -87,20 +87,20 @@ function [] = updategreeks(strategy)
                 end
             end
             vegacarry = pvvolup - pvvoldn;
-            strategy.setriskvalue(opt,'vegacarry',vegacarry*mult);
+            stratopt.setriskvalue(opt,'vegacarry',vegacarry*mult);
         end
     end
     %end of update risk for options
 
-    nu = strategy.countunderliers;
+    nu = stratopt.countunderliers;
     for i = 1:nu
-        fut = strategy.underliers_.getinstrument{i};
+        fut = stratopt.underliers_.getinstrument{i};
         mult = fut.contract_size;
-        q = strategy.mde_fut_.qms_.getquote(fut);
+        q = stratopt.mde_fut_.qms_.getquote(fut);
 
         if ~isempty(q)
             px = q.last_trade;
-            strategy.setriskvalue(fut,'delta',px*mult);
+            stratopt.setriskvalue(fut,'delta',px*mult);
         end
     end
 end

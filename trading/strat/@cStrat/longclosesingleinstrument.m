@@ -1,4 +1,4 @@
-function [] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag)
+function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag)
     if nargin < 4
         closetodayFlag = 0;
     end

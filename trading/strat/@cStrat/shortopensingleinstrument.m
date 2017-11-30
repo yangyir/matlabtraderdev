@@ -1,4 +1,4 @@
-function [] = shortopensingleinstrument(strategy,ctp_code,lots)
+function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots)
     if isempty(strategy.counter_)
         fprintf('cStrat:counter not registered in strategy\n');
         return
