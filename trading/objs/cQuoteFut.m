@@ -102,6 +102,7 @@ classdef cQuoteFut < handle
             end
             
             if obj.bond_flag
+                warning('off','finance:bndyield:solutionConvergenceFailure');
                 ylds = bndyield([obj.last_trade,obj.bid1,obj.ask1],0.03,...
                     obj.update_date1,dateadd(obj.update_date1,obj.bond_tenor));
                 obj.yield_last_trade = ylds(1)*1e2;
