@@ -126,6 +126,7 @@ classdef cCTP < cDataSource
         citic_kim_fut('tcp://180.169.101.177:41213','66666','101003196','770424');
         %comodoty option
         huaxin_liyang_fut('tcp://180.169.70.179:41213','10001','930490003','204090');
+        ccb_liyang_fut('tcp://116.236.253.145:41213','95533','52013132','2001Sep29');
 
     end
 end
