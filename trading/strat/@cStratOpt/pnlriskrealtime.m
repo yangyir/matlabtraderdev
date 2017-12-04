@@ -73,8 +73,8 @@ function [pnltbl,risktbl] = pnlriskrealtime(obj)
                     if calc_theta
                         theta(i,1) = obj.thetacarryyesterday_(idx)*volume_total;
                     end
-                    delta(i,1) = obj.deltacarryyesterday_(idx)*ret;
-                    gamma(i,1) = 0.5*obj.gammacarryyesterday_(idx)*ret^2*100;
+                    delta(i,1) = obj.deltacarryyesterday_(idx)*ret*volume_total;
+                    gamma(i,1) = 0.5*obj.gammacarryyesterday_(idx)*ret^2*100*volume_total;
                     thetacarry(i,1) = obj.theta_(idx)*volume_total;
                     deltacarry(i,1) = obj.deltacarry_(idx)*volume_total;
                     gammacarry(i,1) = obj.gammacarry_(idx)*volume_total;
