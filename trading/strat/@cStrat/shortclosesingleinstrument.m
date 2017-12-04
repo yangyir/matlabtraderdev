@@ -1,4 +1,8 @@
 function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag)
+    if lots <= 0 
+        return; 
+    end
+
     if nargin < 4
         closetodayFlag = 0;
     end
