@@ -11,10 +11,6 @@ function [] = loadportfoliofromcounter(strategy)
         %note:no instrument has been registered with the strategy
         for i = 1:size(positions,2)
             code_ctp = positions(i).asset_code;
-            direction = positions(i).direction;
-            volume = positions(i).total_position * direction;
-            if volume == 0, continue;end
-            
             isopt = isoptchar(code_ctp);
             if isopt
                 instrument = cOption(code_ctp);
@@ -28,6 +24,9 @@ function [] = loadportfoliofromcounter(strategy)
                 multi = multi/100;
             end
             
+            direction = positions(i).direction;
+            volume = positions(i).total_position * direction;
+            if volume == 0, continue;end
             cost = positions(i).avg_price / multi;
             strategy.portfolio_.addinstrument(instrument,cost,volume,getlastbusinessdate);
         end
