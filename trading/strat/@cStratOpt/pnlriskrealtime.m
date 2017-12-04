@@ -67,6 +67,10 @@ function [pnltbl,risktbl] = pnlriskrealtime(obj)
 %                         total(i,1) = (q.bid1-carrycost)*volume_total*mult;
 %                     end
             total(i,1) = (q.last_trade-carrycost)*volume_total*mult;
+            thetacarry(i,1) = obj.thetacarry_(idx)*volume_total;
+            deltacarry(i,1) = obj.deltacarry_(idx)*volume_total;
+            gammacarry(i,1) = obj.gammacarry_(idx)*volume_total;
+            vegacarry(i,1) = obj.vegacarry_(idx)*volume_total;
             if volume_total ~= 0
                 if volume_today == 0
 
@@ -75,16 +79,13 @@ function [pnltbl,risktbl] = pnlriskrealtime(obj)
                     end
                     delta(i,1) = obj.deltacarryyesterday_(idx)*ret*volume_total;
                     gamma(i,1) = 0.5*obj.gammacarryyesterday_(idx)*ret^2*100*volume_total;
-                    thetacarry(i,1) = obj.theta_(idx)*volume_total;
-                    deltacarry(i,1) = obj.deltacarry_(idx)*volume_total;
-                    gammacarry(i,1) = obj.gammacarry_(idx)*volume_total;
-                    vegacarry(i,1) = obj.vegacarry_(idx)*volume_total;
                     ivbase(i,1) = obj.impvolcarryyesterday_(idx);
                     ivcarry(i,1) = obj.impvol_(idx);
                     vega(i,1) = obj.vegacarryyesterday_(idx)*(ivcarry(i,1)-ivbase(i,1))/0.01*volume_total;
                     unexplained(i,1) = total(i,1)-(theta(i,1)+delta(i,1)+gamma(i,1)+vega(i,1));
                 else
-                    error('todo:volume_today not equal to zero')
+                    continue;
+%                     error('todo:volume_today not equal to zero')
 %                             volume_before = volume_total - volume_today;
 
 
