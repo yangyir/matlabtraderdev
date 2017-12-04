@@ -28,7 +28,7 @@ function [] = loadportfoliofromcounter(strategy)
             volume = positions(i).total_position * direction;
             if volume == 0, continue;end
             cost = positions(i).avg_price / multi;
-            strategy.portfolio_.updateinstrument(instrument,cost,volume);
+            strategy.portfolio_.addinstrument(instrument,cost,volume,getlastbusinessdate);
         end
     else
         %note:we hereby only search for the positions with instruments that
@@ -47,7 +47,7 @@ function [] = loadportfoliofromcounter(strategy)
                     cost = positions(j).avg_price / multi;
                     volume = positions(j).total_position * direction;
 
-                    strategy.portfolio_.updateinstrument(instrument,cost,volume);
+                    strategy.portfolio_.addinstrument(instrument,cost,volume,getlastbusinessdate);
                 end
             end
         end
