@@ -33,7 +33,12 @@ function [] = replay_timer_fcn(strategy,~,event)
 
     %market open refresh the market data
     if ~isempty(strategy.mde_fut_), strategy.mde_fut_.refresh; end
-    if ~isempty(strategy.mde_opt_), strategy.mde_opt_.refresh; end
+    if ~isempty(strategy.mde_opt_)
+        if strategy.mde_opt_.display_
+            disp([datestr(event.Data.time),' vol surface......']);
+        end
+        strategy.mde_opt_.refresh; 
+    end
 
     try
         strategy.updategreeks;
