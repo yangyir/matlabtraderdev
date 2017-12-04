@@ -8,13 +8,30 @@ function [] = setriskvalue(stratopt,instrument,riskname,value)
 
     [flag,idx] = stratopt.instruments_.hasinstrument(instrument);
     if flag
-        isopt = true;
-    else
-        [isunderlier,idx] = stratopt.underliers_.hasinstrument(instrument);
-        if ~isunderlier
-            error('cStratOptMultiShortVol:setriskvalue:instrument not found')
+        instrument = stratopt.instruments_.getinstrument{idx};
+        codestr = instrument.code_ctp;
+        isopt = isoptchar(codestr);
+        if isopt
+            isunderlier = false;
+        else
+            if isempty(stratopt.underliers_)
+                return
+            end
+            [isunderlier,idx] = stratopt.underliers_.hasinstrument(instrument);
+            if ~isunderlier
+                error('cStratOptMultiShortVol:setriskvalue:instrument not found')
+            end
         end
     end
+        
+%     if flag
+%         isopt = true;
+%     else
+%         [isunderlier,idx] = stratopt.underliers_.hasinstrument(instrument);
+%         if ~isunderlier
+%             error('cStratOptMultiShortVol:setriskvalue:instrument not found')
+%         end
+%     end
 
     if isopt
         if strcmpi(riskname,'delta')
