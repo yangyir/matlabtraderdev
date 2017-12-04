@@ -1,4 +1,22 @@
 %%
+if ~exist('c_ly','var') || ~isa(c_ly,'CounterCTP')
+    c_ly = CounterCTP.huaxin_liyang_fut;
+end
+if ~c_ly.is_Counter_Login, c_ly.login; end
+if ~exist('md_ctp','var') || ~isa(md_ctp,'cCTP')
+    md_ctp = cCTP.citic_kim_fut;
+end
+if ~md_ctp.isconnect, md_ctp.login; end
+%
+if ~exist('qms_opt_m','var') || ~isa(qms_opt_m,'cQMS')
+    qms_opt_m = cQMS;
+    qms_opt_m.setdatasource('ctp');
+end
+
+%%
+trading_loadoptions
+
+%%
 stratopt = cStratOptSingleStraddle;
 for i = 1:size(strikes_soymeal)
     stratopt.registerinstrument(opt_c_m1801{i});stratopt.registerinstrument(opt_p_m1801{i});
