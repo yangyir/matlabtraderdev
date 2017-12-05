@@ -23,12 +23,14 @@ function [] = loadportfoliofromcounter(strategy)
             end
             instrument.loadinfo([code_ctp,'_info.txt']);
             strategy.registerinstrument(instrument);
-            multi = instrument.contract_size;
-            if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
-                multi = multi/100;
-            end
+%             multi = instrument.contract_size;
+%             if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
+%                 multi = multi/100;
+%             end
             
-            cost = positions(i).avg_price / multi;
+%             cost = positions(i).avg_price / multi;
+            data = cDataFileIO.loadDataFromTxtFile([instrument.code_ctp,'_daily.txt']);
+            cost = data(data(:,1)==getlastbusinessdate,5);
             strategy.portfolio_.addinstrument(instrument,cost,volume,getlastbusinessdate);
         end
     else
