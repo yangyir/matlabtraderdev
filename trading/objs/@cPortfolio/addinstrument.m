@@ -28,6 +28,7 @@ function [] = addinstrument(obj,instrument,px,volume,dtnum,closetoday)
         list_ = cell(n+1,1);
         c_ = zeros(n+1,1);
         v_ = zeros(n+1,1);
+%         pos_
         vtoday_ = zeros(n+1,1);
         list_{n+1,1} = instrument;
         c_(n+1,1) = px;

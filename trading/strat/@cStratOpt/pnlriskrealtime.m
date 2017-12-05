@@ -32,8 +32,12 @@ function [pnltbl,risktbl] = pnlriskrealtime(obj)
                 isopt = false;
             end
         else
-            isopt = true;
-            isfut = false;
+            isopt = isoptchar(p.instrument_list{i}.code_ctp);
+            if ~isopt
+                isfut = true;
+            else
+                isfut = false;
+            end
         end
         carrycost = p.instrument_avgcost(i);
         volume_total = p.instrument_volume(i);

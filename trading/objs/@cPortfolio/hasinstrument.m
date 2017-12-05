@@ -11,8 +11,8 @@ function [bool,idx] = hasinstrument(cPort,instrument)
     bool = false;
     idx = 0;
     for i = 1:n
-%         if strcmpi(code_ctp,cPort.instrument_list{i}.code_ctp)
-        if strcmpi(code_ctp,cPort.pos_list_{i}.code_ctp_)
+        if strcmpi(code_ctp,cPort.instrument_list{i}.code_ctp)
+%         if strcmpi(code_ctp,cPort.pos_list_{i}.code_ctp_)
             bool = true;
             idx = i;
             break;

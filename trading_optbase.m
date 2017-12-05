@@ -23,12 +23,6 @@ stratopt1.loadportfoliofromcounter;
 stratopt1.portfolio_.print;
 
 %%
-%End of day pnl and risk
-[pnltbl,risktbl] = stratopt1.pnlriskeod;
-printpnltbl(pnltbl);
-printrisktbl(risktbl);
-
-%%
 %real-time pnl and risk
 [pnltbl,risktbl] = stratopt1.pnlriskrealtime;
 printpnltbl(pnltbl);
@@ -36,6 +30,6 @@ printrisktbl(risktbl);
 fprintf('\n');
 
 %%
-stratopt1.saveportfoliotofile('c:\temp\pos_check.txt');
+
 
 
