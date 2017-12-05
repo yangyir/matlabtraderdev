@@ -34,18 +34,6 @@ printrisktbl(risktbl);
 printpnltbl(pnltbl);
 printrisktbl(risktbl);
 fprintf('\n');
-%%
-stratopt1.mde_opt_.refresh;stratopt1.mde_fut_.refresh;stratopt1.updategreeks;
-codes= {'m1805-C-2800';'m1805-P-2850';'m1805-C-2900';'m1805-P-2950'};
-lots = [0;5;5;5];
-for i = 1:size(codes,1)
-    stratopt1.shortopensingleinstrument(codes{i},lots(i));
-end
-%%
-stratopt1.updateentrusts;
-%%
-[~,risktbl] = stratopt1.pnlriskrealtime;
-printrisktbl(risktbl);fprintf('\n');
 
 %%
 stratopt1.saveportfoliotofile('c:\temp\pos_check.txt');
