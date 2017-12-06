@@ -25,8 +25,10 @@ classdef cHelper < handle
             rownames = cell(p.count+1,1);
             
             for i = 1:p.count
-                sec = p.instrument_list{i};
-                volume(i) = p.instrument_volume(i);
+                pos = p.pos_list{i};
+                sec = pos.instrument_;
+%                 sec = p.instrument_list{i};
+                volume(i) = pos.direction_*pos.position_total_;
                 output = pnlriskbreakdown1(sec,d1,volume(i));
                 total(i) = output.pnltotal;
                 theta(i) = output.pnltheta;

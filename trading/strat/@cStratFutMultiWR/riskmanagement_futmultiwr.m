@@ -10,7 +10,7 @@ function [] = riskmanagement_futmultiwr(strategy,dtnum)
 
         %secondly to check whether the instrument has been traded
         %and recorded in the embedded portfolio
-        [isinstrumenttraded,idx] = strategy.portfolio_.hasinstrument(instruments{i});
+        [isinstrumenttraded,idx] = strategy.portfolio_.hasposition(instruments{i});
 
         if ~isinstrumenttraded, continue; end
 

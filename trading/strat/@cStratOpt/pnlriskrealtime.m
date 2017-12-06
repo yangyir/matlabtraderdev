@@ -21,10 +21,11 @@ function [pnltbl,risktbl] = pnlriskrealtime(obj)
     rownames = cell(p.count+1,1);
 
     for i = 1:p.count
-        [~,idx] = obj.instruments_.hasinstrument(p.instrument_list{i});
+        pos = p.pos_list{i};
+        [~,idx] = obj.instruments_.hasinstrument(pos.instrument_);
         if idx == 0
             %not in the option list and it might be futures
-            [~,idx] = obj.underliers_.hasinstrument(p.instrument_list{i});
+            [~,idx] = obj.underliers_.hasinstrument(pos.instrument_);
             if idx == 0
                 error('invalid instrument')
             else
@@ -32,20 +33,25 @@ function [pnltbl,risktbl] = pnlriskrealtime(obj)
                 isopt = false;
             end
         else
-            isopt = isoptchar(p.instrument_list{i}.code_ctp);
+            isopt = isoptchar(pos.code_ctp_);
             if ~isopt
                 isfut = true;
             else
                 isfut = false;
             end
         end
-        carrycost = p.instrument_avgcost(i);
-        volume_total = p.instrument_volume(i);
-        volume_today = p.instrument_volume_today(i);
-        rownames{i} = p.instrument_list{i}.code_ctp;
+%         carrycost = p.instrument_avgcost(i);
+        carrycost = pos.cost_carry_;
+%         volume_total = p.instrument_volume(i);
+        volume_total = pos.direction_*pos.position_total_;
+%         volume_today = p.instrument_volume_today(i);
+        volume_today = pos.direction_*pos.position_today_;
+%         rownames{i} = p.instrument_list{i}.code_ctp;
+        rownames{i} = pos.code_ctp_;
         volume(i,1) = volume_total;
         if isopt
-            opt = p.instrument_list{i};
+%             opt = p.instrument_list{i};
+            opt = pos.instrument_;
             mult = opt.contract_size;
             underlier_code = opt.code_ctp_underlier;
             [~,idxu] = obj.underliers_.hasinstrument(underlier_code);

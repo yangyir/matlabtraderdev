@@ -4,11 +4,12 @@ function pnl = calcrunningpnl(strategy, instrument)
     end
 
     %to check whether the instrument has been already traded or not
-    [flag,idx] = strategy.portfolio_.hasinstrument(instrument);
+    [flag,idx] = strategy.portfolio_.hasposition(instrument);
 
     pnl = 0;
     if flag
-        volume = strategy.portfolio_.instrument_volume(idx);
+        pos = strategy.portfolio_.pos_list{idx};
+        volume = pos.direction_ * pos.position_total_;
         [~,ii] = strategy.instruments_.hasinstrument(instrument);
 
         if volume == 0
@@ -16,7 +17,7 @@ function pnl = calcrunningpnl(strategy, instrument)
             return
         end
 
-        cost = strategy.portfolio_.instrument_avgcost(idx);
+        cost = pos.cost_carry_;
         if isa(instrument,'cFutures')
             tick = strategy.mde_fut_.getlasttick(instrument);
         else

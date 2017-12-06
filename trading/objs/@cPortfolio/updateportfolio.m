@@ -15,39 +15,45 @@ function pnl = updateportfolio(cport,transaction)
         closetodayflag_ = 0;
     end
 
-    [bool,idx] = cport.hasinstrument(instrument);
+    [bool,idx] = cport.hasposition(instrument);
 
     if ~bool && offset == -1
         error('cPortfolio:updateportfolio:cannot unwind unexisted positions ')
     end
 
+    
+    
+    
     if ~bool
-        cport.addinstrument(instrument,px,volume,datetime1_);
+        cport.addposition(instrument,px,volume,datetime1_,closetodayflag_);
         pnl = 0;
     else
-        avgcost_ = cport.instrument_avgcost(idx,1);
-        volume_ = cport.instrument_volume(idx,1);
-        voume_today_ = cport.instrument_volume_today(idx,1);
-
-        if offset == -1 && abs(volume_) < transaction.volume_
-            error('cPortfolio:updateportfolio:unwind transaction size exceed existing size')
-        end
-
-        if closetodayflag_ && abs(voume_today_) < transaction.volume_
-            error('cPortfolio:updateportfolio:unwind transaction size exceed existing size of today')
-        end
+        avgcost_ = cport.pos_list{idx,1}.cost_open_;
+        volume_ = cport.pos_list{idx,1}.direction_*cport.pos_list{idx,1}.position_total_;
+        cport.addposition(instrument,px,volume,datetime1_,closetodayflag_);
+%         avgcost_ = cport.instrument_avgcost(idx,1);
+%         volume_ = cport.instrument_volume(idx,1);
+%         voume_today_ = cport.instrument_volume_today(idx,1);
+% 
+%         if offset == -1 && abs(volume_) < transaction.volume_
+%             error('cPortfolio:updateportfolio:unwind transaction size exceed existing size')
+%         end
+% 
+%         if closetodayflag_ && abs(voume_today_) < transaction.volume_
+%             error('cPortfolio:updateportfolio:unwind transaction size exceed existing size of today')
+%         end
 
 %                 obj.instrument_volume(idx,1) = volume_+volume;
 %                 obj.instrument_volume_today(idx,1) = voume_today_ + volume_today;
-        cport.addinstrument(instrument,px,volume,datetime1_);
-        if cport.instrument_volume(idx,1) == 0
+%         cport.addinstrument(instrument,px,volume,datetime1_);
+        if cport.pos_list{idx,1}.position_total_ == 0
             %the position is now completely unwind
             tick_value = instrument.tick_value;
             tick_size = instrument.tick_size;
             pnl = (px-avgcost_)*volume_*tick_value/tick_size;
-            cport.instrument_avgcost(idx,1) = 0;
+%             cport.instrument_avgcost(idx,1) = 0;
         else
-            cport.instrument_avgcost(idx,1) = (avgcost_*volume_ + px*volume)/(volume_+volume);
+%             cport.instrument_avgcost(idx,1) = (avgcost_*volume_ + px*volume)/(volume_+volume);
             pnl = 0;
         end
     end

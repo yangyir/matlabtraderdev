@@ -32,14 +32,14 @@ function portfolio = opt_loadpositions(fn,dateinput)
         v_i = str2double(lineinfo{2});
         cost_i = str2double(lineinfo{3});
         if nargin < 2
-            portfolio.addinstrument(instrument,cost_i,v_i);
+            portfolio.addposition(instrument,cost_i,v_i);
         else
             if ischar(dateinput)
                 dateinputnum = datenum(dateinput);
             else
                 dateinputnum = dateinput;
             end
-            portfolio.addinstrument(instrument,cost_i,v_i,dateinputnum);
+            portfolio.addposition(instrument,cost_i,v_i,dateinputnum);
         end
         
         line_ = fgetl(fid);

@@ -7,15 +7,15 @@ function [] = unwindposition(strategy,instrument)
     if ~flag, return; end
 
     %check whether the instrument has been traded already
-    [flag,idx_portfolio] = strategy.portfolio_.hasinstrument(instrument);
+    [flag,idx_portfolio] = strategy.portfolio_.hasposition(instrument);
     if ~flag, return; end
 
     code = instrument.code_ctp;
 
     if ~strcmpi(strategy.mode_,'debug'), strategy.withdrawentrusts(instrument);end
 
-    isshfe = strcmpi(strategy.portfolio_.instrument_list{idx_portfolio}.exchange,'.SHF');
-    volume = strategy.portfolio_.instrument_volume(idx_portfolio);
+    isshfe = strcmpi(strategy.portfolio_.pos_list{idx_portfolio}.instrument_.exchange,'.SHF');
+    volume = strategy.portfolio_.pos_list{idx_portfolio}.position_total_;
 
     if strcmpi(strategy.mode_,'debug')
         %update portfolio and pnl_close_ as required in the
@@ -24,7 +24,7 @@ function [] = unwindposition(strategy,instrument)
         tick = strategy.mde_fut_.getlasttick(instrument);
         bid = tick(2);
         ask = tick(3);
-        tick_size = strategy.portfolio_.instrument_list{idx_portfolio}.tick_size;
+        tick_size = strategy.portfolio_.pos_list{idx_portfolio}.instrument_.tick_size;
         if volume > 0
             %place entrust with sell flag using the bid price
             price = bid - strategy.bidspread_(idx_instrument)*tick_size;
@@ -34,7 +34,7 @@ function [] = unwindposition(strategy,instrument)
         end
         offset = -1;
         t = cTransaction;
-        t.instrument_ = strategy.portfolio_.instrument_list{idx_portfolio};
+        t.instrument_ = strategy.portfolio_.pos_list{idx_portfolio}.instrument_;
         t.price_ = price;
         t.volume_= abs(volume);
         t.direction_ = -sign(volume);
