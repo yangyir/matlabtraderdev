@@ -6,7 +6,7 @@ fprintf('register option strategy with options......\n');
 try
     stratopt1 = cStratOpt;
     stratopt1.registercounter(c_opt1);
-    stratopt1.registeroptions('m1805',7);
+    stratopt1.registeroptions('m1805',9);
     stratopt1.timer_interval_ = 60;
 catch e
     error(e.message);
