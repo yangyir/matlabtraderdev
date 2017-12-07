@@ -37,6 +37,7 @@ classdef cStratFutMultiWR < cStrat
         [wr,wrts] = getlastwr(obj,instrument)
         [] = printinfo(obj)
         [] = readparametersfromtxtfile(obj,fn_)
+        [] = initdata4debug(obj,instrument,dtstart,dtend)
     end
     
     %derived (abstract) methods from superclass
@@ -71,7 +72,11 @@ classdef cStratFutMultiWR < cStrat
         [] = updategreeks_futmultiwr(obj)
         signals = gensignals_futmultiwr(obj)
         [] = autoplacenewentrusts_futmultiwr(obj,signals)
-        [] = initdata_futmultiwr(obj) 
+        [] = initdata_futmultiwr(obj)
+    end
+    
+    methods (Static = true)
+        [] = demo(~)
     end
     
 end

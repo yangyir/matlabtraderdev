@@ -27,7 +27,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     end
     
     [f1, idx] = strategy.instruments_.hasinstrument(instrument);
-    [f2,idxp] = strategy.portfolio_.hasinstrument(instrument);
+    [f2,idxp] = strategy.portfolio_.hasposition(instrument);
     
     if ~f1
         fprintf('cStrat:shortclosesingleinstrument:%s not registered in strategy\n',ctp_code)

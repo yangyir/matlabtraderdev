@@ -10,11 +10,12 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         direction = signal.direction;
         if direction == 0, continue; end
 
-        [flag,idx] = strategy.portfolio_.hasinstrument(instrument);
+        [flag,idx] = strategy.portfolio_.hasposition(instrument);
         if ~flag
             volume_exist = 0;
         else
-            volume_exist = strategy.portfolio_.instrument_volume(idx);
+            pos = strategy.portfolio_.pos_list{idx};
+            volume_exist = pos.direction_*pos.position_total_;
         end
 
         [~,ii] = strategy.instruments_.hasinstrument(instrument);

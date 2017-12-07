@@ -40,7 +40,7 @@ classdef cPos < handle
             else
                 instrument = cFutures(obj.code_ctp_);
             end
-            instrument.loadinfo([obj.code_ctp,'_info.txt']);
+            instrument.loadinfo([obj.code_ctp_,'_info.txt']);
         end
     end
     

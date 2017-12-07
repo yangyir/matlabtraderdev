@@ -22,7 +22,7 @@ end
 %%
 %soymeal
 futures_code_ctp_soymeal = {'m1801';'m1805'};
-strikes_soymeal = [2600;2650;2700;2750;2800];
+strikes_soymeal = [2600;2650;2700;2750;2800;2850;2900;2950;3000;3050];
 c_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 p_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 
@@ -62,6 +62,30 @@ for i = 1:size(futures_code_ctp_sugar,1)
         c_opt.saveinfo([opt_dir_,c_code_,'_info.txt']);
         %
         p_code_ = [futures_code_ctp_sugar{i},'P',num2str(strikes_sugar(j))];
+        p_opt = cOption(p_code_);
+        p_opt.init(conn);
+        p_opt.saveinfo([opt_dir_,p_code_,'_info.txt']);
+    end  
+end
+fprintf('done for white sugar options......\n');
+%%
+%PTA
+futures_code_ctp_pta = {'TA805';'TA809'};
+strikes_pta = [5000;5100;5200;5300;5400;5500;5600;5700];
+c_code_ctp_pta = cell(size(futures_code_ctp_pta,1),size(strikes_pta,1));
+p_code_ctp_pta = cell(size(futures_code_ctp_pta,1),size(strikes_pta,1));
+
+for i = 1:size(futures_code_ctp_pta,1)
+    fut = cFutures(futures_code_ctp_pta{i});
+    fut.init(conn);
+    fut.saveinfo([fut_dir_,futures_code_ctp_pta{i},'_info.txt']);
+    for j = 1:size(strikes_sugar,1)
+        c_code_ = [futures_code_ctp_pta{i},'C',num2str(strikes_pta(j))];
+        c_opt = cOption(c_code_);
+        c_opt.init(conn);
+        c_opt.saveinfo([opt_dir_,c_code_,'_info.txt']);
+        %
+        p_code_ = [futures_code_ctp_pta{i},'P',num2str(strikes_pta(j))];
         p_opt = cOption(p_code_);
         p_opt.init(conn);
         p_opt.saveinfo([opt_dir_,p_code_,'_info.txt']);
