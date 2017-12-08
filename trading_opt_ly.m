@@ -25,9 +25,7 @@ stratopt_ly.portfolio_.print;
 %%
 %real-time pnl and risk
 [pnltbl,risktbl] = stratopt_ly.pnlriskrealtime;
-printpnltbl(pnltbl);
-printrisktbl(risktbl);
-fprintf('\n');
+printpnltbl(pnltbl);printrisktbl(risktbl);fprintf('\n');
 
 %%
 

@@ -14,6 +14,7 @@ function [] = initdata4debug(obj,instrument,dtstart,dtend)
 
     obj.mode_ = 'debug';
     obj.mde_fut_.mode_ = 'debug';
+    obj.mde_fut_.setcandlefreq(5,instrument);
 
     obj.mde_fut_.debug_start_dt1_ = obj.dtstart4debug_;
     obj.mde_fut_.debug_start_dt2_ = datestr(obj.dtstart4debug_);
@@ -22,5 +23,20 @@ function [] = initdata4debug(obj,instrument,dtstart,dtend)
     obj.mde_fut_.debug_count_ = 0;
     obj.mde_fut_.debug_ticks_ = dnum;
     obj.mde_fut_.replay_date1_ = floor(obj.dtstart4debug_);
+    obj.mde_fut_.replay_date2_ = datestr(obj.mde_fut_.replay_date1_);
+    
+    %the registerinstrument function will update the candle buckets
+    cobdate = obj.mde_fut_.replay_date1_;
+    buckets = getintradaybuckets2('date',cobdate,...
+                    'frequency',[num2str(obj.mde_fut_.candle_freq_(1)),'m'],...
+                    'tradinghours',instrument.trading_hours,...
+                    'tradingbreak',instrument.trading_break);
+    obj.mde_fut_.candles_{1} = [buckets,zeros(size(buckets,1),4)];
+    buckets2 = getintradaybuckets2('date',cobdate,...
+                    'frequency','1m',...
+                    'tradinghours',instrument.trading_hours,...
+                    'tradingbreak',instrument.trading_break);
+    obj.mde_fut_.candles4save_{1} = [buckets2,zeros(size(buckets2,1),4)];
+    
     
 end

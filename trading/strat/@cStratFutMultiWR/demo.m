@@ -6,7 +6,6 @@ function [] = demo(~)
     fprintf('init data for debug.....\n');
     strat_demo.initdata4debug(fut,'2017-11-06 09:00:00','2017-11-06 15:00:00');
     
-    
     strat_demo.initdata;
     
     strat_demo.dtcount4debug_ = 0;
@@ -22,6 +21,7 @@ function [] = demo(~)
     strat_demo.pnl_close_ = 0;
     strat_demo.pnl_running_ = 0;
     strat_demo.mde_opt_.display_ = 0;
+    strat_demo.autotrade_(1) = 1;
     
     
     fprintf('start demo......\n');
