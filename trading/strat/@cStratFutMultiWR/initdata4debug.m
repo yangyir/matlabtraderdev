@@ -2,18 +2,21 @@ function [] = initdata4debug(obj,instrument,dtstart,dtend)
     if ~isa(instrument,'cInstrument')
         error('cStrat:initdata4debug:invalid instrument input')
     end
-    c = bbgconnect;
-    dcell = c.timeseries(instrument.code_bbg,{datestr(dtstart),datestr(dtend)},[],'trade');
-    dnum = cell2mat(dcell(:,2:3));
+%     c = bbgconnect;
+%     dcell = c.timeseries(instrument.code_bbg,{datestr(dtstart),datestr(dtend)},[],'trade');
+%     dnum = cell2mat(dcell(:,2:3));
+    dstruct = load('tickdata4debug');
+    dnum = dstruct.dnum;
     obj.timevec4debug_ = dnum(:,1);
     obj.dtstart4debug_ = datenum(dtstart);
     obj.dtend4debug_ = datenum(dtend);
     obj.dtcount4debug_ = 0;
-    c.close;
-    clear c
+%     c.close;
+%     clear c
 
     obj.mode_ = 'debug';
     obj.mde_fut_.mode_ = 'debug';
+    obj.mde_opt_.mode_ = 'debug';
     obj.mde_fut_.setcandlefreq(5,instrument);
 
     obj.mde_fut_.debug_start_dt1_ = obj.dtstart4debug_;

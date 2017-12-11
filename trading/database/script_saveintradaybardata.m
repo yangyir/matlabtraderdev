@@ -39,6 +39,14 @@ end
 fprintf('done for saving intraday bar data for precious metal futures\n');
 
 %%
+%rebal
+rb_codes_ctp = {'rb1801';'rb1805'};
+
+for i = 1:size(rb_codes_ctp,1)
+    saveintradaybarfrombloomberg(conn,rb_codes_ctp{i},override);
+end
+fprintf('done for saving intraday bar data for rb futures\n');
+%%
 %clear variables
 clear i
 clear override conn bm_codes_ctp govtbond_codes_ctp pm_codes_ctp

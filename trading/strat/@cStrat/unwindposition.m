@@ -15,7 +15,7 @@ function [] = unwindposition(strategy,instrument)
     if ~strcmpi(strategy.mode_,'debug'), strategy.withdrawentrusts(instrument);end
 
     isshfe = strcmpi(strategy.portfolio_.pos_list{idx_portfolio}.instrument_.exchange,'.SHF');
-    volume = strategy.portfolio_.pos_list{idx_portfolio}.position_total_;
+    volume = strategy.portfolio_.pos_list{idx_portfolio}.direction_ * strategy.portfolio_.pos_list{idx_portfolio}.position_total_;
 
     if strcmpi(strategy.mode_,'debug')
         %update portfolio and pnl_close_ as required in the

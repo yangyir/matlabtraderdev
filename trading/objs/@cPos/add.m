@@ -25,7 +25,7 @@ function [] = add(obj,varargin)
     volume_exist = obj.direction_*obj.position_total_;
     volume_today_exist = obj.direction_*obj.position_today_;
     %in case unwind some or all existing positions
-    if direction_exist ~= direction_new
+    if direction_exist ~= direction_new && direction_exist ~= 0
         closeFlag = 1;
         if ~closetodayFlag && abs(volume_exist) < abs(volume)
             error('cPos:add:invalid volume input,exceed current volume')

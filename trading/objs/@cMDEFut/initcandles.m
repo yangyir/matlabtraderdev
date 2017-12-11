@@ -1,7 +1,11 @@
 function [ret] = initcandles(mdefut,instrument)
     instruments = mdefut.qms_.instruments_.getinstrument;
     ns = size(instruments,1);
-    ds = cBloomberg;
+    if strcmpi(mdefut.mode_,'debug')
+        ds = cLocal;
+    else
+        ds = cBloomberg;
+    end
     if nargin < 2
         for i = 1:ns
             date2 = floor(mdefut.candles_{i}(1,1));
@@ -31,6 +35,7 @@ function [ret] = initcandles(mdefut,instrument)
 
         end
         ret = true;
+        ds.close;
         return
     end
 
@@ -63,5 +68,6 @@ function [ret] = initcandles(mdefut,instrument)
         end
     end
     if ~flag, error('cMDEFut:initcandles:instrument not found'); end
+    ds.close;
 end
 %end of initcandles

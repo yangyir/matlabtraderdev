@@ -39,12 +39,18 @@ dateTo = p.Results.ToDate;
 tradingHours = p.Results.TradingHours;
 tradingBreak = p.Results.TradingBreak;
 freq = p.Results.Frequency;
+
 %
 data = timeseries_window(data,'FromDate',dateFrom,...
                               'ToDate',dateTo,...
                               'TradingHours',tradingHours,...
                               'TradingBreak',tradingBreak);
 %
+
+if isempty(data)
+    results = [];
+    return
+end
 
 [n,m]=size(data);
 
