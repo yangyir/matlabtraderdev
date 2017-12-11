@@ -76,7 +76,7 @@ classdef cStratFutMultiWR < cStrat
     end
     
     methods (Static = true)
-        [] = demo(~)
+        [] = debug(~)
     end
     
 end
