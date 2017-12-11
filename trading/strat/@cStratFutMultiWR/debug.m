@@ -31,7 +31,7 @@ function [] = debug(~)
     
     %%
     fprintf('start demo......\n');
-    strat_debug.timer_interval_ = 0.05;
+    strat_debug.timer_interval_ = 0.01;
     strat_debug.start;
     
     %%

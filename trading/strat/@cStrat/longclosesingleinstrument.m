@@ -39,7 +39,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         return; 
     end
     
-    volume = abs(strategy.portfolio_.instrument_volume(idxp));
+    volume = abs(strategy.portfolio_.pos_list{idxp}.position_total_);
     if volume >= 0
         fprintf('cStrat:longclosesingleinstrument:%s:existing short position not found\n',ctp_code);
     end
