@@ -17,8 +17,9 @@ function [] = riskmanagement_futmultiwr(strategy,dtnum)
         %calculate running pnl in case the embedded porfolio has
         %got the instrument already
 
-        volume = strategy.portfolio_.instrument_volume(idx);
-        cost = strategy.portfolio_.instrument_avgcost(idx);
+        position = strategy.portfolio_.pos_list{idx};
+        volume = position.direction_*position.position_total_;
+        cost = position.cost_carry_;
         strategy.calcrunningpnl(instruments{i});
 
         %                     pnl_ = obj.pnl_running_(i) + obj.pnl_close_(i);
@@ -40,9 +41,9 @@ function [] = riskmanagement_futmultiwr(strategy,dtnum)
         end
 
         if strcmpi(strategy.pnl_stop_type_{i},'rel')
-            stop_ = -strategy.pnl_stop_(i)*cost*abs(volume)*multi*margin;
+            stop_ = strategy.pnl_stop_(i)*cost*abs(volume)*multi*margin;
         else
-            stop_ = -strategy.pnl_stop_(i);
+            stop_ = strategy.pnl_stop_(i);
         end
 
         % in case the pnl has either breach the limit or

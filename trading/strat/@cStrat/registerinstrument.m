@@ -123,7 +123,11 @@ function [] = registerinstrument(strategy,instrument)
     if isempty(strategy.mde_fut_)
         strategy.mde_fut_ = cMDEFut;
         qms_fut_ = cQMS;
-        qms_fut_.setdatasource('ctp');
+        if ~strcmpi(strategy.mode_,'debug')
+            qms_fut_.setdatasource('ctp');
+        else
+            qms_fut_.setdatasource('local');
+        end
         strategy.mde_fut_.qms_ = qms_fut_;
     end
 
@@ -131,7 +135,11 @@ function [] = registerinstrument(strategy,instrument)
     if isempty(strategy.mde_opt_)
         strategy.mde_opt_ = cMDEOpt;
         qms_opt_ = cQMS;
-        qms_opt_.setdatasource('ctp');
+        if ~strcmpi(strategy.mode_,'debug')
+            qms_opt_.setdatasource('ctp');
+        else
+            qms_opt_.setdatasource('local');
+        end
         strategy.mde_opt_.qms_ = qms_opt_;
     end
 

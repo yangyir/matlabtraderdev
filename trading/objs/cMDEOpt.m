@@ -64,7 +64,8 @@ classdef cMDEOpt < handle
                 if strcmpi(obj.mode_,'realtime')
                     obj.qms_.refresh;
                 else
-                    error('to be finished')
+                    return
+%                     error('to be finished')
                 end
                 
                 obj.savequotes2mem;

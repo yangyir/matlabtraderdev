@@ -49,68 +49,53 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             end
         end
 
-%         multi = instrument.contract_size;
-%         code = instrument.code_ctp;
-%         if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
-%             multi = multi/100;
-%         end
-% 
-%         offset = 1;
-%         tick = strategy.mde_fut_.getlasttick(instrument);
-%         bid = tick(2);
-%         ask = tick(3);
-
-        %firstly to unwind all existing entrusts associated with
-        %the instrument
-        if ~strcmpi(strategy.mode_,'debug')
-            strategy.withdrawentrusts(instrument);
-        end
-        
-        if direction < 0
-            [ret,e] = strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));
-        else
-            [ret,e] = strategy.longopensingleinstrument(instrument.code_ctp,abs(volume));
-        end
-
-%         e = Entrust;
-%         e.assetType = 'Future';
-%         e.multiplier = multi;
-%         if direction < 0
-%             price =  bid - strategy.bidspread_(ii);
-%         else
-%             price =  ask + strategy.askspread_(ii);
-%         end
-% 
-%         if ~strcmpi(strategy.mode_,'debug')
-%             e.fillEntrust(1,code,direction,price,abs(volume),offset,code);
-%             ret = strategy.counter_.placeEntrust(e);
-%             if ret
-%                 strategy.entrusts_.push(e);
-%             end
-%         end
-        strategy.counter_.queryEntrust(e);
-        f2 = e.is_entrust_closed;
-        
-        if strcmpi(strategy.mode_,'debug') || (~strcmpi(strategy.mode_,'debug')&&ret&& f2)
+        if strcmpi(strategy.mode_,'debug')
+            offset = 1;
+            tick = strategy.mde_fut_.getlasttick(instrument);
+            bid = tick(2);
+            ask = tick(3);
+            if direction < 0
+                price =  bid - strategy.bidspread_(ii);
+            else
+                price =  ask + strategy.askspread_(ii);
+            end
             if strategy.executionbucketnumber_(ii) ~= bucketnum;
                 strategy.executionbucketnumber_(ii) = bucketnum;
                 strategy.executionperbucket_(ii) = 1;
             else
                 strategy.executionperbucket_(ii) = strategy.executionperbucket_(ii)+1;
             end
-% 
-%             %update portfolio and pnl_close_ as required in the
-%             %following
-%             %assuming the entrust is completely filled
-%             t = cTransaction;
-%             t.instrument_ = instrument;
-%             t.price_ = price;
-%             t.volume_= abs(volume);
-%             t.direction_ = direction;
-%             t.offset_ = offset;
-%             t.datetime1_ = e.time;
-%             t.datetime2_ = datestr(e.time);
-%             strategy.portfolio_.updateportfolio(t);
+%             assuming the entrust is completely filled
+            t = cTransaction;
+            t.instrument_ = instrument;
+            t.price_ = price;
+            t.volume_= abs(volume);
+            t.direction_ = direction;
+            t.offset_ = offset;
+            strategy.portfolio_.updateportfolio(t);
+            return    
+        end
+
+        %firstly to unwind all existing entrusts associated with
+        %the instrument
+        strategy.withdrawentrusts(instrument);
+                
+        if direction < 0
+            [ret,e] = strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));
+        else
+            [ret,e] = strategy.longopensingleinstrument(instrument.code_ctp,abs(volume));
+        end
+
+        strategy.counter_.queryEntrust(e);
+        f2 = e.is_entrust_closed;
+        
+        if ret&& f2
+            if strategy.executionbucketnumber_(ii) ~= bucketnum;
+                strategy.executionbucketnumber_(ii) = bucketnum;
+                strategy.executionperbucket_(ii) = 1;
+            else
+                strategy.executionperbucket_(ii) = strategy.executionperbucket_(ii)+1;
+            end
         end
 
     end

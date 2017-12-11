@@ -1,7 +1,7 @@
 function [] = settimer(strategy)
-    if strcmpi(strategy.mode_, 'debug')
-        strategy.timer_interval_ = 0.005;
-    end
+%     if strcmpi(strategy.mode_, 'debug')
+%         strategy.timer_interval_ = 0.005;
+%     end
 
     strategy.timer_ = timer('Period', strategy.timer_interval_,...
         'StartFcn',@strategy.start_timer_fcn,...
