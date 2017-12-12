@@ -26,9 +26,13 @@ classdef cStrat < handle
         %positive ask spread means to order a buy with a lower price
         askspread_@double
         
-         %size related
+        %size related
         baseunits_@double
         maxunits_@double
+        %
+        executionperbucket_@double
+        maxexecutionperbucket_@double
+        executionbucketnumber_@double
         
         %market data engine
         mde_fut_@cMDEFut
@@ -83,6 +87,11 @@ classdef cStrat < handle
         [] = setautotradeflag(obj,instrument,autotrade)
         autotrade = getautotradeflag(obj,instrument)
         [] = setmdeconnection(obj,connstr)
+        %
+        [] = setmaxexecutionperbucket(obj,instrument,value)
+        n = getmaxexecutionperbucket(obj,instrument)
+        [] = setexecutionperbucket(obj,instrument,value)
+        n = getexecutionperbucket(obj,instrument)
     end
     %end of set/get methods
     

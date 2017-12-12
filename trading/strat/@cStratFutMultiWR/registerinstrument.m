@@ -53,50 +53,50 @@ function [] = registerinstrument(strategy,instrument)
         end
     end
 
-    %baseunits
-    if isempty(strategy.baseunits_)
-        strategy.baseunits_ = ones(strategy.count,1);
-    else
-        if size(strategy.baseunits_) < strategy.count
-            strategy.baseunits_ = [strategy.baseunits_;1];
-        end
-    end
-
-    %maxunits
-    if isempty(strategy.maxunits_)
-        strategy.maxunits_ = 16*ones(strategy.count,1);
-    else
-        if size(strategy.maxunits_) < strategy.count
-            strategy.maxunits_ = [strategy.maxunits_;16];
-        end
-    end
-
-    %executionperbucket
-    if isempty(strategy.executionperbucket_)
-        strategy.executionperbucket_ = zeros(strategy.count,1);
-    else
-        if size(strategy.executionperbucket_) < strategy.count
-            strategy.executionperbucket_ = [strategy.executionperbucket_;0];
-        end
-    end
-
-    %maxexecutionperbucket
-    if isempty(strategy.maxexecutionperbucket_)
-        strategy.maxexecutionperbucket_ = ones(strategy.count,1);
-    else
-        if size(strategy.maxexecutionperbucket_) < strategy.count
-            strategy.maxexecutionperbucket_ = [strategy.maxexecutionperbucket_;1];
-        end
-    end
-
-    %executionbucketnumber
-    if isempty(strategy.executionbucketnumber_)
-        strategy.executionbucketnumber_ = zeros(strategy.count,1);
-    else
-        if size(strategy.executionbucketnumber_) < strategy.count
-            strategy.executionbucketnumber_ = [strategy.executionbucketnumber_;0];
-        end
-    end
+%     %baseunits
+%     if isempty(strategy.baseunits_)
+%         strategy.baseunits_ = ones(strategy.count,1);
+%     else
+%         if size(strategy.baseunits_) < strategy.count
+%             strategy.baseunits_ = [strategy.baseunits_;1];
+%         end
+%     end
+% 
+%     %maxunits
+%     if isempty(strategy.maxunits_)
+%         strategy.maxunits_ = 16*ones(strategy.count,1);
+%     else
+%         if size(strategy.maxunits_) < strategy.count
+%             strategy.maxunits_ = [strategy.maxunits_;16];
+%         end
+%     end
+% 
+%     %executionperbucket
+%     if isempty(strategy.executionperbucket_)
+%         strategy.executionperbucket_ = zeros(strategy.count,1);
+%     else
+%         if size(strategy.executionperbucket_) < strategy.count
+%             strategy.executionperbucket_ = [strategy.executionperbucket_;0];
+%         end
+%     end
+% 
+%     %maxexecutionperbucket
+%     if isempty(strategy.maxexecutionperbucket_)
+%         strategy.maxexecutionperbucket_ = ones(strategy.count,1);
+%     else
+%         if size(strategy.maxexecutionperbucket_) < strategy.count
+%             strategy.maxexecutionperbucket_ = [strategy.maxexecutionperbucket_;1];
+%         end
+%     end
+% 
+%     %executionbucketnumber
+%     if isempty(strategy.executionbucketnumber_)
+%         strategy.executionbucketnumber_ = zeros(strategy.count,1);
+%     else
+%         if size(strategy.executionbucketnumber_) < strategy.count
+%             strategy.executionbucketnumber_ = [strategy.executionbucketnumber_;0];
+%         end
+%     end
 
 end
 %end of registerinstrument

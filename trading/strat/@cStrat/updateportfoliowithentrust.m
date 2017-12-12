@@ -19,6 +19,15 @@ function pnl = updateportfoliowithentrust(strategy,e)
         t.datetime1_ = e.time;
         pnl = strategy.portfolio_.updateportfolio(t);
         strategy.pnl_close_(idx) = strategy.pnl_close_(idx) + pnl;
+        if isa(instrument,'cFutures')
+            bucketnum = strategy.mde_fut_.getcandlecount(instrument);
+            if strategy.executionbucketnumber_(idx) ~= bucketnum;
+                strategy.executionbucketnumber_(idx) = bucketnum;
+                strategy.executionperbucket_(idx) = 1;
+            else
+                strategy.executionperbucket_(idx) = strategy.executionperbucket_(idx)+1;
+            end 
+        end
     end
     
     if f1

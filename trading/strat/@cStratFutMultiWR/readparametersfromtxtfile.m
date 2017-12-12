@@ -88,6 +88,10 @@ function [] = readparametersfromtxtfile(strategy,fn_)
             for j = 1:n
                 strategy.setexecutiontype(futs{j},values_{i,j});
             end
+        elseif strcmpi('maxexecutionperbucket',names_{i})
+            for j = 1:n
+                strategy.setmaxexecutionperbucket(futs{j},str2double(values_{i,j}));
+            end
         end
     end
 

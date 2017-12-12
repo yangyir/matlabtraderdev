@@ -28,6 +28,7 @@ function [] = debug(~)
     strat_debug.setstopamount(fut,-100);
     strat_debug.setlimittype(fut,'abs');
     strat_debug.setlimitamount(fut,100);
+    strat_debug.setmaxunits(fut,4);
     
     %%
     fprintf('start demo......\n');
@@ -35,5 +36,5 @@ function [] = debug(~)
     strat_debug.start;
     
     %%
-    strat_debug.stop;
+%     strat_debug.stop;
 end

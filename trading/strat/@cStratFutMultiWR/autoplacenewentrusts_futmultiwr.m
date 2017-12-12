@@ -81,22 +81,24 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         strategy.withdrawentrusts(instrument);
                 
         if direction < 0
-            [ret,e] = strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));
+%             [ret,e] = strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));
+            strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));
         else
-            [ret,e] = strategy.longopensingleinstrument(instrument.code_ctp,abs(volume));
+%             [ret,e] = strategy.longopensingleinstrument(instrument.code_ctp,abs(volume));
+            strategy.longopensingleinstrument(instrument.code_ctp,abs(volume));
         end
 
-        strategy.counter_.queryEntrust(e);
-        f2 = e.is_entrust_closed;
-        
-        if ret&& f2
-            if strategy.executionbucketnumber_(ii) ~= bucketnum;
-                strategy.executionbucketnumber_(ii) = bucketnum;
-                strategy.executionperbucket_(ii) = 1;
-            else
-                strategy.executionperbucket_(ii) = strategy.executionperbucket_(ii)+1;
-            end
-        end
+%         strategy.counter_.queryEntrust(e);
+%         f2 = e.is_entrust_closed;
+%         
+%         if ret&& f2
+%             if strategy.executionbucketnumber_(ii) ~= bucketnum;
+%                 strategy.executionbucketnumber_(ii) = bucketnum;
+%                 strategy.executionperbucket_(ii) = 1;
+%             else
+%                 strategy.executionperbucket_(ii) = strategy.executionperbucket_(ii)+1;
+%             end
+%         end
 
     end
 
