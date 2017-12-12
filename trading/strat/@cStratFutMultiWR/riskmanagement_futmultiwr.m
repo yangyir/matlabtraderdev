@@ -39,12 +39,14 @@ function [] = riskmanagement_futmultiwr(strategy,dtnum)
         else
             limit_ = strategy.pnl_limit_(i);
         end
+        if limit_ < 0, limit_ = -limit_;end
 
         if strcmpi(strategy.pnl_stop_type_{i},'rel')
             stop_ = strategy.pnl_stop_(i)*cost*abs(volume)*multi*margin;
         else
             stop_ = strategy.pnl_stop_(i);
         end
+        if stop_ > 0, stop_ = -stop_;end
 
         % in case the pnl has either breach the limit or
         % the stop level, we will unwind the existing
