@@ -196,7 +196,7 @@ classdef cStrat < handle
         [ret,e] = longclosesingleinstrument(obj,ctp_code,lots,closetodayflag)
         
         [] = unwindposition(obj,instrument)
-        pnl = calcrunningpnl(obj, instrument)
+        pnl = calcrunningpnl(obj,instrument)
         
     end
     %end of trading-related methods

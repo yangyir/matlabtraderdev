@@ -8,9 +8,6 @@ try
     fn_ = 'C:\Temp\trading_params_wr.txt';
     fprintf('set parameters for strat wr......\n');
     strat_fut_wr.readparametersfromtxtfile(fn_);
-    for i = 1:strat_fut_wr.count
-        strat_fut_wr.setexecutiontype(strat_fut_wr.instruments_.getinstrument{i},'fixed');
-    end
     disp(strat_fut_wr);
 catch e
     error(e.message);
@@ -36,3 +33,7 @@ strat_fut_wr.pnl_running_
 
 %%
 strat_fut_wr.portfolio_.print;
+%%
+%code:pb1802;volume:-2;volume(today):-2;cost(carry):19207.50;cost(open):19207.50
+%code:cu1802;volume:-1;volume(today):-1;cost(carry):52380.00;cost(open):52380.00
+
