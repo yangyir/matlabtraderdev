@@ -7,6 +7,9 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         if isempty(signal), continue; end
 
         instrument = signal.instrument;
+        [~,ii] = strategy.instruments_.hasinstrument(instrument);
+        if ~strategy.autotrade_(ii),continue;end
+        
         direction = signal.direction;
         if direction == 0, continue; end
 
@@ -17,10 +20,6 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             pos = strategy.portfolio_.pos_list{idx};
             volume_exist = pos.direction_*pos.position_total_;
         end
-
-        [~,ii] = strategy.instruments_.hasinstrument(instrument);
-        
-        if ~strategy.autotrade_(ii),continue;end
 
         if volume_exist == 0
             volume = strategy.getbaseunits(instrument);

@@ -22,14 +22,14 @@ function [] = removeposition(cport,instrument)
 %                 c_(i,1) = cport.instrument_avgcost(i,1);
 %                 v_(i,1) = cport.instrument_volume(i,1);
 %                 vtoday_(i,1) = cport.instrument_volume_today(i,1);
-                pos_list_{i,1} = cport.pos_list_{i,1};
+                pos_list_{i,1} = cport.pos_list{i,1};
             end
             for i = idx+1:n
 %                 list_{i-1,1} = cport.instrument_list{i,1};
 %                 c_(i-1,1) = cport.instrument_avgcost(i,1);
 %                 v_(i-1,1) = cport.instrument_volume(i,1);
 %                 vtoday_(i-1,1) = cport.instrument_volume_today(i,1);
-                pos_list_{i-1,1} = cport.pos_list_{i,1};
+                pos_list_{i-1,1} = cport.pos_list{i,1};
             end
 %             cport.instrument_list = list_;
 %             cport.instrument_avgcost = c_;
