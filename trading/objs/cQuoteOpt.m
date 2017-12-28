@@ -84,8 +84,16 @@ classdef cQuoteOpt < cQuoteFut
             obj.bid_size_underlier = underlier_quote_.bid_size1;
             obj.ask_size_underlier = underlier_quote_.ask_size1;
             
-            obj.opt_calendar_tau = (obj.opt_expiry_date1 - obj.update_date1)/365;
-            bds = gendates('fromdate',obj.update_date1,'todate',obj.opt_expiry_date1);
+            hh = hour(obj.update_time1);
+            isevening = hh > 15 && hh < 24;
+            if isevening
+                cob_date = businessdate(obj.update_date1);
+            else
+                cob_date = obj.update_date1;
+            end
+            
+            obj.opt_calendar_tau = (obj.opt_expiry_date1 - cob_date)/365;
+            bds = gendates('fromdate',cob_date,'todate',obj.opt_expiry_date1);
             obj.opt_business_tau = length(bds)/252;
             
             if ~calcgreeks, return; end
@@ -100,7 +108,7 @@ classdef cQuoteOpt < cQuoteFut
                     opttype = 'put';
                 end
                 warning('off')
-                obj.impvol = bjsimpv(mid,obj.opt_strike,r,obj.update_date1,...
+                obj.impvol = bjsimpv(mid,obj.opt_strike,r,cob_date,...
                     obj.opt_expiry_date1,midopt,[],r,[],opttype);
                 if isnan(obj.impvol )
                     obj.impvol = 0.01;
@@ -116,11 +124,11 @@ classdef cQuoteOpt < cQuoteFut
                 midUp = mid*(1+0.005);
                 midDn = mid*(1-0.005);
                 if strcmpi(obj.opt_type,'C')
-                    pxUp = bjsprice(midUp,obj.opt_strike,r,obj.update_date1,obj.opt_expiry_date1,obj.impvol,r);
-                    pxDn = bjsprice(midDn,obj.opt_strike,r,obj.update_date1,obj.opt_expiry_date1,obj.impvol,r);
+                    pxUp = bjsprice(midUp,obj.opt_strike,r,cob_date,obj.opt_expiry_date1,obj.impvol,r);
+                    pxDn = bjsprice(midDn,obj.opt_strike,r,cob_date,obj.opt_expiry_date1,obj.impvol,r);
                 else
-                    [~,pxUp] = bjsprice(midUp,obj.opt_strike,r,obj.update_date1,obj.opt_expiry_date1,obj.impvol,r);
-                    [~,pxDn] = bjsprice(midDn,obj.opt_strike,r,obj.update_date1,obj.opt_expiry_date1,obj.impvol,r);
+                    [~,pxUp] = bjsprice(midUp,obj.opt_strike,r,cob_date,obj.opt_expiry_date1,obj.impvol,r);
+                    [~,pxDn] = bjsprice(midDn,obj.opt_strike,r,cob_date,obj.opt_expiry_date1,obj.impvol,r);
                 end
                 %note:we record the percentage level delta and gamma
                 obj.delta = (pxUp - pxDn)/(midUp-midDn);
@@ -132,7 +140,7 @@ classdef cQuoteOpt < cQuoteFut
             
             %calculate theta
             if obj.opt_american
-                datecarry = businessdate(obj.update_date1);
+                datecarry = businessdate(cob_date);
                 if strcmpi(obj.opt_type,'C')
                     pxCarry = bjsprice(mid,obj.opt_strike,r,datecarry,obj.opt_expiry_date1,obj.impvol,r);
                 else
@@ -149,11 +157,11 @@ classdef cQuoteOpt < cQuoteFut
                 ivUp = obj.impvol + 0.005;
                 ivDn = obj.impvol - 0.005;
                 if strcmpi(obj.opt_type,'C')
-                    pxVolUp = bjsprice(mid,obj.opt_strike,r,obj.update_date1,obj.opt_expiry_date1,ivUp,r);
-                    pxVolDn = bjsprice(mid,obj.opt_strike,r,obj.update_date1,obj.opt_expiry_date1,ivDn,r);
+                    pxVolUp = bjsprice(mid,obj.opt_strike,r,cob_date,obj.opt_expiry_date1,ivUp,r);
+                    pxVolDn = bjsprice(mid,obj.opt_strike,r,cob_date,obj.opt_expiry_date1,ivDn,r);
                 else
-                    [~,pxVolUp] = bjsprice(mid,obj.opt_strike,r,obj.update_date1,obj.opt_expiry_date1,ivUp,r);
-                    [~,pxVolDn] = bjsprice(mid,obj.opt_strike,r,obj.update_date1,obj.opt_expiry_date1,ivDn,r);
+                    [~,pxVolUp] = bjsprice(mid,obj.opt_strike,r,cob_date,obj.opt_expiry_date1,ivUp,r);
+                    [~,pxVolDn] = bjsprice(mid,obj.opt_strike,r,cob_date,obj.opt_expiry_date1,ivDn,r);
                 end
                 obj.vega = pxVolUp - pxVolDn;
             else
