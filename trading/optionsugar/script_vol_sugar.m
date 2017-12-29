@@ -7,7 +7,7 @@ tenor = '1m';
 settle = today;
 expiry = dateadd(today,tenor);
 busDates = gendates('FromDate',settle,'ToDate',expiry);
-nFo1recastPeriod = length(busDates);
+nForecastPeriod = length(busDates);
 
 %%
 %forecast volatility
