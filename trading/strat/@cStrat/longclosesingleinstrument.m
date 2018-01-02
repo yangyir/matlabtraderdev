@@ -1,11 +1,11 @@
-function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag)
+function [ret,e] = longclosesingleinstrument(cstratobj,ctp_code,lots,closetodayFlag)
     if lots == 0, return; end
 
     if nargin < 4
         closetodayFlag = 0;
     end
     
-    if isempty(strategy.counter_)
+    if isempty(cstratobj.counter_)
         fprintf('cStrat:counter not registered in strategy\n');
         return
     end
@@ -26,8 +26,8 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         multi = multi/100;
     end
     
-    [f1, idx] = strategy.instruments_.hasinstrument(instrument);
-    [f2,idxp] = strategy.portfolio_.hasposition(instrument);
+    [f1, idx] = cstratobj.instruments_.hasinstrument(instrument);
+    [f2,idxp] = cstratobj.portfolio_.hasposition(instrument);
     
     if ~f1
         fprintf('cStrat:shortclosesingleinstrument:%s not registered in strategy\n',ctp_code)
@@ -39,7 +39,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         return; 
     end
     
-    volume = abs(strategy.portfolio_.pos_list{idxp}.position_total_);
+    volume = abs(cstratobj.portfolio_.pos_list{idxp}.position_total_);
     if volume >= 0
         fprintf('cStrat:longclosesingleinstrument:%s:existing short position not found\n',ctp_code);
     end
@@ -54,22 +54,22 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     direction = 1;
     offset = -1;
     if isopt
-        q = strategy.mde_opt_.qms_.getquote(ctp_code);
+        q = cstratobj.mde_opt_.qms_.getquote(ctp_code);
     else
-        q = strategy.mde_fut_.qms_.getquote(ctp_code);
+        q = cstratobj.mde_fut_.qms_.getquote(ctp_code);
     end
     
-    orderprice = q.ask1 - strategy.askspread_(idx)*instrument.tick_size;
+    orderprice = q.ask1 - cstratobj.askspread_(idx)*instrument.tick_size;
     e.fillEntrust(1,ctp_code,direction,orderprice,lots,offset,ctp_code);
     if ~isopt, e.assetType = 'Future'; end
     e.multiplier = multi;
     if closetodayFlag, e.closetodayFlag = 1;end
     
-    ret = strategy.counter_.placeEntrust(e);
+    ret = cstratobj.counter_.placeEntrust(e);
     if ret
-        strategy.entrusts_.push(e);
-        strategy.entrustspending_.push(e);
-        strategy.updateportfoliowithentrust(e);
+        cstratobj.entrusts_.push(e);
+        cstratobj.entrustspending_.push(e);
+        cstratobj.updateportfoliowithentrust(e);
     end
     
 end

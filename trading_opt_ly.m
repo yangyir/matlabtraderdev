@@ -28,6 +28,7 @@ stratopt_ly.portfolio_.print;
 printpnltbl(pnltbl);printrisktbl(risktbl);fprintf('\n');
 
 %%
-
+pnltbl = cHelper.pnlrisk1(stratopt_ly.portfolio_,getlastbusinessdate);
+printpnltbl(pnltbl)
 
 
