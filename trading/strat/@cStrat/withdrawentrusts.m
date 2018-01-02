@@ -25,17 +25,18 @@ function [] = withdrawentrusts(strategy,instrument)
         
         if f1&&f2&&f3
             ret = withdrawentrust(strategy.counter_,e);
-            rmidx = i;
+%             rmidx = i;
             if ret
+                fprintf('entrust: %d cancelled...\n',e.entrustNo);
                 flag1 = strategy.counter_.queryEntrust(e);
                 flag2 = e.is_entrust_closed;
                 if flag1&&flag2
-                    %the entrust is successfully cancelled and we shall
-                    %first to remove it from the pending entrusts arrray
-                    strategy.entrustspending_.removeByIndex(rmidx);
-                    %and then we shall insert the entrust into the finished
-                    %entrust array
-                    strategy.entrustsfinished_.push(e);
+%                     %the entrust is successfully cancelled and we shall
+%                     %first to remove it from the pending entrusts arrray
+%                     strategy.entrustspending_.removeByIndex(rmidx);
+%                     %and then we shall insert the entrust into the finished
+%                     %entrust array
+%                     strategy.entrustsfinished_.push(e);
                     updateportfoliowithentrust(strategy,e);
                 end
             end

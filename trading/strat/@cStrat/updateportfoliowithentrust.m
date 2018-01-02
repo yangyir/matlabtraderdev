@@ -39,7 +39,17 @@ function pnl = updateportfoliowithentrust(strategy,e)
                 break
             end
         end
-        strategy.entrustsfinished_.push(e);
+        n2 = strategy.entrustsfinished_.latest;
+        flag = false;
+        for i = 1:n2
+            if strategy.entrustsfinished_.node(i).entrustNo == e.entrustNo
+                flag = true;
+                break
+            end
+        end
+        if ~flag
+            strategy.entrustsfinished_.push(e);
+        end
     end
 
 end

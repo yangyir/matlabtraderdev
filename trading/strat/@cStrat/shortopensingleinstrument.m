@@ -1,4 +1,4 @@
-function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots)
+function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread)
     if lots <= 0 
         return; 
     end
@@ -40,7 +40,11 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots)
         q = strategy.mde_fut_.qms_.getquote(ctp_code);
     end
     
-    orderprice = q.bid1 + strategy.bidspread_(idx)*instrument.tick_size;
+    if nargin < 4
+        orderprice = q.bid1 + strategy.bidspread_(idx)*instrument.tick_size;
+    else
+        orderprice = q.bid1 + spread*instrument.tick_size;
+    end
     e.fillEntrust(1,ctp_code,direction,orderprice,lots,offset,ctp_code);
     if ~isopt, e.assetType = 'Future'; end
     e.multiplier = multi;
@@ -48,6 +52,8 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots)
     ret = strategy.counter_.placeEntrust(e);
     if ret
         %the entrust is valid or alternatively the entrust has been placed
+        fprintf('entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
+            e.entrustNo,e.instrumentCode,e.direction,e.offsetFlag,e.price,e.volume);
         strategy.entrusts_.push(e);
         %first we put the entrust into the pending entrust array
         %and we shall update the pending entrust array and the finished
