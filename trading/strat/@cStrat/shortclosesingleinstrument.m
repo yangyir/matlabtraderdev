@@ -1,4 +1,4 @@
-function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag)
+function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag,spread)
     if lots <= 0 
         return; 
     end
@@ -65,7 +65,12 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
         q = strategy.mde_fut_.qms_.getquote(ctp_code);
     end
     
-    orderprice = q.bid1 + strategy.bidspread_(idx)*instrument.tick_size;
+    if nargin < 5
+        orderprice = q.bid1 + strategy.bidspread_(idx)*instrument.tick_size;
+    else
+        orderprice = q.bid1 + spread*instrument.tick_size;
+    end
+    
     e.fillEntrust(1,ctp_code,direction,orderprice,lots,offset,ctp_code);
     if ~isopt, e.assetType = 'Future'; end
     e.multiplier = multi;
@@ -73,6 +78,8 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
     
     ret = strategy.counter_.placeEntrust(e);
     if ret
+        fprintf('entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
+            e.entrustNo,e.instrumentCode,e.direction,e.offsetFlag,e.price,e.volume);
         strategy.entrusts_.push(e);
         strategy.entrustspending_.push(e);
         strategy.updateportfoliowithentrust(e);

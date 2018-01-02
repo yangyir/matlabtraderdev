@@ -1,4 +1,4 @@
-function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots)
+function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots,spread)
     if lots == 0
         return
     end
@@ -41,12 +41,19 @@ function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots)
         q = strategy.mde_fut_.qms_.getquote(ctp_code);
     end
     
-    price = q.ask1 - strategy.askspread_(idx)*instrument.tick_size;
+    if nargin < 4
+        price = q.ask1 - strategy.askspread_(idx)*instrument.tick_size;
+    else
+        price = q.ask1 - spread*instrument.tick_size;
+    end
+    
     e.fillEntrust(1,ctp_code,direction,price,lots,offset,ctp_code);
     if ~isopt, e.assetType = 'Future'; end
     e.multiplier = multi;
     ret = strategy.counter_.placeEntrust(e);
     if ret
+        fprintf('entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
+            e.entrustNo,e.instrumentCode,e.direction,e.offsetFlag,e.price,e.volume);
         strategy.entrusts_.push(e);
         strategy.entrustspending_.push(e);
         strategy.updateportfoliowithentrust(e); 

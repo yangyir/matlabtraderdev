@@ -14,7 +14,18 @@ function [] = updateentrusts(strategy)
             %into entrustsfinished instead
             rmidx = i;
             strategy.entrustspending_.removeByIndex(rmidx);
-            strategy.entrustsfinished_.push(e);
+            n2 = strategy.entrustsfinished_.latest;
+            flag = false;
+            for j = 1:n2
+                if strategy.entrustsfinished_.node(j).entrustNo == e.entrustNo
+                    flag = true;
+                    break
+                end
+            end
+            
+            if ~flag
+                strategy.entrustsfinished_.push(e);
+            end
             updateportfoliowithentrust(strategy,e);
         end
     end
