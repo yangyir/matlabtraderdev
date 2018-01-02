@@ -8,6 +8,9 @@ function open_cost = displaycounterinfo(counter)
     qms = cQMS;
     qms.setdatasource('ctp');
     open_cost = zeros(n,1);
+    pnl = zeros(n,1);
+    multiplier = zeros(n,1);
+    last_trade = zeros(n,1);
     
     for i = 1:n
         code = pos(1,i).asset_code;
@@ -28,7 +31,14 @@ function open_cost = displaycounterinfo(counter)
                 open_cost(i) = open_cost(i)*100;
             end
         end
-        
+        multiplier(i) = instrument.contract_size;
+    end
+     
+    qms.refresh;
+    for i = 1:n
+        q = qms.getquote(pos(1,i).asset_code);
+        last_trade(i) = q.last_trade;
+        pnl(i) = (last_trade(i)-open_cost(i))*pos(1,i).direction*pos(1,i).total_position*multiplier(i);
     end
     
     fprintf('counter postions and pnl:\n');
@@ -37,6 +47,8 @@ function open_cost = displaycounterinfo(counter)
         fprintf(' direction: %3d;',pos(1,i).direction);
         fprintf(' volume: %5d;',pos(1,i).total_position);
         fprintf(' cost: %8.2f;',open_cost(i));
+        fprintf(' last: %8.2f;',last_trade(i));
+        fprintf(' pnl: %8.2f;',pnl(i));
         fprintf('\n');
     end
         
