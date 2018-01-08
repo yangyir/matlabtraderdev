@@ -8,10 +8,10 @@ end
 
 %%
 %base metals
-bm_codes_ctp = {'cu1712';'cu1801';'cu1802';'cu1803';'cu1804';'cu1805';'cu1806';...
-    'al1712';'al1801';'al1802';'al1803';'al1804';'al1805';'al1806';...
-    'zn1712';'zn1801';'zn1802';'zn1803';'zn1804';'zn1805';'zn1806';...
-    'pb1712';'pb1801';'pb1802';'pb1803';'pb1804';'pb1805';'pb1806';...
+bm_codes_ctp = {'cu1801';'cu1802';'cu1803';'cu1804';'cu1805';'cu1806';'cu1807';...
+    'al1801';'al1802';'al1803';'al1804';'al1805';'al1806';'al1807';...
+    'zn1801';'zn1802';'zn1803';'zn1804';'zn1805';'zn1806';'zn1807';...
+    'pb1801';'pb1802';'pb1803';'pb1804';'pb1805';'pb1806';'pb1807';...
     'ni1801';'ni1805';'ni1809'};
 
 for i = 1:size(bm_codes_ctp,1)
@@ -31,7 +31,7 @@ fprintf('done for saving daily bar data for govt bond futures......\n');
 
 %%
 % precious metals
-pm_codes_ctp = {'au1712';'au1806';'ag1712';'ag1806'};
+pm_codes_ctp = {'au1806';'au1812';'ag1806';'ag1812'};
 
 for i = 1:size(pm_codes_ctp,1)
     savedailybarfrombloomberg(conn,pm_codes_ctp{i},override);
@@ -40,7 +40,7 @@ fprintf('done for saving daily bar data for precious metal futures\n');
 
 %%
 % agriculture for options
-ag_codes_ctp = {'m1801';'m1805';'SR801';'SR805'};
+ag_codes_ctp = {'m1801';'m1805';'m1805';'SR801';'SR805';'SR809'};
 for i = 1:size(ag_codes_ctp,1)
     savedailybarfrombloomberg(conn,ag_codes_ctp{i},override);
 end
@@ -56,7 +56,7 @@ fprintf('done for saving daily bar data for black futures\n');
 
 %%
 %soymeal
-futures_code_ctp_soymeal = {'m1801';'m1805'};
+futures_code_ctp_soymeal = {'m1805';'m1809'};
 strikes_soymeal = [2600;2650;2700;2750;2800;2850;2900;2950;3000;3050;3100];
 c_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 p_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
@@ -74,7 +74,7 @@ fprintf('done for soymeal options......\n');
 
 %%
 %white sugar
-futures_code_ctp_sugar = {'SR801';'SR805'};
+futures_code_ctp_sugar = {'SR805';'SR809'};
 strikes_sugar = [6000;6100;6200;6300;6400;6500];
 c_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
 p_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
