@@ -1,4 +1,4 @@
-function [] = unwindposition(strategy,instrument)
+function [] = unwindposition(strategy,instrument,spread)
     if nargin < 1, return; end
 
     %check whether the instrument has been registered with the
@@ -27,10 +27,18 @@ function [] = unwindposition(strategy,instrument)
         tick_size = strategy.portfolio_.pos_list{idx_portfolio}.instrument_.tick_size;
         if volume > 0
             %place entrust with sell flag using the bid price
-            price = bid - strategy.bidspread_(idx_instrument)*tick_size;
+            if nargin < 3
+                price = bid - strategy.bidspread_(idx_instrument)*tick_size;
+            else
+                price = bid - spread*tick_size;
+            end
         elseif volume < 0
             %place entrust with buy flag using the ask price
-            price = ask + strategy.askspread_(idx_instrument)*tick_size;
+            if nargin < 3
+                price = ask + strategy.askspread_(idx_instrument)*tick_size;
+            else
+                price = bid + spread*tick_size;
+            end
         end
         offset = -1;
         t = cTransaction;
@@ -47,9 +55,9 @@ function [] = unwindposition(strategy,instrument)
     %for 'realtime' mode
     if ~isshfe
         if volume > 0
-            strategy.shortclosesingleinstrument(code,volume);
+            strategy.shortclosesingleinstrument(code,volume,spread);
         elseif volume < 0
-            strategy.longclosesingleinstrument(code,-volume);
+            strategy.longclosesingleinstrument(code,-volume,spread);
         end
     else
         volume_today = strategy.portfolio_.pos_list{idx_portfolio}.direction_ * strategy.portfolio_.pos_list{idx_portfolio}.position_today_;
@@ -57,16 +65,16 @@ function [] = unwindposition(strategy,instrument)
         volume_before = volume - volume_today;
         if volume_today ~= 0
             if volume_today > 0
-                strategy.shortclosesingleinstrument(code,volume_today,1);
+                strategy.shortclosesingleinstrument(code,volume_today,1,spread);
             elseif volume_today < 0
-                strategy.longclosesingleinstrument(code,-volume_today,1);
+                strategy.longclosesingleinstrument(code,-volume_today,1,spread);
             end
         end
         if volume_before ~= 0
             if volume_before > 0
-                strategy.shortclosesingleinstrument(code,volume_before);
+                strategy.shortclosesingleinstrument(code,volume_before,0,spread);
             elseif volume_before < 0
-                strategy.longtclosesingleinstrument(code,-volume_before);
+                strategy.longtclosesingleinstrument(code,-volume_before,0,spread);
             end
 
         end

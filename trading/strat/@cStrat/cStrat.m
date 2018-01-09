@@ -190,13 +190,13 @@ classdef cStrat < handle
         [] = withdrawentrusts(obj,instrument)
         
         %long/short open/close positions
-        [ret,e] = shortopensingleinstrument(obj,code_ctp,lots)
-        [ret,e] = shortclosesingleinstrument(obj,code_ctp,lots,closetodayflag)
-        [ret,e] = longopensingleinstrument(obj,ctp_code,lots)
-        [ret,e] = longclosesingleinstrument(obj,ctp_code,lots,closetodayflag)
+        [ret,e] = shortopensingleinstrument(obj,code_ctp,lots,spread)
+        [ret,e] = shortclosesingleinstrument(obj,code_ctp,lots,closetodayflag,spread)
+        [ret,e] = longopensingleinstrument(obj,ctp_code,lots,spread)
+        [ret,e] = longclosesingleinstrument(obj,ctp_code,lots,closetodayflag,spread)
         
-        [] = unwindposition(obj,instrument)
-        pnl = calcrunningpnl(obj, instrument)
+        [] = unwindposition(obj,instrument,spread)
+        pnl = calcrunningpnl(obj,instrument)
         
     end
     %end of trading-related methods
