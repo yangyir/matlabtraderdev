@@ -26,7 +26,17 @@ stratopt_ly.stop;
 printpnltbl(pnltbl);printrisktbl(risktbl);fprintf('\n');
 
 %%
+<<<<<<< HEAD
+code = 'm1805-C-3050';
+lots = 5;
+stratopt_ly.shortopensingleinstrument(code,lots);
+%%
+pnltbleod = cHelper.pnlrisk1(stratopt_ly.portfolio_,getlastbusinessdate);
+printpnltbl(pnltbleod);
+
+=======
 pnltbl = cHelper.pnlrisk1(stratopt_ly.portfolio_,getlastbusinessdate);
 printpnltbl(pnltbl)
+>>>>>>> df4a0f651066f957a87ce57e0bf0187828138f64
 
 

@@ -29,5 +29,11 @@ stratopt_yy.stop;
 %%
 stratopt_yy.saveportfoliotofile('c:\temp\check1.txt');
 
-
-
+%%
+%%
+code = 'm1805-C-3000';
+lots = 5;
+stratopt_yy.shortopensingleinstrument(code,lots);
+%%
+pnltbleod = cHelper.pnlrisk1(stratopt_yy.portfolio_,getlastbusinessdate);
+printpnltbl(pnltbleod);
