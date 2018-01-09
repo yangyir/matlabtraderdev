@@ -9,6 +9,7 @@ try
     fprintf('set parameters for strat wr......\n');
     strat_fut_wr.readparametersfromtxtfile(fn_);
     disp(strat_fut_wr);
+    strat_fut_wr.mde_opt_.display_ = 0;
 catch e
     error(e.message);
 end
@@ -37,3 +38,10 @@ strat_fut_wr.portfolio_.print;
 %code:pb1802;volume:-2;volume(today):-2;cost(carry):19207.50;cost(open):19207.50
 %code:cu1802;volume:-1;volume(today):-1;cost(carry):52380.00;cost(open):52380.00
 
+
+%%
+code = 'cu1802';
+[~,idx] = strat_fut_wr.instruments_.hasinstrument(code);
+instrument = strat_fut_wr.instruments_.getinstrument{idx};
+strat_fut_wr.portfolio_.removeposition(instrument);
+strat_fut_wr.pnl_running_(idx) = 0;

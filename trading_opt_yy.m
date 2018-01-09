@@ -29,5 +29,8 @@ stratopt_yy.stop;
 %%
 stratopt_yy.saveportfoliotofile('c:\temp\check1.txt');
 
-
+%%
+pnltbl = stratopt_yy.pnlriskeod;
+printpnltbl(pnltbl);
+fprintf('\n');
 
