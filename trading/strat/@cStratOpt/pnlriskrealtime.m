@@ -1,5 +1,5 @@
 function [pnltbl,risktbl] = pnlriskrealtime(obj)
-       pnltbl = {};
+    pnltbl = {};
     risktbl = {};
     if isempty(obj.portfolio_), return; end
     p = obj.portfolio_;
@@ -40,17 +40,12 @@ function [pnltbl,risktbl] = pnlriskrealtime(obj)
                 isfut = false;
             end
         end
-%         carrycost = p.instrument_avgcost(i);
         carrycost = pos.cost_carry_;
-%         volume_total = p.instrument_volume(i);
         volume_total = pos.direction_*pos.position_total_;
-%         volume_today = p.instrument_volume_today(i);
         volume_today = pos.direction_*pos.position_today_;
-%         rownames{i} = p.instrument_list{i}.code_ctp;
         rownames{i} = pos.code_ctp_;
         volume(i,1) = volume_total;
         if isopt
-%             opt = p.instrument_list{i};
             opt = pos.instrument_;
             mult = opt.contract_size;
             underlier_code = opt.code_ctp_underlier;
@@ -69,53 +64,43 @@ function [pnltbl,risktbl] = pnlriskrealtime(obj)
                 calc_theta = 1;
             end
             ret = (q.last_trade_underlier-closepyesterday)/closepyesterday;
-%                     note:todo:we will updat the pnl attribution
-%                     with bid/ask prices
-%                     if volume_total < 0
-%                         total(i,1) = (q.ask1-carrycost)*volume_total*mult;
-%                     else
-%                         total(i,1) = (q.bid1-carrycost)*volume_total*mult;
-%                     end
             total(i,1) = (q.last_trade-carrycost)*volume_total*mult;
             thetacarry(i,1) = obj.thetacarry_(idx)*volume_total;
             deltacarry(i,1) = obj.deltacarry_(idx)*volume_total;
             gammacarry(i,1) = obj.gammacarry_(idx)*volume_total;
             vegacarry(i,1) = obj.vegacarry_(idx)*volume_total;
+            ivbase(i,1) = obj.impvolcarryyesterday_(idx);
+            ivcarry(i,1) = obj.impvol_(idx);
             if volume_total ~= 0
                 if volume_today == 0
-
                     if calc_theta
                         theta(i,1) = obj.thetacarryyesterday_(idx)*volume_total;
                     end
                     delta(i,1) = obj.deltacarryyesterday_(idx)*ret*volume_total;
                     gamma(i,1) = 0.5*obj.gammacarryyesterday_(idx)*ret^2*100*volume_total;
-                    ivbase(i,1) = obj.impvolcarryyesterday_(idx);
-                    ivcarry(i,1) = obj.impvol_(idx);
+                    
                     vega(i,1) = obj.vegacarryyesterday_(idx)*(ivcarry(i,1)-ivbase(i,1))/0.01*volume_total;
                     unexplained(i,1) = total(i,1)-(theta(i,1)+delta(i,1)+gamma(i,1)+vega(i,1));
                 else
-                    continue;
-%                     error('todo:volume_today not equal to zero')
-%                             volume_before = volume_total - volume_today;
-
-
-
-                    %we have newly traded positions
-                    %note:we don't record the underlier price, and
-                    %thus the implied vol when we issue new trades
+                    %in case we have new position traded, we only compute
+                    %the pnl for the old carried positions as it would be
+                    %difficult to record all the trading cost and greeks
+                    %associated with the time the trade happens
+                    if calc_theta
+                        theta(i,1) = obj.thetacarryyesterday_(idx)*(volume_total-volume_today);
+                    end
+                    delta(i,1) = obj.deltacarryyesterday_(idx)*ret*(volume_total-volume_today);
+                    gamma(i,1) = 0.5*obj.gammacarryyesterday_(idx)*ret^2*100*(volume_total-volume_today);
+                    
+                    vega(i,1) = obj.vegacarryyesterday_(idx)*(ivcarry(i,1)-ivbase(i,1))/0.01*(volume_total-volume_today);
                 end
+                unexplained(i,1) = total(i,1)-(theta(i,1)+delta(i,1)+gamma(i,1)+vega(i,1));
             end
         elseif isfut
             fut = p.instrument_list{i};
             mult = fut.contract_size;
             q = obj.mde_fut_.qms_.getquote(fut);
             %note:todo:we will updat the pnl attribution with
-            %bid/ask prices
-%                     if volume_total < 0
-%                         total(i,1) = (q.ask1-carrycost)*volume_total*mult;
-%                     else
-%                         total(i,1) = (q.bid1-carrycost)*volume_total*mult;
-%                     end
             total(i,1) = (q.last_trade-carrycost)*volume_total*mult;
             delta(i,1) = total(i,1);
         end
