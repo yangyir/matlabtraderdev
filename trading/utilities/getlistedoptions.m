@@ -9,7 +9,16 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
     pclose = data(data(:,1) == getlastbusinessdate,5);
     
     if isempty(pclose)
-        error('getlistedoptions:last business close price not updated')
+%         error('getlistedoptions:last business close price not updated')
+        try
+            conn = bbgconnect;
+            data = history(conn,ctp2bbg(code_ctp_underlier),'last_price',...
+                getlastbusinessdata,getlastbusinessdate);
+            pclose = data(1,2);
+            conn.close;
+        catch e
+            error(e.message)
+        end
     end
     
     underlier = cFutures(code_ctp_underlier);
