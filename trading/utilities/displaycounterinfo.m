@@ -1,4 +1,4 @@
-function open_cost = displaycounterinfo(counter)
+function [open_cost,pnl] = displaycounterinfo(counter)
     if ~isa(counter,'CounterCTP')
         error('displaycounterinfo:invalid counter input')
     end
@@ -31,7 +31,11 @@ function open_cost = displaycounterinfo(counter)
                 open_cost(i) = open_cost(i)*100;
             end
         end
-        multiplier(i) = instrument.contract_size;
+        if ~isempty(strfind(instrument.code_bbg,'TFT')) || ~isempty(strfind(instrument.code_bbg,'TFC'))
+            multiplier(i) = instrument.contract_size/100;
+        else
+            multiplier(i) = instrument.contract_size;
+        end
     end
      
     qms.refresh;
@@ -41,14 +45,14 @@ function open_cost = displaycounterinfo(counter)
         pnl(i) = (last_trade(i)-open_cost(i))*pos(1,i).direction*pos(1,i).total_position*multiplier(i);
     end
     
-    fprintf('counter postions and pnl:\n');
+    
     for i = 1:n
-        fprintf('code: %13s;',pos(1,i).asset_code);
-        fprintf(' direction: %3d;',pos(1,i).direction);
-        fprintf(' volume: %5d;',pos(1,i).total_position);
-        fprintf(' cost: %8.2f;',open_cost(i));
-        fprintf(' last: %8.2f;',last_trade(i));
-        fprintf(' pnl: %8.2f;',pnl(i));
+        fprintf('code: %12s;',pos(1,i).asset_code);
+        fprintf(' direction: %2d;',pos(1,i).direction);
+        fprintf(' volume: %3d;',pos(1,i).total_position);
+        fprintf(' cost: %9.2f;',open_cost(i));
+        fprintf(' last: %9.2f;',last_trade(i));
+        fprintf(' pnl: %9.2f',pnl(i));
         fprintf('\n');
     end
         

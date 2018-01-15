@@ -30,6 +30,10 @@ stratopt_yy.stop;
 stratopt_yy.saveportfoliotofile('c:\temp\check1.txt');
 
 %%
+pnltbl = stratopt_yy.pnlriskeod;
+printpnltbl(pnltbl);
+fprintf('\n');
+
 %%
 code = 'm1805-C-2850';
 lots = 10;

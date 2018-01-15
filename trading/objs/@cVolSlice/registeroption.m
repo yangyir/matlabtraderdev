@@ -45,6 +45,7 @@ function [] = registeroption(obj,opt)
         strikes = unique(strikes);
         strikes = sort(strikes);
         obj.strikes_ = strikes;
+        obj.moneyness_ = zeros(size(strikes));
     end
     
     if ischar(opt)
