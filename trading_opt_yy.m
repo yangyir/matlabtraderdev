@@ -6,7 +6,7 @@ fprintf('register option strategy with options......\n');
 try
     stratopt_yy = cStratOpt;
     stratopt_yy.registercounter(c_opt1);
-    stratopt_yy.registeroptions('m1805',9);
+    stratopt_yy.registeroptions('m1805',7);
     stratopt_yy.timer_interval_ = 60;
     stratopt_yy.loadportfoliofromcounter;
     stratopt_yy.portfolio_.print;
@@ -31,8 +31,8 @@ stratopt_yy.saveportfoliotofile('c:\temp\check1.txt');
 
 %%
 %%
-code = 'm1805-C-3000';
-lots = 5;
+code = 'm1805-C-2850';
+lots = 10;
 stratopt_yy.shortopensingleinstrument(code,lots);
 %%
 pnltbleod = cHelper.pnlrisk1(stratopt_yy.portfolio_,getlastbusinessdate);
