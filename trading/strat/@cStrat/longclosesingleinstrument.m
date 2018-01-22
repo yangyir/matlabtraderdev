@@ -5,7 +5,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         closetodayFlag = 0;
     end
     
-    if isempty(cstratobj.counter_)
+    if isempty(strategy.counter_)
         fprintf('cStrat:counter not registered in strategy\n');
         return
     end
@@ -26,8 +26,8 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         multi = multi/100;
     end
     
-    [f1, idx] = cstratobj.instruments_.hasinstrument(instrument);
-    [f2,idxp] = cstratobj.portfolio_.hasposition(instrument);
+    [f1, idx] = strategy.instruments_.hasinstrument(instrument);
+    [f2,idxp] = strategy.portfolio_.hasposition(instrument);
     
     if ~f1
         fprintf('cStrat:shortclosesingleinstrument:%s not registered in strategy\n',ctp_code)
@@ -39,7 +39,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         return; 
     end
     
-    volume = abs(cstratobj.portfolio_.pos_list{idxp}.position_total_);
+    volume = abs(strategy.portfolio_.pos_list{idxp}.position_total_);
     if volume >= 0
         fprintf('cStrat:longclosesingleinstrument:%s:existing short position not found\n',ctp_code);
     end
@@ -54,9 +54,9 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     direction = 1;
     offset = -1;
     if isopt
-        q = cstratobj.mde_opt_.qms_.getquote(ctp_code);
+        q = strategy.mde_opt_.qms_.getquote(ctp_code);
     else
-        q = cstratobj.mde_fut_.qms_.getquote(ctp_code);
+        q = strategy.mde_fut_.qms_.getquote(ctp_code);
     end
     
     if nargin < 5
@@ -71,7 +71,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     e.multiplier = multi;
     if closetodayFlag, e.closetodayFlag = 1;end
     
-    ret = cstratobj.counter_.placeEntrust(e);
+    ret = strategy.counter_.placeEntrust(e);
     if ret
         fprintf('entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
             e.entrustNo,e.instrumentCode,e.direction,e.offsetFlag,e.price,e.volume);
