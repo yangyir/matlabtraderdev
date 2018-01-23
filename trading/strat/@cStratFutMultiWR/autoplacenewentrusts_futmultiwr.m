@@ -4,8 +4,11 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
     %now check the signals
     for i = 1:size(signals,1)
         signal = signals{i};
+        %firstly to check whether there is a valid signal
         if isempty(signal), continue; end
 
+        %secondly to check whether the instrument is registed with the
+        %strategy itself
         instrument = signal.instrument;
         [~,ii] = strategy.instruments_.hasinstrument(instrument);
         if ~strategy.autotrade_(ii),continue;end

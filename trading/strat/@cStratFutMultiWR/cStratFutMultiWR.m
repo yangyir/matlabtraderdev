@@ -7,9 +7,6 @@ classdef cStratFutMultiWR < cStrat
         overbought_@double
         oversold_@double
         wr_@double                  %william%R
-%         executionperbucket_@double
-%         maxexecutionperbucket_@double
-%         executionbucketnumber_@double
         executiontype_@cell
     end
     
@@ -28,10 +25,6 @@ classdef cStratFutMultiWR < cStrat
         freq = gettradingfreq(obj,instrument)
         [] = setboundary(obj,instrument,overbought,oversold)
         [overbought,oversold] = getboundary(obj,instrument)
-%         [] = setexecutionperbucket(obj,instrument,value)
-%         n = getexecutionperbucket(obj,instrument)
-%         [] = setmaxexecutionperbucket(obj,instrument,value)
-%         n = getmaxexecutionperbucket(obj,instrument)
         [] = setexecutiontype(obj,instrument,typein)
         typeout = getexecutiontype(obj,instrument)
         [wr,wrts] = getlastwr(obj,instrument)
