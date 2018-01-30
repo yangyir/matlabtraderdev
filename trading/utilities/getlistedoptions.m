@@ -13,7 +13,7 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
         try
             conn = bbgconnect;
             data = history(conn,ctp2bbg(code_ctp_underlier),'last_price',...
-                getlastbusinessdata,getlastbusinessdate);
+                getlastbusinessdate,getlastbusinessdate);
             pclose = data(1,2);
             conn.close;
         catch e
