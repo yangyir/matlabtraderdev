@@ -1,9 +1,41 @@
-% conn = bbgconnect;
-% 
-% %%
-% code = 'rb1801';
-% fut = cFutures(code);fut.loadinfo([code,'_info.txt']);
-% 
+%%
+%Bloomberg connection
+conn = bbgconnect;
+%%
+%输入标的资产名称，计算该资产下历史下各期货合约的换月时间
+asset = 'nickel';
+rollinfo = rollfutures(asset);
+%%
+%输入合约序列号（单一或者一个序列）
+fut_idx = [8];
+%整理合约换月时间，根据换月时间选取高频率原始数据
+fut_list = rollinfo.RollInfo(fut_idx,5);
+futs = cell(size(fut_list,1),1);
+data_raw = cell(size(fut_list,1),1);
+for i = 1:size(fut_list,1)
+    code_str = fut_list{i};
+    code_str = code_str(1:length(code_str)-4);
+    code_ctp = str2ctp(code_str);
+    futs{i} = cFutures(code_ctp);
+    futs{i}.loadinfo([code_ctp,'_info.txt']);
+    start_dt = [rollinfo.RollInfo{fut_idx(i),6},' 09:00:00'];
+    if fut_idx(i) == size(rollinfo.RollInfo,1)
+        end_dt = [datestr(getlastbusinessdate),' 15:00:00'];
+    else
+        end_dt = [rollinfo.RollInfo{fut_idx(i+1),6},' 15:00:00'];
+    end
+    data_raw{i} = timeseries(conn,futs{i}.code_bbg,{start_dt,end_dt},1,'trade');
+end
+%%
+%输入交易频率（分钟），根据输入的交易频率压缩数据
+trading_freq = 5;
+data_comp = cell(size(data_raw,1),1);
+for i = 1:size(fut_list,1)
+    data_comp{i} = timeseries_compress(data_raw{i}(:,1:5),'tradinghours',futs{i}.trading_hours,...
+        'tradingbreak',futs{i}.trading_break,'frequency',[num2str(trading_freq),'m']);
+end
+
+
 % time_freq = 5;
 % start_dt = '2017-08-07';
 % end_dt = '2017-11-08';
