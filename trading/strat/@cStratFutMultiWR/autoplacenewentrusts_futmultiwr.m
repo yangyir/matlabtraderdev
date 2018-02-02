@@ -112,7 +112,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         %a result, we try to make sure the same entrust, i.e. same underlier
         %futures, entrust price, volume and direction are not repeatly
         %placed.
-        q = strategy.mde_fut_.qms_.getquote(instrument.ctp_code);
+        q = strategy.mde_fut_.qms_.getquote(instrument.code_ctp);
         if direction < 0
             price = q.bid1 + strategy.bidspread_(ii)*instrument.tick_size;
         else
