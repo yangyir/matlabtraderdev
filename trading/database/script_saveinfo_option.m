@@ -47,7 +47,7 @@ fprintf('done for soymeal options......\n');
 %%
 %white sugar
 futures_code_ctp_sugar = {'SR801';'SR805'};
-strikes_sugar = [6000;6100;6200;6300;6400];
+strikes_sugar = [5600;5700;5800;5900;6000;6100;6200;6300;6400];
 c_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
 p_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
 
