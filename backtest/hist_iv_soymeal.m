@@ -1,7 +1,53 @@
 %%
+asset = 'soymeal';
+%forecast volatility
+fprintf('rolling discrete futures and estimate/forecast volatility with GARCH model...\n');
+rollinfo = rollfutures(asset,'CalcDailyReturn',true,...
+    'CalibrateVolModel',true,...
+    'PrintResults',false,...
+    'PlotConditonalVariance',true,...
+    'UpdateTimeSeries',true);
+
+fprintf('\tlast observation date: %s; close at %f\n',...
+    datestr(rollinfo.ContinousFutures(end,1)),...
+    rollinfo.ContinousFutures(end,2));
+
+lv = rollinfo.ForecastResults.LongTermAnnualVol;
+fv = rollinfo.ForecastResults.ForecastedAnnualVol;
+fprintf('\tforecast period length:21 business days\n');
+fprintf('\tlg term annual-vol of %s: %4.1f%%\n',asset,lv*100);
+fprintf('\tfcat forecast period annual-vol of %s: %4.1f%%\n',asset,fv*100);
+
+hv = rollinfo.ForecastResults.HistoricalAnnualVol;
+fprintf('\thist forecast period annual-vol of %s: %4.1f%%\n',...
+    asset,hv*100);
+ewmav = rollinfo.ForecastResults.EWMAAnnualVol;
+fprintf('\tewma forecast period annual-vol of %s: %4.1f%%\n',...
+    asset,ewmav*100);
+fprintf('\n');
+
+cv = [rollinfo.DailyReturn(:,1),rollinfo.ConditionalVariance];
+yy = year(cv(:,1));
+mm = month(cv(:,1));
+wk = weeknum(cv(:,1))';
+
+%%
+%by week
+data = [yy*100+wk,cv(:,2)];
+wk_idx = unique(data(:,1));
+cvweekly = [wk_idx,zeros(size(wk_idx,1),2)];
+for i = 1:size(wk_idx,1)
+    idx = data(:,1) == wk_idx(i);
+    cvweekly(i,2) = sqrt(sum(data(idx,2))/sum(idx)*252);
+    cvweekly(i,3) = sum(idx);
+end
+
+
+%%
 ds = cLocal;
 date_from = '2017-12-04';
 date_to = datestr(getlastbusinessdate,'yyyy-mm-dd');
+fprintf(['last business date:',date_to,'\n']);
 %%
 %豆粕期货期权
 fut_soymeal = cFutures('m1805');fut_soymeal.loadinfo('m1805_info.txt');
