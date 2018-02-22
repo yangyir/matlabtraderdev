@@ -3,9 +3,17 @@ function portfolio = opt_loadpositions(fn,dateinput)
     pos_dir_ = [getenv('DATAPATH'),'pos_option\'];
     
     if ~isempty(strfind(fn,'.txt'))
-        fid = fopen(pos_dir_,fn,'r');
+        try
+            fid = fopen(pos_dir_,fn,'r');
+        catch
+            fid = fopen(fn,'r');
+        end
     else
-        fid = fopen([pos_dir_,fn,'.txt'],'r');
+        try
+            fid = fopen([pos_dir_,fn,'.txt'],'r');
+        catch
+            fid = fopen([fn,'.txt'],'r');
+        end
     end
         
     if fid < 0, return; end
