@@ -61,7 +61,6 @@ function [] = unwindposition(strategy,instrument,spread)
         end
     else
         volume_today = strategy.portfolio_.pos_list{idx_portfolio}.direction_ * strategy.portfolio_.pos_list{idx_portfolio}.position_today_;
-%         volume_today = strategy.portfolio_.instrument_volume_today(idx_portfolio);
         volume_before = volume - volume_today;
         if volume_today ~= 0
             if volume_today > 0
