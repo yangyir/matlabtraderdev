@@ -2,7 +2,7 @@ function res = statspx(conn,codein)
 
     if ~isa(conn,'blp'),error('statspx:invalid bloomberg interface input');end
     
-    if ischar(codein),error('statspx:invalid code input');end
+    if ~ischar(codein),error('statspx:invalid code input');end
     
     wr_params = 144;
     
@@ -22,18 +22,44 @@ function res = statspx(conn,codein)
     low_p_5m = data_5m(:,4);
     highest_p_5m = zeros(size(high_p_5m,1)-wr_params+1,1);
     lowest_p_5m = highest_p_5m;
+    t_p_5m = highest_p_5m;
     for i = 1:size(highest_p_5m,1)
+        t_p_5m(i) = data_5m(i+wr_params-1,1);
         highest_p_5m(i) = max(high_p_5m(i:i+wr_params-1));
         lowest_p_5m(i) = min(low_p_5m(i:i+wr_params-1));
     end
     %ploting
     figure(1)
-    plot(highest_p_5m,'b')
-    title('5分钟移动高低价格');
-    hold on;
-    plot(lowest_p_5m,'r')
-    legend('high','low');
-    hold off;
+    plot(highest_p_5m,'r');hold on;
+    plot(lowest_p_5m,'g');
+    plot(data_5m(wr_params:end,5),'b');hold off
+    xgrid = get(gca,'XTick');
+    xgrid = xgrid';
+    idx = xgrid < size(highest_p_5m,1);
+    xgrid = xgrid(idx,:);
+    t_num = zeros(1,length(xgrid));
+    for i = 1:length(t_num)
+        if xgrid(i) == 0
+            t_num(i) = t_p_5m(1,1);
+        elseif xgrid(i) > size(highest_p_5m,1)
+            t_start = t_num(1,1);
+            t_last = t_num(end,1);
+            t_num(i) = t_last + (xgrid(i)-size(t_num,1))*...
+                (t_last - t_start)/size(t_num,1);
+        else
+            t_num(i) = t_p_5m(xgrid(i),1);
+        end
+    end
+
+    t_str = datestr(t_num,'dd/mm');
+    set(gca,'XTick',xgrid);
+    set(gca,'XTickLabel',t_str);
+    title('5-min moving high(red) and low(green) price');
+    grid on;
+    
+    
+    %statistics
+    
     
     %%
     %15min 30-day
@@ -56,7 +82,7 @@ function res = statspx(conn,codein)
     end
     figure(2)
     plot(highest_p_15m,'b')
-    title('15分钟移动高低价格');
+    title('15-min moving high/low price');
     hold on;
     plot(lowest_p_15m,'r')
     legend('high','low');
@@ -83,7 +109,7 @@ function res = statspx(conn,codein)
     end
     figure(3)
     plot(highest_p_30m,'b')
-    title('30分钟移动高低价格');
+    title('30-min moving high/low price');
     hold on;
     plot(lowest_p_30m,'r')
     legend('high','low');
@@ -110,7 +136,7 @@ function res = statspx(conn,codein)
     end
     figure(4)
     plot(highest_p_60m,'b')
-    title('60分钟移动高低价格');
+    title('60-min moving high/low price');
     hold on;
     plot(lowest_p_60m,'r')
     legend('high','low');
