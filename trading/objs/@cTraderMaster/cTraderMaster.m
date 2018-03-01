@@ -14,34 +14,28 @@ classdef cTraderMaster < handle
     end
     
     methods
+        %constructor
         function obj = cTraderMaster
             obj = init(obj);
         end
     end
     
+    methods
+        %counter utilities
+        ret = counterlogoff(obj,logoffstr)
+        ret = counterlogin(obj,loginstr)
+        ret = mdlogin(obj)
+        ret = querycounters(obj,querystr)
+        ret = querycountertrades(obj,querystr)
+    end
+    
+        
+        
+        
+    
     methods (Access = private)
-        function obj = init(obj)
-            if ~isempty(obj.counterfut_) || ...
-                    ~isa(obj.counterfut_,'CounterCTP') || ...
-                    (isa(obj.counterfut_,'CounterCTP') && ~strcmpi(obj.counterfut_.char,'citic_kim_fut'))
-                try
-                    obj.counterfut_.logout;
-                catch
-                end
-                obj.counterfut_ = CounterCTP.citic_kim_fut;
-            end
-            if ~obj.counterfut_.is_Counter_Login, obj.counterfut_.login;end
-                
-                    
-                
-%             obj.counteropt1_ = CounterCTP.ccb_liyang_fut;
-%             obj.counteropt2_ = CounterCTP.huaxin_liyang_fut;
-%             obj.qms_ = cQMS;
-%             obj.qms_.setdatasource('ctp');
-%             obj.mdefut_ = cMDEFut;
-%             obj.mdefut_.qms_ = obj.qms_;
-%             obj.mdeopt_ = cMDEOpt;
-%             obj.mdeopt_.qms_ = obj.qms_;
-        end
+        obj = init(obj)
+        ret = querycounter(obj,querystr)
+        ret = querytrades(obj,querystr)
     end
 end
