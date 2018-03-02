@@ -1,7 +1,8 @@
 function ret = querytrades(obj,querystr)
-    isfut = strcmpi(querystr,'fut');
-    isopt1 = strcmpi(querystr,'opt1');
-    isopt2 = strcmpi(querystr,'opt2');
+    if nargin < 2, querystr = '111';end
+    isfut = strcmpi(querystr(1),'1');
+    isopt1 = strcmpi(querystr(2),'1');
+    isopt2 = strcmpi(querystr(3),'1');
     
     if ~isfut && ~isopt1 && ~isopt2
         error('cTraderMaster:querycounter:input querystr shall be either fut,opt1 or opt2');
