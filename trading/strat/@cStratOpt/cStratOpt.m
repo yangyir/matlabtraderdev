@@ -43,6 +43,7 @@ classdef cStratOpt < cStrat
         %register instruments
         [] = registerinstrument(obj,instrument)
         [] = registeroptions(obj,code_ctp_underlier,numoptions)
+        [] = registeroptionswithstrikes(obj,code_ctp_underlier,strikes)
         %
         %pnl/risk related
         [pnltbl,risktbl] = pnlriskeod(obj)        
