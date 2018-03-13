@@ -7,7 +7,18 @@ trader.counterlogin('100');
 trader.mdlogin;
 %%
 %check positions
-trader.querycounters('100');
+trader.queryaccounts('100');
 %%
 %check trades
-trader.querycountertrades('100');
+trader.querytrades('100');
+%%
+trader.registerinstruments('T1806;TF1806');
+trader.registerinstruments('m1805-C-3100');
+trader.registerinstruments('m1805-P-3100');
+trader.registerinstruments('m1805-C-3150');
+trader.registerinstruments('m1805-P-3150');
+trader.registerinstruments('m1805-C-3200');
+trader.registerinstruments('m1805-P-3200');
+trader.getquotes;
+%%
+trader.voltable;
