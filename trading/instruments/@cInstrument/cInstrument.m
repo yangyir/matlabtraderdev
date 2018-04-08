@@ -10,12 +10,16 @@ classdef (Abstract) cInstrument < handle
             variablenotused(obj);
             clear obj;
         end
+        
+        [] = saveinfo(obj,fn_)
+        [] = loadinfo(obj,fn_)
+        [] = dispinfo(obj)
+        [] = init(obj,ds_)
+        
     end
     
     methods (Abstract)
-        init(obj,ds_)
-        saveinfo(obj,fn_)
-        obj = loadinfo(obj,fn_)
-        dispinfo(obj)
+        [] = init_bbg(obj,ds_)
+        [assetname,exch] = getexchangestr(obj)
     end
 end
