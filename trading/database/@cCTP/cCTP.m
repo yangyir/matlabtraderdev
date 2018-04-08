@@ -1,0 +1,75 @@
+classdef cCTP < cDataSource
+    properties
+        dsn_ = 'CTP';
+        ds_
+    end
+    
+    properties( SetAccess = private, Hidden = true, GetAccess = private )
+        isconnected_ = 0
+    end
+    
+    properties( SetAccess = private, Hidden = false , GetAccess = public ) 
+        addr_@char
+        broker_@char
+        investor_@char
+        pwd_@char
+    end
+    
+    methods
+        function obj = cCTP(addr, broker,investor,pwd)
+            if exist('addr', 'var'), obj.addr_ = addr; end
+            if exist('broker', 'var'),  obj.broker_ = broker; end
+            if exist('investor', 'var'), obj.investor_ = investor; end
+            if exist('pwd', 'var'), obj.pwd_ = pwd; end
+        end
+        %end of constructor
+        
+        function [txt] = printinfo(obj)
+            txt = sprintf('CTP server info:\n');
+            txt = sprintf('%sServerAddress = %s\n',txt, obj.addr_);
+            txt = sprintf('%sBroker = %s\n',txt, obj.broker_);
+            txt = sprintf('%sInvestor = %s:%s\n',txt, obj.investor_, obj.pwd_);
+            
+            if nargout == 0, disp(txt);end
+        end
+        %end of printinfo
+        
+        function [ret] = login(obj)
+            if ~obj.isconnected_
+                [ret] = mdlogin(obj.addr_,obj.broker_,obj.investor_,obj.pwd_);
+                obj.isconnected_ = ret;
+            else
+                ret = obj.isconnected_;
+            end
+        end
+        %login
+        
+        function [] = logoff(obj)
+            if obj.isconnected_
+                mdlogout;
+            end
+        end
+        
+    end
+    
+    
+    methods
+        flag = isconnect(obj)
+        [] = close(obj)
+        data = intradaybar(obj,instrument,startdate,enddate,interval,field)
+        data = realtime(obj,instruments,fields)
+        data = history(obj,instrument,fields,fromdate,todate)
+            
+    end
+    
+    %
+    enumeration
+        %futures only
+        citic_kim_fut('tcp://180.169.101.177:41213','66666','101003196','770424');
+        %commodity option
+        huaxin_liyang_fut('tcp://180.169.70.179:41213','10001','930490003','204090');
+        ccb_liyang_fut('tcp://116.236.253.145:41213','95533','52013132','2001Sep29');
+        ccb_opt_demo('tcp://119.15.140.73:41213','9980','11900111','111111');
+
+    end
+end
