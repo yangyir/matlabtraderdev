@@ -339,21 +339,21 @@ if calibrateVolModel
     lv = sqrt(252*paramConst/(1-paramGarch-paramArch));
     
     [E0,V0,~] = infer(modelEstimate,ret(:,2));
-    if plotConditionalVariance
-        stdResidual = E0./sqrt(V0);
-        close all;
-        subplot(2,1,1);
-        xx = 1:1:size(V0,1);
-        plot(xx,V0);
-        title(['Conditional Variance (',assetName,')']);
-        if ~isempty(lengthOfPeriod)
-            xlabel(['number of days since ',datestr(dateFrom)]);
-        else
-            xlabel(['number of days since ',datestr(ret(1,1))]);
-        end
-        subplot(2,1,2);
-        qqplot(stdResidual);
-    end
+%     if plotConditionalVariance
+%         stdResidual = E0./sqrt(V0);
+%         close all;
+%         subplot(2,1,1);
+%         xx = 1:1:size(V0,1);
+%         plot(xx,V0);
+%         title(['Conditional Variance (',assetName,')']);
+%         if ~isempty(lengthOfPeriod)
+%             xlabel(['number of days since ',datestr(dateFrom)]);
+%         else
+%             xlabel(['number of days since ',datestr(ret(1,1))]);
+%         end
+%         subplot(2,1,2);
+%         qqplot(stdResidual);
+%     end
     
     %forecast variance for a month period
     [Y,YMSE,V] = forecast(modelEstimate,nForecastPeriod,'Y0',ret(:,2),'E0',E0,'V0',V0);
@@ -389,6 +389,28 @@ if calibrateVolModel
         xlim([0,N+nForecastPeriod])
         title(['Forecasted Returns (',assetName,')'])
         hold off
+        %
+        xgrid = get(gca,'XTick');
+        xgrid = xgrid';
+        idx = xgrid < N;
+        xgrid = xgrid(idx,:);
+        t_num = zeros(1,length(xgrid));
+        for i = 1:length(t_num)
+            if xgrid(i) == 0
+                t_num(i) = ret(1,1);
+            elseif xgrid(i) > size(ret,1)
+                t_start = ret(1,1);
+                t_last = ret(end,1);
+                t_num(i) = t_last + (xgrid(i)-size(ret,1))*...
+                    (t_last - t_start)/size(ret,1);
+            else
+                t_num(i) = ret(xgrid(i),1);
+            end
+        end
+        t_str = datestr(t_num,'mmm-yy');
+        set(gca,'XTick',xgrid);
+        set(gca,'XTickLabel',t_str);
+        %
         subplot(2,1,2)
         plot(V0,'Color',[.75,.75,.75])
         hold on
@@ -396,6 +418,28 @@ if calibrateVolModel
         xlim([0,N+nForecastPeriod])
         title(['Forecasted Conditional Variances (',assetName,')'])
         hold off
+        %
+        xgrid = get(gca,'XTick');
+        xgrid = xgrid';
+        idx = xgrid < N;
+        xgrid = xgrid(idx,:);
+        t_num = zeros(1,length(xgrid));
+        for i = 1:length(t_num)
+            if xgrid(i) == 0
+                t_num(i) = ret(1,1);
+            elseif xgrid(i) > size(ret,1)
+                t_start = ret(1,1);
+                t_last = ret(end,1);
+                t_num(i) = t_last + (xgrid(i)-size(ret,1))*...
+                    (t_last - t_start)/size(ret,1);
+            else
+                t_num(i) = ret(xgrid(i),1);
+            end
+        end
+        t_str = datestr(t_num,'mmm-yy');
+        set(gca,'XTick',xgrid);
+        set(gca,'XTickLabel',t_str);
+        %
     end
 end
 
