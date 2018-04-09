@@ -1,6 +1,7 @@
 %%
 %set up bloomberg connection
 conn = bbgconnect;
+fprintf('set up bloomberg connection...\n');
 %%
 %name contracts, which are used for downloading time-series data
 codes = {'ni1801';'ni1805'};
@@ -22,6 +23,7 @@ for i = 1:n
         rolldts(i-1) = temp(1);
     end
 end
+fprintf('find out rolling date...\n');
 %%
 %1m candle data
 %we take next calendar day data before the roll date of the 2nd contract
