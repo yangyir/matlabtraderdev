@@ -21,8 +21,8 @@ end
 
 %%
 %soymeal
-futures_code_ctp_soymeal = {'m1801';'m1805'};
-strikes_soymeal = [2600;2650;2700;2750;2800;2850;2900;2950;3000;3050;3100];
+futures_code_ctp_soymeal = {'m1801';'m1805';'m1809'};
+strikes_soymeal = [2500;2550;2600;2650;2700;2750;2800;2850;2900;2950;3000;3050;3100;3150;3200];
 c_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 p_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 
@@ -46,8 +46,8 @@ fprintf('done for soymeal options......\n');
 
 %%
 %white sugar
-futures_code_ctp_sugar = {'SR801';'SR805'};
-strikes_sugar = [5600;5700;5800;5900;6000;6100;6200;6300;6400];
+futures_code_ctp_sugar = {'SR801';'SR805';'SR809'};
+strikes_sugar = [5500;5600;5700;5800;5900;6000;6100;6200;6300;6400];
 c_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
 p_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
 
