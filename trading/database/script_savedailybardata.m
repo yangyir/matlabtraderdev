@@ -56,13 +56,9 @@ fprintf('done for saving daily bar data for black futures\n');
 
 %%
 %soymeal
-<<<<<<< HEAD
-futures_code_ctp_soymeal = {'m1805';'m1809'};
-strikes_soymeal = [2550;2600;2650;2700;2750;2800;2850;2900;2950;3000;3050;3100;3150;3200;3250];
-=======
 futures_code_ctp_soymeal = {'m1801';'m1805';'m1809'};
 strikes_soymeal = [2500;2550;2600;2650;2700;2750;2800;2850;2900;2950;3000;3050;3100;3150;3200];
->>>>>>> c5c24189b1d936cb502c1626ca43357c0fd7b8e2
+
 c_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 p_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
 
