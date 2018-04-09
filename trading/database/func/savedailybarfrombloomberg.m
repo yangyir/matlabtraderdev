@@ -32,8 +32,14 @@ fn_info_ = [dir_info_,code_ctp,'_info.txt'];
 f.loadinfo(fn_info_);
 if isempty(f.contract_size)
     %not loaded
-    f.init(bbg);
-    f.saveinfo(fn_info_);
+    try
+        f.init(bbg);
+        f.saveinfo(fn_info_);
+    catch
+        %the security cannot initiate from bbg
+        fprintf('%s:invaid_security......\n',code_ctp);
+        return
+    end
 end
 
 files = dir(dir_data_);
@@ -59,6 +65,10 @@ end
 
 if ~flag || (flag && override)
     data = bbg.history(f,{'px_open','px_high','px_low','px_last'},startdate,enddate);
+    if isempty(data)
+        fprintf('%s:there is no available data for the currently loaded security......\n',code_ctp);
+        return
+    end
     cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
 end
 
