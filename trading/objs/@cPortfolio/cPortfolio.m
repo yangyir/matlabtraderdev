@@ -1,10 +1,6 @@
 classdef cPortfolio < handle
     properties
        portfolio_id = 'unknown'
-%        instrument_list@cell = {}
-%        instrument_avgcost@double = []
-%        instrument_volume@double = []
-%        instrument_volume_today@double = []
        %
        pos_list@cell = {}
     end
