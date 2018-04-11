@@ -1,4 +1,4 @@
-classdef cMDEFut < handle
+classdef cMDEFut < cMyTimerObj
     %Note: the class of Market Data Engine for Futures
     %1.it will pop the tick data and process it the candle container
     %jobs: from 9am to 2:30am on the next day, it keeps pop tick data while
@@ -8,13 +8,8 @@ classdef cMDEFut < handle
     %jobs:it inits the required data on 8:50am
     
     properties
-        mode_@char = 'realtime'
-        status_@char = 'sleep';
-        
-        timer_@timer
-        timer_interval_@double = 0.5
-        
         qms_@cQMS
+        display_@double = 0
         
         %real-time data
         ticks_@cell
@@ -85,19 +80,10 @@ classdef cMDEFut < handle
         
         [] = savecandles2file(obj,dtnum)
             
-        [] = start(obj)
-        [] = startat(obj,dtstr)
-        [] = stop(obj)
-        
     end
     
     %% timer functions
-    methods (Access = private)
-        %timer functions
-        [] = replay_timer_fcn(obj,~,event)
-        [] = start_timer_fcn(obj,~,event)
-        [] = stop_timer_fcn(obj,~,event)
-        
+    methods (Access = private)        
         %data file i/o
         [] = saveticks2mem(obj)
         [] = updatecandleinmem(obj)

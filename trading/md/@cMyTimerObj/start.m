@@ -1,4 +1,4 @@
-function start(timerobj)
+function [] = start(timerobj)
     timerobj.status_ = 'working';
     timerobj.settimer;
     start(timerobj.timer_);

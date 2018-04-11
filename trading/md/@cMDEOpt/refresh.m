@@ -8,7 +8,8 @@ function [] = refresh(obj)
         end
 
         obj.savequotes2mem;
-
+        
+        fprintf('%s mdeopt runs......\n',datestr(now,'yyyy-mm-dd HH:MM:SS'));
         if obj.display_, obj.displaypivottable; end
 
     end
