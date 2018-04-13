@@ -7,7 +7,6 @@ classdef cPos < handle
         cob_date1_ = today
         cost_carry_@double
         cost_open_@double
-        
     end
     
     properties (Dependent)

@@ -10,7 +10,7 @@ function flag = saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr)
         usedatestr = false;
     end
 
-    %the file extension is '.txt' for test file
+    %the file extension is '.txt' for text file
     if isempty(strfind(fn_,'.txt'))
         fn_ = [fn_,'.txt'];
     end
