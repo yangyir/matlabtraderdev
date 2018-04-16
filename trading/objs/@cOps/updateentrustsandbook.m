@@ -17,12 +17,14 @@ function [] = updateentrustsandbook(obj)
         f2 = e.dealVolume > 0;
         if f0 && f1 && f2
             entrusts.push(e);
+            fprintf('executed entrust: %d......\n',e.entrustNo);
             % this entrust is fully placed and we shall update the book
-            obj.book_.addposition('code',e.asset_code,'price',px,...
+            obj.book_.addposition('code',e.instrumentCode,'price',px,...
                 'volume',e.direction*e.dealVolume,'time',e.time,...
                 'closetodayflag',e.closetodayFlag);
         elseif f0 && f1 && ~f2
             % this entrust is canceled
+            fprintf('cancelled entrust: %d......\n',e.entrustNo);
             entrusts.push(e);
         end
     end

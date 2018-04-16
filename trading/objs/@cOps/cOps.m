@@ -6,7 +6,7 @@ classdef cOps < cMyTimerObj
     % rule: one ops can be only linked to one book
     properties
         name_@char
-        trader_@cTrader
+%         trader_@cTrader
         book_@cBook
         
         entrusts_@EntrustArray
@@ -15,7 +15,8 @@ classdef cOps < cMyTimerObj
     end
     
     methods
-        [] = init(obj,name,trader,book)
+%         [] = init(obj,name,trader,book)
+        [] = init(obj,name,book)
         [] = refresh(obj)
     end
     

@@ -1,14 +1,20 @@
-function [ret,entrusts] = cancelorders(obj,codestr,book)
+function [ret,entrusts] = cancelorders(obj,codestr,ops)
 %cTrader
     variablenotused(obj);
     if ~ischar(codestr), error('cTrader:cancelorders:invalid code input');end
-    if ~isa(book,'cBook'), error('cTrader:cancelorders:invalid book input');end
+    if ~isa(ops,'cOps'), error('cTrader:cancelorders:invalid ops input');end
     
-    [~,entrusts] = statsentrust(book.counter_,codestr);
+    c = ops.book_.counter_;
+    pe = ops.entrustspending_;
     ret = 0;
-    for i = 1:size(entrusts,1)
-        e = entrusts{i};
-        [ret] = withdrawentrust(book.counter_,e);
+    entrusts = EntrustArray;
+    for i = 1:pe.latest
+        e = ops.entrustspending_.node(i);
+        if strcmpi(e.instrumentCode,codestr)
+            withdrawentrust(c,e);
+            entrusts.push(e);
+        end
     end
+    if entrusts.latest > 0, ret = 1;end
     
 end

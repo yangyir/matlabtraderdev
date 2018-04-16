@@ -1,14 +1,14 @@
-function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,book)
+function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
 %cTrader
     if ~ischar(codestr), error('cTrader:placeorder:invalid code input'); end
     if ~ischar(bsflag), error('cTrader:placeorder:invalid buy/sell flag input'); end
     if ~ischar(ocflag), error('cTrader:placeorder:invalid open/close flag input'); end
     if ~isnumeric(px), error('cTrader:placeorder:invalid price input');end
     if ~isnumeric(lots) || lots <= 0, error('cTrader:placeorder:invalid lots input');end
-    if ~isa(book,'cBook'), error('cTrader:placeorder:invalid book input');end
+    if ~isa(ops,'cOps'), error('cTrader:placeorder:invalid ops input');end
     
-    f1 = obj.hasbook(book);
-    if ~f1, obj.addbook(book); end
+    f1 = obj.hasbook(ops.book_);
+    if ~f1, obj.addbook(ops.book_); end
     
     entrust = Entrust;
     
@@ -47,10 +47,12 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,book)
     if strcmpi(ocflag,'ct'), entrust.closetodayFlag = 1;end
     
     warning('off');
-    ret = book.counter_.placeEntrust(entrust);
+    ret = ops.book_.counter_.placeEntrust(entrust);
     if ret
         fprintf('placed entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,entrust.price,entrust.volume);
+        ops.entrusts_.push(entrust);
+        ops.entrustspending_.push(entrust);
     end
     
 end
