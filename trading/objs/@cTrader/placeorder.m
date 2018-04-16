@@ -46,9 +46,10 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,book)
     entrust.multiplier = cs;
     if strcmpi(ocflag,'ct'), entrust.closetodayFlag = 1;end
     
+    warning('off');
     ret = book.counter_.placeEntrust(entrust);
     if ret
-        fprintf('entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
+        fprintf('placed entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,entrust.price,entrust.volume);
     end
     

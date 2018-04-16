@@ -16,20 +16,20 @@ b3 = cBook;b3.init('Book3','yiran',c_opt1);
 b4 = cBook;b4.init('Book4','yiran',c_opt2);
 b5 = cBook;b5.init('Book5','yiran',c_opt2);
 %%
-b1.loadpositionsfromcounter;
-b2.loadpositionsfromcounter('futlist','all');
-b3.loadpositionsfromcounter('optundlist','all');
-b4.loadpositionsfromcounter('futlist','all');
-b5.loadpositionsfromcounter('optundlist','all');
-%
-b1.printpositions;
-b2.printpositions;
-b3.printpositions;
-b4.printpositions;
-b5.printpositions;
+% b1.loadpositionsfromcounter;
+% b2.loadpositionsfromcounter('futlist','all');
+% b3.loadpositionsfromcounter('optundlist','all');
+% b4.loadpositionsfromcounter('futlist','all');
+% b5.loadpositionsfromcounter('optundlist','all');
+% %
+% b1.printpositions;
+% b2.printpositions;
+% b3.printpositions;
+% b4.printpositions;
+% b5.printpositions;
 %%
 cobdate = getlastbusinessdate;
-folder = 'C:\Users\yangyiran\OneDrive\bookinfo\';
+folder = [getenv('OneDrive'),'\bookinfo\'];
 fn1 = ['book1_',datestr(cobdate,'yyyymmdd'),'.txt'];
 fn2 = ['book2_',datestr(cobdate,'yyyymmdd'),'.txt'];
 fn3 = ['book3_',datestr(cobdate,'yyyymmdd'),'.txt'];
