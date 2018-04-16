@@ -41,8 +41,13 @@ function [] = loadpositionsfromcounter(obj,varargin)
                     s = cFutures(pos(i).asset_code);
                 end
                 s.loadinfo([pos(i).asset_code,'_info.txt']);
+                multi = s.contract_size;
+                if ~isempty(strfind(s.code_bbg,'TFC')) || ~isempty(strfind(s.code_bbg,'TFT'))
+                    multi = multi/100;
+                end
+                
                 obj.addpositions('code',pos(i).asset_code,...
-                    'price',pos(i).avg_price/s.contract_size,'volume',pos(i).direction*pos(i).total_position);
+                    'price',pos(i).avg_price/multi,'volume',pos(i).direction*pos(i).total_position);
             end
         end
         return
@@ -56,8 +61,12 @@ function [] = loadpositionsfromcounter(obj,varargin)
                 if isopt, continue; end
                 s = cFutures(pos(i).asset_code);
                 s.loadinfo([pos(i).asset_code,'_info.txt']);
+                multi = s.contract_size;
+                if ~isempty(strfind(s.code_bbg,'TFC')) || ~isempty(strfind(s.code_bbg,'TFT'))
+                    multi = multi/100;
+                end
                 obj.addpositions('code',pos(i).asset_code,...
-                    'price',pos(i).avg_price/s.contract_size,'volume',pos(i).direction*pos(i).total_position);
+                    'price',pos(i).avg_price/multi,'volume',pos(i).direction*pos(i).total_position);
             end
         end
     end
@@ -70,8 +79,12 @@ function [] = loadpositionsfromcounter(obj,varargin)
                 if strcmpi(pos(i).asset_code,futs{j})
                     s = cFutures(pos(i).asset_code);
                     s.loadinfo([pos(i).asset_code,'_info.txt']);
+                    multi = s.contract_size;
+                    if ~isempty(strfind(s.code_bbg,'TFC')) || ~isempty(strfind(s.code_bbg,'TFT'))
+                        multi = multi/100;
+                    end
                     obj.addpositions('code',pos(i).asset_code,...
-                    'price',pos(i).avg_price/s.contract_size,'volume',pos(i).direction*pos(i).total_position);
+                    'price',pos(i).avg_price/multi,'volume',pos(i).direction*pos(i).total_position);
                 end
             end
         end

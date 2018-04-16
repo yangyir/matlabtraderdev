@@ -5,7 +5,27 @@ classdef cMDEOpt < cMyTimerObj
         underliers_@cInstrumentArray
         qms_@cQMS    
         display_@double = 1
-
+    end
+    
+    properties
+        delta_@double
+        gamma_@double
+        vega_@double
+        theta_@double
+        impvol_@double
+        %
+        deltacarry_@double
+        gammacarry_@double
+        vegacarry_@double
+        thetacarry_@double
+        %
+        deltacarryyesterday_@double
+        gammacarryyesterday_@double
+        vegacarryyesterday_@double
+        thetacarryyesterday_@double
+        impvolcarryyesterday_@double
+        pvcarryyesterday_@double
+        
     end
     
     properties (Access = private)
@@ -18,6 +38,7 @@ classdef cMDEOpt < cMyTimerObj
         [] = registerinstrument(obj,instrument)
         [] = refresh(obj)
         tbl = voltable(obj)
+        res = getgreeks(obj,instrument)
     end
     
     methods (Access = private)
