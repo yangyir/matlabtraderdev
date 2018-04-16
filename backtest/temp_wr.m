@@ -35,7 +35,26 @@ for i = 1:size(fut_list,1)
         'tradingbreak',futs{i}.trading_break,'frequency',[num2str(trading_freq),'m']);
 end
 
+%%
+%测算价格低点、高点
+idx = 1;
+data_check = data_comp{idx};
+high_p = data_check(:,3);
+low_p = data_check(:,4);
+close_p = data_check(:,5);
+nperiod = 144;
+N = size(close_p,1);
+for i = nperiod:N
+    %当收盘价和过去一段时间内的最高点相同时
+    if close_p(i) == max(high_p(i-nperiod+1:i))
+        
+    end
+end
 
+
+
+
+%%
 % time_freq = 5;
 % start_dt = '2017-08-07';
 % end_dt = '2017-11-08';
