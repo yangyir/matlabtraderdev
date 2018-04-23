@@ -11,6 +11,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
     %for friday evening market
     if isholiday(floor(dtnum))
         if weekday(dtnum) == 7 && mm >= 180
+            %after 2:30pm on saturday am
             mytimerobj.status_ = 'sleep';
             return
         elseif weekday(dtnum) == 7 && mm < 180

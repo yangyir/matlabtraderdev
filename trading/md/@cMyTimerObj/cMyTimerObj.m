@@ -1,7 +1,8 @@
 classdef cMyTimerObj < handle
     properties
+        name_@char = 'timer'
         mode_@char = 'realtime'
-        status_@char = 'sleep';
+        status_@char = 'sleep'
         timer_@timer
         %refresh the mde every minute
         timer_interval_@double = 60
