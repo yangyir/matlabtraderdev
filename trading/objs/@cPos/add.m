@@ -24,7 +24,6 @@ function [] = add(obj,varargin)
     
     volume_exist = obj.direction_*obj.position_total_;
     volume_today_exist = obj.direction_*obj.position_today_;
-    margin_exist = obj.margin_;
     %in case unwind some or all existing positions
     if direction_exist ~= direction_new && direction_exist ~= 0
         closeFlag = 1;

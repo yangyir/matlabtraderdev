@@ -8,7 +8,6 @@ login_counter_opt2;
 % Book3: positions of options in counter c_opt1
 % Book4: positions of futures in counter c_opt2
 % Book5: positions of options in counter c_opt2
-%%
 % initiate trading books
 b1 = cBook;b1.init('Book1','yiran',c_fut);
 b2 = cBook;b2.init('Book2','yiran',c_opt1);
@@ -16,17 +15,17 @@ b3 = cBook;b3.init('Book3','yiran',c_opt1);
 b4 = cBook;b4.init('Book4','yiran',c_opt2);
 b5 = cBook;b5.init('Book5','yiran',c_opt2);
 %%
-% b1.loadpositionsfromcounter;
-% b2.loadpositionsfromcounter('futlist','all');
-% b3.loadpositionsfromcounter('optundlist','all');
-% b4.loadpositionsfromcounter('futlist','all');
-% b5.loadpositionsfromcounter('optundlist','all');
-% %
-% b1.printpositions;
-% b2.printpositions;
-% b3.printpositions;
-% b4.printpositions;
-% b5.printpositions;
+b1.loadpositionsfromcounter;
+b2.loadpositionsfromcounter('futlist','all');
+b3.loadpositionsfromcounter('optundlist','all');
+b4.loadpositionsfromcounter('futlist','all');
+b5.loadpositionsfromcounter('optundlist','all');
+%
+b1.printpositions;
+b2.printpositions;
+b3.printpositions;
+b4.printpositions;
+b5.printpositions;
 %%
 cobdate = getlastbusinessdate;
 folder = [getenv('OneDrive'),'\bookinfo\'];
