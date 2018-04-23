@@ -23,6 +23,8 @@ function [ret] = withdrawentrust(counter,entrust)
     
     if ret ~= 1
         warning(['entrust with id ',num2str(entrust_id),' not withdrawed!'])
+    else
+        fprintf(['entrust ',num2str(entrust.entrustNo),' withdrawed!\n']);
     end
     
 end
