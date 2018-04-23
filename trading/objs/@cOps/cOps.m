@@ -5,7 +5,6 @@ classdef cOps < cMyTimerObj
     % and to update positions in book
     % rule: one ops can be only linked to one book
     properties
-        name_@char
         book_@cBook
         
         entrusts_@EntrustArray
