@@ -1,9 +1,6 @@
-classdef cStrat < handle
+classdef cStrat < cMyTimerObj
     %base abstract class of strategy
     properties
-        name_@char
-        
-        mode_@char = 'realtime'
         
         %trading pnl related
         pnl_stop_type_@cell
@@ -39,9 +36,14 @@ classdef cStrat < handle
         mde_opt_@cMDEOpt
         
         %portfolio/book
-        portfolio_@cPortfolio
-        %the portfolio as of last business date
-        portfoliobase_@cPortfolio
+%         portfolio_@cPortfolio
+%         %the portfolio as of last business date
+%         portfoliobase_@cPortfolio
+        %
+        trader_@cTrader
+        helper_@cOps
+        bookrunning_@cBook
+        bookbase_@cBook
         
         %
         autotrade_@double
@@ -50,14 +52,10 @@ classdef cStrat < handle
         counter_@CounterCTP
         
         %
-        entrusts_@EntrustArray
-        entrustspending_@EntrustArray
-        entrustsfinished_@EntrustArray
-        
-        %timer
-        timer_@timer
-        timer_interval_@double = 0.5
-        
+%         entrusts_@EntrustArray
+%         entrustspending_@EntrustArray
+%         entrustsfinished_@EntrustArray
+                
         %debug mode
         timevec4debug_@double
         dtstart4debug_@double
@@ -169,8 +167,6 @@ classdef cStrat < handle
             end
         end
         %end of breakdownopt
-        
-                
     end
     %end of option-specific methods
     
@@ -178,15 +174,13 @@ classdef cStrat < handle
     methods
         %counter-related methods
         [] = registercounter(obj,counter)
-        [] = loadportfoliofromcounter(obj)
-        
-        %local-file related
-        [] = loadportfoliofromfile(obj,fn,dateinput)
-        [] = saveportfoliotofile(obj,fn,clearportfolio)
+        %
+        [] = loadbookfromcounter(obj,varargin)
+        [] = loadbookfromfile(obj,fn,dateinput)
+        [] = savebooktofile(obj,fn)
         
         %process portfolio with entrusts
-        pnl = updateportfoliowithentrust(obj,e)
-        [] = updateentrusts(obj)
+        [] = updateportfoliowithentrust(obj,e)
         [] = withdrawentrusts(obj,instrument)
         
         %long/short open/close positions
@@ -198,20 +192,10 @@ classdef cStrat < handle
         [] = unwindposition(obj,instrument,spread)
         pnl = calcrunningpnl(obj,instrument)
         
-    end
-    %end of trading-related methods
-    
-    %timer-related methods
-    methods
-        %start the timer
-        [] = start(obj)
-        %stop the timer    
-        [] = stop(obj)
-        %start the timer at specified time
-        [] = startat(obj,dtstr)
+        [] = refresh(obj)
         
     end
-    %end of timer-related methods
+    %end of trading-related methods
     
     
     %abstract methods
@@ -223,12 +207,4 @@ classdef cStrat < handle
         [] = initdata(obj)
     end
     
-    %timer-related private methods
-    methods (Access = private)
-        [] = settimer(obj)
-        [] = replay_timer_fcn(obj,~,event)       
-        [] = start_timer_fcn(obj,~,event)
-        [] = stop_timer_fcn(obj,~,event)
-        
-    end
 end

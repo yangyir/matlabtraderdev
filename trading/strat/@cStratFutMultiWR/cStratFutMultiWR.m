@@ -57,7 +57,7 @@ classdef cStratFutMultiWR < cStrat
             obj.initdata_futmultiwr;
         end
         %end of initdata
-        
+                
     end
     
     methods (Access = private)
