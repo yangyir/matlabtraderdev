@@ -12,12 +12,12 @@ function [] = refresh(strategy)
 %         msg = ['error:cStrat:updateentrusts:',e.message,'\n'];
 %         fprintf(msg);
 %     end
-    try
-        strategy.helper_.refresh;
-    catch e
-        msg = ['error:cStrat:cOps:refresh:',e.message,'\n'];
-        fprintf(msg);
-    end
+%     try
+%         strategy.helper_.refresh;
+%     catch e
+%         msg = ['error:cStrat:cOps:refresh:',e.message,'\n'];
+%         fprintf(msg);
+%     end
     %
     try
         strategy.riskmanagement(now);

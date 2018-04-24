@@ -22,7 +22,7 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
     
     if strcmpi(ocflag,'o')
         offset = 1;
-    elseif strcmpi(ocflag,'c')
+    elseif strcmpi(ocflag,'c') || strcmpi(ocflag,'ct')
         offset = -1;
     else
         error('cTrader:placeorder:invalid open/close flag input'); 
@@ -45,6 +45,7 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
     if ~isopt, entrust.assetType = 'Future';end
     entrust.multiplier = cs;
     if strcmpi(ocflag,'ct'), entrust.closetodayFlag = 1;end
+    entrust.time = now;
     
     warning('off');
     ret = ops.book_.counter_.placeEntrust(entrust);

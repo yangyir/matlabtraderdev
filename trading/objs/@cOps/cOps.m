@@ -10,11 +10,15 @@ classdef cOps < cMyTimerObj
         entrusts_@EntrustArray
         entrustspending_@EntrustArray
         entrustsfinished_@EntrustArray
+        
+        display_@logical = false
     end
     
     methods
         [] = init(obj,name,book)
         [] = refresh(obj)
+        [] = printpendingentrusts(obj)
+        [] = printallentrusts(obj)
     end
     
     methods (Access = private)

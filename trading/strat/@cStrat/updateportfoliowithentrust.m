@@ -7,7 +7,7 @@ function [] = updateportfoliowithentrust(strategy,e)
     f2 = e.dealVolume > 0;
     [f3,idx] = strategy.instruments_.hasinstrument(e.instrumentCode);
     if f0&&f1&&f2&&f3
-%         instrument = strategy.instruments_.getinstrument{idx};
+        instrument = strategy.instruments_.getinstrument{idx};
 %         t = cTransaction;
 %         t.instrument_ = instrument;
 % %         t.price_ = e.dealAmount./e.dealVolume./e.multiplier;

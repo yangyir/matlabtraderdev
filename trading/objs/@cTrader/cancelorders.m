@@ -11,7 +11,7 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops)
     for i = 1:pe.latest
         e = ops.entrustspending_.node(i);
         if strcmpi(e.instrumentCode,codestr)
-            withdrawentrust(c,e);
+            ret = withdrawentrust(c,e);
             entrusts.push(e);
         end
     end

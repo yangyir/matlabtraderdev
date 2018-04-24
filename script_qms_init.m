@@ -1,7 +1,4 @@
-qms = cQMS;
-qms.setdatasource('ctp');
-mdefut = cMDEFut;mdefut.qms_ = qms;
-mdeopt = cMDEOpt;mdeopt.qms_ = qms;
+init_mde
 %%
 % Base Metals
 codes_bm = {'cu1806';'al1806';'zn1806';'pb1806';'ni1807'};

@@ -1,7 +1,6 @@
 function [] = registercounter(strategy,counter)
     if ~isa(counter,'CounterCTP'), error('cStrat:registercounter:invalid counter input');end
     strategy.counter_ = counter;
-%     strategy.entrusts_ = EntrustArray;
     %
     trader = cTrader;trader.init(strategy.name_);
     b1 = cBook;b1.init('bookrunning',trader.name_,counter);
@@ -12,10 +11,12 @@ function [] = registercounter(strategy,counter)
     strategy.bookbase_ = b2;
     %
     ops = cOps;
-    ops.init('ops1',strategy.bookrunning_);
+    ops.init([strategy.name_,'_ops'],strategy.bookrunning_);
+    %update entrusts and book every second
+    ops.timer_interval_ = 1;
     strategy.helper_ = ops;
+    strategy.helper_.start;
     %
-    
     
 end
 %end of registercounter

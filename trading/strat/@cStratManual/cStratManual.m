@@ -4,6 +4,10 @@ classdef cStratManual < cStrat
     end
     
     methods
+        function obj = cStratManual
+            obj.name_ = 'stratmanual';
+        end
+        
         function signals = gensignals(obj)
             variablenotused(obj);
             signals = {};

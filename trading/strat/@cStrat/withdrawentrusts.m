@@ -14,6 +14,7 @@ function [] = withdrawentrusts(strategy,instrument)
     end
     
     strategy.trader_.cancelorders(code_ctp,strategy.helper_);
+%     strategy.helper_.refresh;
 
 %     n = strategy.entrustspending_.count;
 % 
