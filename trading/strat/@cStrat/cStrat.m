@@ -34,27 +34,14 @@ classdef cStrat < cMyTimerObj
         %market data engine
         mde_fut_@cMDEFut
         mde_opt_@cMDEOpt
-        
-        %portfolio/book
-%         portfolio_@cPortfolio
-%         %the portfolio as of last business date
-%         portfoliobase_@cPortfolio
         %
         trader_@cTrader
         helper_@cOps
         bookrunning_@cBook
         bookbase_@cBook
-        
-        %
-        autotrade_@double
-        
-        %
         counter_@CounterCTP
-        
         %
-%         entrusts_@EntrustArray
-%         entrustspending_@EntrustArray
-%         entrustsfinished_@EntrustArray
+        autotrade_@double        
                 
         %debug mode
         timevec4debug_@double
@@ -180,7 +167,7 @@ classdef cStrat < cMyTimerObj
         [] = savebooktofile(obj,fn)
         
         %process portfolio with entrusts
-        [] = updateportfoliowithentrust(obj,e)
+        [] = updatestratwithentrust(obj,e)
         [] = withdrawentrusts(obj,instrument)
         
         %long/short open/close positions

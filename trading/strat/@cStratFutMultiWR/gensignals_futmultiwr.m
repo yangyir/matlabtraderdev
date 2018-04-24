@@ -1,10 +1,11 @@
 function signals = gensignals_futmultiwr(strategy)
     if strcmpi(strategy.mode_,'debug'),
         strategy.printinfo;
-        n = strategy.portfolio_.count;
+%         n = strategy.portfolio_.count;
+        n = size(strategy.bookrunning_.positions_,1);
         if n > 0
             fprintf('holdings:%4.0f\tclose pnl:%4.2f\trunning pnl:%4.2f\n',...
-                strategy.portfolio_.pos_list{1}.direction_*strategy.portfolio_.pos_list{1}.position_total_,...
+                strategy.bookrunning_.positions_{1}.direction_*strategy.bookrunning_.positions_{1}.position_total_,...
                 strategy.pnl_close_(1),...
                 strategy.pnl_running_(1));
         end
