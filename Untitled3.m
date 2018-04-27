@@ -1,51 +1,59 @@
 login_counter_opt1;
 %%
-qms_fut = cQMS;
-qms_fut.setdatasource('ctp');
-mde_fut = cMDEFut;
-mde_fut.qms_ = qms_fut;
+init_mde;
 %%
 sec = cFutures('ni1807');
 sec.loadinfo('ni1807_info.txt');
 %%
-mde_fut.registerinstrument(sec);
+mdefut.registerinstrument(sec);
 %%
-mde_fut.timer_interval_ = 0.5;
-mde_fut.start
+mdefut.timer_interval_ = 0.5;
+mdefut.start
 %%
-candle = mde_fut.getlastcandle(sec);
-fprintf('K线时间:%s\t开:%4.0f\t高:%4.0f\t低:%4.0f\t收:%4.0f\n',...
+candle = mdefut.getlastcandle(sec);
+fprintf('candlestick time:%s\topen:%4.0f\thigh:%4.0f\tlow:%4.0f\tclose:%4.0f\n',...
     datestr(candle{1}(1),'yy-mm-dd HH:MM'),candle{1}(2),candle{1}(3),candle{1}(4),candle{1}(5));
-%%
-mde_fut.stop
+
 %%
 strat = cStratManual;
-%%
 strat.registercounter(c_opt1);
+strat.mde_fut_ = mdefut;
 %%
-strat.mde_fut_ = mde_fut;
 strat.registerinstrument(sec);
+%%
+strat.loadbookfromcounter('FutList','all');
+%%
+%检查持仓
+strat.bookrunning_.printpositions;
 %%
 strat.start
 %%
-strat.longopensingleinstrument(sec.code_ctp,1,10);
+%买开仓
+strat.longopensingleinstrument(sec.code_ctp,1,3);
 %%
+%卖平(今）仓
+strat.shortclosesingleinstrument(sec.code_ctp,1,1,2);
+%%
+%卖开仓
+strat.shortopensingleinstrument(sec.code_ctp,1,2);
+%%
+%买平(今）仓
+strat.longclosesingleinstrument(sec.code_ctp,1,1,3);
+%%
+%撤单
 strat.withdrawentrusts(sec.code_ctp);
 %%
-n = strat.helper_.entrustspending_.count;
-fprintf('未成交单:\n')
-if n == 0
-    fprintf('无未成交单\n');
-end
-for i = 1:n
-    fprintf('\t报单编号:%d 合约:%s 报单价格:%4.0f 报单手数:%d 成交手数:%d\n',...
-        strat.helper_.entrustspending_.node(i).entrustNo,...
-        strat.helper_.entrustspending_.node(i).instrumentCode,...
-        strat.helper_.entrustspending_.node(i).price,...
-        strat.helper_.entrustspending_.node(i).volume,...
-        strat.helper_.entrustspending_.node(i).dealVolume)
-end
+%显示未成交挂单
+strat.helper_.printpendingentrusts;
 %%
+%显示所有委托单
+strat.helper_.printallentrusts;
+%%
+%持仓
 strat.bookrunning_.printpositions;
 %%
 strat.stop
+%%
+strat.helper_.stop;
+%%
+mdefut.stop
