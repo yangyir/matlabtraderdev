@@ -1,73 +1,29 @@
 login_counter_opt1;
 %%
 init_mde;
-<<<<<<< HEAD
-%%
-sec = cFutures('ni1807');
-sec.loadinfo('ni1807_info.txt');
-%%
-mdefut.registerinstrument(sec);
-%%
-mdefut.timer_interval_ = 0.5;
-mdefut.start
-%%
-candle = mdefut.getlastcandle(sec);
-fprintf('candlestick time:%s\topen:%4.0f\thigh:%4.0f\tlow:%4.0f\tclose:%4.0f\n',...
-    datestr(candle{1}(1),'yy-mm-dd HH:MM'),candle{1}(2),candle{1}(3),candle{1}(4),candle{1}(5));
-
-=======
->>>>>>> ab07e710ca75563f6c15d7ec6070dc984d2cb2fc
 %%
 strat = cStratManual;
 strat.registercounter(c_opt1);
 strat.mde_fut_ = mdefut;
 %%
-<<<<<<< HEAD
-=======
-sec = cFutures('ni1807');
-sec.loadinfo('ni1807_info.txt');
-mdefut.registerinstrument(sec);
->>>>>>> ab07e710ca75563f6c15d7ec6070dc984d2cb2fc
-strat.registerinstrument(sec);
-%% register new contract
-sec_add = cFutures('rb1810');
-sec_add.loadinfo('rb1810_info.txt');
-mdefut.registerinstrument(sec_add);
-strat.registerinstrument(sec_add);
+codes = {'ni1807';'rb1810';'TF1806';'T1806'};
+secs = cell(size(codes));
+for i = 1:size(codes,1)
+    secs{i} = cFutures(codes{i});secs{i}.loadinfo([codes{i},'_info.txt']);
+    mdefut.registerinstrument(secs{i});
+    strat.registerinstrument(secs{i});
+end
+
 %% start mdefut
 mdefut.timer_interval_ = 0.5;
 mdefut.start
 %%
-<<<<<<< HEAD
 strat.loadbookfromcounter('FutList','all');
-%%
-%检查持仓
+%% print positions
 strat.bookrunning_.printpositions;
 %%
 strat.start
 %%
-%买开仓
-strat.longopensingleinstrument(sec.code_ctp,1,3);
-%%
-%卖平(今）仓
-strat.shortclosesingleinstrument(sec.code_ctp,1,1,2);
-%%
-%卖开仓
-strat.shortopensingleinstrument(sec.code_ctp,1,2);
-%%
-%买平(今）仓
-strat.longclosesingleinstrument(sec.code_ctp,1,1,3);
-%%
-%撤单
-strat.withdrawentrusts(sec.code_ctp);
-%%
-%显示未成交挂单
-strat.helper_.printpendingentrusts;
-%%
-%显示所有委托单
-strat.helper_.printallentrusts;
-=======
-%check the latest candle of selected futures
 sec_select = sec;
 candles = mdefut.getlastcandle;
 fprintf('candle:\n');
@@ -77,26 +33,14 @@ fprintf('\tinstrument:%12s open:%6s high:%6s low:%6s close:%6s time:%12s\n',...
     num2str(candles{i}(2)),num2str(candles{i}(3)),num2str(candles{i}(4)),num2str(candles{i}(5)),...
     datestr(candles{i}(1),'yy-mm-dd HH:MM'));
 end
+%% bond futures related
+ds = cLocal;
 
-%%
-strat.loadbookfromcounter('futlist','all');
->>>>>>> ab07e710ca75563f6c15d7ec6070dc984d2cb2fc
-%%
-%持仓
-strat.bookrunning_.printpositions;
-%%
-<<<<<<< HEAD
-strat.stop
-%%
-strat.helper_.stop;
-%%
-mdefut.stop
-=======
-strat.start
+
 %% long open positions
-sec_long_open = 'ni1807';
+sec_long_open = 'T1806';
 lots_long_open = 1;
-spreads_long_open = 50;
+spreads_long_open = 5;
 strat.longopensingleinstrument(sec_long_open,lots_long_open,spreads_long_open);
 
 %% short close positions
@@ -126,6 +70,5 @@ strat.helper_.stop;
 strat.stop
 %% stop mde
 mdefut.stop
-%%
-strat.helper_.entrustspending_.latest
->>>>>>> ab07e710ca75563f6c15d7ec6070dc984d2cb2fc
+%% logoff counters
+c_opt1.logout;
