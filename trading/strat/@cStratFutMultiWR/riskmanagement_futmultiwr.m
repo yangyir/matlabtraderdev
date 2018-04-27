@@ -10,14 +10,16 @@ function [] = riskmanagement_futmultiwr(strategy,dtnum)
 
         %secondly to check whether the instrument has been traded
         %and recorded in the embedded portfolio
-        [isinstrumenttraded,idx] = strategy.portfolio_.hasposition(instruments{i});
+%         [isinstrumenttraded,idx] = strategy.portfolio_.hasposition(instruments{i});
+        [isinstrumenttraded,idx] = strategy.bookrunning_.hasposition(instruments{i});
 
         if ~isinstrumenttraded, continue; end
 
         %calculate running pnl in case the embedded porfolio has
         %got the instrument already
 
-        position = strategy.portfolio_.pos_list{idx};
+%         position = strategy.portfolio_.pos_list{idx};
+        position = strategy.bookrunning_.positions_{idx};
         volume = position.direction_*position.position_total_;
         cost = position.cost_carry_;
         strategy.calcrunningpnl(instruments{i});
