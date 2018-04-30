@@ -33,7 +33,7 @@ for i = 1:n
         fprintf('%12s','pending');
     end
     
-    fprintf('%12.0f',obj.entrusts_.node(i).price);
+    fprintf('%12s',num2str(obj.entrusts_.node(i).price));
     fprintf('%12d',obj.entrusts_.node(i).volume);
     fprintf('%12d',obj.entrusts_.node(i).dealVolume);
     fprintf('%20s',datestr(obj.entrusts_.node(i).time,'mm-dd HH:MM:SS'));

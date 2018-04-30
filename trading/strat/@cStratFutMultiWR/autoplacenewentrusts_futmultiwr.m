@@ -19,13 +19,14 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
 
         %fourth to check whether the instrument has been traded or not,
         %i.e. there is an existing position
-        [flag,idx] = strategy.portfolio_.hasposition(instrument);
+%         [flag,idx] = strategy.portfolio_.hasposition(instrument);
+        [flag,idx] = strategy.bookrunning_.hasposition(instrument);
         if ~flag
             volume_exist = 0;
             direction_exist = 0;
         else
-            pos = strategy.portfolio_.pos_list{idx};
-%             volume_exist = pos.direction_*pos.position_total_;
+%             pos = strategy.portfolio_.pos_list{idx};
+            pos = strategy.bookrunning_.positions_{idx};
             volume_exist = pos.position_total_;
             direction_exist = pos.direction_;
         end
@@ -38,7 +39,8 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %try to unwind the position
             strategy.unwindposition(instrument,unwind_count);
             %update the position and direction
-            pos = strategy.portfolio_.pos_list{idx};
+%             pos = strategy.portfolio_.pos_list{idx};
+            pos = strategy.bookrunning_.positions_{idx};
             volume_exist = pos.position_total_;
             direction_exist = pos.direction_;
             unwind_count = unwind_count + 1;
@@ -82,7 +84,6 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         end
 
         if strcmpi(strategy.mode_,'debug')
-            offset = 1;
             tick = strategy.mde_fut_.getlasttick(instrument);
             bid = tick(2);
             ask = tick(3);
@@ -97,14 +98,10 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             else
                 strategy.executionperbucket_(ii) = strategy.executionperbucket_(ii)+1;
             end
-%             assuming the entrust is completely filled
-            t = cTransaction;
-            t.instrument_ = instrument;
-            t.price_ = price;
-            t.volume_= abs(volume);
-            t.direction_ = direction;
-            t.offset_ = offset;
+            %assuming the entrust is completely filled
             strategy.portfolio_.updateportfolio(t);
+            strategy.bookrunning_.addpositions('code',instrument.code_ctp,'price',price,...
+                'volume',direction*abs(volume),'time',tick(1));
             return    
         end
 
@@ -119,9 +116,9 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             price = q.ask1 - strategy.askspread_(ii)*instrument.tick_size;
         end
         withdraw_flag = true;
-        n = strategy.entrustspending_.count;
+        n = strategy.helper_.entrustspending_.latest;
         for jj = 1:n
-            e = strategy.entrustspending_.node(jj);
+            e = strategy.helper_.entrustspending_.node(jj);
             f1 = strcmpi(e.instrumentCode,instrument.code_ctp);
             f2 = e.price == price;
             f3 = e.volume == abs(volume);
@@ -134,9 +131,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         %if withdraw is needed
         %firstly to unwind all existing entrusts associated with
         %the instrument
-        if withdraw_flag
-            strategy.withdrawentrusts(instrument);
-        end
+        if withdraw_flag, strategy.withdrawentrusts(instrument); end
                 
         if direction < 0
 %             [ret,e] = strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));

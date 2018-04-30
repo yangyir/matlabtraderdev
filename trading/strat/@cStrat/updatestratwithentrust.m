@@ -1,4 +1,4 @@
-function [] = updateportfoliowithentrust(strategy,e)
+function [] = updatestratwithentrust(strategy,e)
     if isempty(strategy.counter_), return; end
     if ~isa(e,'Entrust'), return; end
 
