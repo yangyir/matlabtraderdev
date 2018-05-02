@@ -21,21 +21,20 @@ mdefut.start
 strat.loadbookfromcounter('FutList','all');
 %% print positions
 strat.bookrunning_.printpositions;
+%% print positions and real-time running pnl
+strat.helper_.printrunningpnl('MDEFut',mdefut);
 %%
 strat.start
 %%
-sec_select = sec;
 candles = mdefut.getlastcandle;
 fprintf('candle:\n');
 for i = 1:size(candles,1)
-fprintf('\tinstrument:%12s open:%6s high:%6s low:%6s close:%6s time:%12s\n',...
-    strat.instruments_.getinstrument{i}.code_ctp,...
-    num2str(candles{i}(2)),num2str(candles{i}(3)),num2str(candles{i}(4)),num2str(candles{i}(5)),...
-    datestr(candles{i}(1),'yy-mm-dd HH:MM'));
+    if isempty(candles{i}), continue;end
+    fprintf('\tinstrument:%12s open:%6s high:%6s low:%6s close:%6s time:%12s\n',...
+        strat.instruments_.getinstrument{i}.code_ctp,...
+        num2str(candles{i}(2)),num2str(candles{i}(3)),num2str(candles{i}(4)),num2str(candles{i}(5)),...
+        datestr(candles{i}(1),'yy-mm-dd HH:MM'));
 end
-%% bond futures related
-ds = cLocal;
-
 
 %% long open positions
 sec_long_open = 'T1806';
