@@ -24,7 +24,7 @@ for i = 1:n
     
     fprintf('%12d',obj.entrustspending_.node(i).volume);
     fprintf('%12d',obj.entrustspending_.node(i).dealVolume);
-    fprintf('%12.0f',obj.entrustspending_.node(i).price);
+    fprintf('%12s',num2str(obj.entrustspending_.node(i).price));
     
     fprintf('\n');
 end

@@ -19,6 +19,8 @@ classdef cOps < cMyTimerObj
         [] = refresh(obj)
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)
+        pnl = calcrunningpnl(obj,varargin)
+        [] = printrunningpnl(obj,varargin)
     end
     
     methods (Access = private)

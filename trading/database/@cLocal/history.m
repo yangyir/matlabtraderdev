@@ -13,6 +13,12 @@ function data = history(obj,instrument,fields,fromdate,todate)
         idx = data(:,1)>=fromdatenum & data(:,1)<=todate;
         if strcmpi(fields,'last_trade')
             data = [data(idx,1),data(idx,5)];
+        elseif strcmpi(fields,'open')
+            data = [data(idx,1),data(idx,2)];
+        elseif strcmpi(fields,'high')
+            data = [data(idx,1),data(idx,3)];
+        elseif strcmpi(fields,'low')
+            data = [data(idx,1),data(idx,4)];
         else
             data = [];
             %todo
