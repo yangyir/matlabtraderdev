@@ -70,6 +70,4 @@ strat.stop
 %% stop mde
 mdefut.stop
 %%
-delete(timerfindall)
-%%
 strat.helper_.entrustspending_.latest
