@@ -24,7 +24,6 @@ strat.bookrunning_.printpositions;
 %%
 strat.start
 %%
-sec_select = sec;
 candles = mdefut.getlastcandle;
 fprintf('candle:\n');
 for i = 1:size(candles,1)
