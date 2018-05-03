@@ -9,6 +9,9 @@ classdef cReplayer < handle
         [] = removeinstrument(obj,instrument)
         [] = inittickdata(obj,varargin)
         [] = loadtickdata(obj,varargin)
+        %
+        tick = gettickdata(obj,varargin)
+        
     end
     
     methods (Static = true)

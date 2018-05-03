@@ -1,4 +1,9 @@
-function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag,spread)
+function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag,spread,varargin)
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = false;
+    p.addParameter('overrideprice',[],@isnumeric);
+    p.parse(varargin{:});
+    overridepx = p.Results.overrideprice;
     if lots == 0, return; end
 
     if nargin < 4
@@ -41,22 +46,35 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         fprintf('cStrat:longclosesingleinstrument:%s:existing short position not found\n',ctp_code);
     end
     
-    
     if abs(volume) < abs(lots)
         fprintf('cStrat:longclosesingleinstrument:%s:input size exceeds existing size\n',ctp_code);
         lots = abs(volume);
     end
     
-    if isopt
-        q = strategy.mde_opt_.qms_.getquote(ctp_code);
+    if ~isempty(overridepx)
+        orderprice = overridepx;
     else
-        q = strategy.mde_fut_.qms_.getquote(ctp_code);
-    end
-    
-    if nargin < 5
-        orderprice = q.ask1 - strategy.askspread_(idx)*instrument.tick_size;
-    else
-        orderprice = q.ask1 - spread*instrument.tick_size;
+        if strcmpi(strategy.mode_,'realtime')
+            if isopt
+                q = strategy.mde_opt_.qms_.getquote(ctp_code);
+            else
+                q = strategy.mde_fut_.qms_.getquote(ctp_code);
+            end
+            askpx = q.ask1;
+        elseif strcmpi(strategy.mode_,'replay')
+            if isopt
+                error('not implemented yet')
+            else
+                tick = strategy.mde_fut_.getlasttick(ctp_code);
+            end
+            askpx = tick(3);
+        end
+
+        if nargin < 5
+            orderprice = askpx - strategy.askspread_(idx)*instrument.tick_size;
+        else
+            orderprice = askpx - spread*instrument.tick_size;
+        end
     end
     
     if closetodayFlag

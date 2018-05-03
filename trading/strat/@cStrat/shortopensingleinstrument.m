@@ -1,4 +1,9 @@
-function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread)
+function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread,varargin)
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = false;
+    p.addParameter('overrideprice',[],@isnumeric);
+    p.parse(varargin{:});
+    overridepx = p.Results.overrideprice;
     if lots <= 0 
         return; 
     end
@@ -19,7 +24,7 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread)
     end
     instrument.loadinfo([ctp_code,'_info.txt']);
     
-    [bool, idx] = strategy.instruments_.hasinstrument(instrument);
+    [bool,idx] = strategy.instruments_.hasinstrument(instrument);
     if ~bool
         fprintf('cStrat:shortopensingleinstrument:%s not registered in strategy\n',ctp_code)
         return; 
@@ -27,16 +32,30 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread)
     %only place entrusts in case the instrument has been registered
     %with the strategy
     
-    if isopt
-        q = strategy.mde_opt_.qms_.getquote(ctp_code);
+    if ~isempty(overridepx)
+        orderprice = overridepx;
     else
-        q = strategy.mde_fut_.qms_.getquote(ctp_code);
-    end
-    
-    if nargin < 4
-        orderprice = q.bid1 + strategy.bidspread_(idx)*instrument.tick_size;
-    else
-        orderprice = q.bid1 + spread*instrument.tick_size;
+        if strcmpi(strategy.mode_,'realtime')
+            if isopt
+                q = strategy.mde_opt_.qms_.getquote(ctp_code);
+            else
+                q = strategy.mde_fut_.qms_.getquote(ctp_code);
+            end
+            bidpx = q.bid1;
+        elseif strcmpi(strategy.mode_,'replay')
+            if isopt
+                error('not implemented yet')
+            else
+                tick = strategy.mde_fut_.getlasttick(ctp_code);
+            end
+            bidpx = tick(2);
+        end
+
+        if nargin < 4
+            orderprice = bidpx + strategy.bidspread_(idx)*instrument.tick_size;
+        else
+            orderprice = bidpx + spread*instrument.tick_size;
+        end
     end
     
     [ret,e] = strategy.trader_.placeorder(ctp_code,'s','o',orderprice,lots,strategy.helper_);

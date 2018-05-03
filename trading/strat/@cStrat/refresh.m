@@ -6,21 +6,15 @@ function [] = refresh(strategy)
         fprintf(msg);
     end
     %
-%     try
-%         strategy.updateentrusts;
-%     catch e
-%         msg = ['error:cStrat:updateentrusts:',e.message,'\n'];
-%         fprintf(msg);
-%     end
-%     try
-%         strategy.helper_.refresh;
-%     catch e
-%         msg = ['error:cStrat:cOps:refresh:',e.message,'\n'];
-%         fprintf(msg);
-%     end
-    %
     try
-        strategy.riskmanagement(now);
+        if strcmpi(strategy.mode_,'realtime')
+            strategy.riskmanagement(now);
+        elseif strcmpi(strategy.mode_,'replay')
+            inst = strategy.instruments_.getinstrument;
+            codestr = inst{1}.code_ctp;
+            tick = strategy.mde_fut_.getlasttick(codestr);
+            strategy.riskmanagement(tick(1));
+        end
     catch e
         msg = ['error:cStrat:riskmanagment:',e.message,'\n'];
         fprintf(msg);

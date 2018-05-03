@@ -12,6 +12,9 @@ classdef cOps < cMyTimerObj
         entrustsfinished_@EntrustArray
         
         display_@logical = false
+        %
+        mdefut_@cMDEFut
+        mdeopt_@cMDEFut
     end
     
     methods

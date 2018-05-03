@@ -23,22 +23,13 @@ classdef cMDEFut < cMyTimerObj
         
         technical_indicator_autocalc_@double
         technical_indicator_table_@cell
-        
-        %replay related properties
-        replay_date1_@double
-        replay_date2_@char
+        %
+        %
+        replayer_@cReplayer
         replay_datetimevec_@double
         replay_count_@double = 0
-        
-        %debug related properties
-        %note:debug and replay mode are very similar but debug mode is much
-        %faster
-        debug_start_dt1_@double
-        debug_start_dt2_@char
-        debug_end_dt1_@double
-        debug_end_dt2_@char
-        debug_count_@double = 0
-        debug_ticks_@double
+        replay_date1_@double
+        replay_date2_@char
         
     end
     
@@ -49,8 +40,8 @@ classdef cMDEFut < cMyTimerObj
     end
     
     methods
-        %replay related
-        [] = setreplaydate(obj,datein) 
+        %replay
+        [] = initreplayer(obj,varargin)
         
         %set/get
         [] = setcandlefreq(obj,freq,instrument)
@@ -79,7 +70,10 @@ classdef cMDEFut < cMyTimerObj
         [] = refresh(obj)
         
         [] = savecandles2file(obj,dtnum)
-            
+    end
+    
+    methods (Static = true)
+        [] = demo(~)
     end
     
     %% timer functions

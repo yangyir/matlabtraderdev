@@ -6,6 +6,7 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
     if ~isnumeric(px), error('cTrader:placeorder:invalid price input');end
     if ~isnumeric(lots) || lots <= 0, error('cTrader:placeorder:invalid lots input');end
     if ~isa(ops,'cOps'), error('cTrader:placeorder:invalid ops input');end
+%     if ~ischar(modestr), error('cTrader:placeorder:invalid modestr input');end
     
     f1 = obj.hasbook(ops.book_);
     if ~f1, obj.addbook(ops.book_); end
@@ -42,13 +43,23 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
     
     entrust.fillEntrust(1,codestr,direction,px,lots,offset,codestr);
     
+    modestr = ops.mode_;
+    
     if ~isopt, entrust.assetType = 'Future';end
     entrust.multiplier = cs;
     if strcmpi(ocflag,'ct'), entrust.closetodayFlag = 1;end
-    entrust.time = now;
+    
+    if strcmpi(modestr,'realtime'), entrust.time = now; end
     
     warning('off');
-    ret = ops.book_.counter_.placeEntrust(entrust);
+    if strcmpi(modestr,'realtime')
+        ret = ops.book_.counter_.placeEntrust(entrust);
+    elseif strcmpi(modestr,'replay')
+        %in the replay mode we assume the entrust is always placed
+        ret = 1;
+        n = ops.entrusts_.latest;
+        entrust.entrustNo = n+1;
+    end
     if ret
         fprintf('placed entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,entrust.price,entrust.volume);

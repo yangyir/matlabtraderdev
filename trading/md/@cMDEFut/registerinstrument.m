@@ -1,8 +1,17 @@
 function [] = registerinstrument(mdefut,instrument)
-    codestr = instrument.code_ctp;
-    flag = isoptchar(codestr);
-    %first to make sure that it is not an option underlier
-    if flag, return; end
+    if ischar(instrument)
+        codestr = instrument;
+        flag = isoptchar(codestr);
+        %first to make sure that it is not an option underlier
+        if flag, return; end
+        instrument = cFutures(codestr);
+        instrument.loadinfo([codestr,'_info.txt']);
+    else
+        codestr = instrument.code_ctp;
+        flag = isoptchar(codestr);
+        %first to make sure that it is not an option underlier
+        if flag, return; end
+    end
 
     mdefut.qms_.registerinstrument(instrument);
 

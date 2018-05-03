@@ -195,33 +195,5 @@ function [] = registerinstrument(strategy,instrument)
         strategy.mde_opt_.registerinstrument(instrument);
     end
     
-%     if isempty(strategy.portfolio_)
-%         p = cPortfolio;
-%         strategy.portfolio_ = p;
-%     end
-%     
-%     if isempty(strategy.portfoliobase_)
-%         p = cPortfolio;
-%         strategy.portfoliobase_ = p;
-%     end
-    
-%     try
-%         a =strategy.entrusts_.latest;
-%     catch
-%         strategy.entrusts_ = EntrustArray;
-%     end
-%     
-%     try
-%         a = strategy.entrustspending_.latest;
-%     catch
-%         strategy.entrustspending_ = EntrustArray;
-%     end
-%     
-%     try
-%         a = strategy.entrustsfinished_.latest;
-%     catch
-%         strategy.entrustsfinished_ = EntrustArray;
-%     end
-    
 end
 %end of 'registerinstrument'
