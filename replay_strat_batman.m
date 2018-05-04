@@ -44,9 +44,9 @@ mdefut_replay.start;
 ticks = mdefut_replay.getlasttick('rb1810');
 fprintf('last tick time:%s:; trade:%s\n',datestr(ticks(1),'yyyy-mm-dd HH:MM:SS'),num2str(ticks(2)));
 %%
-stratbatman_replay.longopensingleinstrument('rb1810',100,[],'overrideprice',3635);
+stratbatman_replay.longopensingleinstrument('rb1810',100,[],'overrideprice',3640);
 %%
-stratbatman_replay.shortclosesingleinstrument('rb1810',6,1,[],'overrideprice',3640);
+stratbatman_replay.shortclosesingleinstrument('rb1810',99,1,[],'overrideprice',3650);
 %%
 stratbatman_replay.helper_.printpendingentrusts;
 %%
