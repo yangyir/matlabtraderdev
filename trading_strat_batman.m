@@ -13,10 +13,10 @@ for i = 1:size(codes,1)
     secs{i} = cFutures(codes{i});secs{i}.loadinfo([codes{i},'_info.txt']);
     mdefut.registerinstrument(secs{i});
     strat_batman.registerinstrument(secs{i});
+    strat_batman.setstoptype(codes{i},'abs')
 end
 %% set stop/loss and limit for one futures to trade
-strat_batman.setlimittype('rb1810','abs');strat_batman.setlimitamount('rb1810',10000);
-strat_batman.setstoptype('rb1810','abs');strat_batman.setstopamount('rb1810',-1000);
+strat_batman.setstoptype('rb1810','abs');
 %% load existing positions from CTP counter
 strat_batman.loadbookfromcounter('FutList','all');
 %% print positions
@@ -40,27 +40,31 @@ end
 %% print positions and real-time running pnl
 strat_batman.helper_.printrunningpnl('MDEFut',mdefut);
 %% long open positions
-sec_lo = 'T1806';
-lots_lo = 1;
-spd_lo = 5;
+sec_lo = 'zn1807';
+lots_lo = 2;
+spd_lo = 1;
 % place entrust with spreads to the market quotes
-strat_batman.longopensingleinstrument(sec_lo,lots_lo,spd_lo);
+% strat_batman.longopensingleinstrument(sec_lo,lots_lo,spd_lo);
 % place entrust with specified price
-overridepx = 94.51;
+overridepx = 23030;
 strat_batman.longopensingleinstrument(sec_lo,lots_lo,[],'overrideprice',overridepx);
 
 %% short close positions
-sec_sc = 'ni1807';
-lots_sc = 1;
+sec_sc = 'zn1807';
+lots_sc = 2;
 closetoday_sc = 1;
 spd_sc = 1;
-strat_batman.shortclosesingleinstrument(sec_sc,lots_sc,closetoday_sc,spd_sc);
+% strat_batman.shortclosesingleinstrument(sec_sc,lots_sc,closetoday_sc,spd_sc);
+overridepx = 23205;
+strat_batman.shortclosesingleinstrument(sec_sc,lots_sc,closetoday_sc,spd_sc,'overrideprice',overridepx);
 
 %% short open positions
-sec_so = 'rb1810';
+sec_so = 'T1806';
 lots_so = 1;
 spd_so = 8;
-strat_batman.shortopensingleinstrument(sec_so,lots_so,spd_so);
+% strat_batman.shortopensingleinstrument(sec_so,lots_so,spd_so);
+overridepx = 94.78;
+strat_batman.shortopensingleinstrument(sec_so,lots_so,spd_so,'overrideprice',overridepx);
 
 %% long close positions
 sec_lc = 'rb1810';
@@ -70,7 +74,7 @@ spd_lc = 1;
 strat_batman.shortclosesingleinstrument(sec_lc,lots_lc,closetoday_lc,spd_lc);
 
 %% withdraw pending entrusts
-strat_batman.withdrawentrusts('ni1807');
+strat_batman.withdrawentrusts('T1806');
 
 %% display pending entrusts
 strat_batman.helper_.printpendingentrusts;
@@ -88,6 +92,7 @@ c_fut.logout;
 %% delete timer
 try
     delete(timerfindall);
-catch
+catch e
+    fprint([e.message,'\n']);
 end
 
