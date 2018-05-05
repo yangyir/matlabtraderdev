@@ -23,7 +23,7 @@ function [] = refresh(strategy)
     try
         signals = strategy.gensignals;
     catch e
-        msg = ['error:cStrat:gensiignals:',e.message,'\n'];
+        msg = ['error:cStrat:gensignals:',e.message,'\n'];
         fprintf(msg);
     end
     %
