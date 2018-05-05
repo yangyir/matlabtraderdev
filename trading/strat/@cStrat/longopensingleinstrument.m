@@ -1,4 +1,9 @@
-function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots,spread)
+function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots,spread,varargin)
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = false;
+    p.addParameter('overrideprice',[],@isnumeric);
+    p.parse(varargin{:});
+    overridepx = p.Results.overrideprice;
     if lots == 0
         return
     end
@@ -28,16 +33,30 @@ function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots,spread)
     %only place entrusts in case the instrument has been registered
     %with the strategy
     
-    if isopt
-        q = strategy.mde_opt_.qms_.getquote(ctp_code);
+    if ~isempty(overridepx)
+        price = overridepx;
     else
-        q = strategy.mde_fut_.qms_.getquote(ctp_code);
-    end
-    
-    if nargin < 4
-        price = q.ask1 - strategy.askspread_(idx)*instrument.tick_size;
-    else
-        price = q.ask1 - spread*instrument.tick_size;
+        if strcmpi(strategy.mode_,'realtime')
+            if isopt
+                q = strategy.mde_opt_.qms_.getquote(ctp_code);
+            else
+                q = strategy.mde_fut_.qms_.getquote(ctp_code);
+            end
+            askpx = q.ask1;
+        elseif strcmpi(strategy.mode_,'replay')
+            if isopt
+                error('not implemented yet')
+            else
+                tick = strategy.mde_fut_.getlasttick(ctp_code);
+            end
+            askpx = tick(3);
+        end
+
+        if nargin < 4
+            price = askpx - strategy.askspread_(idx)*instrument.tick_size;
+        else
+            price = askpx - spread*instrument.tick_size;
+        end
     end
     
     [ret,e] = strategy.trader_.placeorder(ctp_code,'b','o',price,lots,strategy.helper_);

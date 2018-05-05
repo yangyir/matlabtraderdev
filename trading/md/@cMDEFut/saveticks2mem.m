@@ -1,5 +1,5 @@
 function [] = saveticks2mem(mdefut)
-    if ~strcmpi(mdefut.mode_,'debug')
+    if strcmpi(mdefut.mode_,'realtime')
         qs = mdefut.qms_.getquote;
         ns = size(mdefut.ticks_,1);
         for i = 1:ns
@@ -15,16 +15,14 @@ function [] = saveticks2mem(mdefut)
             end
             mdefut.ticks_count_(i) = count;
         end
-    else
+    elseif strcmpi(mdefut.mode_,'replay')
         ns = size(mdefut.ticks_,1);
-        if ns ~= 1
-            error('only single instrument is supported in debug mode')
-        end
+        if ns ~= 1, error('only single instrument is supported in replay mode');end
         count = mdefut.ticks_count_(1)+1;
-        mdefut.ticks_{1}(count,1) = mdefut.debug_ticks_(mdefut.debug_count_,1);
-        mdefut.ticks_{1}(count,2) = mdefut.debug_ticks_(mdefut.debug_count_,2);
-        mdefut.ticks_{1}(count,3) = mdefut.debug_ticks_(mdefut.debug_count_,2);
-        mdefut.ticks_{1}(count,4) = mdefut.debug_ticks_(mdefut.debug_count_,2);
+        mdefut.ticks_{1}(count,1) = mdefut.replayer_.tickdata_{ns}(mdefut.replay_count_,1);
+        mdefut.ticks_{1}(count,2) = mdefut.replayer_.tickdata_{ns}(mdefut.replay_count_,2);
+        mdefut.ticks_{1}(count,3) = mdefut.replayer_.tickdata_{ns}(mdefut.replay_count_,2);
+        mdefut.ticks_{1}(count,4) = mdefut.replayer_.tickdata_{ns}(mdefut.replay_count_,2);
         mdefut.ticks_count_(1) = count;
     end
 end

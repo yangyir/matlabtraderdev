@@ -12,9 +12,27 @@ function [] = updateentrustsandbook(obj)
     entrusts = EntrustArray;
     for i = 1:npending
         e = obj.entrustspending_.node(i);
-        f0 = obj.book_.counter_.queryEntrust(e);
-        f1 = e.is_entrust_closed;
-        f2 = e.dealVolume > 0;
+        if strcmpi(obj.mode_,'realtime')
+            f0 = obj.book_.counter_.queryEntrust(e);
+            f1 = e.is_entrust_closed;
+            f2 = e.dealVolume > 0;
+        elseif strcmpi(obj.mode_,'replay')
+            codestr = e.instrumentCode;
+            isopt = isoptchar(codestr);
+            if isopt
+                ticks = obj.mdeopt_.getlasttick(codestr);
+            else
+                ticks = obj.mdefut_.getlasttick(codestr);
+            end
+            f0 = 1;
+            if e.direction == 1
+                f1 = ticks(2) <= e.price;
+            else
+                f1 = ticks(2) >= e.price;
+            end
+            f2 = f1;
+            e.dealVolume = e.volume;
+        end
         if f0 && f1 && f2
             entrusts.push(e);
             fprintf('executed entrust: %d......\n',e.entrustNo);

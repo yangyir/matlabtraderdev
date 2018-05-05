@@ -41,13 +41,7 @@ classdef cStrat < cMyTimerObj
         bookbase_@cBook
         counter_@CounterCTP
         %
-        autotrade_@double        
-                
-        %debug mode
-        timevec4debug_@double
-        dtstart4debug_@double
-        dtend4debug_@double
-        dtcount4debug_@double = 0
+        autotrade_@double
 
     end
     
@@ -171,10 +165,10 @@ classdef cStrat < cMyTimerObj
         [] = withdrawentrusts(obj,instrument)
         
         %long/short open/close positions
-        [ret,e] = shortopensingleinstrument(obj,code_ctp,lots,spread)
-        [ret,e] = shortclosesingleinstrument(obj,code_ctp,lots,closetodayflag,spread)
-        [ret,e] = longopensingleinstrument(obj,ctp_code,lots,spread)
-        [ret,e] = longclosesingleinstrument(obj,ctp_code,lots,closetodayflag,spread)
+        [ret,e] = shortopensingleinstrument(obj,code_ctp,lots,spread,varargin)
+        [ret,e] = shortclosesingleinstrument(obj,code_ctp,lots,closetodayflag,spread,varargin)
+        [ret,e] = longopensingleinstrument(obj,ctp_code,lots,spread,varargin)
+        [ret,e] = longclosesingleinstrument(obj,ctp_code,lots,closetodayflag,spread,varargin)
         
         [] = unwindposition(obj,instrument,spread)
         pnl = calcrunningpnl(obj,instrument)

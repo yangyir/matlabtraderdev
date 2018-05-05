@@ -12,6 +12,9 @@ classdef cOps < cMyTimerObj
         entrustsfinished_@EntrustArray
         
         display_@logical = false
+        %
+        mdefut_@cMDEFut
+        mdeopt_@cMDEFut
     end
     
     methods
@@ -19,6 +22,8 @@ classdef cOps < cMyTimerObj
         [] = refresh(obj)
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)
+        pnl = calcrunningpnl(obj,varargin)
+        [] = printrunningpnl(obj,varargin)
     end
     
     methods (Access = private)

@@ -1,4 +1,9 @@
-function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag,spread)
+function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag,spread,varargin)
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('overrideprice',[],@isnumeric);
+    p.parse(varargin{:});
+    overridepx = p.Results.overrideprice;
     if lots <= 0 
         return; 
     end
@@ -52,16 +57,30 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
         lots = abs(volume);
     end
     
-    if isopt
-        q = strategy.mde_opt_.qms_.getquote(ctp_code);
+    if ~isempty(overridepx)
+        orderprice = overridepx;
     else
-        q = strategy.mde_fut_.qms_.getquote(ctp_code);
-    end
-    
-    if nargin < 5
-        orderprice = q.bid1 + strategy.bidspread_(idx)*instrument.tick_size;
-    else
-        orderprice = q.bid1 + spread*instrument.tick_size;
+        if strcmpi(strategy.mode_,'realtime')
+            if isopt
+                q = strategy.mde_opt_.qms_.getquote(ctp_code);
+            else
+                q = strategy.mde_fut_.qms_.getquote(ctp_code);
+            end
+            bidpx = q.bid1;
+        elseif strcmpi(strategy.mode_,'replay')
+            if isopt
+                error('not implemented yet')
+            else
+                tick = strategy.mde_fut_.getlasttick(ctp_code);
+            end
+            bidpx = tick(2);
+        end
+
+        if nargin < 5
+            orderprice = bidpx + strategy.bidspread_(idx)*instrument.tick_size;
+        else
+            orderprice = bidpx + spread*instrument.tick_size;
+        end
     end
     
     if closetodayFlag

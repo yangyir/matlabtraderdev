@@ -1,4 +1,9 @@
 classdef cStratFutBatman < cStrat
+    %note:BATMAN is a very simple trend-following strategy
+    %firstly it opens a trade with either long/short direction, and
+    %specifying a stoploss to prevent unexpected loss
+    %secondly it keeps updating the highest/lowest prices and then it
+    %updates the new open and new stoploss accordingly
     properties
     end
     
@@ -34,6 +39,10 @@ classdef cStratFutBatman < cStrat
         %end of initdata
     end
     
+    methods
+        [] = resetcostcarry(obj,varargin)
+    end
+    
     methods (Access = private)
         [] = riskmanagement_futbatman(obj,dtnum)
         [] = updategreeks_futbatman(obj)
@@ -43,7 +52,7 @@ classdef cStratFutBatman < cStrat
     end
     
     methods (Static = true)
-        [] = debug(~)
+        [] = replay(~)
     end
     
 end
