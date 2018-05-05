@@ -10,6 +10,7 @@ classdef cTrader < handle
     
     methods
         [] = init(obj,name)
+        [bool,idx] = hasbook(obj,book)
         [] = addbook(obj,book)
         [] = addstrat(obj,strat)
         
@@ -24,7 +25,4 @@ classdef cTrader < handle
         [] = runstrategy(obj,stratname)
     end
     
-    methods
-        [bool,idx] = hasbook(obj,book)
-    end
 end
