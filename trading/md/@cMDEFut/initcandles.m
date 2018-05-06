@@ -1,7 +1,12 @@
-function [ret] = initcandles(mdefut,instrument)
+function [ret] = initcandles(mdefut,instrument,varargin)
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('NumberofPeriods',14,@isnumeric);
+    p.parse(varargin{:});
+    nop = p.Results.NumberofPeriods;
     instruments = mdefut.qms_.instruments_.getinstrument;
     ns = size(instruments,1);
-    if strcmpi(mdefut.mode_,'debug')
+    if strcmpi(mdefut.mode_,'replay')
         ds = cLocal;
     else
         ds = cBloomberg;
@@ -9,15 +14,14 @@ function [ret] = initcandles(mdefut,instrument)
     if nargin < 2
         for i = 1:ns
             date2 = floor(mdefut.candles_{i}(1,1));
-            %intraday candles for the last 10 business dates
-            date1 = date2 - 14;
+            date1 = date2 - nop;
             date2str = [datestr(date2,'yyyy-mm-dd'),' 08:59:00'];
             date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
             candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
             mdefut.hist_candles_{i} = candles;
 
             %fill the live candles in case it is missing
-            if ~strcmpi(mdefut.mode_,'debug')
+            if ~strcmpi(mdefut.mode_,'replay')
                 t = now;
                 buckets = mdefut.candles_{i}(:,1);
                 idx = find(buckets<=t);
@@ -46,7 +50,7 @@ function [ret] = initcandles(mdefut,instrument)
             flag = true;
             date2 = floor(mdefut.candles_{i}(1,1));
             %intraday candles for the last 10 business dates
-            date1 = date2 - 14;
+            date1 = date2 - nop;
             date2str = [datestr(date2,'yyyy-mm-dd'),' 08:59:00'];
             date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
             candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');

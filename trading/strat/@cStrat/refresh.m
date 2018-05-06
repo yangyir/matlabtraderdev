@@ -1,4 +1,10 @@
 function [] = refresh(strategy)
+    if ~isempty(strategy.mde_fut_)
+        if strcmpi(strategy.mde_fut_.status_,'sleep')
+            return
+        end
+    end
+
     try
         strategy.updategreeks;
     catch e
@@ -23,7 +29,7 @@ function [] = refresh(strategy)
     try
         signals = strategy.gensignals;
     catch e
-        msg = ['error:cStrat:gensiignals:',e.message,'\n'];
+        msg = ['error:cStrat:gensignals:',e.message,'\n'];
         fprintf(msg);
     end
     %
