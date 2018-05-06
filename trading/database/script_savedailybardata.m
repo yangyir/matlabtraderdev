@@ -8,10 +8,10 @@ end
 
 %%
 %base metals
-bm_codes_ctp = {'cu1804';'cu1805';'cu1806';'cu1807';'cu1808';'cu1809';'cu1810';...
-    'al1804';'al1805';'al1806';'al1807';'al1808';'al1809';'al1810';...
-    'zn1804';'zn1805';'zn1806';'zn1807';'zn1808';'zn1809';'zn1810';...
-    'pb1804';'pb1805';'pb1806';'pb1807';'pb1808';'pb1809';'pb1810';...
+bm_codes_ctp = {'cu1805';'cu1806';'cu1807';'cu1808';'cu1809';'cu1810';'cu1811';...
+    'al1805';'al1806';'al1807';'al1808';'al1809';'al1810';'al1811';...
+    'zn1805';'zn1806';'zn1807';'zn1808';'zn1809';'zn1810';'zn1811';...
+    'pb1805';'pb1806';'pb1807';'pb1808';'pb1809';'pb1810';'pb1811';...
     'ni1805';'ni1807';'ni1809';'ni1811';'ni1901'};
 
 for i = 1:size(bm_codes_ctp,1)
@@ -56,7 +56,7 @@ fprintf('done for saving daily bar data for black futures\n');
 
 %%
 %soymeal
-futures_code_ctp_soymeal = {'m1805';'m1809'};
+futures_code_ctp_soymeal = {'m1809';'m1901'};
 strikes_soymeal = (2500:50:3500)';
 
 c_code_ctp_soymeal = cell(size(futures_code_ctp_soymeal,1),size(strikes_soymeal,1));
@@ -75,7 +75,7 @@ fprintf('done for soymeal options......\n');
 
 %%
 %white sugar
-futures_code_ctp_sugar = {'SR805';'SR809'};
+futures_code_ctp_sugar = {'SR809';'SR901'};
 strikes_sugar = (5000:100:6500)';
 c_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
 p_code_ctp_sugar = cell(size(futures_code_ctp_sugar,1),size(strikes_sugar,1));
