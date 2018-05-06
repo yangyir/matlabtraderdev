@@ -113,6 +113,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             else
                 price = q.ask1 - strategy.askspread_(ii)*instrument.tick_size;
             end
+            ordertime = now;
         else
             tick = strategy.mde_fut_.getlasttick(instrument);
             bid = tick(2);
@@ -122,6 +123,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             else
                 price =  ask - strategy.askspread_(ii)*instrument.tick_size;
             end
+            ordertime = tick(1);
         end
         withdraw_flag = true;
         n = strategy.helper_.entrustspending_.latest;
@@ -142,11 +144,11 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         if withdraw_flag, strategy.withdrawentrusts(instrument); end
                 
         if direction < 0
-%             [ret,e] = strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));
-            strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume));
+            strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume),0,...
+                'overrideprice',price,'time',ordertime);
         else
-%             [ret,e] = strategy.longopensingleinstrument(instrument.code_ctp,abs(volume));
-            strategy.longopensingleinstrument(instrument.code_ctp,abs(volume));
+            strategy.longopensingleinstrument(instrument.code_ctp,abs(volume),0,...
+                'overrideprice',price,'time',ordertime);
         end
 
 %         strategy.counter_.queryEntrust(e);

@@ -5,7 +5,7 @@ function [] = printinfo(strategy)
         if ~isempty(ticks)
             t = ticks(1);
             fprintf('%s %s: trade:%4.1f; williamr:%4.1f\n',...
-                datestr(t,'yyyymmdd HH:MM:SS'),instruments{i}.code_ctp,ticks(4),strategy.wr_(i));
+                datestr(t,'yyyy-mm-dd HH:MM:SS'),instruments{i}.code_ctp,ticks(4),strategy.wr_(i));
         else
             candlecount = strategy.mde_fut_.getcandlecount(instruments{i});
             if candlecount ~= 0
@@ -16,7 +16,7 @@ function [] = printinfo(strategy)
             end
             t = candles(end,1);
             fprintf('%s %s: trade:%4.1f; williamr:%4.1f\n',...
-                datestr(t,'yyyymmdd HH:MM:SS'),instruments{i}.code_ctp,candles(end,5),strategy.wr_(i));
+                datestr(t,'yyyy-mm-dd HH:MM:SS'),instruments{i}.code_ctp,candles(end,5),strategy.wr_(i));
         end
     end
     fprintf('\n');

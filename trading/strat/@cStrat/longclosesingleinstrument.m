@@ -2,8 +2,10 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = false;
     p.addParameter('overrideprice',[],@isnumeric);
+    p.addParameter('time',[],@isnumeric);
     p.parse(varargin{:});
     overridepx = p.Results.overrideprice;
+    ordertime = p.Results.time;
     if lots == 0, return; end
 
     if nargin < 4
@@ -77,13 +79,17 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         end
     end
     
+    if isempty(ordertime), ordertime = now; end
+    
     if closetodayFlag
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'b','ct',orderprice,lots,strategy.helper_);
+        [ret,e] = strategy.trader_.placeorder(ctp_code,'b','ct',orderprice,lots,strategy.helper_,'time',ordertime);
     else
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'b','c',orderprice,lots,strategy.helper_);
+        [ret,e] = strategy.trader_.placeorder(ctp_code,'b','c',orderprice,lots,strategy.helper_,'time',ordertime);
     end
     
     if ret
+        e.date = floor(ordertime);
+        e.time = ordertime;
         strategy.updatestratwithentrust(e);
     end
     

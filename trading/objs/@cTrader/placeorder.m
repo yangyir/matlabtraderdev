@@ -1,4 +1,4 @@
-function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
+function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,varargin)
 %cTrader
     if ~ischar(codestr), error('cTrader:placeorder:invalid code input'); end
     if ~ischar(bsflag), error('cTrader:placeorder:invalid buy/sell flag input'); end
@@ -6,7 +6,11 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
     if ~isnumeric(px), error('cTrader:placeorder:invalid price input');end
     if ~isnumeric(lots) || lots <= 0, error('cTrader:placeorder:invalid lots input');end
     if ~isa(ops,'cOps'), error('cTrader:placeorder:invalid ops input');end
-%     if ~ischar(modestr), error('cTrader:placeorder:invalid modestr input');end
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('time',[],@isnumeric);
+    p.parse(varargin{:});
+    ordertime = p.Results.time;
     
     f1 = obj.hasbook(ops.book_);
     if ~f1, obj.addbook(ops.book_); end
@@ -49,7 +53,8 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
     entrust.multiplier = cs;
     if strcmpi(ocflag,'ct'), entrust.closetodayFlag = 1;end
     
-    if strcmpi(modestr,'realtime'), entrust.time = now; end
+    entrust.time = ordertime;
+    entrust.date = floor(ordertime);
     
     warning('off');
     if strcmpi(modestr,'realtime')
@@ -61,7 +66,10 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops)
         entrust.entrustNo = n+1;
     end
     if ret
-        fprintf('placed entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
+        e.date = floor(ordertime);
+        e.time = ordertime;
+        fprintf('%s placed entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
+            datestr(entrust.time,'yyyy-mm-dd HH:MM:SS'),...
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,entrust.price,entrust.volume);
         ops.entrusts_.push(entrust);
         ops.entrustspending_.push(entrust);

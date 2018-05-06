@@ -24,6 +24,7 @@ function [] = updateentrustsandbook(obj)
             else
                 ticks = obj.mdefut_.getlasttick(codestr);
             end
+            %the entrust is always placed in 'replay' mode
             f0 = 1;
             if e.direction == 1
                 f1 = ticks(2) <= e.price;
@@ -31,11 +32,20 @@ function [] = updateentrustsandbook(obj)
                 f1 = ticks(2) >= e.price;
             end
             f2 = f1;
-            e.dealVolume = e.volume;
+            if f1
+                %once the entrust is executed
+                e.dealVolume = e.volume;
+                e.complete_time_ = ticks(1);
+            end
         end
         if f0 && f1 && f2
             entrusts.push(e);
-            fprintf('executed entrust: %d......\n',e.entrustNo);
+            if strcmpi(obj.mode_,'realtime')
+                %todo:check queryEntrust to finish complete_time_
+                fprintf('executed entrust: %d......\n',e.entrustNo);
+            elseif strcmpi(obj.mode_,'replay')
+                fprintf('executed entrust: %d at %s......\n',e.entrustNo,datestr(e.complete_time_,'yyyy-mm-dd HH:MM:SS'));
+            end
             % this entrust is fully placed and we shall update the book
             obj.book_.addpositions('code',e.instrumentCode,'price',e.price,...
                 'volume',e.direction*e.dealVolume,'time',e.time,...
