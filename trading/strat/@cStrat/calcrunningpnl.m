@@ -4,11 +4,11 @@ function pnl = calcrunningpnl(strategy, instrument)
     end
 
     %to check whether the instrument has been already traded or not
-    [flag,idx] = strategy.portfolio_.hasposition(instrument);
+    [flag,idx] = strategy.bookrunning_.hasposition(instrument);
 
     pnl = 0;
     if flag
-        pos = strategy.portfolio_.pos_list{idx};
+        pos = strategy.bookrunning_.positions_{idx};
         volume = pos.direction_ * pos.position_total_;
         [~,ii] = strategy.instruments_.hasinstrument(instrument);
 

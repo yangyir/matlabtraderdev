@@ -55,7 +55,7 @@ function [] = unwindposition(strategy,instrument,spread)
 %     end
 
     %for 'realtime' mode
-    spread = 0;
+%     spread = 0;
     if ~isshfe
         if volume > 0
             strategy.shortclosesingleinstrument(code,volume,spread);

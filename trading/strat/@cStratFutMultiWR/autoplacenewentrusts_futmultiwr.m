@@ -13,19 +13,17 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         [~,ii] = strategy.instruments_.hasinstrument(instrument);
         if ~strategy.autotrade_(ii),continue;end
         
-        %third to check whether the signal is valid
+        %third to check whether the signal is unnatural
         direction = signal.direction;
         if direction == 0, continue; end
 
         %fourth to check whether the instrument has been traded or not,
         %i.e. there is an existing position
-%         [flag,idx] = strategy.portfolio_.hasposition(instrument);
         [flag,idx] = strategy.bookrunning_.hasposition(instrument);
         if ~flag
             volume_exist = 0;
             direction_exist = 0;
         else
-%             pos = strategy.portfolio_.pos_list{idx};
             pos = strategy.bookrunning_.positions_{idx};
             volume_exist = pos.position_total_;
             direction_exist = pos.direction_;
@@ -34,12 +32,12 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         %note:in case the exist positions are with the different direction
         %as of the signal, we shall first unwind the existing position and
         %then open up position with the new direction
+        %maybe some todo here, i am not sure
         unwind_count = 0;
         while direction_exist * direction < 0
             %try to unwind the position
             strategy.unwindposition(instrument,unwind_count);
             %update the position and direction
-%             pos = strategy.portfolio_.pos_list{idx};
             pos = strategy.bookrunning_.positions_{idx};
             volume_exist = pos.position_total_;
             direction_exist = pos.direction_;
@@ -83,7 +81,39 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             end
         end
 
-        if strcmpi(strategy.mode_,'debug')
+%         if strcmpi(strategy.mode_,'debug')
+%             tick = strategy.mde_fut_.getlasttick(instrument);
+%             bid = tick(2);
+%             ask = tick(3);
+%             if direction < 0
+%                 price =  bid + strategy.bidspread_(ii)*instrument.tick_size;
+%             else
+%                 price =  ask - strategy.askspread_(ii)*instrument.tick_size;
+%             end
+%             if strategy.executionbucketnumber_(ii) ~= bucketnum;
+%                 strategy.executionbucketnumber_(ii) = bucketnum;
+%                 strategy.executionperbucket_(ii) = 1;
+%             else
+%                 strategy.executionperbucket_(ii) = strategy.executionperbucket_(ii)+1;
+%             end
+%             %assuming the entrust is completely filled
+%             strategy.bookrunning_.addpositions('code',instrument.code_ctp,'price',price,...
+%                 'volume',direction*abs(volume),'time',tick(1));
+%             return    
+%         end
+
+        %note:there is a maximum limit of 500 entrust placement/withdrawn. as
+        %a result, we try to make sure the same entrust, i.e. same underlier
+        %futures, entrust price, volume and direction are not repeatly
+        %placed.
+        if strcmpi(strategy.mode_,'realtime')
+            q = strategy.mde_fut_.qms_.getquote(instrument.code_ctp);
+            if direction < 0
+                price = q.bid1 + strategy.bidspread_(ii)*instrument.tick_size;
+            else
+                price = q.ask1 - strategy.askspread_(ii)*instrument.tick_size;
+            end
+        else
             tick = strategy.mde_fut_.getlasttick(instrument);
             bid = tick(2);
             ask = tick(3);
@@ -92,28 +122,6 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             else
                 price =  ask - strategy.askspread_(ii)*instrument.tick_size;
             end
-            if strategy.executionbucketnumber_(ii) ~= bucketnum;
-                strategy.executionbucketnumber_(ii) = bucketnum;
-                strategy.executionperbucket_(ii) = 1;
-            else
-                strategy.executionperbucket_(ii) = strategy.executionperbucket_(ii)+1;
-            end
-            %assuming the entrust is completely filled
-            strategy.portfolio_.updateportfolio(t);
-            strategy.bookrunning_.addpositions('code',instrument.code_ctp,'price',price,...
-                'volume',direction*abs(volume),'time',tick(1));
-            return    
-        end
-
-        %note:there is a maximum limit of 500 entrust placement/withdrawn. as
-        %a result, we try to make sure the same entrust, i.e. same underlier
-        %futures, entrust price, volume and direction are not repeatly
-        %placed.
-        q = strategy.mde_fut_.qms_.getquote(instrument.code_ctp);
-        if direction < 0
-            price = q.bid1 + strategy.bidspread_(ii)*instrument.tick_size;
-        else
-            price = q.ask1 - strategy.askspread_(ii)*instrument.tick_size;
         end
         withdraw_flag = true;
         n = strategy.helper_.entrustspending_.latest;

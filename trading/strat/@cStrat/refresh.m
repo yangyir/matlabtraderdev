@@ -1,4 +1,10 @@
 function [] = refresh(strategy)
+    if ~isempty(strategy.mde_fut_)
+        if strcmpi(strategy.mde_fut_.status_,'sleep')
+            return
+        end
+    end
+
     try
         strategy.updategreeks;
     catch e

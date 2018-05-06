@@ -8,13 +8,16 @@ function [] = refresh(mdefut)
         elseif strcmpi(mdefut.mode_,'replay')
             if mdefut.replay_count_ > size(mdefut.replay_datetimevec_,1)
                 mdefut.stop;
+                return
             end
         end
         %save ticks data into memory
         mdefut.saveticks2mem;
         %save candles data into memory
         mdefut.updatecandleinmem;
-        if strcmpi(mdefut.mode_,'replay'), mdefut.replay_count_ = mdefut.replay_count_ + 1;end
+        if strcmpi(mdefut.mode_,'replay') && strcmpi(mdefut.status_,'working') 
+            mdefut.replay_count_ = mdefut.replay_count_ + 1;
+        end
 
     end
 end

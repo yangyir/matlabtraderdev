@@ -54,7 +54,7 @@ classdef cMDEFut < cMyTimerObj
         tick = getlasttick(obj,instrument)
         
         %init data
-        [ret] = initcandles(obj,instrument)
+        [ret] = initcandles(obj,instrument,varargin)
         
     end
     
