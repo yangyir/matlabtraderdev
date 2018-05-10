@@ -2,6 +2,15 @@ classdef cReplayer < handle
     properties
         instruments_@cInstrumentArray
         tickdata_@cell
+        %note:normally we have a cReplayer only records tick data for a
+        %sinlge trading date. However, we can still record tick data for
+        %several trading dates
+        mode_@char = 'singleday'
+        multidayfiles_@cell
+    end
+    
+    properties (Hidden = true)
+        multidayidx_@double = 0
     end
     
     methods
@@ -11,6 +20,8 @@ classdef cReplayer < handle
         [] = loadtickdata(obj,varargin)
         %
         tick = gettickdata(obj,varargin)
+        %
+        [] = setmultidaymode(obj,fns)
         
     end
     
