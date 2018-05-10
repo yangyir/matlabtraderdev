@@ -40,6 +40,7 @@ end
 fprintf('done for govt bond futures......\n');
 
 %%
+% precious metals
 pm_codes_ctp = {'au1806';'au1812';'ag1806';'ag1812'};
 
 for i = 1:size(pm_codes_ctp)
@@ -51,6 +52,7 @@ end
 fprintf('done for precious metal futures......\n');
 
 %%
+% black metals
 black_codes_ctp = {'rb1805';'rb1810';'i1805';'i1809';'j1805';'j1809';...
     'jm1805';'jm1809';'ZC805';'ZC809'};
 for i = 1:size(black_codes_ctp)
@@ -62,7 +64,13 @@ end
 fprintf('done for black futures......\n');
 
 %%
-arg_codes_ctp = {'a1805';'a1809';'ru1805';'ru1809';'m1805';'m1809';'m1901';'SR805';'SR809';'SR901'};
+% argriculture
+arg_codes_ctp = {'a1805';'a1809';'a1901';...
+    'ru1805';'ru1809';'ru1901';...
+    'm1805';'m1809';'m1901';...
+    'SR805';'SR809';'SR901';...
+    'y1805';'y1809';'y1901';...
+    'p1805';'p1809';'p1901'};
 for i = 1:size(arg_codes_ctp)
     f = cFutures(arg_codes_ctp{i});
     f.init(conn);
