@@ -40,6 +40,12 @@ classdef cMDEFut < cMyTimerObj
     end
     
     methods
+        function obj = cMDEFut
+            obj.qms_ = cQMS;
+        end
+    end
+    
+    methods
         %replay
         [] = initreplayer(obj,varargin)
         
