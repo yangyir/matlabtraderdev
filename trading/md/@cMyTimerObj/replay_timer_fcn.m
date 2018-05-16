@@ -17,7 +17,14 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             end
         end
 
-        if (mm >= 150 && mm < 540) || ...
+        %critical time
+        % 02:30 am -> 150   all market close
+        % 09:00 am -> 540   futures market open
+        % 11:30 am -> 690   futures/stock market close
+        % 01:00 pm -> 780   futures/stock market reopen
+        % 03:15 pm -> 915   futures close
+        % 09:00 pm -> 1260  futures reppen
+        if (mm > 150 && mm < 540) || ...
                 (mm > 690 && mm < 780) || ...
                 (mm > 915 && mm < 1260)
             %market closed for sure
