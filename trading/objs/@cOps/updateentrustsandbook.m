@@ -35,6 +35,7 @@ function [] = updateentrustsandbook(obj)
             if f1
                 %once the entrust is executed
                 e.dealVolume = e.volume;
+                e.dealPrice = e.price;
                 e.complete_time_ = ticks(1);
             end
         end
