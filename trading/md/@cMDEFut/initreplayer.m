@@ -35,6 +35,8 @@ function [] = initreplayer(obj,varargin)
     %     
     obj.replay_datetimevec_ = r.tickdata_{idx}(:,1);
     obj.replay_count_ = 1;
+    obj.replay_time1_ = obj.replay_datetimevec_(obj.replay_count_);
+    obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
 
     % candles_ and candles4save_'s timevec needs to be inline with replay
     % date

@@ -30,6 +30,8 @@ classdef cMDEFut < cMyTimerObj
         replay_count_@double = 0
         replay_date1_@double
         replay_date2_@char
+        replay_time1_@double
+        replay_time2_@char
         
     end
     
