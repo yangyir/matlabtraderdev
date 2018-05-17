@@ -35,8 +35,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
         mytimerobj.refresh;
         
     elseif strcmpi(mytimerobj.mode_,'replay')
-%         dtnum = mytimerobj.replay_datetimevec_(mytimerobj.replay_count_);
-        mytimerobj.status_ = 'working';
+%         mytimerobj.status_ = 'working';
         mytimerobj.refresh;
     else
         error('cMyTimerObj:replay_timer_fcn:invalid mode')
