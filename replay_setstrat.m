@@ -23,6 +23,10 @@ function replay_strat = replay_setstrat(stratname,varargin)
         error('replay_setstrat:invalid strategy name input')
     end
     
+    default_timerinterval_strat = 60;
+    default_timerinterval_ops = 1;
+    default_timerinterval_mde = 0.5;
+    
     try
         replay_strat.mode_ = 'replay';
         replay_strat.mde_fut_ = replay_mdefut;
@@ -31,9 +35,9 @@ function replay_strat = replay_setstrat(stratname,varargin)
         replay_strat.bookrunning_ = replay_book;
         replay_strat.bookbase_ = replay_book;
         replay_strat.counter_ = replay_counter;
-        replay_strat.timer_interval_ = 60/replayspeed;
-        replay_strat.helper_.timer_interval_ = 1/replayspeed;
-        replay_strat.mde_fut_.timer_interval_ = 0.5/replayspeed;
+        replay_strat.timer_interval_ = default_timerinterval_strat/replayspeed;
+        replay_strat.helper_.timer_interval_ = default_timerinterval_ops/replayspeed;
+        replay_strat.mde_fut_.timer_interval_ = default_timerinterval_mde/replayspeed;
     catch e
         error(['replay_setstrat:',e.message]);
     end
