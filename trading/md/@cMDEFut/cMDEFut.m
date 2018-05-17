@@ -35,6 +35,10 @@ classdef cMDEFut < cMyTimerObj
         
     end
     
+    properties (GetAccess = public, SetAccess = private, Dependent)
+        iseveningrequired_@logical = false
+    end
+    
     properties (Access = private)
         ticks_count_@double
         candles_count_@double
@@ -44,6 +48,26 @@ classdef cMDEFut < cMyTimerObj
     methods
         function obj = cMDEFut
             obj.qms_ = cQMS;
+        end
+    end
+    
+    methods
+        function flag = get.iseveningrequired_(obj)
+            n = obj.qms_.instruments_.count;
+            if n == 0
+                flag = false;
+            else
+                flag = false;
+                instruments = obj.qms_.instruments_.getinstrument;
+                for i = 1:n
+                    inst = instruments{i};
+                    check = regexp(inst.trading_hours,';','split');
+                    if length(check) > 2
+                        flag = true;
+                        break
+                    end
+                end
+            end
         end
     end
     
