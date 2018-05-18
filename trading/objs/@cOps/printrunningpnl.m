@@ -23,7 +23,7 @@ function [] = printrunningpnl(obj,varargin)
         if p.position_total_ == 0, continue;end
         isopt = isoptchar(p.code_ctp_);
         if ~isopt
-            dataformat = '%s%11s%11s%11s%15s%15s\n';
+            dataformat = '%6s%11s%11s%11s%15s%15s\n';
         else
             dataformat = '%s%5s%11s%11s%15s%15s\n';
         end
