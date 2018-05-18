@@ -4,6 +4,7 @@ inst = code2instrument(code);
 mde.registerinstrument(inst);
 mde.candle_freq_ = 15;
 mde.display_ = 1;
+mde.candlesaveflag_ = true;
 %%
 fns = {'rb1810_20180423_tick';...
     'rb1810_20180424_tick';...
