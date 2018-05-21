@@ -68,14 +68,20 @@ function [] = refresh(mdefut)
                          mdefut.stop;
                          return
                     else
+<<<<<<< HEAD
                         %todo:here we may extend the replay mode with mutltiple futures
                         inst = mdefut.replayer_.instruments_.getinstrument;
+=======
+                        inst = mdefut.replayer_.instruments_.getinstrument;
+                        %todo:here we may extend the replay mode with mutltiple futures
+>>>>>>> 6686478b58ad7ee68e74094a99199e88d52f3dd6
                         code = inst{1}.code_ctp;
                         [~,idx] = mdefut.replayer_.instruments_.hasinstrument(code);
                         [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
                         if mdefut.candlesaveflag_
                             coldefs = {'datetime','open','high','low','close'};
                             dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
+<<<<<<< HEAD
                             fn_ = [dir_,code,'_',mdefut.replay_date2_,'_1m.txt'];
                             if mdefut.display_ == 1
                                 fprintf('save intraday candle of %s on %s...\n',...
@@ -84,10 +90,20 @@ function [] = refresh(mdefut)
                             cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx},coldefs,'w',true);
                         end
                                                 
+=======
+                            fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
+                            cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
+                        end
+                        
+>>>>>>> 6686478b58ad7ee68e74094a99199e88d52f3dd6
                         %below we first load tick data for the next business date
                         multidayidx = mdefut.replayer_.multidayidx_;
                         %move to the next business date
                         multidayidx = multidayidx+1;
+<<<<<<< HEAD
+=======
+                        
+>>>>>>> 6686478b58ad7ee68e74094a99199e88d52f3dd6
                         fns = mdefut.replayer_.multidayfiles_;
                         mdefut.replayer_.loadtickdata('code',code,'fn',fns{multidayidx});
                         %
@@ -96,6 +112,10 @@ function [] = refresh(mdefut)
                         mdefut.replay_datetimevec_ = mdefut.replayer_.tickdata_{idx}(:,1);
                         mdefut.replay_count_ = 1;
                         %
+<<<<<<< HEAD
+=======
+                        instruments = mdefut.qms_.instruments_.getinstrument;
+>>>>>>> 6686478b58ad7ee68e74094a99199e88d52f3dd6
                         if ~isempty(mdefut.hist_candles_)
                             %in case historical candles are required, we
                             %update the historical candles as well
@@ -107,8 +127,12 @@ function [] = refresh(mdefut)
                             histcandles = [histcandles(ncandle+1:end,:);candles];
                             mdefut.hist_candles_{idx2} = histcandles;
                         end
+<<<<<<< HEAD
                         %
                         instruments = mdefut.qms_.instruments_.getinstrument;
+=======
+                        
+>>>>>>> 6686478b58ad7ee68e74094a99199e88d52f3dd6
                         %update candle_ and candle4save_ in mdefut
                         buckets = getintradaybuckets2('date',mdefut.replay_date1_,...
                             'frequency',[num2str(mdefut.candle_freq_(idx2)),'m'],...
