@@ -7,7 +7,9 @@ function [] = savepositionstofile(obj,fn)
         direction_i = pos_i.direction_;
         v_i = pos_i.position_total_;
         cost_open_i = pos_i.cost_open_;
-        fprintf(fid,'%s\t%d\t%d\t%f\n',code_i,direction_i,v_i,cost_open_i);
+        if v_i ~= 0
+            fprintf(fid,'%s\t%d\t%d\t%f\n',code_i,direction_i,v_i,cost_open_i);
+        end
     end
     fclose(fid);
 end
