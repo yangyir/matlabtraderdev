@@ -38,12 +38,13 @@ classdef cStratFutBatman < cStrat
     %           do nothing and wait for the next close price
     
     properties
-        p_@double
-        high_@double
-        pxPosStoploss_@double
-        pxPosTarget_@double
-        pxWithdrawMin_@double
-        pxWithdrawMax_@double
+        pxopen_@double
+        pxhigh_@double
+        pxstoploss_@double
+        pxtarget_@double
+        pxwithdrawmin_@double
+        pxwithdrawmax_@double
+        doublecheck_@double
     end
     
     methods
@@ -79,6 +80,22 @@ classdef cStratFutBatman < cStrat
     end
     
     methods
+        [] = registerinstrument(obj,instrument)
+        [] = setpxopen(obj,instrument,val)
+        [] = setpxhigh(obj,instrument,val)
+        [] = setpxstoploss(obj,instrument,val)
+        [] = setpxtarget(obj,instrument,val)
+        [] = setpxwithdrawmin(obj,instrument,val)
+        [] = setpxwithdrawmax(obj,instrument,val)
+        %
+        val = getpxopen(obj,instrument)
+        val = getpxhigh(obj,instrument)
+        val = getpxstoploss(obj,instrument)
+        val = getpxtarget(obj,instrument)
+        val = getpxwithdrawmin(obj,instrument)
+        val = getpxwithdrawmax(obj,instrument)
+        
+        
         [] = resetcostcarry(obj,varargin)
     end
     
