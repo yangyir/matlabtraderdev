@@ -55,7 +55,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                    obj.pxwithdrawmax_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/2;
                elseif lasttrade > obj.pxtarget_(i)
                    %do nothing and wait for the next trade price
-               elseif lasttrade > obj.pxstoploss_(i)
+               elseif lasttrade >= obj.pxstoploss_(i)
                    obj.unwindposition(instruments{i});
                    return
                end
@@ -76,6 +76,8 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                     return
                 elseif lasttrade >= obj.pxhigh_(i)
                     obj.pxhigh_(i) = lasttrade;
+                    obj.pxwithdrawmin_(i) = obj.pxhigh_(i) - (obj.pxhigh_(i)-obj.pxopen_(i))/3;
+                    obj.pxwithdrawmax_(i) = obj.pxhigh_(i) - (obj.pxhigh_(i)-obj.pxopen_(i))/2;
                     obj.doublecheck_(i) = 0;
                 elseif lasttrade < obj.pxhigh_(i) && lasttrade > obj.pxwithdrawmin_(i)
                     obj.doublecheck_(i) = 0;
@@ -117,6 +119,8 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                     return
                 elseif lasttrade <= obj.pxhigh_(i)
                     obj.pxhigh_(i) = lasttrade;
+                    obj.pxwithdrawmin_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/3;
+                    obj.pxwithdrawmax_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/2;
                     obj.doublecheck_(i) = 0;
                 elseif lasttrade > obj.pxhigh_(i) && lasttrade < obj.pxwithdrawmin_(i)
                     obj.doublecheck_(i) = 0;

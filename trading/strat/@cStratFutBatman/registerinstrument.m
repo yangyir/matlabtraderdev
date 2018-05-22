@@ -15,7 +15,7 @@ function [] = registerinstrument(strategy,instrument)
     [flag,idx] = strategy.instruments_.hasinstrument(instrument);
     
     if flag
-        strategy.doublecheck__(idx) = 0;
+        strategy.doublecheck_(idx) = 0;
     else
         error('cStratFutBatman:registerinstrument:instrument not found!')
     end
