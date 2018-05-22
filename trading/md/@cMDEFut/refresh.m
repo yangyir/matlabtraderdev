@@ -66,26 +66,36 @@ function [] = refresh(mdefut)
                     %period,o/w we shall switch off the mdefut.
                     if mdefut.replayer_.multidayidx_ > size(mdefut.replayer_.multidayfiles_,1)
                          mdefut.stop;
+                         return
                     else
+                        %todo:here we may extend the replay mode with mutltiple futures
+                        inst = mdefut.replayer_.instruments_.getinstrument;
+                        code = inst{1}.code_ctp;
+                        [~,idx] = mdefut.replayer_.instruments_.hasinstrument(code);
+                        [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
+                        if mdefut.candlesaveflag_
+                            coldefs = {'datetime','open','high','low','close'};
+                            dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
+                            fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
+                            if mdefut.display_ == 1
+                                fprintf('save intraday candle of %s on %s...\n',...
+                                    code,mdefut.replay_date2_);
+                            end
+                            cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
+                        end
+                        
                         %below we first load tick data for the next business date
                         multidayidx = mdefut.replayer_.multidayidx_;
                         %move to the next business date
                         multidayidx = multidayidx+1;
-                        inst = mdefut.replayer_.instruments_.getinstrument;
-                        %todo:here we may extend the replay mode with mutltiple futures
-                        code = inst{1}.code_ctp;
                         fns = mdefut.replayer_.multidayfiles_;
                         mdefut.replayer_.loadtickdata('code',code,'fn',fns{multidayidx});
                         %
-                        [~,idx] = mdefut.replayer_.instruments_.hasinstrument(code);
                         mdefut.replay_date1_ = floor(mdefut.replayer_.tickdata_{idx}(1,1));
                         mdefut.replay_date2_ = datestr(mdefut.replay_date1_,'yyyy-mm-dd');
                         mdefut.replay_datetimevec_ = mdefut.replayer_.tickdata_{idx}(:,1);
                         mdefut.replay_count_ = 1;
                         %
-                        [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
-                        instruments = mdefut.qms_.instruments_.getinstrument;
-                        
                         if ~isempty(mdefut.hist_candles_)
                             %in case historical candles are required, we
                             %update the historical candles as well
@@ -97,14 +107,8 @@ function [] = refresh(mdefut)
                             histcandles = [histcandles(ncandle+1:end,:);candles];
                             mdefut.hist_candles_{idx2} = histcandles;
                         end
-                        
-                        if mdefut.candlesaveflag_
-                            coldefs = {'datetime','open','high','low','close'};
-                            dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
-                            fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
-                            cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx},coldefs,'w',true);
-                        end
-                        
+                        %
+                        instruments = mdefut.qms_.instruments_.getinstrument;
                         %update candle_ and candle4save_ in mdefut
                         buckets = getintradaybuckets2('date',mdefut.replay_date1_,...
                             'frequency',[num2str(mdefut.candle_freq_(idx2)),'m'],...
@@ -140,7 +144,6 @@ function [] = refresh(mdefut)
             mdefut.replay_count_ = mdefut.replay_count_ + 1;
             
         end
-
     end
 end
 %end of refresh
