@@ -94,7 +94,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                     obj.unwindposition(instruments{i});
                     obj.doublecheck_(i) = 0;
                     return
-                elseif lasttrade > obj.pxhigh_(i)
+                elseif lasttrade >= obj.pxhigh_(i)
                     obj.pxhigh_(i) = lasttrade;
                     obj.pxwithdrawmin_(i) = obj.pxhigh_(i) - (obj.pxhigh_(i)-obj.pxopen_(i))/3;
                     obj.pxwithdrawmax_(i) = obj.pxhigh_(i) - (obj.pxhigh_(i)-obj.pxopen_(i))/2;
@@ -137,7 +137,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                     obj.unwindposition(instruments{i});
                     obj.doublecheck_(i) = 0;
                     return
-                elseif lasttrade < obj.pxhigh_(i)
+                elseif lasttrade <= obj.pxhigh_(i)
                     obj.pxhigh_(i) = lasttrade;
                     obj.pxwithdrawmin_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/3;
                     obj.pxwithdrawmax_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/2;
