@@ -45,7 +45,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                 elseif lasttrade < obj.pxtarget_(i) && lasttrade > obj.pxstoploss_(i)
                     %do nothing and wait for the next trade price
                 elseif lasttrade <= obj.pxstoploss_(i)
-                    obj.unwindposition(instruments{i});
+                    obj.unwindposition(instruments{i},0);
                     return
                 end
            elseif direction == -1
@@ -56,7 +56,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                elseif lasttrade > obj.pxtarget_(i)
                    %do nothing and wait for the next trade price
                elseif lasttrade >= obj.pxstoploss_(i)
-                   obj.unwindposition(instruments{i});
+                   obj.unwindposition(instruments{i},0);
                    return
                end
            else
@@ -71,7 +71,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
         if direction == 1
             if obj.doublecheck_(i) == 0 
                 if lasttrade <= obj.pxwithdrawmax_(i)
-                    obj.unwindposition(instruments{i});
+                    obj.unwindposition(instruments{i},0);
                     obj.doublecheck_(i) = 0;
                     return
                 elseif lasttrade >= obj.pxhigh_(i)
@@ -86,12 +86,12 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                     %may have a second trend in case withdrawmax is not
                     %breahed from the top.now we need to update the
                     %open price
-                    obj.pxopen_(i) = lastrade;
+                    obj.pxopen_(i) = lasttrade;
                     obj.doublecheck_(i) = 1;
                 end
             elseif obj.doublecheck_(i) == 1
                 if lasttrade <= obj.pxwithdrawmax_(i)
-                    obj.unwindposition(instruments{i});
+                    obj.unwindposition(instruments{i},0);
                     obj.doublecheck_(i) = 0;
                     return
                 elseif lasttrade >= obj.pxhigh_(i)
@@ -100,7 +100,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                     obj.pxwithdrawmax_(i) = obj.pxhigh_(i) - (obj.pxhigh_(i)-obj.pxopen_(i))/2;
                     obj.doublecheck_(i) = 0;
                 elseif lasttrade <= obj.pxwithdrawmin_(i) && lasttrade > obj.pxwithdrawmax_(i)
-                    obj.pxopen_(i) = min(obj.pxopen_(i),lastrade);
+                    obj.pxopen_(i) = min(obj.pxopen_(i),lasttrade);
                     obj.doublecheck_(i) = 1;
                 elseif lasttrade < obj.pxhigh_(i) && lasttrade > obj.pxwithdrawmin_(i)
                     obj.doublecheck_(i) = 1;
@@ -114,7 +114,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
         if direction == -1
             if obj.doublecheck_(i) == 0 
                 if lasttrade >= obj.pxwithdrawmax_(i)
-                    obj.unwindposition(instruments{i});
+                    obj.unwindposition(instruments{i},0);
                     obj.doublecheck_(i) = 0;
                     return
                 elseif lasttrade <= obj.pxhigh_(i)
@@ -129,21 +129,21 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                     %may have a second trend in case withdrawmax is not
                     %breahed from the top.now we need to update the
                     %open price
-                    obj.pxopen_(i) = lastrade;
+                    obj.pxopen_(i) = lasttrade;
                     obj.doublecheck_(i) = 1;
                 end
             elseif obj.doublecheck_(i) == 1
                 if lasttrade >= obj.pxwithdrawmax_(i)
-                    obj.unwindposition(instruments{i});
+                    obj.unwindposition(instruments{i},0);
                     obj.doublecheck_(i) = 0;
-                    return
+                    returns
                 elseif lasttrade <= obj.pxhigh_(i)
                     obj.pxhigh_(i) = lasttrade;
                     obj.pxwithdrawmin_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/3;
                     obj.pxwithdrawmax_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/2;
                     obj.doublecheck_(i) = 0;
                 elseif lasttrade >= obj.pxwithdrawmin_(i) && lasttrade < obj.pxwithdrawmax_(i)
-                    obj.pxopen_(i) = max(obj.pxopen_(i),lastrade);
+                    obj.pxopen_(i) = max(obj.pxopen_(i),lasttrade);
                     obj.doublecheck_(i) = 1;
                 elseif lasttrade > obj.pxhigh_(i) && lasttrade < obj.pxwithdrawmin_(i)
                     obj.doublecheck_(i) = 1;
