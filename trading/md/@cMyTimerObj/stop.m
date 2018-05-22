@@ -1,5 +1,8 @@
 function stop(mytimerobj)
     mytimerobj.status_ = 'sleep';
-    stop(mytimerobj.timer_);
+    try
+        stop(mytimerobj.timer_);
+    catch
+    end
 end
 %end of stop
