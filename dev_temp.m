@@ -30,7 +30,7 @@ replay_speed = 60000;
 mde.timer_interval_ = 60/ replay_speed;
 %%
 clc;
-mde.replay_count_ = 1;
+mde.replay_count_ = 39015;
 mde.start
 %%
 ticks = mde.getlasttick(inst);
