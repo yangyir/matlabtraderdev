@@ -4,6 +4,12 @@ function [] = refresh(strategy)
             return
         end
     end
+    
+    if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
+        instrument = strategy.instruments_.getinstrument{1};
+        candle = strategy.mde_fut_.getlastcandle(instrument);
+        fprintf('time:%s; price:%s\n',datestr(candle{1}(1)),num2str(candle{1}(5)));
+    end
 
     try
         strategy.updategreeks;
