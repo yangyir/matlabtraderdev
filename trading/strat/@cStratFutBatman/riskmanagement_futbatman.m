@@ -137,7 +137,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                 if lasttrade >= obj.pxwithdrawmax_(i)
                     obj.unwindposition(instruments{i},0);
                     obj.doublecheck_(i) = 0;
-                    returns
+                    return
                 elseif lasttrade <= obj.pxhigh_(i)
                     obj.pxhigh_(i) = lasttrade;
                     obj.pxwithdrawmin_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/3;
