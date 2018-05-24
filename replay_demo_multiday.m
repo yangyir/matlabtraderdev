@@ -9,6 +9,12 @@ replay_tradingfreq = 15;    % use 15m candle sticks
 replay_strat.settradingfreq(instr,replay_tradingfreq);
 replay_autotrade = 1;   % use autotrade
 replay_strat.setautotradeflag(instr,replay_autotrade);
+replay_maxunits = 8;
+replay_strat.setmaxunits(instr,replay_maxunits);
+replay_maxexecutionperbucket = 2;
+replay_strat.setmaxexecutionperbucket(instr,replay_maxexecutionperbucket);
+replay_strat.setstoptype(instr,'abs');
+replay_strat.setlimittype(instr,'abs');
 
 %%
 replay_startdt = '2018-04-23';
