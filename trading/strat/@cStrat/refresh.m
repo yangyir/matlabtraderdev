@@ -6,15 +6,9 @@ function [] = refresh(strategy)
     end
     
     if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
-<<<<<<< HEAD
         instrument = strategy.instruments_.getinstrument{1};
         candle = strategy.mde_fut_.getlastcandle(instrument);
         fprintf('time:%s; price:%s\n',datestr(candle{1}(1)),num2str(candle{1}(5)));
-=======
-        instr = strategy.instruments_.getinstrument{1};
-        c = strategy.mde_fut_.getlastcandle(instr);
-        fprintf('time:%s; price:%s\n',datestr(c{1}(1)),num2str(c{1}(4)));
->>>>>>> c49191705c205d0cda0b8ecb6161bb96b63e9bba
     end
 
     try
