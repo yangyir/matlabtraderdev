@@ -1,67 +1,49 @@
-timeratio_replay = 5;
-counter_replay = CounterCTP.citic_kim_fut;
-trader_replay = cTrader;
-trader_replay.init('batman');
-book_replay = cBook;
-book_replay.init('bookrunning_batman',trader_replay.name_,counter_replay);
-trader_replay.addbook(book_replay);
-ops_replay = cOps;
-ops_replay.init('batman_ops',book_replay);
-ops_replay.timer_interval_ = 1/timeratio_replay;
-ops_replay.mode_ = 'replay';
-qms_replay = cQMS;
-qms_replay.setdatasource('local');
+replay_speed = 50;
+replay_strat = replay_setstrat('batman','replayspeed',replay_speed);
+%%
+code = 'rb1810';
+instrument = code2instrument(code);
+replay_strat.mde_fut_.registerinstrument(instrument);
+replay_strat.registerinstrument(instrument);
+%%
+fns = {'rb1810_20180522_tick.mat'};
+n = size(fns,1);
+replay_strat.mde_fut_.initreplayer('code',code,'fn',fns{1});
+%% start the trading (replay) process
+replay_strat.start;
+replay_strat.helper_.start;
+replay_strat.mde_fut_.start;
 
 %%
-mdefut_replay = cMDEFut;
-mdefut_replay.qms_ = qms_replay;
-mdefut_replay.initreplayer('code','rb1810','fn','rb1810_20180502_tick.mat');
-mdefut_replay.timer_interval_ = 0.5/timeratio_replay;
-mdefut_replay.registerinstrument('rb1810');
-%%
-stratbatman_replay = cStratFutBatman;
-stratbatman_replay.registerinstrument('rb1810');
-stratbatman_replay.mode_ = 'replay';
-stratbatman_replay.mde_fut_ = mdefut_replay;
-stratbatman_replay.trader_ = trader_replay;
-ops_replay.mdefut_ = mdefut_replay;
-stratbatman_replay.helper_ = ops_replay;
-stratbatman_replay.bookrunning_ = book_replay;
-stratbatman_replay.bookbase_ = book_replay;
-stratbatman_replay.counter_ = counter_replay;
-stratbatman_replay.timer_interval_ = 60/timeratio_replay;
-%%
-stratbatman_replay.setlimittype('rb1810','abs');
-stratbatman_replay.setstoptype('rb1810','abs');
-stratbatman_replay.setstopamount('rb1810',-inf);
-%%
-stratbatman_replay.helper_.start;
-%%
-stratbatman_replay.start;
-%%
-mdefut_replay.start;
-%%
-ticks = mdefut_replay.getlasttick('rb1810');
-fprintf('last tick time:%s:; trade:%s\n',datestr(ticks(1),'yyyy-mm-dd HH:MM:SS'),num2str(ticks(2)));
-%%
-stratbatman_replay.longopensingleinstrument('rb1810',100,[],'overrideprice',3640);
-%%
-stratbatman_replay.shortclosesingleinstrument('rb1810',99,1,[],'overrideprice',3650);
-%%
-stratbatman_replay.helper_.printpendingentrusts;
-%%
-stratbatman_replay.helper_.printallentrusts;
-%%
-stratbatman_replay.bookrunning_.printpositions;
-%%
-stratbatman_replay.helper_.printrunningpnl('MDEFut',mdefut_replay);
-%%
-mdefut_replay.replay_count_
-mdefut_replay.getlastcandle
+lots = 1;
+spreads = 0;
+px = 3600;
+pxstoploss = 3620;
+pxtarget = 3580;
+%sanity check
+if px >= pxstoploss, error('stoploss shall be above open price when to short the asset!');end
+if px <= pxtarget, error('target shall be below open price when to short the asset!');end
+%
+replay_strat.shortopensingleinstrument(code,lots,spreads,'overrideprice',px);
+replay_strat.setpxstoploss(code,pxstoploss);
+replay_strat.setpxtarget(code,pxtarget);
 
-%% stop everything
-mdefut_replay.stop;
-mdefut_replay.replay_count_ = 1;
-stratbatman_replay.helper_.stop
-stratbatman_replay.stop;
-delete(timerfindall)
+%%
+replay_strat.helper_.printrunningpnl('MDEFut',replay_strat.mde_fut_);
+fprintf('high:%s\n',num2str(replay_strat.getpxhigh(code)))
+fprintf('withdrawmin:%s\n',num2str(replay_strat.getpxwithdrawmin(code)))
+fprintf('withdrawmax:%s\n',num2str(replay_strat.getpxwithdrawmax(code)))
+%% print all entrusts
+replay_strat.helper_.printallentrusts;
+%% delete all in a safe way
+try
+    replay_strat.stop;
+    replay_strat.helper_.stop;
+    replay_strat.mde_fut_.stop;
+    delete(timerfindall);
+    clear all;
+catch
+    clear all;
+    fprintf('all deleted\n');
+end
+    
