@@ -17,8 +17,13 @@ function strat = init_stratmanual(varargin)
     p.parse(varargin{:});
     
     counter = p.Results.Counter;
+    if isempty(counter)
+        error('init_stratmanual:invalid or empty input of counter')
+    end
+    
     mdefut = p.Results.MDEFut;
     mdeopt = p.Results.MDEOpt;
+    
     instrument_list = p.Results.InstrumentList;
     if isempty(instrument_list)
         error('init_stratmanual:empty instrument list is not allowed!')
@@ -26,8 +31,9 @@ function strat = init_stratmanual(varargin)
     
     position_from = p.Results.PositionFrom;
     if ~(strcmpi(position_from,'counter') || strcmpi(position_from,'file'))
-        error('init_stratmanual:invalid input of positionfrom')
+        error('init_stratmanual:invalid input of positionfrom:either counter or file')
     end
+    
     file_name = p.Results.FileName;
     fut_list = p.Results.FutList;
     opt_und_list = p.Results.OptUndList;
@@ -47,9 +53,11 @@ function strat = init_stratmanual(varargin)
         end
         if isa(instrument,'cFutures')
             if isempty(mdefut), error('init_stratmanual:invalid input of mdefut'); end
+            strat.registerinstrument(instrument);
             mdefut.registerinstrument(instrument);
         elseif isa(instrument,'cOption')
             if isempty(mdeopt), error('init_stratmanual:invalid input of mdeopt'); end
+            strat.registerinstrument(instrument);
             mdeopt.registerinstrument(instrument);
         end
     end

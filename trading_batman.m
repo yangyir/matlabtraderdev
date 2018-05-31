@@ -15,7 +15,6 @@ for i = 1:size(codes,1)
 end
 
 %% start mdefut
-mdefut.timer_interval_ = 0.5;
 mdefut.start
 %%
 candles = mdefut.getlastcandle;
@@ -28,7 +27,7 @@ for i = 1:size(candles,1)
         datestr(candles{i}(1),'yy-mm-dd HH:MM'));
 end
 %%
-strat_batman.loadbookfromcounter('FutList','all');
+strat_batman.loadbookfromcounter('FutList',{'rb1810'});
 %print positions
 strat_batman.bookrunning_.printpositions;
 %%
@@ -53,7 +52,7 @@ sec_short_open = 'rb1810';
 lots_short_open = 1;
 spreads_short_open = 0;
 px = 3590;
-pxstoploss = 3610;
+pxstoploss = 3601;
 pxtarget = 3575;
 %sanity check
 if px >= pxstoploss, error('stoploss shall be above open price when to short the asset!');end
