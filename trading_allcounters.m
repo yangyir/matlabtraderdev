@@ -14,7 +14,6 @@ strat_huaxin = init_stratmanual('counter',c_opt2,'mdefut',mdefut,'instrumentlist
 %%
 mdefut.start;
 %%
-<<<<<<< HEAD
 % strat_citic.start;
 % strat_ccb.start;
 % strat_huaxin.start;
@@ -78,11 +77,6 @@ strat_citic.helper_.printpendingentrusts;
 strat_ccb.helper_.printpendingentrusts;
 strat_huaxin.helper_.printpendingentrusts;
 %%
-clc;
-strat_citic.helper_.printallentrusts;
-strat_ccb.helper_.printallentrusts;
-strat_huaxin.helper_.printallentrusts;
-=======
 if isempty(timerfindall)
     mdefut.start;
     strat_citic.helper_.start;
@@ -104,7 +98,6 @@ px = 95;
 volume = 1;
 strat_used.longopensingleinstrument (code, volume, closetoday, 0, 'overrideprice', px);
 
->>>>>>> 977a0e396579471d34cc82b0a229990717ce0080
 %%
 mdefut.stop
 strat_citic.helper_.stop;
@@ -115,11 +108,7 @@ strat_huaxin.helper_.stop;
 strat_huaxin.stop;
 delete(timerfindall);
 logoff_counters;
-<<<<<<< HEAD
 clear all;
 %%
-
 strat_citic.withdrawentrusts('TF1809')
-=======
 
->>>>>>> 977a0e396579471d34cc82b0a229990717ce0080

@@ -51,15 +51,9 @@ strat_batman.helper_.printrunningpnl('MDEFut',mdefut);
 sec_short_open = 'T1809';
 lots_short_open = 5;
 spreads_short_open = 0;
-<<<<<<< HEAD
-px = 3590;
-pxstoploss = 3601;
-pxtarget = 3575;
-=======
 px = 95.305;
 pxstoploss = 95.35;
 pxtarget = 95.2;
->>>>>>> 977a0e396579471d34cc82b0a229990717ce0080
 %sanity check
 if px >= pxstoploss, error('stoploss shall be above open price when to short the asset!');end
 if px <= pxtarget, error('target shall be below open price when to short the asset!');end
