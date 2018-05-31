@@ -55,10 +55,12 @@ function strat = init_stratmanual(varargin)
             if isempty(mdefut), error('init_stratmanual:invalid input of mdefut'); end
             strat.registerinstrument(instrument);
             mdefut.registerinstrument(instrument);
+            strat.registerinstrument(instrument);
         elseif isa(instrument,'cOption')
             if isempty(mdeopt), error('init_stratmanual:invalid input of mdeopt'); end
             strat.registerinstrument(instrument);
             mdeopt.registerinstrument(instrument);
+            strat.registerinstrument(instrument);
         end
     end
     

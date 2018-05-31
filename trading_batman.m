@@ -6,7 +6,7 @@ strat_batman = cStratFutBatman;
 strat_batman.registercounter(c_fut);
 strat_batman.mde_fut_ = mdefut;
 %%
-codes = {'rb1810'};
+codes = {'T1809'; 'ni1807'};
 secs = cell(size(codes));
 for i = 1:size(codes,1)
     secs{i} = code2instrument(codes{i});
@@ -35,25 +35,31 @@ strat_batman.start
 %% print positions and real-time running pnl
 strat_batman.helper_.printrunningpnl('MDEFut',mdefut);
 %% long open positions
-sec_long_open = 'rb1810';
-lots_long_open = 1;
-spreads_long_open = 0;
-px = 3573;
-pxstoploss = 3550;
-pxtarget = 3590;
-%sanity check
-if px <= pxstoploss, error('stoploss shall be below open price when to long the asset!');end
-if px >= pxtarget, error('target shall be above open price when to long the asset!');end
-%
-strat_batman.longopensingleinstrument(sec_long_open,lots_long_open,spreads_long_open,'overrideprice',px);
+% sec_long_open = 'rb1810';
+% lots_long_open = 1;
+% spreads_long_open = 0;
+% px = 3573;
+% pxstoploss = 3550;
+% pxtarget = 3590;
+% %sanity check
+% if px <= pxstoploss, error('stoploss shall be below open price when to long the asset!');end
+% if px >= pxtarget, error('target shall be above open price when to long the asset!');end
+% %
+% strat_batman.longopensingleinstrument(sec_long_open,lots_long_open,spreads_long_open,'overrideprice',px);
 
 %% short open positions
-sec_short_open = 'rb1810';
-lots_short_open = 1;
+sec_short_open = 'T1809';
+lots_short_open = 5;
 spreads_short_open = 0;
+<<<<<<< HEAD
 px = 3590;
 pxstoploss = 3601;
 pxtarget = 3575;
+=======
+px = 95.305;
+pxstoploss = 95.35;
+pxtarget = 95.2;
+>>>>>>> 977a0e396579471d34cc82b0a229990717ce0080
 %sanity check
 if px >= pxstoploss, error('stoploss shall be above open price when to short the asset!');end
 if px <= pxtarget, error('target shall be below open price when to short the asset!');end
@@ -63,7 +69,7 @@ strat_batman.setpxstoploss(sec_short_open,pxstoploss);
 strat_batman.setpxtarget(sec_short_open,pxtarget);
 
 %% withdraw pending entrusts
-strat_batman.withdrawentrusts('rb1810');
+strat_batman.withdrawentrusts('T1809');
 
 %% display pending entrusts
 strat_batman.helper_.printpendingentrusts;
@@ -78,3 +84,12 @@ strat_batman.stop
 mdefut.stop
 %% logoff counters
 c_fut.logout;
+
+
+
+
+
+
+
+
+
