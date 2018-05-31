@@ -23,6 +23,7 @@ function [] = registercounter(strategy,counter)
     ops.timer_interval_ = 1;
     strategy.helper_ = ops;
     strategy.helper_.start;
+    strategy.helper_.timer_.tag = 'ops';
     %
     
 end
