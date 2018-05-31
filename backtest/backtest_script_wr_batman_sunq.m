@@ -1,10 +1,10 @@
 fns = {'china_govtbond_generic_1st_1m.mat';...
     'shfe_nickel_generic_1st_1m';...
     'shfe_rebar_generic_1st_1m'};
-idx = 2;
-%%
-d = load(fns{idx});
-px_1m = d.px_1m;
+idx = 3;
+
+ d = load(fns{idx});
+ px_1m = d.px_1m;
 if idx == 1
     f = code2instrument('T1809');
 elseif idx == 2
@@ -17,7 +17,7 @@ end
 tick_size = f.tick_size;
 tick_value = f.tick_value;
 
-%%
+
 % backtest parameters
 freq_used = 5;
 nperiod = 144;
@@ -25,8 +25,9 @@ stoploss_ratio = 0.05;
 target_ratio = 0.2;
 use_sigma_shift_open = 0;
 no_sigma_shift = 1;
-%%
+
 px_used = timeseries_compress(px_1m,'Frequency',[num2str(freq_used),'m']);
+%time, open, high, low, close
 %open-up trades
 npx = size(px_used,1);
 %1st column is time
@@ -40,6 +41,7 @@ trades = zeros(npx-nperiod,6);
 ntrade = 0;
 for i = nperiod+1:npx
     pxCs = px_used(i-nperiod:i-1,5);
+    % 5 means close pice
     %note:we first calculate the standard deviation of the selected freq
     %close price
     sigma = std(pxCs(2:end)-pxCs(1:end-1));
@@ -56,7 +58,7 @@ for i = nperiod+1:npx
         %the previous high, we think we would open a trade with a short
         %direction at the price of pxH
         ntrade = ntrade + 1;
-        trades(ntrade,1) = px_used(i,1);
+        trades(ntrade,1) = px_used(i,1); 
         trades(ntrade,2) = -1;
         pxOpen = pxH + spd;
         trades(ntrade,3) = pxOpen;
@@ -80,7 +82,7 @@ for i = nperiod+1:npx
     end
 end
 trades = trades(1:ntrade,:);
-%%
+
 %for all the trades we summarize how each trade behave
 maxLoss = zeros(ntrade,1);
 maxProfit = zeros(ntrade,1);
@@ -89,7 +91,7 @@ holdPeriod = 72;
 %we take half of the period as the maximum length we hold the trade
 for i = 1:ntrade
     tradetime = trades(i,1);
-    idx = find(px_used(:,1) == tradetime);
+    idx = find(px_used(:,1) == tradetime); 
     idx_max = min(idx+holdPeriod-1,npx);
     if trades(i,2) == 1
         maxProfit(i,1) = max(px_used(idx:idx_max,3))-trades(i,3);
