@@ -15,18 +15,27 @@ strat_huaxin = init_stratmanual('counter',c_opt2,'mdefut',mdefut,'instrumentlist
 %%
 mdefut.start;
 %%
-strat_citic.helper_.start;
-strat_citic.start;
-strat_ccb.helper_.start;
-strat_ccb.start;
-strat_huaxin.helper_.start;
-strat_huaxin.start;
+if isempty(timerfindall)
+    mdefut.start;
+    strat_citic.helper_.start;
+    strat_ccb.helper_.start;
+    strat_huaxin.helper_.start;
+end
 %%
-strat_citic.helper_.printrunningpnl('mdefut',mdefut)
+strat_citic.helper_printrunningpnl('mdefut',mdefut);
+strat_ccb.helper_.printrunningpnl('mdefut',mdefut);
+strat_huaxin.helper_.printrunningpnl('mdefut',mdefut);
+
 %%
-strat_ccb.helper_.printrunningpnl('mdefut',mdefut)
-%%
-strat_huaxin.helper_.printrunningpnl('mdefut',mdefut)
+code = 'T1809';
+strat_used = strat_citic;
+direction = 1; % 1:long   -1:short
+offset = 1;% 1: open   -1 close
+closetoday = 0;
+px = 95;
+volume = 1;
+strat_used.longopensingleinstrument (code, volume, closetoday, 0, 'overrideprice', px);
+
 %%
 mdefut.stop
 strat_citic.helper_.stop;
@@ -38,3 +47,4 @@ strat_huaxin.stop;
 delete(timerfindall);
 %%
 logoff_counters;
+
