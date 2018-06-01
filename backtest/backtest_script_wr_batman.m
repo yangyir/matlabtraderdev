@@ -61,8 +61,8 @@ for i = nperiod+1:npx
         pxOpen = pxH + spd;
         trades(ntrade,3) = pxOpen;
         %stop-loss at 5% as of pxH-pxL and target at 20% as of pxH-pxL
-        trades(ntrade,4) = pxOpen + stoploss_ratio*(pxH-pxL);
-        trades(ntrade,5) = pxOpen - target_ratio*(pxH-pxL);
+        trades(ntrade,4) = pxOpen + round(stoploss_ratio*(pxH-pxL)/tick_size)*tick_size;
+        trades(ntrade,5) = pxOpen - round(target_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,6) = sigma;
     elseif pxL -spd >= px_used(i,4)
         %note:if the lowest of the current candle period is lower than the
@@ -74,8 +74,8 @@ for i = nperiod+1:npx
         pxOpen = pxL - spd;
         trades(ntrade,3) = pxL-spd;
         %stop-loss at 5% as of pxH-pxL and target at 20% as of pxH-pxL
-        trades(ntrade,4) = pxOpen - stoploss_ratio*(pxH-pxL);
-        trades(ntrade,5) = pxOpen + target_ratio*(pxH-pxL);
+        trades(ntrade,4) = pxOpen - round(stoploss_ratio*(pxH-pxL)/tick_size)*tick_size;
+        trades(ntrade,5) = pxOpen + round(target_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,6) = sigma;
     end
 end
@@ -126,5 +126,7 @@ elseif idx == 2
 elseif idx == 3
     title('rebar');
 end
+figure
+hist(profitLoss/tick_size*tick_value*num_of_contract,50);
 
 
