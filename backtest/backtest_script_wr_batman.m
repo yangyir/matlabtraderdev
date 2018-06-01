@@ -1,15 +1,15 @@
 fns = {'china_govtbond_generic_1st_1m.mat';...
     'shfe_nickel_generic_1st_1m';...
     'shfe_rebar_generic_1st_1m'};
-idx = 2;
+idxused = 2;
 %%
-d = load(fns{idx});
+d = load(fns{idxused});
 px_1m = d.px_1m;
-if idx == 1
+if idxused == 1
     f = code2instrument('T1809');
-elseif idx == 2
+elseif idxused == 2
     f = code2instrument('ni1807');
-elseif idx == 3
+elseif idxused == 3
     f = code2instrument('rb1810');
 else
     error('invalid idx input');
@@ -21,8 +21,8 @@ tick_value = f.tick_value;
 % backtest parameters
 freq_used = 5;
 nperiod = 144;
-stoploss_ratio = 0.05;
-target_ratio = 0.2;
+stoploss_ratio = 0.1;
+target_ratio = 0.5;
 use_sigma_shift_open = 0;
 no_sigma_shift = 1;
 %%
@@ -119,11 +119,11 @@ pWin = sum(profitLoss>0)/size(profitLoss,1);
 fprintf('total pnl:%s, prob to win:%4.1f%%;number of trades:%d\n',...
     num2str(pnl),pWin*100,ntrade);
 plot(cumsum(profitLoss)/tick_size*tick_value*num_of_contract);
-if idx == 1
+if idxused == 1
     title('10y govt bond');
-elseif idx == 2
+elseif idxused == 2
     title('nickel');
-elseif idx == 3
+elseif idxused == 3
     title('rebar');
 end
 figure
