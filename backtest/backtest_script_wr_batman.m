@@ -1,7 +1,12 @@
-fns = {'china_govtbond_generic_1st_1m.mat';...
-    'shfe_nickel_generic_1st_1m';...
-    'shfe_rebar_generic_1st_1m'};
-idxused = 2;
+dir_ = getenv('HOME');
+dir_data_ = [dir_,'\backtest\data\'];
+info = dir(dir_data_);
+fns = cell(size(info,1),1);
+for i = 1:size(info,1),fns{i} = info(i).name;end
+% fns = {'china_govtbond_generic_1st_1m.mat';...
+%     'shfe_nickel_generic_1st_1m';...
+%     'shfe_rebar_generic_1st_1m'};
+idxused = 3;
 %%
 d = load(fns{idxused});
 px_1m = d.px_1m;
