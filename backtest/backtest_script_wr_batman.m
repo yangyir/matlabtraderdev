@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 dir_ = getenv('HOME');
 dir_data_ = [dir_,'\backtest\data\'];
 info = dir(dir_data_);
@@ -6,6 +7,11 @@ for i = 1:size(info,1),fns{i} = info(i).name;end
 % fns = {'china_govtbond_generic_1st_1m.mat';...
 %     'shfe_nickel_generic_1st_1m';...
 %     'shfe_rebar_generic_1st_1m'};
+=======
+fns = {'china_govtbond_generic_1st_1m.mat';...
+    'shfe_nickel_generic_1st_1m';...
+    'shfe_rebar_generic_1st_1m'};
+>>>>>>> d4fcb3195e8665f3be7039d4c72b9bfad7fbbd00
 idxused = 3;
 %%
 d = load(fns{idxused});
@@ -24,13 +30,14 @@ tick_value = f.tick_value;
 
 %%
 % backtest parameters
-freq_used = 5;
+freq_used = 3;
 nperiod = 144;
-stoploss_ratio = 0.1;
-target_ratio = 0.5;
+stoploss_ratio = 0.02;
+target_ratio = 0.1;
 use_sigma_shift_open = 0;
 no_sigma_shift = 1;
-%%
+%
+%
 px_used = timeseries_compress(px_1m,'Frequency',[num2str(freq_used),'m']);
 %open-up trades
 npx = size(px_used,1);
@@ -85,7 +92,8 @@ for i = nperiod+1:npx
     end
 end
 trades = trades(1:ntrade,:);
-%%
+%
+%
 %for all the trades we summarize how each trade behave
 maxLoss = zeros(ntrade,1);
 maxProfit = zeros(ntrade,1);
@@ -97,22 +105,42 @@ for i = 1:ntrade
     idx = find(px_used(:,1) == tradetime);
     idx_max = min(idx+holdPeriod-1,npx);
     if trades(i,2) == 1
-        maxProfit(i,1) = max(px_used(idx:idx_max,3))-trades(i,3);
-        maxProfit(i,1) = min(maxProfit(i,1),trades(i,5) - trades(i,3));
-        maxLoss(i,1) = min(px_used(idx:idx_max,4))-trades(i,3);
-        maxLoss(i,1) = max(maxLoss(i,1),trades(i,4)-trades(i,3));
+%         maxProfit(i,1) = max(px_used(idx:idx_max,3))-trades(i,3);
+        maxProfit(i,1) = trades(i,5) - trades(i,3);
+%         maxLoss(i,1) = min(px_used(idx:idx_max,4))-trades(i,3);
+        maxLoss(i,1) = trades(i,4)-trades(i,3);
     elseif trades(i,2) == -1
-        maxProfit(i,1) = -min(px_used(idx:idx_max,4))+trades(i,3);
-        maxProfit(i,1) = min(maxProfit(i,1),-trades(i,5) + trades(i,3));
-        maxLoss(i,1) = -max(px_used(idx:idx_max,3))+trades(i,3);
-        maxLoss(i,1) = max(maxLoss(i,1),-trades(i,4)+trades(i,3));
+%         maxProfit(i,1) = -min(px_used(idx:idx_max,4))+trades(i,3);
+        maxProfit(i,1) = -trades(i,5) + trades(i,3);
+%         maxLoss(i,1) = -max(px_used(idx:idx_max,3))+trades(i,3);
+        maxLoss(i,1) = -trades(i,4)+trades(i,3);
     end
-    profitLoss(i,1) = trades(i,2)*(px_used(idx_max,5)-trades(i,3));
-    if profitLoss(i,1) >= maxProfit(i,1)
-        profitLoss(i,1) = maxProfit(i,1);
-    elseif profitLoss(i,1) < maxLoss(i,1)
-        profitLoss(i,1) = maxLoss(i,1);
-    end       
+    
+    for j = idx:idx_max
+        if trades(i,2) == 1
+            max_profit = trades(i,2)*(px_used(j,3)-trades(i,3));
+            max_loss = trades(i,2)*(px_used(j,4)-trades(i,3));
+        elseif trades(i,2) == -1
+            max_profit = trades(i,2)*(px_used(j,4)-trades(i,3));
+            max_loss = trades(i,2)*(px_used(j,3)-trades(i,3));
+        end
+        if max_profit >= maxProfit(i,1)
+            profitLoss(i,1) = maxProfit(i,1);
+            break;
+        elseif max_loss <= maxLoss(i,1)
+            profitLoss(i,1) = maxLoss(i,1);
+            break;
+        else
+            profitLoss(i,1) = trades(i,2)*(px_used(j,5)-trades(i,3));
+        end
+        
+    end
+%     profitLoss(i,1) = trades(i,2)*(px_used(idx_max,5)-trades(i,3));
+%     if profitLoss(i,1) >= maxProfit(i,1)
+%         profitLoss(i,1) = maxProfit(i,1);
+%     elseif profitLoss(i,1) < maxLoss(i,1)
+%         profitLoss(i,1) = maxLoss(i,1);
+%     end       
     
 end
 
@@ -121,8 +149,10 @@ num_of_contract = 10;
 pnl = sum(profitLoss)/tick_size*tick_value*num_of_contract;
 pWin = sum(profitLoss>0)/size(profitLoss,1);
 
+close all;
 fprintf('total pnl:%s, prob to win:%4.1f%%;number of trades:%d\n',...
     num2str(pnl),pWin*100,ntrade);
+figure(1)
 plot(cumsum(profitLoss)/tick_size*tick_value*num_of_contract);
 if idxused == 1
     title('10y govt bond');
@@ -131,7 +161,7 @@ elseif idxused == 2
 elseif idxused == 3
     title('rebar');
 end
-figure
-hist(profitLoss/tick_size*tick_value*num_of_contract,50);
+% figure(2)
+% hist(profitLoss/tick_size*tick_value*num_of_contract,50);
 
 

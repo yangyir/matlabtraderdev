@@ -22,13 +22,13 @@ strat_huaxin.helper_.printrunningpnl('mdefut',mdefut)
 %% print market
 clc;mdefut.printmarket;
 %% ÏÂµ¥
-counter_name = 'c_opt1';
-ctp_code = 'ni1807';
+counter_name = 'c_opt2';
+ctp_code = 'T1809';
 direction = 'long';
 offset = 'open';
-closetoday = 1;
+closetoday = 0;
 volume = 1;
-px = 116000;
+px = 94.580;
 
 if px < 0 && px ~= -1, error('invalid price input'); end
 
@@ -97,6 +97,6 @@ delete(timerfindall);
 logoff_counters;
 clear all;
 %%
-strat_ccb.withdrawentrusts('ni1807')
-strat_huaxin.withdrawentrusts('ni1807')
+strat_citic.withdrawentrusts('T1809')
+strat_huaxin.withdrawentrusts('T1809')
 
