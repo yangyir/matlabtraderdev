@@ -63,6 +63,6 @@ writetable(report_table,[dirname,filename],'Sheet',1,'Range','A1');
 %%
 %send email
 to = '179024809@qq.com';
-subject = 'market volume report 20180601';
+subject = ['market volume report ',datestr(getlastbusinessdate,'yyyymmdd')];
 body = 'hi,please check the report as attached!';
 sendolmail(to,subject,body,{[dirname,filename]});
