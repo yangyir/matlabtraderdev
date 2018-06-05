@@ -3,7 +3,8 @@ classdef cTradeOpen < handle
     properties
         id_
         countername_@char
-        ctpcode_@char
+        bookname_@char
+        code_@char
         instrument_@cInstrument
         opendatetime1_@double
         opendatetime2_@char

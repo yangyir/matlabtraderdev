@@ -5,7 +5,8 @@ p.KeepUnmatched = true;
 p.addParameter('ID',{},...
         @(x) validateattributes(x,{'char','numeric'},{},'','ID'));
 p.addParameter('CounterName','',@ischar);
-p.addParameter('CTPCode','',@ischar);
+p.addParameter('BookName','',@ischar);
+p.addParameter('Code','',@ischar);
 p.addParameter('OpenTime',[],@isnumeric);
 p.addParameter('OpenDirection',[],@isnumeric);
 p.addParameter('OpenPrice',[],@isnumeric);
@@ -16,9 +17,10 @@ p.addParameter('RiskManagementMethod','standard',@ischar);
 p.parse(varargin{:});
 obj.id_ = p.Results.ID;
 obj.countername_ = p.Results.CounterName;
-obj.ctpcode_ = p.Results.CTPCode;
-if ~isempty(obj.ctpcode_)
-    instrument = code2instrument(obj.ctpcode_);
+obj.bookname_ = p.Results.BookName;
+obj.code_ = p.Results.Code;
+if ~isempty(obj.code_)
+    instrument = code2instrument(obj.code_);
     obj.instrument_ = instrument;
 end
 obj.opendatetime1_ = p.Results.OpenTime;
@@ -37,7 +39,7 @@ obj.riskmanagementmethod_ = p.Results.RiskManagementMethod;
 obj.status_ = 'unset';
 
 batman = cBatman;
-batman.code_ = obj.ctpcode_;
+batman.code_ = obj.code_;
 batman.direction_ = obj.opendirection_;
 batman.pxopen_ = obj.openprice_;
 batman.pxopenreal_ = obj.openprice_;
