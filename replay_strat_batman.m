@@ -16,6 +16,7 @@ replay_strat.start;
 replay_strat.helper_.start;
 replay_strat.mde_fut_.start;
 
+
 %% short open positions
 lots_short_open = 1;
 spreads_short_open = 0;
@@ -44,6 +45,7 @@ try
     replay_strat.helper_.stop;
     replay_strat.mde_fut_.stop;
     delete(timerfindall);
+    clear all;
 catch
     clear all;
     fprintf('all deleted\n');

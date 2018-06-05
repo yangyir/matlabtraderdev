@@ -5,6 +5,7 @@ replay_qms = cQMS;replay_qms.setdatasource('local');
 replay_mdefut = cMDEFut;
 replay_mdefut.qms_ = replay_qms;
 replay_mdefut.display_ = 1;
+replay_mdefut.mode_ = 'replay';
 % define a replay trader
 replay_trader = cTrader;
 replay_trader.init('replay_trader');

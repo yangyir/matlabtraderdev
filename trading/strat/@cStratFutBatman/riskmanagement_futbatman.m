@@ -14,6 +14,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
         if ~isinstrumenttraded, continue; end
         
         pos = obj.bookrunning_.positions_{idx};
+        if pos.position_total_ == 0, return; end
         direction = pos.direction_;
         
         %if it is traded but pxopen_ is not set, we automatically set the
@@ -53,7 +54,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                    obj.pxhigh_(i) = lasttrade;
                    obj.pxwithdrawmin_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/3;
                    obj.pxwithdrawmax_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/2;
-               elseif lasttrade > obj.pxtarget_(i)
+               elseif lasttrade > obj.pxtarget_(i) && lasttrade < obj.pxstoploss_(i)
                    %do nothing and wait for the next trade price
                elseif lasttrade >= obj.pxstoploss_(i)
                    obj.unwindposition(instruments{i},0);
@@ -136,7 +137,7 @@ function [] = riskmanagement_futbatman(obj,dtnum)
                 if lasttrade >= obj.pxwithdrawmax_(i)
                     obj.unwindposition(instruments{i},0);
                     obj.doublecheck_(i) = 0;
-                    returns
+                    return
                 elseif lasttrade <= obj.pxhigh_(i)
                     obj.pxhigh_(i) = lasttrade;
                     obj.pxwithdrawmin_(i) = obj.pxhigh_(i) + (obj.pxopen_(i)-obj.pxhigh_(i))/3;

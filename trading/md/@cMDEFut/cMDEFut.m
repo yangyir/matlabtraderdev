@@ -102,6 +102,8 @@ classdef cMDEFut < cMyTimerObj
         [] = refresh(obj)
         
         [] = savecandles2file(obj,dtnum)
+        
+        [] = printmarket(obj)
     end
     
     methods (Static = true)

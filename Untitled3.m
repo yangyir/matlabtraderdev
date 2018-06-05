@@ -6,7 +6,11 @@ strat = cStratManual;
 strat.registercounter(c_opt1);
 strat.mde_fut_ = mdefut;
 %%
+<<<<<<< HEAD
 codes = {'ni1807';'rb1810';'TF1806';'T1806';'cu1807';'zn1807'};
+=======
+codes = {'ni1807';'rb1810';'TF1809';'T1809';'zn1807';'cu1807';'al1807';'pb1807';'i1809'};
+>>>>>>> a21e801ae026a9b9c1e2ea573cb60201e0d49998
 secs = cell(size(codes));
 for i = 1:size(codes,1)
     secs{i} = cFutures(codes{i});secs{i}.loadinfo([codes{i},'_info.txt']);

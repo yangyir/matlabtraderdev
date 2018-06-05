@@ -1,7 +1,7 @@
 function [] = printallentrusts(obj)
 n = obj.entrusts_.latest;
 
-fprintf('all entrusts:\n')
+fprintf([obj.book_.bookname_,'->all entrusts:\n'])
 if n == 0
     fprintf('\tnone!\n');
     return

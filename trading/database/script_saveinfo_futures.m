@@ -78,3 +78,14 @@ for i = 1:size(arg_codes_ctp)
         '_info.txt']);
 end
 fprintf('done for agriculture futures......\n');
+%%
+% crude oil
+crudeoil_codes_ctp = {'sc1809';'sc1810';'sc1811';'sc1812';...
+    'sc1901';'sc1902';'sc1903';'sc1904';'sc1905';'sc1906'};
+for i = 1:size(crudeoil_codes_ctp)
+    f = cFutures(crudeoil_codes_ctp{i});
+    f.init(conn);
+    f.saveinfo([dir_,crudeoil_codes_ctp{i},...
+        '_info.txt']);
+end
+fprintf('done for crude oil futures......\n');

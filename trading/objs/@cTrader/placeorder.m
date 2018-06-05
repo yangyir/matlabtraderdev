@@ -68,9 +68,9 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     if ret
         e.date = floor(ordertime);
         e.time = ordertime;
-        fprintf('%s placed entrust: %d, code: %s, direct: %d, offset: %d, price: %4.2f, amount: %d\n',...
+        fprintf('%s placed entrust: %d, code: %s, direct: %d, offset: %d, price: %s, amount: %d\n',...
             datestr(entrust.time,'yyyy-mm-dd HH:MM:SS'),...
-            entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,entrust.price,entrust.volume);
+            entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
         ops.entrusts_.push(entrust);
         ops.entrustspending_.push(entrust);
     end

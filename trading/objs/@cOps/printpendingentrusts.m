@@ -1,6 +1,6 @@
 function [] = printpendingentrusts(obj)
 n = obj.entrustspending_.latest;
-fprintf('unsettled entrusts:\n')
+fprintf([obj.book_.bookname_,'->unsettled entrusts:\n'])
 if n == 0
     fprintf('\tnone!\n');
     return

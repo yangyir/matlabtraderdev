@@ -95,8 +95,6 @@ classdef cStratFutBatman < cStrat
         val = getpxwithdrawmin(obj,instrument)
         val = getpxwithdrawmax(obj,instrument)
         
-        
-        [] = resetcostcarry(obj,varargin)
     end
     
     methods (Access = private)
