@@ -5,7 +5,8 @@ login_counter_opt2;
 %%
 init_mde;
 %%
-instrument_list = {'cu1807';'al1807';'zn1807';'pb1807';'ni1807';'cu1808';...
+instrument_list = {'cu1807';'al1807';'zn1808';'pb1808';'ni1807';'cu1808';...
+    'al1808';'ni1809';...
     'rb1810';'i1809';...
     'TF1809';'T1809'};
 %%
@@ -22,13 +23,13 @@ strat_huaxin.helper_.printrunningpnl('mdefut',mdefut)
 %% print market
 clc;mdefut.printmarket;
 %% ÏÂµ¥
-counter_name = 'c_opt2';
+counter_name = 'c_opt1';
 ctp_code = 'T1809';
 direction = 'long';
 offset = 'open';
-closetoday = 0;
+closetoday = 1;
 volume = 1;
-px = 94.580;
+px = 94.495;
 
 if px < 0 && px ~= -1, error('invalid price input'); end
 
