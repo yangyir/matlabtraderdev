@@ -1,7 +1,9 @@
 function obj = init(obj,varargin)
 p = inputParser;
-p.CaseSensitive = fasle;
+p.CaseSensitive = false;
 p.KeepUnmatched = true;
+p.addParameter('ID',{},...
+        @(x) validateattributes(x,{'char','numeric'},{},'','ID'));
 p.addParameter('CounterName','',@ischar);
 p.addParameter('CTPCode','',@ischar);
 p.addParameter('OpenTime',[],@isnumeric);
@@ -11,6 +13,7 @@ p.addParameter('TargetPrice',[],@isnumeric);
 p.addParameter('StoplossPrice',[],@isnumeric);
 p.addParameter('RiskManagementMethod','standard',@ischar);
 p.parse(varargin{:});
+obj.id_ = p.Results.ID;
 obj.countername_ = p.Results.CounterName;
 obj.ctpcode_ = p.Results.CTPCode;
 if ~isempty(obj.ctpcode_)
@@ -26,7 +29,7 @@ obj.openprice_ = p.Results.OpenPrice;
 obj.targetprice_= p.Results.TargetPrice;
 obj.stoplossprice_ = p.Results.StoplossPrice;
 obj.riskmanagementmethod_ = p.Results.RiskManagementMethod;
-obj.status_ = 'open';
+obj.status_ = 'unset';
 
 end
 
