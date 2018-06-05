@@ -12,9 +12,12 @@ function [] = update(obj,varargin)
     mdefut = p.Results.MDEFut;
     
     tick = mdefut.getlasttick(obj.instrument_);
-    datetime = tick(1);
-    bid = tick(2);
-    ask = tick(3);
+    ticktime = tick(1);
+    
+    
+    
+    tickbid = tick(2);
+    tickask = tick(3);
     if strcmpi(obj.riskmanagementmethod_,'standard')
         if isempty(obj.targetprice_) && isempty(obj.stoplossprice_)
             return

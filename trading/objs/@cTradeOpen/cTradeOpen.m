@@ -19,7 +19,9 @@ classdef cTradeOpen < handle
         runningpnl_@double
         closepnl_@double
         status_@char
+        %
         riskmanagementmethod_@char
+        batman_@cBatman
     end
     
     methods
@@ -28,7 +30,7 @@ classdef cTradeOpen < handle
         end
         
         function set.status_(obj,status)
-            if ~(strcmpi(status,'unset') || strcmpi(status,'open') ||...
+            if ~(strcmpi(status,'unset') || strcmpi(status,'set') ||...
                     strcmpi(status,'closed'))
                 error('cTradeOpen:invalid status')
             end
@@ -43,8 +45,7 @@ classdef cTradeOpen < handle
     end
     
     methods (Static = true)
-        function [logical_ret] = is_same_asset(entrust_a, entrust_b)
-        end
+
     end
     
 end
