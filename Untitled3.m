@@ -6,7 +6,7 @@ strat = cStratManual;
 strat.registercounter(c_opt1);
 strat.mde_fut_ = mdefut;
 %%
-codes = {'ni1807';'rb1810';'TF1806';'T1806'};
+codes = {'ni1807';'rb1810';'TF1806';'T1806';'cu1807';'zn1807'};
 secs = cell(size(codes));
 for i = 1:size(codes,1)
     secs{i} = cFutures(codes{i});secs{i}.loadinfo([codes{i},'_info.txt']);
@@ -37,10 +37,11 @@ for i = 1:size(candles,1)
 end
 
 %% long open positions
-sec_long_open = 'T1806';
+sec_long_open = 'cu1807';
 lots_long_open = 1;
 spreads_long_open = 5;
-strat.longopensingleinstrument(sec_long_open,lots_long_open,spreads_long_open);
+px = 50880;
+strat.longopensingleinstrument(sec_long_open,lots_long_open,spreads_long_open,'overrideprice',px);
 
 %% short close positions
 sec_short_close = 'ni1807';
@@ -50,10 +51,11 @@ spreads_short_close = 1;
 strat.shortclosesingleinstrument(sec_short_close,lots_short_close,closetoday,spreads_short_close);
 
 %% short open positions
-sec_short_open = 'rb1810';
+sec_short_open = 'ni1807';
 lots_short_open = 1;
 spreads_short_open = 8;
-strat.shortopensingleinstrument(sec_short_open,lots_short_open,spreads_short_open);
+px = 109000;
+strat.shortopensingleinstrument(sec_short_open,lots_short_open,spreads_short_open,'overrideprice',px);
 
 %% withdraw pending entrusts
 strat.withdrawentrusts('ni1807');
