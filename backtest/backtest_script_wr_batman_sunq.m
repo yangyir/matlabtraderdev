@@ -21,14 +21,13 @@ tick_value = f.tick_value;
 
 %%
 % backtest parameters
-freq_used = 15;
+freq_used = 5;
 nperiod = 144;
 stoploss_ratio = 0.02;
 target_ratio = 0.2;
 use_sigma_shift_open = 0;
 no_sigma_shift = 1;
-%
-%
+%%
 px_used = timeseries_compress(px_1m,'Frequency',[num2str(freq_used),'m']);
 %open-up trades
 npx = size(px_used,1);
@@ -83,8 +82,7 @@ for i = nperiod+1:npx
     end
 end
 trades = trades(1:ntrade,:);
-%
-%
+%%
 profitLoss = zeros(ntrade,1);
 holdPeriod = 72;
 bw_max = 1/2;
