@@ -81,7 +81,7 @@ function [] = update_from_candle(obj,candle)
                 %open price
                 obj.checkflag_ = 3;
             end
-        elseif obj.checkflag_ == 3 && obj.direction == 1
+        elseif obj.checkflag_ == 3 && obj.direction_ == 1
             if candle_low <= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
