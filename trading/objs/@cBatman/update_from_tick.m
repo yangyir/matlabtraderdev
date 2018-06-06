@@ -105,7 +105,7 @@ function [] = update_from_tick(obj,tick)
             elseif tick_ask <= obj.pxresistence_
                 obj.pxresistence_ = tick_ask;
                 obj.pxsupportmin_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmin_;
-                obj.pxsupportmax_ = obj.pxresistence_ - (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmax_;
+                obj.pxsupportmax_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmax_;
                 obj.checkflag_ = 2;
             elseif tick_ask > obj.pxresistence_ && tick_ask < obj.pxsupportmin_
                 obj.checkflag_ = 3;
