@@ -38,6 +38,15 @@ classdef cTradeOpen < handle
             obj.status_ = status;
         end
         
+       function set.riskmanagementmethod_(obj,method)
+            if strcmpi(method,'standard') || ...
+                    strcmpi(method,'batman')
+                obj.riskmanagementmethod_ = method;
+            else
+                error('cTradeOpen:invalid risk management method')
+            end
+        end
+        
         [] = update(obj,varargin)
     end
     
