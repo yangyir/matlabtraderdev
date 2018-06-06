@@ -15,6 +15,7 @@ elseif idx == 3
     f = code2instrument('rb1810');
 else
     error('invalid idx input');
+    
 end
 tick_size = f.tick_size;
 tick_value = f.tick_value;
@@ -34,6 +35,7 @@ npx = size(px_used,1);
 %1st column is time
 %2nd column is direction 
 %3rd column is price open
+
 %4th column is price stoploss
 %5th column is price target
 %6th column is price volatility
