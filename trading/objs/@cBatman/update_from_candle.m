@@ -35,6 +35,7 @@ function [] = update_from_candle(obj,candle)
                 obj.pxsupportmax_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmax_;
                 obj.checkflag_ = 2;
             elseif candle_close > obj.pxtarget_ && candle_close < obj.pxstoploss_
+                obj.status_ = 'unset';
                 obj.checkflag_ = 1;
             elseif candle_high >= obj.pxstoploss_
                 obj.status_ = 'closed';
@@ -47,7 +48,7 @@ function [] = update_from_candle(obj,candle)
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
             elseif candle_close >= obj.pxresistence_
-                obj.pxresistence_ = tick_bid;
+                obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ - (obj.pxresistence_-obj.pxopen_)*obj.bandwidthmin_;
                 obj.pxsupportmax_ = obj.pxresistence_ - (obj.pxresistence_-obj.pxopen_)*obj.bandwidthmax_;
                 obj.checkflag_ = 2;
@@ -106,7 +107,7 @@ function [] = update_from_candle(obj,candle)
             elseif candle_close <= obj.pxresistence_
                 obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmin_;
-                obj.pxsupportmax_ = obj.pxresistence_ - (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmax_;
+                obj.pxsupportmax_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmax_;
                 obj.checkflag_ = 2;
             elseif candle_close > obj.pxresistence_ && candle_close < obj.pxsupportmin_
                 obj.checkflag_ = 3;
