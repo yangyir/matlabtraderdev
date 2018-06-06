@@ -33,6 +33,7 @@ function [] = update_from_tick(obj,tick)
                 obj.pxsupportmax_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmax_;
                 obj.checkflag_ = 2;
             elseif tick_ask > obj.pxtarget_ && tick_ask < obj.pxstoploss_
+                obj.status_ = 'set';
                 obj.checkflag_ = 1;
             elseif tick_ask >= obj.pxstoploss_
                 obj.status_ = 'closed';
