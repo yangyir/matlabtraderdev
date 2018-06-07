@@ -16,6 +16,13 @@ function [] = update_from_candle(obj,candle)
     %2.check whether Batman is set
     if strcmpi(obj.status_,'unset')
         if obj.direction_ == 1
+            if candle_low <= obj.pxstoploss_
+                obj.status_ = 'closed';
+                obj.checkflag_ = 0;
+                obj.pnlclosed_ = obj.direction_*obj.volume_*(obj.pxstoploss_-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
+                obj.pnlrunning_ = 0;
+                return
+            end
             if candle_close >= obj.pxtarget_
                 obj.status_ = 'set';
                 obj.pxresistence_ = candle_close;
@@ -29,14 +36,16 @@ function [] = update_from_candle(obj,candle)
                 obj.checkflag_ = 1;
                 obj.pnlrunning_ = obj.direction_*obj.volume_*(candle_close-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlclosed_ = 0;
-            elseif candle_low <= obj.pxstoploss_
+            end
+        elseif obj.direction_ == -1
+            if candle_high >= obj.pxstoploss_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(obj.pxstoploss_-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
                 return
             end
-        elseif obj.direction_ == -1
+            
             if candle_close <= obj.pxtarget_
                 obj.status_ = 'set';
                 obj.pxresistence_ = candle_close;
@@ -50,12 +59,6 @@ function [] = update_from_candle(obj,candle)
                 obj.checkflag_ = 1;
                 obj.pnlrunning_ = obj.direction_*obj.volume_*(candle_close-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlclosed_ = 0;
-            elseif candle_high >= obj.pxstoploss_
-                obj.status_ = 'closed';
-                obj.checkflag_ = 0;
-                obj.pnlclosed_ = obj.direction_*obj.volume_*(obj.pxstoploss_-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
-                obj.pnlrunning_ = 0;
-                return
             end
         end
     elseif strcmpi(obj.status_,'set')
@@ -66,12 +69,14 @@ function [] = update_from_candle(obj,candle)
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(obj.pxstoploss_-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
                 return
-            elseif candle_close <= obj.pxsupportmax_
+            end
+            
+            if candle_close <= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(candle_close-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
-                return
+%                 return
             elseif candle_close >= obj.pxresistence_
                 obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ - (obj.pxresistence_-obj.pxopen_)*obj.bandwidthmin_;
@@ -100,12 +105,14 @@ function [] = update_from_candle(obj,candle)
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(obj.pxstoploss_-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
                 return
-            elseif candle_close >= obj.pxsupportmax_
+            end
+            
+            if candle_close >= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(candle_close-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
-                return
+%                 return
             elseif candle_close <= obj.pxresistence_
                 obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmin_;
@@ -134,12 +141,14 @@ function [] = update_from_candle(obj,candle)
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(obj.pxstoploss_-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
                 return
-            elseif candle_close <= obj.pxsupportmax_
+            end
+            %
+            if candle_close <= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(candle_close-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
-                return
+%                 return
             elseif candle_close >= obj.pxresistence_
                 obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ - (obj.pxresistence_-obj.pxopen_)*obj.bandwidthmin_;
@@ -168,12 +177,14 @@ function [] = update_from_candle(obj,candle)
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(obj.pxstoploss_-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
                 return
-            elseif candle_close >= obj.pxsupportmax_
+            end
+            %
+            if candle_close >= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(candle_close-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
                 obj.pnlrunning_ = 0;
-                return
+%                 return
             elseif candle_close <= obj.pxresistence_
                 obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmin_;
