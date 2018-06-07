@@ -79,7 +79,7 @@ function [] = update_from_tick(obj,tick)
                 %open price
                 obj.checkflag_ = 3;
             end
-        elseif obj.checkflag_ == 3 && obj.direction == 1
+        elseif obj.checkflag_ == 3 && obj.direction_ == 1
             if tick_bid <= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
@@ -98,7 +98,7 @@ function [] = update_from_tick(obj,tick)
                 obj.pxopen_ = min(obj.pxopen_,tick_ask);
                 obj.checkflag_ = 3;
             end
-        elseif obj.checkflag_ == 3 && obj.direction == -1
+        elseif obj.checkflag_ == 3 && obj.direction_ == -1
             if tick_ask >= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;

@@ -100,7 +100,7 @@ function [] = update_from_candle(obj,candle)
                 obj.pxopen_ = min(obj.pxopen_,candle_close);
                 obj.checkflag_ = 3;
             end
-        elseif obj.checkflag_ == 3 && obj.direction == -1
+        elseif obj.checkflag_ == 3 && obj.direction_ == -1
             if candle_high >= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
