@@ -171,7 +171,7 @@ function [] = update_from_candle(obj,candle)
                 obj.pnlclosed_ = 0;
             end
         elseif obj.checkflag_ == 3 && obj.direction_ == -1
-            if candle_high >= obj.stoploss__
+            if candle_high >= obj.pxstoploss_  %updated by sunq
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
                 obj.pnlclosed_ = obj.direction_*obj.volume_*(obj.pxstoploss_-obj.pxopenreal_)/ obj.instrument_.tick_size * obj.instrument_.tick_value;
