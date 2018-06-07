@@ -9,6 +9,7 @@ p.addParameter('BookName','',@ischar);
 p.addParameter('Code','',@ischar);
 p.addParameter('OpenTime',[],@isnumeric);
 p.addParameter('OpenDirection',[],@isnumeric);
+p.addParameter('OpenVolume',1,@isnumeric);
 p.addParameter('OpenPrice',[],@isnumeric);
 p.addParameter('TargetPrice',[],@isnumeric);
 p.addParameter('StoplossPrice',[],@isnumeric);
@@ -28,6 +29,7 @@ if ~isempty(obj.opendatetime1_)
     obj.opendatetime2_ = datestr(obj.opendatetime1_,'yyyy-mm-dd HH:MM:SS');
 end
 obj.opendirection_ = p.Results.OpenDirection;
+obj.openvolume_ = p.Results.OpenVolume;
 obj.openprice_ = p.Results.OpenPrice;
 obj.targetprice_= p.Results.TargetPrice;
 obj.stoplossprice_ = p.Results.StoplossPrice;
@@ -40,7 +42,11 @@ obj.status_ = 'unset';
 
 batman = cBatman;
 batman.code_ = obj.code_;
+if ~isempty(obj.code_)
+    batman.instrument_ = obj.instrument_;
+end
 batman.direction_ = obj.opendirection_;
+batman.volume_ = obj.openvolume_;
 batman.pxopen_ = obj.openprice_;
 batman.pxopenreal_ = obj.openprice_;
 batman.pxtarget_ = obj.targetprice_;

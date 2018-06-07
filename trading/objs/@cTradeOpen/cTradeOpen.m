@@ -10,6 +10,7 @@ classdef cTradeOpen < handle
         opendatetime2_@char
         openprice_@double
         opendirection_@double
+        openvolume_@double
         targetprice_@double
         stoplossprice_@double
         stoptime1_@double

@@ -6,7 +6,9 @@ classdef cBatman < handle
     %20180605 yangyiran
     properties
         code_@char
+        instrument_@cInstrument
         direction_@double
+        volume_@double
         pxopen_@double
         pxopenreal_@double
         pxtarget_@double
@@ -21,6 +23,10 @@ classdef cBatman < handle
         %default values
         bandwidthmin_@double = 1/3
         bandwidthmax_@double = 0.5
+        
+        %
+        pnlrunning_@double
+        pnlclosed_@double
         
         status_@char = 'unset'
         
