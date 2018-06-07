@@ -44,9 +44,14 @@ function [] = update_from_candle(obj,candle)
         end
     elseif strcmpi(obj.status_,'set')
         if obj.checkflag_ == 2 && obj.direction_ == 1
-            if candle_low <= obj.pxsupportmax_
+            if candle_low <= obj.pxstoploss_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
+                return
+            elseif candle_close <= obj.pxsupportmax_
+                obj.status_ = 'closed';
+                obj.checkflag_ = 0;
+                return
             elseif candle_close >= obj.pxresistence_
                 obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ - (obj.pxresistence_-obj.pxopen_)*obj.bandwidthmin_;
@@ -63,9 +68,14 @@ function [] = update_from_candle(obj,candle)
                 obj.checkflag_ = 3;
             end
         elseif obj.checkflag_ == 2 && obj.direction_ == -1
-            if candle_high >= obj.pxsupportmax_
+            if candle_high >= obj.pxstoploss_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
+                return
+            elseif candle_close >= obj.pxsupportmax_
+                obj.status_ = 'closed';
+                obj.checkflag_ = 0;
+                return
             elseif candle_close <= obj.pxresistence_
                 obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmin_;
@@ -82,7 +92,11 @@ function [] = update_from_candle(obj,candle)
                 obj.checkflag_ = 3;
             end
         elseif obj.checkflag_ == 3 && obj.direction_ == 1
-            if candle_low <= obj.pxsupportmax_
+            if candle_low <= obj.pxstoploss_
+                obj.status_ = 'closed';
+                obj.checkflag_ = 0;
+                return
+            elseif candle_close <= obj.pxsupportmax_
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
             elseif candle_close >= obj.pxresistence_
@@ -101,9 +115,14 @@ function [] = update_from_candle(obj,candle)
                 obj.checkflag_ = 3;
             end
         elseif obj.checkflag_ == 3 && obj.direction_ == -1
-            if candle_high >= obj.pxsupportmax_
+            if candle_high >= obj.stoploss__
                 obj.status_ = 'closed';
                 obj.checkflag_ = 0;
+                return
+            elseif candle_close >= obj.pxsupportmax_
+                obj.status_ = 'closed';
+                obj.checkflag_ = 0;
+                return
             elseif candle_close <= obj.pxresistence_
                 obj.pxresistence_ = candle_close;
                 obj.pxsupportmin_ = obj.pxresistence_ + (obj.pxopen_-obj.pxresistence_)*obj.bandwidthmin_;
