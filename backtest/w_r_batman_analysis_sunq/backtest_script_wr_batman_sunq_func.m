@@ -1,4 +1,4 @@
-function [pnl,pWin,maxpnl,minpnl] = backtest_script_wr_batman_sunq_func(stoploss_ratio, target_ratio,freq_used,idxused )
+function [pnl,pWin,maxpnl,minpnl,ntrade] = backtest_script_wr_batman_sunq_func(stoploss_ratio, target_ratio,freq_used,idxused )
 % clear
 % clc
 fns = {'cfe_govtbond10y_generic_1st_1m';...
