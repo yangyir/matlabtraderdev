@@ -5,7 +5,12 @@ fns = {'cfe_govtbond10y_generic_1st_1m';...
     'shfe_nickel_generic_1st_1m';...
     'shfe_rebar_generic_1st_1m';...
     'dce_ironore_generic_1st_1m';...
-    'shfe_copper_generic_1st_1m'};
+    'shfe_copper_generic_1st_1m';...
+    'shfe_aluminium_generic_1st_1m'...
+    'shfe_lead_generic_1st_1m'...
+    'shfe_rebar_generic_1st_1m'...
+    'shfe_zinc_generic_1st_1m'...
+    'zce_cotton_generic_1st_1m'};
 % idxused = 3;
 
 d = load(fns{idxused});
@@ -20,6 +25,16 @@ elseif idxused == 4
     f=  code2instrument('I1805');
 elseif idxused == 5
     f=  code2instrument('CU1807');
+ elseif idxused == 6
+    f=  code2instrument('AL1807');
+elseif idxused == 7
+    f= code2instrument('PB1807');
+elseif idxused == 8
+    f= code2instrument('RU1809');
+elseif idxused == 9
+    f= code2instrument('ZN1809');
+elseif idxused == 10 
+    f= code2instrument('cf809');
 else
     error('invalid idx input');
 end
