@@ -24,7 +24,7 @@ clear
 clc
 stoploss_ratio = 0.01;
 target_ratio = 0.01;
-idxused = 4;
+idxused = 6;
 freq_used = 1:1:5;
 num = length(freq_used);
 pnl = zeros ( num,1);
