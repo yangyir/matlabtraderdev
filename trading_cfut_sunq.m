@@ -23,15 +23,15 @@ volume = 1;
 px = 108000;
 %% print market data according to the input code_printed
 code_printed = 'ni1809';
-[bid_printed,ask_printed,timet_printed] = getmarketdata('mdefut',code_printed);
+[bid_printed,ask_printed,timet_printed] = mdefut.getmarketdata('mdefut',code_printed);
 fprintf('最新市场报价:\n');
 fprintf('%9s%9s%9s%9s\n','合约','买价','卖价','时间');
 dataformat = '%11s%11s%11s%12s\n';
 fprintf(dataformat,code_printed,num2str(bid_printed),num2str(ask_printed),timet_printed);
 %% to doublecheck px value 
-doublecheck_px = 1;
-if doublecheck_px ==1
-    [bid,ask,timet] = getmarketdata('mdefut',ctp_code);
+doublecheck_px = 1; % 1 means to check, meanwhile, 0 means NOT to check 
+if doublecheck_px ==1 && px ~= -1
+    [bid,ask,timet] = mdefut.getmarketdata('mdefut',ctp_code);
     f = code2instrument(ctp_code);
     tick_value = f.tick_value;
     pending_ticksize_maxlimit = 4;
@@ -53,6 +53,7 @@ strat_used = strat_citic;
 %
 if strcmpi(direction,'long') && strcmpi(offset,'open')
     if px == -1
+        % 0 means spread
         strat_used.longopensingleinstrument(ctp_code,volume,0);
     else
         strat_used.longopensingleinstrument(ctp_code,volume,0,'overrideprice',px);
