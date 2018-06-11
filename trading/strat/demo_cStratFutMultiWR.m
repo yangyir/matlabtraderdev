@@ -40,7 +40,7 @@ if strcmpi(demo_strat_wr.mode_,'debug')
     nticks = size(demo_strat_wr.mde_fut_.ticks_{1},1);
     ncandles = size(demo_strat_wr.mde_fut_.candles_{1},1);
     %clear up
-    demo_strat_wr.mde_fut_.ticks_{1} = zeros(nticks,0);
+    demo_strat_wr.mde_fut_.ticks_{1} = zeros(nticks,1);
     demo_strat_wr.mde_fut_.candles_{1}(:,2:end) = 0;
     demo_strat_wr.executionperbucket_ = 0;
     demo_strat_wr.executionbucketnumber_ = 0;

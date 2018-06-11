@@ -104,6 +104,9 @@ classdef cMDEFut < cMyTimerObj
         [] = savecandles2file(obj,dtnum)
         
         [] = printmarket(obj)
+        
+        [bid,ask, timet] = getmarketdata(obj, code) % updated bu sunq
+        
     end
     
     methods (Static = true)
