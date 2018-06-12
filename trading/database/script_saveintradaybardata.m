@@ -44,7 +44,7 @@ fprintf('done for saving intraday bar data for precious metal futures\n');
 
 %%
 %rebal
-rb_codes_ctp = {'rb1805'};
+rb_codes_ctp = {'rb1810'};
 
 for i = 1:size(rb_codes_ctp,1)
     saveintradaybarfrombloomberg(conn,rb_codes_ctp{i},override);

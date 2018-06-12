@@ -11,8 +11,8 @@ function [ret] = initcandles(mdefut,instrument,varargin)
     else
         ds = cBloomberg;
     end
-%     if nargin < 2
-    if isempty(instrument)
+    if nargin < 2
+%     if isempty(instrument)
         for i = 1:ns
             date2 = floor(mdefut.candles_{i}(1,1));
             count = 1;
