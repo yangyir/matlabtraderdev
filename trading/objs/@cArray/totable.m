@@ -4,10 +4,10 @@ function [ table, flds ] = totable(obj, start_pos, end_pos)
     end
 
     if ~exist('end_pos', 'var')
-        end_pos = start_pos + length(obj.node) - 1; 
+        end_pos = start_pos + length(obj.node_) - 1; 
     end
 
-    nodes = obj.node(start_pos : end_pos);
+    nodes = obj.node_(start_pos : end_pos);
     N = length(nodes);
 
     flds = properties( nodes );
@@ -29,7 +29,7 @@ function [ table, flds ] = totable(obj, start_pos, end_pos)
         end
     end
 
-    obj.table   = table;
-    obj.headers = flds;
+    obj.table_   = table;
+    obj.headers_ = flds;
 
 end
