@@ -17,6 +17,8 @@ function replay_strat = replay_setstrat(stratname,varargin)
         replay_strat = cStratFutMultiWR;
     elseif strcmpi(stratname,'batman')
         replay_strat = cStratFutBatman;
+    elseif strcmpi(stratname,'wlprbatman')
+        replay_strat = cStratFutMultiWRPlusBatman;
     elseif strcmpi(stratname,'manual')
         replay_strat = cStratManual;
     else
