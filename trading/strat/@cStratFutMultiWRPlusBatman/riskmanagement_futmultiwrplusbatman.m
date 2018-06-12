@@ -10,7 +10,7 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
  
         %secondly to check whether the instrument has been traded
         %and recorded in the embedded portfolio
-        isinstrumenttraded = strategy.bookrunning_.hasposition(instruments{i});
+        isinstrumenttraded = obj.bookrunning_.hasposition(instruments{i});
         if ~isinstrumenttraded, continue; end
         
         instrument = instruments{i};
@@ -37,8 +37,8 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
         ntrades = trades.latest_;
         for j = 1:ntrades
             trade_j = trades.node_(j);
-            direction = trade_j.direction_;
-            volume = trade_j.volume_;
+            direction = trade_j.opendirection_;
+            volume = trade_j.openvolume_;
             timeopen = trade_j.opendatetime1_;
             pxopen = trade_j.openprice_;
             if strcmpi(trade_j.status_,'unset')
@@ -46,10 +46,10 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
                 lowestp = obj.getlownperiods(instrument);
                 highestp = obj.gethighnperiods(instrument);
                 
-                %note:todo:0.01 and 0.02 are hard coded here and shall be
+                %note:todo:0.02 and 0.05 are hard coded here and shall be
                 %replaced with variables set elsewhere
-                pxstoploss = pxopen-direction*(highestp-lowestp)*0.01;
-                pxtarget = pxopen+direction*(highestp-lowestp)*0.02;
+                pxstoploss = pxopen-direction*(highestp-lowestp)*0.02;
+                pxtarget = pxopen+direction*(highestp-lowestp)*0.05;
                 %
                 %round to tradeable price
                 pxstoploss = round(pxstoploss/tick_size)*tick_size;
@@ -73,14 +73,19 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
                         trade_j.batman_.checkflag_ = 0;
                         %we use dtnum and timeopen to set the
                         %closetodayflag
-                        closetodayFlag = isclosetoday(timeopen,tick_time);
+                        if strcmpi(obj.mode_,'replay')
+                            closetodayFlag = 0;
+                        else
+                            closetodayFlag = isclosetoday(timeopen,tick_time);
+                        end
                         spread = 0;
                         ret = obj.shortclosesingleinstrument(code,volume,closetodayFlag,spread);
                         if ret
                             trade_j.closetime1_ = tick_time;
+                            trade_j.closetime2_ = datestr(tick_time);
                             trade_j.closeprice_ = trade_j.stoplossprice_;
                             trade_j.runningpnl_ = 0;
-                            trade_j.closepnl_ = direction*volume*(trade_j.pxstoploss_-trade_j.pxopenreal_)/ tick_size * tick_value;
+                            trade_j.closepnl_ = direction*volume*(trade_j.stoplossprice_-trade_j.openprice_)/ tick_size * tick_value;
                         end
                         continue;
                         %stop the trade
@@ -90,20 +95,29 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
                         trade_j.batman_.checkflag_ = 0;
                         %we use dtnum and timeopen to set the
                         %closetodayflag 
-                        closetodayFlag = isclosetoday(timeopen,tick_time);
+                        if strcmpi(obj.mode_,'replay')
+                            closetodayFlag = 0;
+                        else
+                            closetodayFlag = isclosetoday(timeopen,tick_time);
+                        end
                         spread = 0;
                         ret = obj.longclosesingleinstrument(code,volume,closetodayFlag,spread);
                         if ret
                             trade_j.closetime1_ = tick_time;
+                            trade_j.closetime2_ = datestr(tick_time);
                             trade_j.closeprice_ = trade_j.stoplossprice_;
                             trade_j.runningpnl_ = 0;
-                            trade_j.closepnl_ = direction*volume*(trade_j.pxstoploss_-trade_j.pxopenreal_)/ tick_size * tick_value;
+                            trade_j.closepnl_ = direction*volume*(trade_j.stoplossprice_-trade_j.openprice_)/ tick_size * tick_value;
                         end
                         continue;
                     end
                     %
                     if lasttickincandle
                         trade_j.batman_.update('candle',candle);
+                        if strcmpi(trade_j.batman_.status_,'closed')
+                            trade_j.closetime1_ = tick_time;
+                            trade_j.closetime2_ = datestr(tick_time);
+                        end
                     end
                 end
                 

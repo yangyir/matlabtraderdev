@@ -48,20 +48,8 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
             volume = obj.getbaseunits(instrument);
         else
             maxvolume = obj.getmaxunits(instrument);
-            executiontype = obj.getexecutiontype(instrument);
-            if strcmpi(executiontype,'martingale')
-                %note:'martingale' execution type means the existing
-                %position units are traded every time when the signal is
-                %valid
-                volume = max(min(maxvolume-volume_exist,volume_exist),0);
-            elseif strcmpi(executiontype,'fixed')
-                %note:'fixed' execution type means the base units are
-                %traded every time when the signal is valid
-                n = obj.getbaseunits(instrument);
-                volume = max(min(maxvolume-volume_exist,n),0);
-            elseif strcmpi(executiontype,'option')
-                error('option execution type not implemented yet')
-            end
+            n = obj.getbaseunits(instrument);
+            volume = max(min(maxvolume-volume_exist,n),0);            
         end
 
         %note:exit if the maxvolume is breached

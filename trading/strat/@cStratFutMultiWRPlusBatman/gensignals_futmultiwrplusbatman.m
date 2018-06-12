@@ -14,7 +14,7 @@ function signals = gensignals_futmultiwrplusbatman(obj)
             signals{i,1} = struct('instrument',instruments{i},...
                 'direction',-1,...
                 'price',highestpx);
-            obj.highperiods_(i) = highestpx;
+            obj.highnperiods_(i) = highestpx;
             return
         end
         
