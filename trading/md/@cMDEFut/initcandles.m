@@ -66,16 +66,20 @@ function [ret] = initcandles(mdefut,instrument,varargin)
             date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
             candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
             mdefut.hist_candles_{i} = candles;
-            t = now;
-            buckets = mdefut.candles_{i}(:,1);
-            idx = find(buckets<=t);
-            if isempty(idx)
-                %todo:here we shall return an error
-            else
-                idx = idx(end);
-                candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx)),mdefut.candle_freq_(i),'trade');
-                for j = 1:size(candles,1)
-                    mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+            
+            %fill the live candles in case it is missing
+            if ~strcmpi(mdefut.mode_,'replay')
+                t = now;
+                buckets = mdefut.candles_{i}(:,1);
+                idx = find(buckets<=t);
+                if isempty(idx)
+                    %todo:here we shall return an error
+                else
+                    idx = idx(end);
+                    candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx)),mdefut.candle_freq_(i),'trade');
+                    for j = 1:size(candles,1)
+                        mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                    end
                 end
             end
             ret = true;

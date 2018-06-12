@@ -10,6 +10,12 @@ classdef cStratFutMultiWRPlusBatman < cStrat
     end
     
     methods
+        function obj = cStratFutMultiWRPlusBatman
+            obj.name_ = 'stratfutwrbatman';
+        end
+    end
+    
+    methods
         [] = registerinstrument(obj,instrument)
         [] = setparameters(obj,instrument,params)
         [] = setsamplefreq(obj,instrument,freq)
