@@ -8,4 +8,5 @@ function [] = init(obj,name,book)
     obj.entrusts_ = EntrustArray;
     obj.entrustspending_ = EntrustArray;
     obj.entrustsfinished_ = EntrustArray;
+    obj.trades_ = cTradeOpenArray;
 end

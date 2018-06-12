@@ -15,6 +15,8 @@ classdef cOps < cMyTimerObj
         %
         mdefut_@cMDEFut
         mdeopt_@cMDEFut
+        %
+        trades_@cTradeOpenArray
     end
     
     methods
