@@ -13,9 +13,10 @@ candles_manual = zeros(size(buckets,1),5);
 candles_manual(:,1) = buckets;
 %%
 t = ticks(1,1);
-pxtrade = ticks(i,2);
+pxtrade = ticks(1,2);
 idx = buckets(1:end-1)<=t & buckets(2:end)>t;
 this_bucket = buckets(idx);
+%%
 if ~isempty(this_bucket)
     count = find(buckets == this_bucket);
 else
