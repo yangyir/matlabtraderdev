@@ -79,7 +79,7 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
                             closetodayFlag = isclosetoday(timeopen,tick_time);
                         end
                         spread = 0;
-                        ret = obj.shortclosesingleinstrument(code,volume,closetodayFlag,spread);
+                        ret = obj.shortclosesingleinstrument(code,volume,closetodayFlag,spread,'time',tick_time);
                         if ret
                             trade_j.closetime1_ = tick_time;
                             trade_j.closetime2_ = datestr(tick_time);
@@ -101,7 +101,7 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
                             closetodayFlag = isclosetoday(timeopen,tick_time);
                         end
                         spread = 0;
-                        ret = obj.longclosesingleinstrument(code,volume,closetodayFlag,spread);
+                        ret = obj.longclosesingleinstrument(code,volume,closetodayFlag,spread,'time',tick_time);
                         if ret
                             trade_j.closetime1_ = tick_time;
                             trade_j.closetime2_ = datestr(tick_time);

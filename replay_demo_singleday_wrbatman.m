@@ -1,3 +1,4 @@
+clear all;
 replay_speed = 50;
 replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
 %%
@@ -9,7 +10,7 @@ replay_samplefreq = 3;    % use 3m candle sticks
 replay_strat.setsamplefreq(instr,replay_samplefreq);
 replay_autotrade = 1;   % use autotrade
 replay_strat.setautotradeflag(instr,replay_autotrade);
-replay_maxunits = 8;
+replay_maxunits = 1;
 replay_strat.setmaxunits(instr,replay_maxunits);
 replay_maxexecutionperbucket = 1;
 replay_strat.setmaxexecutionperbucket(instr,replay_maxexecutionperbucket);
