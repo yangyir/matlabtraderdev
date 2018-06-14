@@ -16,7 +16,7 @@ t = ticks(1,1);
 pxtrade = ticks(1,2);
 idx = buckets(1:end-1)<=t & buckets(2:end)>t;
 this_bucket = buckets(idx);
-%%
+
 if ~isempty(this_bucket)
     count = find(buckets == this_bucket);
 else
@@ -31,7 +31,7 @@ candles_manual(count,2) = pxtrade;
 candles_manual(count,3) = pxtrade;
 candles_manual(count,4) = pxtrade;
 candles_manual(count,5) = pxtrade;
-%%
+%
 nticks = size(ticks,1);
 for i = 2:nticks
     t = ticks(i,1);
