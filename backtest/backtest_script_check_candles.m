@@ -4,10 +4,9 @@
 % 14：59：00 K线图对应tick数据区间： （14：59：00 , 15：00：00】
 % 21：00：00 K线图对应tick数据区间： 【21：00：00， 21：01：00】
 % 解决方法： K线图buckets vector虚拟增加时间轴 15：00：00 ，最后算完再4删掉？？？我想下，现在脑子 in a mess
-
 futs = code2instrument('rb1810');
-fn_tick = 'rb1810_20180423_tick.mat';
-fn_candles = 'rb1810_20180423_1m.txt';
+fn_tick = 'rb1810_20180509_tick.mat';
+fn_candles = 'rb1810_20180509_1m.txt';
 d = load(fn_tick);
 ticks = d.d;
 ticks = ticks(:,1:2);
@@ -17,6 +16,14 @@ buckets = getintradaybuckets2('date',floor(ticks(1,1)),...
     'tradingbreak',futs.trading_break);
 candles_manual = zeros(size(buckets,1),5);
 candles_manual(:,1) = buckets;
+datestring1 = datestr(buckets(1));
+datestring2 = datestring1(1:end-8);
+num15_00_00 = datenum([datestring2,'15:00:00']);
+num20_59_00 = datenum([datestring2,'20:59:00']);
+num21_00_00 = datenum([datestring2, '21:00:00']);
+num21_00_0_5 = datenum([datestring2, '21:00:0.5']);
+
+
 %%
 t = ticks(2,1);
 pxtrade = ticks(2,2);
@@ -41,6 +48,13 @@ candles_manual(count,5) = pxtrade;
 nticks = size(ticks,1);
 for i = 2:nticks
     t = ticks(i,1);
+    if t == num21_00_00
+        t = num21_00_0_5;
+    elseif t == num20_59_00
+        continue;
+    elseif t == num15_00_00
+        t = num21_00_00;
+    end
     pxtrade = ticks(i,2);
     % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
     equalorNot = (round(buckets(2:end) *10e+07) == round(t*10e+07));
