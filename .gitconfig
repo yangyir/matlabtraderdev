@@ -4,5 +4,5 @@
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 [user]
-	name = yangyir
-	email = 31230104+yangyir@users.noreply.github.com
+	name = sunq
+	email = qiongsun618@126.com

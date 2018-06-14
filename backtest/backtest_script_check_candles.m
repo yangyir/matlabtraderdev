@@ -3,10 +3,12 @@
 % 但是有特殊情况是： 收盘时间 15：00：00， 这分钟没有K线数据的， 但是存在tick数据，导致：
 % 14：59：00 K线图对应tick数据区间： （14：59：00 , 15：00：00】
 % 21：00：00 K线图对应tick数据区间： 【21：00：00， 21：01：00】
-% 解决方法： K线图buckets vector虚拟增加时间轴 15：00：00 ，最后算完再4删掉？？？我想下，现在脑子 in a mess
+% bloomberg的K线图没有数据的四个时间：10:15:00 ， 11:30:00 ， 15:00:00， 23:00:00 
+clear
+clc
 futs = code2instrument('rb1810');
-fn_tick = 'rb1810_20180509_tick.mat';
-fn_candles = 'rb1810_20180509_1m.txt';
+fn_tick = 'rb1810_20180515_tick.mat';
+fn_candles = 'rb1810_20180515_1m.txt';
 d = load(fn_tick);
 ticks = d.d;
 ticks = ticks(:,1:2);
@@ -22,8 +24,10 @@ num15_00_00 = datenum([datestring2,'15:00:00']);
 num20_59_00 = datenum([datestring2,'20:59:00']);
 num21_00_00 = datenum([datestring2, '21:00:00']);
 num21_00_0_5 = datenum([datestring2, '21:00:0.5']);
-
-
+num11_30_00 = datenum([datestring2, '11:30:00']);
+num13_30_00 = datenum([datestring2, '13:30:00']);
+num10_15_00 = datenum([datestring2, '10:15:00']);
+num10_30_00 = datenum([datestring2, '10:30:00']);
 %%
 t = ticks(2,1);
 pxtrade = ticks(2,2);
@@ -52,8 +56,16 @@ for i = 2:nticks
         t = num21_00_0_5;
     elseif t == num20_59_00
         continue;
+    elseif t == num13_30_00
+        continue;
+    elseif t == num10_30_00
+        continue;
     elseif t == num15_00_00
         t = num21_00_00;
+    elseif t == num11_30_00
+        t = num13_30_00;
+    elseif t == num10_15_00
+        t = num10_30_00;
     end
     pxtrade = ticks(i,2);
     % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
@@ -64,13 +76,19 @@ for i = 2:nticks
         idx = buckets(1:end-1)<t & equalorNot;
     end
     
+%     if i == nticks
+%         idx(1:end-1) = 0;
+%         idx(end,1) = 1;
+%     end
+%  
 %     idx = buckets(1:end-1)<t & ((buckets(2:end)>=t )) ; 
     this_bucket = buckets(idx);
     %
     if ~isempty(this_bucket)
         this_count = find(buckets == this_bucket);
     else
-        if t >= buckets(end) && t < buckets(end)+buckets(end)-buckets(end-1)
+%         if t >= buckets(end) && t < buckets(end)+buckets(end)-buckets(end-1)
+        if t >= buckets(end)
             this_count = size(buckets,1);
         else
             this_count = [];
@@ -105,5 +123,6 @@ candles_db = cDataFileIO.loadDataFromTxtFile(fn_candles);
 check1 = sum(candles_db(:,1) - candles_manual(:,1));
 if check1 ~= 0, fprintf('manually pop-up candle timevec is inconsistent with the one from database');end
 check2 = candles_db(:,2) ~= candles_manual(:,2);
-    
+
+result =sum(sum (candles_db - candles_manual))
 
