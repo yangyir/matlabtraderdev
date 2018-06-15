@@ -6,7 +6,8 @@
 % bloomberg的K线图没有数据的四个时间：10:15:00 ， 11:30:00 ， 15:00:00， 23:00:00 
 clear
 clc
-code = 'rb1810';
+%%
+code = 'T1809';
 replay_startdt = '2018-05-05';
 replay_enddt = '2018-05-23';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
@@ -17,7 +18,9 @@ for i = 1:size(replay_dates,1)
     fn_tick_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.mat'];
     fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
 end
+%%
 futs = code2instrument(code);
+%%
 for k =1:size(replay_dates)
     fn_tick = fn_tick_{k};
     fn_candles = fn_candles_{k};
@@ -40,7 +43,6 @@ for k =1:size(replay_dates)
     num13_30_00 = datenum([datestring2, '13:30:00']);
     num10_15_00 = datenum([datestring2, '10:15:00']);
     num10_30_00 = datenum([datestring2, '10:30:00']);
-  
     t = ticks(2,1);
     pxtrade = ticks(2,2);
     idx = buckets(1:end-1)<t & buckets(2:end)>=t;
