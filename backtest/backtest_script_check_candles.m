@@ -11,6 +11,8 @@ fn_candles = 'rb1810_20180423_1m.txt';
 d = load(fn_tick);
 ticks = d.d;
 ticks = ticks(:,1:2);
+% candles load from database directly
+candles_db = cDataFileIO.loadDataFromTxtFile(fn_candles);
 buckets = getintradaybuckets2('date',floor(ticks(1,1)),...
     'frequency','1m',...
     'tradinghours',futs.trading_hours,...
@@ -83,9 +85,7 @@ for i = 2:nticks
         end
     end 
 end
-%%
-% candles load from database directly
-candles_db = cDataFileIO.loadDataFromTxtFile(fn_candles);
+
 %%
 % sanity check whether candles_mannual and candles_db are exactly the same
 check1 = sum(candles_db(:,1) - candles_manual(:,1));
