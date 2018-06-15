@@ -3,38 +3,6 @@
 % 但是有特殊情况是： 收盘时间 15：00：00， 这分钟没有K线数据的， 但是存在tick数据，导致：
 % 14：59：00 K线图对应tick数据区间： （14：59：00 , 15：00：00】
 % 21：00：00 K线图对应tick数据区间： 【21：00：00， 21：01：00】
-<<<<<<< HEAD
-% 解决方法： K线图buckets vector虚拟增加时间轴 15：00：00 ，最后算完再4删掉？？？我想下，现在脑子 in a mess
-
-futs = code2instrument('rb1810');
-fn_tick = 'rb1810_20180423_tick.mat';
-fn_candles = 'rb1810_20180423_1m.txt';
-d = load(fn_tick);
-ticks = d.d;
-ticks = ticks(:,1:2);
-% candles load from database directly
-candles_db = cDataFileIO.loadDataFromTxtFile(fn_candles);
-buckets = getintradaybuckets2('date',floor(ticks(1,1)),...
-    'frequency','1m',...
-    'tradinghours',futs.trading_hours,...
-    'tradingbreak',futs.trading_break);
-candles_manual = zeros(size(buckets,1),5);
-candles_manual(:,1) = buckets;
-%%
-t = ticks(2,1);
-pxtrade = ticks(2,2);
-idx = buckets(1:end-1)<t & buckets(2:end)>=t;
-this_bucket = buckets(idx);
-
-if ~isempty(this_bucket)
-    count = find(buckets == this_bucket);
-else
-    if t >= buckets(end) && t < buckets(end)+buckets(end)-buckets(end-1)
-        count = size(buckets,1);
-    else
-        count = [];
-    end
-=======
 % bloomberg的K线图没有数据的四个时间：10:15:00 ， 11:30:00 ， 15:00:00， 23:00:00 
 clear
 clc
@@ -48,11 +16,8 @@ fn_candles_ = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)
     fn_tick_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.mat'];
     fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
->>>>>>> d83d8fda6ad08baee6b9483be478bf6a631046ff
 end
 futs = code2instrument(code);
-% fn_tick = 'rb1810_20180515_tick.mat';
-% fn_candles = 'rb1810_20180515_1m.txt';
 for k =1:size(replay_dates)
     fn_tick = fn_tick_{k};
     fn_candles = fn_candles_{k};
@@ -122,31 +87,17 @@ for k =1:size(replay_dates)
         else
             idx = buckets(1:end-1)<t & equalorNot;
         end
-
-    %     if i == nticks
-    %         idx(1:end-1) = 0;
-    %         idx(end,1) = 1;
-    %     end
-    %  
-    %     idx = buckets(1:end-1)<t & ((buckets(2:end)>=t )) ; 
         this_bucket = buckets(idx);
         %
         if ~isempty(this_bucket)
             this_count = find(buckets == this_bucket);
         else
-    %         if t >= buckets(end) && t < buckets(end)+buckets(end)-buckets(end-1)
-            if t >= buckets(end)
+             if t >= buckets(end)
                 this_count = size(buckets,1);
             else
                 this_count = [];
             end
         end
-<<<<<<< HEAD
-    end 
-end
-
-%%
-=======
 
         if ~isempty(this_count)
             if this_count ~= count
@@ -172,7 +123,6 @@ end
 % candles load from database directly
 candles_db = cDataFileIO.loadDataFromTxtFile(fn_candles);
 
->>>>>>> d83d8fda6ad08baee6b9483be478bf6a631046ff
 % sanity check whether candles_mannual and candles_db are exactly the same
 check1 = sum(candles_db(:,1) - candles_manual(:,1));
 if check1 ~= 0, fprintf('manually pop-up candle timevec is inconsistent with the one from database');end
