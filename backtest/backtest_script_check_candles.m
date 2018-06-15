@@ -3,7 +3,7 @@
 % 但是有特殊情况是： 收盘时间 15：00：00， 这分钟没有K线数据的， 但是存在tick数据，导致：
 % 14：59：00 K线图对应tick数据区间： （14：59：00 , 15：00：00】
 % 21：00：00 K线图对应tick数据区间： 【21：00：00， 21：01：00】
-<<<<<<< HEAD
+
 % 解决方法： K线图buckets vector虚拟增加时间轴 15：00：00 ，最后算完再4删掉？？？我想下，现在脑子 in a mess
 
 futs = code2instrument('rb1810');
@@ -34,7 +34,7 @@ else
     else
         count = [];
     end
-=======
+
 % bloomberg的K线图没有数据的四个时间：10:15:00 ， 11:30:00 ， 15:00:00， 23:00:00 
 clear
 clc
@@ -48,7 +48,7 @@ fn_candles_ = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)
     fn_tick_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.mat'];
     fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
->>>>>>> d83d8fda6ad08baee6b9483be478bf6a631046ff
+
 end
 futs = code2instrument(code);
 % fn_tick = 'rb1810_20180515_tick.mat';
@@ -141,38 +141,37 @@ for k =1:size(replay_dates)
                 this_count = [];
             end
         end
-<<<<<<< HEAD
+
     end 
 end
 
 %%
-=======
 
-        if ~isempty(this_count)
-            if this_count ~= count
-                count = this_count;
-                newset = true;
-            else
-                newset = false;
-            end
-            candles_manual(this_count,5) = pxtrade;
-            if newset
-                candles_manual(this_count,2) = pxtrade;   %px_open
-                candles_manual(this_count,3) = pxtrade;   %px_high
-                candles_manual(this_count,4) = pxtrade;   %px_low
-            else
-                high = candles_manual(this_count,3);
-                low = candles_manual(this_count,4);
-                if pxtrade > high, candles_manual(this_count,3) = pxtrade; end
-                if pxtrade < low, candles_manual(this_count,4) = pxtrade;end
-            end
-        end 
+
+if ~isempty(this_count)
+    if this_count ~= count
+        count = this_count;
+        newset = true;
+    else
+        newset = false;
     end
+    candles_manual(this_count,5) = pxtrade;
+    if newset
+        candles_manual(this_count,2) = pxtrade;   %px_open
+        candles_manual(this_count,3) = pxtrade;   %px_high
+        candles_manual(this_count,4) = pxtrade;   %px_low
+    else
+        high = candles_manual(this_count,3);
+        low = candles_manual(this_count,4);
+        if pxtrade > high, candles_manual(this_count,3) = pxtrade; end
+        if pxtrade < low, candles_manual(this_count,4) = pxtrade;end
+    end
+end 
+end
 
 % candles load from database directly
-candles_db = cDataFileIO.loadDataFromTxtFile(fn_candles);
+% candles_db = cDataFileIO.loadDataFromTxtFile(fn_candles);
 
->>>>>>> d83d8fda6ad08baee6b9483be478bf6a631046ff
 % sanity check whether candles_mannual and candles_db are exactly the same
 check1 = sum(candles_db(:,1) - candles_manual(:,1));
 if check1 ~= 0, fprintf('manually pop-up candle timevec is inconsistent with the one from database');end
