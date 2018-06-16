@@ -49,15 +49,19 @@ classdef cFutures < cInstrument
                    M1 = round(nlength/12);
                    M2 = round(nlength2/12);
                    break_interval = cell(M1+M2,2);
-                   for i = 1:M1
-                       break_interval{i,1} = [obj.trading_hours(1+(i-1)*12:5+(i-1)*12),':00'];
-                       break_interval{i,2} = [obj.trading_hours(7+(i-1)*12:11+(i-1)*12),':00'];
+                   for i =1:(M1+M2)
+                       if i ==1
+                           break_interval{i,1} = [obj.trading_hours(1:5),':00'];
+                           break_interval{i,2} = [obj.trading_break(1:5),':00'];
+                       elseif i ==2
+                           break_interval{i,1} = [obj.trading_break(7:11),':00'];
+                           break_interval{i,2} = [obj.trading_hours(7:11),':00'];
+                       else
+                           break_interval{i,1} = [obj.trading_hours(1+(i-2)*12:5+(i-2)*12),':00'];
+                           break_interval{i,2} = [obj.trading_hours(7+(i-2)*12:11+(i-2)*12),':00'];
+                       end
                    end
-                   for i = 1:M2
-                       break_interval{i+M1,1} = [obj.trading_hours(1+(i-1)*12:5+(i-1)*12),':00'];
-                       break_interval{i+M1,2} = [obj.trading_hours(7+(i-1)*12:11+(i-1)*12),':00'];
-                   end
-              end
+               end
         end
         function opening_time = get.opening_time(obj)
             if length(obj.trading_break)<3

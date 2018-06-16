@@ -7,9 +7,9 @@
 clear
 clc
 %%
-code = 'T1809';
-replay_startdt = '2018-05-05';
-replay_enddt = '2018-05-23';
+code = 'rb1810';
+replay_startdt = '2018-05-08';
+replay_enddt = '2018-05-10';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 replay_filenames = cell(size(replay_dates));
 fn_tick_ = cell(size(replay_dates));
@@ -43,6 +43,9 @@ for k =1:size(replay_dates)
     num13_30_00 = datenum([datestring2, '13:30:00']);
     num10_15_00 = datenum([datestring2, '10:15:00']);
     num10_30_00 = datenum([datestring2, '10:30:00']);
+    num23_00_00 = datenum([datestring2, '23:00:00']);
+    num09_00_00 = datenum([datestring2, '09:00:00']);
+    num22_59_59_5= datenum([datestring2, '22:59:59.5']);
     t = ticks(2,1);
     pxtrade = ticks(2,2);
     idx = buckets(1:end-1)<t & buckets(2:end)>=t;
@@ -66,21 +69,27 @@ for k =1:size(replay_dates)
     nticks = size(ticks,1);
     for i = 2:nticks
         t = ticks(i,1);
-        if t == num21_00_00
-            t = num21_00_0_5;
-        elseif t == num20_59_00
-            continue;
-        elseif t == num13_30_00
-            continue;
-        elseif t == num10_30_00
-            continue;
-        elseif t == num15_00_00
-            t = num21_00_00;
-        elseif t == num11_30_00
-            t = num13_30_00;
-        elseif t == num10_15_00
-            t = num10_30_00;
-        end
+          if t == num20_59_00
+              continue
+          elseif t == num21_00_00
+              t = num21_00_0_5;
+          elseif t == num23_00_00
+              t = num22_59_59_5;
+%           elseif t == num09_00_00
+%               continue
+          elseif t == num10_30_00
+              continue
+          elseif t == num13_30_00
+              continue
+          elseif t == num10_15_00
+              t = num10_30_00;
+          elseif t== num11_30_00
+              t = num13_30_00;
+          elseif t == num15_00_00
+              t = num21_00_00;
+          elseif t == num23_00_00
+              t = num09_00_00;
+          end
         pxtrade = ticks(i,2);
         % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
         equalorNot = (round(buckets(2:end) *10e+07) == round(t*10e+07));
@@ -130,6 +139,6 @@ check1 = sum(candles_db(:,1) - candles_manual(:,1));
 if check1 ~= 0, fprintf('manually pop-up candle timevec is inconsistent with the one from database');end
 check2 = candles_db(:,2) ~= candles_manual(:,2);
 
-result(1,k) =sum(sum (candles_db - candles_manual));
+result(1,k) =sum(sum (candles_db - candles_manual))
 end
 
