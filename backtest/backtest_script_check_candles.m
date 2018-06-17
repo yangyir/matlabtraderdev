@@ -1,52 +1,77 @@
-% be able to be used for all contracts, but it takes too much time to run
+
 clear
 clc
 %%
+
 code = 'rb1810';
-replay_startdt = '2018-05-24';
-replay_enddt = '2018-05-24';
+replay_startdt = '2018-06-04';
+replay_enddt = '2018-06-15';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 replay_filenames = cell(size(replay_dates));
 fn_tick_ = cell(size(replay_dates));
 fn_candles_ = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)
-    fn_tick_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.mat'];
+    fn_tick_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.txt'];
     fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
 end
+tic
+ticks =cDataFileIO.loadDataFromTxtFile(fn_tick_{1});
+toc
 %%
 futs = code2instrument(code);
+if datenum(futs.break_interval{end,end}) == datenum('23:00:00')
+    kind =1;
+elseif datenum(futs.break_interval{end,end}) == datenum('15:15:00')
+    kind =2;
+elseif datenum(futs.break_interval{end,end}) == datenum('01:00:00')
+    kind =3;
+end
 %%
 for k =1:size(replay_dates)
     fn_tick = fn_tick_{k};
     fn_candles = fn_candles_{k};
-    d = load(fn_tick);
-    ticks = d.d;
-    ticks = ticks(:,1:2);
+    ticks = cDataFileIO.loadDataFromTxtFile(fn_tick);
     buckets = getintradaybuckets2('date',floor(ticks(1,1)),...
         'frequency','1m',...
         'tradinghours',futs.trading_hours,...
         'tradingbreak',futs.trading_break);
     candles_manual = zeros(size(buckets,1),5);
-    candles_manual(:,1) = buckets;
-     datetime_first = datestr(buckets(1));
-     date_first= datetime_first(1:end-8);
-     datetime_last= datestr(buckets(1));
-     date_last= datetime_last(1:end-8); 
-     [len,col] =  size(futs.break_interval);
-     break_interval_updated = cell(len,col);
-     for i = 1:len
-         for j = 1:col
-             if i ==len && j == col
-                 break_interval_updated {i,j} = datenum([date_last,futs.break_interval{i,j}]);
-             else
-                 break_interval_updated{i,j} = datenum([date_first,futs.break_interval{i,j}]);
-             end
-         end
-     end
-     break_interval_updated = cell2mat(break_interval_updated);
-     opening_time_updated = datenum([date_first,futs.opening_time]);
-    t = ticks(2,1);
-    pxtrade = ticks(2,2);
+    candles_manual(:,1) = buckets; 
+    datestring1 = datestr(buckets(1));
+    datestring2 = datestring1(1:end-8);
+    datestring3 = datestr(buckets(end));
+    datestring4 = datestring3(1:end-8);
+    num15_00_00 = datenum([datestring2,'15:00:00']);
+    num20_59_00 = datenum([datestring2,'20:59:00']);
+    num21_00_00 = datenum([datestring2, '21:00:00']);
+    num21_00_0_5 = datenum([datestring2, '21:00:0.5']);
+    num11_30_00 = datenum([datestring2, '11:30:00']);
+    num13_30_00 = datenum([datestring2, '13:30:00']);
+    num13_00_00 = datenum([datestring2, '13:00:00']);
+    num10_15_00 = datenum([datestring2, '10:15:00']);
+    num10_30_00 = datenum([datestring2, '10:30:00']);
+    num23_00_00 = datenum([datestring2, '23:00:00']);
+    num09_00_00 = datenum([datestring2, '09:00:00']);
+    num22_59_59_5= datenum([datestring2, '22:59:59.5']); 
+    num01_00_00 = datenum([datestring4,'01:00:00']);
+    num00_00_00 = datenum([datestring4,'00:00:00']);
+    num00_00_0_5 = datenum([datestring4,'00:00:0.5']);
+    if kind ==1 || kind ==3
+        para =2;
+        t =ticks(para,1);
+        pxtrade = ticks(para,2);
+    elseif kind ==2
+        para =4;
+        t =ticks(para,1);
+        pxtrade = ticks(para,2);
+    end
+    if kind == 3
+        [m,n] = find(ticks(:,1) == datenum(num00_00_00));
+          paraticks(1:sum(n),1) = datenum(num00_00_0_5);
+          paraticks(1:sum(n),2) = ticks (m(:),2);
+          paraticks(1:sum(n),3) = ticks (m(:),3);
+          ticks =[ticks(1:m(end),:);paraticks;ticks(m(end)+1:end,:)];
+    end
     idx = buckets(1:end-1)<t & buckets(2:end)>=t;
     this_bucket = buckets(idx);
 
@@ -66,22 +91,58 @@ for k =1:size(replay_dates)
     candles_manual(count,5) = pxtrade;
     %
     nticks = size(ticks,1);
-    for i = 2:nticks
-        t = ticks(i,1);
-        if t == opening_time_updated - (datenum('12:00:00')-datenum('11:59:00'))
-            continue
-        elseif sum(find(break_interval_updated(:,1)==t))&&(opening_time_updated ~= t)
-            continue    
-        elseif t == opening_time_updated
-            t = t + (datenum('12:00:00')-datenum('11:59:59'));
-        elseif t == break_interval_updated(end,end)
-            t = t - (datenum('12:00:00')-datenum('11:59:59'));
-        elseif find(break_interval_updated(1:end-1,2)==t)
-            [m,n] = find(break_interval_updated(1:end-1,2)==t);
-            t = break_interval_updated(m+1,1);
-        end
-            
-        pxtrade = ticks(i,2);
+      for i =1:nticks 
+         pxtrade = ticks(i,2);
+            t = ticks(i,1);
+            if kind == 1
+              if t == num20_59_00
+                  continue
+              elseif t == num21_00_00
+                  t = num21_00_0_5;
+              elseif t == num23_00_00
+                  t = num22_59_59_5;
+              elseif t == num10_30_00
+                  continue
+              elseif t == num13_30_00
+                  continue
+              elseif t == num10_15_00
+                  t = num10_30_00;
+              elseif t== num11_30_00
+                  t = num13_30_00;
+              elseif t == num15_00_00
+                  t = num21_00_00;
+              elseif t == num23_00_00
+                  t = num09_00_00;
+              end
+            elseif kind == 2
+                if t == num11_30_00
+                    continue
+                elseif t == num13_00_00
+                    continue
+                end  
+            elseif kind == 3
+                Ntimeszero = 0;
+              if t == num20_59_00
+                  continue
+              elseif t == num21_00_00
+                  t = num21_00_0_5;
+              elseif t == num23_00_00
+                  t = num22_59_59_5;
+              elseif t == num10_30_00
+                  continue
+              elseif t == num13_30_00
+                  continue
+              elseif t == num10_15_00
+                  t = num10_30_00;
+              elseif t== num11_30_00
+                  t = num13_30_00;
+              elseif t == num15_00_00
+                  t = num21_00_00;
+              elseif t == num23_00_00
+                  t = num09_00_00;
+              end
+            end
+        
         % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
         equalorNot = (round(buckets(2:end) *10e+07) == round(t*10e+07));
         if sum(sum(equalorNot))==0
@@ -124,12 +185,6 @@ for k =1:size(replay_dates)
 
 % candles load from database directly
 candles_db = cDataFileIO.loadDataFromTxtFile(fn_candles);
-
-% sanity check whether candles_mannual and candles_db are exactly the same
-check1 = sum(candles_db(:,1) - candles_manual(:,1));
-if check1 ~= 0, fprintf('manually pop-up candle timevec is inconsistent with the one from database');end
-check2 = candles_db(:,2) ~= candles_manual(:,2);
-
 result(1,k) =sum(sum (candles_db - candles_manual))
 end
 
