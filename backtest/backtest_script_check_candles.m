@@ -1,8 +1,31 @@
-
+% break_interval 是两列的cell， cell{1,1}:早上开盘时间； cell{end,end}:夜盘收盘时间（若有夜盘）
+% 例如合约RB.SHF对应的break_interval 如下：
+% '09:00:00'    '10:15:00'
+% '10:30:00'    '11:30:00'
+% '13:30:00'    '15:00:00'
+% '21:00:00'    '23:00:00'
+%  Bloomberg的 ticks data 生成 candle 的方式是：左开右闭
+% 不同的合约生成 1m candle的方式是不同的，需要对特殊时间的tick进行处理
+% 这里，对于tick数据的处理方式选择是根据： cell{end,end};
+% 即cell{end,end}可能取值为： 23:00:00， 15:15:00 或者 01:00:00
+%%%%% 对于螺纹钢的特殊点处理方法为：
+% 螺纹钢 09：00:00 K线图对应tick数据区间： ticks（09:00:00， 09:01:00】
+% 螺纹钢 14：59：00 K线图对应tick数据区间： ticks（14：59：00 , 15：00：00】
+% 螺纹钢 21：00：00 K线图对应tick数据区间： ticks 【21：00：00， 21：01：00】
+% 螺纹钢  K线图没有数据的时间：break_interval{:,2} 
+% 螺纹钢 ticks数据没有用到，处理时被skip的为： 08:59:00， 10:30:00， 13:30：00
+%%%%% 镍处理如下：
+% 镍其他时间处理与螺纹钢相同，除了 00:00:00
+% 镍的 candle_23:59:59 = ticks (23:59:00 , 00:00:00] 左开右闭
+% 镍的 candle_00:00:00 = ticks [00:00:00 , 00:01:00] 左闭右闭
+% 国债数据处理如下：
+%%%%%% 国债处理如下：
+% 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00) 左开右开
+% 国债 candle_13:00:00 = ticks (13:00:00, 13:00:01 ] 左开右闭
+% equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
 clear
 clc
 %%
-
 code = 'rb1810';
 replay_startdt = '2018-06-04';
 replay_enddt = '2018-06-15';
@@ -91,7 +114,7 @@ for k =1:size(replay_dates)
     candles_manual(count,5) = pxtrade;
     %
     nticks = size(ticks,1);
-      for i =1:nticks 
+     for i =1:nticks 
          pxtrade = ticks(i,2);
             t = ticks(i,1);
             if kind == 1
@@ -121,7 +144,6 @@ for k =1:size(replay_dates)
                     continue
                 end  
             elseif kind == 3
-                Ntimeszero = 0;
               if t == num20_59_00
                   continue
               elseif t == num21_00_00
