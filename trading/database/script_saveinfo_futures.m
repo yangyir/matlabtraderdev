@@ -40,6 +40,19 @@ end
 fprintf('done for govt bond futures......\n');
 
 %%
+% equity index
+eqindex_codes_ctp = {'IF1807';'IF1809';'IF1812';...
+    'IH1807';'IH1809';'IH1812';...
+    'IC1807';'IC1809';'IC1812'};
+for i = 1:size(eqindex_codes_ctp,1)
+    f = cFutures(eqindex_codes_ctp{i});
+    f.init(conn);
+    f.saveinfo([dir_,eqindex_codes_ctp{i},...
+        '_info.txt']);
+end
+fprintf('done for equity index futures......\n');
+
+%%
 % precious metals
 pm_codes_ctp = {'au1806';'au1812';'ag1806';'ag1812'};
 
@@ -89,3 +102,14 @@ for i = 1:size(crudeoil_codes_ctp)
         '_info.txt']);
 end
 fprintf('done for crude oil futures......\n');
+
+%%
+% chemical
+chemical_codes_ctp = {'pp1809';'pp1901';'l1809';'l1901'};
+for i = 1:size(chemical_codes_ctp)
+    f = cFutures(chemical_codes_ctp{i});
+    f.init(conn);
+    f.saveinfo([dir_,chemical_codes_ctp{i},...
+        '_info.txt']);
+end
+fprintf('done for chemical futures......\n');

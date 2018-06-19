@@ -30,7 +30,7 @@ classdef cFutures < cInstrument
     
     properties (GetAccess = public, Dependent = true)
         break_interval@cell;
-        opening_time@char;
+%         opening_time@char;
     end
     
     methods
@@ -63,13 +63,15 @@ classdef cFutures < cInstrument
                    end
                end
         end
-        function opening_time = get.opening_time(obj)
-            if length(obj.trading_break)<3
-                opening_time = [obj.trading_hours(1:5),':00'];
-            else
-                opening_time = [obj.trading_hours(end-10:end-6),':00'];
-            end
-        end
+        
+%         function opening_time = get.opening_time(obj)
+%             if length(obj.trading_break)<3
+%                 opening_time = [obj.trading_hours(1:5),':00'];
+%             else
+%                 opening_time = [obj.trading_hours(end-10:end-6),':00'];
+%             end
+%         end
+        
     end
         
     methods
