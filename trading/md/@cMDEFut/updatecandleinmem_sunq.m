@@ -18,15 +18,19 @@
 % 镍其他时间处理与螺纹钢相同，除了 00:00:00
 % 镍的 candle_23:59:59 = ticks (23:59:00 , 00:00:00] 左开右闭
 % 镍的 candle_00:00:00 = ticks [00:00:00 , 00:01:00] 左闭右闭
-% 国债数据处理如下：
+% 镍：上期所如，镍的有色品种，夜盘过晚上00：00：00的，Bloomberg生成candle的方式需要特殊处理...
+% 镍：但是不会对回测效果影响很大，这里先暂时不做相关处理；
 %%%%%% 国债处理如下：
 % 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00) 左开右开
 % 国债 candle_13:00:00 = ticks (13:00:00, 13:00:01 ] 左开右闭
 % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
+
+
 function [] = updatecandleinmem_sunq(mdefut)
    instruments = mdefut.qms_.instruments_.getinstrument;
     if isempty(mdefut.ticks_), return; end
     ns = size(mdefut.ticks_,1);
+    count = mdefut.ticks_count_;
     for i =1:ns
         if datenum(instruments{i}.break_interval{end,end}) == datenum('23:00:00')
             kind =1;
@@ -34,8 +38,7 @@ function [] = updatecandleinmem_sunq(mdefut)
             kind =2;
         elseif datenum(instruments{i}.break_interval{end,end}) == datenum('01:00:00')
             kind =3;
-        end
-        count = mdefut.ticks_count_;
+        end 
         buckets = mdefut.candles_{i}(:,1);
         buckets4save = mdefut.candles4save_{i}(:,i);
         t = mdefut.ticks_{i}(count(i),1);
