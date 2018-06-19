@@ -1,12 +1,30 @@
 clear
 clc
-fns = {'china_govtbond_generic_1st_1m.mat';...
-    'shfe_nickel_generic_1st_1m';...
-    'shfe_rebar_generic_1st_1m'};
-idx = 3;
 %%
-d = load(fns{idx});
-px_1m = d.px_1m;
+code = 'rb1810';
+replay_startdt = '2018-06-04';
+replay_enddt = '2018-06-08';
+replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
+replay_filenames = cell(size(replay_dates));
+fn_candles_ = cell(size(replay_dates));
+for i = 1:size(replay_dates,1)
+    fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
+end
+% fns = {'cfe_govtbond_10y_generic_1st_1m.mat';...
+%     'shfe_nickel_generic_1st_1m';...
+%     'shfe_rebar_generic_1st_1m'};
+ idx = 3;
+px_1m = cDataFileIO.loadDataFromTxtFile(fn_candles_{1});
+if length(replay_dates)>=2
+    for k =2:length(replay_dates)
+        fn_candles = fn_candles_{k};
+        tmp = cDataFileIO.loadDataFromTxtFile(fn_candles);
+        px_1m = [px_1m;tmp];
+    end
+end
+%%
+% d = load(fns{idx});
+% px_1m = d.px_1m;
 if idx == 1
     f = code2instrument('T1809');
 elseif idx == 2
@@ -22,10 +40,10 @@ tick_value = f.tick_value;
 
 %%
 % backtest parameters
-freq_used = 5;
+freq_used = 3;
 nperiod = 144;
 stoploss_ratio = 0.02;
-target_ratio = 0.2;
+target_ratio = 0.05;
 use_sigma_shift_open = 0;
 no_sigma_shift = 1;
 %%

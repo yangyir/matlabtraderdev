@@ -14,7 +14,8 @@ function [] = loadtickdata(obj,varargin)
     end
     
     try
-        d = cDataFileIO.loadDataFromTxtFile(fn);
+         d = cDataFileIO.loadDataFromTxtFile(fn);
+ %         d = load(fn);
         if isstruct(d)
             flds = fields(d);
             data = getfield(d,flds{1});
