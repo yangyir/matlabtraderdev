@@ -23,22 +23,22 @@
 % 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00) 左开右开
 % 国债 candle_13:00:00 = ticks (13:00:00, 13:00:01 ] 左开右闭
 % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
-function [] = updatecandleinmem(mdefut, instrument)
-
-    if datenum(instrument.break_interval{end,end}) == datenum('23:00:00')
-        kind =1
-    elseif datenum(instrument.break_interval{end,end}) == datenum('15:15:00')
-        kind =2;
-    elseif datenum(instrument.break_interval{end,end}) == datenum('01:00:00')
-        kind =3;
-    end
+function [] = updatecandleinmem_sunq(mdefut)
+   instruments = mdefut.qms_.instruments_.getinstrument;
     if isempty(mdefut.ticks_), return; end
     ns = size(mdefut.ticks_,1);
-    count = mdefut.ticks_count_;
     for i =1:ns
-        buckets = mutfut.candles_{i}(:,1);
+        if datenum(instruments{i}.break_interval{end,end}) == datenum('23:00:00')
+            kind =1;
+        elseif datenum(instruments{i}.break_interval{end,end}) == datenum('15:15:00')
+            kind =2;
+        elseif datenum(instruments{i}.break_interval{end,end}) == datenum('01:00:00')
+            kind =3;
+        end
+        count = mdefut.ticks_count_;
+        buckets = mdefut.candles_{i}(:,1);
         buckets4save = mdefut.candles4save_{i}(:,i);
-        t = mdefut.ticks_{i}(cout(i),4);
+        t = mdefut.ticks_{i}(count(i),1);
         px_trade = mdefut.ticks_{i}(count(i),4);
         datestring1 = datestr(buckets(1));
         datestring2 = datestring1(1:end-8);
@@ -56,9 +56,11 @@ function [] = updatecandleinmem(mdefut, instrument)
         num23_00_00 = datenum([datestring2, '23:00:00']);
         num09_00_00 = datenum([datestring2, '09:00:00']);
         num22_59_59_5= datenum([datestring2, '22:59:59.5']); 
-        num01_00_00 = datenum([datestring4,'01:00:00']);
-        num00_00_00 = datenum([datestring4,'00:00:00']);
-        num00_00_0_5 = datenum([datestring4,'00:00:0.5']);
+        if kind == 3
+            num01_00_00 = datenum([datestring4,'01:00:00']);
+            num00_00_00 = datenum([datestring4,'00:00:00']);
+            num00_00_0_5 = datenum([datestring4,'00:00:0.5']);
+        end
         if kind == 1
               if t == num20_59_00
                   continue
@@ -115,6 +117,7 @@ function [] = updatecandleinmem(mdefut, instrument)
             idx = buckets(1:end-1)<t & equalorNot;
         end
         this_bucket = buckets(idx);
+        
         if sum(sum(equalorNot4save))==0
            idx4save = buckets4save(1:end-1)<t & buckets4save(2:end)>t;
         else
@@ -184,4 +187,4 @@ function [] = updatecandleinmem(mdefut, instrument)
         %
     end
 end
-%end of updatecandleinmem
+%end of updatecandleinmem_sunq 

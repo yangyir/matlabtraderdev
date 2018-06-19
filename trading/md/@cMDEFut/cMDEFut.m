@@ -118,7 +118,7 @@ classdef cMDEFut < cMyTimerObj
         %data file i/o
         [] = saveticks2mem(obj)
         [] = updatecandleinmem(obj)
-        
+        [] = updatecandleinmem_sunq(obj)
         %technical indicator calculator
         % William %R
         indicators = calc_wr_(obj,instrument,varargin)
