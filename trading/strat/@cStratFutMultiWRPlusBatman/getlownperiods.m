@@ -20,8 +20,7 @@ function [lowp,lowt] = getlownperiods(obj,instrument)
     end
 
     lowpx = [histcandles(:,4);candlesticks(:,4)];
-
-    lowp = min(lowpx);
+    lowp = min(lowpx(end-nperiod+1:end));
     idx = lowpx == lowp;
     lowt = timevec(idx);
     
