@@ -59,11 +59,11 @@ function [] = updatecandleinmem_sunq(mdefut)
         num23_00_00 = datenum([datestring2, '23:00:00']);
         num09_00_00 = datenum([datestring2, '09:00:00']);
         num22_59_59_5= datenum([datestring2, '22:59:59.5']); 
-        if kind == 3
-            num01_00_00 = datenum([datestring4,'01:00:00']);
-            num00_00_00 = datenum([datestring4,'00:00:00']);
-            num00_00_0_5 = datenum([datestring4,'00:00:0.5']);
-        end
+%         if kind == 3
+%             num01_00_00 = datenum([datestring4,'01:00:00']);
+%             num00_00_00 = datenum([datestring4,'00:00:00']);
+%             num00_00_0_5 = datenum([datestring4,'00:00:0.5']);
+%         end
         if kind == 1
               if t == num20_59_00
                   continue
@@ -81,8 +81,6 @@ function [] = updatecandleinmem_sunq(mdefut)
                   t = num13_30_00;
               elseif t == num15_00_00
                   t = num21_00_00;
-              elseif t == num23_00_00
-                  t = num09_00_00;
               end
             elseif kind == 2
                 if t == num11_30_00
@@ -107,8 +105,6 @@ function [] = updatecandleinmem_sunq(mdefut)
                   t = num13_30_00;
               elseif t == num15_00_00
                   t = num21_00_00;
-              elseif t == num23_00_00
-                  t = num09_00_00;
               end
         end
         % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
