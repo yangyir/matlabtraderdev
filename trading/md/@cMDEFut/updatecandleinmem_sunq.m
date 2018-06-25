@@ -21,7 +21,7 @@
 % 镍：上期所如，镍的有色品种，夜盘过晚上00：00：00的，Bloomberg生成candle的方式需要特殊处理...
 % 镍：但是不会对回测效果影响很大，这里先暂时不做相关处理；
 %%%%%% 国债处理如下：
-% 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00) 左开右开
+% 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00] 左开右闭
 % 国债 candle_13:00:00 = ticks (13:00:00, 13:00:01 ] 左开右闭
 % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
 
@@ -86,9 +86,7 @@ function newset_ = updatecandleinmem_sunq(mdefut)
                   t = num21_00_00;
               end
             elseif kind == 2
-                if t == num11_30_00
-                    continue
-                elseif t == num13_00_00
+                if t == num13_00_00
                     continue
                 end  
             elseif kind == 3
