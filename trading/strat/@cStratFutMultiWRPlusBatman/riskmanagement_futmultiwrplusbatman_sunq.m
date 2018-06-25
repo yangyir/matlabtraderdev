@@ -126,7 +126,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                         end
                         %
                         trade_j.batman_.checkflag_ = 0;
-                        return
+                        continue
                     end
                     
                     % to stop loss using trade_j.stoplossprice_ (using ticks value)
@@ -308,7 +308,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     trade_j.batman_.checkflag = 1;
                                 end
                             end
-                            return 
+                            continue
                         end
                         %
                         %

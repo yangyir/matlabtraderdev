@@ -27,8 +27,11 @@
 
 
 function newset_ = updatecandleinmem_sunq(mdefut)
+   newset_ = 0;
    instruments = mdefut.qms_.instruments_.getinstrument;
-    if isempty(mdefut.ticks_), return; end
+    if isempty(mdefut.ticks_)
+        return; 
+    end
     ns = size(mdefut.ticks_,1);
     count = mdefut.ticks_count_;
     for i =1:ns
