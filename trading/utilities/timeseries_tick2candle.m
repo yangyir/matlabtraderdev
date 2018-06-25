@@ -25,15 +25,8 @@ function candles = timeseries_tick2candle(varargin)
         return
     end
     
-    [category,extrainfo,instrument] = getfutcategory(code);
-    if category == 1
-        error('timeseries_tick2candle:%s not implemented',extrainfo)
-    end
-        
-    if category == 3
-        error('timeseries_tick2candle:%s not implemented',extrainfo)
-    end
-        
+    [category,~,instrument] = getfutcategory(code);
+                
     blankstr = ' ';
     cob_dates = unique(floor(ticks(:,1)));
     ndates = length(cob_dates);
@@ -50,9 +43,9 @@ function candles = timeseries_tick2candle(varargin)
         datestr_start = datestr(floor(buckets(1)));
         datestr_end = datestr(floor(buckets(end)));
         
-        if category == 2
-            num11_30_00 = datenum([datestr_start,blankstr,'11:30:00']);
-        end
+%         if category == 2
+%             num11_30_00 = datenum([datestr_start,blankstr,'11:30:00']);
+%         end
         
         if category > 3
             num21_00_00 = datenum([datestr_start,blankstr, '21:00:00']);
@@ -115,7 +108,9 @@ function candles = timeseries_tick2candle(varargin)
             t = ticks(j,1);
             pxtrade = ticks(j,2);
             
-            if category == 2 && t == num11_30_00, continue; end
+%             if category == 2 && t == num11_30_00
+%                 continue; 
+%             end
             
             if category > 3
                 if t == num21_00_00, t = num21_00_0_5;end
