@@ -2,8 +2,8 @@ clear
 clc
 %%
 code = 'rb1810';
-replay_startdt = '2018-06-04';
-replay_enddt = '2018-06-08';
+replay_startdt = '2018-06-03';
+replay_enddt = '2018-06-10';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 replay_filenames = cell(size(replay_dates));
 fn_candles_ = cell(size(replay_dates));
@@ -40,7 +40,7 @@ tick_value = f.tick_value;
 
 %%
 % backtest parameters
-freq_used = 3;
+freq_used = 1;
 nperiod = 144;
 stoploss_ratio = 0.02;
 target_ratio = 0.05;
@@ -48,6 +48,7 @@ use_sigma_shift_open = 0;
 no_sigma_shift = 1;
 %%
 px_used = timeseries_compress(px_1m,'Frequency',[num2str(freq_used),'m']);
+%%
 %open-up trades
 npx = size(px_used,1);
 %1st column is time

@@ -22,14 +22,9 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
         tick_bid = tick(2);
         tick_ask = tick(3);
         %
-        candle = obj.mde_fut_.getlastcandle(instrument);
-        candle = candle{1};
-        if (tick_time - candle(1)) * 24*60*60 - obj.samplefreq_(i)*60 <= 1
-            lasttickincandle = 1;
-        else
-            lasttickincandle = 0;
-        end
-        
+%         candle = obj.mde_fut_.getlastcandle(instrument);
+%         candle = candle{1};
+            lasttickincandle = obj.mde_fut_.newset_ ;
         %filter out trades associated with this particular futures
         %instrument
         trades = obj.helper_.trades_.filterbycode(code);
@@ -45,10 +40,8 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                 lowestp = obj.getlownperiods(instrument);
                 highestp = obj.gethighnperiods(instrument);
                 
-                %note:todo:0.02 and 0.05 are hard coded here and shall be
-                %replaced with variables set elsewhere
-                pxstoploss = pxopen-direction*(highestp-lowestp)*0.02;
-                pxtarget = pxopen+direction*(highestp-lowestp)*0.05;
+                pxstoploss = pxopen-direction*(highestp-lowestp) * trade_j.batman_.bandstoploss_;
+                pxtarget = pxopen+direction*(highestp-lowestp) * trade_j.batman_.bandtarget_;
                 %
                 %round to tradeable price
                 pxstoploss = round(pxstoploss/tick_size)*tick_size;
@@ -66,9 +59,6 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                 trade_j.batman_.pxsupportmin_ = -1;
                 trade_j.batman_.pxsupportmax_ = -1;
             elseif strcmpi(trade_j.status_,'set')
-%             if j == 1
-%                 ggg =1;
-%             end
                 if ~strcmpi(trade_j.batman_.status_,'closed')
                     %note:if the trade is set but not closed yet, as per
                     %backtest, 1)we check whether the tick price breaches

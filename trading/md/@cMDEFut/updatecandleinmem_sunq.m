@@ -26,7 +26,7 @@
 % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
 
 
-function [] = updatecandleinmem_sunq(mdefut)
+function newset_ = updatecandleinmem_sunq(mdefut)
    instruments = mdefut.qms_.instruments_.getinstrument;
     if isempty(mdefut.ticks_), return; end
     ns = size(mdefut.ticks_,1);
@@ -132,14 +132,17 @@ function [] = updatecandleinmem_sunq(mdefut)
             else
                 this_count = [];
             end
+            newset_= 0;
         end
 
         if ~isempty(this_count)
             if this_count ~= mdefut.candles_count_(i)
                 mdefut.candles_count_(i) = this_count;
                 newset = true;
+                newset_= 1;
             else
                 newset = false;
+                newset_= 0;
             end
             mdefut.candles_{i}(this_count,5) = px_trade;
             if newset
