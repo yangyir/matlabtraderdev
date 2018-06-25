@@ -61,9 +61,14 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                 %
                 trade_j.batman_.pxtarget_ = pxtarget;
                 trade_j.batman_.pxstoploss_ = pxstoploss;
-                trade_j.batman_.pxopen = pxopen;
+                trade_j.batman_.pxopen_ = pxopen;
                 trade_j.batman_.checkflag_ = 0;
+                trade_j.batman_.pxsupportmin_ = -1;
+                trade_j.batman_.pxsupportmax_ = -1;
             elseif strcmpi(trade_j.status_,'set')
+%             if j == 1
+%                 ggg =1;
+%             end
                 if ~strcmpi(trade_j.batman_.status_,'closed')
                     %note:if the trade is set but not closed yet, as per
                     %backtest, 1)we check whether the tick price breaches
@@ -95,8 +100,8 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                             elseif tick_bid >= trade_j.targetprice_
                                 trade_j.batman_.pxresistence_ = tick_bid;
                                 %here I am not sure to use tick_bid as be highprice????????????????
-                                trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ - (trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_bandwidthmin_;
-                                trade_j.batman_.pxsupportmax_ = trade_j.batmna_.pxresistence_ - (trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_bandwidthmax_;
+                                trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ - (trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmin_;
+                                trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ - (trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmax_;
                             end
                         elseif direction == -1
                             if tick_ask >= trade_j.stoplossprice_
@@ -122,9 +127,9 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                             elseif tick_ask > trade_j.targetprice_ && tick_ask < trade_j.stoplossprice_
                                 %do nothing and wait for the next trade price
                             elseif tick_ask <= trade_j.targetprice_
-                                trade_j.batman.pxresistence_ = tick_ask;
-                                trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_bandwidthmin_;
-                                trade_j.batman_.pxsupportmax_ = trade_j.batmna_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_bandwidthmax_;
+                                trade_j.batman_.pxresistence_ = tick_ask;
+                                trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmin_;
+                                trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmax_;
                             end
                         else
                             error('cStratFutMultiWRBatman:riskmanagement:invalid direction of position')
@@ -201,8 +206,8 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     continue;
                                 elseif tick_bid >= trade_j.batman_.pxresistence_
                                     trade_j.batman_.pxresistence_ = tick_bid;
-                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_bandwidthmin_;
-                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_bandwidthmax_;
+                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmin_;
+                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmax_;
                                     trade_j.batman_.checkflag_ = 0;
                                 elseif  tick_bid < trade_j.batman_.pxresistence_ && tick_bid > trade_j.batman_.pxsupportmin_
                                     trade_j.batman_.checkflag_ = 0;
@@ -234,8 +239,8 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     continue;
                                 elseif tick_bid >= trade_j.batman_.pxresistence_
                                     trade_j.batman_.pxresistence_ = tick_bid;
-                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_bandwidthmin_;
-                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_bandwidthmax_;
+                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmin_;
+                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmax_;
                                     trade_j.batman_.checkflag_ = 0;
                                 elseif tick_bid <= trade_j.batman_.pxsupportmin_ && tick_bid > trade_j.batman_.pxsupportmax_
                                     trade_j.batman_.pxopen_ = min(trade_j.batman_.pxopen_,tick_bid);
@@ -270,8 +275,8 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     continue;
                                 elseif tick_ask <= trade_j.batman_.pxresistence_
                                     trade_j.batman_.pxresistence_ = tick_ask;
-                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_bandwidthmin_;
-                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_bandwidthmax_;
+                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmin_;
+                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmax_;
                                     trade_j.batman_.checkflag_ = 0;
                                 elseif  tick_ask > trade_j.batman_.pxresistence_ && tick_ask < trade_j.batman_.pxsupportmin_
                                     trade_j.batman_.checkflag_ = 0;
@@ -303,8 +308,8 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     continue;
                                 elseif tick_ask <= trade_j.batman_.pxresistence_
                                     trade_j.batman_.pxresistence_ = tick_ask;
-                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_bandwidthmin_;
-                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_bandwidthmax_;
+                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmin_;
+                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmax_;
                                     trade_j.batman_.checkflag_ = 0;
                                 elseif tick_ask >= trade_j.batman_.pxsupportmin_ && tick_ask < trade_j.batman_.pxsupportmax_
                                     trade_j.batman_.pxopen_ = max(trade_j.batman_.pxopen_,tick_ask);
