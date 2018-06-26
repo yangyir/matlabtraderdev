@@ -43,7 +43,8 @@ function [] = refresh(strategy)
     end
     %
     try
-        strategy.autoplacenewentrusts(signals);
+        strategy.autoplacenewentrusts_sunq(signals{:,1});
+        strategy.autoplacenewentrusts_sunq(signals{:,2});
     catch e
         msg = ['error:cStrat:autoplacenewentrusts:',e.message,'\n'];
         fprintf(msg);
