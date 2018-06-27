@@ -38,7 +38,8 @@ classdef cStratFutMultiWRPlusBatman < cStrat
         %end of gensignals
         
         function [] = autoplacenewentrusts(obj,signals)
-            obj.autoplacenewentrusts_futmultiwrplusbatman(signals)
+%             obj.autoplacenewentrusts_futmultiwrplusbatman(signals)
+            obj.autoplacenewentrusts_futmultiwrplusbatman_sunq(signals)
         end
         %end of autoplacenewentrusts
         
@@ -65,6 +66,7 @@ classdef cStratFutMultiWRPlusBatman < cStrat
         signals = gensignals_futmultiwrplusbatman(obj)
         signals = gensignals_futmultiwrplusbatman_sunq(obj)
         [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
+        [] = autoplacenewentrusts_futmultiwrplusbatman_sunq(obj,signals)
         [] = initdata_futmultiwrplusbatman(obj)
     end
     

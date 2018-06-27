@@ -1,7 +1,7 @@
 function signals = gensignals_futmultiwrplusbatman_sunq(obj)
 %     error('cStratFutMultiWRPlusBatman:gensignals_futmultiwrplusbatman not implemented')
     
-    signals = cell(size(obj.count,1),2);
+    signals = cell(size(obj.count,1),1);
     instruments = obj.instruments_.getinstrument;
 
     for i = 1:obj.count
@@ -10,26 +10,23 @@ function signals = gensignals_futmultiwrplusbatman_sunq(obj)
         %
         highestpx = obj.gethighnperiods(instruments{i});
         lowestpx = obj.getlownperiods(instruments{i});
-%         if highestpx > obj.highnperiods_(i)
+
+        if highestpx > obj.highnperiods_(i) || lowestpx < obj.lownperiods_(i)
             signals{i,1} = struct('instrument',instruments{i},...
-                'direction',-1,...
-                'price',highestpx);
-            obj.highnperiods_(i) = highestpx;
-%             return
-%         end
-        
-%         if lowestpx < obj.lownperiods_(i)
-            signals{i,2} = struct('instrument',instruments{i},...
-                'direction',1,...
-                'price',lowestpx);
-            obj.lownperiods_(i) = lowestpx;
-%             return
-%         end
-%         
-%         signals{i,1} = struct('instrument',instruments{i},...
-%                 'direction',0,...
-%                 'price',-9.99);
-        
+                'checkflag',1,...
+                'highprice',highestpx,'lowprice',lowestpx);
+            if highestpx > obj.highnperiods_(i)
+                obj.highnperiods_(i) = highestpx;
+            end
+            if lowestpx < obj.lownperiods_(i)
+                obj.lownperiods_(i) = lowestpx;
+            end
+            return 
+        end
+      
+        signals{i,1} = struct('instrument',instruments{i},...
+                'checkflag',0,...
+                'highprice',-9.99,'lowprice',-9.99);
     end
     
 end

@@ -12,36 +12,19 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman_sunq(obj,signals)
         if ~obj.autotrade_(ii),continue;end
         
         %third to check whether the signal is unnatural
-        direction = signal.direction;
-        if direction == 0, continue; end
+        checkflag = signal.checkflag;
+        if checkflag == 0, continue; end
         
         %fourth to check whether the instrument has been traded or not,
         %i.e. there is an existing position
         [flag,idx] = obj.bookrunning_.hasposition(instrument);
         if ~flag
             volume_exist = 0;
-            direction_exist = 0;
         else
             pos = obj.bookrunning_.positions_{idx};
             volume_exist = pos.position_total_;
-            direction_exist = pos.direction_;
         end
         
-        %note:in case the exist positions are with the different direction
-        %as of the signal, we shall first unwind the existing position and
-        %then open up position with the new direction
-        %maybe some todo here, i am not sure
-        unwind_count = 0;
-        while direction_exist * direction < 0
-            %try to unwind the position
-            obj.unwindposition(instrument,unwind_count);
-            %update the position and direction
-            pos = obj.bookrunning_.positions_{idx};
-            volume_exist = pos.position_total_;
-            direction_exist = pos.direction_;
-            unwind_count = unwind_count + 1;
-        end
-
         %note:in case there is no existing position, we would trade the
         %base units. o/w, the execution methodology is specified
         if volume_exist == 0
@@ -71,52 +54,49 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman_sunq(obj,signals)
         %a result, we try to make sure the same entrust, i.e. same underlier
         %futures, entrust price, volume and direction are not repeatly
         %placed.
-%         if strcmpi(obj.mode_,'realtime')
-%             q = obj.mde_fut_.qms_.getquote(instrument.code_ctp);
-%             if direction < 0
-%                 price = q.bid1 + obj.bidspread_(ii)*instrument.tick_size;
-%             else
-%                 price = q.ask1 - obj.askspread_(ii)*instrument.tick_size;
-%             end
-%             ordertime = now;
-%         else
-%             tick = obj.mde_fut_.getlasttick(instrument);
-%             bid = tick(2);
-%             ask = tick(3);
-%             if direction < 0
-%                 price =  bid + obj.bidspread_(ii)*instrument.tick_size;
-%             else
-%                 price =  ask - obj.askspread_(ii)*instrument.tick_size;
-%             end
-%             ordertime = tick(1);
-%         end
-        price = signal.price;
-        ordertime = tick(1);
+        if strcmpi(obj.mode_,'realtime')
+            ordertime = now;
+        else
+            tick = obj.mde_fut_.getlasttick(instrument);
+            ordertime = tick(1);
+        end
+        highprice = signal.highprice;
+        lowprice = signal.lowprice;
         withdraw_flag = true;
         n = obj.helper_.entrustspending_.latest;
+        withdraw_flag1 = zeros(n);
+        withdraw_flag2 = zeros(n);
         for jj = 1:n
             e = obj.helper_.entrustspending_.node(jj);
             f1 = strcmpi(e.instrumentCode,instrument.code_ctp);
-            f2 = e.price == price;
-            f3 = e.volume == abs(volume);
-            if f1&&f2&&f3
-                withdraw_flag = false;
-                break
+            f2 = (e.price == highprice & e.direction == -1);
+            f3 = (e.price == lowprice & e.direction == 1);
+            f4 = e.volume == abs(volume);
+            if f1&&f2&&f4
+                withdraw_flag1(jj) = 1;
+            else
+                withdraw_flag1(jj) = 0;
             end
+            if f1&&f3&&f4
+                withdraw_flag2(jj) = 1;
+            else
+                withdraw_flag2(jj) = 0;
+            end
+        end
+        if sum(sum(withdraw_flag1))>0 && sum(sum(withdraw_flag2))>0
+            withdraw_flag = false;
         end
         
         %if withdraw is needed
         %firstly to unwind all existing entrusts associated with
         %the instrument
         if withdraw_flag, obj.withdrawentrusts(instrument); end
-                
-        if direction < 0
+
             obj.shortopensingleinstrument(instrument.code_ctp,abs(volume),0,...
-                'overrideprice',price,'time',ordertime);
-        else
+                'overrideprice',highprice,'time',ordertime);
+
             obj.longopensingleinstrument(instrument.code_ctp,abs(volume),0,...
-                'overrideprice',price,'time',ordertime);
-        end
-        
+                'overrideprice',lowprice,'time',ordertime);
+
     end
 end
