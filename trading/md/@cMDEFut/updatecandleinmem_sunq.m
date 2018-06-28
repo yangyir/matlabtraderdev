@@ -133,7 +133,6 @@ function newset_ = updatecandleinmem_sunq(mdefut)
             else
                 this_count = [];
             end
-            newset_= 0;
         end
 
         if ~isempty(this_count)
@@ -143,7 +142,6 @@ function newset_ = updatecandleinmem_sunq(mdefut)
                 newset_= 1;
             else
                 newset = false;
-                newset_= 0;
             end
             mdefut.candles_{i}(this_count,5) = px_trade;
             if newset
@@ -172,6 +170,7 @@ function newset_ = updatecandleinmem_sunq(mdefut)
             if this_count_save ~= mdefut.candles4save_count_(i)
                 mdefut.candles4save_count_(i) = this_count_save;
                 newset = true;
+                newset_= 1;
             else
                 newset = false;
             end

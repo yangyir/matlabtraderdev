@@ -17,7 +17,7 @@ replay_strat.setmaxexecutionperbucket(instr,replay_maxexecutionperbucket);
 
 %%
 replay_startdt = '2018-06-06';
-replay_enddt = '2018-06-06';
+replay_enddt = '2018-06-08';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 replay_filenames = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)

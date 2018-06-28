@@ -159,7 +159,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                 closetodayFlag = isclosetoday(timeopen,tick_time);
                             end
                             spread = 0;
-                            ret = obj.shortclosesingleinstrument(code,volume,closetodayFlag,spread,'time',tick_time);
+                            ret = obj.longclosesingleinstrument(code,volume,closetodayFlag,spread,'time',tick_time);
                             if ret
                                 trade_j.closetime1_ = tick_time;
                                 trade_j.closetime2_ = datestr(tick_time);
@@ -277,7 +277,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     %open price
                                     trade_j.batman_.pxopen_ = tick_ask;
                                     trade_j.batman_.checkflag_ = 1;
-                                end
+                                end 
                             elseif trade_j.batman_.checkflag_ == 1
                                 if tick_ask >= trade_j.batman_.pxsupportmax_
                                     trade_j.batman_.status_ = 'closed';
