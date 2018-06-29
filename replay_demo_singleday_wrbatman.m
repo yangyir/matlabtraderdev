@@ -1,5 +1,5 @@
 clear all;
-replay_speed = 20;
+replay_speed = 5;
 replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
 %%
 code = 'rb1810';
@@ -17,7 +17,7 @@ replay_strat.setmaxexecutionperbucket(instr,replay_maxexecutionperbucket);
 
 %%
 replay_startdt = '2018-06-06';
-replay_enddt = '2018-06-08';
+replay_enddt = '2018-06-06';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 replay_filenames = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)

@@ -111,7 +111,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     trade_j.closetime2_ = datestr(tick_time);
                                     trade_j.closeprice_ = trade_j.stoplossprice_;
                                     trade_j.runningpnl_ = 0;
-                                    trade_j.closepnl_ = direction*volume*(trade_j.stoplossprice_-trade_j.openprice_)/ tick_size * tick_value;
+                                    trade_j.closepnl_ = direction*volume*(trade_j.closeprice_-trade_j.openprice_)/ tick_size * tick_value;
                                 end
                                 continue;
                             elseif tick_ask > trade_j.targetprice_ && tick_ask < trade_j.stoplossprice_
