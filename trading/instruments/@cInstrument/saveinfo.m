@@ -6,8 +6,10 @@ function saveinfo(obj,fn_)
         propvalue = obj.(fields{i});
         if isnumeric(propvalue)
             fprintf(fid,'%s\t%s\n',propname,num2str(propvalue));
-        else
+        elseif ischar(propvalue)
             fprintf(fid,'%s\t%s\n',propname,propvalue);
+        else
+            continue
         end
     end
     fclose(fid);

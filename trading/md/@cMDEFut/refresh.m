@@ -138,11 +138,11 @@ function [] = refresh(mdefut)
         %save ticks data into memory
         mdefut.saveticks2mem;
         %save candles data into memory
-        mdefut.updatecandleinmem;
-        %
+        mdefut.newset_ = mdefut.updatecandleinmem_sunq;
+%         mdefut.updatecandleinmem;
+         %
         if strcmpi(mdefut.mode_,'replay') && strcmpi(mdefut.status_,'working') 
             mdefut.replay_count_ = mdefut.replay_count_ + 1;
-            
         end
     end
 end

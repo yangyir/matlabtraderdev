@@ -5,7 +5,8 @@ login_counter_opt2;
 %%
 init_mde;
 %%
-instrument_list = {'cu1807';'al1807';'zn1807';'pb1807';'ni1807';'cu1808';...
+instrument_list = {'cu1807';'al1807';'zn1808';'pb1808';'ni1807';'cu1808';...
+    'al1808';'ni1809';...
     'rb1810';'i1809';...
     'TF1809';'T1809'};
 %%
@@ -22,13 +23,13 @@ strat_huaxin.helper_.printrunningpnl('mdefut',mdefut)
 %% print market
 clc;mdefut.printmarket;
 %% ÏÂµ¥
-counter_name = 'c_fut';
-ctp_code = 'rb1810';
+counter_name = 'c_opt1';
+ctp_code = 'T1809';
 direction = 'long';
-offset = 'close';
+offset = 'open';
 closetoday = 1;
-volume = 7;
-px = 3745;
+volume = 1;
+px = 94.495;
 
 if px < 0 && px ~= -1, error('invalid price input'); end
 
@@ -76,6 +77,11 @@ strat_citic.helper_.printpendingentrusts;
 strat_ccb.helper_.printpendingentrusts;
 strat_huaxin.helper_.printpendingentrusts;
 %%
+clc;
+strat_citic.helper_.printallentrusts;
+strat_ccb.helper_.printallentrusts;
+strat_huaxin.helper_.printallentrusts;
+%%
 if isempty(timerfindall)
     mdefut.start;mdefut.timer_.tag = 'mdefut';
     strat_citic.helper_.start;strat_citic.helper_.timer_.tag = 'ops';
@@ -92,5 +98,6 @@ delete(timerfindall);
 logoff_counters;
 clear all;
 %%
-strat_citic.withdrawentrusts('TF1809')
+strat_citic.withdrawentrusts('T1809')
+strat_huaxin.withdrawentrusts('T1809')
 

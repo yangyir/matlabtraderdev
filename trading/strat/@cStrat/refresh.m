@@ -7,8 +7,11 @@ function [] = refresh(strategy)
     
     if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
         instrument = strategy.instruments_.getinstrument{1};
+        tick = strategy.mde_fut_.getlasttick(instrument);
         candle = strategy.mde_fut_.getlastcandle(instrument);
-        fprintf('time:%s; price:%s\n',datestr(candle{1}(1)),num2str(candle{1}(5)));
+        fprintf('runtime:%s; candlebuckettime:%s; price:%s\n',...
+            datestr(tick(1),'yyyy-mm-dd HH:MM:SS'),...
+            datestr(candle{1}(1),'HH:MM'),num2str(candle{1}(5)));
     end
 
     try

@@ -1,15 +1,26 @@
+<<<<<<< HEAD
+dir_ = getenv('HOME');
+dir_data_ = [dir_,'\backtest\data\'];
+info = dir(dir_data_);
+fns = cell(size(info,1),1);
+for i = 1:size(info,1),fns{i} = info(i).name;end
+% fns = {'china_govtbond_generic_1st_1m.mat';...
+%     'shfe_nickel_generic_1st_1m';...
+%     'shfe_rebar_generic_1st_1m'};
+=======
 fns = {'china_govtbond_generic_1st_1m.mat';...
     'shfe_nickel_generic_1st_1m';...
     'shfe_rebar_generic_1st_1m'};
-idx = 2;
+>>>>>>> d4fcb3195e8665f3be7039d4c72b9bfad7fbbd00
+idxused = 3;
 %%
-d = load(fns{idx});
+d = load(fns{idxused});
 px_1m = d.px_1m;
-if idx == 1
+if idxused == 1
     f = code2instrument('T1809');
-elseif idx == 2
+elseif idxused == 2
     f = code2instrument('ni1807');
-elseif idx == 3
+elseif idxused == 3
     f = code2instrument('rb1810');
 else
     error('invalid idx input');
@@ -19,13 +30,14 @@ tick_value = f.tick_value;
 
 %%
 % backtest parameters
-freq_used = 5;
+freq_used = 3;
 nperiod = 144;
-stoploss_ratio = 0.05;
-target_ratio = 0.2;
+stoploss_ratio = 0.02;
+target_ratio = 0.1;
 use_sigma_shift_open = 0;
 no_sigma_shift = 1;
-%%
+%
+%
 px_used = timeseries_compress(px_1m,'Frequency',[num2str(freq_used),'m']);
 %open-up trades
 npx = size(px_used,1);
@@ -61,8 +73,8 @@ for i = nperiod+1:npx
         pxOpen = pxH + spd;
         trades(ntrade,3) = pxOpen;
         %stop-loss at 5% as of pxH-pxL and target at 20% as of pxH-pxL
-        trades(ntrade,4) = pxOpen + stoploss_ratio*(pxH-pxL);
-        trades(ntrade,5) = pxOpen - target_ratio*(pxH-pxL);
+        trades(ntrade,4) = pxOpen + round(stoploss_ratio*(pxH-pxL)/tick_size)*tick_size;
+        trades(ntrade,5) = pxOpen - round(target_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,6) = sigma;
     elseif pxL -spd >= px_used(i,4)
         %note:if the lowest of the current candle period is lower than the
@@ -74,13 +86,14 @@ for i = nperiod+1:npx
         pxOpen = pxL - spd;
         trades(ntrade,3) = pxL-spd;
         %stop-loss at 5% as of pxH-pxL and target at 20% as of pxH-pxL
-        trades(ntrade,4) = pxOpen - stoploss_ratio*(pxH-pxL);
-        trades(ntrade,5) = pxOpen + target_ratio*(pxH-pxL);
+        trades(ntrade,4) = pxOpen - round(stoploss_ratio*(pxH-pxL)/tick_size)*tick_size;
+        trades(ntrade,5) = pxOpen + round(target_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,6) = sigma;
     end
 end
 trades = trades(1:ntrade,:);
-%%
+%
+%
 %for all the trades we summarize how each trade behave
 maxLoss = zeros(ntrade,1);
 maxProfit = zeros(ntrade,1);
@@ -92,22 +105,42 @@ for i = 1:ntrade
     idx = find(px_used(:,1) == tradetime);
     idx_max = min(idx+holdPeriod-1,npx);
     if trades(i,2) == 1
-        maxProfit(i,1) = max(px_used(idx:idx_max,3))-trades(i,3);
-        maxProfit(i,1) = min(maxProfit(i,1),trades(i,5) - trades(i,3));
-        maxLoss(i,1) = min(px_used(idx:idx_max,4))-trades(i,3);
-        maxLoss(i,1) = max(maxLoss(i,1),trades(i,4)-trades(i,3));
+%         maxProfit(i,1) = max(px_used(idx:idx_max,3))-trades(i,3);
+        maxProfit(i,1) = trades(i,5) - trades(i,3);
+%         maxLoss(i,1) = min(px_used(idx:idx_max,4))-trades(i,3);
+        maxLoss(i,1) = trades(i,4)-trades(i,3);
     elseif trades(i,2) == -1
-        maxProfit(i,1) = -min(px_used(idx:idx_max,4))+trades(i,3);
-        maxProfit(i,1) = min(maxProfit(i,1),-trades(i,5) + trades(i,3));
-        maxLoss(i,1) = -max(px_used(idx:idx_max,3))+trades(i,3);
-        maxLoss(i,1) = max(maxLoss(i,1),-trades(i,4)+trades(i,3));
+%         maxProfit(i,1) = -min(px_used(idx:idx_max,4))+trades(i,3);
+        maxProfit(i,1) = -trades(i,5) + trades(i,3);
+%         maxLoss(i,1) = -max(px_used(idx:idx_max,3))+trades(i,3);
+        maxLoss(i,1) = -trades(i,4)+trades(i,3);
     end
-    profitLoss(i,1) = trades(i,2)*(px_used(idx_max,5)-trades(i,3));
-    if profitLoss(i,1) >= maxProfit(i,1)
-        profitLoss(i,1) = maxProfit(i,1);
-    elseif profitLoss(i,1) < maxLoss(i,1)
-        profitLoss(i,1) = maxLoss(i,1);
-    end       
+    
+    for j = idx:idx_max
+        if trades(i,2) == 1
+            max_profit = trades(i,2)*(px_used(j,3)-trades(i,3));
+            max_loss = trades(i,2)*(px_used(j,4)-trades(i,3));
+        elseif trades(i,2) == -1
+            max_profit = trades(i,2)*(px_used(j,4)-trades(i,3));
+            max_loss = trades(i,2)*(px_used(j,3)-trades(i,3));
+        end
+        if max_profit >= maxProfit(i,1)
+            profitLoss(i,1) = maxProfit(i,1);
+            break;
+        elseif max_loss <= maxLoss(i,1)
+            profitLoss(i,1) = maxLoss(i,1);
+            break;
+        else
+            profitLoss(i,1) = trades(i,2)*(px_used(j,5)-trades(i,3));
+        end
+        
+    end
+%     profitLoss(i,1) = trades(i,2)*(px_used(idx_max,5)-trades(i,3));
+%     if profitLoss(i,1) >= maxProfit(i,1)
+%         profitLoss(i,1) = maxProfit(i,1);
+%     elseif profitLoss(i,1) < maxLoss(i,1)
+%         profitLoss(i,1) = maxLoss(i,1);
+%     end       
     
 end
 
@@ -116,15 +149,19 @@ num_of_contract = 10;
 pnl = sum(profitLoss)/tick_size*tick_value*num_of_contract;
 pWin = sum(profitLoss>0)/size(profitLoss,1);
 
+close all;
 fprintf('total pnl:%s, prob to win:%4.1f%%;number of trades:%d\n',...
     num2str(pnl),pWin*100,ntrade);
+figure(1)
 plot(cumsum(profitLoss)/tick_size*tick_value*num_of_contract);
-if idx == 1
+if idxused == 1
     title('10y govt bond');
-elseif idx == 2
+elseif idxused == 2
     title('nickel');
-elseif idx == 3
+elseif idxused == 3
     title('rebar');
 end
+% figure(2)
+% hist(profitLoss/tick_size*tick_value*num_of_contract,50);
 
 
