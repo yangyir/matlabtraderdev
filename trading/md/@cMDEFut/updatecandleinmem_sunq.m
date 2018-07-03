@@ -170,7 +170,7 @@ function newset_ = updatecandleinmem_sunq(mdefut)
             if this_count_save ~= mdefut.candles4save_count_(i)
                 mdefut.candles4save_count_(i) = this_count_save;
                 newset = true;
-                newset_= 1;
+%                 newset_= 1;
             else
                 newset = false;
             end

@@ -76,6 +76,8 @@ function [ profitLoss ] = w_r_batman_test_sunq(direction,close,high,low, open, o
                         %breahed from the top.now we need to update the
                         %open price
                         open = lasttrade;
+                        pxwithdrawmin = pxhigh - (pxhigh - open) * bw_min;
+                        pxwithdrawmax = pxhigh - (pxhigh - open) * bw_max;
                         doublecheck = 3;
                     end
                 elseif direction == -1
@@ -95,6 +97,8 @@ function [ profitLoss ] = w_r_batman_test_sunq(direction,close,high,low, open, o
                         %breahed from the top.now we need to update the
                         %open price
                         open = lasttrade;
+                        pxwithdrawmin = pxhigh + (open - pxhigh) * bw_min;
+                        pxwithdrawmax = pxhigh + (open - pxhigh) * bw_max;
                         doublecheck = 3;
                     end
                 end
@@ -112,6 +116,8 @@ function [ profitLoss ] = w_r_batman_test_sunq(direction,close,high,low, open, o
                         doublecheck = 2;
                     elseif lasttrade <= pxwithdrawmin && lasttrade > pxwithdrawmax
                         open = min(open ,lasttrade);
+                        pxwithdrawmin = pxhigh - (pxhigh - open) * bw_min;
+                        pxwithdrawmax = pxhigh - (pxhigh - open) * bw_max;
                         doublecheck = 3;
                     elseif lasttrade < pxhigh && lasttrade > pxwithdrawmin
                         doublecheck = 3;
@@ -133,6 +139,8 @@ function [ profitLoss ] = w_r_batman_test_sunq(direction,close,high,low, open, o
                         %breahed from the top.now we need to update the
                         %open price
                         open  = max(open, lasttrade);
+                        pxwithdrawmin = pxhigh + (open - pxhigh) * bw_min;
+                        pxwithdrawmax = pxhigh + (open - pxhigh) * bw_max;
                         doublecheck = 3;
                     end
                 end
@@ -207,6 +215,8 @@ function [ profitLoss ] = w_r_batman_test_sunq(direction,close,high,low, open, o
                         %breahed from the top.now we need to update the
                         %open price
                         open = lasttrade;
+                        pxwithdrawmin = pxhigh - (pxhigh - open) * bw_min;
+                        pxwithdrawmax = pxhigh - (pxhigh - open) * bw_max;
                         doublecheck = 3;
                     end
                 elseif direction == -1
@@ -229,6 +239,8 @@ function [ profitLoss ] = w_r_batman_test_sunq(direction,close,high,low, open, o
                         %breahed from the top.now we need to update the
                         %open price
                         open = lasttrade;
+                        pxwithdrawmin = pxhigh + (open - pxhigh) * bw_min;
+                        pxwithdrawmax = pxhigh + (open - pxhigh) * bw_max;
                         doublecheck = 3;
                     end
                 end
@@ -249,6 +261,8 @@ function [ profitLoss ] = w_r_batman_test_sunq(direction,close,high,low, open, o
                         doublecheck = 2;
                     elseif lasttrade <= pxwithdrawmin && lasttrade > pxwithdrawmax
                         open = min(open ,lasttrade);
+                        pxwithdrawmin = pxhigh - (pxhigh - open) * bw_min;
+                        pxwithdrawmax = pxhigh - (pxhigh - open) * bw_max;
                         doublecheck = 3;
                     elseif lasttrade < pxhigh && lasttrade > pxwithdrawmin
                         doublecheck = 3;
@@ -273,6 +287,8 @@ function [ profitLoss ] = w_r_batman_test_sunq(direction,close,high,low, open, o
                         %breahed from the top.now we need to update the
                         %open price
                         open  = max(open, lasttrade);
+                        pxwithdrawmin = pxhigh + (open - pxhigh) * bw_min;
+                        pxwithdrawmax = pxhigh + (open - pxhigh) * bw_max;
                         doublecheck = 3;
                     end
                 end

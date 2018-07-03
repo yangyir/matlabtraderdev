@@ -1,54 +1,33 @@
+
 clear
 clc
-%%
 code = 'rb1810';
-replay_startdt = '2018-06-03';
-replay_enddt = '2018-06-10';
+replay_startdt = '2018-06-04';
+replay_enddt = '2018-06-06';
+freq_used = 3;
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
-replay_filenames = cell(size(replay_dates));
 fn_candles_ = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)
     fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
-end
-% fns = {'cfe_govtbond_10y_generic_1st_1m.mat';...
-%     'shfe_nickel_generic_1st_1m';...
-%     'shfe_rebar_generic_1st_1m'};
- idx = 3;
-px_1m = cDataFileIO.loadDataFromTxtFile(fn_candles_{1});
-if length(replay_dates)>=2
-    for k =2:length(replay_dates)
-        fn_candles = fn_candles_{k};
-        tmp = cDataFileIO.loadDataFromTxtFile(fn_candles);
-        px_1m = [px_1m;tmp];
+    candle_db = cDataFileIO.loadDataFromTxtFile(fn_candles_{i});
+    px_used_1d = timeseries_compress(candle_db,'Frequency',[num2str(freq_used),'m']);
+    if i == 1
+        px_used = px_used_1d;
+    else
+        px_used = [px_used ; px_used_1d];
     end
 end
-%%
-% d = load(fns{idx});
-% px_1m = d.px_1m;
-if idx == 1
-    f = code2instrument('T1809');
-elseif idx == 2
-    f = code2instrument('ni1807');
-elseif idx == 3
-    f = code2instrument('rb1810');
-else
-    error('invalid idx input');
-    
-end
+f = code2instrument(code);
 tick_size = f.tick_size;
 tick_value = f.tick_value;
-
-%%
 % backtest parameters
-freq_used = 1;
+
 nperiod = 144;
-stoploss_ratio = 0.02;
-target_ratio = 0.05;
+stoploss_ratio = 0.01;
+target_ratio = 0.01;
 use_sigma_shift_open = 0;
 no_sigma_shift = 1;
-%%
-px_used = timeseries_compress(px_1m,'Frequency',[num2str(freq_used),'m']);
-%%
+
 %open-up trades
 npx = size(px_used,1);
 %1st column is time
@@ -74,7 +53,7 @@ for i = nperiod+1:npx
     spd = use_sigma_shift_open*no_sigma_shift*sigma_used;
     spd = ceil(spd/tick_size)*tick_size;
     
-    if pxH + spd <= px_used(i,3)
+    if pxH + spd < px_used(i,3)
         %note:if the highest of the current candle period is higher than
         %the previous high, we think we would open a trade with a short
         %direction at the price of pxH
@@ -87,7 +66,7 @@ for i = nperiod+1:npx
         trades(ntrade,4) = pxOpen + round(stoploss_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,5) = pxOpen - round(target_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,6) = sigma;
-    elseif pxL -spd >= px_used(i,4)
+    elseif pxL -spd > px_used(i,4)
         %note:if the lowest of the current candle period is lower than the
         %previous low, we think we would open a trade with a long direction
         %at the price of pxL
@@ -103,7 +82,7 @@ for i = nperiod+1:npx
     end
 end
 trades = trades(1:ntrade,:);
-%%
+
 profitLoss = zeros(ntrade,1);
 holdPeriod = 72;
 bw_max = 1/2;
@@ -113,37 +92,55 @@ for i = 1:ntrade
     tradetime = trades(i,1);
     idx = find(px_used(:,1) == tradetime);
     idx_max = min(idx+holdPeriod-1, npx);
+    if idx == idx_max
+        profitLoss(i) = 0;
+        break;
+    end
    % profitLoss  = w_r_batman_test_sunq(direction,close, open, open_real, target, stoploss, bw_max, bw_min, holdperiod)
    direction = trades(i,2);
-   close = px_used(idx+1:end,5);
-   high = px_used(idx+1:end,3);
-   low = px_used(idx+1:end, 4);
+   tradetime = datestr(px_used(idx+1:idx_max,1));
+   close = px_used(idx+1:idx_max,5);
+   high = px_used(idx+1:idx_max,3);
+   low = px_used(idx+1:idx_max, 4);
+   open = px_used(idx+1:idx_max,2);
    open_real = trades(i, 3);
-   open = trades(i, 3);
+   openprice = trades(i, 3);
    target = trades(i, 5);
    stoploss = trades(i, 4);
    % stoplossMethod = 1 £º we use the close price to stop loss;  stoplossMethod = 2 £º we use the stoploss value(between high and low) to stop loss
    stoplossMethod =2;
-     [profitLoss(i)]  = w_r_batman_test_sunq(direction,close,high,low, open, open_real, target, stoploss, bw_max, bw_min, stoplossMethod);
+   if i ==11
+       ff =1
+   end
+     [profitLoss(i)]  = w_r_batman_test_sunq(direction,open,high,low, openprice, open_real, target, stoploss, bw_max, bw_min, stoplossMethod);
 end
 
-num_of_contract = 10;
 
-pnl = sum(profitLoss)/tick_size*tick_value*num_of_contract;
+% pnl = sum(profitLoss)/tick_size*tick_value*num_of_contract;
+pnl = sum(profitLoss);
 pWin = sum(profitLoss>0)/size(profitLoss,1);
+maxpnl = max(profitLoss);
+minpnl = min(profitLoss);
 
-fprintf('total pnl:%s, prob to win:%4.1f%%;number of trades:%d\n',...
-    num2str(pnl),pWin*100,ntrade);
-plot(cumsum(profitLoss)/tick_size*tick_value*num_of_contract);
-if idx == 1
-    title('10y govt bond');
-elseif idx == 2
-    title('nickel');
-elseif idx == 3
-    title('rebar');
-end
-figure
-hist(profitLoss/tick_size*tick_value*num_of_contract,50); 
+
+% fprintf('total pnl:%s, prob to win:%4.1f%%;number of trades:%d\n',...
+%     num2str(pnl),pWin*100,ntrade);
+% plot(cumsum(profitLoss)/tick_size*tick_value*num_of_contract);
+% if idxused == 1
+%     title('10y govt bond');
+% elseif idxused == 2
+%     title('nickel');
+% elseif idxused == 3
+%     title('rebar');
+% end
+% figure
+% hist(profitLoss/tick_size*tick_value*num_of_contract,50); 
+
+
+% PnL anylises
+
+
+
     
    
 

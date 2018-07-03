@@ -24,8 +24,7 @@ clear
 clc
 stoploss_ratio = 0.01;
 target_ratio = 0.01;
-idxused = 6;
-freq_used = 1:1:5;
+freq_used = 1;
 num = length(freq_used);
 pnl = zeros ( num,1);
 pWin = zeros(num,1);
@@ -33,6 +32,6 @@ maxpnl =zeros(num,1);
 minpnl = zeros(num,1);
 ntrade = zeros(num,1);
 for i = 1:num
-    [pnl(i,1),pWin(i,1),maxpnl(i,1),minpnl(i,1),ntrade(i,1)] = backtest_script_wr_batman_sunq_func(stoploss_ratio, target_ratio,freq_used(i),idxused );
+    [pnl(i,1),pWin(i,1),maxpnl(i,1),minpnl(i,1),ntrade(i,1)] = backtest_script_wr_batman_sunq_func(stoploss_ratio, target_ratio,freq_used(i) );
 end
     
