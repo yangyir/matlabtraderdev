@@ -151,7 +151,6 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                             end
                             continue;
                         end
-                        continue;
                     elseif direction == -1
                         if tick_ask >= trade_j.stoplossprice_
                             trade_j.batman_.status_ = 'closed';
