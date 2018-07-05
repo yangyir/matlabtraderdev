@@ -208,8 +208,6 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     %breahed from the top.now we need to update the
                                     %open price
                                     trade_j.batman_.pxopen_ = tick_bid;
-                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmin_;
-                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmax_;
                                     trade_j.batman_.checkflag_ = 1;
                                 end
                             elseif trade_j.batman_.checkflag_ == 1
@@ -237,8 +235,6 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     trade_j.batman_.checkflag_ = 0;
                                 elseif tick_bid <= trade_j.batman_.pxsupportmin_ && tick_bid > trade_j.batman_.pxsupportmax_
                                     trade_j.batman_.pxopen_ = min(trade_j.batman_.pxopen_,tick_bid);
-                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmin_;
-                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ -(trade_j.batman_.pxresistence_ - trade_j.batman_.pxopen_)*trade_j.batman_.bandwidthmax_;
                                     trade_j.batman_.checkflag_ = 1;
                                 elseif tick_bid < trade_j.batman_.pxresistence_ && tick_bid > trade_j.batman_.pxsupportmin_
                                     trade_j.batman_.checkflag = 1;
@@ -281,8 +277,6 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     %breahed from the top.now we need to update the
                                     %open price
                                     trade_j.batman_.pxopen_ = tick_ask;
-                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmin_;
-                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmax_;
                                     trade_j.batman_.checkflag_ = 1;
                                 end 
                             elseif trade_j.batman_.checkflag_ == 1
@@ -310,8 +304,6 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     trade_j.batman_.checkflag_ = 0;
                                 elseif tick_ask >= trade_j.batman_.pxsupportmin_ && tick_ask < trade_j.batman_.pxsupportmax_
                                     trade_j.batman_.pxopen_ = max(trade_j.batman_.pxopen_,tick_ask);
-                                    trade_j.batman_.pxsupportmin_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmin_;
-                                    trade_j.batman_.pxsupportmax_ = trade_j.batman_.pxresistence_ + (trade_j.batman_.pxopen_ - trade_j.batman_.pxresistence_)*trade_j.batman_.bandwidthmax_;
                                     trade_j.batman_.checkflag_ = 1;
                                 elseif tick_ask > trade_j.batman_.pxresistence_ && tick_ask < trade_j.batman_.pxsupportmin_
                                     trade_j.batman_.checkflag = 1;

@@ -1,9 +1,9 @@
 
 clear
 clc
-code = 'rb1810';
-replay_startdt = '2018-06-04';
-replay_enddt = '2018-06-06';
+code = 'ni1809';
+replay_startdt = '2018-06-01';
+replay_enddt = '2018-06-23';
 freq_used = 3;
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 fn_candles_ = cell(size(replay_dates));
@@ -20,11 +20,12 @@ end
 f = code2instrument(code);
 tick_size = f.tick_size;
 tick_value = f.tick_value;
+num_of_contract = 5;
 % backtest parameters
 
 nperiod = 144;
 stoploss_ratio = 0.01;
-target_ratio = 0.01;
+target_ratio = 0.02;
 use_sigma_shift_open = 0;
 no_sigma_shift = 1;
 
@@ -109,9 +110,6 @@ for i = 1:ntrade
    stoploss = trades(i, 4);
    % stoplossMethod = 1 £º we use the close price to stop loss;  stoplossMethod = 2 £º we use the stoploss value(between high and low) to stop loss
    stoplossMethod =2;
-   if i ==11
-       ff =1
-   end
      [profitLoss(i)]  = w_r_batman_test_sunq(direction,open,high,low, openprice, open_real, target, stoploss, bw_max, bw_min, stoplossMethod);
 end
 
@@ -122,10 +120,15 @@ pWin = sum(profitLoss>0)/size(profitLoss,1);
 maxpnl = max(profitLoss);
 minpnl = min(profitLoss);
 
+rresult1 = mat2cell(datestr(trades(:,1)), ones(size(datestr(trades(:,1)),1),1));
+rresult2 = num2cell(trades(:,2:end));
+rresult3 = num2cell(profitLoss);
+rresult = [rresult1,rresult2,rresult3];
 
-% fprintf('total pnl:%s, prob to win:%4.1f%%;number of trades:%d\n',...
-%     num2str(pnl),pWin*100,ntrade);
-% plot(cumsum(profitLoss)/tick_size*tick_value*num_of_contract);
+
+fprintf('total pnl:%s, prob to win:%4.1f%%, perpnl:%4.1f,number of trades:%d\n',...
+    num2str(pnl),pWin*100,pnl/ntrade,ntrade);
+ plot(cumsum(profitLoss)/tick_size*tick_value*num_of_contract);
 % if idxused == 1
 %     title('10y govt bond');
 % elseif idxused == 2
@@ -133,8 +136,8 @@ minpnl = min(profitLoss);
 % elseif idxused == 3
 %     title('rebar');
 % end
-% figure
-% hist(profitLoss/tick_size*tick_value*num_of_contract,50); 
+ figure
+ hist(profitLoss/tick_size*tick_value*num_of_contract,50); 
 
 
 % PnL anylises
