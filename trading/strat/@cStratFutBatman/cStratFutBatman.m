@@ -70,8 +70,7 @@ classdef cStratFutBatman < cStrat
         end
             
         function [] = riskmanagement(obj,dtnum)
-%             obj.riskmanagement_futbatman(dtnum)
-            obj.riskmanagement_futbatman_sunq(dtnum)
+            obj.riskmanagement_futbatman(dtnum)
         end
         
         function [] = initdata(obj)
@@ -100,7 +99,6 @@ classdef cStratFutBatman < cStrat
     
     methods (Access = private)
         [] = riskmanagement_futbatman(obj,dtnum)
-        [] = riskmanagement_futbatman_sunq(obj,dtnum)
         [] = updategreeks_futbatman(obj)
         signals = gensignals_futbatman(obj)
         [] = autoplacenewentrusts_futbatman(obj,signals)
