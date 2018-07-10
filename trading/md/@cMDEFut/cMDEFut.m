@@ -17,7 +17,7 @@ classdef cMDEFut < cMyTimerObj
         candle_freq_@double
         candles4save_@cell
         candlesaveflag_@logical = false
-        
+        newset_@double
         %historical data,which is used for technical indicator calculation
         hist_candles_@cell
         
@@ -32,6 +32,7 @@ classdef cMDEFut < cMyTimerObj
         replay_date2_@char
         replay_time1_@double
         replay_time2_@char
+        %
         
     end
     
@@ -84,7 +85,6 @@ classdef cMDEFut < cMyTimerObj
         [] = loadhistcandles(obj,instrument,histcandles)
         histcandles = gethistcandles(obj,instrument)
         tick = getlasttick(obj,instrument)
-        
         %init data
         [ret] = initcandles(obj,instrument,varargin)
         
@@ -118,7 +118,7 @@ classdef cMDEFut < cMyTimerObj
         %data file i/o
         [] = saveticks2mem(obj)
         [] = updatecandleinmem(obj)
-        [] = updatecandleinmem_sunq(obj)
+        [newset_] = updatecandleinmem_sunq(obj) % sunq
         %technical indicator calculator
         % William %R
         indicators = calc_wr_(obj,instrument,varargin)

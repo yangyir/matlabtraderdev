@@ -19,7 +19,7 @@ function [highp,hight] = gethighnperiods(obj,instrument)
     end
     
     highpx = [histcandles(:,3);candlesticks(:,3)];
-    highp = max(highpx(end-nperiods+1:end));
+    highp = max(highpx(end-nperiods:end-1));
     idx = highpx == highp;
     hight = timevec(idx);
 

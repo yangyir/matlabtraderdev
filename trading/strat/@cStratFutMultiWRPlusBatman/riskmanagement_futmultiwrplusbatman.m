@@ -1,6 +1,5 @@
 function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
 %     error('cStratFutMultiWRPlusBatman:riskmanagement_futmultiwrplusbatman not implemented')
-    return;
     instruments = obj.instruments_.getinstrument;
     for i = 1:obj.count
         %firstly to check whether this is in trading hours

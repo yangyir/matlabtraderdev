@@ -1,47 +1,23 @@
-function [pnl,pWin,maxpnl,minpnl,ntrade] = backtest_script_wr_batman_sunq_func(stoploss_ratio, target_ratio,freq_used,idxused )
+function [profitLoss,pnl,pWin,maxpnl,minpnl,ntrade] = backtest_script_wr_batman_sunq_func(stoploss_ratio, target_ratio,freq_used)
 % clear
 % clc
-fns = {'cfe_govtbond10y_generic_1st_1m';...
-    'shfe_nickel_generic_1st_1m';...
-    'shfe_rebar_generic_1st_1m';...
-    'dce_ironore_generic_1st_1m';...
-    'shfe_copper_generic_1st_1m';...
-    'shfe_aluminium_generic_1st_1m'...
-    'shfe_lead_generic_1st_1m'...
-    'shfe_rebar_generic_1st_1m'...
-    'shfe_zinc_generic_1st_1m'...
-    'zce_cotton_generic_1st_1m'};
-% idxused = 3;
-
-d = load(fns{idxused});
-px_1m = d.px_1m;
-if idxused == 1
-    f = code2instrument('T1809');
-elseif idxused == 2
-    f = code2instrument('ni1807');
-elseif idxused == 3
-    f = code2instrument('rb1810');
-elseif idxused == 4
-    f=  code2instrument('I1805');
-elseif idxused == 5
-    f=  code2instrument('CU1807');
- elseif idxused == 6
-    f=  code2instrument('AL1807');
-elseif idxused == 7
-    f= code2instrument('PB1807');
-elseif idxused == 8
-    f= code2instrument('RU1809');
-elseif idxused == 9
-    f= code2instrument('ZN1809');
-elseif idxused == 10 
-    f= code2instrument('cf809');
-else
-    error('invalid idx input');
+code = 'rb1810';
+replay_startdt = '2018-06-06';
+replay_enddt = '2018-06-06';
+replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
+fn_candles_ = cell(size(replay_dates));
+for i = 1:size(replay_dates,1)
+    fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
+    candle_db = cDataFileIO.loadDataFromTxtFile(fn_candles_{i});
+    if i == 1
+        px_1m = candle_db;
+    else
+        px_1m = [px_1m ; candle_db];
+    end
 end
+f = code2instrument(code);
 tick_size = f.tick_size;
 tick_value = f.tick_value;
-
-
 % backtest parameters
 % freq_used = 5;
 nperiod = 144;
@@ -121,16 +97,16 @@ for i = 1:ntrade
    close = px_used(idx+1:idx_max,5);
    high = px_used(idx+1:idx_max,3);
    low = px_used(idx+1:idx_max, 4);
+   open = px_used(idx+1:idx_max,2);
    open_real = trades(i, 3);
-   open = trades(i, 3);
+   openprice = trades(i, 3);
    target = trades(i, 5);
    stoploss = trades(i, 4);
    % stoplossMethod = 1 £º we use the close price to stop loss;  stoplossMethod = 2 £º we use the stoploss value(between high and low) to stop loss
    stoplossMethod =2;
-     [profitLoss(i)]  = w_r_batman_test_sunq(direction,close,high,low, open, open_real, target, stoploss, bw_max, bw_min, stoplossMethod);
+     [profitLoss(i)]  = w_r_batman_test_sunq(direction,open,high,low, openprice, open_real, target, stoploss, bw_max, bw_min, stoplossMethod);
 end
 
-num_of_contract = 10;
 
 % pnl = sum(profitLoss)/tick_size*tick_value*num_of_contract;
 pnl = sum(profitLoss);

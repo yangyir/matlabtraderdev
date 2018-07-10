@@ -22,33 +22,26 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
         tick_bid = tick(2);
         tick_ask = tick(3);
         %
-        candle = obj.mde_fut_.getlastcandle(instrument);
-        candle = candle{1};
-        if (tick_time - candle(1)) * 24*60*60 - obj.samplefreq_(i)*60 <= 1
-            lasttickincandle = 1;
-        else
-            lasttickincandle = 0;
-        end
-        
+%         candle = obj.mde_fut_.getlastcandle(instrument);
+%         candle = candle{1};
+            lasttickincandle = obj.mde_fut_.newset_ ;
         %filter out trades associated with this particular futures
         %instrument
         trades = obj.helper_.trades_.filterbycode(code);
         ntrades = trades.latest_;
         for j = 1:ntrades
             trade_j = trades.node_(j);
+            timeopen = trade_j.opendatetime1_;
             direction = trade_j.opendirection_;
             volume = trade_j.openvolume_;
-            timeopen = trade_j.opendatetime1_;
             pxopen = trade_j.openprice_; 
             if strcmpi(trade_j.status_,'unset')
                 %
                 lowestp = obj.getlownperiods(instrument);
                 highestp = obj.gethighnperiods(instrument);
-                
-                %note:todo:0.02 and 0.05 are hard coded here and shall be
-                %replaced with variables set elsewhere
-                pxstoploss = pxopen-direction*(highestp-lowestp)*0.02;
-                pxtarget = pxopen+direction*(highestp-lowestp)*0.05;
+
+                pxstoploss = pxopen-direction*(highestp-lowestp) * trade_j.batman_.bandstoploss_;
+                pxtarget = pxopen+direction*(highestp-lowestp) * trade_j.batman_.bandtarget_;
                 %
                 %round to tradeable price
                 pxstoploss = round(pxstoploss/tick_size)*tick_size;
@@ -56,7 +49,9 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                 %
                 trade_j.targetprice_ = pxtarget;
                 trade_j.stoplossprice_ = pxstoploss;
-                trade_j.status_ = 'set';
+                if lasttickincandle == 1
+                    trade_j.status_ = 'set';
+                end
                 trade_j.riskmanagementmethod_ = 'batman';
                 %
                 trade_j.batman_.pxtarget_ = pxtarget;
@@ -66,9 +61,6 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                 trade_j.batman_.pxsupportmin_ = -1;
                 trade_j.batman_.pxsupportmax_ = -1;
             elseif strcmpi(trade_j.status_,'set')
-%             if j == 1
-%                 ggg =1;
-%             end
                 if ~strcmpi(trade_j.batman_.status_,'closed')
                     %note:if the trade is set but not closed yet, as per
                     %backtest, 1)we check whether the tick price breaches
@@ -121,7 +113,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     trade_j.closetime2_ = datestr(tick_time);
                                     trade_j.closeprice_ = trade_j.stoplossprice_;
                                     trade_j.runningpnl_ = 0;
-                                    trade_j.closepnl_ = direction*volume*(trade_j.stoplossprice_-trade_j.openprice_)/ tick_size * tick_value;
+                                    trade_j.closepnl_ = direction*volume*(trade_j.closeprice_-trade_j.openprice_)/ tick_size * tick_value;
                                 end
                                 continue;
                             elseif tick_ask > trade_j.targetprice_ && tick_ask < trade_j.stoplossprice_
@@ -136,9 +128,9 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                         end
                         %
                         trade_j.batman_.checkflag_ = 0;
-                        return
+                        continue
                     end
-                    
+
                     % to stop loss using trade_j.stoplossprice_ (using ticks value)
                     if direction == 1
                         if tick_bid <= trade_j.stoplossprice_
@@ -159,7 +151,6 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                             end
                             continue;
                         end
-                        continue;
                     elseif direction == -1
                         if tick_ask >= trade_j.stoplossprice_
                             trade_j.batman_.status_ = 'closed';
@@ -169,7 +160,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                 closetodayFlag = isclosetoday(timeopen,tick_time);
                             end
                             spread = 0;
-                            ret = obj.shortclosesingleinstrument(code,volume,closetodayFlag,spread,'time',tick_time);
+                            ret = obj.longclosesingleinstrument(code,volume,closetodayFlag,spread,'time',tick_time);
                             if ret
                                 trade_j.closetime1_ = tick_time;
                                 trade_j.closetime2_ = datestr(tick_time);
@@ -251,8 +242,8 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                             end
                             continue;
                         end
-                        
-                        
+
+
                         % short down-slope trend
                         if direction == -1
                             if trade_j.batman_.checkflag_ == 0
@@ -287,7 +278,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     %open price
                                     trade_j.batman_.pxopen_ = tick_ask;
                                     trade_j.batman_.checkflag_ = 1;
-                                end
+                                end 
                             elseif trade_j.batman_.checkflag_ == 1
                                 if tick_ask >= trade_j.batman_.pxsupportmax_
                                     trade_j.batman_.status_ = 'closed';
@@ -318,7 +309,7 @@ function [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
                                     trade_j.batman_.checkflag = 1;
                                 end
                             end
-                            return 
+                            continue
                         end
                         %
                         %

@@ -20,15 +20,15 @@
 % 镍的 candle_00:00:00 = ticks [00:00:00 , 00:01:00] 左闭右闭
 % 国债数据处理如下：
 %%%%%% 国债处理如下：
-% 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00) 左开右开
+% 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00] 左开右闭
 % 国债 candle_13:00:00 = ticks (13:00:00, 13:00:01 ] 左开右闭
 % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
 clear
 clc
 %%
 code = 'rb1810';
-replay_startdt = '2018-06-04';
-replay_enddt = '2018-06-15';
+replay_startdt = '2018-06-06';
+replay_enddt = '2018-06-06';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 replay_filenames = cell(size(replay_dates));
 fn_tick_ = cell(size(replay_dates));
@@ -37,9 +37,8 @@ for i = 1:size(replay_dates,1)
     fn_tick_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.txt'];
     fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
 end
-tic
+
 ticks =cDataFileIO.loadDataFromTxtFile(fn_tick_{1});
-toc
 %%
 futs = code2instrument(code);
 if datenum(futs.break_interval{end,end}) == datenum('23:00:00')
@@ -74,7 +73,6 @@ for k =1:size(replay_dates)
     num10_15_00 = datenum([datestring2, '10:15:00']);
     num10_30_00 = datenum([datestring2, '10:30:00']);
     num23_00_00 = datenum([datestring2, '23:00:00']);
-    num09_00_00 = datenum([datestring2, '09:00:00']);
     num22_59_59_5= datenum([datestring2, '22:59:59.5']); 
     num01_00_00 = datenum([datestring4,'01:00:00']);
     num00_00_00 = datenum([datestring4,'00:00:00']);
@@ -134,14 +132,14 @@ for k =1:size(replay_dates)
                   t = num13_30_00;
               elseif t == num15_00_00
                   t = num21_00_00;
-              elseif t == num23_00_00
-                  t = num09_00_00;
               end
             elseif kind == 2
-                if t == num11_30_00
-                    continue
-                elseif t == num13_00_00
-                    continue
+%                 if t == num11_30_00
+%                     continue
+%                 elseif t == num13_00_00
+%                     continue
+                if t == num13_00_00
+                  continue
                 end  
             elseif kind == 3
               if t == num20_59_00
@@ -160,8 +158,6 @@ for k =1:size(replay_dates)
                   t = num13_30_00;
               elseif t == num15_00_00
                   t = num21_00_00;
-              elseif t == num23_00_00
-                  t = num09_00_00;
               end
             end
         

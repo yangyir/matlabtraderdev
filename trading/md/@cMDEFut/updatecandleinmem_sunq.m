@@ -21,14 +21,17 @@
 % 镍：上期所如，镍的有色品种，夜盘过晚上00：00：00的，Bloomberg生成candle的方式需要特殊处理...
 % 镍：但是不会对回测效果影响很大，这里先暂时不做相关处理；
 %%%%%% 国债处理如下：
-% 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00) 左开右开
+% 国债 candle_11:29:00 = ticks (11:29:00 , 11:30:00] 左开右闭
 % 国债 candle_13:00:00 = ticks (13:00:00, 13:00:01 ] 左开右闭
 % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
 
 
-function [] = updatecandleinmem_sunq(mdefut)
+function newset_ = updatecandleinmem_sunq(mdefut)
+   newset_ = 0;
    instruments = mdefut.qms_.instruments_.getinstrument;
-    if isempty(mdefut.ticks_), return; end
+    if isempty(mdefut.ticks_)
+        return; 
+    end
     ns = size(mdefut.ticks_,1);
     count = mdefut.ticks_count_;
     for i =1:ns
@@ -83,9 +86,7 @@ function [] = updatecandleinmem_sunq(mdefut)
                   t = num21_00_00;
               end
             elseif kind == 2
-                if t == num11_30_00
-                    continue
-                elseif t == num13_00_00
+                if t == num13_00_00
                     continue
                 end  
             elseif kind == 3
@@ -138,6 +139,7 @@ function [] = updatecandleinmem_sunq(mdefut)
             if this_count ~= mdefut.candles_count_(i)
                 mdefut.candles_count_(i) = this_count;
                 newset = true;
+                newset_= 1;
             else
                 newset = false;
             end
@@ -168,6 +170,7 @@ function [] = updatecandleinmem_sunq(mdefut)
             if this_count_save ~= mdefut.candles4save_count_(i)
                 mdefut.candles4save_count_(i) = this_count_save;
                 newset = true;
+%                 newset_= 1;
             else
                 newset = false;
             end

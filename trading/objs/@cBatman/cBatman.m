@@ -23,7 +23,8 @@ classdef cBatman < handle
         %default values
         bandwidthmin_@double = 1/3
         bandwidthmax_@double = 0.5
-        
+        bandstoploss_@double = 0.01
+        bandtarget_@double = 0.01
         %
         pnlrunning_@double
         pnlclosed_@double

@@ -32,12 +32,14 @@ classdef cStratFutMultiWRPlusBatman < cStrat
     %derived (abstract) methods from superclass
     methods
         function signals = gensignals(obj)
-            signals = obj.gensignals_futmultiwrplusbatman;
+%             signals = obj.gensignals_futmultiwrplusbatman;
+            signals = obj.gensignals_futmultiwrplusbatman_sunq;
         end
         %end of gensignals
         
         function [] = autoplacenewentrusts(obj,signals)
-            obj.autoplacenewentrusts_futmultiwrplusbatman(signals)
+%             obj.autoplacenewentrusts_futmultiwrplusbatman(signals)
+            obj.autoplacenewentrusts_futmultiwrplusbatman_sunq(signals)
         end
         %end of autoplacenewentrusts
         
@@ -46,7 +48,8 @@ classdef cStratFutMultiWRPlusBatman < cStrat
         end
             
         function [] = riskmanagement(obj,dtnum)
-            obj.riskmanagement_futmultiwrplusbatman(dtnum)
+%             obj.riskmanagement_futmultiwrplusbatman(dtnum)
+            obj.riskmanagement_futmultiwrplusbatman_sunq(dtnum)
         end
         
         function [] = initdata(obj)
@@ -58,9 +61,12 @@ classdef cStratFutMultiWRPlusBatman < cStrat
     
     methods (Access = private)
         [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
+        [] = riskmanagement_futmultiwrplusbatman_sunq(obj,dtnum)
         [] = updategreeks_futmultiwrplusbatman(obj)
         signals = gensignals_futmultiwrplusbatman(obj)
+        signals = gensignals_futmultiwrplusbatman_sunq(obj)
         [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
+        [] = autoplacenewentrusts_futmultiwrplusbatman_sunq(obj,signals)
         [] = initdata_futmultiwrplusbatman(obj)
     end
     

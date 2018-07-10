@@ -76,7 +76,7 @@ function [] = unwindposition(strategy,instrument,spread)
             if volume_before > 0
                 strategy.shortclosesingleinstrument(code,volume_before,0,spread);
             elseif volume_before < 0
-                strategy.longtclosesingleinstrument(code,-volume_before,0,spread);
+                strategy.longclosesingleinstrument(code,-volume_before,0,spread);
             end
 
         end
