@@ -201,6 +201,15 @@ if strcmpi(interval_str,'m') && ~isequal(interval_num,1)
                         tv = sum(d(:,8));       %the 8th column is the total tick value
                         %time,open,high,low,last price
                         temp(j,:) = [t,d_open,d_high,d_low,d_last,vt,nt,tv];
+                    elseif size(temp,2) == 5
+                        % in case bar interval data is given, compress with
+                        % the bar interval data itself
+                        d_open = d(1,2);        %the 2nd column is the open price
+                        d_high = max(d(:,3));   %the 3rd column is the high price
+                        d_low = min(d(:,4));    %the 4th column is the low price
+                        d_last = d(end,5);      %the 5th column is the last price
+                        t = t_start;
+                        temp(j,:) = [t,d_open,d_high,d_low,d_last];
                     else
                         % only last price (or tick price) is given
                         % create the bar interval data
