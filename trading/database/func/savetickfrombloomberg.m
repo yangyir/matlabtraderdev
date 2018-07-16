@@ -1,8 +1,8 @@
-code = 'pp1809';
+code = 'T1809';
 instrument = code2instrument(code);
 sec = instrument.code_bbg;
 %%
-cobdate = '2018-06-19';
+cobdate = '2018-06-26';
 if strcmpi(instrument.break_interval{end,end},'01:00:00') || ...
     strcmpi(instrument.break_interval{end,end},'02:30:00')
     datebump = 1;
