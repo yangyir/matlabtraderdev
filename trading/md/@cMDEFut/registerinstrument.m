@@ -159,7 +159,7 @@ function [] = registerinstrument(mdefut,instrument)
         if ns_ ~= ns
             ticks = cell(ns,1);
             for i = 1:ns_, ticks{i} = mdefut.ticks_{i}; end
-            ticks{ns} = zeros(1e5,4);
+            ticks{ns} = zeros(1e5,7);
             mdefut.ticks_ = ticks;
         end
     end
@@ -168,13 +168,102 @@ function [] = registerinstrument(mdefut,instrument)
     if isempty(mdefut.ticks_count_)
         mdefut.ticks_count_ = zeros(ns,1);
     else
-        ns_ = size(mdefut.ticks_count_);
+        ns_ = size(mdefut.ticks_count_,1);
         if ns_ ~= ns
             ticks_count = zeros(ns,1);
             ticks_count(1:ns_,:) = mdefut.ticks_count_;
             ticks_count(ns_+1:ns) = 0;
             mdefut.ticks_count_ = ticks_count;
         end 
+    end
+    
+    % init categories_
+    category = getfutcategory(instrument);
+    if isempty(mdefut.categories_)
+        mdefut.categories_ = zeros(ns,1);
+        mdefut.categories_(ns,1) = category;
+    else
+        ns_ = size(mdefut.categories_,1);
+        if ns_ ~= ns
+            categories = zeros(ns,1);
+            categories(1:ns_,:) = mdefut.categories_;
+            categories(ns_+1:ns) = getfutcategory(instrument);
+            mdefut.categories_ = categories;
+        end
+    end
+    
+    % compute num21_00_00_; num21_00_0_5_;num00_00_00_;num00_00_0_5_ if it
+    % is required
+    ns_ = size(mdefut.categories_,1);
+    for i = 1:ns_
+        if mdefut.categories_(i) > 3
+            datestr_start = datestr(floor(mdefut.candles4save_{i}(1,1)));
+            mdefut.num21_00_00_ = datenum([datestr_start,' 21:00:00']);
+            mdefut.num21_00_0_5_ = datenum([datestr_start,' 21:00:0.5']);
+        end
+        if mdefut.categories_(i) == 5
+            datestr_end = datestr(floor(mdefut.candles4save_{i}(end,1)));
+            mdefut.num00_00_00_ = datenum([datestr_end,' 00:00:00']);
+            mdefut.num00_00_0_5_ = datenum([datestr_end,' 00:00:0.5']);
+        end
+    end
+    
+    % init datenum_open_ and datenum_close_
+    blankstr = ' ';
+    if isempty(mdefut.datenum_open_)
+        mdefut.datenum_open_ = cell(ns,1);
+        mdefut.datenum_close_ = cell(ns,1);
+        nintervals = size(instrument.break_interval,1);
+        datenum_open = zeros(nintervals,1);
+        datenum_close = zeros(nintervals,1);
+        datestr_start = datestr(floor(mdefut.candles4save_{ns}(1,1)));
+        datestr_end = datestr(floor(mdefut.candles4save_{ns}(end,1)));
+        for j = 1:nintervals
+            datenum_open(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,1}]);
+            if category ~= 5
+                datenum_close(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,2}]);
+            else
+                if j == nintervals
+                    datenum_close(j,1) = datenum([datestr_end,blankstr,instrument.break_interval{j,2}]);
+                else
+                    datenum_close(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,2}]);
+                end
+            end
+        end
+        mdefut.datenum_open_{ns,1} = datenum_open;
+        mdefut.datenum_close_{ns,1} = datenum_close;
+    else
+        ns_ = size(mdefut.datenum_open_,1);
+        if ns_ ~= ns
+            datenum_open = cell(ns,1);
+            datenum_close = cell(ns,1);
+            for i = 1:ns_
+                datenum_open{i} = mdefut.datenum_open_{i};
+                datenum_close{i} = mdefut.datenum_close_{i};
+            end
+            nintervals = size(instrument.break_interval,1);
+            datenum_open_new = zeros(nintervals,1);
+            datenum_close_new = zeros(nintervals,1);
+            blankstr = ' ';
+            datestr_start = datestr(floor(mdefut.candles4save_{ns}(1,1)));
+            datestr_end = datestr(floor(mdefut.candles4save_{ns}(end,1)));
+            for j = 1:nintervals
+                datenum_open_new(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,1}]);
+                if category ~= 5
+                    datenum_close_new(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,2}]);
+                else
+                    if j == nintervals
+                        datenum_close_new(j,1) = datenum([datestr_end,blankstr,instrument.break_interval{j,2}]);
+                    else
+                        datenum_close_new(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,2}]);
+                    end
+                end
+            end
+            datenum_open{ns,1} = datenum_open_new;
+            datenum_close{ns,1} = datenum_close_new;
+            mdefut.datenum_open_ = datenum_open;
+            mdefut.datenum_close_ = datenum_close;
+        end
     end
 
 end
