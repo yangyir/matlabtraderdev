@@ -6,13 +6,13 @@ if ~(exist('conn','var') && isa(conn,'cBloomberg'))
     conn = cBloomberg;
 end
 
-fromdate = '2018-06-26';
-todate = datestr(getlastbusinessdate-1,'yyyy-mm-dd');
+fromdate = datestr(businessdate(getlastbusinessdate,-1),'yyyy-mm-dd');
+todate = datestr(getlastbusinessdate,'yyyy-mm-dd');
 
 %%
 %base metals
 %only extrat those active contracts
-bm_codes = {'cu';'aa';'zn';'pbl';'xii'};
+bm_codes = {'cu';'aa';'zna';'pbl';'xii'};
 bm_codes_ctp = {'cu';'al';'zn';'pb';'ni'};
 expiries = zeros(size(bm_codes));
 for i = 1:size(bm_codes,1)
