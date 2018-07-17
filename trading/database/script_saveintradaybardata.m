@@ -12,7 +12,7 @@ bm_codes_ctp = {'cu1808';'cu1809';'cu1810';'cu1811';'cu1812';...
     'al1808';'al1809';'al1810';'al1811';'al1812';...
     'zn1808';'zn1809';'zn1810';'zn1811';'zn1812';...
     'pb1808';'pb1809';'pb1810';'pb1811';'pb1812';...
-    'ni1809';'ni1901'};
+    'ni1809';'ni1811';'ni1901'};
 
 for i = 1:size(bm_codes_ctp,1)
     saveintradaybarfrombloomberg(conn,bm_codes_ctp{i},override);
@@ -31,7 +31,7 @@ fprintf('done for saving intraday bar data for govt bond futures......\n');
 
 %%
 %precious metals
-pm_codes_ctp = {'au1712';'au1806';'ag1712';'ag1806'};
+pm_codes_ctp = {'au1812';'ag1812'};
 
 for i = 1:size(pm_codes_ctp,1)
     saveintradaybarfrombloomberg(conn,pm_codes_ctp{i},override);

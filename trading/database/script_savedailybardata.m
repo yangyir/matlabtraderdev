@@ -21,8 +21,8 @@ fprintf('done for saving daily bar data for base metal futures......\n');
 
 %%
 % govtbond futures
-govtbond_codes_ctp = {'TF1806';'TF1809';'TF1812';...
-    'T1806';'T1809';'T1812'};
+govtbond_codes_ctp = {'TF1809';'TF1812';...
+    'T1809';'T1812'};
 
 for i = 1:size(govtbond_codes_ctp,1)
     savedailybarfrombloomberg(conn,govtbond_codes_ctp{i},override);
@@ -40,7 +40,7 @@ fprintf('done for saving daily bar data for precious metal futures\n');
 
 %%
 % agriculture for options
-ag_codes_ctp = {'m1805';'m1809';'m1901';'SR805';'SR809';'SR901'};
+ag_codes_ctp = {'m1809';'m1901';'SR809';'SR901'};
 for i = 1:size(ag_codes_ctp,1)
     savedailybarfrombloomberg(conn,ag_codes_ctp{i},override);
 end
@@ -48,7 +48,7 @@ fprintf('done for saving daily bar data for agriculture futures\n');
 
 %%
 % agriculture for options
-black_codes_ctp = {'rb1805';'rb1810';'rb1901';'i1805';'i1809';'i1901'};
+black_codes_ctp = {'rb1810';'rb1901';'i1809';'i1901'};
 for i = 1:size(black_codes_ctp,1)
     savedailybarfrombloomberg(conn,black_codes_ctp{i},override);
 end

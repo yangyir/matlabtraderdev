@@ -92,10 +92,12 @@ for i = 1:size(bds,1)
             end
         end
         if ~flag || (flag && override)
-            fn_ = [dir_data_,f.code_ctp,'_',datestr(nextsaturday,'yyyymmdd'),'_1m.txt'];
-            data = bbg.intradaybar(f,nextsaturday,datestr(bds(i)+2,'yyyy-mm-dd'),1,'trade');
-            if isempty(data), continue; end
-            cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
+            if today >= datenum(nextsaturday,'yyyy-mm-dd')
+                fn_ = [dir_data_,f.code_ctp,'_',datestr(nextsaturday,'yyyymmdd'),'_1m.txt'];
+                data = bbg.intradaybar(f,nextsaturday,datestr(bds(i)+2,'yyyy-mm-dd'),1,'trade');
+                if isempty(data), continue; end
+                cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
+            end
         end
     end
     %20180527
@@ -103,10 +105,12 @@ for i = 1:size(bds,1)
     %evening ticks, which will be replaced on the next update date
     if weekday(bds(i)) ~= 6 && bds(i) == lbd && midnighttrading
         nextbd = datestr(bds(i)+1,'yyyy-mm-dd');
-        fn_ = [dir_data_,f.code_ctp,'_',datestr(nextbd,'yyyymmdd'),'_1m.txt'];
-        data = bbg.intradaybar(f,nextbd,datestr(bds(i)+2,'yyyy-mm-dd'),1,'trade');
-        if isempty(data), continue; end
-        cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
+        if today >= datenum(nextbd,'yyyy-mm-dd')
+            fn_ = [dir_data_,f.code_ctp,'_',datestr(nextbd,'yyyymmdd'),'_1m.txt'];
+            data = bbg.intradaybar(f,nextbd,datestr(bds(i)+2,'yyyy-mm-dd'),1,'trade');
+            if isempty(data), continue; end
+            cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
+        end
     end
     
 end
