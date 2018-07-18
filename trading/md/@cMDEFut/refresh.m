@@ -53,37 +53,52 @@ function [] = refresh(mdefut)
                 if mdefut.replay_count_ > size(mdefut.replay_datetimevec_,1)
                     %once all the tick data is passed, we shall just stop
                     %the mdefut
-                    %TODO:maybe we shall schedule something to do
+                    if mdefut.candlesaveflag_
+                        inst = mdefut.replayer_.instruments_.getinstrument;
+                        code = inst{1}.code_ctp;
+                        [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
+                        coldefs = {'datetime','open','high','low','close'};
+                        dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
+                        fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
+                        if mdefut.display_ == 1
+                            fprintf('save intraday candle of %s on %s...\n',...
+                                code,mdefut.replay_date2_);
+                        end
+                        cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
+                    end
+                    %
                     mdefut.stop;
+                    fprintf('replay finishes!...\n');
                     return
                 end
             elseif strcmpi(mdefut.replayer_.mode_,'multiday')
                 if mdefut.replay_count_ > size(mdefut.replay_datetimevec_,1)
+                    inst = mdefut.replayer_.instruments_.getinstrument;
+                    code = inst{1}.code_ctp;
+                    [~,idx] = mdefut.replayer_.instruments_.hasinstrument(code);
+                    [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
+                    if mdefut.candlesaveflag_
+                        coldefs = {'datetime','open','high','low','close'};
+                        dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
+                        fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
+                        if mdefut.display_ == 1
+                            fprintf('save intraday candle of %s on %s...\n',...
+                                code,mdefut.replay_date2_);
+                        end
+                        cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
+                    end
                     %once all the tick data is passed for one business date
                     %in multiday mode, we shall jump to the next business
                     %date
                     %make sure that we are still within the replay date
                     %period,o/w we shall switch off the mdefut.
-                    if mdefut.replayer_.multidayidx_ > size(mdefut.replayer_.multidayfiles_,1)
+                    if mdefut.replayer_.multidayidx_ >= size(mdefut.replayer_.multidayfiles_,1)
                          mdefut.stop;
+                         fprintf('replay finishes!...\n');
                          return
                     else
                         %todo:here we may extend the replay mode with mutltiple futures
-                        inst = mdefut.replayer_.instruments_.getinstrument;
-                        code = inst{1}.code_ctp;
-                        [~,idx] = mdefut.replayer_.instruments_.hasinstrument(code);
-                        [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
-                        if mdefut.candlesaveflag_
-                            coldefs = {'datetime','open','high','low','close'};
-                            dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
-                            fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
-                            if mdefut.display_ == 1
-                                fprintf('save intraday candle of %s on %s...\n',...
-                                    code,mdefut.replay_date2_);
-                            end
-                            cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
-                        end
-                        
+                                                
                         %below we first load tick data for the next business date
                         multidayidx = mdefut.replayer_.multidayidx_;
                         %move to the next business date
@@ -125,15 +140,16 @@ function [] = refresh(mdefut)
 %                         mdefut.candles4save_{idx2} = candle_;
 %                         mdefut.replayer_.multidayidx_ = multidayidx;
                         mdefut.move2cobdate(mdefut.replay_date1_);
+                        mdefut.replayer_.multidayidx_ = multidayidx;
                         %
                     end
                 end
             end
             if mdefut.display_ == 1 && mdefut.replay_count_ == 1
                 fprintf('replay date now: %s\n',mdefut.replay_date2_);
-                fprintf('candles date vector:\n');
-                display(datestr(mdefut.candles_{1}(:,1)))
-                fprintf('\n');
+%                 fprintf('candles date vector:\n');
+%                 display(datestr(mdefut.candles_{1}(:,1)))
+%                 fprintf('\n');
             end
         end
         %

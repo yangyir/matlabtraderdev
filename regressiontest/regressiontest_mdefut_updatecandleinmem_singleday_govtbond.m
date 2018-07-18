@@ -5,22 +5,21 @@ mdefut.timer_interval_ = 0.005;
 mdefut.display_ = 1;
 mdefut.candlesaveflag_ = true;
 %%
-code = 'rb1810';
+code = 'T1809';
 instr = code2instrument(code);
 mdefut.registerinstrument(instr);
 
 %%
 replay_startdt = '2018-06-04';
-replay_enddt = '2018-06-05';
+replay_enddt = '2018-06-04';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 replay_filenames = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)
     replay_filenames{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.txt'];
 end
-mdefut.initreplayer('code',code,'filenames',replay_filenames);
+% mdefut.initreplayer('code',code,'filenames',replay_filenames);
+mdefut.initreplayer('code',code,'fn',replay_filenames{1});
 
-%% double check whether the datevec of the candles is inline with the replay date
-% datestr(mdefut.candles_{1}(:,1))
 %% start the trading (replay) process
 mdefut.start;
 %% check when the mdefut is running 
@@ -63,4 +62,12 @@ for i = 1:size(replay_dates,1)
     end
     results(i) = result_i;
 end
-    
+
+if sum(results) == 0
+    fprintf('well done:no error is found!\n');
+end
+
+% results =
+% 
+%      0
+%      0    

@@ -83,14 +83,14 @@ function [] = move2cobdate(obj,cobdate)
         datestr_end = datestr(floor(obj.candles4save_{ns}(end,1)));
         category = obj.categories_(i);
         for j = 1:nintervals
-            datenum_open(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,1}]);
+            datenum_open(j,1) = datenum([datestr_start,blankstr,fut.break_interval{j,1}]);
             if category ~= 5
-                datenum_close(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,2}]);
+                datenum_close(j,1) = datenum([datestr_start,blankstr,fut.break_interval{j,2}]);
             else
                 if j == nintervals
-                    datenum_close(j,1) = datenum([datestr_end,blankstr,instrument.break_interval{j,2}]);
+                    datenum_close(j,1) = datenum([datestr_end,blankstr,fut.break_interval{j,2}]);
                 else
-                    datenum_close(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,2}]);
+                    datenum_close(j,1) = datenum([datestr_start,blankstr,fut.break_interval{j,2}]);
                 end
             end
         end
