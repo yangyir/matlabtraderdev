@@ -588,3 +588,13 @@ CTPCounter::HandleUserLoginResponse
 CTPCounter::HandleSettlementInfoConfirmResponse
 CTPCounter::HandleSettlementInfoConfirmResponse
 CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleConnected
+CTPCounter::HandleUserLoginResponse
+CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleConnected
+CTPCounter::HandleUserLoginResponse
+CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleConnected
+CTPCounter::HandleUserLoginResponse
+CTPCounter::HandleSettlementInfoConfirmResponse
+CTPCounter::HandleDisconnected Reason : 0
