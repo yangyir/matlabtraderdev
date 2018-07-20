@@ -33,7 +33,8 @@ classdef cMDEFut < cMyTimerObj
         replay_time1_@double
         replay_time2_@char
         %
-        
+        datenum_open_@cell
+        datenum_close_@cell
     end
     
     properties (GetAccess = public, SetAccess = private, Dependent)
@@ -44,6 +45,12 @@ classdef cMDEFut < cMyTimerObj
         ticks_count_@double
         candles_count_@double
         candles4save_count_@double
+        categories_@double
+        num21_00_00_@double
+        num21_00_0_5_@double
+        num00_00_00_@double
+        num00_00_0_5_@double
+        
     end
     
     methods
@@ -107,6 +114,8 @@ classdef cMDEFut < cMyTimerObj
         
         [bid,ask, timet] = getmarketdata(obj, code) % updated bu sunq
         
+        [] = move2cobdate(obj,cobdate)
+        
     end
     
     methods (Static = true)
@@ -122,6 +131,7 @@ classdef cMDEFut < cMyTimerObj
         %technical indicator calculator
         % William %R
         indicators = calc_wr_(obj,instrument,varargin)
+        
     end
     
 end

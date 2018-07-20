@@ -58,5 +58,41 @@ function [] = initreplayer(obj,varargin)
     candle_ = [buckets,zeros(size(buckets,1),4)];
     obj.candles4save_{idx2} = candle_;
     
+    % compute num21_00_00_; num21_00_0_5_;num00_00_00_;num00_00_0_5_ if it
+    % is required
+    if obj.categories_(idx2) > 3
+        datestr_start = datestr(floor(obj.candles4save_{idx2}(1,1)));
+        obj.num21_00_00_ = datenum([datestr_start,' 21:00:00']);
+        obj.num21_00_0_5_ = datenum([datestr_start,' 21:00:0.5']);
+    end
+    if obj.categories_(idx2) == 5
+        datestr_end = datestr(floor(obj.candles4save_{idx2}(end,1)));
+        obj.num00_00_00_ = datenum([datestr_end,' 00:00:00']);
+        obj.num00_00_0_5_ = datenum([datestr_end,' 00:00:0.5']);
+    end
+    
+    
+    % init datenum_open_ and datenum_close_
+    blankstr = ' ';
+    nintervals = size(instruments{idx2}.break_interval,1);
+    datenum_open_new = zeros(nintervals,1);
+    datenum_close_new = zeros(nintervals,1);
+    datestr_start = datestr(floor(obj.candles4save_{idx2}(1,1)));
+    datestr_end = datestr(floor(obj.candles4save_{idx2}(end,1)));
+    for j = 1:nintervals
+        datenum_open_new(j,1) = datenum([datestr_start,blankstr,instruments{idx2}.break_interval{j,1}]);
+        if obj.categories_(idx2) ~= 5
+            datenum_close_new(j,1) = datenum([datestr_start,blankstr,instruments{idx2}.break_interval{j,2}]);
+        else
+            if j == nintervals
+                datenum_close_new(j,1) = datenum([datestr_end,blankstr,instruments{idx2}.break_interval{j,2}]);
+            else
+                datenum_close_new(j,1) = datenum([datestr_start,blankstr,instruments{idx2}.break_interval{j,2}]);
+            end
+        end
+    end
+    obj.datenum_open_{idx2,1} = datenum_open_new;
+    obj.datenum_close_{idx2,1} = datenum_close_new;
+    
     
 end

@@ -20,6 +20,7 @@ classdef cWind < cDataSource
         data = intradaybar(obj,instrument,startdate,enddate,interval,field)       
         data = realtime(obj,instruments,fields)
         data = history(obj,contract,fields,fromdate,todate)
+        data = tickdata(obj,instrument,startdate,enddate)
         
     end
 end

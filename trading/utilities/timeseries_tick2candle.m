@@ -8,18 +8,19 @@ function candles = timeseries_tick2candle(varargin)
 % before or on 09:01:00.
 % 3.However,the Bloomberg use the tick on 21:00:00 for the candle between
 % 21:00:00 and 21:01:00
-% 4.The Bloomberg doesn't take the govtbond tick on 11:30:00 into account
-% 5.The Bloomberg treat ticks on 00:00:00 trickly,i.e.
-% candle_23:59:59 = ticks (23:59:00 , 00:00:00] 
-% candle_00:00:00 = ticks [00:00:00 , 00:01:00]
-%
+% 4.Bloomberg treats 00:00:00 tick randomly as sometimes the tick belongs
+% to the 23:59 close tick and sometimes the tick belongs to the 00:00
+% open,we just take it as the 23:59 close for the reason of simplicity
+
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('code','',@ischar);
     p.addParameter('ticks',[],@isnumeric);
+    p.addParameter('interval',1,@isnumeric);
     p.parse(varargin{:});
     code = p.Results.code;
     ticks = p.Results.ticks;
+    interval = p.Results.interval;
     if isempty(code) || isempty(ticks)
         candles = {};
         return
@@ -35,7 +36,7 @@ function candles = timeseries_tick2candle(varargin)
     nintervals = size(instrument.break_interval,1);
     for i = 1:ndates
         buckets = getintradaybuckets2('date',cob_dates(i),...
-            'frequency','1m',...
+            'frequency',[num2str(interval),'m'],...
             'tradinghours',instrument.trading_hours,...
             'tradingbreak',instrument.trading_break);
         candles_i = nan(size(buckets,1),5);
@@ -85,10 +86,10 @@ function candles = timeseries_tick2candle(varargin)
         if isempty(idx_start), return;end
         
         t = ticks(idx_start,1);
-        if category == 2 && t == num11_30_00            
-             idx_start = idx_start+1;
-             t = ticks(idx_start,1);
-        end
+%         if category == 2 && t == num11_30_00            
+%              idx_start = idx_start+1;
+%              t = ticks(idx_start,1);
+%         end
         pxtrade = ticks(idx_start,2);
         
         if category > 3
@@ -138,7 +139,7 @@ function candles = timeseries_tick2candle(varargin)
             if ~isempty(this_bucket)
                 this_count = find(buckets == this_bucket);
             else
-                if t >= buckets(end), this_count = size(buckets,1);end
+                if t > buckets(end), this_count = size(buckets,1);end
             end
             
             if isempty(this_count), continue;end
