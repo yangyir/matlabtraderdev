@@ -2,10 +2,28 @@ function [] = riskmanagement_batman(tradeOpen,candleStick,freq)
     %riskmanagement is not required in case the trade is closed 
     if strcmpi(tradeOpen.status_,'closed'), return; end
     
+    t = candleStick(1);
+    if t <= tradeOpen.opendatetime1_, return; end
+    
+    if ~strcmpi(tradeOpen.riskmanagementmethod_,'batman'), tradeOpen.riskmanagementmethod_ = 'batman';end
+    
+    instrument = tradeOpen.instrument_;
+    tickSize = instrument.tick_size;
+        
     if strcmpi(tradeOpen.status_,'unset')
-        instrument = tradeOpen.instrument_;
-        tickSize = instrument.tick_size;
-        tradeOpen.riskmanagementmethod_ = 'batman';
+        buckets = getintradaybuckets2('date',floor(tradeOpen.opendatetime1_),...
+            'frequency',freq,...
+            'tradinghours',instrument.trading_hours,...
+            'tradingbreak',instrument.trading_break);
+        idxTradeOpen = buckets(1:end-1) < tradeOpen.opendatetime1_ & buckets(2:end) >= tradeOpen.opendatetime1_; 
+        bucketTradeOpen = buckets(idxTradeOpen);
+        %note:we will set the trade on the 1st candle which is right after
+        %the candle on which the trade is open,e.g.the trade opens on the
+        %145th candle with the previous 144 candles generating signals, and
+        %we will set the trade just after the 145th candle is fully pops up
+        if t > bucketTradeOpen, tradeOpen.status_ = 'set'; end
+        
+        
         if ~isempty(tradeOpen.extrainfo_)
             if strcmpi(tradeOpen.extrainfo_.signal,'wr')
                 pxlowest = tradeOpen.extrainfo_.priceminumum;
@@ -28,15 +46,12 @@ function [] = riskmanagement_batman(tradeOpen,candleStick,freq)
         tradeOpen.batman_.pxsupportmin_ = -1;
         tradeOpen.batman_.pxsupportmax_ = -1;
         
-        buckets = getintradaybuckets2('date',floor(tradeOpen.opendatetime1_),...
-            'frequency',freq,...
-            'tradinghours',instrument.trading_hours,...
-            'tradingbreak',instrument.trading_break);
-        idxTradeOpen = buckets(1:end-1) < tradeOpen.opendatetime1_ & buckets(2:end) >= tradeOpen.opendatetime1_; 
-        bucketOpen = buckets(idxTradeOpen);
-        if isempty(bucketOpen), error('internal error'); end
         
-        if candleStick(1) > bucketOpen, tradeOpen.status_ = 'set'; end
+        
+        
+        
+        
+        
         
         return
     end
@@ -51,7 +66,6 @@ function [] = riskmanagement_batman(tradeOpen,candleStick,freq)
         tickValue = instrument.tick_value;
         direction = tradeOpen.opendirection_;
         
-        t = candleStick(1);
         kOpen = candleStick(2);
         kHigh = candleStick(3);
         kLow = candleStick(4);
