@@ -115,6 +115,24 @@ function buckets = getintradaybuckets2(varargin)
         buckets = buckets(idx,:);
     end
     
+    if weekday(day) == 6
+        % no evening trading session in case the next monday is a public
+        % holiday
+        nextmonday = datenum(day)+3;
+        if isholiday(nextmonday)
+            idx = buckets < 1260;
+            buckets = buckets(idx,:);
+        end
+    elseif weekday(day) > 1 && weekday(day) <= 5
+        % no evening trading session in case the next day is a public
+        % holiday
+        nextday = datenum(day)+1;
+        if isholiday(nextday)
+            idx = buckets < 1260;
+            buckets = buckets(idx,:);
+        end
+    end
+    
     buckets = datenum(day) + buckets./minutes_per_day;
     %
         
