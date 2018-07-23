@@ -24,6 +24,8 @@ classdef cTradeOpen < handle
         %
         riskmanagementmethod_@char
         batman_@cBatman
+        %
+        extrainfo_@struct
     end
     
     methods
