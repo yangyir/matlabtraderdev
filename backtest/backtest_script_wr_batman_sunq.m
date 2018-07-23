@@ -8,9 +8,21 @@ freq_used = 3;
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 fn_candles_ = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)
-    fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
-    candle_db = cDataFileIO.loadDataFromTxtFile(fn_candles_{i});
-    px_used_1d = timeseries_compress(candle_db,'Frequency',[num2str(freq_used),'m']);
+    if weekday(replay_dates(i)) ~= 6
+        fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
+        candle_db = cDataFileIO.loadDataFromTxtFile(fn_candles_{i});
+        px_used_1d = timeseries_compress(candle_db,'Frequency',[num2str(freq_used),'m']);
+    else
+        fn_candles_{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
+        candle_db = cDataFileIO.loadDataFromTxtFile(fn_candles_{i});
+        try
+            fn_extra = [code,'_',datestr(replay_dates(i)+1,'yyyymmdd'),'_1m.txt'];
+            candle_db_extra = cDataFileIO.loadDataFromTxtFile(fn_extra);
+            candle_db = [candle_db;candle_db_extra];
+        catch
+        end
+        px_used_1d = timeseries_compress(candle_db,'Frequency',[num2str(freq_used),'m']);
+    end
     if i == 1
         px_used = px_used_1d;
     else
