@@ -31,7 +31,7 @@ function [stoptime1,stoptime2] = gettradestoptime(code,opentime,freq,nperiod)
     
     if isempty(thisbucket)
         if opentime == buckets(1);
-            thiscount = 1;
+            thiscount = 0;
         else
             error('internal error')
         end
