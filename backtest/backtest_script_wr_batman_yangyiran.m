@@ -55,13 +55,16 @@ if ~diff_found
 end
 %%
 fprintf('use riskmanagement_batman for one trade risk management...\n');
-% tradeOpen = trades.node_(1);
-% tradeOpen.setriskmanager('name','batman');
+tradeOpen = trades.node_(1);
+tradeOpen.setriskmanager('name','batman');
 % 
-% for i = 1:size(candle_db_freq,1)
-%     riskmanagement_batman(tradeOpen,candle_db_freq(1,:),trade_freq);
-% end
+for i = 1:size(candle_db_freq,1)
+    output = tradeOpen.riskmanager_.riskmanagementwithcandle(candle_db_freq(i,:),'debug',true);
+    if ~isempty(output)
+        break
+    end
+end
 
-output = tradeOpen.riskmanager_.riskmanagementwithcandle(candle_db_freq(1,:));
+
 
 
