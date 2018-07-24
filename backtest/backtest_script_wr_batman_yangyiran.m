@@ -33,27 +33,21 @@ trades = backtest_gentrades_wr(code,candle_db_1m,'tradefrequency',trade_freq,...
     'lengthofstopperiod',stop_period);
 %%
 fprintf('check whether stop time of trades are in line with candles......\n');
-candle_db_freq = timeseries_compress(candle_db_1m,'frequency',[num2str(trade_freq),'m'],...
-        'tradinghours',instrument.trading_hours,...
-        'tradingbreak',instrument.trading_break);
+candle_db_freq = timeseries_compress(candle_db_1m,'frequency',[num2str(trade_freq),'m']);
 ntrades = trades.latest_;
 diff_found = false;
 for i = 1:ntrades
-    stoptime_trade = trades.node_(i).stoptime1_;
-    opentime_trade = trades.node_(i).opendatetime1_;
-    opentime_idx = candle_db_freq(1:end-1) < opentime_trade & candle_db_freq(2:end) >= opentime_trade;
-    opentime_candle = candle_db_freq(opentime_idx);
-    idx = find(candle_db_freq == opentime_candle);
+    stoptime_trade = trades.node_(i).stopdatetime1_;
+    idx = find(candle_db_freq(:,1) <= trades.node_(i).opendatetime1_,1,'last');
     stoptime_idx = idx + stop_period - 1;
-    if stoptime_idx <= size(candle_db_freq,1)
-        stoptime_candle = candle_db_freq(stoptime_idx,1);
-        if ~strcmpi(datestr(stoptime_candle),  datestr(stoptime_trade))
-            fprintf('trade %d:trade stop:%s; candle stop:%s...\n',...
-                i,...
-                datestr(stoptime_trade,'yyyy-mm-dd HH:MM:SS'),...
-                datestr(stoptime_candle,'yyyy-mm-dd HH:MM:SS'));
-            diff_found = true;
-        end
+    if stoptime_idx > size(candle_db_freq,1), continue; end
+    stoptime_candle = candle_db_freq(stoptime_idx,1);
+    if ~strcmpi(datestr(stoptime_candle),  datestr(stoptime_trade))
+        fprintf('trade %d:trade stop:%s; candle stop:%s...\n',...
+            i,...
+            datestr(stoptime_trade,'yyyy-mm-dd HH:MM:SS'),...
+            datestr(stoptime_candle,'yyyy-mm-dd HH:MM:SS'));
+        diff_found = true;
     end
 end
 if ~diff_found
@@ -61,9 +55,13 @@ if ~diff_found
 end
 %%
 fprintf('use riskmanagement_batman for one trade risk management...\n');
-tradeOpen = trades.node_(1);
-for i = 1:size(candle_db_freq,1)
-    riskmanagement_batman(tradeOpen,candle_db_freq(1,:),trade_freq);
-end
+% tradeOpen = trades.node_(1);
+% tradeOpen.setriskmanager('name','batman');
+% 
+% for i = 1:size(candle_db_freq,1)
+%     riskmanagement_batman(tradeOpen,candle_db_freq(1,:),trade_freq);
+% end
+
+output = tradeOpen.riskmanager_.riskmanagementwithcandle(candle_db_freq(1,:));
 
 
