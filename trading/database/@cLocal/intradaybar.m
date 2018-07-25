@@ -19,20 +19,56 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
         n = size(bds,1);
 
         if n == 1
-            fn_ = [code_ctp,'_',datestr(bds,'yyyymmdd'),'_1m.txt'];
-            fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
-            data_raw_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
-        else
-            fn_ = [code_ctp,'_',datestr(bds(1),'yyyymmdd'),'_1m.txt'];
-            fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
-            data_raw_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
-            for i = 2:n
-                fn_ = [code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_1m.txt'];
+            if weekday(bds) ~= 6
+                fn_ = [code_ctp,'_',datestr(bds,'yyyymmdd'),'_1m.txt'];
                 fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
-                data_new_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
-                tmp = data_raw_;
-                data_raw_ = [tmp;data_new_];
+                data_raw_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+            else
+                fn_ = [code_ctp,'_',datestr(bds,'yyyymmdd'),'_1m.txt'];
+                fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
+                data1_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+                try
+                    fn2_ = [code_ctp,'_',datestr(bds+1,'yyyymmdd'),'_1m.txt'];
+                    fullfn2_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn2_];
+                    data2_ = cDataFileIO.loadDataFromTxtFile(fullfn2_);
+                    data_raw_ = [data1_;data2_];
+                catch
+                    data_raw_ = data1_;
+                end
             end
+        else
+            data_intermediate_ = cell(n,1);
+            for i = 1:n
+                if weekday(bds(i)) ~= 6
+                    fn_ = [code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_1m.txt'];
+                    fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
+                    data_intermediate_{i} = cDataFileIO.loadDataFromTxtFile(fullfn_);
+                else
+                    fn_ = [code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_1m.txt'];
+                    fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
+                    data1_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+                    try
+                        fn2_ = [code_ctp,'_',datestr(bds(i)+1,'yyyymmdd'),'_1m.txt'];
+                        fullfn2_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn2_];
+                        data2_ = cDataFileIO.loadDataFromTxtFile(fullfn2_);
+                        data_intermediate_{i} = [data1_;data2_];
+                    catch
+                        data_intermediate_{i} = data1_;
+                    end
+                end
+            end
+            data_raw_ = cell2mat(data_intermediate_);
+%             
+%             fn_ = [code_ctp,'_',datestr(bds(1),'yyyymmdd'),'_1m.txt'];
+%             fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
+%             data_raw_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+%             for i = 2:n
+%                 fn_ = [code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_1m.txt'];
+%                 fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
+%                 data_new_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+%                 tmp = data_raw_;
+%                 data_raw_ = [tmp;data_new_];
+%             end
         end
 
         %the columns in d contain the following:
