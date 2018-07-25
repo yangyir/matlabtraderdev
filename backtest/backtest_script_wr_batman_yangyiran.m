@@ -5,26 +5,9 @@ code = 'ni1809';
 replay_startdt = '2018-06-01';
 replay_enddt = '2018-06-23';
 %
+db = cLocal;
 instrument = code2instrument(code);
-replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
-candle_db_1m_1day = cell(size(replay_dates));
-for i = 1:size(replay_dates,1)
-    if weekday(replay_dates(i)) ~= 6
-        fn_candles_ = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
-        candle_db_1m_1day{i} = cDataFileIO.loadDataFromTxtFile(fn_candles_);
-    else
-        fn_candles_ = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_1m.txt'];
-        candle_db_1 = cDataFileIO.loadDataFromTxtFile(fn_candles_);
-        try
-            fn_extra_ = [code,'_',datestr(replay_dates(i)+1,'yyyymmdd'),'_1m.txt'];
-            candle_db_2 = cDataFileIO.loadDataFromTxtFile(fn_extra_);
-            candle_db_1m_1day{i} = [candle_db_1;candle_db_2];
-        catch
-            candle_db_1m_1day{i} = candle_db_1;
-        end
-    end
-end
-candle_db_1m = cell2mat(candle_db_1m_1day);
+candle_db_1m = db.intradaybar(instrument,replay_startdt,replay_enddt,1,'trade');
 %%
 fprintf('generate trades......\n');
 trade_freq = 3;
