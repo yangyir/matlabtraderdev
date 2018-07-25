@@ -13,22 +13,22 @@ function [] = setriskmanager(obj,varargin)
         riskmanager.trade_ = obj;
         if ~isempty(info)
             try
-                obj.bandwidthmin_ = info.bandwidthmin;
+                riskmanager.bandwidthmin_ = info.bandwidthmin;
             catch
             end
             %
             try
-                obj.bandwidthmax_ = info.bandwidthmax;
+                riskmanager.bandwidthmax_ = info.bandwidthmax;
             catch
             end
             %
             try
-                obj.bandstoploss_ = info.bandstoploss;
+                riskmanager.bandstoploss_ = info.bandstoploss;
             catch
             end
             %
             try
-                obj.bandtarget_ = info.bandtarget;
+                riskmanager.bandtarget_ = info.bandtarget;
             catch
             end
             %

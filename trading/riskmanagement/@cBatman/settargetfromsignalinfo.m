@@ -10,9 +10,9 @@ function [] = settargetfromsignalinfo(obj,signalinfo)
         pxlowest = signalinfo.lowestlow_;
         pxopen = obj.trade_.openprice_;
         direction = obj.trade_.opendirection_;
-        target = pxopen + direction*(pxhighest-pxlowest)*obj.bandtarget_;
+        target = direction*(pxhighest-pxlowest)*obj.bandtarget_;
         tickSize = obj.trade_.instrument_.tick_size;
-        obj.pxtarget_ = round(target/tickSize)*tickSize;
+        obj.pxtarget_ = pxopen + round(target/tickSize)*tickSize;
         return
     end
     
