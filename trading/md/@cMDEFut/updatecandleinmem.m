@@ -79,6 +79,7 @@ function [] = updatecandleinmem(mdefut)
                 mdefut.newset_ = 1;
             else
                 newset = false;
+                mdefut.newset_ = 0;
             end
             mdefut.candles_{i}(this_count,5) = px_trade;
             if newset

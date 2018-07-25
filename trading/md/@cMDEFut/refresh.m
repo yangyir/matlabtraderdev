@@ -27,6 +27,12 @@ function [] = refresh(mdefut)
                         %2.the datetime vec has moved to the end and the
                         %last date point is before 3:15pm
                         mdefut.status_ = 'sleep';
+                    else
+                        if mdefut.newset_ && mdefut.candles_count_(1)-1 > 0
+                            fprintf('reset time: %s\t',mdefut.replay_time2_);
+                            candleK = mdefut.candles_{1}(mdefut.candles_count_(1)-1);
+                            fprintf('candle bucket:%s\n',datestr(candleK(1)));
+                        end
                     end
                 elseif strcmpi(mdefut.status_,'sleep')
                     mm = minute(mdefut.replay_time1_) + 60*hour(mdefut.replay_time1_);
