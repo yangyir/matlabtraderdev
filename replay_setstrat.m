@@ -25,7 +25,7 @@ function replay_strat = replay_setstrat(stratname,varargin)
         error('replay_setstrat:invalid strategy name input')
     end
     
-    default_timerinterval_strat = 0.25;
+    default_timerinterval_strat = 1;
     default_timerinterval_ops = 0.5;
     default_timerinterval_mde = 0.5;
     

@@ -5,7 +5,6 @@ enddt = '2018-06-23';
 checkdt = '2018-06-19';
 trade_freq = 3;
 stop_nperiod = 72;
-
 %%
 db = cLocal;
 instrument = code2instrument(code);
@@ -41,3 +40,35 @@ end
 % id:  10, time: 14:36:01, direction: 1, price:112790
 % id:  11, time: 14:39:01, direction: 1, price:112580
 % id:  12, time: 21:00:01, direction: 1, price:112420
+
+%%
+replay_speed = 5;
+replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
+replay_strat.mde_fut_.registerinstrument(code);
+replay_strat.registerinstrument(code);
+replay_strat.setsamplefreq(code,trade_freq);
+replay_strat.setautotradeflag(code,1);
+replay_strat.setmaxunits(code,100);
+replay_strat.setmaxexecutionperbucket(code,1);
+%%
+replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.txt'];
+replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
+replay_strat.initdata;
+%%
+clc;
+replay_strat.mde_fut_.replay_count_ = 1;
+replay_strat.start;
+replay_strat.helper_.start; 
+replay_strat.mde_fut_.start;
+%%
+try
+    replay_strat.stop;
+    replay_strat.helper_.stop;
+    replay_strat.mde_fut_.stop;
+    delete(timerfindall);
+catch
+    clear all;
+    fprintf('all deleted\n');
+end
+%%
+clear all

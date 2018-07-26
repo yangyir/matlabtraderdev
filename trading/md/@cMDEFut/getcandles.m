@@ -17,17 +17,28 @@ function candlesticks = getcandles(mdefut,instrument)
         end
         return
     end
+    
+    if ischar(instrument), instrument = code2instrument(instrument); end
 
     if ~isa(instrument,'cInstrument'), error('cMDEFut:getcandles:invalid instrument input'); end
 
-
+    flag = false;
     for i = 1:ns
         if strcmpi(instruments{i}.code_ctp,instrument.code_ctp)
-            candlesticks = mdefut.candles_{i};
+            flag = true;
+            candlesticks = cell(1,1);
+            candlestick = mdefut.candles_{i};
             count_i = mdefut.getcandlecount(instrument);
-            candlesticks = candlesticks(1:count_i,:);
+            if count_i > 0
+                candlestick = candlestick(1:count_i,:);
+                candlesticks{1} = candlestick;
+            else
+                candlesticks = {};
+            end
             break
         end
     end
+    
+    if ~flag, error('cMDEFut:getcandles:instrument not found');end
 
 end
