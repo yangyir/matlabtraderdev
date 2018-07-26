@@ -28,10 +28,14 @@ function [] = refresh(mdefut)
                         %last date point is before 3:15pm
                         mdefut.status_ = 'sleep';
                     else
-                        if mdefut.newset_ && mdefut.candles_count_(1)-1 > 0
-                            fprintf('reset time: %s\t',mdefut.replay_time2_);
+                        if mdefut.newset_(1) && mdefut.candles_count_(1)-1 > 0
+                            %note:once newset_ is set to TRUE,
+                            %candles_count moves to the idx of the current
+                            %candle to be feeded in. As a result, the previous
+                            %candle has been fully feeded in.
+                            fprintf('replay time: %s\t',mdefut.replay_time2_);
                             candleK = mdefut.candles_{1}(mdefut.candles_count_(1)-1);
-                            fprintf('candle bucket:%s\n',datestr(candleK(1)));
+                            fprintf('candle bucket:%s\n',datestr(candleK(1),'yyyy-mm-dd HH:MM:SS'));
                         end
                     end
                 elseif strcmpi(mdefut.status_,'sleep')
@@ -50,7 +54,7 @@ function [] = refresh(mdefut)
                     end
                     %in case the mdefut is sleeping, we move the replay
                     %time minute by minute
-                    mdefut.replay_time1_ = mdefut.replay_time1_ + 1/60/24;
+                    mdefut.replay_time1_ = mdefut.replay_time1_ + mdefut.candle_freq_(1)/60/24;
                     mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
                 end
             end

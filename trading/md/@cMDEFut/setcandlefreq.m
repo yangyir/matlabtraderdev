@@ -25,6 +25,9 @@ function [] = setcandlefreq(mdefut,freq,instrument)
         return
     end
 
+    if ischar(instrument)
+        instrument = code2instrument(instrument);
+    end
     if ~isa(instrument,'cInstrument')
         error('cMDEFut:setcandlefreq:invalid instrument input')
     end

@@ -9,14 +9,7 @@ function [] = updatecandleinmem(mdefut)
         buckets4save = mdefut.candles4save_{i}(:,1);
         t = mdefut.ticks_{i}(count(i),1);
         px_trade = mdefut.ticks_{i}(count(i),4);
-        % some check and will be removed
-%         hh = hour(t);
-%         mm = minute(t);
-%         if hh == 10 && mm == 30
-%             fprintf('critical time reached and we shall debug here\n');
-%         end
-        
-        
+
         %note:Bloomberg rule
         %open bracket on the left hand side and close bracket on the right
         %hand side
@@ -56,15 +49,10 @@ function [] = updatecandleinmem(mdefut)
         end
         this_bucket_save = buckets4save(idx4save);
                         
-%         idx = buckets(1:end-1)<=t & buckets(2:end)>t;
-%         idx4save = buckets4save(1:end-1)<=t & buckets4save(2:end)>t;
-%         this_bucket = buckets(idx);
-%         this_bucket_save = buckets4save(idx4save);
         %
         if ~isempty(this_bucket)
             this_count = find(buckets == this_bucket);
         else
-%             if t >= buckets(end) && t < buckets(end)+buckets(end)-buckets(end-1)
             if t > buckets(end)
                 this_count = size(buckets,1);
             else
@@ -76,10 +64,10 @@ function [] = updatecandleinmem(mdefut)
             if this_count ~= mdefut.candles_count_(i)
                 mdefut.candles_count_(i) = this_count;
                 newset = true;
-                mdefut.newset_ = 1;
+                mdefut.newset_(i) = newset;
             else
                 newset = false;
-                mdefut.newset_ = 0;
+                mdefut.newset_(i) = newset;
             end
             mdefut.candles_{i}(this_count,5) = px_trade;
             if newset
