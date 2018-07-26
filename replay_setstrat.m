@@ -31,7 +31,7 @@ function replay_strat = replay_setstrat(stratname,varargin)
     
     try
         replay_strat.mode_ = 'replay';
-        replay_strat.mde_fut_ = replay_mdefut;
+        replay_strat.registermdefut(replay_mdefut);
         replay_strat.trader_ = replay_trader;
         replay_strat.helper_ = replay_ops;
         replay_strat.bookrunning_ = replay_book;

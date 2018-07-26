@@ -1,7 +1,7 @@
 %user inputs:
 code = 'ni1809';
-startdt = '2018-06-01';
-enddt = '2018-06-23';
+startdt = '2018-06-14';
+enddt = '2018-06-19';
 checkdt = '2018-06-19';
 trade_freq = 3;
 stop_nperiod = 72;
@@ -56,7 +56,15 @@ replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
 replay_strat.initdata;
 %%
 clc;
+replay_strat.mde_fut_.display_ = 0;
 replay_strat.mde_fut_.replay_count_ = 1;
+replay_strat.bucket_count_(1) = 0;
+replay_strat.bookrunning_ = cBook;
+replay_strat.helper_.book_ = cBook;
+replay_strat.helper_.entrusts_ = EntrustArray;
+replay_strat.helper_.entrustspending_ = EntrustArray;
+replay_strat.helper_.entrustsfinished_ = EntrustArray;
+replay_strat.helper_.trades_ = cTradeOpenArray;
 replay_strat.start;
 replay_strat.helper_.start; 
 replay_strat.mde_fut_.start;

@@ -39,10 +39,10 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         %note:to check wheter we've already executed trades within the
         %bucket and exist the process if so.this is inline with the
         %backtest as we only execute once in every time bucket
-        bucketnum = obj.mde_fut_.getcandlecount(instrument);
-        if bucketnum > 0 && bucketnum == obj.executionbucketnumber_(ii)
-            continue;
-        end
+%         bucketnum = obj.mde_fut_.getcandlecount(instrument);
+%         if bucketnum > 0 && bucketnum == obj.executionbucketnumber_(ii)
+%             continue;
+%         end
         
         %note:there is a maximum limit of 500 entrust placement/withdrawn. as
         %a result, we try to make sure the same entrust, i.e. same underlier

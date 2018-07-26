@@ -1,32 +1,12 @@
 function [] = refresh(strategy)
+    
     if ~isempty(strategy.mde_fut_)
         if strcmpi(strategy.mde_fut_.status_,'sleep')
             return
         end
     end
     
-    if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
-%         try
-%             instrument = strategy.instruments_.getinstrument{1};
-%             tick = strategy.mde_fut_.getlasttick(instrument);
-%             candle = strategy.mde_fut_.getlastcandle(instrument);
-%             fprintf('runtime:%s; candlebuckettime:%s; price:%s\n',...
-%                 datestr(tick(1),'yyyy-mm-dd HH:MM:SS'),...
-%                 datestr(candle{1}(1),'HH:MM'),num2str(candle{1}(5)));
-%         catch e
-%             msg = ['error:cStrat:display replay info:',e.message,'\n'];
-%             fprintf(msg);
-%         end
-        try
-            if strategy.mde_fut_.newset_(1)
-%                 strategy.printinfo;
-                strategy.helper_.book_.printpositions;
-                strategy.helper_.printallentrusts;
-            end
-        catch
-        end
-    end
-
+    inst = strategy.instruments_.getinstrument;
     try
         strategy.updategreeks;
     catch e
@@ -38,9 +18,8 @@ function [] = refresh(strategy)
         if strcmpi(strategy.mode_,'realtime')
             strategy.riskmanagement(now);
         elseif strcmpi(strategy.mode_,'replay')
-            inst = strategy.instruments_.getinstrument;
-            codestr = inst{1}.code_ctp;
-            tick = strategy.mde_fut_.getlasttick(codestr);
+%             codestr = inst{1}.code_ctp;
+            tick = strategy.mde_fut_.getlasttick(inst{1});
             strategy.riskmanagement(tick(1));
         end
     catch e
@@ -48,8 +27,28 @@ function [] = refresh(strategy)
         fprintf(msg);
     end
     %
+    calcsignalflag = false;
     try
-        signals = strategy.gensignals;
+        if strcmpi(strategy.mode_,'realtime')
+            fprintf('todo:not implemented...\n')
+        elseif strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
+            %note:yangyiran 20180727
+            %we need to make sure we need to calc(re-calc) signal here
+            %rule:we start to recalc signal once the candle K is fully
+            %feeded. however, the newset flag is set once the first tick
+            %after the candle bucket arrives and is reset FALSE after the
+            %second tick arrives.           
+            calcsignalflag = strategy.getcalcsignalflag(inst{1});
+            if calcsignalflag
+                signals = strategy.gensignals;
+                signal = signals{1};
+                if ~isempty(signal)
+                    fprintf('\thighest:%d;lowest:%d\n',signal.highestprice,signal.lowestprice);
+                end
+            else
+                signals = {};
+            end
+        end
     catch e
         msg = ['error:cStrat:gensignals:',e.message,'\n'];
         fprintf(msg);
@@ -60,6 +59,16 @@ function [] = refresh(strategy)
     catch e
         msg = ['error:cStrat:autoplacenewentrusts:',e.message,'\n'];
         fprintf(msg);
+    end
+    
+    if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
+        try
+            if calcsignalflag
+                strategy.helper_.book_.printpositions;
+                strategy.helper_.printallentrusts;
+            end
+        catch
+        end
     end
         
 end

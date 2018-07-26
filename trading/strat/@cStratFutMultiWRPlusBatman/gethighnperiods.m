@@ -49,7 +49,7 @@ function [highp,hight] = gethighnperiods(obj,instrument)
         error('cStratFutMultiWRPlusBatman:gethighperiods:insufficient historical data')
     end
     
-    highp = max(highpx(end-nperiods:end-1));
+    highp = max(highpx(end-nperiods-1:end));
     idx = highpx == highp;
     hight = timevec(idx);
 

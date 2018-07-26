@@ -34,6 +34,7 @@ classdef cMDEFut < cMyTimerObj
         %
         datenum_open_@cell
         datenum_close_@cell
+        %
     end
     
     properties (GetAccess = public, SetAccess = private)
