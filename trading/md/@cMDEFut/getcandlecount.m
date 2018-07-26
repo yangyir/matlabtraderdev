@@ -4,7 +4,10 @@ function n = getcandlecount(mdefut,instrument)
         return
     end
 
+    if ischar(instrument), instrument = code2instrument(instrument); end
+    
     if ~isa(instrument,'cInstrument'), error('cMDEFut:getcandlecount:invalid instrument input'); end
+    
     instruments = mdefut.qms_.instruments_.getinstrument;
     ns = size(instruments,1);
 

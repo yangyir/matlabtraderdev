@@ -21,7 +21,11 @@ function candlesticks = getlastcandle(mdefut,instrument)
         end
         return
     end
+    
+    if ischar(instrument), instrument = code2instrument(instrument); end
 
+    if ~isa(instrument,'cInstrument'), error('cMDEFut:getlastcandle:invalid instrument input'); end
+    
     flag = false;
     for i = 1:ns
         if strcmpi(instruments{i}.code_ctp,instrument.code_ctp)
@@ -30,10 +34,11 @@ function candlesticks = getlastcandle(mdefut,instrument)
             candlestick = mdefut.candles_{i};
             if counts(i) > 0
                 candlestick = candlestick(counts(i),:);
+                candlesticks{1} = candlestick;
             else
-                candlestick = [];
+                candlesticks = {};
             end
-            candlesticks{1} = candlestick;
+            
             break
         end
     end

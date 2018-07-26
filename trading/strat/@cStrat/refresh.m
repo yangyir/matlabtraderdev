@@ -6,12 +6,25 @@ function [] = refresh(strategy)
     end
     
     if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
-        instrument = strategy.instruments_.getinstrument{1};
-        tick = strategy.mde_fut_.getlasttick(instrument);
-        candle = strategy.mde_fut_.getlastcandle(instrument);
-        fprintf('runtime:%s; candlebuckettime:%s; price:%s\n',...
-            datestr(tick(1),'yyyy-mm-dd HH:MM:SS'),...
-            datestr(candle{1}(1),'HH:MM'),num2str(candle{1}(5)));
+%         try
+%             instrument = strategy.instruments_.getinstrument{1};
+%             tick = strategy.mde_fut_.getlasttick(instrument);
+%             candle = strategy.mde_fut_.getlastcandle(instrument);
+%             fprintf('runtime:%s; candlebuckettime:%s; price:%s\n',...
+%                 datestr(tick(1),'yyyy-mm-dd HH:MM:SS'),...
+%                 datestr(candle{1}(1),'HH:MM'),num2str(candle{1}(5)));
+%         catch e
+%             msg = ['error:cStrat:display replay info:',e.message,'\n'];
+%             fprintf(msg);
+%         end
+        try
+            if strategy.mde_fut_.newset_(1)
+%                 strategy.printinfo;
+                strategy.helper_.book_.printpositions;
+                strategy.helper_.printallentrusts;
+            end
+        catch
+        end
     end
 
     try
@@ -48,4 +61,5 @@ function [] = refresh(strategy)
         msg = ['error:cStrat:autoplacenewentrusts:',e.message,'\n'];
         fprintf(msg);
     end
+        
 end

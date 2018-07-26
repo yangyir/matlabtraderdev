@@ -10,9 +10,9 @@ function [] = setstoplossfromsignalinfo(obj,signalinfo)
         pxlowest = signalinfo.lowestlow_;
         pxopen = obj.trade_.openprice_;
         direction = obj.trade_.opendirection_;
-        stoploss = pxopen - direction*(pxhighest-pxlowest)*obj.bandtarget_;
+        stoploss =  direction*(pxhighest-pxlowest)*obj.bandstoploss_;
         tickSize = obj.trade_.instrument_.tick_size;
-        obj.pxstoploss_ = round(stoploss/tickSize)*tickSize;
+        obj.pxstoploss_ = pxopen - round(stoploss/tickSize)*tickSize;
         
         return
     end
