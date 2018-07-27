@@ -123,35 +123,6 @@ function [] = refresh(mdefut)
                         mdefut.replay_date2_ = datestr(mdefut.replay_date1_,'yyyy-mm-dd');
                         mdefut.replay_datetimevec_ = mdefut.replayer_.tickdata_{idx}(:,1);
                         mdefut.replay_count_ = 1;
-                        %
-%                         if ~isempty(mdefut.hist_candles_)
-%                             %in case historical candles are required, we
-%                             %update the historical candles as well
-%                             histcandles = mdefut.hist_candles_{idx2};
-%                             candles = mdefut.candles_{idx2};
-%                             ncandle = size(candles,1);
-%                             %here we move the historical candle one day
-%                             %forward to save memory usage
-%                             histcandles = [histcandles(ncandle+1:end,:);candles];
-%                             mdefut.hist_candles_{idx2} = histcandles;
-%                         end
-%                         %
-%                         instruments = mdefut.qms_.instruments_.getinstrument;
-%                         %update candle_ and candle4save_ in mdefut
-%                         buckets = getintradaybuckets2('date',mdefut.replay_date1_,...
-%                             'frequency',[num2str(mdefut.candle_freq_(idx2)),'m'],...
-%                             'tradinghours',instruments{idx2}.trading_hours,...
-%                             'tradingbreak',instruments{idx2}.trading_break);
-%                         candle_ = [buckets,zeros(size(buckets,1),4)];
-%                         mdefut.candles_{idx2} = candle_;
-%                         
-%                         buckets = getintradaybuckets2('date',mdefut.replay_date1_,...
-%                             'frequency','1m',...
-%                             'tradinghours',instruments{idx2}.trading_hours,...
-%                             'tradingbreak',instruments{idx2}.trading_break);
-%                         candle_ = [buckets,zeros(size(buckets,1),4)];
-%                         mdefut.candles4save_{idx2} = candle_;
-%                         mdefut.replayer_.multidayidx_ = multidayidx;
                         mdefut.move2cobdate(mdefut.replay_date1_);
                         mdefut.replayer_.multidayidx_ = multidayidx;
                         %

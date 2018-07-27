@@ -57,38 +57,61 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         highestprice = signal.highestprice;
         lowestprice = signal.lowestprice;
         npending = obj.helper_.entrustspending_.latest;
-        withdraw_entrustshort = zeros(npending,1);
-        withdraw_entrustlong = zeros(npending,1);
+        place_entrustshort_flag = true;
+        place_entrustlong_flag = true;
+        
+        withdraw_entrustshort_flag = true;
+        withdraw_entrustlong_flag = true;
+        
         for jj = 1:npending
             e = obj.helper_.entrustspending_.node(jj);
-            f1 = strcmpi(e.instrumentCode,instrument.code_ctp);
-            f2 = (e.price == highestprice & e.direction == -1);
-            f3 = (e.price == lowestprice & e.direction == 1);
-            f4 = e.volume == abs(volume);
-            %pending entrust with short direction
-            if f1&&f2&&f4
-                withdraw_entrustshort(jj) = 0;
-            else
-                withdraw_entrustshort(jj) = 1;
-            end
-            %pending entrust with long direction
-            if f1&&f3&&f4
-                withdraw_entrustlong(jj) = 0;
-            else
-                withdraw_entrustlong(jj) = 1;
+            %existing entrust with the same short direction and price exist
+            %
+            if (strcmpi(e.instrumentCode,instrument.code_ctp) && ...
+                    (e.price == highestprice) && ...
+                    (e.direction == -1) && ...
+                    (e.volume == abs(volume)))
+                withdraw_entrustshort_flag = false;
+                place_entrustshort_flag = false;
+                break
             end
         end
-        if sum(sum(withdraw_entrustshort))>0 || sum(sum(withdraw_entrustlong))>0
-            %if withdraw is needed unwind all existing entrusts associated with
-            %the instrument
-            obj.withdrawentrusts(instrument);
-        end
-               
-        obj.shortopensingleinstrument(instrument.code_ctp,abs(volume),0,...
-                'overrideprice',highestprice,'time',ordertime);
         
-        obj.longopensingleinstrument(instrument.code_ctp,abs(volume),0,...
+        if withdraw_entrustshort_flag
+            %note:we only withdraw open position entrust for the risk
+            %management purpose
+            obj.withdrawentrusts(instrument,'time',ordertime,'direction',-1,'offset',1);
+        end
+        
+        for jj = 1:npending
+            e = obj.helper_.entrustspending_.node(jj);
+            %existing entrust with the same short direction and price exist
+            %
+            if (strcmpi(e.instrumentCode,instrument.code_ctp) && ...
+                    (e.price == lowestprice) && ...
+                    (e.direction == 1) && ...
+                    (e.volume == abs(volume)))
+                withdraw_entrustlong_flag = false;
+                place_entrustlong_flag = false;
+                break
+            end
+        end
+        
+        if withdraw_entrustlong_flag
+            %note:we only withdraw open position entrust for the risk
+            %management purpose
+            obj.withdrawentrusts(instrument,'time',ordertime,'direction',1,'offset',1);
+        end
+                
+        if place_entrustshort_flag
+            obj.shortopensingleinstrument(instrument.code_ctp,abs(volume),0,...
+                'overrideprice',highestprice,'time',ordertime);
+        end
+        
+        if place_entrustlong_flag
+            obj.longopensingleinstrument(instrument.code_ctp,abs(volume),0,...
                 'overrideprice',lowestprice,'time',ordertime);
+        end
         
     end
 end

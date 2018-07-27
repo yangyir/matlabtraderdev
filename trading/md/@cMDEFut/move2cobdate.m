@@ -40,11 +40,13 @@ function [] = move2cobdate(obj,cobdate)
         for i = 1:ns
             histcandles = obj.hist_candles_{i};
             candles = obj.candles_{i};
-            ncandle = size(candles,1);
-            %here we move the historical candle one day
-            %forward to save memory usage
-            histcandles = [histcandles(ncandle+1:end,:);candles];
-            obj.hist_candles_{i} = histcandles;
+            if datenuminput ~= floor(candles(1))
+                ncandle = size(candles,1);
+                %here we move the historical candle one day
+                %forward to save memory usage
+                histcandles = [histcandles(ncandle+1:end,:);candles];
+                obj.hist_candles_{i} = histcandles;
+            end
         end
     end
     

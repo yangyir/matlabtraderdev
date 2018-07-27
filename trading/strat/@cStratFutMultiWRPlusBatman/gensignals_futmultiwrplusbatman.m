@@ -7,7 +7,11 @@ function signals = gensignals_futmultiwrplusbatman(obj)
     instruments = obj.instruments_.getinstrument;
 
     for i = 1:obj.count
-        ti = obj.mde_fut_.calc_technical_indicators(instruments{i});
+        try
+            ti = obj.mde_fut_.calc_technical_indicators(instruments{i});
+        catch e
+            fprintf('calc_technical_indicators failed:%s\n',e.message);
+        end
         if ~isempty(ti), obj.wr_(i) = ti(end); end
         %
         %note;here we are inline with the backtesting process, i.e. we

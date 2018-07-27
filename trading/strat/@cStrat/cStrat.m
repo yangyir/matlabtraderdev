@@ -174,7 +174,7 @@ classdef cStrat < cMyTimerObj
         
         %process portfolio with entrusts
         [] = updatestratwithentrust(obj,e)
-        [] = withdrawentrusts(obj,instrument)
+        [] = withdrawentrusts(obj,instrument,varargin)
         
         %long/short open/close positions
         [ret,e] = shortopensingleinstrument(obj,code_ctp,lots,spread,varargin)

@@ -13,6 +13,16 @@ function calcflag = getcalcsignalflag(obj,instrument)
         candles = obj.mde_fut_.candles_{idx_instrument};
         buckets = candles(:,1);
         tick = obj.mde_fut_.getlasttick(inst{idx_instrument});
+        %yangyiran:20180722
+        %note:tick might be empty since mdefut runs a bit late than the
+        %strategy. this is completely due to different timer associated
+        %with the strategy and mdefut
+        if isempty(tick)
+            strategy.calcsignal_(idx_instrument) = 0;
+            calcflag = strategy.calcsignal_(idx_instrument);
+            return
+        end
+            
         t = tick(1);
         equalorNot = (round(buckets(2:end) *10e+07) == round(t*10e+07));
         if sum(sum(equalorNot)) == 0
@@ -35,13 +45,7 @@ function calcflag = getcalcsignalflag(obj,instrument)
             if this_count ~= obj.bucket_count_(idx_instrument)
                 strategy.calcsignal_(idx_instrument) = 1;
                 obj.bucket_count_(idx_instrument) = this_count;
-                fprintf('calc signal at:%s\n',datestr(t,'HH:MM:SS'));
-                
-%                 k = strategy.mdefut_.candles_{idx_instrument};
-%                 if k > 
-%                 k = k(this_count-1);
-                
-                
+                fprintf('\ncalc signal at:%s\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
             else
                 strategy.calcsignal_(idx_instrument) = 0;
             end

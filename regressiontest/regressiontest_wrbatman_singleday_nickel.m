@@ -42,7 +42,7 @@ end
 % id:  12, time: 21:00:01, direction: 1, price:112420
 
 %%
-replay_speed = 5;
+replay_speed = 20;
 replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
 replay_strat.mde_fut_.registerinstrument(code);
 replay_strat.registerinstrument(code);
@@ -50,14 +50,17 @@ replay_strat.setsamplefreq(code,trade_freq);
 replay_strat.setautotradeflag(code,1);
 replay_strat.setmaxunits(code,100);
 replay_strat.setmaxexecutionperbucket(code,1);
-%%
+%
 replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.txt'];
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
 replay_strat.initdata;
+clc;
+fprintf('replay get ready......\n');
 %%
 clc;
 replay_strat.mde_fut_.display_ = 0;
 replay_strat.mde_fut_.replay_count_ = 1;
+replay_strat.mde_fut_.move2cobdate(checkdt);
 replay_strat.bucket_count_(1) = 0;
 replay_strat.bookrunning_ = cBook;
 replay_strat.helper_.book_ = cBook;

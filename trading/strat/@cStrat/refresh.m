@@ -18,9 +18,10 @@ function [] = refresh(strategy)
         if strcmpi(strategy.mode_,'realtime')
             strategy.riskmanagement(now);
         elseif strcmpi(strategy.mode_,'replay')
-%             codestr = inst{1}.code_ctp;
             tick = strategy.mde_fut_.getlasttick(inst{1});
-            strategy.riskmanagement(tick(1));
+            %note:stratety might run in front of the mdefut and thus tick
+            %shall return empty in such case
+            if ~isempty(tick), strategy.riskmanagement(tick(1));end
         end
     catch e
         msg = ['error:cStrat:riskmanagment:',e.message,'\n'];
@@ -28,6 +29,7 @@ function [] = refresh(strategy)
     end
     %
     calcsignalflag = false;
+    signals = {};
     try
         if strcmpi(strategy.mode_,'realtime')
             fprintf('todo:not implemented...\n')
@@ -37,14 +39,15 @@ function [] = refresh(strategy)
             %rule:we start to recalc signal once the candle K is fully
             %feeded. however, the newset flag is set once the first tick
             %after the candle bucket arrives and is reset FALSE after the
-            %second tick arrives.           
-            calcsignalflag = strategy.getcalcsignalflag(inst{1});
+            %second tick arrives.
+            try
+                calcsignalflag = strategy.getcalcsignalflag(inst{1});
+            catch e
+                msg = ['error:cStrat:getcalcsignalflag:',e.message,'\n'];
+                fprintf(msg);
+            end
             if calcsignalflag
                 signals = strategy.gensignals;
-                signal = signals{1};
-                if ~isempty(signal)
-                    fprintf('\thighest:%d;lowest:%d\n',signal.highestprice,signal.lowestprice);
-                end
             else
                 signals = {};
             end
@@ -64,7 +67,7 @@ function [] = refresh(strategy)
     if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
         try
             if calcsignalflag
-                strategy.helper_.book_.printpositions;
+                strategy.helper_.printrunningpnl('mdefut',strategy.mde_fut_);
                 strategy.helper_.printallentrusts;
             end
         catch
