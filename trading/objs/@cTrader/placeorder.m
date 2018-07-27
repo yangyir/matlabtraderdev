@@ -9,8 +9,10 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('time',[],@isnumeric);
+    p.addParameter('signalinfo',{},@isstruct);
     p.parse(varargin{:});
     ordertime = p.Results.time;
+    signalinfo = p.Results.signalinfo;
     
     f1 = obj.hasbook(ops.book_);
     if ~f1, obj.addbook(ops.book_); end
@@ -55,6 +57,7 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     
     entrust.time = ordertime;
     entrust.date = floor(ordertime);
+    entrust.signalinfo_ = signalinfo;
     
     warning('off');
     if strcmpi(modestr,'realtime')

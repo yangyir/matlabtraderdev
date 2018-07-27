@@ -102,15 +102,15 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
             %management purpose
             obj.withdrawentrusts(instrument,'time',ordertime,'direction',1,'offset',1);
         end
-                
+           
         if place_entrustshort_flag
             obj.shortopensingleinstrument(instrument.code_ctp,abs(volume),0,...
-                'overrideprice',highestprice,'time',ordertime);
+                'overrideprice',highestprice,'time',ordertime,'signalinfo',signal);
         end
         
         if place_entrustlong_flag
             obj.longopensingleinstrument(instrument.code_ctp,abs(volume),0,...
-                'overrideprice',lowestprice,'time',ordertime);
+                'overrideprice',lowestprice,'time',ordertime,'signalinfo',signal);
         end
         
     end

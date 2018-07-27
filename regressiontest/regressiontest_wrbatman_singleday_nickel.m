@@ -22,34 +22,36 @@ for i = 1:trades.latest_
 end
 clc;
 for i = 1:trades2check.latest_
-    trade_i = trades2check.node_(i);
-    fprintf('id: %3d, time:%s, direction:%2d, price:%s\n',...
-        i,trade_i.opendatetime2_(end-8:end),trade_i.opendirection_,...
-        num2str(trade_i.openprice_));
+    trade_j = trades2check.node_(i);
+    fprintf('id:%2d,opentime:%s,direction:%2d,price:%s,stoptime:%s\n',...
+        i,trade_j.opendatetime2_(end-8:end),trade_j.opendirection_,...
+        num2str(trade_j.openprice_),...
+        trade_j.stopdatetime2_(end-8:end));
 end
 %results as follows
-% id:   1, time: 09:03:01, direction: 1, price:114090
-% id:   2, time: 09:06:01, direction: 1, price:113470
-% id:   3, time: 14:12:01, direction: 1, price:113400
-% id:   4, time: 14:15:01, direction: 1, price:113260
-% id:   5, time: 14:18:01, direction: 1, price:113120
-% id:   6, time: 14:24:01, direction: 1, price:113010
-% id:   7, time: 14:27:01, direction: 1, price:113000
-% id:   8, time: 14:30:01, direction: 1, price:112890
-% id:   9, time: 14:33:01, direction: 1, price:112870
-% id:  10, time: 14:36:01, direction: 1, price:112790
-% id:  11, time: 14:39:01, direction: 1, price:112580
-% id:  12, time: 21:00:01, direction: 1, price:112420
+% id: 1,opentime: 09:03:01,direction: 1,price:114090,stoptime: 14:54:00
+% id: 2,opentime: 09:06:01,direction: 1,price:113470,stoptime: 14:57:00
+% id: 3,opentime: 14:12:01,direction: 1,price:113400,stoptime: 23:48:00
+% id: 4,opentime: 14:15:01,direction: 1,price:113260,stoptime: 23:51:00
+% id: 5,opentime: 14:18:01,direction: 1,price:113120,stoptime: 23:54:00
+% id: 6,opentime: 14:24:01,direction: 1,price:113010,stoptime: 00:00:00
+% id: 7,opentime: 14:27:01,direction: 1,price:113000,stoptime: 00:03:00
+% id: 8,opentime: 14:30:01,direction: 1,price:112890,stoptime: 00:06:00
+% id: 9,opentime: 14:33:01,direction: 1,price:112870,stoptime: 00:09:00
+% id:10,opentime: 14:36:01,direction: 1,price:112790,stoptime: 00:12:00
+% id:11,opentime: 14:39:01,direction: 1,price:112580,stoptime: 00:15:00
+% id:12,opentime: 21:00:01,direction: 1,price:112420,stoptime: 00:36:00
 
 %%
-replay_speed = 20;
+replay_speed = 50;
 replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
-replay_strat.mde_fut_.registerinstrument(code);
 replay_strat.registerinstrument(code);
 replay_strat.setsamplefreq(code,trade_freq);
 replay_strat.setautotradeflag(code,1);
 replay_strat.setmaxunits(code,100);
 replay_strat.setmaxexecutionperbucket(code,1);
+replay_strat.setbandtarget(code,0.02);
+replay_strat.setbandstoploss(code,0.01);
 %
 replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.txt'];
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
@@ -82,4 +84,11 @@ catch
     fprintf('all deleted\n');
 end
 %%
-clear all
+fprintf('\ntrades info from replay......\n')
+for j = 1:replay_strat.helper_.trades_.latest_
+    trade_j = replay_strat.helper_.trades_.node_(j);
+    fprintf('id:%2d,opentime:%s,direction:%2d,price:%s,stoptime:%s\n',...
+        j,trade_j.opendatetime2_(end-8:end),trade_j.opendirection_,...
+        num2str(trade_j.openprice_),...
+        trade_j.stopdatetime2_(end-8:end));
+end

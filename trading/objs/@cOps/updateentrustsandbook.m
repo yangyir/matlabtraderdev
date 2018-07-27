@@ -27,9 +27,13 @@ function [] = updateentrustsandbook(obj)
             %the entrust is always placed in 'replay' mode
             f0 = 1;
             if e.direction == 1
-                f1 = ticks(2) <= e.price;
+                %note:yangyiran 20180728
+                %the replay tick price is the trade price rather than the
+                %bid/ask price. as a result, we use less/greater than sign
+                %rather than lessorequal/greaterorequal sign here
+                f1 = ticks(2) < e.price;
             else
-                f1 = ticks(2) >= e.price;
+                f1 = ticks(2) > e.price;
             end
             f2 = f1;
             if f1
@@ -56,16 +60,28 @@ function [] = updateentrustsandbook(obj)
             if e.offsetFlag == 1
                 %note:not sure whether e.complete_time works in realtime
                 %mode and we need to revise this
+                try
+                    tradestopdatetime = gettradestoptime(e.instrumentCode,e.complete_time_,e.signalinfo_.frequency,floor(e.signalinfo_.lengthofperiod/2));
+                catch
+                    tradestopdatetime = [];
+                end
                 trade = cTradeOpen('id',e.entrustNo,...
                     'countername',obj.book_.counter_.char,...
                     'bookname',obj.book_.bookname_,...
                     'code',e.instrumentCode,...
-                    'opentime',e.complete_time_,...
+                    'opendatetime',e.complete_time_,...
+                    'openvolume',e.volume,...
                     'openprice',e.price,...
                     'opendirection',e.direction,...
-                    'targetprice',e.direction*inf,...
-                    'stoplossprice',-e.direction*inf,...
-                    'riskmanagementmethod','standard');
+                    'targetprice',[],...
+                    'stoprice',[],...
+                    'stopdatetime',tradestopdatetime);
+                if ~isempty(e.signalinfo_)
+                   try 
+                       trade.setsignalinfo('name',e.signalinfo_.name,'extrainfo',e.signalinfo_);
+                   catch
+                   end
+                end
                 obj.trades_.push(trade);
             end
         elseif f0 && f1 && ~f2
