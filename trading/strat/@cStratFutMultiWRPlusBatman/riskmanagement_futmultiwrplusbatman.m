@@ -1,6 +1,29 @@
 function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
 %     error('cStratFutMultiWRPlusBatman:riskmanagement_futmultiwrplusbatman not implemented')
+
+    
+    ntrades = obj.helper_.trades_.latest_;
+    for i = 1:ntrades
+        trade_i = obj.helper_.trades_.node_(i);
+        if strcmpi(trade_i.status_,'closed'), continue; end
+        if ~isempty(trade_i.riskmanager_), continue;end
+        %
+        instrument = trade_i.instrument_;
+        bandtype = obj.getbandtype(instrument);
+        if bandtype ~= 0, errot('cStratFutMultiWRPlusBatman:riskmanagement_futmultiwrplusbatman:invalid type for batman');end
+        bandwidthmin = obj.getbandwidthmin(instrument);
+        bandwidthmax = obj.getbandwidthmax(instrument);
+        bandstoploss = obj.getbandstoploss(instrument);
+        bandtarget = obj.getbandtarget(instrument);      
+        extrainfo = struct('bandstoploss',bandstoploss,...
+            'bandtarget',bandtarget,...
+            'bandwidthmin',bandwidthmin,...
+            'bandwidthmax',bandwidthmax);
+        trade_i.setriskmanager('name','batman','extrainfo',extrainfo);    
+    end
+    
     return
+    
     instruments = obj.instruments_.getinstrument;
     for i = 1:obj.count
         %firstly to check whether this is in trading hours

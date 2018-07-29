@@ -54,8 +54,8 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
             tick = obj.mde_fut_.getlasttick(instrument);
             ordertime = tick(1);
         end
-        highestprice = signal.highestprice;
-        lowestprice = signal.lowestprice;
+        highestprice = signal.highesthigh;
+        lowestprice = signal.lowestlow;
         npending = obj.helper_.entrustspending_.latest;
         place_entrustshort_flag = true;
         place_entrustlong_flag = true;

@@ -24,7 +24,7 @@ diff_found = false;
 for i = 1:ntrades
     stoptime_trade = trades.node_(i).stopdatetime1_;
     idx = find(candle_db_freq(:,1) <= trades.node_(i).opendatetime1_,1,'last');
-    stoptime_idx = idx + stop_period - 1;
+    stoptime_idx = idx + stop_period;
     if stoptime_idx > size(candle_db_freq,1), continue; end
     stoptime_candle = candle_db_freq(stoptime_idx,1);
     if ~strcmpi(datestr(stoptime_candle),  datestr(stoptime_trade))
@@ -58,7 +58,7 @@ end
 fprintf('risk management done!...\n')
 %%
 fprintf('\n');
-tradeOpen = trades.node_(70);
+tradeOpen = trades.node_(1);
 tradeOpen.setriskmanager('name','batman','extrainfo',batman_extrainfo);
 for j = 1:size(candle_db_freq,1)
     unwindtrade = tradeOpen.riskmanager_.riskmanagementwithcandle(candle_db_freq(j,:),'debug',true,'updatepnlforclosedtrade',true);
