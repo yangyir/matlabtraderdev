@@ -81,6 +81,7 @@ for i = 1:ntrades
     tradesmat(i,9) = trades.node_(i).closeprice_;
     tradesmat(i,10) = trades.node_(i).closepnl_;
 end
+open tradesmat
 %%
 tbl = trades.totable;
 trades.toexcel('temp1','shheet1');
