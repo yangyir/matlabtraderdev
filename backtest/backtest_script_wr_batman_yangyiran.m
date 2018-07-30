@@ -48,7 +48,7 @@ for i = 1:ntrades
     tradeOpen = trades.node_(i);
     tradeOpen.setriskmanager('name','batman','extrainfo',batman_extrainfo);
     for j = 1:size(candle_db_freq,1)
-        unwindtrade = tradeOpen.riskmanager_.riskmanagementwithcandle(candle_db_freq(j,:),'debug',false,'updatepnlforclosedtrade',true);
+        unwindtrade = tradeOpen.riskmanager_.riskmanagementwithcandle(candle_db_freq(j,:),'debug',false,'usecandlelastonly',false,'updatepnlforclosedtrade',true);
         if ~isempty(unwindtrade)
             profitLoss(i) = unwindtrade.closepnl_;
             break
@@ -68,7 +68,7 @@ for j = 1:size(candle_db_freq,1)
 end
 
 %%
-tradesmat = zeros(ntrades,7);
+tradesmat = zeros(ntrades,10);
 for i = 1:ntrades
     tradesmat(i,1) = trades.node_(i).opendatetime1_;
     tradesmat(i,2) = trades.node_(i).opendirection_;
@@ -77,7 +77,11 @@ for i = 1:ntrades
     tradesmat(i,5) = trades.node_(i).riskmanager_.pxtarget_;
     tradesmat(i,6) = trades.node_(i).opensignal_.highesthigh_;
     tradesmat(i,7) = trades.node_(i).opensignal_.lowestlow_;
+    tradesmat(i,8) = trades.node_(i).closedatetime1_;
+    tradesmat(i,9) = trades.node_(i).closeprice_;
+    tradesmat(i,10) = trades.node_(i).closepnl_;
 end
-
-
+%%
+tbl = trades.totable;
+trades.toexcel('temp1','shheet1');
 

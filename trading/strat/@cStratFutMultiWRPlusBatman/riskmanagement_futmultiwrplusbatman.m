@@ -3,6 +3,7 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
 
     
     ntrades = obj.helper_.trades_.latest_;
+    %set risk manager
     for i = 1:ntrades
         trade_i = obj.helper_.trades_.node_(i);
         if strcmpi(trade_i.status_,'closed'), continue; end
@@ -19,8 +20,60 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
             'bandtarget',bandtarget,...
             'bandwidthmin',bandwidthmin,...
             'bandwidthmax',bandwidthmax);
-        trade_i.setriskmanager('name','batman','extrainfo',extrainfo);    
+        trade_i.setriskmanager('name','batman','extrainfo',extrainfo);        
     end
+    
+    %set status of trade
+    for i = 1:ntrades
+        trade_i = obj.helper_.trades_.node_(i);
+        if strcmpi(trade_i.status_,'closed'), continue; end
+        instrument = trade_i.instrument_;
+        candlesticks = obj.mde_fut_.getcandles(instrument);
+        candleK = candlesticks{1};
+        
+        if strcmpi(trade_i.status_,'unset')
+           openBucket = gettradeopenbucket(trade_i,trade_i.opensignal_.frequency_);
+           candleTime = candleK(end,1);
+            if openBucket < candleTime
+                trade_i.status_ = 'set';
+            end 
+        else
+            if isempty(trade_i.riskmanager_), continue;end
+            
+            tick = obj.mde_fut_.getlasttick(instrument);
+            unwindtrade = trade_i.riskmanager_.riskmanagementwithtick(tick,...
+                'UpdatePnLForClosedTrade',true);
+            if ~isempty(unwindtrade)
+                trade_i.status_ = 'closed';
+%                 fprintf('trade unwinded!\n');
+                continue;
+            end
+            
+            try
+                candlepoped = candleK(end-1,:);
+                unwindtrade = trade_i.riskmanager_.riskmanagementwithcandle(candlepoped,...
+                    'debug',false,'usecandlelastonly',false,'updatepnlforclosedtrade',true);
+                if ~isempty(unwindtrade)
+                    trade_i.status_ = 'closed';
+                    continue;
+                end
+                
+            catch
+            end
+            
+        
+        end
+        
+      
+     
+        
+       
+        
+
+        
+        
+    end
+    
     
     return
     

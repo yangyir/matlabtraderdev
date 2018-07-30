@@ -19,15 +19,25 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
     
     unwindtrade = {};
     
+    if isempty(tick), return; end
     tickTime = tick(1);
     tickBid = tick(2);
     tickAsk = tick(3);
     tickTrade = tick(4);
     
+    %skip this if the tick time happend in the past, this might be used in
+    %the replay mode
     if tickTime <= obj.trade_.opendatetime1_, return; end
     
+    %skip this in case the trade is closed
+    if strcmpi(obj.trade_.status_,'closed'), return; end
+    
+    %skip this in case the batman is closed
+    if strcmpi(obj.status_,'closed'), return; end
+    
+    
     if (obj.trade_.opendirection_ == 1 && tickTrade < obj.pxstoploss_) ||...
-            (obj.trade_.opendirection == -1 && tickTrade > obj.pxstoploss_ )
+            (obj.trade_.opendirection_ == -1 && tickTrade > obj.pxstoploss_ )
         obj.status_ = 'closed';
         obj.checkflag_ = 0;
         unwindtrade = obj.trade_;
