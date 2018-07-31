@@ -11,6 +11,7 @@ function [] = setriskmanager(obj,varargin)
     if strcmpi(name,'batman')
         riskmanager = cBatman;
         riskmanager.trade_ = obj;
+        riskmanager.status_ = 'unset';
         if ~isempty(info)
             try
                 riskmanager.bandwidthmin_ = info.bandwidthmin;

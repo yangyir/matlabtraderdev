@@ -57,7 +57,9 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     
     entrust.time = ordertime;
     entrust.date = floor(ordertime);
-    entrust.signalinfo_ = signalinfo;
+    if ~isempty(signalinfo)
+        entrust.signalinfo_ = signalinfo;
+    end
     
     warning('off');
     if strcmpi(modestr,'realtime')

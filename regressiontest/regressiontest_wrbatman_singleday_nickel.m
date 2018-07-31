@@ -61,15 +61,6 @@ fprintf('replay get ready......\n');
 %%
 clc;
 replay_strat.mde_fut_.display_ = 0;
-replay_strat.mde_fut_.replay_count_ = 1;
-% replay_strat.mde_fut_.move2cobdate(checkdt);
-% replay_strat.bucket_count_(1) = 0;
-% replay_strat.bookrunning_ = cBook;
-% replay_strat.helper_.book_ = cBook;
-% replay_strat.helper_.entrusts_ = EntrustArray;
-% replay_strat.helper_.entrustspending_ = EntrustArray;
-% replay_strat.helper_.entrustsfinished_ = EntrustArray;
-% replay_strat.helper_.trades_ = cTradeOpenArray;
 replay_strat.start;
 replay_strat.helper_.start; 
 replay_strat.mde_fut_.start;
@@ -91,4 +82,12 @@ for j = 1:replay_strat.helper_.trades_.latest_
         j,trade_j.opendatetime2_(end-8:end),trade_j.opendirection_,...
         num2str(trade_j.openprice_),...
         trade_j.stopdatetime2_(end-8:end));
+end
+
+%%
+fprintf('\ntrades info from replay......\n')
+pnl = 0;
+for j = 1:replay_strat.helper_.trades_.latest_
+    trade_j = replay_strat.helper_.trades_.node_(j);
+    pnl = pnl + trade_j.closepnl_;
 end

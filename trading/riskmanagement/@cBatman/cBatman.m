@@ -24,6 +24,10 @@ classdef cBatman < cTradeRiskManager
         bandtarget_@double = 0.01
     end
     
+    properties
+        bucket_count_@double = 0
+    end
+    
     methods
         function obj = cBatman
             obj.name_ = 'batman';
@@ -32,7 +36,7 @@ classdef cBatman < cTradeRiskManager
 
     
     methods
-        [] = riskmanagement(obj,varargin)
+        [unwindtrade] = riskmanagement(obj,varargin)
         [] = update(obj,varargin)
         [] = settargetfromsignalinfo(obj,signalinfo)
         [] = setstoplossfromsignalinfo(obj,signalinfo)
