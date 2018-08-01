@@ -16,6 +16,7 @@ function [] = printinfo(obj)
                 candles = candles{1};
             else
                 candles = obj.mde_fut_.gethistcandles(instruments{i});
+                candles = candles{1};
             end
             t = candles(end,1);
             fprintf('%s %6s: trade:%6s; wlpr:%5.1f; lowest:%6s; highest:%6s\n',...

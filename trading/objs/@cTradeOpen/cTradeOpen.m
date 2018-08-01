@@ -11,21 +11,24 @@ classdef cTradeOpen < handle
         openprice_@double
         opendirection_@double
         openvolume_@double
-        targetprice_@double
-        stoplossprice_@double
-        stoptime1_@double
-        stoptime2_@char
-        closetime1_@double
-        closetime2_@char
+%         targetprice_@double
+%         stoplossprice_@double
+        stopdatetime1_@double
+        stopdatetime2_@char
+        closedatetime1_@double
+        closedatetime2_@char
         closeprice_@double
         runningpnl_@double
         closepnl_@double
         status_@char
         %
-        riskmanagementmethod_@char
-        batman_@cBatman
+%         riskmanagementmethod_@char
+%         batman_@cBatman
         %
-        extrainfo_@struct
+%         extrainfo_@struct
+        %
+        opensignal_@cSignalInfo
+        riskmanager_@cTradeRiskManager       
     end
     
     methods
@@ -41,16 +44,19 @@ classdef cTradeOpen < handle
             obj.status_ = status;
         end
         
-       function set.riskmanagementmethod_(obj,method)
-            if strcmpi(method,'standard') || ...
-                    strcmpi(method,'batman')
-                obj.riskmanagementmethod_ = method;
-            else
-                error('cTradeOpen:invalid risk management method')
-            end
-        end
-        
+%        function set.riskmanagementmethod_(obj,method)
+%             if strcmpi(method,'standard') || ...
+%                     strcmpi(method,'batman')
+%                 obj.riskmanagementmethod_ = method;
+%             else
+%                 error('cTradeOpen:invalid risk management method')
+%             end
+%         end
+%         
         [] = update(obj,varargin)
+        [] = setsignalinfo(obj,varargin)
+        [] = setriskmanager(obj,varargin)
+        
     end
     
     methods (Access = private)
@@ -58,7 +64,7 @@ classdef cTradeOpen < handle
     end
     
     methods (Static = true)
-
+        [] = demo()
     end
     
 end

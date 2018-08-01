@@ -50,8 +50,10 @@ npx = size(px_used,1);
 %4th column is price stoploss
 %5th column is price target
 %6th column is price volatility
+%7th column is highest high
+%8th column is lowest low
 
-trades = zeros(npx-nperiod,6);
+trades = zeros(npx-nperiod,8);
 ntrade = 0;
 for i = nperiod+1:npx
     pxCs = px_used(i-nperiod:i-1,5);
@@ -79,6 +81,8 @@ for i = nperiod+1:npx
         trades(ntrade,4) = pxOpen + round(stoploss_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,5) = pxOpen - round(target_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,6) = sigma;
+        trades(ntrade,7) = pxH;
+        trades(ntrade,8) = pxL;
     elseif pxL -spd > px_used(i,4)
         %note:if the lowest of the current candle period is lower than the
         %previous low, we think we would open a trade with a long direction
@@ -92,6 +96,8 @@ for i = nperiod+1:npx
         trades(ntrade,4) = pxOpen - round(stoploss_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,5) = pxOpen + round(target_ratio*(pxH-pxL)/tick_size)*tick_size;
         trades(ntrade,6) = sigma;
+        trades(ntrade,7) = pxH;
+        trades(ntrade,8) = pxL;
     end
 end
 trades = trades(1:ntrade,:);
@@ -102,6 +108,9 @@ bw_max = 1/2;
 bw_min = 1/3;
 % we take half of the period as the maxium length we hold the trade
 for i = 1:ntrade
+       if i == 19
+       fprintf('stop\n');
+   end
     tradetime = trades(i,1);
     idx = find(px_used(:,1) == tradetime);
     idx_max = min(idx+holdPeriod-1, npx);
@@ -122,6 +131,7 @@ for i = 1:ntrade
    stoploss = trades(i, 4);
    % stoplossMethod = 1 £º we use the close price to stop loss;  stoplossMethod = 2 £º we use the stoploss value(between high and low) to stop loss
    stoplossMethod =2;
+
      [profitLoss(i)]  = w_r_batman_test_sunq(direction,open,high,low, openprice, open_real, target, stoploss, bw_max, bw_min, stoplossMethod);
 end
 

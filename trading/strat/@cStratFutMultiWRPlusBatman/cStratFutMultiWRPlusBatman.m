@@ -1,12 +1,22 @@
 classdef cStratFutMultiWRPlusBatman < cStrat
     properties
+        % signal related
         nperiods_@double
         samplefreq_@double
-        overbought_@double
-        oversold_@double
+        overbought_@double          %legacy property which is not used anymore
+        oversold_@double            %legacy property which is not used anymore
         wr_@double                  %william%R
         highnperiods_@double
         lownperiods_@double
+        %
+        % riskmanagement related
+        % batman-specified
+        bandwidthmin_@double
+        bandwidthmax_@double
+        bandstoploss_@double
+        bandtarget_@double
+        bandtype_@double    %0:normal 1:option
+        
     end
     
     methods
@@ -25,6 +35,18 @@ classdef cStratFutMultiWRPlusBatman < cStrat
         [wr,wrts] = getlastwr(obj,instrument)
         [highp,hight] = gethighnperiods(obj,instrument)
         [lowp,lowt] = getlownperiods(obj,instrument)
+        [] = setbandwidthmin(obj,instrument,vin)
+        vout = getbandwidthmin(obj,instrument)
+        [] = setbandwidthmax(obj,instrument,vin)
+        vout = getbandwidthmax(obj,instrument)
+        [] = setbandstoploss(obj,instrument,vin)
+        vout = getbandstoploss(obj,instrument)
+        [] = setbandtarget(obj,instrument,vin)
+        vout = getbandtarget(obj,instrument)
+        [] = setbandtype(obj,instrument,vin)
+        vout = getbandtype(obj,instrument)
+        
+        %
         [] = printinfo(obj)
         [] = readparametersfromtxtfile(obj,fn)
     end
@@ -32,14 +54,14 @@ classdef cStratFutMultiWRPlusBatman < cStrat
     %derived (abstract) methods from superclass
     methods
         function signals = gensignals(obj)
-%             signals = obj.gensignals_futmultiwrplusbatman;
-            signals = obj.gensignals_futmultiwrplusbatman_sunq;
+            signals = obj.gensignals_futmultiwrplusbatman;
+%             signals = obj.gensignals_futmultiwrplusbatman_sunq;
         end
         %end of gensignals
         
         function [] = autoplacenewentrusts(obj,signals)
-%             obj.autoplacenewentrusts_futmultiwrplusbatman(signals)
-            obj.autoplacenewentrusts_futmultiwrplusbatman_sunq(signals)
+            obj.autoplacenewentrusts_futmultiwrplusbatman(signals)
+%             obj.autoplacenewentrusts_futmultiwrplusbatman_sunq(signals)
         end
         %end of autoplacenewentrusts
         
@@ -48,8 +70,8 @@ classdef cStratFutMultiWRPlusBatman < cStrat
         end
             
         function [] = riskmanagement(obj,dtnum)
-%             obj.riskmanagement_futmultiwrplusbatman(dtnum)
-            obj.riskmanagement_futmultiwrplusbatman_sunq(dtnum)
+            obj.riskmanagement_futmultiwrplusbatman(dtnum)
+%             obj.riskmanagement_futmultiwrplusbatman_sunq(dtnum)
         end
         
         function [] = initdata(obj)

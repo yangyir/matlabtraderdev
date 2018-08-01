@@ -25,13 +25,13 @@ function replay_strat = replay_setstrat(stratname,varargin)
         error('replay_setstrat:invalid strategy name input')
     end
     
-    default_timerinterval_strat = 0.25;
+    default_timerinterval_strat = 0.5;
     default_timerinterval_ops = 0.5;
     default_timerinterval_mde = 0.5;
     
     try
         replay_strat.mode_ = 'replay';
-        replay_strat.mde_fut_ = replay_mdefut;
+        replay_strat.registermdefut(replay_mdefut);
         replay_strat.trader_ = replay_trader;
         replay_strat.helper_ = replay_ops;
         replay_strat.bookrunning_ = replay_book;

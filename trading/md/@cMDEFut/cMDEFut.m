@@ -17,7 +17,6 @@ classdef cMDEFut < cMyTimerObj
         candle_freq_@double
         candles4save_@cell
         candlesaveflag_@logical = false
-        newset_@double
         %historical data,which is used for technical indicator calculation
         hist_candles_@cell
         
@@ -35,6 +34,11 @@ classdef cMDEFut < cMyTimerObj
         %
         datenum_open_@cell
         datenum_close_@cell
+        %
+    end
+    
+    properties (GetAccess = public, SetAccess = private)
+        newset_@double
     end
     
     properties (GetAccess = public, SetAccess = private, Dependent)

@@ -56,6 +56,21 @@ function [] = registerinstrument(mdefut,instrument)
             mdefut.candle_freq_ = freqs_;
         end  
     end
+    
+    % init of newset
+    if isempty(mdefut.newset_)
+        %default value of newset is zero
+        mdefut.newset_ = zeros(ns,1);
+    else
+        ns_ = size(mdefut.newset_,1);
+        if ns_ ~= ns
+            newset = zeros(ns,1);
+            newset(1:ns_) = mdefut.newset_;
+            %default value of newset is zero
+            newset(ns_+1:ns) = 0;
+            mdefut.newset_ = newset;
+        end
+    end
 
     % init of candles_count
     if isempty(mdefut.candles_count_)

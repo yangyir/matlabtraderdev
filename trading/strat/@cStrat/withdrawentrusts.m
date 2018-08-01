@@ -1,8 +1,13 @@
-function [] = withdrawentrusts(strategy,instrument)
+function [] = withdrawentrusts(strategy,instrument,varargin)
     if nargin < 2
         %note:withdraw all pending entrusts, i.e.entrusts not associated
         %with any particular instrument
         code_ctp = 'all';
+%         t = [];
+%         direction = [];
+%         offset = [];
+%         price = [];
+%         volume = [];
     else
         if ischar(instrument)
             code_ctp = instrument;
@@ -11,9 +16,24 @@ function [] = withdrawentrusts(strategy,instrument)
         else
             error('cStrat:withdrawentrusts:invalid instrument input')
         end
+%         p = inputParser;
+%         p.CaseSensitive = false;p.KeepUnmatched = true;
+%         p.addParameter('time',[],@isnumeric);
+%         p.addParameter('direction',[],@isnumeric);
+%         p.addParameter('offset',[],@isnumeric);
+%         p.addParameter('price',[],@isnumeric);
+%         p.addParameter('volume',[],@isnumeric);
+%         
+%         p.parse(varargin{:});
+%         t = p.Results.time;
+%         direction = p.Results.direction;
+%         offset = p.Results.offset;
+%         price = p.Results.price;
+%         volume = p.Results.volume;
     end
     
-    strategy.trader_.cancelorders(code_ctp,strategy.helper_);
+    strategy.trader_.cancelorders(code_ctp,strategy.helper_,varargin{:});
+
 %     strategy.helper_.refresh;
 
 %     n = strategy.entrustspending_.count;
