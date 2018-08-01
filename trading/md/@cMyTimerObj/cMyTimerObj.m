@@ -9,6 +9,22 @@ classdef cMyTimerObj < handle
     end
     
     methods
+        function [] = set.mode_(obj,modein)
+            if ~(strcmpi(modein,'realtime') || strcmpi(modein,'replay'))
+                error('mode of timer object can be realtime or replay only')
+            end
+            obj.mode_ = modein;
+        end
+        
+        function [] = set.status_(obj,statusin)
+            if ~(strcmpi(statusin,'sleep') || strcmpi(statusin,'working'))
+                error('status of timer object can be sleep or working only')
+            end
+            obj.status_ = statusin;
+        end
+    end
+    
+    methods
         [] = start(obj)
         [] = startat(obj)
         [] = stop(obj)
