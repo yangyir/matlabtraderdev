@@ -103,7 +103,7 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     if this_count ~= obj.bucket_count_
         %this shall be the time we update batman info
         if this_count == 0
-            error('todo')
+            fprintf('todo')
         end
         
         candlepoped = candleK(this_count,:);
