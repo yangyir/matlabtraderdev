@@ -1,5 +1,7 @@
 %private function to get pair quotes from single quotes
 function quotes_pair = quotessingle2pair(watcher)
+    if isempty(watcher), return; end
+
     if isempty(watcher.qs)
         watcher.qp = {};
         quotes_pair = {};

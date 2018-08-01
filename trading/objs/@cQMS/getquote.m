@@ -1,5 +1,9 @@
 function quote = getquote(qms,instrument)
     if nargin < 2
+        if isempty(qms.watcher_)
+            quote = {};
+            return
+        end
         quote = qms.watcher_.qs;
         return
     end
