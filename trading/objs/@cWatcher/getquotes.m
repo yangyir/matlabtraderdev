@@ -2,6 +2,11 @@ function quotes = getquotes(watcher,timestr)
     if nargin < 1
         timestr = '';
     end
+    
+    if isempty(watcher)
+        quotes = [];
+        return
+    end
 
     if strcmpi(watcher.conn,'wind')
         quotes = getquotes_wind(watcher);

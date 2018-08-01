@@ -1,7 +1,7 @@
 %note:
 %this script initiates the futures information from bloomberg connection
 %and then save the info into the prespecified folder and text files
-override = false;
+% override = false;
 if ~(exist('conn','var') && isa(conn,'cBloomberg'))
     conn = cBloomberg;
 end

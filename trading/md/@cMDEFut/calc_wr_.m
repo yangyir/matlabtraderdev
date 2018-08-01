@@ -10,10 +10,36 @@ function indicators = calc_wr_(mdefut,instrument,varargin)
 
     histcandles = mdefut.gethistcandles(instrument);
     candlesticks = mdefut.getcandles(instrument);
-
-    highp = [histcandles(:,3);candlesticks(:,3)];
-    lowp = [histcandles(:,4);candlesticks(:,4)];
-    closep = [histcandles(:,5);candlesticks(:,5)];
+    
+    if isempty(histcandles)
+        histcandles = [];
+    else
+        histcandles = histcandles{1};
+    end
+    
+    if isempty(candlesticks)
+        candlesticks = [];
+    else
+        candlesticks = candlesticks{1};
+    end
+    
+    if isempty(histcandles) && isempty(candlesticks)
+        highp = [];
+        lowp = [];
+        closep = [];
+    elseif isempty(histcandles) && ~isempty(candlesticks)
+        highp = candlesticks(:,3);
+        lowp = candlesticks(:,4);
+        closep = candlesticks(:,5);
+    elseif ~isempty(histcandles) && isempty(candlesticks)
+        highp = histcandles(:,3);
+        lowp = histcandles(:,4);
+        closep = histcandles(:,5);
+    elseif ~isempty(histcandles) && ~isempty(candlesticks)
+        highp = [histcandles(:,3);candlesticks(:,3)];
+        lowp = [histcandles(:,4);candlesticks(:,4)];
+        closep = [histcandles(:,5);candlesticks(:,5)];
+    end
 
     indicators = willpctr(highp,lowp,closep,nperiods);
 

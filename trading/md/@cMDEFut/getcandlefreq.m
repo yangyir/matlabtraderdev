@@ -3,10 +3,10 @@ function freq_ = getcandlefreq(mdefut,instrument)
         freq_ = mdefut.candle_freq_;
         return
     end
+    
+    if ischar(instrument), instrument = code2instrument(instrument); end
 
-    if ~isa(instrument,'cInstrument')
-        error('cMDEFut:getcandlefreq:invalid instrument input')
-    end
+    if ~isa(instrument,'cInstrument'), error('cMDEFut:getcandlefreq:invalid instrument input'); end
 
     instruments = mdefut.qms_.instruments_.getinstrument;
     ns = size(instruments,1);

@@ -43,6 +43,7 @@ function savetickfrombloomberg(bbg,code_ctp,varargin)
     usedatestr = true;
     startdate = fromDate;
     lbd = getlastbusinessdate;
+    plbd = businessdate(lbd,-1);
     enddate = min(lbd,datenum(toDate));
     bds = gendates('fromdate',startdate,'todate',enddate);
     
@@ -57,7 +58,7 @@ function savetickfrombloomberg(bbg,code_ctp,varargin)
             end
         end
     
-        if ~flag || (flag && override) || bds(i) == getlastbusinessdate
+        if ~flag || (flag && override) || bds(i) == lbd || bds(i) == plbd
             fn_ = [dir_data_,f.code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_tick.txt'];
             data = bbg.tickdata(f,datestr(bds(i),'yyyy-mm-dd'),datestr(bds(i),'yyyy-mm-dd'));
             if isempty(data), continue; end

@@ -3,9 +3,11 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread,varar
     p.CaseSensitive = false;p.KeepUnmatched = false;
     p.addParameter('overrideprice',[],@isnumeric);
     p.addParameter('time',[],@isnumeric);
+    p.addParameter('signalinfo',{},@isstruct);
     p.parse(varargin{:});
     overridepx = p.Results.overrideprice;
     ordertime = p.Results.time;
+    signalinfo = p.Results.signalinfo;
     if lots <= 0 
         return; 
     end
@@ -62,7 +64,7 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread,varar
     
     if isempty(ordertime), ordertime = now; end
     
-    [ret,e] = strategy.trader_.placeorder(ctp_code,'s','o',orderprice,lots,strategy.helper_,'time',ordertime);
+    [ret,e] = strategy.trader_.placeorder(ctp_code,'s','o',orderprice,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
 
     if ret
         e.date = floor(ordertime);

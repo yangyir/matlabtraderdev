@@ -20,7 +20,7 @@ classdef cTrader < handle
         % note: think about what a trader can do and should do 
         % 1. a trader can execute trades manually
         [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,varargin)
-        [ret,entrusts] = cancelorders(obj,codestr,ops)
+        [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
         % 2. a trader can run automated strategies
         [] = runstrategy(obj,stratname)
     end

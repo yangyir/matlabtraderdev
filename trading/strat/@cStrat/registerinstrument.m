@@ -10,6 +10,16 @@ function [] = registerinstrument(strategy,instrument)
     if isempty(strategy.instruments_), strategy.instruments_ = cInstrumentArray;end
     %check whether the instrument is an option or not
     [optflag,~,~,underlierstr,~] = isoptchar(codestr);
+    %note:yangyiran 20180726
+    %we force the mde_fut_ and mde_opt_ set with its register function
+    if ~optflag && isempty(strategy.mde_fut_)
+        error('cStrat:registerinstrument:missing mdefut which shall be registed first...\n')
+    end
+    
+    if optflag && isempty(strategy.mde_opt_)
+        error('cStrat:registerinstrument:missing mdeopt which shall be registed first...\n')
+    end
+    
     if optflag
         if isempty(strategy.underliers_), strategy.underliers_ = cInstrumentArray;end
         u = cFutures(underlierstr);
@@ -163,30 +173,48 @@ function [] = registerinstrument(strategy,instrument)
             strategy.executionbucketnumber_ = [strategy.executionbucketnumber_;0];
         end
     end
-
-    %mde_fut_
-    if isempty(strategy.mde_fut_)
-        strategy.mde_fut_ = cMDEFut;
-        qms_fut_ = cQMS;
-        if ~strcmpi(strategy.mode_,'debug')
-            qms_fut_.setdatasource('ctp');
-        else
-            qms_fut_.setdatasource('local');
+    
+    %bucket_count_
+    if isempty(strategy.bucket_count_)
+        strategy.bucket_count_ = zeros(strategy.count,1);
+    else
+        if size(strategy.bucket_count_,1) < strategy.count
+            strategy.bucket_count_ = [strategy.bucket_count_;0];
         end
-        strategy.mde_fut_.qms_ = qms_fut_;
     end
+    
+    %calcsignal_
+    if isempty(strategy.calcsignal_)
+        strategy.calcsignal_ = ones(strategy.count,1);
+    else
+        if size(strategy.calcsignal_,1) < strategy.count
+            strategy.calcsignal_ = [strategy.calcsignal_;1];
+        end
+    end
+    
+    %mde_fut_
+%     if isempty(strategy.mde_fut_)
+%         strategy.mde_fut_ = cMDEFut;
+%         qms_fut_ = cQMS;
+%         if ~strcmpi(strategy.mode_,'debug')
+%             qms_fut_.setdatasource('ctp');
+%         else
+%             qms_fut_.setdatasource('local');
+%         end
+%         strategy.mde_fut_.qms_ = qms_fut_;
+%     end
 
     %mde_opt_
-    if isempty(strategy.mde_opt_)
-        strategy.mde_opt_ = cMDEOpt;
-        qms_opt_ = cQMS;
-        if ~strcmpi(strategy.mode_,'debug')
-            qms_opt_.setdatasource('ctp');
-        else
-            qms_opt_.setdatasource('local');
-        end
-        strategy.mde_opt_.qms_ = qms_opt_;
-    end
+%     if isempty(strategy.mde_opt_)
+%         strategy.mde_opt_ = cMDEOpt;
+%         qms_opt_ = cQMS;
+%         if ~strcmpi(strategy.mode_,'debug')
+%             qms_opt_.setdatasource('ctp');
+%         else
+%             qms_opt_.setdatasource('local');
+%         end
+%         strategy.mde_opt_.qms_ = qms_opt_;
+%     end
 
     if ~optflag
         strategy.mde_fut_.registerinstrument(instrument);

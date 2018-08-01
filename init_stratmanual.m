@@ -40,7 +40,7 @@ function strat = init_stratmanual(varargin)
     
     strat = cStratManual;
     strat.registercounter(counter);
-    if ~isempty(mdefut), strat.mde_fut_ = mdefut;end
+    if ~isempty(mdefut), strat.registermdefut(mdefut);end
     if ~isempty(mdeopt), strat.mde_opt_ = mdeopt;end
        
     n = size(instrument_list,1);

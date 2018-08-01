@@ -3,42 +3,46 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
         dtnum = datenum(event.Data.time);
         hh = hour(dtnum);
         mm = minute(dtnum) + hh*60;
-        %for friday evening market
-        if isholiday(floor(dtnum))
-            if weekday(dtnum) == 7 && mm >= 180
-                %after 2:30pm on saturday am
+        
+        if weekday(dtnum) == 1
+            %market definitely closes on Sunday
+            mytimerobj.status_ = 'sleep';
+        elseif weekday(dtnum) == 7
+            %for Friday evening market
+            %rule if the next Monday is a public holiday, the market closes
+            dnum = floor(dtnum);
+            nextMonday = dnum + 2;
+            if isholiday(nextMonday)
                 mytimerobj.status_ = 'sleep';
-                return
-            elseif weekday(dtnum) == 7 && mm < 180
-                %do nothing
             else
+                if mm <= mytimerobj.mm_02_30_
+                    mytimerobj.status_ = 'working';
+                else
+                    mytimerobj.status_ = 'sleep';
+                end
+            end
+        else
+            %weekday = 2,3,4,5,6
+            dnum = floor(dtnum);
+            if isholiday(dnum)
                 mytimerobj.status_ = 'sleep';
-                return
+            else
+                if (mm > mytimerobj.mm_02_40_ && mm <  mytimerobj.mm_08_50_) || ...
+                        (mm > mytimerobj.mm_11_30_ && mm < mytimerobj.mm_13_00_) || ...
+                        (mm > mytimerobj.mm_15_15_ && mm < mytimerobj.mm_21_00_)
+                    mytimerobj.status_ = 'sleep';
+                else
+                    mytimerobj.status_ = 'working';
+                end
             end
         end
-
-        %critical time
-        % 02:30 am -> 150   all market close
-        % 09:00 am -> 540   futures market open
-        % 11:30 am -> 690   futures/stock market close
-        % 01:00 pm -> 780   futures/stock market reopen
-        % 03:15 pm -> 915   futures close
-        % 09:00 pm -> 1260  futures reppen
-        if (mm > 150 && mm < 540) || ...
-                (mm > 690 && mm < 780) || ...
-                (mm > 915 && mm < 1260)
-            %market closed for sure
-            mytimerobj.status_ = 'sleep';          
-            return
-        end
-        mytimerobj.status_ = 'working';
-        mytimerobj.refresh;
         
+        if strcmpi(mytimerobj.status_,'working')
+            mytimerobj.refresh;
+        end
+             
     elseif strcmpi(mytimerobj.mode_,'replay')
-%         mytimerobj.status_ = 'working';
         mytimerobj.refresh;
-    else
-        error('cMyTimerObj:replay_timer_fcn:invalid mode')
     end    
 
 end

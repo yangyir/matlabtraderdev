@@ -9,8 +9,10 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('time',[],@isnumeric);
+    p.addParameter('signalinfo',{},@(x) validateattributes(x,{'struct','cell'},{},'','signalinfo'));
     p.parse(varargin{:});
     ordertime = p.Results.time;
+    signalinfo = p.Results.signalinfo;
     
     f1 = obj.hasbook(ops.book_);
     if ~f1, obj.addbook(ops.book_); end
@@ -55,6 +57,9 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     
     entrust.time = ordertime;
     entrust.date = floor(ordertime);
+    if ~isempty(signalinfo)
+        entrust.signalinfo_ = signalinfo;
+    end
     
     warning('off');
     if strcmpi(modestr,'realtime')
@@ -68,8 +73,9 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     if ret
         e.date = floor(ordertime);
         e.time = ordertime;
-        fprintf('%s placed entrust: %d, code: %s, direct: %d, offset: %d, price: %s, amount: %d\n',...
-            datestr(entrust.time,'yyyy-mm-dd HH:MM:SS'),...
+        
+        fprintf('%s placed entrust:%2d,code:%8s,direct:%2d,offset:%d, price:%6s, amount:%3d\n',...
+            datestr(entrust.time,'yyyymmdd HH:MM:SS'),...
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
         ops.entrusts_.push(entrust);
         ops.entrustspending_.push(entrust);

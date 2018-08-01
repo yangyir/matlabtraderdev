@@ -30,21 +30,30 @@ classdef cStrat < cMyTimerObj
         executionperbucket_@double
         maxexecutionperbucket_@double
         executionbucketnumber_@double
-        
-        %market data engine
-        mde_fut_@cMDEFut
-        mde_opt_@cMDEOpt
         %
         trader_@cTrader
         helper_@cOps
         bookrunning_@cBook
         bookbase_@cBook
         counter_@CounterCTP
-        %
-        autotrade_@double
-
+        
     end
     
+    properties (GetAccess = public, SetAccess = private)
+        %market data engine
+        mde_fut_@cMDEFut
+        mde_opt_@cMDEOpt
+        %
+        autotrade_@double 
+        calcsignal_@double
+        
+    end
+    
+    properties (Access = public)
+        %note:to change back later to private
+        bucket_count_@double
+    end
+
     %set/get methods
     methods
         [] = setstoptype(obj,instrument,stoptype)
@@ -65,6 +74,9 @@ classdef cStrat < cMyTimerObj
         maxunits = getmaxunits(obj,instrument)
         [] = setautotradeflag(obj,instrument,autotrade)
         autotrade = getautotradeflag(obj,instrument)
+%         [] = setcalcsignalflag(obj,instrument,calcflag)
+        calcflag = getcalcsignalflag(obj,instrument)       
+        %
         [] = setmdeconnection(obj,connstr)
         %
         [] = setmaxexecutionperbucket(obj,instrument,value)
@@ -162,7 +174,7 @@ classdef cStrat < cMyTimerObj
         
         %process portfolio with entrusts
         [] = updatestratwithentrust(obj,e)
-        [] = withdrawentrusts(obj,instrument)
+        [] = withdrawentrusts(obj,instrument,varargin)
         
         %long/short open/close positions
         [ret,e] = shortopensingleinstrument(obj,code_ctp,lots,spread,varargin)
@@ -177,6 +189,11 @@ classdef cStrat < cMyTimerObj
         
     end
     %end of trading-related methods
+    
+    %mdefut-related methods
+    methods
+        [] = registermdefut(obj,mdefut)
+    end
     
     
     %abstract methods

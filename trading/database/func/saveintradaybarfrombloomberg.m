@@ -56,6 +56,7 @@ permission = 'w';
 usedatestr = true;
 startdate = f.first_trade_date1;
 lbd = getlastbusinessdate;
+plbd = businessdate(lbd,-1);
 enddate = min(lbd,f.last_trade_date1);
 bds = gendates('fromdate',startdate,'todate',enddate);
 
@@ -70,7 +71,7 @@ for i = 1:size(bds,1)
             break
         end
     end
-    if ~flag || (flag && override) || bds(i) == getlastbusinessdate
+    if ~flag || (flag && override) || bds(i) == lbd || bds(i) == plbd
         %20180527:we will always update data for the last businessdate
         fn_ = [dir_data_,f.code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
         data = bbg.intradaybar(f,bd,bd,1,'trade');
