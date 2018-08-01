@@ -9,7 +9,7 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('time',[],@isnumeric);
-    p.addParameter('signalinfo',{},@isstruct);
+    p.addParameter('signalinfo',{},@(x) validateattributes(x,{'struct','cell'},{},'','signalinfo'));
     p.parse(varargin{:});
     ordertime = p.Results.time;
     signalinfo = p.Results.signalinfo;
