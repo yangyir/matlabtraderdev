@@ -1,5 +1,6 @@
 function [] = init_quotes(watcher)
 % private function to init quotes
+    if isempty(watcher), return; end
     nq = size(watcher.qs,1);
     ns = watcher.countsingles;
     if nq ~= ns

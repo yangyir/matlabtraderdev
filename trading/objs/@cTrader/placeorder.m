@@ -9,7 +9,7 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('time',[],@isnumeric);
-    p.addParameter('signalinfo',{},@isstruct);
+    p.addParameter('signalinfo',{},@(x) validateattributes(x,{'struct','cell'},{},'','signalinfo'));
     p.parse(varargin{:});
     ordertime = p.Results.time;
     signalinfo = p.Results.signalinfo;
@@ -57,7 +57,9 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     
     entrust.time = ordertime;
     entrust.date = floor(ordertime);
-    entrust.signalinfo_ = signalinfo;
+    if ~isempty(signalinfo)
+        entrust.signalinfo_ = signalinfo;
+    end
     
     warning('off');
     if strcmpi(modestr,'realtime')

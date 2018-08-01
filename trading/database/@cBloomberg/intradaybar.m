@@ -32,6 +32,7 @@
                 1,field);
             for i = 2:n
                 startdate_ = datestr(bds(i),'yyyy-mm-dd');
+                if datenum(startdate_) > today, continue;end
                 if i < n
                     enddate_ = datestr(bds(i+1),'yyyy-mm-dd');
                 else

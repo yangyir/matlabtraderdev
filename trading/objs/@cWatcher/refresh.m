@@ -1,4 +1,5 @@
 function [] = refresh(watcher,timestr)
+    if isempty(watcher), return; end
     if nargin <= 1
         data = watcher.getquotes;
     else

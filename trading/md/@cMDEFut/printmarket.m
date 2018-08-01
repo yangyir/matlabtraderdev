@@ -1,7 +1,16 @@
 function [] = printmarket(obj)
-    quotes = obj.qms_.getquote;
+    try
+        quotes = obj.qms_.getquote;
+    catch
+        fprintf('error:cMDEFut:printmarket:no quote returns...\n');
+        return
+    end
+    
     n = size(quotes,1);
-    if n == 0, return; end
+    if n == 0
+        fprintf('error:cMDEFut:printmarket:no quote returns...\n');
+        return; 
+    end
     
     fprintf('最新市场报价:\n');
     fprintf('%9s%9s%9s%9s\n','合约','买价','卖价','时间');

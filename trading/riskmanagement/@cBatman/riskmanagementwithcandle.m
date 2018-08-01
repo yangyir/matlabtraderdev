@@ -5,7 +5,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
 %note:the input variable candlek is a fully set candle
 %optional input control variables:
 %   UseCandleLastOnly:TRUE means using last price only for risk management
-%   whereas FALSE means using high/low for tisk management
+%   whereas FALSE means using high/low/open for risk management
 
 %   Debug:print log on the screen
 
@@ -16,35 +16,73 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
 %   closed as per risk management requirement. However, we can use TRUE for
 %   backtesing purposes.
 
+%   UseOpenCandle:TRUE means risk managmement takes effect once the trade
+%   is executed within the candle, e.g.the trade keeps alive if the low of
+%   the candle is above the stoploss and lower than the open if it is a
+%   long position trade. FALSE means we will start risk management from the
+%   second candle onwards
+
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('UseCandleLastOnly',false,@islogical);
     p.addParameter('Debug',false,@islogical)
     p.addParameter('UpdatePnLForClosedTrade',false,@islogical);
+    p.addParameter('UseOpenCandle',false,@islogical);
     p.parse(varargin{:});
     usecandlelastonly = p.Results.UseCandleLastOnly;
     debug = p.Results.Debug;
     updatepnlforclosedtrade = p.Results.UpdatePnLForClosedTrade;
+    useopencandle = p.Results.UseOpenCandle;
     
     unwindtrade = {};
     openbucket = gettradeopenbucket(obj.trade_,obj.trade_.opensignal_.frequency_);
     candleTime = candlek(1);
+    candleOpen = candlek(2);
+    candleHigh = candlek(3);
+    candleLow = candlek(4);
+    candleLast = candlek(5);
     
     % return in case the candle happened in the past
     if openbucket > candleTime, return; end
     % set the trade once the openbucket is finished
     if openbucket == candleTime
-        if strcmpi(obj.trade_.status_,'unset'),obj.trade_.status_ = 'set';end
+        if ~useopencandle
+            if strcmpi(obj.trade_.status_,'unset'),obj.trade_.status_ = 'set';end
+        else
+            if (obj.trade_.opendirection_ == 1 && candleLow < obj.pxstoploss_) || ...
+                    (obj.trade_.opendirection_ == -1 && candleHigh > obj.pxstoploss_)               
+                obj.trade_.status_ = 'closed';
+                obj.status_ = 'closed';
+                obj.checkflag_ = 0;
+                unwindtrade = obj.trade_;
+                closeprice = obj.pxstoploss_;
+                %we record the close time as of the close time of the candle
+                freq = str2double(obj.trade_.opensignal_.frequency_(1:end-1));
+                closetime = candleTime + freq/1440;
+            else
+                if strcmpi(obj.trade_.status_,'unset'),obj.trade_.status_ = 'set';end
+            end
+            %
+            if ~isempty(unwindtrade) && debug
+                fprintf('%s:batman closed as tick price breaches stoploss price at %s...\n',...
+                    datestr(closetime,'yyyy-mm-dd HH:MM'),...
+                    obj.pxstoploss_);
+            end
+            %
+            if ~isempty(unwindtrade) && updatepnlforclosedtrade
+                obj.trade_.runningpnl_ = 0;
+                obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(closeprice-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
+                obj.trade_.closedatetime1_ = closetime;
+                obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
+                obj.trade_.closeprice_ = closeprice;
+            end
+        end
         return
     end
      
     % return in case the associated trade is closed
     if strcmpi(obj.trade_.status_,'closed'), return; end
-    
-    candleOpen = candlek(2);
-    candleHigh = candlek(3);
-    candleLow = candlek(4);
-    candleLast = candlek(5);
+      
         
     %1.check with time stop if it is necessary
     if ~isempty(obj.trade_.stopdatetime1_) && obj.trade_.stopdatetime1_ < candleTime
@@ -62,7 +100,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if updatepnlforclosedtrade
             obj.trade_.runningpnl_ = 0;
             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(candleOpen-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
-            obj.trade_.closedatetime1_ = candleTime;
+            obj.trade_.closedatetime1_ = obj.trade_.stopdatetime1_ + 1/86400;
             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             obj.trade_.closeprice_ = candleOpen;
         end
@@ -82,6 +120,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.checkflag_ = 0;
             unwindtrade = obj.trade_;
             closeprice = candleOpen;
+            %we record the closetime as of the open time of the candle
+            closetime = candleTime + 1/86400;
         end
         %
         if candleOpen > obj.pxstoploss_ && candleLow <= obj.pxstoploss_
@@ -89,16 +129,21 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.checkflag_ = 0;
             unwindtrade = obj.trade_;
             closeprice = obj.pxstoploss_;
+            %we record the close time as of the close time of the candle
+            freq = str2double(obj.trade_.opensignal_.frequency_(1:end-1));
+            closetime = candleTime + freq/1440;
         end
+        %
         if strcmpi(obj.status_,'closed') && debug
             fprintf('%s:batman closed as tick price breaches stoploss price at %s...\n',...
                 datestr(candleTime,'yyyy-mm-dd HH:MM'),...
                 num2str(closeprice));
         end
+        %
         if strcmpi(obj.status_,'closed') && updatepnlforclosedtrade
             obj.trade_.runningpnl_ = 0;
             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(closeprice-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
-            obj.trade_.closedatetime1_ = candleTime;
+            obj.trade_.closedatetime1_ = closetime;
             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             obj.trade_.closeprice_ = closeprice;
         end
@@ -112,6 +157,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.checkflag_ = 0;
             unwindtrade = obj.trade_;
             closeprice = candleOpen;
+            %we record the closetime as of the open time of the candle
+            closetime = candleTime + 1/86400;
         end
         %
         if candleOpen < obj.pxstoploss_ && candleHigh >= obj.pxstoploss_
@@ -119,48 +166,38 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.checkflag_ = 0;
             unwindtrade = obj.trade_;
             closeprice = obj.pxstoploss_;
+            %we record the close time as of the close time of the candle
+            freq = str2double(obj.trade_.opensignal_.frequency_(1:end-1));
+            closetime = candleTime + freq/1440;
         end
+        %
         if strcmpi(obj.status_,'closed') && debug
             fprintf('%s:batman closed as tick price breaches stoploss price at %s...\n',...
                 datestr(candleTime,'yyyy-mm-dd HH:MM'),...
                 num2str(closeprice));
         end
+        %
         if strcmpi(obj.status_,'closed') && updatepnlforclosedtrade
             obj.trade_.runningpnl_ = 0;
             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(closeprice-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
-            obj.trade_.closedatetime1_ = candleTime;
+            obj.trade_.closedatetime1_ = closetime;
             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             obj.trade_.closeprice_ = closeprice;
         end
+        
         if strcmpi(obj.status_,'closed'), return; end
         
     end
     
-%     if ~usecandlelastonly && ((obj.trade_.opendirection_ == 1 && candleLow <= obj.pxstoploss_) ||...
-%             (obj.trade_.opendirection_ == -1 && candleHigh >= obj.pxstoploss_))
-%         obj.status_ = 'closed';
-%         obj.checkflag_ = 0;
-%         unwindtrade = obj.trade_;
-%         if debug
-%             fprintf('%s:batman closed as tick price breaches stoploss price at %s...\n',...
-%                 datestr(candleTime,'yyyy-mm-dd HH:MM'),...
-%                 num2str(obj.pxstoploss_));
-%         end
-%         if updatepnlforclosedtrade
-%             obj.trade_.runningpnl_ = 0;
-%             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(obj.pxstoploss_-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
-%             obj.trade_.closedatetime1_ = candleTime;
-%             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
-%             obj.trade_.closeprice_ = obj.pxstoploss_;
-%         end
-%         return
-%     end
     
     if usecandlelastonly && ((obj.trade_.opendirection_ == 1 && candleLast <= obj.pxstoploss_) ||...
             (obj.trade_.opendirection_ == -1 && candleLast >= obj.pxstoploss_))
         obj.status_ = 'closed';
         obj.checkflag_ = 0;
         unwindtrade = obj.trade_;
+        %we record the close time as of the close time of the candle
+        freq = str2double(obj.trade_.opensignal_.frequency_(1:end-1));
+        closetime = candleTime + freq/1440;
         if debug
             fprintf('%s:batman closed as last price breaches stoploss price at %s...\n',...
                 datestr(candleTime,'yyyy-mm-dd HH:MM'),...
@@ -169,7 +206,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if updatepnlforclosedtrade
             obj.trade_.runningpnl_ = 0;
             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(candleLast-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
-            obj.trade_.closedatetime1_ = candleTime;
+            obj.trade_.closedatetime1_ = closetime;
             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             obj.trade_.closeprice_ = candleLast;
         end
@@ -371,7 +408,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if updatepnlforclosedtrade
                 obj.trade_.runningpnl_ = 0;
                 obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(candleLast-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
-                obj.trade_.closedatetime1_ = candleTime;
+                freq = str2double(obj.trade_.opensignal_.frequency_(1:end-1));
+                obj.trade_.closedatetime1_ = candleTime + freq/1440;
                 obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
                 obj.trade_.closeprice_ = candleLast;
             end
