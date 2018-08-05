@@ -34,7 +34,7 @@ function [ table, headers ] = totable(obj, start_pos, end_pos)
                     if isa(propvalue,'cWilliamsRInfo')
                         flds_info = properties(cWilliamsRInfo);
                         for k = 1:size(flds_info)
-                            ncols = nclos + 1;
+                            ncols = ncols + 1;
                             table{i+1,ncols} = propvalue.(flds_info{k});
                             if i == 1, headers{ncols,1} = [propname,flds_info{k}];end
                             if i == 1, table{1,ncols} = [propname,flds_info{k}];end
@@ -52,8 +52,13 @@ function [ table, headers ] = totable(obj, start_pos, end_pos)
                 elseif isa(propvalue,'cBatman')
                     flds_info = properties(cBatman);
                     for k = 1:size(flds_info)
-                        ncols = nclos + 1;
-                        table{i+1,ncols} = propvalue.(flds_info{k});
+                        ncols = ncols + 1;
+                        val = propvalue.(flds_info{k});
+                        if isempty(val)
+                            table{i+1,ncols} = 'n/a';
+                        else
+                            table{i+1,ncols} = val;
+                        end
                         if i == 1, headers{ncols,1} = [propname,flds_info{k}];end
                         if i == 1, table{1,ncols} = [propname,flds_info{k}];end
                     end
