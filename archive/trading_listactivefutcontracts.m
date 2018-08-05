@@ -30,21 +30,32 @@ for i = 1:size(asset_list,1)
         if strcmpi(asset_list{i},'eqindex_300') || ...
                 strcmpi(asset_list{i},'eqindex_50') || ...
                 strcmpi(asset_list{i},'eqindex_500')
-            check = conn.ds_.getdata([bbg_codes{i},'A Index'],'last_tradeable_dt');
+            check = conn.ds_.getdata([bbg_codes{i},'A Index'],'parsekyable_des');
+            nright = length(' Index');
         else
-            check = conn.ds_.getdata([bbg_codes{i},'A Comdty'],'last_tradeable_dt');
+            check = conn.ds_.getdata([bbg_codes{i},'A Comdty'],'parsekyable_des');
+            nright = length(' Comdty');
         end
-        ltd = check.check.last_tradeable_dt;
-        yearstr = num2str(year(ltd)-2000);
-        if strcmpi(excode,'.CZC'), yearstr = yearstr(end); end
-        mm = month(ltd);
+        %
+        bcode_i = check.parsekyable_des;
+        if iscell(bcode_i), bcode_i = bcode_i{1};end
+        bcode_i = bcode_i(1:length(bcode_i)-nright);
+        futcode = bcode_i(end-1:end-1);
+        futyear = bcode_i(end);
+        if strcmpi(excode,'.CZC')
+            yearstr = bcode_i(end);
+        else
+            yearstr = ['1',bcode_i(end)];
+        end
+        mm = strfind('FGHJKMNQUVXZ',futcode);
         if mm > 9
             monthstr = num2str(mm);
         else
             monthstr = ['0',num2str(mm)];
         end
-        active_fut_codes{i} = [active_fut_codes{i},yearstr,monthstr];           
-    catch
         
+        active_fut_codes{i} = [active_fut_codes{i},yearstr,monthstr];           
+    catch e
+        fprintf('error for %s:%s\n',assetinfo.AssetName,e.message);
     end
 end

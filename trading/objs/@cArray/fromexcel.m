@@ -1,6 +1,6 @@
 function [obj] = fromexcel(obj, filename, sheetname)
 
-    nodeClassName = class(obj.node);
+    nodeClassName = class(obj.node_);
 
     if ~exist('filename', 'var')
         error('cArray:fromexcel:invalid input of filename')
@@ -32,8 +32,8 @@ function [obj] = fromexcel(obj, filename, sheetname)
                 catch
             end
         end
-        obj.node(i-1) = anode;
-        obj.latest = i-1;
+        obj.node_(i-1) = anode;
+        obj.latest_ = i-1;
     end
 
 end

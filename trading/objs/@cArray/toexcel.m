@@ -28,7 +28,7 @@ function [ filename ] = toexcel(obj, filename, sheetname, start_pos, end_pos)
     end
 
     if ~exist('end_pos', 'var')
-        end_pos = start_pos + length(obj.node) - 1; 
+        end_pos = start_pos + length(obj.node_) - 1; 
     end
 
     % empty case
@@ -39,7 +39,7 @@ function [ filename ] = toexcel(obj, filename, sheetname, start_pos, end_pos)
     obj.totable(start_pos, end_pos);
 
     % write data to excel
-    all_data = obj.table;
+    all_data = obj.table_;
     if isempty(all_data), all_data = {''}; end
     xlswrite(filename, all_data, sheetname);
 

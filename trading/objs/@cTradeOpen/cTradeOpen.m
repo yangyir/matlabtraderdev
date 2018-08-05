@@ -11,8 +11,6 @@ classdef cTradeOpen < handle
         openprice_@double
         opendirection_@double
         openvolume_@double
-%         targetprice_@double
-%         stoplossprice_@double
         stopdatetime1_@double
         stopdatetime2_@char
         closedatetime1_@double
@@ -21,11 +19,6 @@ classdef cTradeOpen < handle
         runningpnl_@double
         closepnl_@double
         status_@char
-        %
-%         riskmanagementmethod_@char
-%         batman_@cBatman
-        %
-%         extrainfo_@struct
         %
         opensignal_@cSignalInfo
         riskmanager_@cTradeRiskManager       
