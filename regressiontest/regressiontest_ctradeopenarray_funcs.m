@@ -45,6 +45,14 @@ positions{1}.print;
 positions{2}.print;
 %%
 tbl = trades.totable;
+open tbl;
 %%
 trades.toexcel('c:\yangyiran\trades.xlsx');
+%%
+trades2 = cTradeOpenArray;
+trades2.fromexcel('c:\yangyiran\trades.xlsx','tradeopen');
+positions2 = trades2.convert2positions;
+fprintf('\n');
+positions2{1}.print;
+positions2{2}.print;
 

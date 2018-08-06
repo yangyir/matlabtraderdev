@@ -23,6 +23,8 @@ classdef cTradeOpenArray < cArray
         [count] = count(obj)
         [new] = filterbycode(obj,code)
         [postions] = convert2positions(obj)
+        [table, flds] = totable(obj, start_pos, end_pos)
+        [obj] = fromtable(obj,table)
         [filename] = toexcel(obj, filename, sheetname, start_pos, end_pos);
         [obj] = fromexcel(obj, filename, sheetname); 
         [filename] = totxt(obj, filename, start_pos, end_pos);

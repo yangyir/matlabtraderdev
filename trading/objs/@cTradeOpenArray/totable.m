@@ -1,3 +1,4 @@
+
 function [ table, headers ] = totable(obj, start_pos, end_pos)
     if ~exist('start_pos', 'var')
         start_pos = 1;
@@ -73,6 +74,11 @@ function [ table, headers ] = totable(obj, start_pos, end_pos)
                 else
                     error('riskmanager not implemented');
                 end
+            elseif strcmpi(propname,'instrument_')
+                ncols = ncols + 1;
+                table{i+1,ncols} = '';
+                if i == 1, headers{ncols,1} = propname;end
+                if i == 1, table{1,ncols} = propname;end
             else
                 ncols = ncols + 1;
                 if isempty(propvalue)
