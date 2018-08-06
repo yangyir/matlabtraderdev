@@ -55,4 +55,12 @@ positions2 = trades2.convert2positions;
 fprintf('\n');
 positions2{1}.print;
 positions2{2}.print;
-
+%%
+trades.totxt('c:\yangyiran\trades.txt');
+%%
+trades3 = cTradeOpenArray;
+trades3.fromtxt('c:\yangyiran\trades.txt');
+positions3 = trades3.convert2positions;
+fprintf('\n');
+positions3{1}.print;
+positions3{2}.print;

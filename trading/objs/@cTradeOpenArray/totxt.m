@@ -5,7 +5,7 @@ function [filename] = totxt(obj, filename, start_pos, end_pos)
     if ~exist('end_pos','var'), end_pos = start_pos + length(obj.node_) - 1;end
     if end_pos < start_pos, fprintf('cTradeOpenArray:totxt:invalid input of start_pos and end_pos');return;end
     
-    [table,headers] = obj.totable(start_pos,end_pos);
+    [table,~] = obj.totable(start_pos,end_pos);
     
     fid = fopen(filename,'w');
     
@@ -13,13 +13,43 @@ function [filename] = totxt(obj, filename, start_pos, end_pos)
     try
         for i = 1:nrows
             if i == 1
-                for j = 1:ncols
-                    
+                datafmt = '%s';
+                txtstr = 'table{i,1}';
+                for j = 2:ncols
+                    temp2 = [datafmt,'\t%s'];
+                    if j == ncols
+                        datafmt = [temp2,'\n'];
+                    else
+                        datafmt = temp2;
+                    end
+                    temp = [txtstr,',','table{i,',num2str(j),'}'];
+                    txtstr = temp;
                 end
             else
+                val = table{i,1};
+                if ischar(val)
+                    datafmt = '%s';
+                else
+                    datafmt = '%f';
+                end
+                for j = 2:ncols
+                    val = table{i,j};
+                    if ischar(val)
+                        temp2 = [datafmt,'\t%s'];
+                    else
+                        temp2 = [datafmt,'\t%f'];
+                    end
+                    if j == ncols
+                        datafmt = [temp2,'\n'];
+                    else
+                        datafmt = temp2;
+                    end
+                end
             end
-            
+            eval(['fprintf(fid,datafmt,',txtstr,');']);
         end
+        fclose(fid);
+        
     catch e
         fprintf('cTradeOpenArray:totxt:%s',e.message);
         fclose(fid);

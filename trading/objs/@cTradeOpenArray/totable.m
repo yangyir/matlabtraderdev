@@ -53,6 +53,7 @@ function [ table, headers ] = totable(obj, start_pos, end_pos)
                 elseif isa(propvalue,'cBatman')
                     flds_info = properties(cBatman);
                     for k = 1:size(flds_info)
+                        if strcmpi(flds_info{k},'trade_'), continue;end
                         ncols = ncols + 1;
                         val = propvalue.(flds_info{k});
                         if isempty(val)
@@ -66,6 +67,7 @@ function [ table, headers ] = totable(obj, start_pos, end_pos)
                 elseif isa(propvalue,'cStandard')
                     flds_info = properties(cStandard);
                     for k = 1:size(flds_info)
+                        if strcmpi(flds_info{k},'trade_'), continue;end
                         ncols = nclos + 1;
                         table{i+1,ncols} = propvalue.(flds_info{k});
                         if i == 1, headers{ncols,1} = [propname,flds_info{k}];end
