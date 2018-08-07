@@ -22,6 +22,7 @@ classdef cTradeOpenArray < cArray
         new = copy(obj)
         [count] = count(obj)
         [new] = filterbycode(obj,code)
+        [new] = filterbystatus(obj,status)
         [postions] = convert2positions(obj)
         [table, flds] = totable(obj, start_pos, end_pos)
         [obj] = fromtable(obj,table)

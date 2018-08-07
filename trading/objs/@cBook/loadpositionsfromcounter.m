@@ -1,5 +1,7 @@
 function [] = loadpositionsfromcounter(obj,varargin)
 %cBook
+    if isempty(obj.counter_), return; end
+    
     p = inputParser;
     p.CaseSensitive = false; p.KeepUnmatched = true;
     p.addParameter('FutList',{},...
@@ -8,7 +10,6 @@ function [] = loadpositionsfromcounter(obj,varargin)
         @(x) validateattributes(x,{'char','cell'},{},'','OptUndList'));
     p.parse(varargin{:});
     
-    p.parse(varargin{:});
     futs = p.Results.FutList;
     allfutflag = false;
     if ischar(futs)
@@ -23,8 +24,6 @@ function [] = loadpositionsfromcounter(obj,varargin)
         optund = {optund};
     end
     
-    if isempty(obj.counter_), return; end
-    
     obj.positions_ = {};
     
     pos = obj.counter_.queryPositions;
@@ -34,13 +33,7 @@ function [] = loadpositionsfromcounter(obj,varargin)
         % load all positions from counter
         for i = 1:npos
             if pos(i).total_position > 0
-                isopt = isoptchar(pos(i).asset_code);
-                if isopt
-                    s = cOption(pos(i).asset_code);
-                else
-                    s = cFutures(pos(i).asset_code);
-                end
-                s.loadinfo([pos(i).asset_code,'_info.txt']);
+                s = code2instrument(pos(i).asset_code);
                 multi = s.contract_size;
                 if ~isempty(strfind(s.code_bbg,'TFC')) || ~isempty(strfind(s.code_bbg,'TFT'))
                     multi = multi/100;

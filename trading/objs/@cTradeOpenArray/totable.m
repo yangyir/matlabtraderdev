@@ -1,4 +1,3 @@
-
 function [ table, headers ] = totable(obj, start_pos, end_pos)
     if ~exist('start_pos', 'var')
         start_pos = 1;

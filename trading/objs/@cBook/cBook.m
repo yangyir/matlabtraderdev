@@ -20,6 +20,7 @@ classdef cBook < handle
         % I/O
         [] = loadpositionsfromcounter(obj,varargin)
         [] = loadpositionsfromfile(obj,fn,datein)
+        [] = loadpositionsfromfile2(obj,fn)
         [] = savepositionstofile(obj,fn);
         
         % position
