@@ -24,7 +24,7 @@ classdef cBook < handle
         % note:loadpositionsfromtxt and loadpositionsfromexcel are
         % functions to load inputs of inidividual trades table
         [] = loadpositionsfromtxt(obj,fn)
-        [] = loadpositionsfromexcel(obj,fn)
+        [] = loadpositionsfromexcel(obj,fn,sheetn)
         %
         [] = savepositionstofile(obj,fn);
         

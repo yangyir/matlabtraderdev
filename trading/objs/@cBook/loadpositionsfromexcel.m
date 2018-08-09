@@ -1,7 +1,7 @@
-function [] = loadpositionsfromtxt(obj,fn)
+function [] = loadpositionsfromexcel(obj,fn,sheetn)
     obj.positions_ = {};
     trades = cTradeOpenArray;
-    trades.fromtxt(fn);
+    trades.fromexcel(fn,sheetn);
     if ~isempty(obj.bookname_), usebookname = true; else usebookname = false;end
     if ~isempty(obj.counter_), usecounter = true; else usecounter = false;end
     
@@ -25,5 +25,4 @@ function [] = loadpositionsfromtxt(obj,fn)
     if isempty(obj.counter_) && livetrades.count > 0
         obj.counter_ = CounterCTP.(livetrades.node_(1).countername_);
     end
-
 end
