@@ -20,7 +20,12 @@ classdef cBook < handle
         % I/O
         [] = loadpositionsfromcounter(obj,varargin)
         [] = loadpositionsfromfile(obj,fn,datein)
-        [] = loadpositionsfromfile2(obj,fn)
+        
+        % note:loadpositionsfromtxt and loadpositionsfromexcel are
+        % functions to load inputs of inidividual trades table
+        [] = loadpositionsfromtxt(obj,fn)
+        [] = loadpositionsfromexcel(obj,fn)
+        %
         [] = savepositionstofile(obj,fn);
         
         % position
