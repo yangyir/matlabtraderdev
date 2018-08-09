@@ -24,7 +24,7 @@ classdef cBatman < cTradeRiskManager
         bandtarget_@double = 0.01
     end
     
-    properties
+    properties (Access = private)
         bucket_count_@double = 0
     end
     
