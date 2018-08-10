@@ -30,8 +30,10 @@ function strat = init_stratmanual(varargin)
     end
     
     position_from = p.Results.PositionFrom;
-    if ~(strcmpi(position_from,'counter') || strcmpi(position_from,'file'))
-        error('init_stratmanual:invalid input of positionfrom:either counter or file')
+    if ~isempty(position_from)
+        if ~(strcmpi(position_from,'counter') || strcmpi(position_from,'file'))
+            error('init_stratmanual:invalid input of positionfrom:either counter or file')
+        end
     end
     
     file_name = p.Results.FileName;
