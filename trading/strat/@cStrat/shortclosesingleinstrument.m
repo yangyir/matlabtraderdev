@@ -3,9 +3,11 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('overrideprice',[],@isnumeric);
     p.addParameter('time',[],@isnumeric);
+    p.addParameter('tradeid','',@ischar);
     p.parse(varargin{:});
     overridepx = p.Results.overrideprice;
     ordertime = p.Results.time;
+    tradeid = p.Results.tradeid;
     if lots <= 0 
         return; 
     end
@@ -96,6 +98,7 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
     if ret
         e.date = floor(ordertime);
         e.time = ordertime;
+        if ~isempty(tradeid), e.tradeid_ = tradeid;end
         strategy.updatestratwithentrust(e);
     end
     

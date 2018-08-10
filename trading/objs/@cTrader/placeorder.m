@@ -71,9 +71,16 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
         entrust.entrustNo = n+1;
     end
     if ret
-        e.date = floor(ordertime);
-        e.time = ordertime;
+        entrust.date = floor(ordertime);
+        entrust.time = ordertime;
         
+        %tradeid_ convention bookname_ctpcode_datestr_num
+        if offset == 1
+            n = ops.entrusts_.latest;
+            tradeid = [ops.book_.bookname_,'_',codestr,'_',datestr(ordertime,'yyyymmddHHMMSS'),'_',num2str(n)];
+            entrust.tradeid_ = tradeid;
+        end
+                
         fprintf('%s placed entrust:%2d,code:%8s,direct:%2d,offset:%d, price:%6s, amount:%3d\n',...
             datestr(entrust.time,'yyyymmdd HH:MM:SS'),...
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);

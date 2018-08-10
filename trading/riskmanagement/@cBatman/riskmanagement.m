@@ -72,7 +72,6 @@ function [unwindtrade] = riskmanagement(obj,varargin)
                 trade.closeprice_ = tickask;
             end
             trade.closedatetime1_ = ticktime;
-            trade.closedatetime2_ = datestr(trade.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
         end
         
         return

@@ -3,9 +3,11 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     p.CaseSensitive = false;p.KeepUnmatched = false;
     p.addParameter('overrideprice',[],@isnumeric);
     p.addParameter('time',[],@isnumeric);
+    p.addParameter('tradeid','',@ischar);
     p.parse(varargin{:});
     overridepx = p.Results.overrideprice;
     ordertime = p.Results.time;
+    tradeid = p.Results.tradeid;
     if lots == 0, return; end
 
     if nargin < 4
@@ -91,6 +93,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     if ret
         e.date = floor(ordertime);
         e.time = ordertime;
+        if ~isempty(tradeid), e.tradeid_ = tradeid;end
         strategy.updatestratwithentrust(e);
     end
     
