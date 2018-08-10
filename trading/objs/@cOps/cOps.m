@@ -25,10 +25,15 @@ classdef cOps < cMyTimerObj
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)
         pnl = calcrunningpnl(obj,varargin)
+        [closedpnl,runningpnl] = calcpnl(obj,varargin)
         [] = printrunningpnl(obj,varargin)
     end
     
     methods (Access = private)
         [] = updateentrustsandbook(obj)
+        %note:yangyiran-20180810
+        %func 'updateentrustsandbook2' differs from 'updateentrustsandbook'
+        %as it update the book from trades directly
+        [] = updateentrustsandbook2(obj)
     end
 end

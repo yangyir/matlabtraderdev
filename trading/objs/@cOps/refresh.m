@@ -1,7 +1,8 @@
 function [] = refresh(obj)
 %cOps
     try
-        updateentrustsandbook(obj);
+%         updateentrustsandbook(obj);
+        updateentrustsandbook2(obj);
         %
         if obj.display_
             obj.printallentrusts
