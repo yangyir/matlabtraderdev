@@ -139,7 +139,6 @@ classdef cQMS_H5 < cDataSource
         function [txt] = printinfo(obj)
             txt = sprintf('O32_H5 server info:\n');
             txt = sprintf('%dsn = %s\n',txt, obj.dsn_);
-            txt = sprintf('%isSave = %s\n',txt, obj.save_to_file);
             txt = sprintf('%isConnect = %s\n',txt, obj.connection);
             txt = sprintf('%QmsPath = %s\n',txt, obj.QMS_path);
             if nargout == 0, disp(txt);end
@@ -751,9 +750,9 @@ classdef cQMS_H5 < cDataSource
     end
     
     %% look at test.xml
-    enumeration
-       
-        %liyong2310_202006_168 ('10.42.80.167', 9003, '2038', '111aaa', '202006', '820002006-J');
-    
-    end
+%     enumeration
+%        
+%         %liyong2310_202006_168 ('10.42.80.167', 9003, '2038', '111aaa', '202006', '820002006-J');
+%     
+%     end
 end
