@@ -14,7 +14,9 @@ function [stoptime1,stoptime2] = gettradestoptime(code,opentime,freq,nperiod)
         opentime = datenum(opentime,'yyyy-mm-dd HH:MM:SS');
     end
     
-    freq = [num2str(freq),'m'];
+    if isnumeric(freq)
+        freq = [num2str(freq),'m'];
+    end
     
     if hour(opentime) >= 0 && hour(opentime) < 9
         openbusdate = businessdate(floor(opentime),-1);

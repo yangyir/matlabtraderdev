@@ -63,6 +63,11 @@ function [] = updateentrustsandbook2(obj)
             if f0 && f1 && f2
                 entrusts.push(e);
                 fprintf('executed entrust: %d at %s......\n',e.entrustNo,datestr(e.complete_time_,'yyyy-mm-dd HH:MM:SS'));
+                
+                %this entrust is fully placed and we shall update the book
+                obj.book_.addpositions('code',e.instrumentCode,'price',e.price,...
+                    'volume',e.direction*e.dealVolume,'time',e.complete_time_,...
+                    'closetodayflag',e.closetodayFlag);
 
                 % update trades as well
                 if e.offsetFlag == 1
@@ -72,7 +77,7 @@ function [] = updateentrustsandbook2(obj)
                     catch
                         tradestopdatetime = [];
                     end
-                    trade = cTradeOpen('id',e.entrustNo,...
+                    trade = cTradeOpen('id',e.tradeid_,...
                         'countername',obj.book_.counter_.char,...
                         'bookname',obj.book_.bookname_,...
                         'code',e.instrumentCode,...
@@ -91,7 +96,7 @@ function [] = updateentrustsandbook2(obj)
                 elseif e.offsetFlag == -1
                     %close long or close short
                     tradeid = e.tradeid_;
-                    ntrades = obj.trades_.latest;
+                    ntrades = obj.trades_.latest_;
                     for itrade = 1:ntrades
                         trade_i = obj.trades_.node_(itrade);
                         if strcmpi(trade_i.id_,tradeid)
@@ -104,11 +109,8 @@ function [] = updateentrustsandbook2(obj)
                     end
                 end
                 
-                % this entrust is fully placed and we shall update the book
-%                 obj.book_.addpositions('code',e.instrumentCode,'price',e.price,...
-%                     'volume',e.direction*e.dealVolume,'time',e.complete_time_,...
-%                     'closetodayflag',e.closetodayFlag);
-                
+%                 positions = obj.trades_.convert2positions;
+%                 obj.book_.positions_ = positions;    
                 
             elseif f0 && f1 && ~f2
                 % this entrust is canceled
@@ -116,8 +118,6 @@ function [] = updateentrustsandbook2(obj)
                 entrusts.push(e);
             end
         end
-        positions = obj.trades_.convert2positions;
-        obj.book_.positions_ = positions;
         
     end
     

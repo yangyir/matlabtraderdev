@@ -75,6 +75,12 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         end
         
         return
+    else
+        if trade.opendirection_ == 1
+            trade.runningpnl_ = trade.openvolume_*(tickbid-trade.openprice_)/ instrument.tick_size * instrument.tick_value;
+        else
+            trade.runningpnl_ = -trade.openvolume_*(tickask-trade.openprice_)/ instrument.tick_size * instrument.tick_value;
+        end
     end
     
     %below the trade is still alive and we check with the latest poped-up
