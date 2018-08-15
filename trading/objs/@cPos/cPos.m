@@ -47,7 +47,7 @@ classdef cPos < handle
         [] = print(obj)
         [] = override(obj,varargin)
         [] = add(obj,varargin)
-        [pnl,pnlcum,pnlnew] = calc_pnl(obj,quote)
+        [pnl] = calc_pnl(obj,varargin)
     end
     
     methods (Static = true)

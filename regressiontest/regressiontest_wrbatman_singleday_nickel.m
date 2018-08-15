@@ -53,7 +53,8 @@ replay_strat.setmaxexecutionperbucket(code,1);
 replay_strat.setbandtarget(code,0.02);
 replay_strat.setbandstoploss(code,0.01);
 %
-replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.txt'];
+% replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.txt'];
+replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
 replay_strat.initdata;
 clc;

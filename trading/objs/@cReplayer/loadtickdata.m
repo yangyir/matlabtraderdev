@@ -14,11 +14,15 @@ function [] = loadtickdata(obj,varargin)
     end
     
     try
-         d = cDataFileIO.loadDataFromTxtFile(fn);
- %         d = load(fn);
+        if ~isempty(strfind(fn,'.txt'))
+            d = cDataFileIO.loadDataFromTxtFile(fn);
+        elseif ~isempty(strfind(fn,'.mat'))
+            d = load(fn);
+        end
         if isstruct(d)
             flds = fields(d);
-            data = getfield(d,flds{1});
+%             data = getfield(d,flds{1});
+            data = d.(flds{1});
             obj.tickdata_{idx} = data;
         else
             obj.tickdata_{idx} = d;
