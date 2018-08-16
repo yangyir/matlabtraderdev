@@ -3,6 +3,9 @@ classdef cOption < cInstrument
         code_ctp@char
         code_wind@char
         code_bbg@char
+        
+        code_H5@char
+        
         code_ctp_underlier@char
         code_wind_underlier@char
         code_bbg_underlier@char
@@ -36,6 +39,7 @@ classdef cOption < cInstrument
             obj.code_ctp = '';
             obj.code_wind = '';
             obj.code_bbg = '';
+            obj.code_H5 = '';
             obj.code_ctp_underlier = '';
             obj.code_wind_underlier = '';
             obj.code_bbg_underlier = '';
@@ -58,6 +62,24 @@ classdef cOption < cInstrument
             
             delete@cInstrument(obj);
         end
+        % 强制类型转换：所有code都是char
+        function [obj] = set.code_H5(obj, vin)
+            % 强制类型转换：所有code都是char
+            if iscell(vin), vin = vin{1}; end
+            
+            cl = class(vin);
+            switch cl
+                case {'double' }
+                    % disp('强制类型转换：cInstrument.code_H5应为char');
+                    vout = num2str(vin);                    
+                case {'char'}
+                    vout = vin;
+                otherwise
+                    warning('赋值失败：ocInstrument.code_H5应为char');
+                    return;
+            end
+            obj.code_H5 = vout;
+        end
         
         function obj = cOption(codestr)
             if nargin < 1
@@ -73,12 +95,14 @@ classdef cOption < cInstrument
             obj.code_ctp_underlier = underlierstr;
             obj.code_wind_underlier = ctp2wind(obj.code_ctp_underlier);
             obj.code_bbg_underlier = ctp2bbg(obj.code_ctp_underlier);
+            
             obj.opt_expiry_date1 = expiry;
             obj.opt_expiry_date2 = datestr(obj.opt_expiry_date1,'yyyy-mm-dd');
             
             obj.code_ctp = str2ctp(codestr);
             obj.code_wind = ctp2wind(obj.code_ctp);
             obj.code_bbg = ctp2bbg(obj.code_ctp);
+            obj.code_H5 = codestr;
             
             [asset,ex] = obj.getexchangestr;
             obj.asset_name = asset;

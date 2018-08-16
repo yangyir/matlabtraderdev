@@ -1,4 +1,3 @@
-
 %% cQMS_H5
 % 登入连接行情服务器，返回为1时表示登录成功
 % mktlogin
@@ -22,7 +21,7 @@ stk_fn = 'D:\Github\matlabtraderdev\trading\database\@cQMS_H5\ContractInfo\Stock
 qms_.loginTestEnv();
 
 %[mkt,level] = getCurrentPrice(num2str('TF1812'),'5')
-%qms_.init(opt_fn, fut_fn, stk_fn);
+qms_.init(opt_fn, fut_fn, stk_fn);
 
 %qms_.logoff()
 %% demo
@@ -40,3 +39,21 @@ qms_.loginTestEnv();
 % 
 % % 退出行情服务器连接
 % mktlogout
+
+
+%% QMS_fusion
+mktlogout;
+clear all; 
+qms_ = QMS_Fusion;
+
+opt_fn = 'D:\Github\matlabtraderdev\trading\database\@cQMS_H5\ContractInfo\OptInfo_latest.xlsx';
+fut_fn = 'D:\Github\matlabtraderdev\trading\database\@cQMS_H5\ContractInfo\FutureInfo.xlsx';
+stk_fn = 'D:\Github\matlabtraderdev\trading\database\@cQMS_H5\ContractInfo\StockInfo.xlsx';
+
+% qms_.loginCTP();
+qms_.loginH5TestEnv();
+qms_.init(opt_fn, fut_fn, stk_fn);
+%[mkt,level] = getCurrentPrice(num2str('TF1812'),'5')
+%qms_.logout()
+% % 
+

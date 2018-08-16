@@ -1,0 +1,82 @@
+<?xml  version="1.0" encoding="GBK"?>
+<supportmkt>
+	<!--
+	<market mktname="上海L1" mkttype="0xd01" user="3001" password="3001">
+
+		<svraddr svrip="10.42.8.39" svrport="11003"/>
+	
+	</market>
+    -->
+    
+    <!--
+	<market mktname="上海L1" mkttype="0x101" user="3001" password="3001">
+		<svraddr svrip="10.42.8.39"  svrport="11003"/>
+        <svraddr svrip="10.42.8.40"  svrport="11003"/>
+	</market>
+	
+	<market mktname="股指期货" mkttype="0x303" user="3001" password="3001">
+		<svraddr svrip="10.42.8.39"  svrport="11003"/>
+        <svraddr svrip="10.42.8.40"  svrport="11003"/>
+	</market>
+
+	<market mktname="上海期权" mkttype="0xD01" user="3001" password="3001">
+		<svraddr svrip="10.42.8.39"  svrport="11003"/>
+        <svraddr svrip="10.42.8.40"  svrport="11003"/>
+	</market>
+	
+    <market mktname="深圳L1" mkttype="0x102" user="3001" password="3001">
+		<svraddr svrip="10.42.8.39"  svrport="11003"/>
+        <svraddr svrip="10.42.8.40"  svrport="11003"/>
+	</market>
+    -->
+    
+	
+	<market mktname="上海L1" mkttype="0x101" user="3001" password="3001">
+		<svraddr svrip="192.168.41.70"  svrport="11003"/>
+	</market>
+
+	<market mktname="深圳L1" mkttype="0x102" user="3001" password="3001">
+		<svraddr svrip="192.168.41.70"  svrport="11003"/>
+	</market>
+    
+   	<market mktname="上海期权" mkttype="0xD01" user="3001" password="3001">
+		<svraddr svrip="192.168.41.70"  svrport="11003"/>
+	</market> 
+
+	<market mktname="股指期货" mkttype="0x303" user="3001" password="3001">
+		<svraddr svrip="192.168.41.70"  svrport="11003"/>
+	</market>
+	
+   	<market mktname="上期所期货" mkttype="0x304" user="3001" password="3001">
+		<svraddr svrip="192.168.41.70"  svrport="11003"/>
+	</market> 
+    
+    <market mktname="大商所期货" mkttype="0x305" user="3001" password="3001">
+		<svraddr svrip="192.168.41.70"  svrport="11003"/>
+	</market>  
+    
+    <market mktname="郑商所期货" mkttype="0x306" user="3001" password="3001">
+		<svraddr svrip="192.168.41.70"  svrport="11003"/>
+	</market>      
+    
+	<!--
+	<market mktname="期货" mkttype="0x304" user="3001" password="3001">
+		<svraddr svrip="192.168.111.181"  svrport="11003"/>
+	</market>
+	<market mktname="期货" mkttype="0x305" user="3001" password="3001">
+		<svraddr svrip="192.168.111.181"  svrport="11003"/>
+	</market>
+	<market mktname="期货" mkttype="0x306" user="3001" password="3001">
+		<svraddr svrip="192.168.111.181"  svrport="11003"/>
+	</market>
+	-->
+	
+	<!--market mktname="上海L2" mkttype="2" user="maoyj2" password="maoyj2">
+		<svraddr svrip="192.168.111.181"  svrport="11003"/>
+		<svraddr svrip="192.168.111.181"  svrport="11003"/>
+	</market-->
+	<!--market mktname="深圳L1" mkttype="3" user="maoyj3" password="maoyj3">
+		<svraddr svrip="60.191.25.162"  svrport="11003"/>
+		<svraddr svrip="60.191.25.162"  svrport="11003"/>
+	</market-->
+</supportmkt>

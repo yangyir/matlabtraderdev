@@ -1,5 +1,5 @@
 function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
-    %this is not availale in CTP
+    %temp not use
     variablenotused(obj);
     variablenotused(instrument);
     variablenotused(startdate);

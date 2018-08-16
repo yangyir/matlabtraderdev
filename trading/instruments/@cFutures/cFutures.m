@@ -1,8 +1,12 @@
 classdef cFutures < cInstrument
     properties
+        % instrument 
         code_ctp@char
         code_wind@char
         code_bbg@char
+        code_H5@char
+        
+        
         contract_size@double
         tick_size@double
         tick_value@double
@@ -34,6 +38,26 @@ classdef cFutures < cInstrument
     end
     
     methods
+        % 强制类型转换：所有code都是char
+        function [obj] = set.code_H5(obj, vin)
+            % 强制类型转换：所有code都是char
+            if iscell(vin), vin = vin{1}; end
+            
+            cl = class(vin);
+            switch cl
+                case {'double' }
+                    % disp('强制类型转换：cInstrument.code_H5应为char');
+                    vout = num2str(vin);                    
+                case {'char'}
+                    vout = vin;
+                otherwise
+                    warning('赋值失败：ocInstrument.code_H5应为char');
+                    return;
+            end
+            obj.code_H5 = vout;
+        end
+        
+        
         function break_interval = get.break_interval(obj)
            nlength = length(obj.trading_hours);
            % 09:00-11:30; which length is 12
@@ -109,6 +133,8 @@ classdef cFutures < cInstrument
             obj.code_ctp = str2ctp(codestr);
             obj.code_wind = ctp2wind(obj.code_ctp);
             obj.code_bbg = ctp2bbg(obj.code_ctp);
+            obj.code_H5 = codestr;
+            
             
             [asset,ex] = obj.getexchangestr;
             obj.asset_name = asset;

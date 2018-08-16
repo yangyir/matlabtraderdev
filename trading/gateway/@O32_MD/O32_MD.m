@@ -1,4 +1,4 @@
-classdef cQMS_H5 < cDataSource
+classdef O32_MD < cDataSource
     properties
         dsn_ = 'QMS_H5';
         ds_
@@ -9,7 +9,7 @@ classdef cQMS_H5 < cDataSource
         putQuotes_@M2TK ; % put quote 矩阵
         
         m2cOptOne@M2TK;
-        m2pOptOne@M2TK;
+        m2pOptOne@M2TK; 
         
         optquotes_ = []; % 行情结构
         futquotes_ = [];
@@ -584,57 +584,57 @@ classdef cQMS_H5 < cDataSource
                 
                 
                  self.calc_m2tk_quote(self.callQuotes_);
-%                 self.calc_m2tk_quote(self.putQuotes_);
-%                 
-%                 % 更新Call Put VolSurf
-%                 self.call_surf_.load_data(self.callQuotes_);
-%                 self.put_surf_.load_data(self.putQuotes_);
-%                 self.call_near_atm_(end + 1) = self.call_surf_.nearATM;
-%                 self.put_near_atm_(end + 1) = self.put_surf_.nearATM;
-%                 self.record_time_(end + 1) = now;
-%                 
-%                 nT = length(self.callQuotes_.yProps);
-%                 nK = length(self.callQuotes_.xProps);
-%                 save_to_file = true;
-%                 
-%                 for t = 1:nT
-%                     for k = 1:nK
-%                         % store quote to historic quotes.
-%                         call_quote = self.callQuotes_.data(t,k);
-%                         put_quote = self.putQuotes_.data(t,k);
-%                         c = self.historic_call_m2tk_.record_t_k_quote(t,k,call_quote);
-%                         p = self.historic_put_m2tk_.record_t_k_quote(t,k,put_quote);
-%                         if (c == 1 || p == 1) 
-%                             save_to_file = false;
-%                             self.save_to_file = false;
-%                         end
-%                     end
-%                 end
-%                 
-%                 if save_to_file
-%                     if ~self.save_to_file
-% %                         self.historic_call_m2tk_.save_to_file();
-% %                         self.historic_put_m2tk_.save_to_file();
-%                         self.save_to_file = true;
-%                         % 日末执行清理外接清理逻辑
-%                         if self.is_end_of_day
-%                             if ~isempty(self.eod_handler)
-%                                 fun = self.eod_handler;
-%                                 fun();
-%                             end
-%                         end
-%                     end
-%                 end
-%                 
-%                 self.impvol_surface_.sync_ImpVol();
-%                 self.calc_tau_counter = self.calc_tau_counter - 1;
-%                 if(self.calc_tau_counter ==  0)
-%                     self.update_tau;
-%                     self.calc_tau_counter = 10;
-%                 end
-%                 if ~isempty(self.check_risk_handler)
-%                     self.check_risk_handler(self.impvol_surface_, self.stkmap_.getQuote('510050').last, 0.05);
-%                 end
+                self.calc_m2tk_quote(self.putQuotes_);
+                
+                % 更新Call Put VolSurf
+                self.call_surf_.load_data(self.callQuotes_);
+                self.put_surf_.load_data(self.putQuotes_);
+                self.call_near_atm_(end + 1) = self.call_surf_.nearATM;
+                self.put_near_atm_(end + 1) = self.put_surf_.nearATM;
+                self.record_time_(end + 1) = now;
+                
+                nT = length(self.callQuotes_.yProps);
+                nK = length(self.callQuotes_.xProps);
+                save_to_file = true;
+                
+                for t = 1:nT
+                    for k = 1:nK
+                        % store quote to historic quotes.
+                        call_quote = self.callQuotes_.data(t,k);
+                        put_quote = self.putQuotes_.data(t,k);
+                        c = self.historic_call_m2tk_.record_t_k_quote(t,k,call_quote);
+                        p = self.historic_put_m2tk_.record_t_k_quote(t,k,put_quote);
+                        if (c == 1 || p == 1) 
+                            save_to_file = false;
+                            self.save_to_file = false;
+                        end
+                    end
+                end
+                
+                if save_to_file
+                    if ~self.save_to_file
+%                         self.historic_call_m2tk_.save_to_file();
+%                         self.historic_put_m2tk_.save_to_file();
+                        self.save_to_file = true;
+                        % 日末执行清理外接清理逻辑
+                        if self.is_end_of_day
+                            if ~isempty(self.eod_handler)
+                                fun = self.eod_handler;
+                                fun();
+                            end
+                        end
+                    end
+                end
+                
+                self.impvol_surface_.sync_ImpVol();
+                self.calc_tau_counter = self.calc_tau_counter - 1;
+                if(self.calc_tau_counter ==  0)
+                    self.update_tau;
+                    self.calc_tau_counter = 10;
+                end
+                if ~isempty(self.check_risk_handler)
+                    self.check_risk_handler(self.impvol_surface_, self.stkmap_.getQuote('510050').last, 0.05);
+                end
             end
             disp('qms timer event');
             catch e

@@ -3,7 +3,9 @@ classdef (Abstract) cInstrument < handle
         code_ctp@char
         code_wind@char
         code_bbg@char
+        code_H5@char
     end
+    
     
     methods
         function delete(obj)
