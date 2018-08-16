@@ -1,2 +1,9 @@
 
+
+# log files
+
 *.log
+
+
+# matalab generate files
+*.asv
