@@ -34,7 +34,7 @@ function [pnl] = calc_pnl(obj,varargin)
     if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
         multi = multi/100;
     end
-    cost = pos.cost_open_;
+    cost = obj.cost_open_;
 
     if volume > 0
         pnl = (bid-cost)*volume*multi;

@@ -1,4 +1,4 @@
-function [] = refresh(obj)
+function [] = refresh(obj,varargin)
     if ~isempty(obj.qms_)
         if strcmpi(obj.mode_,'realtime')
             obj.qms_.refresh;

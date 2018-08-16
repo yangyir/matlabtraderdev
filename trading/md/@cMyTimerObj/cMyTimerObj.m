@@ -7,7 +7,7 @@ classdef cMyTimerObj < handle
         timer_interval_@double = 60  %refresh the mde every minute 
     end
     
-    properties (Access = private)
+    properties (GetAccess = public, SetAccess = private)
         mm_02_30_@double = 150   % all derivatives stop trading
         mm_02_40_@double = 160   % timer sleep 
         mm_08_50_@double = 530   % timer wake up
@@ -46,6 +46,6 @@ classdef cMyTimerObj < handle
     end
     
     methods (Abstract)
-        [] = refresh(obj)
+        [] = refresh(obj,varargin)
     end
 end

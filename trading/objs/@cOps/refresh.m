@@ -1,4 +1,4 @@
-function [] = refresh(obj)
+function [] = refresh(obj,varargin)
 %cOps
     try
 %         updateentrustsandbook(obj);

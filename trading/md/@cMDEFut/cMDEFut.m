@@ -110,7 +110,7 @@ classdef cMDEFut < cMyTimerObj
     methods
         [] = registerinstrument(obj,instrument)
         
-        [] = refresh(obj)
+        [] = refresh(obj,varargin)
         
         [] = refreshreplaymode(obj)
         

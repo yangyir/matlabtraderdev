@@ -1,4 +1,4 @@
-function [] = refresh(strategy)
+function [] = refresh(strategy,varargin)
     
     if ~isempty(strategy.mde_fut_)
         if strcmpi(strategy.mde_fut_.status_,'sleep')

@@ -21,7 +21,7 @@ classdef cOps < cMyTimerObj
     
     methods
         [] = init(obj,name,book)
-        [] = refresh(obj)
+        [] = refresh(obj,varargin)
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)
         pnl = calcrunningpnl(obj,varargin)

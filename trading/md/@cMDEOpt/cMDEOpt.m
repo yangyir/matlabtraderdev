@@ -36,7 +36,7 @@ classdef cMDEOpt < cMyTimerObj
     methods
         [] = loadoptions(obj,code_ctp_underlier,numstrikes)
         [] = registerinstrument(obj,instrument)
-        [] = refresh(obj)
+        [] = refresh(obj,varargin)
         tbl = voltable(obj)
         res = getgreeks(obj,instrument)
     end

@@ -1,4 +1,4 @@
-function [] = refresh(mdefut)
+function [] = refresh(mdefut,varargin)
     if ~isempty(mdefut.qms_)
         if strcmpi(mdefut.mode_,'realtime')
             mdefut.qms_.refresh;

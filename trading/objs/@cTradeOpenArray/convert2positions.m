@@ -8,7 +8,7 @@ codes = cell(n,1);
 count = 0;
 for i = 1:n
     trade_i = obj.node_(i);
-    if strcmpi(trade_i.status_,'closed') || strcmpi(trade_i.status_,'unset')
+    if strcmpi(trade_i.status_,'closed')
         continue;
     end
     count = count + 1;
@@ -23,7 +23,7 @@ positions = cell(ninstrument,1);
 
 for i = 1:n
     trade_i = obj.node_(i);
-    if strcmpi(trade_i.status_,'closed') || strcmpi(trade_i.status_,'unset')
+    if strcmpi(trade_i.status_,'closed')
         continue;
     end
     code_ctp = trade_i.code_;
