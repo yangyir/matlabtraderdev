@@ -19,14 +19,28 @@ classdef cOps < cMyTimerObj
         trades_@cTradeOpenArray
     end
     
+    properties (Access = private)
+        minute_count_@double = 0
+    end
+    
+    methods
+        function obj = cOps(varargin)
+            obj.name_ = 'myops';
+            obj.timer_interval_ = 0.5;
+            obj.display_ = true;
+        end
+    end
+    
     methods
         [] = init(obj,name,book)
         [] = refresh(obj,varargin)
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)
         pnl = calcrunningpnl(obj,varargin)
-        [closedpnl,runningpnl] = calcpnl(obj,varargin)
         [] = printrunningpnl(obj,varargin)
+        %
+        [ret] = savetradestofile(obj,varargin)
+        [ret] = loadtradesfromfile(obj,varargin)
     end
     
     methods (Access = private)
@@ -35,5 +49,7 @@ classdef cOps < cMyTimerObj
         %func 'updateentrustsandbook2' differs from 'updateentrustsandbook'
         %as it update the book from trades directly
         [] = updateentrustsandbook2(obj)
+        %
+        [ret] = displayinfo(obj,time,varargin)
     end
 end

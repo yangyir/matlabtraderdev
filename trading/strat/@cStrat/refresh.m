@@ -67,8 +67,8 @@ function [] = refresh(strategy,varargin)
     if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
         try
             if calcsignalflag
-                strategy.helper_.printrunningpnl('mdefut',strategy.mde_fut_);
-                strategy.helper_.printallentrusts;
+%                 strategy.helper_.printrunningpnl('mdefut',strategy.mde_fut_);
+%                 strategy.helper_.printallentrusts;
             end
         catch
         end
