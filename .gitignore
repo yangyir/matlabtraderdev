@@ -1,9 +1,10 @@
-
-
 # log files
+
 
 *.log
 
 
-# matalab generate files
+
+# matlab generate files
+
 *.asv
