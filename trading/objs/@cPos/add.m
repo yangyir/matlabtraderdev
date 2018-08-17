@@ -6,18 +6,22 @@ function [] = add(obj,varargin)
     p.addParameter('volume',[],@isnumeric);
     p.addParameter('time',now,@isnumeric);
     p.addParameter('closetodayflag',0,@isnumeric);
+    p.addParameter('lastbusinessdate',getlastbusinessdate,@isnumeric);
     p.parse(varargin{:});
     code_ctp = p.Results.code;
     px = p.Results.price;
+    if isempty(px), return; end
+    
     volume = p.Results.volume;
+    if volume == 0, return; end
+    
     time = p.Results.time;
     closetodayFlag = p.Results.closetodayflag;
+    lastbusinessdate = p.Results.lastbusinessdate;
     
     if ~strcmpi(code_ctp,obj.code_ctp_), error('cPos:add:invalid code input');end
     
     if px <= 0, error('cPos:add:invalid price input'); end
-    
-    if volume == 0, return; end
     
     direction_exist = obj.direction_;
     direction_new = sign(volume);
@@ -38,7 +42,7 @@ function [] = add(obj,varargin)
     end
     
     volume_total_new = volume_exist + volume;
-    if time > getlastbusinessdate
+    if time > lastbusinessdate
         if closeFlag && ~closetodayFlag
             %平仓但不是平今仓
             volume_exist_before = volume_exist - volume_today_exist;

@@ -7,6 +7,9 @@ classdef cPos < handle
         cob_date1_ = today
         cost_carry_@double
         cost_open_@double
+        %note:yangyiran:20180817
+        %property 'cost_carry_' may be removed later as it is not essential
+        %for either pnl or risk management, but only a demo purpose
     end
     
     properties (Dependent)

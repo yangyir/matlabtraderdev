@@ -2,6 +2,8 @@ function [] = printrunningpnl(obj,varargin)
     %note:yangyiran 20180815
     %instead of using obj.book_.positions_, we use obj.trades_ to pop-up
     %the latest positions
+    
+    %1.compute the close pnl
     closepnl = 0;
     for i = 1:obj.trades_.latest_
         if strcmpi(obj.trades_.node_(i).status_,'closed')
@@ -11,6 +13,7 @@ function [] = printrunningpnl(obj,varargin)
     
     positions = obj.trades_.convert2positions;
     
+    %2.compute the running pnl
     if isempty(positions)
         fprintf('\n本子-%s:close pnl:%s\n',obj.book_.bookname_,num2str(closepnl));
         fprintf('empty book......\n');
@@ -27,7 +30,7 @@ function [] = printrunningpnl(obj,varargin)
         return
     end
     
-    pnl = zeros(size(positions,1),1);
+    runningpnl = zeros(size(positions,1),1);
     fprintf('\n本子-%s:close pnl:%s\n',obj.book_.bookname_,num2str(closepnl));
     fprintf('%s%12s%10s%9s%10s%12s\n','合约','买卖','持仓','今仓','开仓均价','盈亏');
     for i = 1:size(positions,1)
@@ -39,12 +42,12 @@ function [] = printrunningpnl(obj,varargin)
         else
             dataformat = '%s%5s%11s%11s%15s%15s\n';
         end
-        pnl(i) = p.calc_pnl(varargin{:});
+        runningpnl(i) = p.calc_pnl(varargin{:});
         fprintf(dataformat,p.code_ctp_,num2str(p.direction_),...
             num2str(p.position_total_),...
             num2str(p.position_today_),...
             num2str(p.cost_open_),...
-            num2str(pnl(i)));
+            num2str(runningpnl(i)));
     end
     
 end
