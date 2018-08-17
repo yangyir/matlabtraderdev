@@ -10,6 +10,3 @@ while (true)
     pause(1);
 end
 qms_.logout();
-
-
-%qms_.init(qms_.test_env_dir);
