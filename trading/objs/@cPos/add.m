@@ -50,7 +50,7 @@ function [] = add(obj,varargin)
                 %如果昨仓大小比平仓大小大，今仓不变
                 volume_today_new = volume_today_exist;
             else
-                %如果昨仓已经被平完，要平部分进仓
+                %如果昨仓已经被平完，要平部分今仓
                 volume_today_new = volume_today_exist + (volume+volume_exist_before);
             end
         elseif closeFlag && closetodayFlag
