@@ -25,10 +25,19 @@ classdef cO32_H5 < cDataSource
         end
         %end of printinfo
         
-        function [ret] = login(obj,envDir)
+        function [ret] = login(obj,envType)
             if ~obj.isconnected_
                 mktlogout;
                 cur_dir = pwd;
+                switch (envType)
+                    case 'test'
+                        envDir = 'testEnv';
+                    case  'product'
+                        envDir = 'productEnv';
+                    otherwise 
+                        envDir = 'testEnv';
+                end
+
                 login_path = [fileparts(mfilename('fullpath')), '\',envDir];
                 cd(login_path)
                 obj.isconnected_ = mktlogin;
@@ -42,10 +51,11 @@ classdef cO32_H5 < cDataSource
         
         function [] = logout(obj)
             if obj.isconnected_
-                mdlogout;
+                mktlogout;
                 disp('log out successfully.');
+                obj.isconnected_ = 0;
             else
-                disp('is connect: ',obj.isconnected_);
+                disp(['is connect: ',num2str(obj.isconnected_)]);
             end
         end
         
@@ -62,12 +72,5 @@ classdef cO32_H5 < cDataSource
         
     end
     
-    %
-    enumeration
-        % test Env
-        test_env_dir('testEnv');
-        % production Env
-        production_env_dir('productEnv');
-
-    end
+    
 end
