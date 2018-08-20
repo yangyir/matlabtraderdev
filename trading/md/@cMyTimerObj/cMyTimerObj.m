@@ -9,12 +9,14 @@ classdef cMyTimerObj < handle
     
     properties (GetAccess = public, SetAccess = private)
         mm_02_30_@double = 150   % all derivatives stop trading
-        mm_02_40_@double = 160   % timer sleep 
-        mm_08_50_@double = 530   % timer wake up
+        mm_02_40_@double = 160   % timer sleeps 
+        mm_08_50_@double = 530   % timer wakes up
         mm_09_00_@double = 540   % derivatives start trading a.m 
         mm_11_30_@double = 690   % derivatives stop trading a.m 
         mm_13_00_@double = 780   % derivatives start trading p.m    
-        mm_15_15_@double = 915   % derivatives stop trading p.m 
+        mm_15_15_@double = 915   % derivatives stop trading p.m
+        mm_15_25_@double = 925   % timer sleeps again and wait for the evening session if there is any
+        mm_20_50_@double = 1250  % timer wakes up again for evening trading 
         mm_21_00_@double = 1260  % derivatives start trading evening 
     end
     

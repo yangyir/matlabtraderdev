@@ -15,7 +15,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             if isholiday(nextMonday)
                 mytimerobj.status_ = 'sleep';
             else
-                if mm <= mytimerobj.mm_02_30_
+                if mm < mytimerobj.mm_02_40_
                     mytimerobj.status_ = 'working';
                 else
                     mytimerobj.status_ = 'sleep';
@@ -27,12 +27,16 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             if isholiday(dnum)
                 mytimerobj.status_ = 'sleep';
             else
-                if (mm > mytimerobj.mm_02_40_ && mm <  mytimerobj.mm_08_50_) || ...
-                        (mm > mytimerobj.mm_11_30_ && mm < mytimerobj.mm_13_00_) || ...
-                        (mm > mytimerobj.mm_15_15_ && mm < mytimerobj.mm_21_00_)
+                if weekday(dtnum) == 2 && mm < mytimerobj.mm_08_50_
                     mytimerobj.status_ = 'sleep';
                 else
-                    mytimerobj.status_ = 'working';
+                    if (mm >= mytimerobj.mm_02_40_ && mm <  mytimerobj.mm_08_50_) || ...
+                            (mm > mytimerobj.mm_11_30_ && mm < mytimerobj.mm_13_00_) || ...
+                            (mm >= mytimerobj.mm_15_25_ && mm < mytimerobj.mm_20_50_)
+                        mytimerobj.status_ = 'sleep';
+                    else
+                        mytimerobj.status_ = 'working';
+                    end
                 end
             end
         end

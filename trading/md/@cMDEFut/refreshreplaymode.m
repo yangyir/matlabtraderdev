@@ -14,8 +14,8 @@ function [] = refreshreplaymode(mdefut)
             next_dt = mdefut.replay_datetimevec_(next_cnt);
             this_mm = minute(this_dt) + hour(this_dt)*60;
             next_mm = minute(next_dt) + hour(next_dt)*60;
-            if (next_mm - this_mm > 180 && (this_mm <= 915 &&this_mm >540)) || ...
-                    (this_cnt == next_cnt && (this_mm <= 915 &&this_mm >540))
+            if (next_mm - this_mm > 180 && (this_mm <= mdefut.mm_15_15_ &&this_mm >mdefut.mm_09_00_)) || ...
+                    (this_cnt == next_cnt && (this_mm <= mdefut.mm_15_15_ &&this_mm >mdefut.mm_09_00_))
                 %we can check whether the market is settled with 2
                 %different scenarios
                 %1.the next time point is more than 3 hours
@@ -25,27 +25,15 @@ function [] = refreshreplaymode(mdefut)
                 %2.the datetime vec has moved to the end and the
                 %last date point is before 3:15pm
                 mdefut.status_ = 'sleep';
-            else
-                if mdefut.newset_(1) && mdefut.candles_count_(1)-1 > 0
-                    %note:once newset_ is set to TRUE,
-                    %candles_count moves to the idx of the current
-                    %candle to be feeded in. As a result, the previous
-                    %candle has been fully feeded in.
-                    if mdefut.display_ == 1
-                        fprintf('reset time: %s\t',mdefut.replay_time2_);
-                        candleK = mdefut.candles_{1}(mdefut.candles_count_(1)-1,:);
-                        fprintf('set-K start:%s\t',datestr(candleK(1),'yyyy-mm-dd HH:MM:SS'));
-                        fprintf('set-K close:%s\n',num2str(candleK(5)));
-                    end
-                end
             end
+            %
         elseif strcmpi(mdefut.status_,'sleep')
             mm = minute(mdefut.replay_time1_) + 60*hour(mdefut.replay_time1_);
             %once the mdefut is asleep, it won't wake up until either
             %09:00pm or 09:00am on the next business date
-            if (mdefut.iseveningrequired_ && mm < 1260)
+            if (mdefut.iseveningrequired_ && mm < mdefut.mm_21_00_)
                 mdefut.status_ = 'sleep';
-            elseif mm < 540     %09:00am
+            elseif mm < mdefut.mm_09_00_     %09:00am
                 mdefut.status_ = 'sleep';
             else
                 mdefut.status_ = 'working';

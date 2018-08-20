@@ -65,9 +65,9 @@ function [] = updateentrustsandbook2(obj)
                 fprintf('executed entrust: %d at %s......\n',e.entrustNo,datestr(e.complete_time_,'yyyy-mm-dd HH:MM:SS'));
                 
                 %this entrust is fully placed and we shall update the book
-                obj.book_.addpositions('code',e.instrumentCode,'price',e.price,...
-                    'volume',e.direction*e.dealVolume,'time',e.complete_time_,...
-                    'closetodayflag',e.closetodayFlag);
+%                 obj.book_.addpositions('code',e.instrumentCode,'price',e.price,...
+%                     'volume',e.direction*e.dealVolume,'time',e.complete_time_,...
+%                     'closetodayflag',e.closetodayFlag);
 
                 % update trades as well
                 if e.offsetFlag == 1
@@ -109,8 +109,8 @@ function [] = updateentrustsandbook2(obj)
                     end
                 end
                 
-%                 positions = obj.trades_.convert2positions;
-%                 obj.book_.positions_ = positions;    
+                positions = obj.trades_.convert2positions;
+                obj.book_.positions_ = positions;    
                 
             elseif f0 && f1 && ~f2
                 % this entrust is canceled
