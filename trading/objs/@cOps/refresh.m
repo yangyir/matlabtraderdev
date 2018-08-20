@@ -15,22 +15,22 @@ function [] = refresh(obj,varargin)
 %         updateentrustsandbook(obj);
         updateentrustsandbook2(obj);
         %
-        if strcmpi(obj.mode_,'replay') && strcmpi(obj.status_,'working')
-            instruments = obj.mdefut_.qms_.instruments_.getinstrument;
-            lasttick = obj.mdefut_.getlasttick(instruments{1});
-            if isempty(lasttick), return; end
-            ticktime = lasttick(1);
-            if obj.displayinfo(ticktime) && obj.display_
-                fprintf('\nprint book info at:%s\n',datestr(ticktime,'yyyy-mm-dd HH:MM'))
-                obj.printrunningpnl('mdefut',obj.mdefut_);
-                obj.printpendingentrusts;
-            end
-            %
-            if strcmpi(obj.mdefut_.status_,'sleeping')
-                fprint('stop here\n');
-            end
-        else
-        end
+%         if strcmpi(obj.mode_,'replay') && strcmpi(obj.status_,'working')
+%             instruments = obj.mdefut_.qms_.instruments_.getinstrument;
+%             lasttick = obj.mdefut_.getlasttick(instruments{1});
+%             if isempty(lasttick), return; end
+%             ticktime = lasttick(1);
+%             if obj.displayinfo(ticktime) && obj.display_
+%                 fprintf('\nprint book info at:%s\n',datestr(ticktime,'yyyy-mm-dd HH:MM'))
+%                 obj.printrunningpnl('mdefut',obj.mdefut_);
+%                 obj.printpendingentrusts;
+%             end
+%             %
+%             if strcmpi(obj.mdefut_.status_,'sleeping')
+%                 fprint('stop here\n');
+%             end
+%         else
+%         end
         
     catch e
         msg = ['error:cOps:updateentrustsandbook:',e.message,'\n'];

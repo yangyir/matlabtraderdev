@@ -6,12 +6,10 @@ classdef cOps < cMyTimerObj
     % rule: one ops can be only linked to one book
     properties
         book_@cBook
-        
+        %
         entrusts_@EntrustArray
         entrustspending_@EntrustArray
         entrustsfinished_@EntrustArray
-        
-        display_@logical = false
         %
         mdefut_@cMDEFut
         mdeopt_@cMDEFut
@@ -19,15 +17,10 @@ classdef cOps < cMyTimerObj
         trades_@cTradeOpenArray
     end
     
-    properties (Access = private)
-        minute_count_@double = 0
-    end
-    
     methods
         function obj = cOps(varargin)
             obj.name_ = 'myops';
             obj.timer_interval_ = 0.5;
-            obj.display_ = true;
         end
     end
     
@@ -35,6 +28,9 @@ classdef cOps < cMyTimerObj
         [] = init(obj,name,book)
         [] = refresh(obj,varargin)
         [] = print(obj,varargin)
+        [] = savetofile(obj,varargin)
+        [] = loadfromfile(obj,varargin)
+        %
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)
         pnl = calcrunningpnl(obj,varargin)
@@ -51,6 +47,5 @@ classdef cOps < cMyTimerObj
         %as it update the book from trades directly
         [] = updateentrustsandbook2(obj)
         %
-        [ret] = displayinfo(obj,time,varargin)
     end
 end

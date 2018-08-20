@@ -5,12 +5,17 @@ classdef cMyTimerObj < handle
         status_@char = 'sleep'
         timer_@timer
         timer_interval_@double = 60  %refresh the mde every minute
+        %
         printflag_@logical = true
         print_timeinterval_@double = 60   %display the relative information every minute
+        %
+        fileioflag_@logical = true        %save/load data from file
     end
     
     properties (Access = private)
         print_bucket_@double = 0
+        flag_saved_@logical = false
+        flag_loaded_@logical = false
     end
       
     properties (GetAccess = public, SetAccess = private)
@@ -60,10 +65,28 @@ classdef cMyTimerObj < handle
             obj.print_bucket_ = val;
         end
         
+        function flag = getflagsaved(obj)
+            flag = obj.flag_saved_;
+        end
+        
+        function [] = setflagsaved(obj,val)
+            obj.flag_saved_ = val;
+        end
+        
+        function flag = getflagloaded(obj)
+            flag = obj.flag_loaded_;
+        end
+        
+        function [] = setflagloaded(obj,val)
+            obj.flag_loaded_ = val;
+        end
+        
     end
     
     methods (Abstract)
         [] = refresh(obj,varargin)
         [] = print(obj,varargin)
+        [] = savetofile(obj,varargin)
+        [] = loadfromfile(obj,varargin)
     end
 end

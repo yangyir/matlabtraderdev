@@ -1,12 +1,20 @@
 function [] = updateentrustsandbook2(obj)
 %cOps
     updateentrust = true;
-    n = obj.entrusts_.latest;
+    try
+        n = obj.entrusts_.latest;
+    catch
+        n = 0;
+    end
     % in case there is no placed entrusts at all, we dont need to update
     % entrust
     if n == 0, updateentrust = false; end
     
-    npending = obj.entrustspending_.latest;
+    try
+        npending = obj.entrustspending_.latest;
+    catch
+        npending = 0;
+    end
     % in case there is no pending entrusts, we dont need to update entrust
     if npending == 0, updateentrust = false; end
     

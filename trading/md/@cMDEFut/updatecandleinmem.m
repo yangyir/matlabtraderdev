@@ -69,12 +69,12 @@ function [] = updatecandleinmem(mdefut)
                 %candles_count moves to the idx of the current
                 %candle to be feeded in. As a result, the previous
                 %candle has been fully feeded in.
-                if mdefut.display_ == 1 && mdefut.candles_count_(i)-1 > 0
-                    fprintf('%8s: reset time: %s\t',instruments{i}.code_ctp,datestr(t,'yyyy-mm-dd HH:MM:SS'));
-                    candleK = mdefut.candles_{i}(mdefut.candles_count_(i)-1,:);
-                    fprintf('set-K start:%s\t',datestr(candleK(1),'yyyy-mm-dd HH:MM:SS'));
-                    fprintf('set-K close:%s\n',num2str(candleK(5)));
-                end
+%                 if mdefut.display_ == 1 && mdefut.candles_count_(i)-1 > 0
+%                     fprintf('%8s: reset time: %s\t',instruments{i}.code_ctp,datestr(t,'yyyy-mm-dd HH:MM:SS'));
+%                     candleK = mdefut.candles_{i}(mdefut.candles_count_(i)-1,:);
+%                     fprintf('set-K start:%s\t',datestr(candleK(1),'yyyy-mm-dd HH:MM:SS'));
+%                     fprintf('set-K close:%s\n',num2str(candleK(5)));
+%                 end
             else
                 newset = false;
                 mdefut.newset_(i) = newset;

@@ -5,18 +5,26 @@ function [] = printrunningpnl(obj,varargin)
     
     %1.compute the close pnl
     closepnl = 0;
-    for i = 1:obj.trades_.latest_
+    try
+        ntrades = obj.trades_.latest_;
+    catch
+        ntrades = 0;
+    end
+    for i = 1:ntrades
         if strcmpi(obj.trades_.node_(i).status_,'closed')
             closepnl = closepnl + obj.trades_.node_(i).closepnl_;
         end
     end
     
-    positions = obj.trades_.convert2positions;
+    try
+        positions = obj.trades_.convert2positions;
+    catch
+        positions = {};
+    end
     
     %2.compute the running pnl
     if isempty(positions)
-        fprintf('\n本子-%s:close pnl:%s\n',obj.book_.bookname_,num2str(closepnl));
-        fprintf('empty book......\n');
+        fprintf('\n%s->empty book;...close pnl:%s......\n',obj.book_.bookname_,num2str(closepnl));
         return
     end
     
@@ -25,13 +33,12 @@ function [] = printrunningpnl(obj,varargin)
         holding = holding + positions{i}.position_total_;
     end
     if holding == 0
-        fprintf('\n本子-%s:close pnl:%s\n',obj.book_.bookname_,num2str(closepnl));
-        fprintf('empty book......\n');
+        fprintf('\n%s->empty book;...close pnl:%s......\n',obj.book_.bookname_,num2str(closepnl));
         return
     end
     
     runningpnl = zeros(size(positions,1),1);
-    fprintf('\n本子-%s:close pnl:%s\n',obj.book_.bookname_,num2str(closepnl));
+    fprintf('\n%s->close pnl:%s\n',obj.book_.bookname_,num2str(closepnl));
     fprintf('%s%12s%10s%9s%10s%12s\n','合约','买卖','持仓','今仓','开仓均价','盈亏');
     for i = 1:size(positions,1)
         p = positions{i};

@@ -115,6 +115,10 @@ classdef cMDEFut < cMyTimerObj
         
         [] = print(obj,varargin)
         
+        [] = savetofile(obj,varargin)
+        
+        [] = loadfromfile(obj,varargin)
+        
         [] = savecandles2file(obj,dtnum)
         
         [] = printmarket(obj)

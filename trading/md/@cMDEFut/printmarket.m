@@ -12,8 +12,11 @@ function [] = printmarket(obj)
         return; 
     end
     
-    fprintf('最新市场报价:\n');
-    fprintf('%9s%9s%9s%9s\n','合约','买价','卖价','时间');
+    %todo:
+    %enrich printed information with last close and change
+    
+    fprintf('\nlatest market quotes:\n');
+    fprintf('%11s%11s%11s%12s\n','contract','bid','ask','time');
     for i = 1:n
         code = quotes{i}.code_ctp;
         bid = quotes{i}.bid1;
