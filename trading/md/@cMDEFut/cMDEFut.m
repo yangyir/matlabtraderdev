@@ -9,7 +9,6 @@ classdef cMDEFut < cMyTimerObj
     
     properties
         qms_@cQMS
-        display_@double = 0
         
         %real-time data
         ticks_@cell
@@ -113,6 +112,8 @@ classdef cMDEFut < cMyTimerObj
         [] = refresh(obj,varargin)
         
         [] = refreshreplaymode(obj)
+        
+        [] = print(obj,varargin)
         
         [] = savecandles2file(obj,dtnum)
         

@@ -4,13 +4,19 @@ classdef cMyTimerObj < handle
         mode_@char = 'realtime'
         status_@char = 'sleep'
         timer_@timer
-        timer_interval_@double = 60  %refresh the mde every minute 
+        timer_interval_@double = 60  %refresh the mde every minute
+        printflag_@logical = true
+        print_timeinterval_@double = 60   %display the relative information every minute
     end
     
+    properties (Access = private)
+        print_bucket_@double = 0
+    end
+      
     properties (GetAccess = public, SetAccess = private)
         mm_02_30_@double = 150   % all derivatives stop trading
-        mm_02_40_@double = 160   % timer sleeps 
-        mm_08_50_@double = 530   % timer wakes up
+        mm_02_40_@double = 160   % timer sleeps during the night
+        mm_08_50_@double = 530   % timer wakes up in the morning
         mm_09_00_@double = 540   % derivatives start trading a.m 
         mm_11_30_@double = 690   % derivatives stop trading a.m 
         mm_13_00_@double = 780   % derivatives start trading p.m    
@@ -44,10 +50,20 @@ classdef cMyTimerObj < handle
         [] = replay_timer_fcn(obj,~,event)
         [] = start_timer_fcn(~,~,event)
         [] = stop_timer_fcn(~,~,event)
+        [flag] = issleep(obj,t)
+        
+        function printbucket = getprintbucket(obj)
+            printbucket = obj.print_bucket_;
+        end
+        
+        function [] = setprintbucket(obj,val)
+            obj.print_bucket_ = val;
+        end
         
     end
     
     methods (Abstract)
         [] = refresh(obj,varargin)
+        [] = print(obj,varargin)
     end
 end
