@@ -38,12 +38,12 @@ function [] = refreshreplaymode(mdefut)
             else
                 mdefut.status_ = 'working';
             end
-            if mdefut.display_ && strcmpi(mdefut.status_,'sleep')
-                fprintf('time:%s; status:%s\n',mdefut.replay_time2_,mdefut.status_);
-            end
+%             if mdefut.printflag_ && strcmpi(mdefut.status_,'sleep')
+%                 fprintf('time:%s; status:%s\n',mdefut.replay_time2_,mdefut.status_);
+%             end
             %in case the mdefut is sleeping, we move the replay
             %time minute by minute
-            mdefut.replay_time1_ = mdefut.replay_time1_ + mdefut.candle_freq_(1)/60/24;
+            mdefut.replay_time1_ = mdefut.replay_time1_ + mdefut.print_timeinterval_/86400;
             mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
         end
     end
@@ -54,17 +54,17 @@ function [] = refreshreplaymode(mdefut)
         if mdefut.replay_count_ > size(mdefut.replay_datetimevec_,1)
             %once all the tick data is passed, we shall just stop
             %the mdefut
-            if mdefut.candlesaveflag_
-                [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
-                coldefs = {'datetime','open','high','low','close'};
-                dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
-                fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
-                if mdefut.display_ == 1
-                    fprintf('save intraday candle of %s on %s...\n',...
-                        code,mdefut.replay_date2_);
-                end
-                cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
-            end
+%             if mdefut.candlesaveflag_
+%                 [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
+%                 coldefs = {'datetime','open','high','low','close'};
+%                 dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
+%                 fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
+%                 if mdefut.display_ == 1
+%                     fprintf('save intraday candle of %s on %s...\n',...
+%                         code,mdefut.replay_date2_);
+%                 end
+%                 cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
+%             end
             %
             mdefut.stop;
             fprintf('replay finishes!...\n');
@@ -74,16 +74,16 @@ function [] = refreshreplaymode(mdefut)
         if mdefut.replay_count_ > size(mdefut.replay_datetimevec_,1)
             [~,idx] = mdefut.replayer_.instruments_.hasinstrument(code);
             [~,idx2] = mdefut.qms_.instruments_.hasinstrument(code);
-            if mdefut.candlesaveflag_
-                coldefs = {'datetime','open','high','low','close'};
-                dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
-                fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
-                if mdefut.display_ == 1
-                    fprintf('save intraday candle of %s on %s...\n',...
-                        code,mdefut.replay_date2_);
-                end
-                cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
-            end
+%             if mdefut.candlesaveflag_
+%                 coldefs = {'datetime','open','high','low','close'};
+%                 dir_ = [getenv('HOME'),'trading\objs\@cReplayer\'];
+%                 fn_ = [dir_,code,'_',datestr(mdefut.replay_date1_,'yyyymmdd'),'_1m.txt'];
+%                 if mdefut.printflag_
+%                     fprintf('save intraday candle of %s on %s...\n',...
+%                         code,mdefut.replay_date2_);
+%                 end
+%                 cDataFileIO.saveDataToTxtFile(fn_,mdefut.candles4save_{idx2},coldefs,'w',true);
+%             end
             %once all the tick data is passed for one business date
             %in multiday mode, we shall jump to the next business
             %date
@@ -116,7 +116,7 @@ function [] = refreshreplaymode(mdefut)
     %
     %
     %
-    if mdefut.display_ == 1 && mdefut.replay_count_ == 1
+    if mdefut.printflag_ == 1 && mdefut.replay_count_ == 1
         fprintf('replay date now: %s\n',mdefut.replay_date2_);
     end
     

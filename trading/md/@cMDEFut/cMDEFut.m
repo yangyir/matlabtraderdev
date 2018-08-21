@@ -25,11 +25,11 @@ classdef cMDEFut < cMyTimerObj
         %
         replayer_@cReplayer
         replay_datetimevec_@double
-        replay_count_@double = 0
-        replay_date1_@double
-        replay_date2_@char
-        replay_time1_@double
-        replay_time2_@char
+%         replay_count_@double = 0
+%         replay_date1_@double
+%         replay_date2_@char
+%         replay_time1_@double
+%         replay_time2_@char
         %
         datenum_open_@cell
         datenum_close_@cell
@@ -116,6 +116,7 @@ classdef cMDEFut < cMyTimerObj
         [] = savetrades(obj,varargin)
         [] = loadmktdata(obj,varargin)
         [] = loadtrades(obj,varargin)
+        [t] = getreplaytime(obj,varargin)
         %
         [] = refreshreplaymode(obj)
                 

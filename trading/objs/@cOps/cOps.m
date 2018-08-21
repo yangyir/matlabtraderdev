@@ -33,6 +33,7 @@ classdef cOps < cMyTimerObj
         [] = savetrades(obj,varargin)
         [] = loadmktdata(obj,varargin)
         [] = loadtrades(obj,varargin)
+        [t] = getreplaytime(obj,varargin)
         %
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)

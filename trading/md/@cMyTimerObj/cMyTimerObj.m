@@ -12,6 +12,12 @@ classdef cMyTimerObj < handle
         fileioflag_@logical = true        %save/load data from file
         savedir_@char                     %directory to save data/information
         loaddir_@char                     %directory to load data/information
+        %
+        replay_count_@double = 0
+        replay_date1_@double
+        replay_date2_@char
+        replay_time1_@double
+        replay_time2_@char
     end
     
     properties (Access = private)
@@ -97,5 +103,6 @@ classdef cMyTimerObj < handle
         [] = savetrades(obj,varargin)
         [] = loadmktdata(obj,varargin)
         [] = loadtrades(obj,varargin)
+        [t] = getreplaytime(obj,varargin)
     end
 end
