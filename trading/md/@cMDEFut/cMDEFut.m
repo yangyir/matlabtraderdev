@@ -59,6 +59,7 @@ classdef cMDEFut < cMyTimerObj
     methods
         function obj = cMDEFut
             obj.qms_ = cQMS;
+            obj.timer_interval_ = 0.5;
         end
     end
     
@@ -110,15 +111,14 @@ classdef cMDEFut < cMyTimerObj
         [] = registerinstrument(obj,instrument)
         
         [] = refresh(obj,varargin)
-        
-        [] = refreshreplaymode(obj)
-        
         [] = print(obj,varargin)
-        
-        [] = savetofile(obj,varargin)
-        
-        [] = loadfromfile(obj,varargin)
-        
+        [] = savemktdata(obj,varargin)
+        [] = savetrades(obj,varargin)
+        [] = loadmktdata(obj,varargin)
+        [] = loadtrades(obj,varargin)
+        %
+        [] = refreshreplaymode(obj)
+                
         [] = savecandles2file(obj,dtnum)
         
         [] = printmarket(obj)

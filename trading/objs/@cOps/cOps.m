@@ -26,18 +26,19 @@ classdef cOps < cMyTimerObj
     
     methods
         [] = init(obj,name,book)
+        %
         [] = refresh(obj,varargin)
         [] = print(obj,varargin)
-        [] = savetofile(obj,varargin)
-        [] = loadfromfile(obj,varargin)
+        [] = savemktdata(obj,varargin)
+        [] = savetrades(obj,varargin)
+        [] = loadmktdata(obj,varargin)
+        [] = loadtrades(obj,varargin)
         %
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)
         pnl = calcrunningpnl(obj,varargin)
         [] = printrunningpnl(obj,varargin)
         %
-        [ret] = savetradestofile(obj,varargin)
-        [ret] = loadtradesfromfile(obj,varargin)
     end
     
     methods (Access = private)

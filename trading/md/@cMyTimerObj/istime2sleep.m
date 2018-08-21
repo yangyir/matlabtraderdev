@@ -1,4 +1,4 @@
-function [flag] = issleep(obj,t)
+function [flag] = istime2sleep(obj,t)
     if isnumeric(t)
         tnum = t;
     else

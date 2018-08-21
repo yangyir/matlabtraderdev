@@ -10,6 +10,8 @@ classdef cMyTimerObj < handle
         print_timeinterval_@double = 60   %display the relative information every minute
         %
         fileioflag_@logical = true        %save/load data from file
+        savedir_@char                     %directory to save data/information
+        loaddir_@char                     %directory to load data/information
     end
     
     properties (Access = private)
@@ -55,7 +57,12 @@ classdef cMyTimerObj < handle
         [] = replay_timer_fcn(obj,~,event)
         [] = start_timer_fcn(~,~,event)
         [] = stop_timer_fcn(~,~,event)
-        [flag] = issleep(obj,t)
+        [flag] = istime2sleep(obj,t)
+        [flag] = istime2print(obj,t)
+        [flag] = istime2savemktdata(obj,t)
+        [flag] = istime2savetrades(obj,t)
+        [flag] = istime2loadmktdata(obj,t)
+        [flag] = istime2loadtrades(obj,t)
         
         function printbucket = getprintbucket(obj)
             printbucket = obj.print_bucket_;
@@ -86,7 +93,9 @@ classdef cMyTimerObj < handle
     methods (Abstract)
         [] = refresh(obj,varargin)
         [] = print(obj,varargin)
-        [] = savetofile(obj,varargin)
-        [] = loadfromfile(obj,varargin)
+        [] = savemktdata(obj,varargin)
+        [] = savetrades(obj,varargin)
+        [] = loadmktdata(obj,varargin)
+        [] = loadtrades(obj,varargin)
     end
 end

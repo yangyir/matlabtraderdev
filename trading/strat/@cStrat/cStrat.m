@@ -186,9 +186,28 @@ classdef cStrat < cMyTimerObj
         pnl = calcrunningpnl(obj,instrument)
         
         [] = refresh(obj,varargin)
+        [] = print(obj,varargin)
         
     end
     %end of trading-related methods
+    
+    methods
+        function [] = savemktdata(obj,varargin)
+            variablenotused(obj);
+        end
+        
+        function [] = savetrades(obj,varargin)
+            variablenotused(obj);
+        end
+        
+        function [] = loadmktdata(obj,varargin)
+            variablenotused(obj);
+        end
+        
+        function [] = loadtrades(obj,varargin)
+            variablenotused(obj);
+        end
+    end
     
     %mdefut-related methods
     methods
