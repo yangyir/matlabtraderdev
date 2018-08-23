@@ -5,6 +5,10 @@ function [flag] = istime2print(obj,t)
     secondsbuckets = 0:printtimeinterval:secondsperday;
     
     thissecond = 3600*hour(t)+60*minute(t)+second(t);
+    if thissecond == 0
+        flag = false;
+        return
+    end
     
     idx = secondsbuckets(1:end-1) < thissecond & secondsbuckets(2:end) >= thissecond;
     

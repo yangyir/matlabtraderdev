@@ -37,14 +37,20 @@ function [] = refreshreplaymode(mdefut)
                 mdefut.status_ = 'sleep';
             else
                 mdefut.status_ = 'working';
+                mdefut.replay_count_ = mdefut.replay_count_ + 1;
+                this_cnt = mdefut.replay_count_;
+                mdefut.replay_time1_ = mdefut.replay_datetimevec_(this_cnt);
+                mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
             end
 %             if mdefut.printflag_ && strcmpi(mdefut.status_,'sleep')
 %                 fprintf('time:%s; status:%s\n',mdefut.replay_time2_,mdefut.status_);
 %             end
             %in case the mdefut is sleeping, we move the replay
             %time minute by minute
-            mdefut.replay_time1_ = mdefut.replay_time1_ + mdefut.print_timeinterval_/86400;
-            mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
+            if strcmpi(mdefut.status_,'sleep')
+                mdefut.replay_time1_ = mdefut.replay_time1_ + mdefut.print_timeinterval_/86400;
+                mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
+            end
         end
     end
     %
