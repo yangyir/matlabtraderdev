@@ -34,6 +34,11 @@ function [] = printmarket(obj)
             fprintf('error:cMDEFut:printmarket:no quote returns...\n');
             return;
         end
+        
+        if isempty(obj.ticks_)
+            return
+        end
+        
         fprintf('\nlatest market quotes (replay):\n');
         fprintf('%11s%11s%11s%12s\n','contract','bid','ask','time');
         for i = 1:n
