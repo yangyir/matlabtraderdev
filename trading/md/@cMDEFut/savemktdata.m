@@ -45,5 +45,20 @@ function [] = savemktdata(obj,varargin)
 %     if ~isempty(obj.candles_), obj.candles_ = {};end
     if ~isempty(obj.candles4save_), obj.candles4save_ = {};end
 %     if ~isempty(obj.hist_candles_), obj.hist_candles_ = {};end
+
+    if strcmpi(obj.mode_,'replay')
+        try
+            if strcmpi(obj.replayer_.mode_,'singleday')
+                obj.stop;
+            elseif strcmpi(obj.replayer_.mode_,'multiday')
+                if obj.replayer_.multidayidx_ >= size(obj.replayer_.multidayfiles_,1)
+                    obj.stop;
+                end
+            end
+        catch e
+            fprintf('cMDEFut:savemktdata:internal error:%s\n',e.message);
+        end
+        
+    end
     
 end

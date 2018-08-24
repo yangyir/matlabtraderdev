@@ -44,6 +44,7 @@ function [] = printmarket(obj)
         for i = 1:n
             code = instruments{i}.code_ctp;
             lasttick = obj.getlasttick(instruments{i});
+            if isempty(lasttick), continue;end
             bid = lasttick(2);
             ask = lasttick(3);
             timet = datestr(lasttick(1),'HH:MM:SS');

@@ -2,8 +2,6 @@ clc;
 clear;
 mdefut = cMDEFut;
 mdefut.timer_interval_ = 0.005;
-mdefut.display_ = 1;
-mdefut.candlesaveflag_ = true;
 %%
 code = 'T1809';
 instr = code2instrument(code);
@@ -22,9 +20,7 @@ mdefut.initreplayer('code',code,'filenames',replay_filenames);
 
 %% start the trading (replay) process
 mdefut.start;
-%% check when the mdefut is running 
-lasttick = mdefut.getlasttick(code);
-fprintf('time:%s; trade:%s\n',datestr(lasttick(1)),num2str(lasttick(4)));
+
 %% delete all in a safe way
 try
     mdefut.stop;
@@ -33,9 +29,14 @@ catch
     clear all;
     fprintf('all deleted\n');
 end
+
 %% compare the mdefut saved candle with the one downloaded from database directly
 clc;
-dir_mdefut = [getenv('HOME'),'trading\objs\@cReplayer\'];
+if isempty(mdefut.savedir_)
+    dir_mdefut = ['C:\yangyiran\mdefut\save\intradaybar\',code,'\'];
+else
+    dir_mdefut = [mdefut.savedir_,'intradaybar\',code,'\'];
+end
 dir_db = [getenv('DATAPATH'),'intradaybar\',code,'\'];
 results = zeros(size(replay_dates,1),1);
 

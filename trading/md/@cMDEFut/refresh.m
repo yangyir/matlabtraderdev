@@ -47,8 +47,9 @@ function [] = refresh(mdefut,varargin)
                         this_mm = minute(this_dt) + hour(this_dt)*60;
                         next_mm = minute(next_dt) + hour(next_dt)*60;
                         if next_mm - this_mm >= 60
+                            mdefut.saveticks2mem;
+                            mdefut.updatecandleinmem;
                             mdefut.replay_time1_ = mdefut.replay_time1_ + mdefut.print_timeinterval_/86400;
-                            mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
                             %move to the next point
                             mdefut.replay_count_ = mdefut.replay_count_ + 1;
                         else
@@ -56,8 +57,8 @@ function [] = refresh(mdefut,varargin)
                             mdefut.updatecandleinmem;
                             mdefut.replay_count_ = mdefut.replay_count_ + 1;
                             mdefut.replay_time1_ = mdefut.replay_datetimevec_(mdefut.replay_count_);
-                            mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
                         end
+                        mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
                     end
                 else
                     %the current replay_time1_ is not one of the data point

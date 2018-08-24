@@ -15,7 +15,7 @@ classdef cMDEFut < cMyTimerObj
         candles_@cell
         candle_freq_@double
         candles4save_@cell
-        candlesaveflag_@logical = false
+%         candlesaveflag_@logical = false
         %historical data,which is used for technical indicator calculation
         hist_candles_@cell
         

@@ -26,7 +26,7 @@ classdef cMyTimerObj < handle
         flag_loaded_@logical = false
     end
       
-    properties (GetAccess = public, SetAccess = private)
+    properties (GetAccess = private, SetAccess = private)
         mm_02_30_@double = 150   % all derivatives stop trading
         mm_02_40_@double = 160   % timer sleeps during the night
         mm_08_50_@double = 530   % timer wakes up in the morning
