@@ -9,14 +9,14 @@ function [flag] = istime2sleep(obj,t)
     
     %market definitely closes on public holidays
     if isholiday(dnum)
-%        obj.status_ = 'sleep';
+       obj.status_ = 'sleep';
        flag = true;
        return
     end
     
     %market definitely closes on Sundays
     if weekday(tnum) == 1
-%        obj.status_ = 'sleep';
+       obj.status_ = 'sleep';
        flag = true;
        return
     end
@@ -29,16 +29,16 @@ function [flag] = istime2sleep(obj,t)
    %the next Monday is a public holiday
    if weekday(tnum) == 7    
        if mm >= obj.mm_02_40_
-%            obj.status_ = 'sleep';
+           obj.status_ = 'sleep';
            flag = true;
        else
            dnum = floor(dtnum);
            nextMonday = dnum + 2;
            if isholiday(nextMonday)
-%                obj.status_ = 'sleep';
+               obj.status_ = 'sleep';
                flag = true;
            else
-%                obj.status_ = 'working';
+               obj.status_ = 'working';
                flag = false;
            end
        end
@@ -49,7 +49,7 @@ function [flag] = istime2sleep(obj,t)
    if weekday(tnum) == 6
        nextMonday = dnum + 3;
        if isholiday(nextMonday) && mm >= obj.mm_15_25_
-%            obj.status_ = 'sleep';
+           obj.status_ = 'sleep';
            flag = true;
            return
        end
@@ -58,7 +58,7 @@ function [flag] = istime2sleep(obj,t)
    %market reopens on 9:00 am every week and mytimerobj restarts to work
    %from 8:50 am on Mondays
    if weekday(tnum) == 2 && mm < obj.mm_08_50_
-%        obj.status_ = 'sleep';
+       obj.status_ = 'sleep';
        flag = true;
        return
    end
@@ -69,10 +69,10 @@ function [flag] = istime2sleep(obj,t)
    if (mm >= obj.mm_02_40_ && mm <  obj.mm_08_50_) || ...
            (mm > obj.mm_11_30_ && mm < obj.mm_13_00_) || ...
            (mm >= obj.mm_15_25_ && mm < obj.mm_20_50_)
-%        obj.status_ = 'sleep';
+       obj.status_ = 'sleep';
        flag = true;
    else
-%        obj.status_ = 'working';
+       obj.status_ = 'working';
        flag = false;
    end
        
