@@ -2,10 +2,11 @@ function [t] = getreplaytime(obj,varargin)
     if ~strcmpi(obj.mode_,'replay'), t = []; return;end
     
     if isempty(obj.mdefut_) && isempty(obj.mdeopt_)
-        t = now;
-        obj.replay_date1_ = floor(t);
+        if isempty(obj.replay_time1_), obj.replay_time1_ = now; end
+        t = obj.replay_time1_;
+        obj.replay_time1_ = t + 0.5/86400;
+        obj.replay_date1_ = floor(obj.replay_time1_);
         obj.replay_date2_ = datestr(obj.replay_date1_,'yyyy-mm-dd');
-        obj.replay_time1_ = t;
         obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
         return
     end

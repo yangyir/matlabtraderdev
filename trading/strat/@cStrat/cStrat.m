@@ -34,7 +34,7 @@ classdef cStrat < cMyTimerObj
         trader_@cTrader
         helper_@cOps
         bookrunning_@cBook
-        bookbase_@cBook
+%         bookbase_@cBook
         counter_@CounterCTP
         
     end
@@ -186,12 +186,15 @@ classdef cStrat < cMyTimerObj
         pnl = calcrunningpnl(obj,instrument)
         
         [] = refresh(obj,varargin)
-        [] = print(obj,varargin)
         
     end
     %end of trading-related methods
     
     methods
+        function [] = print(obj,varargin)
+            variablenotused(obj);
+        end
+        
         function [] = savemktdata(obj,varargin)
             variablenotused(obj);
         end
@@ -207,6 +210,8 @@ classdef cStrat < cMyTimerObj
         function [] = loadtrades(obj,varargin)
             variablenotused(obj);
         end
+        
+        [t] = getreplaytime(obj,varargin)
     end
     
     %mdefut-related methods

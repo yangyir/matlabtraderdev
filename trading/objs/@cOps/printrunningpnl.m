@@ -24,7 +24,11 @@ function [] = printrunningpnl(obj,varargin)
     
     %2.compute the running pnl
     if isempty(positions)
-        fprintf('\n%s->empty book;...close pnl:%s......\n',obj.book_.bookname_,num2str(closepnl));
+        if strcmpi(obj.mode_,'realtime')
+            fprintf('\n%s->empty book;...close pnl:%s...time:%s.......\n',obj.book_.bookname_,num2str(closepnl),datestr(now,'yyyy-mm-dd HH:MM:SS'));
+        else
+            fprintf('\n%s->empty book;...close pnl:%s...time:%s.......\n',obj.book_.bookname_,num2str(closepnl),obj.replay_time2_);
+        end
         return
     end
     
@@ -33,12 +37,20 @@ function [] = printrunningpnl(obj,varargin)
         holding = holding + positions{i}.position_total_;
     end
     if holding == 0
-        fprintf('\n%s->empty book;...close pnl:%s......\n',obj.book_.bookname_,num2str(closepnl));
+        if strcmpi(obj.mode_,'realtime')
+            fprintf('\n%s->empty book;...close pnl:%s...time:%s......\n',obj.book_.bookname_,num2str(closepnl),datestr(now,'yyyy-mm-dd HH:MM:SS'));
+        else
+            fprintf('\n%s->empty book;...close pnl:%s...time:%s......\n',obj.book_.bookname_,num2str(closepnl),obj.replay_time2_);
+        end
         return
     end
     
     runningpnl = zeros(size(positions,1),1);
-    fprintf('\n%s->close pnl:%s\n',obj.book_.bookname_,num2str(closepnl));
+    if strcmpi(obj.mode_,'realtime')
+        fprintf('\n%s->close pnl:%s;time:%s\n',obj.book_.bookname_,num2str(closepnl),datestr(now,'yyyy-mm-dd HH:MM:SS'));
+    else
+        fprintf('\n%s->close pnl:%s;time:%s\n',obj.book_.bookname_,num2str(closepnl),obj.replay_time2_);
+    end
     fprintf('%s%12s%10s%9s%10s%12s\n','合约','买卖','持仓','今仓','开仓均价','盈亏');
     for i = 1:size(positions,1)
         p = positions{i};

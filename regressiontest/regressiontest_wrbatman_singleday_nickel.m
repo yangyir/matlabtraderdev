@@ -61,7 +61,6 @@ clc;
 fprintf('replay get ready......\n');
 %%
 clc;
-replay_strat.mde_fut_.display_ = 0;
 replay_strat.start;
 replay_strat.helper_.start; 
 replay_strat.mde_fut_.start;

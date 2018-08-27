@@ -6,12 +6,23 @@ function [] = loadtrades(obj,varargin)
     p.addParameter('Time',now,@isnumeric);
     p.addParameter('FileName','',@ischar);
     p.addParameter('CounterName','',@ischar);
-    p.addParameter('BookName','',@ischar);    
+    p.addParameter('BookName','',@ischar);
+    p.addParameter('Override',false,@islogical);
     p.parse(varargin{:});
     t = p.Results.Time;
     filename = p.Results.FileName;
     countername = p.Results.CounterName;
     bookname = p.Results.BookName;
+    overrideflag = p.Results.Override;
+    
+    if ~overrideflag
+        try
+            ntrades = obj.trades_.latest_;
+        catch
+            ntrades = 0;
+        end
+        if ntrades > 0, return; end
+    end
     
     if isempty(countername)
         try
@@ -60,7 +71,7 @@ function [] = loadtrades(obj,varargin)
     obj.entrustspending_ = EntrustArray;
     obj.entrustsfinished_ = EntrustArray;
     obj.trades_ = trades;
-    
+   
     fprintf('cOps:loadtrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
     
     

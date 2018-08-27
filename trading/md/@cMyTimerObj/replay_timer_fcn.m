@@ -10,19 +10,11 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
     %defined in the class for replay mode
     if strcmpi(mytimerobj.mode_,'realtime')
         if ~flag
-%             mytimerobj.status_ = 'sleep';
-%         else
-%             mytimerobj.status_ = 'working';
             mytimerobj.refresh;
         end
     else
         %note, the replay time is updated via the refresh function in
         %replay mode
-%         if flag
-%             mytimerobj.status_ = 'sleep';
-%         else
-%             mytimerobj.status_ = 'working';
-%         end
         mytimerobj.refresh;
     end
     
