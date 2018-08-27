@@ -9,7 +9,7 @@ function [] = savetrades(obj,varargin)
     t = p.Results.Time;
     
     try
-        ntrades = obj.trades.latest_;
+        ntrades = obj.trades_.latest_;
     catch
         ntrades = 0;
     end
@@ -31,8 +31,8 @@ function [] = savetrades(obj,varargin)
             mkdir(dir_data_);
         end
         fn_ = [dir_data_,bookname_,'_trades_',datestr(t,'yyyymmdd'),'.txt'];
-        obj.trades.totxt(fn_);
-        fprintf('ops:savetrades on %s......\n',datestr(dtnum,'yyyy-mm-dd HH:MM:SS'));
+        obj.trades_.totxt(fn_);
+        fprintf('cOps:savetrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
         obj.entrusts_ = EntrustArray;
         obj.entrusts_ = EntrustArray;
         obj.entrustspending_ = EntrustArray;
