@@ -42,9 +42,9 @@ function calcflag = getcalcsignalflag(obj,instrument)
         end
         %
         if ~isempty(this_count)
-            if this_count ~= obj.bucket_count_(idx_instrument)
+            if this_count ~= obj.calsignal_bucket_(idx_instrument)
                 strategy.calcsignal_(idx_instrument) = 1;
-                obj.bucket_count_(idx_instrument) = this_count;
+                obj.calsignal_bucket_(idx_instrument) = this_count;
                 fprintf('\ncalc signal at:%s\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
             else
                 strategy.calcsignal_(idx_instrument) = 0;

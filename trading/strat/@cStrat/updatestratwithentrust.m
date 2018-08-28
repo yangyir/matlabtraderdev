@@ -1,9 +1,14 @@
 function [] = updatestratwithentrust(strategy,e)
-    if isempty(strategy.counter_), return; end
+%note:we shall move this function to cOps as it is more like an ops'
+%behavior
+    if isempty(strategy.helper_), return; end
+    counter = strategy.helper_.book_.counter_;
+    if isempty(counter), return; end
     if ~isa(e,'Entrust'), return; end
 
     if strcmpi(strategy.mode_,'realtime')
-        f0 = strategy.counter_.queryEntrust(e);
+%         f0 = strategy.counter_.queryEntrust(e);
+        f0 = counter.queryEntrust(e);
         f1 = e.is_entrust_closed;
         f2 = e.dealVolume > 0;
     elseif strcmpi(strategy.mode_,'replay')

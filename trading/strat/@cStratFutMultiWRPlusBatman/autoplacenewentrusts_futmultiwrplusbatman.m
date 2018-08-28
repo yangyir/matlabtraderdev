@@ -1,4 +1,5 @@
 function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
+    if isempty(obj.helper_), error('cStrat::autoplacenewentrusts::missing helper');end
     for i = 1:size(signals,1)
         signal = signals{i};
         %to check whether this is a valid signal
@@ -13,12 +14,17 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         if ~obj.autotrade_(ii),continue;end
         
         %to check whether position for the instrument exists,
-        [flag,idx] = obj.bookrunning_.hasposition(instrument);
+        try
+            [flag,idx] = obj.helper_.book_.hasposition(instrument);
+        catch
+            flag = false;
+            idx = 0;
+        end
         if ~flag
             volume_exist = 0;
 %             direction_exist = 0;
         else
-            pos = obj.bookrunning_.positions_{idx};
+            pos = obj.helper_.book_.positions_{idx};
             volume_exist = pos.position_total_;
 %             direction_exist = pos.direction_;
         end
@@ -51,8 +57,12 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         if strcmpi(obj.mode_,'realtime')
             ordertime = now;
         else
-            tick = obj.mde_fut_.getlasttick(instrument);
-            ordertime = tick(1);
+            try
+                tick = obj.mde_fut_.getlasttick(instrument);
+                ordertime = tick(1);
+            catch
+                ordertime = obj.replay_time1_;
+            end
         end
         highestprice = signal.highesthigh;
         lowestprice = signal.lowestlow;

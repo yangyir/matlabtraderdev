@@ -1,10 +1,20 @@
 function [] = refresh(strategy,varargin)
+    %note:cStrat::refresh
+    %add sanity check
+    if isempty(strategy.mde_fut_) && isempty(strategy.mde_opt_)
+        strategy.stop;
+        error('cStrat:refresh:mdefut or mdeopt not registed in strategy......\n')
+    end
     
     if ~isempty(strategy.mde_fut_)
-        if strcmpi(strategy.mde_fut_.status_,'sleep')
-            return
-        end
+        if strcmpi(strategy.mde_fut_.status_,'sleep'), return; end
     end
+    
+    p = inputParser;
+    p.CaseSensitive = false; p.KeepUnmatched = true;
+    p.addParameter('Time',now,@isnumeric);
+    p.parse(varargin{:});
+    t = p.Results.Time;
     
     inst = strategy.instruments_.getinstrument;
     try
@@ -16,7 +26,7 @@ function [] = refresh(strategy,varargin)
     %
     try
         if strcmpi(strategy.mode_,'realtime')
-            strategy.riskmanagement(now);
+            strategy.riskmanagement(t);
         elseif strcmpi(strategy.mode_,'replay')
             tick = strategy.mde_fut_.getlasttick(inst{1});
             %note:stratety might run in front of the mdefut and thus tick
@@ -42,6 +52,7 @@ function [] = refresh(strategy,varargin)
             %second tick arrives.
             try
                 calcsignalflag = strategy.getcalcsignalflag(inst{1});
+%                 calcsignalflag = strategy.istime2calcsignal(t);
             catch e
                 msg = ['error:cStrat:getcalcsignalflag:',e.message,'\n'];
                 fprintf(msg);
@@ -64,14 +75,14 @@ function [] = refresh(strategy,varargin)
         fprintf(msg);
     end
     
-    if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
-        try
-            if calcsignalflag
-%                 strategy.helper_.printrunningpnl('mdefut',strategy.mde_fut_);
-%                 strategy.helper_.printallentrusts;
-            end
-        catch
-        end
-    end
+%     if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
+%         try
+%             if calcsignalflag
+% %                 strategy.helper_.printrunningpnl('mdefut',strategy.mde_fut_);
+% %                 strategy.helper_.printallentrusts;
+%             end
+%         catch
+%         end
+%     end
         
 end

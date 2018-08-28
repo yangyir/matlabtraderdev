@@ -33,9 +33,10 @@ classdef cStrat < cMyTimerObj
         %
         trader_@cTrader
         helper_@cOps
-        bookrunning_@cBook
-%         bookbase_@cBook
-        counter_@CounterCTP
+%         bookrunning_@cBook
+%         counter_@CounterCTP
+        %
+        calcsignal_interval_@double = 60
         
     end
     
@@ -49,9 +50,19 @@ classdef cStrat < cMyTimerObj
         
     end
     
-    properties (Access = public)
-        %note:to change back later to private
-        bucket_count_@double
+    properties (Access = private)
+%         bucket_count_@double
+        calsignal_bucket_@double
+    end
+    
+    methods
+        function [] = setcalcsignalbucket(obj,val)
+            obj.calsignal_bucket_ = val;
+        end
+        
+        function calcsignalbucket = getcalcsignalbucket(obj)
+            calcsignalbucket = obj.calsignal_bucket_;
+        end
     end
 
     %set/get methods
@@ -74,15 +85,17 @@ classdef cStrat < cMyTimerObj
         maxunits = getmaxunits(obj,instrument)
         [] = setautotradeflag(obj,instrument,autotrade)
         autotrade = getautotradeflag(obj,instrument)
-%         [] = setcalcsignalflag(obj,instrument,calcflag)
-        calcflag = getcalcsignalflag(obj,instrument)       
-        %
-        [] = setmdeconnection(obj,connstr)
-        %
         [] = setmaxexecutionperbucket(obj,instrument,value)
         n = getmaxexecutionperbucket(obj,instrument)
         [] = setexecutionperbucket(obj,instrument,value)
         n = getexecutionperbucket(obj,instrument)
+        %
+        %
+        [flag] = istime2calcsignal(obj,t)
+%         %
+%         [] = setmdeconnection(obj,connstr)
+        %
+        
     end
     %end of set/get methods
     

@@ -56,9 +56,17 @@ function [] = updateentrustsandbook2(obj)
                     %the replay tick price is the trade price rather than the
                     %bid/ask price. as a result, we use less/greater than sign
                     %rather than lessorequal/greaterorequal sign here
-                    f1 = ticks(2) < e.price;
+                    try
+                        f1 = ticks(2) < e.price;
+                    catch
+                        f1 = 0;
+                    end
                 else
-                    f1 = ticks(2) > e.price;
+                    try
+                        f1 = ticks(2) > e.price;
+                    catch
+                        f1 = 0;
+                    end
                 end
                 f2 = f1;
                 if f1

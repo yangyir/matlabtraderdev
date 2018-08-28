@@ -16,10 +16,10 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
         closetodayFlag = 0;
     end
 
-    if isempty(strategy.counter_)
-        fprintf('cStrat:counter not registered in strategy\n');
-        return
-    end
+%     if isempty(strategy.counter_)
+%         fprintf('cStrat:counter not registered in strategy\n');
+%         return
+%     end
 
     if ~ischar(ctp_code)
         error('cStrat:shortclosesingleinstrument:invalid ctp_code input')
@@ -34,7 +34,12 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
     instrument.loadinfo([ctp_code,'_info.txt']);
     
     [f1, idx] = strategy.instruments_.hasinstrument(instrument);
-    [f2,idxp] = strategy.bookrunning_.hasposition(instrument);
+    try
+        [f2,idxp] = strategy.helper_.book_.hasposition(instrument);
+    catch
+        f2 = false;
+        idxp = 0;
+    end
     
     if ~f1
         fprintf('cStrat:shortclosesingleinstrument:%s not registered in strategy\n',ctp_code)
@@ -46,7 +51,8 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
         return; 
     end
     
-    volume = abs(strategy.bookrunning_.positions_{idxp}.position_total_);
+%     volume = abs(strategy.bookrunning_.positions_{idxp}.position_total_);
+    volume = abs(strategy.helper_.book_.positions_{idxp}.position_total_);
     
     if volume <= 0
         fprintf('cStrat:shortclosesingleinstrument:%s:existing long position not found\n',ctp_code);

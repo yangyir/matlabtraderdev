@@ -10,12 +10,12 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
     %defined in the class for replay mode
     if strcmpi(mytimerobj.mode_,'realtime')
         if ~flag
-            mytimerobj.refresh;
+            mytimerobj.refresh('time',dtnum);
         end
     else
         %note, the replay time is updated via the refresh function in
         %replay mode
-        mytimerobj.refresh;
+        mytimerobj.refresh('time',dtnum);
     end
     
     if mytimerobj.istime2print(dtnum)

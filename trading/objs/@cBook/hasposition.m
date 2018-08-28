@@ -18,6 +18,7 @@ function [bool,idx] = hasposition(obj,argin)
     idx = 0;
     n = size(obj.positions_,1);
     for i = 1:n
+        if isempty(obj.positions_{i}), continue; end
         if strcmp(code_ctp,obj.positions_{i}.code_ctp_)
             bool = true;
             idx = i;

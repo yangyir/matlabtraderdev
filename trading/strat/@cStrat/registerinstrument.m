@@ -174,12 +174,12 @@ function [] = registerinstrument(strategy,instrument)
         end
     end
     
-    %bucket_count_
-    if isempty(strategy.bucket_count_)
-        strategy.bucket_count_ = zeros(strategy.count,1);
+    %calsignal_bucket_
+    if isempty(strategy.calsignal_bucket_)
+        strategy.calsignal_bucket_ = zeros(strategy.count,1);
     else
-        if size(strategy.bucket_count_,1) < strategy.count
-            strategy.bucket_count_ = [strategy.bucket_count_;0];
+        if size(strategy.calsignal_bucket_,1) < strategy.count
+            strategy.calsignal_bucket_ = [strategy.calsignal_bucket_;0];
         end
     end
     

@@ -10,8 +10,17 @@ function [] = print(obj,varargin)
     if strcmpi(obj.status_,'sleep')
         fprintf('%s:ops sleeps......\n',datestr(time,'yyyy-mm-dd HH:MM:SS'));
     elseif strcmpi(obj.status_,'working')
-        obj.printrunningpnl('mdefut',obj.mdefut_);
-        obj.printpendingentrusts;
+        try
+            obj.printrunningpnl('mdefut',obj.mdefut_);
+        catch e
+            fprintf('error:cOps:printrunningpnl:%s\n',e.message);
+        end
+        %
+        try
+            obj.printallentrusts;
+        catch e
+            fprintf('error:cOps:printpendingentrusts:%s\n',e.message);
+        end
     end
     
 end

@@ -34,7 +34,11 @@ function [] = printrunningpnl(obj,varargin)
     
     holding = 0;
     for i = 1:size(positions,1)
-        holding = holding + positions{i}.position_total_;
+        try
+            holding = holding + positions{i}.position_total_;
+        catch
+            holding = holding + 0;
+        end
     end
     if holding == 0
         if strcmpi(obj.mode_,'realtime')

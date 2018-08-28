@@ -15,7 +15,7 @@ function [] = registercounter(strategy,counter)
     trader.addbook(b1);
     strategy.trader_ = trader;
     strategy.bookrunning_ = b1;
-    strategy.bookbase_ = b2;
+%     strategy.bookbase_ = b2;
     %
     ops = cOps;
     ops.init(opsname,strategy.bookrunning_);
