@@ -6,6 +6,15 @@ function [] = refresh(strategy,varargin)
         error('cStrat:refresh:mdefut or mdeopt not registed in strategy......\n')
     end
     
+    try
+        if strcmpi(strategy.mde_fut_.timer_.running,'off')
+            strategy.status_ = 'sleep';
+            strategy.stop;
+        end 
+    catch e
+        fprintf('error:cMDEFut::refresh::%s\n',e.message);
+    end
+    
     if ~isempty(strategy.mde_fut_)
         if strcmpi(strategy.mde_fut_.status_,'sleep'), return; end
     end
