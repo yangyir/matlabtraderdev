@@ -39,6 +39,7 @@ classdef cMyTimerObj < handle
         mm_21_00_@double = 1260  % derivatives start trading evening 
     end
     
+    %property value controls for mode_ and status_
     methods
         function [] = set.mode_(obj,modein)
             if ~(strcmpi(modein,'realtime') || strcmpi(modein,'replay'))
@@ -55,21 +56,8 @@ classdef cMyTimerObj < handle
         end
     end
     
+    %set and get methods for private properties
     methods
-        [] = start(obj)
-        [] = startat(obj)
-        [] = stop(obj)
-        [] = settimer(obj)
-        [] = replay_timer_fcn(obj,~,event)
-        [] = start_timer_fcn(~,~,event)
-        [] = stop_timer_fcn(~,~,event)
-        [flag] = istime2sleep(obj,t)
-        [flag] = istime2print(obj,t)
-        [flag] = istime2savemktdata(obj,t)
-        [flag] = istime2savetrades(obj,t)
-        [flag] = istime2loadmktdata(obj,t)
-        [flag] = istime2loadtrades(obj,t)
-        
         function printbucket = getprintbucket(obj)
             printbucket = obj.print_bucket_;
         end
@@ -93,6 +81,22 @@ classdef cMyTimerObj < handle
         function [] = setflagloaded(obj,val)
             obj.flag_loaded_ = val;
         end
+    end
+    
+    methods
+        [] = start(obj)
+        [] = startat(obj)
+        [] = stop(obj)
+        [] = settimer(obj)
+        [] = replay_timer_fcn(obj,~,event)
+        [] = start_timer_fcn(~,~,event)
+        [] = stop_timer_fcn(~,~,event)
+        [flag] = istime2sleep(obj,t)
+        [flag] = istime2print(obj,t)
+        [flag] = istime2savemktdata(obj,t)
+        [flag] = istime2savetrades(obj,t)
+        [flag] = istime2loadmktdata(obj,t)
+        [flag] = istime2loadtrades(obj,t)
         
     end
     
