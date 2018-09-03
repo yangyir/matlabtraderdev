@@ -1,9 +1,18 @@
-function [] = init(obj,bookname,trader,counter)
+function obj = init(obj,varargin)
 %cBook
-    if ~ischar(bookname), error('cBook:invalid bookname input');end
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('BookName','',@ischar);
+    p.addParameter('TraderName','',@ischar);
+    p.addParameter('CounterName','',@ischar);
+    p.parse(varargin{:});
+    bookname = p.Results.BookName;
+    tradername = p.Results.TraderName;
+    countername = p.Results.CounterName;
     obj.bookname_ = bookname;
-    if ~ischar(trader), error('cBook:invalid trader input');end
-    obj.trader_ = trader;
-    if ~isa(counter,'CounterCTP'), error('cBook:invalid counter input');end
-    obj.counter_ = counter;
+    obj.tradername_ = tradername;
+    obj.countername_ = countername;
+    
+    obj.positions_ = {};
+    
 end

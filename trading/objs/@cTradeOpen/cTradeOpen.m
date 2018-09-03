@@ -2,8 +2,9 @@ classdef cTradeOpen < handle
     %class to define open trade position
     properties
         id_
-        countername_@char
         bookname_@char
+        tradername_@char
+        countername_@char
         code_@char
         opendatetime1_@double
         openprice_@double

@@ -4,13 +4,14 @@ function [] = addpositions(obj,varargin)
     p.addParameter('code','',@ischar);
     p.addParameter('price',[],@isnumeric);
     p.addParameter('volume',[],@isnumeric);
-    p.addParameter('time',now,@isnumeric);
+    p.addParameter('time',now,@(x) validateattributes(x,{'char','numeric'},{},'','time'));
     p.addParameter('closetodayflag',0,@isnumeric);
     p.parse(varargin{:});
     code_ctp = p.Results.code;
     px = p.Results.price;
     volume = p.Results.volume;
     time = p.Results.time;
+    if ischar(time), time = datenum(time);end
     closetoday = p.Results.closetodayflag;
     
     [bool,idx] = obj.hasposition(code_ctp);

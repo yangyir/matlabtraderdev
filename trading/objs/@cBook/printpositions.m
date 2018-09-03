@@ -8,7 +8,11 @@ function [] = printpositions(obj)
     
     holding = 0;
     for i = 1:size(obj.positions_,1)
-        holding = holding + obj.positions_{i}.position_total_;
+        try
+            holding = holding + obj.positions_{i}.position_total_;
+        catch
+            holding = holding + 0;
+        end
     end
     if holding == 0
         fprintf('\n±¾×Ó-%s:\n',obj.bookname_);

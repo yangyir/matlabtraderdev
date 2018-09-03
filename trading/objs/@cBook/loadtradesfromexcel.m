@@ -1,4 +1,4 @@
-function [] = loadpositionsfromexcel(obj,fn,sheetn)
+function [] = loadtradesfromexcel(obj,fn,sheetn)
     obj.positions_ = {};
     trades = cTradeOpenArray;
     trades.fromexcel(fn,sheetn);

@@ -13,12 +13,7 @@ function [] = override(obj,varargin)
     time = p.Results.time;
     lastbusinessdate = p.Results.lastbusinessdate;
     
-    code_bbg = ctp2bbg(code_ctp);
-    if ~isempty(strfind(code_bbg,'TFT')) || ~isempty(strfind(code_bbg,'TFC'))
-        lastbusinessdate = datenum([datestr(lastbusinessdate,'yyyy-mm-dd'),' 15:15:00']);
-    else
-        lastbusinessdate = datenum([datestr(lastbusinessdate,'yyyy-mm-dd'),' 15:00:00']);
-    end
+    lastbusinessdate = datenum([datestr(lastbusinessdate,'yyyy-mm-dd'),' 20:59:00']);
     
     if isempty(px), return; end
     
