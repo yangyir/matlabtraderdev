@@ -18,6 +18,12 @@ function [] = add(obj,varargin)
     time = p.Results.time;
     closetodayFlag = p.Results.closetodayflag;
     lastbusinessdate = p.Results.lastbusinessdate;
+    code_bbg = ctp2bbg(code_ctp);
+    if ~isempty(strfind(code_bbg,'TFT')) || ~isempty(strfind(code_bbg,'TFC'))
+        lastbusinessdate = datenum([datestr(lastbusinessdate,'yyyy-mm-dd'),' 15:15:00']);
+    else
+        lastbusinessdate = datenum([datestr(lastbusinessdate,'yyyy-mm-dd'),' 15:00:00']);
+    end
     
     if ~strcmpi(code_ctp,obj.code_ctp_), error('cPos:add:invalid code input');end
     
