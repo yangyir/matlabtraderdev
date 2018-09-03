@@ -43,7 +43,7 @@ classdef cBook < handle
     end
     
     methods (Access = private)
-        obj = init(obj,varargin)
+        [obj] = init(obj,varargin)
         [ret] = checkpositionfile(obj,fn)
         [ret] = checktradesfile(obj,fn)
         

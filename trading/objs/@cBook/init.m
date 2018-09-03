@@ -1,4 +1,4 @@
-function obj = init(obj,varargin)
+function [obj] = init(obj,varargin)
 %cBook
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;

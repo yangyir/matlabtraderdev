@@ -1,4 +1,4 @@
-function [] = init(obj,name,book)
+function [obj] = init(obj,varargin)
 %cOps
     if ~ischar(name), error('cOps:init invalid name input');end
     if ~isa(book,'cBook'), error('cOps:init:invalid book input');end

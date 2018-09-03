@@ -19,13 +19,14 @@ classdef cOps < cMyTimerObj
     
     methods
         function obj = cOps(varargin)
-            obj.name_ = 'myops';
-            obj.timer_interval_ = 0.5;
+%             obj.name_ = 'myops';
+%             obj.timer_interval_ = 0.5;
+            obj = init(obj,varargin{:});
         end
     end
     
     methods
-        [] = init(obj,name,book)
+%         [] = init(obj,name,book)
         %
         [] = refresh(obj,varargin)
         [] = print(obj,varargin)
@@ -43,6 +44,7 @@ classdef cOps < cMyTimerObj
     end
     
     methods (Access = private)
+        [obj] = init(obj,varargin)
         [] = updateentrustsandbook(obj)
         %note:yangyiran-20180810
         %func 'updateentrustsandbook2' differs from 'updateentrustsandbook'
