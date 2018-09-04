@@ -9,13 +9,11 @@ classdef cMDEFut < cMyTimerObj
     
     properties
         qms_@cQMS
-        
         %real-time data
         ticks_@cell
         candles_@cell
         candle_freq_@double
         candles4save_@cell
-%         candlesaveflag_@logical = false
         %historical data,which is used for technical indicator calculation
         hist_candles_@cell
         
@@ -25,11 +23,6 @@ classdef cMDEFut < cMyTimerObj
         %
         replayer_@cReplayer
         replay_datetimevec_@double
-%         replay_count_@double = 0
-%         replay_date1_@double
-%         replay_date2_@char
-%         replay_time1_@double
-%         replay_time2_@char
         %
         datenum_open_@cell
         datenum_close_@cell

@@ -6,6 +6,12 @@ classdef cQMS < handle
     end
     
     methods
+        function obj = cQMS(varargin)
+            obj = init(obj,varargin{:});
+        end
+    end
+    
+    methods
         
         flag = isconnect(obj)
         [] = setdatasource(self,connstr)
@@ -14,6 +20,10 @@ classdef cQMS < handle
         [] = refresh(self,timestr)
         quote = getquote(self,instrument)
         
+    end
+    
+    methods (Access = private)
+        [obj] = init(obj,varargin)
     end
     
 end
