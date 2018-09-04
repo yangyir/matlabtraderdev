@@ -46,7 +46,12 @@ classdef cCTP < cDataSource
         
         function [] = logoff(obj)
             if obj.isconnected_
-                mdlogout;
+                try
+                    mdlogout;
+                    obj.isconnected_ = 0;
+                catch
+                end
+                
             end
         end
         

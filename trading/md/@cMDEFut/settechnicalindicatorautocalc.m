@@ -1,4 +1,8 @@
 function [] = settechnicalindicatorautocalc(mdefut,instrument,calcflag)
+    if ischar(instrument)
+        instrument = code2instrument(instrument);
+    end
+
     if ~isa(instrument,'cInstrument')
         error('cMDEFut:settechnicalindicatorautocalc:invalid instrument input')
     end

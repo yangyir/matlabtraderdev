@@ -50,9 +50,8 @@ classdef cMDEFut < cMyTimerObj
     end
     
     methods
-        function obj = cMDEFut
-            obj.qms_ = cQMS;
-            obj.timer_interval_ = 0.5;
+        function obj = cMDEFut(varargin)
+            obj = init(obj,varargin{:});
         end
     end
     
@@ -77,6 +76,10 @@ classdef cMDEFut < cMyTimerObj
     end
     
     methods
+        %login/logout
+        [ret] = login(obj,varargin)
+        [ret] = logoff(obj)
+        
         %replay
         [] = initreplayer(obj,varargin)
         
@@ -128,7 +131,8 @@ classdef cMDEFut < cMyTimerObj
     end
     
     %% timer functions
-    methods (Access = private)        
+    methods (Access = private)
+        obj = init(obj,varargin)
         %data file i/o
         [] = saveticks2mem(obj)
         [] = updatecandleinmem(obj)

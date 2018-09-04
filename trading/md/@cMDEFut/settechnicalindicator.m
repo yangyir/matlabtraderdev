@@ -1,4 +1,8 @@
 function [] = settechnicalindicator(mdefut,instrument,indicators)
+    if ischar(instrument)
+        instrument = code2instrument(instrument);
+    end
+    
     if ~isa(instrument,'cInstrument')
         error('cMDEFut:settechnicalindicator:invalid instrument input')
     end

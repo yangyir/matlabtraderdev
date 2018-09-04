@@ -13,6 +13,8 @@ classdef cQMS < handle
     
     methods
         
+        [ret] = ctplogin(obj,varargin)
+        [ret] = ctplogoff(obj,varargin)
         flag = isconnect(obj)
         [] = setdatasource(self,connstr)
         [] = registerinstrument(self,instrument)
