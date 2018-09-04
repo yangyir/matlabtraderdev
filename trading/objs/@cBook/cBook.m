@@ -15,6 +15,17 @@ classdef cBook < handle
         end
     end
     
+    %set methods
+    methods
+        function [] = settradername(obj,tradername)
+            obj.tradername_ = tradername;
+        end
+        
+        function [] = setcountername(obj,countername)
+            obj.countername_ = countername;
+        end
+    end
+    
     methods
         % rule1: one book can only be associated with one trader and one
         % counter. However, a trader can own more than one books

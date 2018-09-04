@@ -10,15 +10,18 @@ function [] = refresh(obj,varargin)
 
 %3.load trades array from file and update positions
 
-%4.save trades array to file after market close after 3pm 
+%4.save trades array to file after market close after 3:25pm
 
-    try
-        if strcmpi(obj.mdefut_.timer_.running,'off')
-            obj.status_ = 'sleep';
-            obj.stop;
-        end 
-    catch e
-        fprintf('error:cOps::refresh::%s\n',e.message);
+    if ~isempty(obj.mdefut_)
+        try
+            if strcmpi(obj.mdefut_.timer_.running,'off')
+                obj.status_ = 'sleep';
+                obj.stop;
+            end 
+        catch e
+            msg = ['error:cOps:refresh:check mdefut timer running or not:',e.message,'\n'];
+            fprintf(msg);
+        end
     end
 
     try
@@ -27,7 +30,7 @@ function [] = refresh(obj,varargin)
         %
         
     catch e
-        msg = ['error:cOps:updateentrustsandbook:',e.message,'\n'];
+        msg = ['error:cOps:refresh:updateentrustsandbook:',e.message,'\n'];
         fprintf(msg);
     end
     
