@@ -33,8 +33,6 @@ classdef cStrat < cMyTimerObj
         %
         trader_@cTrader
         helper_@cOps
-%         bookrunning_@cBook
-%         counter_@CounterCTP
         %
         calcsignal_interval_@double = 60
         
@@ -51,50 +49,48 @@ classdef cStrat < cMyTimerObj
     end
     
     properties (Access = private)
-%         bucket_count_@double
         calsignal_bucket_@double
     end
     
-    methods
-        function [] = setcalcsignalbucket(obj,val)
-            obj.calsignal_bucket_ = val;
-        end
-        
-        function calcsignalbucket = getcalcsignalbucket(obj)
-            calcsignalbucket = obj.calsignal_bucket_;
-        end
-    end
-
     %set/get methods
     methods
         [] = setstoptype(obj,instrument,stoptype)
-        [] = setstopamount(obj,instrument,stop)
-        [] = setlimittype(obj,instrument,limitype)
-        [] = setlimitamount(obj,instrument,limit)
         type_ = getstoptype(obj,instrument)
+        %
+        [] = setstopamount(obj,instrument,stop)
         amount_ = getstopamount(obj,instrument)
+        %
+        [] = setlimittype(obj,instrument,limitype)
         type_ = getlimittype(obj,instrument)
+        %
+        [] = setlimitamount(obj,instrument,limit)
         amount_ = getlimitamount(obj,instrument)
+        %
         [] = setbidspread(obj,instrument,bidspread)
-        [] = setaskspread(obj,instrument,askspread)
         bidspread = getbidspread(obj,instrument)
-        askspread = getaskspread(obj,instrument)     
+        %
+        [] = setaskspread(obj,instrument,askspread)
+        askspread = getaskspread(obj,instrument)
+        %
         [] = setbaseunits(obj,instrument,baseunits)
         baseunits = getbaseunits(obj,instrument)
+        %
         [] = setmaxunits(obj,instrument,maxunits)
         maxunits = getmaxunits(obj,instrument)
+        %
         [] = setautotradeflag(obj,instrument,autotrade)
         autotrade = getautotradeflag(obj,instrument)
+        %
         [] = setmaxexecutionperbucket(obj,instrument,value)
         n = getmaxexecutionperbucket(obj,instrument)
+        %
         [] = setexecutionperbucket(obj,instrument,value)
         n = getexecutionperbucket(obj,instrument)
         %
+        [] = setcalcsignalbucket(obj,val)
+        calcsignalbucket = getcalcsignalbucket(obj)
         %
         [flag] = istime2calcsignal(obj,t)
-%         %
-%         [] = setmdeconnection(obj,connstr)
-        %
         
     end
     %end of set/get methods
@@ -103,87 +99,18 @@ classdef cStrat < cMyTimerObj
     methods
         [] = registerinstrument(obj,instrument)
         [] = removeinstrument(obj,instrument)
-        
-        function [] = clear(obj)
-            obj.instruments_.clear;
-            obj.underliers_.clear;
-            obj.mde_fut_ = {};
-            obj.mde_opt_ = {};
-            obj.counter_ = {};    
-        end
-        %end of clear
-        
-        function n = count(obj)
-            n = obj.instruments_.count;
-        end
-        %end of count
-        
-        function n = countunderliers(obj)
-            n = obj.underliers_.count;
-        end
-        %end of countunderliers
-        
+        [] = clear(obj)
+        [n] = count(obj)
+        [n] = countunderliers(obj)
     end
     %end of instrument-related methods
-    
-    %option-specific methods
-    methods
-        %note:todo:this method might be removed later
-        function [strikes,calls,puts] = breakdownopt(obj,underlier)
-            if ~isa(underlier,'cInstrument')
-                error('cStrat:breakdownopt:invalid underlier input')
-            end
-            n = obj.count;
-            strikes = zeros(n,1);
-            calls = cInstrumentArray;
-            puts = cInstrumentArray;
-            underlierstr = underlier.code_ctp;
-            list = obj.instruments_.getinstrument;
-            count_strike = 0;
-            for i = 1:n
-                if isa(list{i},'cOption') && strcmpi(list{i}.code_ctp_underlier,underlierstr)
-                    if strcmpi(list{i}.opt_type,'C')
-                        calls.addinstrument(list{i});
-                    else
-                        puts.addinstrument(list{i});
-                    end
-                    strike_i = list{i}.opt_strike;
-                    if ischar(strike_i), strike_i = str2double(strike_i); end
-                    if i == 1
-                        count_strike = count_strike+1;
-                        strikes(count_strike,1) = strike_i;
-                    else  
-                        %check with duplicate strikes
-                        flag = false;
-                        for j = 1:count_strike
-                            if strike_i == strikes(j)
-                                flag = true;
-                                break
-                            end
-                        end
-                        if ~flag
-                            count_strike = count_strike+1;
-                            strikes(count_strike,1) = strike_i;
-                        end
-                    end
-                end
-            end
-            if count_strike > 0
-                strikes = strikes(1:count_strike,:);
-            end
-        end
-        %end of breakdownopt
-    end
-    %end of option-specific methods
-    
+   
     %trading-related methods
     methods
-        %counter-related methods
-        [] = registercounter(obj,counter)
+        %trading-related methods
+        [] = registermdefut(obj,mdefut)
+        [] = registerhelper(obj,helper)
         %
-        [] = loadbookfromcounter(obj,varargin)
-        [] = loadbookfromfile(obj,fn,dateinput)
-        [] = savebooktofile(obj,fn)
         
         %process portfolio with entrusts
         [] = updatestratwithentrust(obj,e)
@@ -229,7 +156,7 @@ classdef cStrat < cMyTimerObj
     
     %mdefut-related methods
     methods
-        [] = registermdefut(obj,mdefut)
+        
     end
     
     

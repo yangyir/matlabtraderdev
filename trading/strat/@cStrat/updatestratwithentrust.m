@@ -1,20 +1,23 @@
 function [] = updatestratwithentrust(strategy,e)
-%note:we shall move this function to cOps as it is more like an ops'
+%note:TODO:we shall move this function to cOps as it is more like an ops'
 %behavior
     if isempty(strategy.helper_), return; end
-    counter = strategy.helper_.book_.counter_;
+    counter = strategy.helper_.getcounter;
     if isempty(counter), return; end
     if ~isa(e,'Entrust'), return; end
 
     if strcmpi(strategy.mode_,'realtime')
-%         f0 = strategy.counter_.queryEntrust(e);
+        %f0 checks whether the entrust is placed or not
         f0 = counter.queryEntrust(e);
+        %f1 checks whether the entrust is executed or is canceld
         f1 = e.is_entrust_closed;
+        %f2 checks whether the entrust is executed or partially executed
         f2 = e.dealVolume > 0;
     elseif strcmpi(strategy.mode_,'replay')
+        %we assume the entrust is always placed in replay mode
         f0 = true;
-        %note:to be implemented
-        f1 = true;
+%         f1 = true;
+        f1 = e.is_entrust_closed;
         f2 = f1;
     end
     [f3,idx] = strategy.instruments_.hasinstrument(e.instrumentCode);

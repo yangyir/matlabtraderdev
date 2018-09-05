@@ -136,6 +136,7 @@ classdef cOps < cMyTimerObj
         pnl = calcrunningpnl(obj,varargin)
         [] = printrunningpnl(obj,varargin)
         %
+        counter = getcounter(obj)
     end
     
     methods (Access = private)

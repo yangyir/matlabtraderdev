@@ -30,6 +30,25 @@ classdef cStratManual < cStrat
         function [] = initdata(obj)
             variablenotused(obj);
         end
+        
+        function [] = start(obj)
+            %note:cStratManual doesn't allow timer to run
+            obj.status_ = 'working';
+            variablenotused(obj);
+        end
+        
+        function [] = startat(obj,dtstr)
+            %note:cStratManual doesn't allow timer to run
+            obj.status_ = 'working';
+            variablenotused(obj);
+            variablenotused(dtstr);
+        end
+        
+        function [] = stop(obj)
+            %note:cStratManual doesn't allow timer to run
+            obj.status_ = 'sleep';
+            variablenotused(obj);
+        end
     end
     
 end
