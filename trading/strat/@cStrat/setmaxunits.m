@@ -8,11 +8,11 @@ function [] = setmaxunits(strategy,instrument,maxunits)
             strategy.maxunits_ = maxunits*ones(strategy.count,1);
         else
             if size(strategy.maxunits_,1) < strategy.count
-                strategy.maxunits = [strategy.maxunits;maxunits];
+                strategy.maxunits_ = [strategy.maxunits_;maxunits];
             end
         end
     else
-        strategy.maxunits(idx) = maxunits;
+        strategy.maxunits_(idx) = maxunits;
     end  
 
 end

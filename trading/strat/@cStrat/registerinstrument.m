@@ -22,176 +22,65 @@ function [] = registerinstrument(strategy,instrument)
     
     if optflag
         if isempty(strategy.underliers_), strategy.underliers_ = cInstrumentArray;end
-        u = cFutures(underlierstr);
-        u.loadinfo([underlierstr,'_info.txt']);
+        u = code2instrument(underlierstr);
         strategy.underliers_.addinstrument(u);
     end
     if isa(instrument,'cInstrument')
         strategy.instruments_.addinstrument(instrument);
     elseif ischar(instrument)
-        if optflag
-            instrument = cOption(codestr);
-            instrument.loadinfo([codestr,'_info.txt']);
-            strategy.instruments_.addinstrument(instrument);
-        else
-            instrument = cFutures(codestr);
-            instrument.loadinfo([codestr,'_info.txt']);
-            strategy.instruments_.addinstrument(instrument);
-        end
+        instrument = code2instrument(codestr);
+        strategy.instruments_.addinstrument(instrument);
     end
 
     %pnl_stop_type_
-    strategy.setstoptype(
-    if isempty(strategy.pnl_stop_type_)
-        strategy.pnl_stop_type_ = cell(strategy.count,1);
-        for i = 1:strategy.count, strategy.pnl_stop_type_{i} = 'rel';end
-    else
-        if size(strategy.pnl_stop_type_,1) < strategy.count;
-            type_ = cell(strategy.count,1);
-            type_(1:size(strategy.pnl_stop_type_,1)) = strategy.pnl_stop_type_;
-            type_{end} = 'rel';
-            strategy.pnl_stop_type_ = type_;
-        end
-    end
+    strategy.setstoptype(instrument,'rel');
 
     %pnl_stop_
-    if isempty(strategy.pnl_stop_)
-        strategy.pnl_stop_ = -inf*ones(strategy.count,1);
-    else
-        if size(strategy.pnl_stop_,1) < strategy.count
-            strategy.pnl_stop_ = [strategy.pnl_stop_;-inf];
-        end
-    end
+    strategy.setstopamount(instrument,-inf);
 
     %pnl_limit_type_
-    if isempty(strategy.pnl_limit_type_)
-        strategy.pnl_limit_type_ = cell(strategy.count,1);
-        for i = 1:strategy.count, strategy.pnl_limit_type_{i} = 'rel';end
-    else
-        if size(strategy.pnl_limit_type_,1) < strategy.count;
-            type_ = cell(strategy.count,1);
-            type_(1:size(strategy.pnl_limit_type_,1)) = strategy.pnl_limit_type_;
-            type_{end} = 'rel';
-            strategy.pnl_limit_type_ = type_;
-        end
-    end
+    strategy.setlimittype(instrument,'rel');
 
     %pnl_limit_
-    if isempty(strategy.pnl_limit_)
-        strategy.pnl_limit_ = inf*ones(strategy.count,1);
-    else
-        if size(strategy.pnl_limit_,1) < strategy.count
-            strategy.pnl_limit_ = [strategy.pnl_limit_;inf];
-        end
-    end
+    strategy.setlimitamount(instrument,inf);
 
     %pnl_running_
-    if isempty(strategy.pnl_running_)
-        strategy.pnl_running_ = zeros(strategy.count,1);
-    else
-        if size(strategy.pnl_running_,1) < strategy.count
-            strategy.pnl_running_ = [strategy.pnl_running_;0];
-        end
-    end
+    strategy.setpnlrunning(instrument,0);
 
     %pnl_close_
-    if isempty(strategy.pnl_close_)
-        strategy.pnl_close_ = zeros(strategy.count,1);
-    else
-        if size(strategy.pnl_close_,1) < strategy.count
-            strategy.pnl_close_ = [strategy.pnl_close_;0];
-        end
-    end
+    strategy.setpnlclose(instrument,0);
 
     %bidspread_
-    if isempty(strategy.bidspread_)
-        strategy.bidspread_ = zeros(strategy.count,1);
-    else
-        if size(strategy.bidspread_,1) < strategy.count
-            strategy.bidspread_ = [strategy.bidspread_;0];
-        end
-    end
+    strategy.setbidopenspread(instrument,0);
+    strategy.setbidclosespread(instrument,0);
 
     %askspread_
-    if isempty(strategy.askspread_)
-        strategy.askspread_ = zeros(strategy.count,1);
-    else
-        if size(strategy.askspread_,1) < strategy.count
-            strategy.askspread_ = [strategy.askspread_;0];
-        end
-    end
+    strategy.setaskopenspread(instrument,0);
+    strategy.setaskclosespread(instrument,0);
 
     %autotrade_
-    if isempty(strategy.autotrade_)
-        strategy.autotrade_ = zeros(strategy.count,1);
-    else
-        if size(strategy.autotrade_,1) < strategy.count
-            strategy.autotrade_ = [strategy.autotrade_;0];
-        end
-    end
+    strategy.setautotradeflag(instrument,0);
     
      %baseunits
-    if isempty(strategy.baseunits_)
-        strategy.baseunits_ = ones(strategy.count,1);
-    else
-        if size(strategy.baseunits_) < strategy.count
-            strategy.baseunits_ = [strategy.baseunits_;1];
-        end
-    end
+     strategy.setbaseunits(instrument,1);
 
     %maxunits
-    if isempty(strategy.maxunits_)
-        strategy.maxunits_ = ones(strategy.count,1);
-    else
-        if size(strategy.maxunits_) < strategy.count
-            strategy.maxunits_ = [strategy.maxunits_;1];
-        end
-    end
+    strategy.setmaxunits(instrument,1);
 
     %executionperbucket
-    if isempty(strategy.executionperbucket_)
-        strategy.executionperbucket_ = zeros(strategy.count,1);
-    else
-        if size(strategy.executionperbucket_) < strategy.count
-            strategy.executionperbucket_ = [strategy.executionperbucket_;0];
-        end
-    end
+    strategy.setexecutionperbucket(instrument,0);
 
     %maxexecutionperbucket
-    if isempty(strategy.maxexecutionperbucket_)
-        strategy.maxexecutionperbucket_ = ones(strategy.count,1);
-    else
-        if size(strategy.maxexecutionperbucket_) < strategy.count
-            strategy.maxexecutionperbucket_ = [strategy.maxexecutionperbucket_;1];
-        end
-    end
+    strategy.setmaxexecutionperbucket(instrument,1);
 
     %executionbucketnumber
-    if isempty(strategy.executionbucketnumber_)
-        strategy.executionbucketnumber_ = zeros(strategy.count,1);
-    else
-        if size(strategy.executionbucketnumber_) < strategy.count
-            strategy.executionbucketnumber_ = [strategy.executionbucketnumber_;0];
-        end
-    end
+    strategy.setexecutionbucketnumber(instrument,0);
     
     %calsignal_bucket_
-    if isempty(strategy.calsignal_bucket_)
-        strategy.calsignal_bucket_ = zeros(strategy.count,1);
-    else
-        if size(strategy.calsignal_bucket_,1) < strategy.count
-            strategy.calsignal_bucket_ = [strategy.calsignal_bucket_;0];
-        end
-    end
+    strategy.setcalcsignalbucket(instrument,0);
     
     %calcsignal_
-    if isempty(strategy.calcsignal_)
-        strategy.calcsignal_ = ones(strategy.count,1);
-    else
-        if size(strategy.calcsignal_,1) < strategy.count
-            strategy.calcsignal_ = [strategy.calcsignal_;1];
-        end
-    end
+    strategy.setcalcsignal(instrument,0);
     
     if ~optflag
         strategy.mde_fut_.registerinstrument(instrument);

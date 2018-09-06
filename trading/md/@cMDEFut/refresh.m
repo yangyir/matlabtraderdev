@@ -17,6 +17,21 @@ function [] = refresh(mdefut,varargin)
             %the time until the next time point the new market data is
             %loaded
             %also:the following code will move to a seperate function
+            try
+                if strcmpi(mdefut.replayer_.mode_,'singleday')
+                    if mdefut.replay_count_ > size(mdefut.replay_datetimevec_,1) &&...
+                            isempty(mdefut.ticks_) && ...
+                            isempty(mdefut.candles4save_)
+                        mdefut.status_ = 'sleep';
+                        mdefut.stop;
+                    end
+                end
+            catch e
+                fprintf('cMDEFut:refresh:error in replay with singleday mode:%s\n',e.message);
+            end
+            
+            
+            
             if isempty(mdefut.replay_datetimevec_)
                 mdefut.replay_time1_ = now;
                 mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');

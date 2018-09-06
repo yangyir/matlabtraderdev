@@ -4,7 +4,8 @@ function stop(mytimerobj)
         stop(mytimerobj.timer_);
         %delete the timer object from memory
         delete(mytimerobj.timer_);
-    catch
+    catch e
+        fprintf('%s\n',e.message);
     end
 end
 %end of stop

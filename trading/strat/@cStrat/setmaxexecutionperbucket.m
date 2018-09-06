@@ -12,6 +12,6 @@ function [] = setmaxexecutionperbucket(strategy,instrument,value)
             end
         end
     else
-        strategy.maxexecutionperbucket_(idx) = calcflag;
+        strategy.maxexecutionperbucket_(idx) = value;
     end    
 end

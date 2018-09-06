@@ -28,14 +28,16 @@ classdef cStrat < cMyTimerObj
         %size related
         baseunits_@double
         maxunits_@double
+        %automatic trading?
+        autotrade_@double
         %
         executionperbucket_@double
         maxexecutionperbucket_@double
         executionbucketnumber_@double
         %
-        autotrade_@double
+        calsignal_bucket_@double
         calcsignal_@double
-        calcsignal_interval_@double = 60
+        
     end
     
     properties
@@ -43,6 +45,7 @@ classdef cStrat < cMyTimerObj
     end
     
     properties (GetAccess = public, SetAccess = private)
+        calcsignal_interval_@double = 60
         %trading
         trader_@cTrader
         helper_@cOps
@@ -51,10 +54,6 @@ classdef cStrat < cMyTimerObj
         mde_fut_@cMDEFut
         mde_opt_@cMDEOpt
         
-    end
-    
-    properties (Access = private)
-        calsignal_bucket_@double
     end
     
     %set/get methods
@@ -70,6 +69,12 @@ classdef cStrat < cMyTimerObj
         %
         [] = setlimitamount(obj,instrument,limit)
         amount_ = getlimitamount(obj,instrument)
+        %
+        [] = setpnlrunning(obj,instrument,pnl)
+        pnl = getpnlrunning(obj,instrument)
+        %
+        [] = setpnlclose(obj,instrument,pnl)
+        pnl = getpnlclose(obj,instrument)
         %
         [] = setbidopenspread(obj,instrument,spread)
         spread = getbidopenspread(obj,instrument)
@@ -96,8 +101,14 @@ classdef cStrat < cMyTimerObj
         [] = setexecutionperbucket(obj,instrument,value)
         n = getexecutionperbucket(obj,instrument)
         %
-        [] = setcalcsignalbucket(obj,val)
+        [] = setexecutionbucketnumber(obj,instrument,value)
+        n = getexecutionbucketnumber(obj,instrument)
+        %
+        [] = setcalcsignalbucket(obj,instrument,val)
         calcsignalbucket = getcalcsignalbucket(obj)
+        %
+        [] = setcalcsignal(obj,instrument,val)
+        calcsignal = getcalcsignal(obj)
         %
         [flag] = istime2calcsignal(obj,t)
         

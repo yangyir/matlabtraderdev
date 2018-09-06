@@ -11,6 +11,8 @@ function [] = savemktdata(obj,varargin)
     %1.we first check whether candles4save_ is empty or not
     %empty candles4save_ indicates either candles have been saved or they
     %haven't poped up yet
+    instruments = obj.qms_.instruments_.getinstrument;
+    ns = size(instruments,1);
     if isempty(obj.candles4save_)
     else 
         coldefs = {'datetime','open','high','low','close'};
@@ -21,8 +23,7 @@ function [] = savemktdata(obj,varargin)
         catch
             mkdir(dir_);
         end
-        instruments = obj.qms_.instruments_.getinstrument;
-        ns = size(instruments,1);
+        
         for i = 1:ns
             code_ctp = instruments{i}.code_ctp;
             bd = obj.candles4save_{i}(1,1);
@@ -41,9 +42,14 @@ function [] = savemktdata(obj,varargin)
     %2.we might not clear candles_ and hist_candles_ at this stage as we
     %need them for the next day trading
     
-    if ~isempty(obj.ticks_), obj.ticks_ = {};end
+
+    if ~isempty(obj.ticks_)
+        obj.ticks_ = {};
+    end
 %     if ~isempty(obj.candles_), obj.candles_ = {};end
-    if ~isempty(obj.candles4save_), obj.candles4save_ = {};end
+    if ~isempty(obj.candles4save_)
+        obj.candles4save_ = {};
+    end
 %     if ~isempty(obj.hist_candles_), obj.hist_candles_ = {};end
 
     if strcmpi(obj.mode_,'replay')

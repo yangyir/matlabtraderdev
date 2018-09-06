@@ -1,7 +1,7 @@
-function [] = setcalcsignalflag(strategy,instrument,calcflag)
+function [] = setcalcsignal(strategy,instrument,calcflag)
 %cStrat
-    if ~isnumeric(calcflag), error('cStrat:setcalcsignalflag:invalid calcflag date type input');end
-    if ~(calcflag == 0 || calcflag == 1),error('cStrat:setcalcsignalflag:invalid calcflag input');end
+    if ~isnumeric(calcflag), error('cStrat:setcalcsignal:invalid calcflag data type input');end
+    if ~(calcflag == 0 || calcflag == 1),error('cStrat:setcalcsignal:invalid calcflag input');end
 
     [flag,idx] = strategy.instruments_.hasinstrument(instrument);
     if ~flag

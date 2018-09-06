@@ -17,7 +17,12 @@ function [] = savecandles2file(mdefut,dtnum)
 
         mdefut.candlesaveflag_ = true;
         %and clear the ticks and candles from memoery
-        mdefut.ticks_ = {};
+%         mdefut.ticks_ = {};
+        n = 1e5;%note:this size shall be enough for day trading
+        d = cell(ns,1);
+        for i = 1:ns, d{i} = zeros(n,7);end
+        mdefut.ticks_ = d;
+        %
         mdefut.ticks_count_ = zeros(ns,1);
 
         mdefut.candles_ = {};
