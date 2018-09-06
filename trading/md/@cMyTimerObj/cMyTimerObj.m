@@ -3,8 +3,6 @@ classdef cMyTimerObj < handle
         name_@char = 'timer'
         mode_@char = 'realtime'
         status_@char = 'sleep'
-        timer_@timer
-        timer_interval_@double = 60  %refresh the mde every minute
         %
         printflag_@logical = true
         print_timeinterval_@double = 60   %display the relative information every minute
@@ -18,6 +16,13 @@ classdef cMyTimerObj < handle
         replay_date2_@char
         replay_time1_@double
         replay_time2_@char
+        %
+        %         timer_@timer
+        timer_                       %do not assign data variable type
+    end
+    
+    properties (GetAccess = public, SetAccess = private)
+        timer_interval_@double = 60  %refresh the mde every minute
     end
     
     properties (Access = private)
@@ -97,6 +102,8 @@ classdef cMyTimerObj < handle
         [flag] = istime2savetrades(obj,t)
         [flag] = istime2loadmktdata(obj,t)
         [flag] = istime2loadtrades(obj,t)
+        %
+        [] = settimerinterval(obj,timerinterval)
         
     end
     

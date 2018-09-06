@@ -45,7 +45,9 @@ function calcflag = getcalcsignalflag(obj,instrument)
             if this_count ~= obj.calsignal_bucket_(idx_instrument)
                 strategy.calcsignal_(idx_instrument) = 1;
                 obj.calsignal_bucket_(idx_instrument) = this_count;
-                fprintf('\ncalc signal at:%s\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
+                if obj.printflag_
+                    fprintf('\ncalc signal at:%s\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
+                end
             else
                 strategy.calcsignal_(idx_instrument) = 0;
             end

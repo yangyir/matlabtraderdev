@@ -8,11 +8,13 @@ function [] = refresh(strategy,varargin)
     
     try
         if strcmpi(strategy.mde_fut_.timer_.running,'off')
-            strategy.status_ = 'sleep';
+            fprintf('%s stops because %s is off\n',strategy.timer_.Name,strategy.mde_fut_.timer_.Name);
             strategy.stop;
+            return
         end 
     catch e
         fprintf('error:cMDEFut::refresh::%s\n',e.message);
+        return
     end
     
     if ~isempty(strategy.mde_fut_)

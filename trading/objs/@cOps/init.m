@@ -10,7 +10,7 @@ function [obj] = init(obj,varargin)
     obj.entrustsfinished_ = EntrustArray;
     obj.trades_ = cTradeOpenArray;
     %
-    obj.timer_interval_ = 0.5;
+    obj.settimerinterval(1);
     obj.printflag_ = true;
     obj.print_timeinterval_ = 60;
     obj.fileioflag_ = true;

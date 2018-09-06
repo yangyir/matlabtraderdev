@@ -8,5 +8,5 @@ function obj = init(obj,varargin)
     
     % other default values
     obj.qms_ = cQMS;
-    obj.timer_interval_ = 0.5;
+    obj.settimerinterval(0.5);
 end

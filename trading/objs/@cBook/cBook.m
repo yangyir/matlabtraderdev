@@ -24,6 +24,14 @@ classdef cBook < handle
         function [] = setcountername(obj,countername)
             obj.countername_ = countername;
         end
+        
+        function [] = setpositions(obj,positions)
+            obj.positions_ = positions;
+        end
+        
+        function [] = emptybook(obj)
+            obj.positions_ = {};
+        end
     end
     
     methods

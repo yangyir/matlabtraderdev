@@ -87,13 +87,19 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
         end
 
         if nargin < 5
-            orderprice = bidpx + strategy.bidspread_(idx)*instrument.tick_size;
+            orderprice = bidpx + strategy.bidclosespread_(idx)*instrument.tick_size;
         else
             orderprice = bidpx + spread*instrument.tick_size;
         end
     end
     
-    if isempty(ordertime), ordertime = now; end
+    if isempty(ordertime)
+        if strcmpi(strategy.mode_,'realtime')
+            ordertime = now;
+        else
+            ordertime = strategy.getreplaytime;
+        end
+    end 
     
     if closetodayFlag
         [ret,e] = strategy.trader_.placeorder(ctp_code,'s','ct',orderprice,lots,strategy.helper_,'time',ordertime);

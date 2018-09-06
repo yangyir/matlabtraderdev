@@ -62,7 +62,13 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread,varar
         end
     end
     
-    if isempty(ordertime), ordertime = now; end
+    if isempty(ordertime)
+        if strcmpi(strategy.mode_,'realtime')
+            ordertime = now;
+        else
+            ordertime = strategy.getreplaytime;
+        end
+    end 
     
     [ret,e] = strategy.trader_.placeorder(ctp_code,'s','o',orderprice,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
 

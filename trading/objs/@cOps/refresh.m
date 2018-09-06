@@ -15,12 +15,14 @@ function [] = refresh(obj,varargin)
     if ~isempty(obj.mdefut_)
         try
             if strcmpi(obj.mdefut_.timer_.running,'off')
-                obj.status_ = 'sleep';
+                fprintf('%s stops because %s is off\n',obj.timer_.Name,obj.mdefut_.timer_.Name);
                 obj.stop;
+                return
             end 
         catch e
             msg = ['error:cOps:refresh:check mdefut timer running or not:',e.message,'\n'];
             fprintf(msg);
+            return
         end
     end
 

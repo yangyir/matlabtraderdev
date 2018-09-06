@@ -88,7 +88,13 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
         end
     end
     
-    if isempty(ordertime), ordertime = now; end
+    if isempty(ordertime)
+        if strcmpi(strategy.mode_,'realtime')
+            ordertime = now;
+        else
+            ordertime = strategy.getreplaytime;
+        end
+    end 
     
     if closetodayFlag
         [ret,e] = strategy.trader_.placeorder(ctp_code,'b','ct',orderprice,lots,strategy.helper_,'time',ordertime);

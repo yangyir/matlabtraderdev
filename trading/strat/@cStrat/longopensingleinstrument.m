@@ -11,11 +11,6 @@ function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots,spread,vararg
     if lots == 0
         return
     end
-
-%     if isempty(strategy.counter_)
-%         fprintf('cStrat:counter not registered in strategy\n');
-%         return
-%     end
     
     if ~ischar(ctp_code)
         error('cStrat:longopensingleinstrument:invalid ctp_code input')
@@ -57,13 +52,19 @@ function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots,spread,vararg
         end
 
         if nargin < 4
-            price = askpx - strategy.askspread_(idx)*instrument.tick_size;
+            price = askpx - strategy.askopenspread_(idx)*instrument.tick_size;
         else
             price = askpx - spread*instrument.tick_size;
         end
     end
     
-    if isempty(ordertime), ordertime = now; end 
+    if isempty(ordertime)
+        if strcmpi(strategy.mode_,'realtime')
+            ordertime = now;
+        else
+            ordertime = strategy.getreplaytime;
+        end
+    end 
     
     [ret,e] = strategy.trader_.placeorder(ctp_code,'b','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
     if ret

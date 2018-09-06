@@ -38,7 +38,7 @@ function [] = savetrades(obj,varargin)
         obj.entrustspending_ = EntrustArray;
         obj.entrustsfinished_ = EntrustArray;
         obj.trades_ = cTradeOpenArray;
-        obj.book_.positions_ = {};
+        obj.book_.emptybook;
     end
     
 end
