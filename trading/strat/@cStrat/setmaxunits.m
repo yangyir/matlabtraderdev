@@ -1,11 +1,19 @@
 function [] = setmaxunits(strategy,instrument,maxunits)
-    if ~isnumeric(maxunits), error('cStrat:setmaxunits:invalid baseunits input');end
-
+ %cStrat
+    if ~isnumeric(maxunits), error('cStrat:setmaxunits:invalid data type input');end
+    
     [flag,idx] = strategy.instruments_.hasinstrument(instrument);
     if ~flag
-        error('cStrat:setmaxunits:instrument not found')
-    end
-    strategy.maxunits_(idx) = maxunits;
+        if isempty(strategy.maxunits_)
+            strategy.maxunits_ = maxunits*ones(strategy.count,1);
+        else
+            if size(strategy.maxunits_,1) < strategy.count
+                strategy.maxunits = [strategy.maxunits;maxunits];
+            end
+        end
+    else
+        strategy.maxunits(idx) = maxunits;
+    end  
 
 end
 %end of setmaxunits

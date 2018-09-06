@@ -1,4 +1,5 @@
 function [] = registermdefut(obj,mdefut)
+%cStrat
     if ~isa(mdefut,'cMDEFut')
         error('cStrat:registermdefut:invalid mdefut input')
     end

@@ -1,27 +1,29 @@
 classdef cStrat < cMyTimerObj
     %base abstract class of strategy
-    properties
-        
-        %trading pnl related
-        pnl_stop_type_@cell
-        pnl_stop_@double            % stop ratio as of the margin used
-        
-        pnl_limit_type_@cell
-        pnl_limit_@double           % limit ratio as of the margin used
-                
-        pnl_running_@double     % pnl for existing positions
-        pnl_close_@double       % pnl for unwind positions
-        
+    properties (Access = private)
+
         %both futures and options related
         instruments_@cInstrumentArray
         %option related
         underliers_@cInstrumentArray
+
+        %trading pnl related per underlier
+        pnl_stop_type_@double       % 0-rel and 1-abs
+        pnl_stop_@double            % stop ratio as of the margin used
+        
+        pnl_limit_type_@double      % 0-rel and 1-abs
+        pnl_limit_@double           % limit ratio as of the margin used
+                
+        pnl_running_@double         % pnl for existing positions
+        pnl_close_@double           % pnl for closed positions
         
         %order/entrust related
         %positive bid spread means to order a sell with a higher price
-        bidspread_@double
+        bidopenspread_@double
+        bidclosespread_@double
         %positive ask spread means to order a buy with a lower price
-        askspread_@double
+        askopenspread_@double
+        askclosespread_@double
         
         %size related
         baseunits_@double
@@ -31,20 +33,23 @@ classdef cStrat < cMyTimerObj
         maxexecutionperbucket_@double
         executionbucketnumber_@double
         %
-        trader_@cTrader
-        helper_@cOps
-        %
+        autotrade_@double
+        calcsignal_@double
         calcsignal_interval_@double = 60
+    end
+    
+    properties
         
     end
     
     properties (GetAccess = public, SetAccess = private)
+        %trading
+        trader_@cTrader
+        helper_@cOps
+        %
         %market data engine
         mde_fut_@cMDEFut
         mde_opt_@cMDEOpt
-        %
-        autotrade_@double 
-        calcsignal_@double
         
     end
     
@@ -66,11 +71,15 @@ classdef cStrat < cMyTimerObj
         [] = setlimitamount(obj,instrument,limit)
         amount_ = getlimitamount(obj,instrument)
         %
-        [] = setbidspread(obj,instrument,bidspread)
-        bidspread = getbidspread(obj,instrument)
+        [] = setbidopenspread(obj,instrument,spread)
+        spread = getbidopenspread(obj,instrument)
+        [] = setbidclosespread(obj,instrument,spread)
+        spread = getbidclosespread(obj,instrument)
         %
-        [] = setaskspread(obj,instrument,askspread)
-        askspread = getaskspread(obj,instrument)
+        [] = setaskopenspread(obj,instrument,spread)
+        spread = getaskopenspread(obj,instrument)
+        [] = setaskclosespread(obj,instrument,spread)
+        spread = getclosespread(obj,instrument)
         %
         [] = setbaseunits(obj,instrument,baseunits)
         baseunits = getbaseunits(obj,instrument)
@@ -109,6 +118,7 @@ classdef cStrat < cMyTimerObj
     methods
         %trading-related methods
         [] = registermdefut(obj,mdefut)
+        [] = registermdeopt(obj,mdeopt)
         [] = registerhelper(obj,helper)
         %
         

@@ -41,6 +41,7 @@ function [] = registerinstrument(strategy,instrument)
     end
 
     %pnl_stop_type_
+    strategy.setstoptype(
     if isempty(strategy.pnl_stop_type_)
         strategy.pnl_stop_type_ = cell(strategy.count,1);
         for i = 1:strategy.count, strategy.pnl_stop_type_{i} = 'rel';end
@@ -192,30 +193,6 @@ function [] = registerinstrument(strategy,instrument)
         end
     end
     
-    %mde_fut_
-%     if isempty(strategy.mde_fut_)
-%         strategy.mde_fut_ = cMDEFut;
-%         qms_fut_ = cQMS;
-%         if ~strcmpi(strategy.mode_,'debug')
-%             qms_fut_.setdatasource('ctp');
-%         else
-%             qms_fut_.setdatasource('local');
-%         end
-%         strategy.mde_fut_.qms_ = qms_fut_;
-%     end
-
-    %mde_opt_
-%     if isempty(strategy.mde_opt_)
-%         strategy.mde_opt_ = cMDEOpt;
-%         qms_opt_ = cQMS;
-%         if ~strcmpi(strategy.mode_,'debug')
-%             qms_opt_.setdatasource('ctp');
-%         else
-%             qms_opt_.setdatasource('local');
-%         end
-%         strategy.mde_opt_.qms_ = qms_opt_;
-%     end
-
     if ~optflag
         strategy.mde_fut_.registerinstrument(instrument);
     else

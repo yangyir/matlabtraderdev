@@ -1,11 +1,18 @@
-function [] = setexecutionperbucket(strat,instrument,value)
-    if isempty(strat.executionperbucket_), strat.executionperbucket_ = zeros(strat.count,1);end
+function [] = setexecutionperbucket(strategy,instrument,value)
+%cStrat
+    if ~isnumeric(value), error('cStrat:setexecutionperbucket:invalid date type input');end
     
-    [flag,idx] = strat.instruments_.hasinstrument(instrument);
-    
-    if flag
-        strat.executionperbucket_(idx) = value;
+    [flag,idx] = strategy.instruments_.hasinstrument(instrument);
+    if ~flag
+        if isempty(strategy.executionperbucket_)
+            strategy.executionperbucket_ = value*ones(strategy.count,1);
+        else
+            if size(strategy.executionperbucket_,1) < strategy.count
+                strategy.executionperbucket_ = [strategy.executionperbucket_;value];
+            end
+        end
     else
-        error('cStrat:setexecutionperbucket:instrument not found')
+        strategy.executionperbucket_(idx) = value;
     end
+    
 end

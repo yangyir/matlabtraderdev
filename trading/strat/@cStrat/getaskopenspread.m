@@ -1,7 +1,8 @@
-function askspread = getaskspread(strategy,instrument)
+function askspread = getaskopenspread(strategy,instrument)
+%cStrat
     [flag,idx] = strategy.instruments_.hasinstrument(instrument);
     if ~flag, error('cStrat:getaskspread:instrument not found');end
-    askspread = strategy.askspread_(idx);
+    askspread = strategy.askopenspread_(idx);
 
 end
-%end of getaskspread
+%end of getaskopenspread

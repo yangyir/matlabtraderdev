@@ -1,12 +1,17 @@
-function [] = setmaxexecutionperbucket(strat,instrument,value)
-    if isempty(strat.maxexecutionperbucket_), strat.maxexecutionperbucket_ = ones(strat.count,1);end
+function [] = setmaxexecutionperbucket(strategy,instrument,value)
+%cStrat
+    if ~isnumeric(value), error('cStrat:setmaxexecutionperbucket:invalid date type input');end
     
-    [flag,idx] = strat.instruments_.hasinstrument(instrument);
-    
-    if flag
-        strat.maxexecutionperbucket_(idx) = value;
+    [flag,idx] = strategy.instruments_.hasinstrument(instrument);
+    if ~flag
+        if isempty(strategy.maxexecutionperbucket_)
+            strategy.maxexecutionperbucket_ = value*ones(strategy.count,1);
+        else
+            if size(strategy.maxexecutionperbucket_,1) < strategy.count
+                strategy.maxexecutionperbucket_ = [strategy.maxexecutionperbucket_;value];
+            end
+        end
     else
-        error('cStrat:setmaxexecutionperbucket:instrument not found')
-    end
-    
+        strategy.maxexecutionperbucket_(idx) = calcflag;
+    end    
 end

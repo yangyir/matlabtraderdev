@@ -1,35 +1,33 @@
 %%
 login_counter_fut;
-login_counter_opt1;
-login_counter_opt2;
+% login_counter_opt1;
 %%
 init_mde;
 %%
-instrument_list = {'cu1807';'al1807';'zn1808';'pb1808';'ni1807';'cu1808';...
-    'al1808';'ni1809';...
-    'rb1810';'i1809';...
-    'TF1809';'T1809'};
+instrument_list = {'cu1810';'al1810';'zn1810';'pb1810';'ni1811';...
+    'rb1901';'i1901';...
+    'TF1812';'T1812'};
 %%
-strat_citic = init_stratmanual('counter',c_fut,'mdefut',mdefut,'instrumentlist',instrument_list,'positionfrom','counter','futlist','all');
-strat_ccb = init_stratmanual('counter',c_opt1,'mdefut',mdefut,'instrumentlist',instrument_list,'positionfrom','counter','futlist','all');
-strat_huaxin = init_stratmanual('counter',c_opt2,'mdefut',mdefut,'instrumentlist',instrument_list,'positionfrom','counter','futlist','all');
+strat_citic = init_stratmanual('counter',c_fut,'mdefut',mdefut,'instrumentlist',instrument_list);
+% strat_citic = init_stratmanual('counter',c_fut,'mdefut',mdefut,'instrumentlist',instrument_list,'positionfrom','counter','futlist','all');
+% strat_ccb = init_stratmanual('counter',c_opt1,'mdefut',mdefut,'instrumentlist',instrument_list,'positionfrom','counter','futlist','all');
 %%
 mdefut.start;mdefut.timer_.tag = 'mdefut';
 %% print pnl
 clc;
 strat_citic.helper_.printrunningpnl('mdefut',mdefut)
-strat_ccb.helper_.printrunningpnl('mdefut',mdefut)
-strat_huaxin.helper_.printrunningpnl('mdefut',mdefut)
+% strat_ccb.helper_.printrunningpnl('mdefut',mdefut)
+% strat_huaxin.helper_.printrunningpnl('mdefut',mdefut)
 %% print market
 clc;mdefut.printmarket;
 %% ÏÂµ¥
-counter_name = 'c_opt1';
-ctp_code = 'T1809';
+counter_name = 'c_fut';
+ctp_code = 'T1812';
 direction = 'long';
 offset = 'open';
-closetoday = 1;
+closetoday = 0;
 volume = 1;
-px = 94.495;
+px = 95.140;
 
 if px < 0 && px ~= -1, error('invalid price input'); end
 
@@ -75,29 +73,30 @@ end
 clc;
 strat_citic.helper_.printpendingentrusts;
 strat_ccb.helper_.printpendingentrusts;
-strat_huaxin.helper_.printpendingentrusts;
+% strat_huaxin.helper_.printpendingentrusts;
 %%
 clc;
 strat_citic.helper_.printallentrusts;
-strat_ccb.helper_.printallentrusts;
-strat_huaxin.helper_.printallentrusts;
+% strat_ccb.helper_.printallentrusts;
+% strat_huaxin.helper_.printallentrusts;
 %%
 if isempty(timerfindall)
     mdefut.start;mdefut.timer_.tag = 'mdefut';
     strat_citic.helper_.start;strat_citic.helper_.timer_.tag = 'ops';
     strat_ccb.helper_.start;strat_ccb.helper_.timer_.tag = 'ops';
-    strat_huaxin.helper_.start;strat_huaxin.helper_.timer_.tag = 'ops';
+%     strat_huaxin.helper_.start;strat_huaxin.helper_.timer_.tag = 'ops';
 end
 %%
 mdefut.stop
 strat_citic.helper_.stop;
-strat_ccb.helper_.stop;
-strat_huaxin.helper_.stop;
+% strat_ccb.helper_.stop;
+% strat_huaxin.helper_.stop;
 delete(timerfindall);
 %%
 logoff_counters;
 clear all;
 %%
-strat_citic.withdrawentrusts('T1809')
-strat_huaxin.withdrawentrusts('T1809')
+strat_citic.withdrawentrusts('T1812')
+% strat_citic.withdrawentrusts('zn1809')
+% strat_huaxin.withdrawentrusts('T1809')
 
