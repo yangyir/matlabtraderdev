@@ -2,7 +2,7 @@ countername = 'citic_kim_fut';
 bookname = 'book1';
 markettype = 'futures';
 strategyname = 'manual';
-instruments = {'ni1809'};
+instruments = {'T1809'};
 code = instruments{1};
 
 combos = rtt_setup('CounterName',countername,'BookName',bookname,...

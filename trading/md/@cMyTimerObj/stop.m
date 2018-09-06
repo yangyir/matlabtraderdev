@@ -3,7 +3,7 @@ function stop(mytimerobj)
     try
         stop(mytimerobj.timer_);
         %delete the timer object from memory
-        delete(mytimerobj.timer_);
+%         delete(mytimerobj.timer_);
     catch e
         fprintf('%s\n',e.message);
     end
