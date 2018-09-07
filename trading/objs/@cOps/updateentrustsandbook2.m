@@ -32,14 +32,18 @@ function [] = updateentrustsandbook2(obj)
                 %dealAmount, dealPrice and cancelVolume
                 f0 = obj.book_.counter_.queryEntrust(e);
                 %note:if e.volume == 0, it is closed. or if e.dealVolume +
-                %e.cancleVolume == e.volume
+                %e.cancelVolume == e.volume
                 f1 = e.is_entrust_closed;
                 f2 = e.dealVolume > 0;
-                if f0 && f1 && f2
+                flagCanceled = f1 & e.cancelVolume ~= 0 & e.cancelVolume <= e.volume;
+                if f0 && f1 && (f2 || flagCanceled) 
                     %note:yangyiran 20180810:we update the complete_time_
                     %here manually as the queryEntrust function doesn't
                     %return this information.
                     e.complete_time_ = now;
+                end
+                if flagCanceled
+                    e.complete_time_ = e.cancelTime;
                 end
             elseif strcmpi(obj.mode_,'replay')
                 codestr = e.instrumentCode;
@@ -68,22 +72,37 @@ function [] = updateentrustsandbook2(obj)
                         f1 = 0;
                     end
                 end
-                f2 = f1;
-                if f1
+                flagCanceled = f0 & e.cancelVolume ~= 0 & e.cancelVolume <= e.volume;
+                if f1 && flagCanceled
+                    error('cOps:updateentrustsandbook:internal error')
+                end
+                
+                if ~f1 && flagCanceled
+                    f1 = 1;
+                end
+                
+                if f1 && ~flagCanceled
+                    f2 = 1;
+                elseif f1 && flagCanceled
+                    f2 = 0;
+                else
+                    f2 = 0;
+                end
+                
+                if f1 && ~flagCanceled
                     %once the entrust is executed
                     e.dealVolume = e.volume;
                     e.dealPrice = e.price;
                     e.complete_time_ = ticks(1);
                 end
+                if flagCanceled
+                    e.complete_time_ = e.cancelTime;
+                end
             end
+            
             if f0 && f1 && f2
                 entrusts.push(e);
                 fprintf('executed entrust: %d at %s......\n',e.entrustNo,datestr(e.complete_time_,'yyyy-mm-dd HH:MM:SS'));
-                
-                %this entrust is fully placed and we shall update the book
-%                 obj.book_.addpositions('code',e.instrumentCode,'price',e.price,...
-%                     'volume',e.direction*e.dealVolume,'time',e.complete_time_,...
-%                     'closetodayflag',e.closetodayFlag);
 
                 % update trades as well
                 if e.offsetFlag == 1
@@ -112,16 +131,70 @@ function [] = updateentrustsandbook2(obj)
                 elseif e.offsetFlag == -1
                     %close long or close short
                     tradeid = e.tradeid_;
-                    ntrades = obj.trades_.latest_;
-                    for itrade = 1:ntrades
-                        trade_i = obj.trades_.node_(itrade);
-                        if strcmpi(trade_i.id_,tradeid)
-                            instrument = trade_i.instrument_;
-                            trade_i.closedatetime1_ = e.complete_time_;
-                            trade_i.closeprice_ = e.price;
-                            trade_i.runningpnl_ = 0;
-                            trade_i.closepnl_ = trade_i.opendirection_*trade_i.openvolume_*(e.price-trade_i.openprice_)/ instrument.tick_size * instrument.tick_value;
+                    %note:yangyiran:20180907:tradeid_ are not assigned with
+                    %the entrust in case we trades in manual mode and
+                    %therefor one close trade might associated with more
+                    %than one tradeopen
+                    if ~isempty(tradeid)
+                        %this entrust shall be generated automatically by
+                        %the strategy
+                        ntrades = obj.trades_.latest_;
+                        for itrade = 1:ntrades
+                            trade_i = obj.trades_.node_(itrade);
+                            if strcmpi(trade_i.id_,tradeid)
+                                instrument = trade_i.instrument_;
+                                trade_i.closedatetime1_ = e.complete_time_;
+                                trade_i.closeprice_ = e.price;
+                                trade_i.runningpnl_ = 0;
+                                trade_i.closepnl_ = trade_i.opendirection_*trade_i.openvolume_*(e.price-trade_i.openprice_)/ instrument.tick_size * instrument.tick_value;
+                            end
                         end
+                    else
+                        instrumentcode = e.instrumentCode;
+                        dealvolume = e.dealVolume;
+                        direction = e.direction;
+                        ntrades = obj.trades_.latest_;
+                        volumeremained = dealvolume;
+                        for itrade = 1:ntrades
+                            trade_i = obj.trades_.node_(itrade);
+                            if strcmpi(trade_i.code_,instrumentcode) && ~strcmpi(trade_i.status_,'closed') ...
+                                    && volumeremained > 0 && direction ~= trade_i.opendirection_ 
+                                instrument = trade_i.instrument_;
+                                volumeremained = volumeremained - trade_i.openvolume_;
+                                if volumeremained >= 0
+                                    trade_i.status_ = 'closed';
+                                    trade_i.closedatetime1_ = e.complete_time_;
+                                    trade_i.closeprice_ = e.price;
+                                    trade_i.runningpnl_ = 0;
+                                    trade_i.closepnl_ = trade_i.opendirection_*trade_i.openvolume_*(e.price-trade_i.openprice_)/ instrument.tick_size * instrument.tick_value;
+                                else
+                                    %note:partially closed
+                                    %yangyiran:20180907:we take the
+                                    %following steps
+                                    %1.we hard copy a new trade from the
+                                    %orignal trade
+                                    %2.we set the new trade fully closed
+                                    %with changing its open volume to the
+                                    %volume closed
+                                    %3.we set the orignal trade still open
+                                    %but to change its open volume to the
+                                    %volume still not closed
+                                    newtrade = trade_i.copy;
+                                    newtrade.openvolume_ = trade_i.openvolume_ + volumeremained; 
+                                    newtrade.status_ = 'closed';
+                                    newtrade.closedatetime1_ = e.complete_time_;
+                                    newtrade.closeprice_ = e.price;
+                                    newtrade.runningpnl_ = 0;
+                                    newtrade.closepnl_ = newtrade.opendirection_*newtrade.openvolume_*(e.price-newtrade.openprice_)/ instrument.tick_size * instrument.tick_value; 
+                                    %
+                                    trade_i.openvolume = -volumeremained;
+                                    obj.trades_.push(newtrade);                                    
+                                    volumeremained = 0;
+                                end
+                            end
+                        end
+                        
+                        
                     end
                 end
                 
@@ -130,7 +203,6 @@ function [] = updateentrustsandbook2(obj)
                 
             elseif f0 && f1 && ~f2
                 % this entrust is canceled
-                fprintf('cancelled entrust: %d......\n',e.entrustNo);
                 entrusts.push(e);
             end
         end

@@ -1,3 +1,4 @@
+clear all;clc
 countername = 'citic_kim_fut';
 bookname = 'book1';
 markettype = 'futures';
@@ -25,11 +26,6 @@ combos.strategy.settimerinterval(1/replayspeed);
 
 fprintf('\nready for replay with replay time at:%s...\n',combos.mdefut.replay_time2_);
 %%
-%test mdefut refresh in replay mode with fast replay speed
-fastreplayspeed = 100;
-combos.mdefut.settimerinterval(0.5/fastreplayspeed);
-combos.mdefut.start;
-%%
 %test the manual trading at a lower replay speed
 clc;
 slowreplayspeed = 5;
@@ -45,22 +41,24 @@ combos.ops.start;
 %last we start the strategy
 combos.strategy.start;
 %%
-volume = 4;
-direction = 's';
-offset = 'close';
+signalinfo = struct('name','manual');
+volume = 2;
+direction = 'b';
+offset = 'open';
 spread = 0;
-price = 95.45;
+price = 95.115;
 closetoday = 1;
 if strcmpi(direction,'b') && strcmpi(offset,'open')
-    combos.strategy.longopensingleinstrument(code,volume,spread,'overrideprice',price);
+    combos.strategy.longopensingleinstrument(code,volume,spread,'overrideprice',price,'signalinfo',signalinfo);
 elseif strcmpi(direction,'s') && strcmpi(offset,'open')
-    combos.strategy.shortopensingleinstrument(code,volume);
+    combos.strategy.shortopensingleinstrument(code,volume,spread,'overrideprice',price,'signalinfo',signalinfo);
 elseif strcmpi(direction,'b') && strcmpi(offset,'close')    
-    combos.strategy.longclosesingleinstrument(code,volume,closetoday);
+    combos.strategy.longclosesingleinstrument(code,volume,closetoday,spread,'overrideprice',price);
 elseif strcmpi(direction,'s') && strcmpi(offset,'close')
-    combos.strategy.shortclosesingleinstrument(code,volume,closetoday);
+    combos.strategy.shortclosesingleinstrument(code,volume,closetoday,spread,'overrideprice',price);
 end
-    
+%%
+combos.strategy.withdrawentrusts(code,'time',combos.mdefut.getreplaytime);
 %%
 combos.mdefut.stop;
 %%

@@ -27,10 +27,10 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
     if ~isempty(price),use_price = true;end
     if ~isempty(volume),use_volume = true;end
     
-    c = ops.book_.counter_;
     pe = ops.entrustspending_;
     ret = 0;
     entrusts = EntrustArray;
+    
     for i = 1:pe.latest
         e = ops.entrustspending_.node(i);
         if strcmpi(e.instrumentCode,codestr)
@@ -51,13 +51,24 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
             if ~flag, continue; end
             
             if strcmpi(ops.mode_,'realtime')
+                c = ops.book_.counter_;
                 ret = withdrawentrust(c,e);
-                entrusts.push(e);
+                if ret
+%                     ops.entrustspending_.removeByIndex(i);    
+                    entrusts.push(e);
+                    fprintf('%s cancel entrust:%d....\n',...
+                        datestr(e.cancelTime,'yyyymmdd HH:MM:SS'),...
+                        e.entrustNo);
+                else
+                end
             elseif strcmpi(ops.mode_,'replay')
-                ops.entrustspending_.removeByIndex(i);
+%                 ops.entrustspending_.removeByIndex(i);
                 e.cancelTime = t;
                 e.cancelVolume = e.volume;
                 entrusts.push(e);
+                fprintf('%s cancel entrust:%d....\n',...
+                    datestr(e.cancelTime,'yyyymmdd HH:MM:SS'),...
+                    e.entrustNo);
             end
         end
     end

@@ -17,12 +17,7 @@ function [ret,e] = longopensingleinstrument(strategy,ctp_code,lots,spread,vararg
     end
     
     isopt = isoptchar(ctp_code);
-    if isopt
-        instrument = cOption(ctp_code);
-    else
-        instrument = cFutures(ctp_code);
-    end
-    instrument.loadinfo([ctp_code,'_info.txt']);
+    instrument = code2instrument(ctp_code);
     
     [bool, idx] = strategy.instruments_.hasinstrument(instrument);
     if ~bool

@@ -103,6 +103,7 @@ classdef cTradeOpen < handle
         [] = setriskmanager(obj,varargin)
         [data,headers] = tradeopen2table(obj)
         [obj] = table2tradeopen(obj,headers,data)
+        [newtrade] = copy(obj)
         
     end
     
