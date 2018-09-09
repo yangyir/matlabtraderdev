@@ -16,12 +16,16 @@ function [] = updatestratwithentrust(strategy,e)
     elseif strcmpi(strategy.mode_,'replay')
         %we assume the entrust is always placed in replay mode
         f0 = true;
-%         f1 = true;
         f1 = e.is_entrust_closed;
-        f2 = f1;
+        f2 = f1 & e.cancelVolume == 0;
     end
     [f3,idx] = strategy.instruments_.hasinstrument(e.instrumentCode);
-    if f0&&f1&&f2&&f3
+    %note:yangyiran:20180907
+    %only executed entrust with open orders as close orders are for
+    %risk-management or profit taking purposes
+    f4 = e.offsetFlag == 1;
+    
+    if f0&&f1&&f2&&f3&&f4
         instrument = strategy.instruments_.getinstrument{idx};
         if isa(instrument,'cFutures')
             bucketnum = strategy.mde_fut_.getcandlecount(instrument);

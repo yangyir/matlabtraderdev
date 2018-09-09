@@ -18,6 +18,24 @@ function [] = updateentrustsandbook2(obj)
     % in case there is no pending entrusts, we dont need to update entrust
     if npending == 0, updateentrust = false; end
     
+    %注释：
+    %根据委托订单成交的情况，我们将订单的状态分为下面的几种情况：
+    %1.无效订单 (closed)
+    %   e.volume <= 0
+    %2:有效订单全部成交（closed)：
+    %   e.volume > 0 & e.dealVolume == e.volume & e.cancelVolume = 0
+    %3:有效订单部分成交且未成交部分未取消(not closed)：
+    %   e.volume > 0 & 0 < e.dealVolume < e.volume & e.cancelVolume == 0
+    %4.有效订单部分成交且未成交部分全部取消(closed)
+    %   e.volume > 0 & 0 < e.dealVolume < e.volume & e.dealVolume + e.cancelVolume == e.volume    
+    %5.有效订单全部未成交且未取消(not closed)：
+    %   e.volume > 0 & e.dealVolume == 0 & cancelVolume == 0
+    %6.有效订单全部未成交且全部取消(closed)：
+    %   e.volume > 0 & e.cancelVolume == e.volume & e.dealVolume = 0
+    %对于状态1，2，4，6，毫无疑问需要更新委托的状态从pending到finished
+    %对于状态3，我们需要用dealVolume来更新持仓，但是同时我们需要保留该委托的状态
+    %对于状态5，我们无需做任何事
+    
     warning('off');
     entrusts = EntrustArray;
     if updateentrust
@@ -30,7 +48,8 @@ function [] = updateentrustsandbook2(obj)
                 %note:in real-time trading, CounterCTP:queryEntrust update
                 %the entrust with only FOUR properties, i.e. dealVolume,
                 %dealAmount, dealPrice and cancelVolume
-                f0 = obj.book_.counter_.queryEntrust(e);
+                counter = obj.getcounter;
+                f0 = counter.queryEntrust(e);
                 %note:if e.volume == 0, it is closed. or if e.dealVolume +
                 %e.cancelVolume == e.volume
                 f1 = e.is_entrust_closed;
@@ -187,7 +206,7 @@ function [] = updateentrustsandbook2(obj)
                                     newtrade.runningpnl_ = 0;
                                     newtrade.closepnl_ = newtrade.opendirection_*newtrade.openvolume_*(e.price-newtrade.openprice_)/ instrument.tick_size * instrument.tick_value; 
                                     %
-                                    trade_i.openvolume = -volumeremained;
+                                    trade_i.openvolume_ = -volumeremained;
                                     obj.trades_.push(newtrade);                                    
                                     volumeremained = 0;
                                 end

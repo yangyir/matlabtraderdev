@@ -51,7 +51,7 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
             if ~flag, continue; end
             
             if strcmpi(ops.mode_,'realtime')
-                c = ops.book_.counter_;
+                c = ops.getcounter;
                 ret = withdrawentrust(c,e);
                 if ret
 %                     ops.entrustspending_.removeByIndex(i);    

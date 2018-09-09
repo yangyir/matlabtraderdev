@@ -63,7 +63,8 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
     
     warning('off');
     if strcmpi(modestr,'realtime')
-        ret = ops.book_.counter_.placeEntrust(entrust);
+        counter = ops.getcounter;
+        ret = counter.placeEntrust(entrust);
     elseif strcmpi(modestr,'replay')
         %in the replay mode we assume the entrust is always placed
         ret = 1;

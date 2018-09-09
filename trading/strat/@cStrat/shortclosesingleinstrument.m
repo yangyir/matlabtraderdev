@@ -16,24 +16,21 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
         closetodayFlag = 0;
     end
 
-%     if isempty(strategy.counter_)
-%         fprintf('cStrat:counter not registered in strategy\n');
-%         return
-%     end
-
     if ~ischar(ctp_code)
         error('cStrat:shortclosesingleinstrument:invalid ctp_code input')
     end
     
     isopt = isoptchar(ctp_code);
-    if isopt
-        instrument = cOption(ctp_code);
-    else
-        instrument = cFutures(ctp_code);
-    end
-    instrument.loadinfo([ctp_code,'_info.txt']);
+    instrument = code2instrument(ctp_code);
     
     [f1, idx] = strategy.instruments_.hasinstrument(instrument);
+    if ~f1
+        fprintf('cStrat:shortclosesingleinstrument:%s not registered in strategy\n',ctp_code);
+        ret = 0;
+        e = [];
+        return; 
+    end
+        
     try
         [f2,idxp] = strategy.helper_.book_.hasposition(instrument);
     catch
@@ -41,30 +38,48 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
         idxp = 0;
     end
     
-    if ~f1
-        fprintf('cStrat:shortclosesingleinstrument:%s not registered in strategy\n',ctp_code)
-        return; 
-    end
-    
     if ~f2
-        fprintf('cStrat:shortclosesingleinstrument:%s not traded in strategy\n',ctp_code)
+        fprintf('cStrat:shortclosesingleinstrument:%s not traded in strategy\n',ctp_code);
+        ret = 0;
+        e = [];
         return; 
     end
     
-%     volume = abs(strategy.bookrunning_.positions_{idxp}.position_total_);
     volume = abs(strategy.helper_.book_.positions_{idxp}.position_total_);
     
     if volume <= 0
         fprintf('cStrat:shortclosesingleinstrument:%s:existing long position not found\n',ctp_code);
+        ret = 0;
+        e = [];
         return
     end
     
     if abs(volume) < abs(lots)
-        %note:we will close the current position with the lots size
-        %adjuste. however, an warning message shall still be printed on the
-        %screen
         fprintf('cStrat:shortclosesingleinstrument:%s:input size exceeds existing size\n',ctp_code);
-        lots = abs(volume);
+        ret = 0;
+        e = [];
+        return
+    end
+    
+    %note:yangyiran:20180907
+    %we need also check whether there are pending entrusts which are aimed
+    %to close some or all of the position
+    try
+        npending = strategy.helper_.entrustspending_.latest;
+        volumepending = 0;
+        for i = 1:npending
+            entrust_i = strategy.helper_.entrustspending_.node(i);
+            if strcmpi(entrust_i.instrumentCode,ctp_code) && ...
+                    entrust_i.offsetFlag == -1 && ...
+                    entrust_i.direction == -1
+                volumepending = volumepending + entrust_i.volume;
+            end
+        end
+    catch err
+        fprintf('cStrat:shortclosesingleinstrument:%s:internal error when some pending entrust exists:%s...\n',ctp_code,err.message);
+        ret = 0;
+        e = [];
+        return
     end
     
     if ~isempty(overridepx)
