@@ -1,5 +1,8 @@
 function [] = updatecandleinmem(mdefut)
     if isempty(mdefut.ticks_), return; end
+    if isempty(mdefut.candles4save_), return; end
+    if isempty(mdefut.candles_),return;end
+    
     ns = size(mdefut.ticks_,1);
     count = mdefut.ticks_count_;
     instruments = mdefut.qms_.instruments_.getinstrument;
