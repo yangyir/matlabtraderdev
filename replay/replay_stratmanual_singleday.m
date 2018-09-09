@@ -34,7 +34,6 @@ combos.ops.settimerinterval(1/slowreplayspeed);
 combos.strategy.settimerinterval(1/slowreplayspeed);
 %always start the MDE first
 combos.mdefut.start;
-%%
 %then we start the OPs
 combos.ops.start;
 %%
@@ -42,11 +41,11 @@ combos.ops.start;
 combos.strategy.start;
 %%
 signalinfo = struct('name','manual');
-volume = 2;
+volume = 1;
 direction = 'b';
-offset = 'open';
+offset = 'close';
 spread = 0;
-price = 95.115;
+price = 95.490;
 closetoday = 1;
 if strcmpi(direction,'b') && strcmpi(offset,'open')
     combos.strategy.longopensingleinstrument(code,volume,spread,'overrideprice',price,'signalinfo',signalinfo);
