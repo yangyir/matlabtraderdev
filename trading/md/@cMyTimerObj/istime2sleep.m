@@ -8,7 +8,7 @@ function [flag] = istime2sleep(obj,t)
     dnum = floor(tnum);
     
     %market definitely closes on public holidays
-    if isholiday(dnum)
+    if isholiday(dnum) && weekday(dnum) ~= 7
        obj.status_ = 'sleep';
        flag = true;
        return
@@ -32,7 +32,7 @@ function [flag] = istime2sleep(obj,t)
            obj.status_ = 'sleep';
            flag = true;
        else
-           dnum = floor(dtnum);
+           dnum = floor(tnum);
            nextMonday = dnum + 2;
            if isholiday(nextMonday)
                obj.status_ = 'sleep';
