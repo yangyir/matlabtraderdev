@@ -62,8 +62,8 @@ function [] = loadtrades(obj,varargin)
     positions = trades.convert2positions;
     
     newBook = cBook;
-    if ~isempty(bookname), newBook.bookname_ = bookname;end
-    if ~isempty(countername), newBook.counter_ = CounterCTP.(countername);end
+    if ~isempty(bookname), newBook.setbookname(bookname);end
+    if ~isempty(countername), newBook.setcountername(countername);end
     
     newBook.positions_ = positions;
     obj.book_ = newBook;

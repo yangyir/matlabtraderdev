@@ -81,12 +81,18 @@ function [] = updateentrustsandbook2(obj)
                     %rather than lessorequal/greaterorequal sign here
                     try
                         f1 = ticks(2) < e.price;
+                        if f1
+                            e.dealPrice = ticks(2);
+                        end
                     catch
                         f1 = 0;
                     end
                 else
                     try
                         f1 = ticks(2) > e.price;
+                        if f1
+                            e.dealPrice = ticks(2);
+                        end
                     catch
                         f1 = 0;
                     end
@@ -111,7 +117,6 @@ function [] = updateentrustsandbook2(obj)
                 if f1 && ~flagCanceled
                     %once the entrust is executed
                     e.dealVolume = e.volume;
-                    e.dealPrice = e.price;
                     e.complete_time_ = ticks(1);
                 end
                 if flagCanceled
@@ -136,8 +141,8 @@ function [] = updateentrustsandbook2(obj)
                         'bookname',obj.book_.bookname_,...
                         'code',e.instrumentCode,...
                         'opendatetime',e.complete_time_,...
-                        'openvolume',e.volume,...
-                        'openprice',e.price,...
+                        'openvolume',e.dealVolume,...
+                        'openprice',e.dealPrice,...
                         'opendirection',e.direction,...
                         'stopdatetime',tradestopdatetime);
                     if ~isempty(e.signalinfo_)

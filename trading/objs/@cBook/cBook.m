@@ -17,6 +17,10 @@ classdef cBook < handle
     
     %set methods
     methods
+        function [] = setbookname(obj,bookname)
+            obj.bookname_ = bookname;
+        end
+        
         function [] = settradername(obj,tradername)
             obj.tradername_ = tradername;
         end

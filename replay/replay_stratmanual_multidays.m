@@ -12,10 +12,13 @@ fprintf('\ncombos successfully created...\n');
 %%
 % replay set up
 replayspeed = 50;
-checkdt = '2018-06-19';
-replayfn = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
+replayfns = cell(4,1);
+replayfns{1,1} = ['C:\yangyiran\regressiondata\',code,'_20180619_tick.mat'];
+replayfns{2,1} = ['C:\yangyiran\regressiondata\',code,'_20180620_tick.mat'];
+replayfns{3,1} = ['C:\yangyiran\regressiondata\',code,'_20180621_tick.mat'];
+replayfns{4,1} = ['C:\yangyiran\regressiondata\',code,'_20180622_tick.mat']; 
 
-combos.mdefut.initreplayer('code',code,'fn',replayfn);
+combos.mdefut.initreplayer('code',code,'filenames',replayfns);
 combos.mdefut.settimerinterval(0.5/replayspeed);
 %
 combos.ops.mode_ = 'replay';
@@ -28,7 +31,7 @@ fprintf('\nready for replay with replay time at:%s...\n',combos.mdefut.replay_ti
 %%
 %test the manual trading at a lower replay speed
 clc;
-slowreplayspeed = 5;
+slowreplayspeed = 20;
 combos.mdefut.settimerinterval(0.5/slowreplayspeed);
 combos.ops.settimerinterval(1/slowreplayspeed);
 combos.strategy.settimerinterval(1/slowreplayspeed);
@@ -42,11 +45,11 @@ combos.ops.start;
 combos.strategy.start;
 %%
 signalinfo = struct('name','manual');
-volume = 1;
-direction = 'b';
-offset = 'open';
+volume = 6;
+direction = 's';
+offset = 'close';
 spread = 0;
-price = 95.2;
+price = 95.615;
 closetoday = 1;
 if strcmpi(direction,'b') && strcmpi(offset,'open')
     combos.strategy.longopensingleinstrument(code,volume,spread,'overrideprice',price,'signalinfo',signalinfo);
