@@ -1,4 +1,4 @@
-clear all;clc
+clear all;clc;delete(timerfindall);
 countername = 'citic_kim_fut';
 bookname = 'book1';
 markettype = 'futures';
@@ -11,7 +11,7 @@ fprintf('\ncombos successfully created...\n');
 
 %%
 % replay set up
-replayspeed = 10;
+replayspeed = 50;
 checkdt = '2018-06-19';
 replayfn = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 
@@ -37,22 +37,29 @@ combos.ops.start;
 %last we start the strategy
 combos.strategy.start;
 %%
-signalinfo = struct('name','manual');
-volume = 1;
-direction = 'b';
-offset = 'open';
-spread = 0;
-price = 95.2;
-closetoday = 1;
-if strcmpi(direction,'b') && strcmpi(offset,'open')
-    combos.strategy.longopensingleinstrument(code,volume,spread,'overrideprice',price,'signalinfo',signalinfo);
-elseif strcmpi(direction,'s') && strcmpi(offset,'open')
-    combos.strategy.shortopensingleinstrument(code,volume,spread,'overrideprice',price,'signalinfo',signalinfo);
-elseif strcmpi(direction,'b') && strcmpi(offset,'close')    
-    combos.strategy.longclosesingleinstrument(code,volume,closetoday,spread,'overrideprice',price);
-elseif strcmpi(direction,'s') && strcmpi(offset,'close')
-    combos.strategy.shortclosesingleinstrument(code,volume,closetoday,spread,'overrideprice',price);
+volume1 = 6;
+volume2 = 2;
+price1 = 95.095;
+price2 = 95.115;
+nentrusts = combos.ops.entrusts_.latest;
+while nentrusts == 0
+    combos.strategy.longopensingleinstrument(code,volume1,0,'overrideprice',price1);
+    combos.strategy.longopensingleinstrument(code,volume2,0,'overrideprice',price2);
+    nentrusts = combos.ops.entrusts_.latest;
 end
+
+closetoday = 1;
+nfinished = combos.ops.entrustsfinished_.latest;
+while nfinished ~= 2
+    pause(10);
+    nfinished = combos.ops.entrustsfinished_.latest;
+    if nfinished == 2
+        break
+    end
+end
+combos.strategy.shortclosesingleinstrument(code,1,closetoday,0,'overrideprice',price2+0.4);
+combos.strategy.shortclosesingleinstrument(code,1,closetoday,0,'overrideprice',price2+0.45);
+
 %%
 combos.strategy.withdrawentrusts(code,'time',combos.mdefut.getreplaytime);
 %%

@@ -79,6 +79,17 @@ classdef cOps < cMyTimerObj
         end
         %end of registercounter
         
+        function [] = registerpasttrades(obj,trades)
+            if isa(trades,'cTradeOpenArray')
+                %we only register trades that are not closed
+                livetrades = trades.filterby('status','live');
+                obj.trades_ = livetrades;
+            else
+                error('cOps:registerpasttrades:invalid trades input')
+            end
+        end
+        %end of registerpasttrades
+        
         function countertype = get.countertype_(obj)
             if isempty(obj.counterCTP_) && isempty(obj.counterHSO32_)
                 countertype = 'unknown';

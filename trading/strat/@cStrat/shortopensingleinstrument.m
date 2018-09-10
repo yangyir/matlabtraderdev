@@ -11,10 +11,6 @@ function [ret,e] = shortopensingleinstrument(strategy,ctp_code,lots,spread,varar
     if lots <= 0 
         return; 
     end
-%     if isempty(strategy.counter_)
-%         fprintf('cStrat:counter not registered in strategy\n');
-%         return
-%     end
 
     if ~ischar(ctp_code)
         error('cStrat:shortopensingleinstrument:invalid ctp_code input')

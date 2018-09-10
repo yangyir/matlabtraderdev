@@ -62,8 +62,7 @@ function [] = loadtrades(obj,varargin)
     newBook = cBook;
     if ~isempty(bookname), newBook.setbookname(bookname);end
     if ~isempty(countername), newBook.setcountername(countername);end
-    
-    newBook.setpositions(positions);
+    if ~isempty(positions), newBook.setpositions(positions);end
     obj.book_ = newBook;
     obj.entrusts_ = EntrustArray;
     obj.entrustspending_ = EntrustArray;
