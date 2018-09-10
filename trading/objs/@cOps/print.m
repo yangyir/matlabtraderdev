@@ -1,4 +1,5 @@
 function [] = print(obj,varargin)
+%cOps
     if ~obj.printflag_, return; end
     
     p = inputParser;
@@ -10,14 +11,19 @@ function [] = print(obj,varargin)
     if strcmpi(obj.status_,'sleep')
         fprintf('%s:ops sleeps......\n',datestr(time,'yyyy-mm-dd HH:MM:SS'));
     elseif strcmpi(obj.status_,'working')
+        ismarketopen = sum(obj.mdefut_.ismarketopen('time',time));
         try
-            obj.printrunningpnl('mdefut',obj.mdefut_);
+            if ismarketopen
+                obj.printrunningpnl('mdefut',obj.mdefut_);
+            end
         catch e
             fprintf('error:cOps:printrunningpnl:%s\n',e.message);
         end
         %
         try
-            obj.printallentrusts;
+            if ismarketopen
+                obj.printallentrusts;
+            end
         catch e
             fprintf('error:cOps:printpendingentrusts:%s\n',e.message);
         end

@@ -124,6 +124,8 @@ classdef cMDEFut < cMyTimerObj
         
         [] = move2cobdate(obj,cobdate)
         
+        [ret] = ismarketopen(obj,varargin)
+        
     end
     
     methods (Static = true)

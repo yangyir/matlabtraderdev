@@ -82,6 +82,13 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
         return
     end
     
+    if abs(volume) < abs(lots) + volumepending
+        fprintf('cStrat:shortclosesingleinstrument:%s:input size exceeds existing size with pending entrusts\n',ctp_code);
+        ret = 0;
+        e = [];
+        return
+    end
+    
     if ~isempty(overridepx)
         orderprice = overridepx;
     else

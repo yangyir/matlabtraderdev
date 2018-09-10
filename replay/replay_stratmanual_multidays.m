@@ -13,7 +13,6 @@ fprintf('\ncombos successfully created...\n');
 % replay set up
 replayspeed = 50;
 replayfns = cell(4,1);
-replayfns{1,1} = ['C:\yangyiran\regressiondata\',code,'_20180619_tick.mat'];
 replayfns{2,1} = ['C:\yangyiran\regressiondata\',code,'_20180620_tick.mat'];
 replayfns{3,1} = ['C:\yangyiran\regressiondata\',code,'_20180621_tick.mat'];
 replayfns{4,1} = ['C:\yangyiran\regressiondata\',code,'_20180622_tick.mat']; 
@@ -45,11 +44,11 @@ combos.ops.start;
 combos.strategy.start;
 %%
 signalinfo = struct('name','manual');
-volume = 6;
+volume = 1;
 direction = 's';
 offset = 'close';
 spread = 0;
-price = 95.615;
+price = 95.545;
 closetoday = 1;
 if strcmpi(direction,'b') && strcmpi(offset,'open')
     combos.strategy.longopensingleinstrument(code,volume,spread,'overrideprice',price,'signalinfo',signalinfo);

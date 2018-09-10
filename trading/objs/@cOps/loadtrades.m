@@ -26,7 +26,7 @@ function [] = loadtrades(obj,varargin)
     
     if isempty(countername)
         try
-            countername = obj.book_.counter_.char;
+            countername = obj.book_.countername_;
         catch
             countername = '';
         end
@@ -54,8 +54,6 @@ function [] = loadtrades(obj,varargin)
         filename = [dir_data_,bookname,'_trades_',datestr(lastbd,'yyyymmdd'),'.txt'];
     end
     
-
-    
     trades = cTradeOpenArray;
     trades.fromtxt(filename);
     trades.filterby('CounterName',countername,'BookName',bookname);
@@ -65,7 +63,7 @@ function [] = loadtrades(obj,varargin)
     if ~isempty(bookname), newBook.setbookname(bookname);end
     if ~isempty(countername), newBook.setcountername(countername);end
     
-    newBook.positions_ = positions;
+    newBook.setpositions(positions);
     obj.book_ = newBook;
     obj.entrusts_ = EntrustArray;
     obj.entrustspending_ = EntrustArray;

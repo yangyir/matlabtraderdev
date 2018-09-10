@@ -5,13 +5,13 @@ markettype = 'futures';
 strategyname = 'manual';
 instruments = {'T1809'};
 code = instruments{1};
-
 combos = rtt_setup('CounterName',countername,'BookName',bookname,...
     'MarketType',markettype,'StrategyName',strategyname,'Instruments',instruments);
 fprintf('\ncombos successfully created...\n');
+
 %%
 % replay set up
-replayspeed = 50;
+replayspeed = 10;
 checkdt = '2018-06-19';
 replayfn = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 
@@ -25,13 +25,9 @@ combos.strategy.mode_ = 'replay';
 combos.strategy.settimerinterval(1/replayspeed);
 
 fprintf('\nready for replay with replay time at:%s...\n',combos.mdefut.replay_time2_);
+
 %%
-%test the manual trading at a lower replay speed
 clc;
-slowreplayspeed = 5;
-combos.mdefut.settimerinterval(0.5/slowreplayspeed);
-combos.ops.settimerinterval(1/slowreplayspeed);
-combos.strategy.settimerinterval(1/slowreplayspeed);
 %always start the MDE first
 combos.mdefut.start;
 %%

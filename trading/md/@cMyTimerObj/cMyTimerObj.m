@@ -3,6 +3,7 @@ classdef cMyTimerObj < handle
         name_@char = 'timer'
         mode_@char = 'realtime'
         status_@char = 'sleep'
+        onerror_@char = 'stop'
         %
         printflag_@logical = true
         print_timeinterval_@double = 60   %display the relative information every minute
@@ -19,6 +20,7 @@ classdef cMyTimerObj < handle
         %
         %         timer_@timer
         timer_                       %do not assign data variable type
+        
     end
     
     properties (GetAccess = public, SetAccess = private)
@@ -59,6 +61,14 @@ classdef cMyTimerObj < handle
             end
             obj.status_ = statusin;
         end
+        
+        function [] = set.onerror_(obj,onerrstr)
+            if ~(strcmpi(onerrstr,'resume') || strcmpi(onerrstr,'stop'))
+                error('on error of timer object can be resume or stop only')
+            end
+            obj.onerror_ = onerrstr;
+        end
+        
     end
     
     %set and get methods for private properties
