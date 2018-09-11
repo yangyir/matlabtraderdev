@@ -37,6 +37,10 @@ combos.ops.start;
 %last we start the strategy
 combos.strategy.start;
 %%
+% test procedure: 1. to place 2 open long entrusts at price1 and price2
+% with volume1 and volume2 respectively. Once these 2 entrusts have been
+% completely exercuted, place 2 close short entrusts at price2+0.4 and
+% price2 +0.45 with unit volume respectively
 volume1 = 6;
 volume2 = 2;
 price1 = 95.095;
