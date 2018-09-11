@@ -130,6 +130,14 @@ classdef cOps < cMyTimerObj
         end 
         %end of get.isbookcountercompatible_
         
+        function [ret] = iseveningrequired(obj)
+            try
+                ret = obj.mdefut_.iseveningrequired_;
+            catch
+                ret = 0;
+            end
+        end
+        
     end
     
     methods

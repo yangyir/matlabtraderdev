@@ -15,6 +15,15 @@ function [] = loadtrades(obj,varargin)
     bookname = p.Results.BookName;
     overrideflag = p.Results.Override;
     
+    %note:as we try to load the trades either 1)between 08:50am and
+    %09:00am or 2)between 20:50pm and 21:00pm. However, if we haven't
+    %traded any instrument not traded in the evening, we shall by-pass the
+    %the loadtrades process during the evening.
+    iseveningrequired = obj.iseveningrequired;
+    if ~iseveningrequired && hour(t) > 16
+        return
+    end
+        
     if ~overrideflag
         try
             ntrades = obj.trades_.latest_;
@@ -56,8 +65,8 @@ function [] = loadtrades(obj,varargin)
     
     trades = cTradeOpenArray;
     trades.fromtxt(filename);
-    trades.filterby('CounterName',countername,'BookName',bookname);
-    positions = trades.convert2positions;
+    livetrades = trades.filterby('CounterName',countername,'BookName',bookname,'Status','live');
+    positions = livetrades.convert2positions;
     
     newBook = cBook;
     if ~isempty(bookname), newBook.setbookname(bookname);end
@@ -67,7 +76,7 @@ function [] = loadtrades(obj,varargin)
     obj.entrusts_ = EntrustArray;
     obj.entrustspending_ = EntrustArray;
     obj.entrustsfinished_ = EntrustArray;
-    obj.trades_ = trades;
+    obj.trades_ = livetrades;
    
     fprintf('cOps:loadtrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
     

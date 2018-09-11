@@ -15,7 +15,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     end
     
     if ~ischar(ctp_code)
-        error('cStrat:shortclosesingleinstrument:invalid ctp_code input')
+        error('cStrat:longclosesingleinstrument:invalid ctp_code input')
     end
     
     isopt = isoptchar(ctp_code);
@@ -23,7 +23,7 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     
     [f1, idx] = strategy.instruments_.hasinstrument(instrument);
     if ~f1
-        fprintf('\ncStrat:shortclosesingleinstrument:%s not registered in strategy\n',ctp_code);
+        fprintf('\ncStrat:longclosesingleinstrument:%s not registered in strategy\n',ctp_code);
         ret = 0;
         e = [];
         return; 
@@ -37,14 +37,15 @@ function [ret,e] = longclosesingleinstrument(strategy,ctp_code,lots,closetodayFl
     end
     
     if ~f2
-        fprintf('\ncStrat:shortclosesingleinstrument:%s not traded in strategy\n',ctp_code);
+        fprintf('\ncStrat:longclosesingleinstrument:%s not traded in strategy\n',ctp_code);
         ret = 0;
         e = [];
         return; 
     end
     
     volume = abs(strategy.helper_.book_.positions_{idxp}.position_total_);
-    if volume >= 0
+    direction = strategy.helper_.book_.positions_{idxp}.direction_;
+    if volume <= 0 || direction ~= -1
         fprintf('cStrat:longclosesingleinstrument:%s:existing short position not found\n',ctp_code);
         ret = 0;
         e = [];

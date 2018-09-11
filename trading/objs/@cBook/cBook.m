@@ -61,6 +61,7 @@ classdef cBook < handle
         [bool,idx] = hasposition(obj,argin)
         [] = addpositions(obj,varargin)
         [] = removepositions(obj,varargin)
+        [vtotal,vtoday] = getpositions(obj,varargin)
         [] = printpositions(obj)
         [ret] = isemptybook(obj)
     end
