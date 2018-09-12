@@ -112,6 +112,7 @@ classdef cStrat < cMyTimerObj
         %
         [flag] = istime2calcsignal(obj,t)
         
+        
     end
     %end of set/get methods
     
@@ -119,6 +120,8 @@ classdef cStrat < cMyTimerObj
     methods
         [] = registerinstrument(obj,instrument)
         [] = removeinstrument(obj,instrument)
+        [flag,idx] = hasinstrument(obj,instrument)
+        [instruments] = getinstruments(obj)
         [] = clear(obj)
         [n] = count(obj)
         [n] = countunderliers(obj)
