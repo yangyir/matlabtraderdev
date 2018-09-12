@@ -80,18 +80,18 @@ function [] = updateentrustsandbook2(obj)
                     %bid/ask price. as a result, we use less/greater than sign
                     %rather than lessorequal/greaterorequal sign here
                     try
-                        f1 = ticks(2) < e.price;
+                        f1 = ticks(2) <= e.price;
                         if f1
-                            e.dealPrice = ticks(2);
+                            e.dealPrice = e.price;
                         end
                     catch
                         f1 = 0;
                     end
                 else
                     try
-                        f1 = ticks(2) > e.price;
+                        f1 = ticks(2) >= e.price;
                         if f1
-                            e.dealPrice = ticks(2);
+                            e.dealPrice = e.price;
                         end
                     catch
                         f1 = 0;
@@ -153,7 +153,6 @@ function [] = updateentrustsandbook2(obj)
                     end
                     obj.trades_.push(trade);
                 elseif e.offsetFlag == -1
-                    %close long or close short
                     tradeid = e.tradeid_;
                     %note:yangyiran:20180907:tradeid_ are not assigned with
                     %the entrust in case we trades in manual mode and
@@ -167,8 +166,9 @@ function [] = updateentrustsandbook2(obj)
                             trade_i = obj.trades_.node_(itrade);
                             if strcmpi(trade_i.id_,tradeid)
                                 instrument = trade_i.instrument_;
+                                trade_i.status_ = 'closed';
                                 trade_i.closedatetime1_ = e.complete_time_;
-                                trade_i.closeprice_ = e.price;
+                                trade_i.closeprice_ = e.dealPrice;
                                 trade_i.runningpnl_ = 0;
                                 trade_i.closepnl_ = trade_i.opendirection_*trade_i.openvolume_*(e.price-trade_i.openprice_)/ instrument.tick_size * instrument.tick_value;
                             end
@@ -217,8 +217,6 @@ function [] = updateentrustsandbook2(obj)
                                 end
                             end
                         end
-                        
-                        
                     end
                 end
                 
