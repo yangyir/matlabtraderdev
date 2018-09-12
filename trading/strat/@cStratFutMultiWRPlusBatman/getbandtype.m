@@ -1,5 +1,5 @@
 function vout = getbandtype(obj,instrument)
-    [flag,idx] = obj.instruments_.hasinstrument(instrument);
+    [flag,idx] = obj.hasinstrument(instrument);
     if flag
         vout = obj.bandtype_(idx);
     else

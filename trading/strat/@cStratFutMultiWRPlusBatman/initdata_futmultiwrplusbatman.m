@@ -1,7 +1,6 @@
 function [] = initdata_futmultiwrplusbatman(obj)
-%     error('cStratFutMultiWRPlusBatman:initdata_futmultiwrplusbatman not implemented')
-    
-    instruments = obj.instruments_.getinstrument;
+   
+    instruments = obj.getinstruments;
     for i = 1:obj.count
         if obj.samplefreq_(i) == 1
             nbdays = 1;

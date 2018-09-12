@@ -3,7 +3,7 @@ function [lowp,lowt] = getlownperiods(obj,instrument)
         error('cStratFutMultiWRPlusBatman:getlownperiods:invalid instrument input')
     end
     
-    [flag,idx] = obj.instruments_.hasinstrument(instrument);
+    [flag,idx] = obj.hasinstrument(instrument);
     if flag
         nperiods = obj.nperiods_(idx);
     else

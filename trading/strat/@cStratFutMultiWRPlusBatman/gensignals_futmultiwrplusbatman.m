@@ -4,7 +4,7 @@ function signals = gensignals_futmultiwrplusbatman(obj)
 %highest high price or the lowest low price changes, we replace it/them
 %with the lastest one
     signals = cell(size(obj.count,1),1);
-    instruments = obj.instruments_.getinstrument;
+    instruments = obj.getinstruments;
 
     for i = 1:obj.count
         try

@@ -10,8 +10,9 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         
         %to check whether the instrument is set with autotrade flag
         instrument = signal.instrument;
-        [~,ii] = obj.instruments_.hasinstrument(instrument);
-        if ~obj.autotrade_(ii),continue;end
+%         [~,ii] = obj.hasinstrument(instrument);
+        autotrade = obj.getautotradeflag(instrument);
+        if ~autotrade,continue;end
         
         %to check whether position for the instrument exists,
         try
@@ -62,6 +63,9 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
                 ordertime = tick(1);
             catch
                 ordertime = obj.replay_time1_;
+            end
+            if hour(ordertime) > 20
+                pause(1);
             end
         end
         highestprice = signal.highesthigh;

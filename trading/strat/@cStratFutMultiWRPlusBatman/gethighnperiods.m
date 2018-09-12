@@ -3,7 +3,7 @@ function [highp,hight] = gethighnperiods(obj,instrument)
         error('cStratFutMultiWRPlusBatman:gethighnperiods:invalid instrument input')
     end
     
-    [flag,idx] = obj.instruments_.hasinstrument(instrument);
+    [flag,idx] = obj.hasinstrument(instrument);
     if flag
         nperiods = obj.nperiods_(idx);
     else

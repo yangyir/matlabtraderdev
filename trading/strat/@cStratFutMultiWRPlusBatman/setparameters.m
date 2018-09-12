@@ -13,7 +13,7 @@ function [] = setparameters(obj,instrument,params)
         error('cStratFutMultiWRPlusBatman:setparameters:invalid params input')
     end
     
-    [flag,idx] = obj.instruments_.hasinstrument(instrument);
+    [flag,idx] = obj.hasinstrument(instrument);
 
     if ~flag
         error('cStratFutMultiWRPlusBatman:setparameters:instrument not found')

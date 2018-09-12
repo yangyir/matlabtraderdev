@@ -1,7 +1,7 @@
 function [] = setsamplefreq(obj,instrument,freq)
     if isempty(obj.samplefreq_), obj.samplefreq_ = ones(obj.count,1);end
 
-    [flag,idx] = obj.instruments_.hasinstrument(instrument);
+    [flag,idx] = obj.hasinstrument(instrument);
 
     if flag
         obj.samplefreq_(idx) = freq;
