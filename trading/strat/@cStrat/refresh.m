@@ -27,7 +27,7 @@ function [] = refresh(strategy,varargin)
     p.parse(varargin{:});
     t = p.Results.Time;
     
-    inst = strategy.instruments_.getinstrument;
+    inst = strategy.getinstruments;
     try
         strategy.updategreeks;
     catch e
