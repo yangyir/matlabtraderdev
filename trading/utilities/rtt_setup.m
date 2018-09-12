@@ -93,7 +93,11 @@ function [rtt_output] = rtt_setup(varargin)
             rtt_strategy.registerinstrument(instruments{i});
         end
     end
-        
+    
+    rtt_strategy.settimerinterval(0.5);
+    rtt_helper.settimerinterval(1);
+    rtt_strategy.settimerinterval(1);
+    
     rtt_output = struct('counter',rtt_counter,...
         'book',rtt_book,...
         'ops',rtt_helper,...
