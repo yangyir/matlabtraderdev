@@ -26,17 +26,17 @@ function replay_strat = replay_setstrat(stratname,varargin)
     end
     
     default_timerinterval_strat = 0.5;
-    default_timerinterval_ops = 0.5;
-    default_timerinterval_mde = 0.5;
+    default_timerinterval_ops = 1;
+    default_timerinterval_mde = 1;
     
     try
         replay_strat.mode_ = 'replay';
+        
+        replay_ops.settimerinterval(default_timerinterval_ops/replayspeed);
+        replay_mdefut.settimerinterval(default_timerinterval_mde/replayspeed);
         replay_strat.registermdefut(replay_mdefut);
-        replay_strat.trader_ = replay_trader;
-        replay_strat.helper_ = replay_ops;
-        replay_strat.timer_interval_ = default_timerinterval_strat/replayspeed;
-        replay_strat.helper_.timer_interval_ = default_timerinterval_ops/replayspeed;
-        replay_strat.mde_fut_.timer_interval_ = default_timerinterval_mde/replayspeed;
+        replay_strat.registerhelper(replay_ops);
+        replay_strat.settimerinterval(default_timerinterval_strat/replayspeed);
     catch e
         error(['replay_setstrat:',e.message]);
     end

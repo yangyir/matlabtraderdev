@@ -58,19 +58,18 @@ replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyy
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
 replay_strat.initdata;
 replay_strat.mde_fut_.printflag_ = false;
-replay_strat.calcsignal_interval_ = 60*trade_freq;
+% replay_strat.calcsignal_interval_ = 60*trade_freq;
 replay_strat.helper_.print_timeinterval_ = 60*trade_freq;
 clc;
 fprintf('replay get ready......\n');
 %%
 clc;
-replay_strat.start;replay_strat.timer_.tag = 'cStrat';
-replay_strat.helper_.start; replay_strat.helper_.timer_.tag = 'cOps';
-replay_strat.mde_fut_.start;replay_strat.mde_fut_.timer_.tag = 'cMDEFut';
+replay_strat.mde_fut_.start;
+replay_strat.helper_.start; 
+replay_strat.start;
+
 %%
 try
-    replay_strat.stop;
-    replay_strat.helper_.stop;
     replay_strat.mde_fut_.stop;
     delete(timerfindall);
 catch
