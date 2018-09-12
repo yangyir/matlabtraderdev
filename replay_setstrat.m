@@ -34,9 +34,6 @@ function replay_strat = replay_setstrat(stratname,varargin)
         replay_strat.registermdefut(replay_mdefut);
         replay_strat.trader_ = replay_trader;
         replay_strat.helper_ = replay_ops;
-%         replay_strat.bookrunning_ = replay_book;
-%         replay_strat.bookbase_ = replay_book;
-%         replay_strat.counter_ = replay_counter;
         replay_strat.timer_interval_ = default_timerinterval_strat/replayspeed;
         replay_strat.helper_.timer_interval_ = default_timerinterval_ops/replayspeed;
         replay_strat.mde_fut_.timer_interval_ = default_timerinterval_mde/replayspeed;

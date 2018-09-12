@@ -5,11 +5,7 @@ function calcflag = getcalcsignalflag(obj,instrument)
     end
     
     inst = obj.instruments_.getinstrument;
-    if strcmpi(obj.mode_,'realtime')
-        error('cStrat:getcalcsignalflag:not implemented for realtime mode')
-    end
-    
-    if strcmpi(obj.mode_,'replay') && strcmpi(obj.status_,'working')
+    if strcmpi(obj.status_,'working')
         candles = obj.mde_fut_.candles_{idx_instrument};
         buckets = candles(:,1);
         tick = obj.mde_fut_.getlasttick(inst{idx_instrument});
@@ -46,7 +42,7 @@ function calcflag = getcalcsignalflag(obj,instrument)
                 strategy.calcsignal_(idx_instrument) = 1;
                 obj.calsignal_bucket_(idx_instrument) = this_count;
                 if obj.printflag_
-                    fprintf('\ncalc signal at:%s\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
+                    fprintf('\n%s:calc signal at:%s\n',obj.name_,datestr(t,'yyyy-mm-dd HH:MM:SS'));
                 end
             else
                 strategy.calcsignal_(idx_instrument) = 0;

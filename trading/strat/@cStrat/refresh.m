@@ -52,9 +52,7 @@ function [] = refresh(strategy,varargin)
     calcsignalflag = false;
     signals = {};
     try
-        if strcmpi(strategy.mode_,'realtime')
-            fprintf('todo:not implemented...\n')
-        elseif strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
+        if strcmpi(strategy.status_,'working')
             %note:yangyiran 20180727
             %we need to make sure we need to calc(re-calc) signal here
             %rule:we start to recalc signal once the candle K is fully
@@ -63,7 +61,6 @@ function [] = refresh(strategy,varargin)
             %second tick arrives.
             try
                 calcsignalflag = strategy.getcalcsignalflag(inst{1});
-%                 calcsignalflag = strategy.istime2calcsignal(t);
             catch e
                 msg = ['error:cStrat:getcalcsignalflag:',e.message,'\n'];
                 fprintf(msg);
