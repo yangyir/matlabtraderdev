@@ -51,7 +51,8 @@ function signals = gensignals_futmultiwrplusbatman(obj)
         end
         
         %note:first time set entrusts
-        n = obj.helper_.entrusts_.latest;
+        %IMPORTANT:shall be open entrust
+        n = obj.helper_.numberofentrusts('Offset','Open');
         if n == 0
             signals{i,1} = struct('name','williamsr',...
                 'instrument',instruments{i},...

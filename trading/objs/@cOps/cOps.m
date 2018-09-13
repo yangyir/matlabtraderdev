@@ -156,6 +156,9 @@ classdef cOps < cMyTimerObj
         [] = printrunningpnl(obj,varargin)
         %
         counter = getcounter(obj)
+        %
+        [n] = numberofentrusts(obj,varargin)
+                
     end
     
     methods (Access = private)

@@ -68,7 +68,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
     if mytimerobj.istime2loadmktdata(dtnum)
         try
             mytimerobj.loadmktdata('time',dtnum);
-        catch
+        catch e
             fprintf('%s error when run loadmktdata methods:%s\n',mytimerobj.name_,e.message);
             if strcmpi(mytimerobj.onerror_,'stop')
                 mytimerobj.stop;
@@ -79,7 +79,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
     if mytimerobj.istime2loadtrades(dtnum)
         try
             mytimerobj.loadtrades('time',dtnum);
-        catch
+        catch e
             fprintf('%s error when run loadtrades methods:%s\n',mytimerobj.name_,e.message);
             if strcmpi(mytimerobj.onerror_,'stop')
                 mytimerobj.stop;
