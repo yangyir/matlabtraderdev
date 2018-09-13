@@ -5,6 +5,11 @@ function [] = updatestratwithentrust(strategy,e)
     counter = strategy.helper_.getcounter;
     if isempty(counter), return; end
     if ~isa(e,'Entrust'), return; end
+    
+    %note:yangyiran:20180907
+    %only executed entrust with open orders as close orders are for
+    %risk-management or profit taking purposes
+    if e.offsetFlag ~= 1, return; end
 
     if strcmpi(strategy.mode_,'realtime')
         %f0 checks whether the entrust is placed or not
@@ -20,12 +25,8 @@ function [] = updatestratwithentrust(strategy,e)
         f2 = f1 & e.cancelVolume == 0;
     end
     [f3,idx] = strategy.instruments_.hasinstrument(e.instrumentCode);
-    %note:yangyiran:20180907
-    %only executed entrust with open orders as close orders are for
-    %risk-management or profit taking purposes
-    f4 = e.offsetFlag == 1;
     
-    if f0&&f1&&f2&&f3&&f4
+    if f0&&f1&&f2&&f3
         instrument = strategy.instruments_.getinstrument{idx};
         if isa(instrument,'cFutures')
             bucketnum = strategy.mde_fut_.getcandlecount(instrument);
