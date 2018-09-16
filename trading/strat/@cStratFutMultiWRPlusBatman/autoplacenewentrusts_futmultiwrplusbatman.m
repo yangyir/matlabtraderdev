@@ -118,12 +118,12 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         end
            
         if place_entrustshort_flag
-            obj.shortopensingleinstrument(instrument.code_ctp,abs(volume),0,...
+            obj.shortopen(instrument.code_ctp,abs(volume),...
                 'overrideprice',highestprice,'time',ordertime,'signalinfo',signal);
         end
         
         if place_entrustlong_flag
-            obj.longopensingleinstrument(instrument.code_ctp,abs(volume),0,...
+            obj.longopen(instrument.code_ctp,abs(volume),...
                 'overrideprice',lowestprice,'time',ordertime,'signalinfo',signal);
         end
         

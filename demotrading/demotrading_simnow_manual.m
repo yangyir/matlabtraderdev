@@ -1,10 +1,10 @@
 clear all;clc;delete(timerfindall);cd('C:\Users\yiran\Documents\MATLAB');
 %%
-countername = 'citic_kim_fut';
+countername = 'simnow_test';
 bookname = 'book-demotrading';
 markettype = 'futures';
 strategyname = 'manual';
-instruments = {'cu1811';'al1811';'zn1811';'ni1811';'ni1901';'rb1901';'i1901';'SR901';'m1901';'IC1809';'IH1809';'IF1809';'T1812'};
+instruments = {'cu1811';'al1811';'zn1811';'ni1811';'ni1901';'rb1901'};
 combos = rtt_setup('CounterName',countername,'BookName',bookname,...
     'MarketType','futures','StrategyName',strategyname,'Instruments',instruments);
 fprintf('\ncombos successfully created...\n');
@@ -31,6 +31,4 @@ combos.strategy.withdrawentrusts(instruments{1});
 combos.mdefut.stop
 %%
 c.logout
-%%
-mdlogout
 

@@ -100,7 +100,7 @@ classdef cMyTimerObj < handle
     
     methods
         [] = start(obj)
-        [] = startat(obj)
+        [] = startat(obj,dtstr)
         [] = stop(obj)
         [] = settimer(obj)
         [] = replay_timer_fcn(obj,~,event)

@@ -39,11 +39,7 @@ classdef cStrat < cMyTimerObj
         calcsignal_@double
         
     end
-    
-    properties
-        
-    end
-    
+       
     properties (GetAccess = public, SetAccess = private)
         calcsignal_interval_@double = 60
         %trading
@@ -130,21 +126,20 @@ classdef cStrat < cMyTimerObj
    
     %trading-related methods
     methods
-        %trading-related methods
+        %register mdefut/mdeopt/ops
         [] = registermdefut(obj,mdefut)
         [] = registermdeopt(obj,mdeopt)
         [] = registerhelper(obj,helper)
-        %
         
         %process portfolio with entrusts
         [] = updatestratwithentrust(obj,e)
         [] = withdrawentrusts(obj,instrument,varargin)
         
         %long/short open/close positions
-        [ret,e] = shortopensingleinstrument(obj,code_ctp,lots,spread,varargin)
-        [ret,e] = shortclosesingleinstrument(obj,code_ctp,lots,closetodayflag,spread,varargin)
-        [ret,e] = longopensingleinstrument(obj,ctp_code,lots,spread,varargin)
-        [ret,e] = longclosesingleinstrument(obj,ctp_code,lots,closetodayflag,spread,varargin)
+        [ret,e] = shortopen(obj,code_ctp,lots,varargin)
+        [ret,e] = shortclose(obj,code_ctp,lots,closetodayflag,varargin)
+        [ret,e] = longopen(obj,code_ctp,lots,varargin)
+        [ret,e] = longclose(obj,code_ctp,lots,closetodayflag,varargin)
         
         [] = unwindposition(obj,instrument,spread)
         pnl = calcrunningpnl(obj,instrument)
@@ -160,18 +155,22 @@ classdef cStrat < cMyTimerObj
         end
         
         function [] = savemktdata(obj,varargin)
+            %cStrat doesn't run savemktdata,cMDEFut/cMDEOpt runs it
             variablenotused(obj);
         end
         
         function [] = savetrades(obj,varargin)
+            %cStrat doesn't run savetrades, cOps runs it
             variablenotused(obj);
         end
         
         function [] = loadmktdata(obj,varargin)
+            %cStrat doesn't run loadmktdata,cMDEFut/cMDEOpt runs it
             variablenotused(obj);
         end
         
         function [] = loadtrades(obj,varargin)
+            %cStrat doesn't run loadtrades,cOps runs it
             variablenotused(obj);
         end
         

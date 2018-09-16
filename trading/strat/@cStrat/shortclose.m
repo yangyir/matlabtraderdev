@@ -1,31 +1,38 @@
-function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayFlag,spread,varargin)
+function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('spread',[],@isnumeric);
     p.addParameter('overrideprice',[],@isnumeric);
     p.addParameter('time',[],@isnumeric);
     p.addParameter('tradeid','',@ischar);
     p.parse(varargin{:});
+    spread = p.Results.spread;
     overridepx = p.Results.overrideprice;
     ordertime = p.Results.time;
     tradeid = p.Results.tradeid;
-    if lots <= 0 
-        return; 
-    end
-
-    if nargin < 4
-        closetodayFlag = 0;
-    end
-
+    
     if ~ischar(ctp_code)
-        error('cStrat:shortclosesingleinstrument:invalid ctp_code input')
+        ret = 0;
+        e = [];
+        fprintf('cStrat:shortclose:invalid order code...\n')
+        return
     end
     
+    if lots <= 0
+        ret = 0;
+        e = [];
+        fprintf('cStrat:shortclose:invalid order volume...\n')
+        return
+    end
+
+    if nargin < 4, closetodayFlag = 0;end
+
     isopt = isoptchar(ctp_code);
     instrument = code2instrument(ctp_code);
     
     [f1, idx] = strategy.instruments_.hasinstrument(instrument);
     if ~f1
-        fprintf('cStrat:shortclosesingleinstrument:%s not registered in strategy\n',ctp_code);
+        fprintf('cStrat:shortclose:%s not registered in strategy...\n',ctp_code);
         ret = 0;
         e = [];
         return; 
@@ -39,7 +46,7 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
     end
     
     if ~f2
-        fprintf('cStrat:shortclosesingleinstrument:%s not traded in strategy\n',ctp_code);
+        fprintf('cStrat:shortclose:%s not traded in strategy\n',ctp_code);
         ret = 0;
         e = [];
         return; 
@@ -47,16 +54,15 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
     
     volume = abs(strategy.helper_.book_.positions_{idxp}.position_total_);
     direction = strategy.helper_.book_.positions_{idxp}.direction_;
-    
     if volume <= 0 || direction ~= 1
-        fprintf('cStrat:shortclosesingleinstrument:%s:existing long position not found\n',ctp_code);
+        fprintf('cStrat:shortclose:%s:existing long position not found\n',ctp_code);
         ret = 0;
         e = [];
         return
     end
     
     if abs(volume) < abs(lots)
-        fprintf('cStrat:shortclosesingleinstrument:%s:input size exceeds existing size\n',ctp_code);
+        fprintf('cStrat:shortclose:%s:input size exceeds existing size\n',ctp_code);
         ret = 0;
         e = [];
         return
@@ -77,44 +83,49 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
             end
         end
     catch err
-        fprintf('cStrat:shortclosesingleinstrument:%s:internal error when some pending entrust exists:%s...\n',ctp_code,err.message);
+        fprintf('cStrat:shortclose:%s:internal error when some pending entrust exists:%s...\n',ctp_code,err.message);
         ret = 0;
         e = [];
         return
     end
     
     if abs(volume) < abs(lots) + volumepending
-        fprintf('cStrat:shortclosesingleinstrument:%s:input size exceeds existing size with pending entrusts\n',ctp_code);
+        fprintf('cStrat:shortclose:%s:input size exceeds existing size with pending entrusts\n',ctp_code);
         ret = 0;
         e = [];
         return
     end
     
     if ~isempty(overridepx)
-        orderprice = overridepx;
-    else
-        if strcmpi(strategy.mode_,'realtime')
-            if isopt
-                q = strategy.mde_opt_.qms_.getquote(ctp_code);
-            else
-                q = strategy.mde_fut_.qms_.getquote(ctp_code);
-            end
-            bidpx = q.bid1;
-        elseif strcmpi(strategy.mode_,'replay')
-            if isopt
-                error('not implemented yet')
-            else
-                tick = strategy.mde_fut_.getlasttick(ctp_code);
-            end
-            bidpx = tick(2);
-        end
-
-        if nargin < 5
-            orderprice = bidpx + strategy.bidclosespread_(idx)*instrument.tick_size;
+        if overridepx == -1
+            entrusttype = 'market';
+            price = bidpx;
         else
-            orderprice = bidpx + spread*instrument.tick_size;
+            if overridepx > bidpx
+                entrusttype = 'limit';
+            elseif overridepx == bidpx;
+                entrusttype = 'market';
+            else
+                entrusttype = 'stop';
+            end
+            price = overridepx;
         end
+    else
+        if ~isempty(spread)
+            spread2use = spread;
+        else
+            spread2use = strategy.bidclosespread_(idx);
+        end
+        if spread2use == 0
+            entrusttype = 'market';
+        elseif spread2use > 0
+            entrusttype = 'limit';
+        else
+            entrusttype = 'stop';
+        end
+        price = bidpx + spread2use*instrument.tick_size;
     end
+
     
     if isempty(ordertime)
         if strcmpi(strategy.mode_,'realtime')
@@ -125,16 +136,19 @@ function [ret,e] = shortclosesingleinstrument(strategy,ctp_code,lots,closetodayF
     end 
     
     if closetodayFlag
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'s','ct',orderprice,lots,strategy.helper_,'time',ordertime);
+        [ret,e] = strategy.trader_.placeorder(ctp_code,'s','ct',price,lots,strategy.helper_,'time',ordertime);
     else
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'s','c',orderprice,lots,strategy.helper_,'time',ordertime);
+        [ret,e] = strategy.trader_.placeorder(ctp_code,'s','c',price,lots,strategy.helper_,'time',ordertime);
     end
     
     if ret
         e.date = floor(ordertime);
+        e.date2 = datestr(e.date,'yyyy-mm-dd');
         e.time = ordertime;
+        e.time2 = datestr(e.time,'yyyy-mm-dd HH:MM:SS');
+        e.entrustType = entrusttype;
         if ~isempty(tradeid), e.tradeid_ = tradeid;end
-        strategy.updatestratwithentrust(e);
+%         strategy.updatestratwithentrust(e);
     end
     
 end
