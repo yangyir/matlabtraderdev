@@ -22,7 +22,13 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                 date1 = businessdate(date1,-1);
                 count = count + 1;
             end
-            date2str = [datestr(date2,'yyyy-mm-dd'),' 08:59:00'];
+            lastbd = businessdate(date2,-1);
+            if strcmpi(instruments{i}.break_interval{end,end},'01:00:00') ||...
+                    strcmpi(instruments{i}.break_interval{end,end},'02:30:00')
+                date2str = [datestr(lastbd+1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+            else
+                date2str = [datestr(lastbd,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+            end
             date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
             candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
             mdefut.hist_candles_{i} = candles;
@@ -63,8 +69,14 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                 date1 = businessdate(date1,-1);
                 count = count + 1;
             end
-            date2str = [datestr(date2,'yyyy-mm-dd'),' 08:59:00'];
-            date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
+            lastbd = businessdate(date2,-1);
+            if strcmpi(instruments{i}.break_interval{end,end},'01:00:00') ||...
+                    strcmpi(instruments{i}.break_interval{end,end},'02:30:00')
+                date2str = [datestr(lastbd+1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+            else
+                date2str = [datestr(lastbd,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+            end
+            date1str = [datestr(date1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{1,1}];
             candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
             mdefut.hist_candles_{i} = candles;
             
