@@ -82,7 +82,13 @@ function [] = updateentrustsandbook2(obj)
                     try
                         f1 = ticks(2) <= e.price;
                         if f1
-                            e.dealPrice = e.price;
+                            if strcmpi(e.entrustType,'limit') || strcmpi(e.entrustType,'market')
+                                e.dealPrice = e.price;
+                            elseif strcmpi(e.entrustType,'stop')
+                                e.dealPrice = ticks(2);
+                            else
+                                error('cOps:updateentrustsandbook2:invalid entrust type');
+                            end
                         end
                     catch
                         f1 = 0;
@@ -91,7 +97,13 @@ function [] = updateentrustsandbook2(obj)
                     try
                         f1 = ticks(2) >= e.price;
                         if f1
-                            e.dealPrice = e.price;
+                            if strcmpi(e.entrustType,'limit') || strcmpi(e.entrustType,'market')
+                                e.dealPrice = e.price;
+                            elseif strcmpi(e.entrustType,'stop')
+                                e.dealPrice = ticks(2);
+                            else
+                                error('cOps:updateentrustsandbook2:invalid entrust type');
+                            end
                         end
                     catch
                         f1 = 0;

@@ -8,11 +8,11 @@ end
 
 %%
 %base metals
-bm_codes_ctp = {'cu1808';'cu1809';'cu1810';'cu1811';'cu1812';'cu1901';...
-    'al1808';'al1809';'al1810';'al1811';'al1812';'al1901';...
-    'zn1808';'zn1809';'zn1810';'zn1811';'zn1812';'zn1901';...
-    'pb1808';'pb1809';'pb1810';'pb1811';'pb1812';'pb1901';...
-    'ni1807';'ni1809';'ni1811';'ni1901'};
+bm_codes_ctp = {'cu1809';'cu1810';'cu1811';'cu1812';'cu1901';'cu1902';...
+    'al1809';'al1810';'al1811';'al1812';'al1901';'al1902';...
+    'zn1809';'zn1810';'zn1811';'zn1812';'zn1901';'zn1902';...
+    'pb1809';'pb1810';'pb1811';'pb1812';'pb1901';'pb1902';...
+    'ni1809';'ni1811';'ni1901'};
 
 for i = 1:size(bm_codes_ctp,1)
     savedailybarfrombloomberg(conn,bm_codes_ctp{i},override);
@@ -21,8 +21,8 @@ fprintf('done for saving daily bar data for base metal futures......\n');
 
 %%
 % govtbond futures
-govtbond_codes_ctp = {'TF1809';'TF1812';...
-    'T1809';'T1812'};
+govtbond_codes_ctp = {'TF1809';'TF1812';'TF1903';...
+    'T1809';'T1812';'T1903'};
 
 for i = 1:size(govtbond_codes_ctp,1)
     savedailybarfrombloomberg(conn,govtbond_codes_ctp{i},override);
@@ -31,7 +31,7 @@ fprintf('done for saving daily bar data for govt bond futures......\n');
 
 %%
 % precious metals
-pm_codes_ctp = {'au1806';'au1812';'ag1806';'ag1812'};
+pm_codes_ctp = {'au1812';'ag1812'};
 
 for i = 1:size(pm_codes_ctp,1)
     savedailybarfrombloomberg(conn,pm_codes_ctp{i},override);
@@ -40,7 +40,7 @@ fprintf('done for saving daily bar data for precious metal futures\n');
 
 %%
 % agriculture for options
-ag_codes_ctp = {'m1809';'m1901';'SR809';'SR901'};
+ag_codes_ctp = {'m1809';'m1901';'m1905';'SR809';'SR901';'m1905'};
 for i = 1:size(ag_codes_ctp,1)
     savedailybarfrombloomberg(conn,ag_codes_ctp{i},override);
 end

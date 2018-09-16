@@ -16,18 +16,13 @@ for i = 1:size(replay_dates,1)
     replay_filenames{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.txt'];
 end
 mdefut.initreplayer('code',code,'filenames',replay_filenames);
-% mdefut.initreplayer('code',code,'fn',replay_filenames{1});
 
 %% start the trading (replay) process
 mdefut.start;
-
-%% delete all in a safe way
-try
-    mdefut.stop;
-    delete(timerfindall);
-catch
-    clear all;
-    fprintf('all deleted\n');
+isrunning = strcmpi(mdefut.timer_.running,'on');
+while isrunning
+    isrunning = strcmpi(mdefut.timer_.running,'on');
+    pause(1);
 end
 
 %% compare the mdefut saved candle with the one downloaded from database directly

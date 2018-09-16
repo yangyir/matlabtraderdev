@@ -42,7 +42,6 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
         [f2,idxp] = strategy.helper_.book_.hasposition(instrument);
     catch
         f2 = false;
-        idxp = 0;
     end
     
     if ~f2
@@ -94,6 +93,22 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
         ret = 0;
         e = [];
         return
+    end
+    
+    if strcmpi(strategy.mode_,'realtime')
+        if isopt
+            q = strategy.mde_opt_.qms_.getquote(ctp_code);
+        else
+            q = strategy.mde_fut_.qms_.getquote(ctp_code);
+        end
+        bidpx = q.bid1;
+    elseif strcmpi(strategy.mode_,'replay')
+        if isopt
+            error('cStrat:shortopen:not implemented yet for option in replay mode')
+        else
+            tick = strategy.mde_fut_.getlasttick(ctp_code);
+        end
+        bidpx = tick(2);
     end
     
     if ~isempty(overridepx)
