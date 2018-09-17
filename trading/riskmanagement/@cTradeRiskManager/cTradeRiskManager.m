@@ -31,7 +31,7 @@ classdef cTradeRiskManager < handle
         end
         %
         function [] = setstoploss(obj,stoploss)
-            obj.stoploss_ = stoploss;
+            obj.pxstoploss_ = stoploss;
         end
     end
     

@@ -19,7 +19,7 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
         %
         instrument = trade_i.instrument_;
         bandtype = obj.getbandtype(instrument);
-        if bandtype ~= 0, errot('cStratFutMultiWRPlusBatman:riskmanagement_futmultiwrplusbatman:invalid type for batman');end
+        if bandtype ~= 0, error('cStratFutMultiWRPlusBatman:riskmanagement_futmultiwrplusbatman:invalid type for batman');end
         bandwidthmin = obj.getbandwidthmin(instrument);
         bandwidthmax = obj.getbandwidthmax(instrument);
         bandstoploss = obj.getbandstoploss(instrument);

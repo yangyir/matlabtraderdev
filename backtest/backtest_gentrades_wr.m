@@ -1,4 +1,4 @@
-function [trades] = backtest_gentrades_wr(code,px_input,varargin)
+function [trades,px_used] = backtest_gentrades_wr(code,px_input,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('TradeFrequency',1,@isnumeric);
