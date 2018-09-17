@@ -89,7 +89,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     %todo:here we shall return an error
                 else
                     idx = idx(end);
-                    candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx)),mdefut.candle_freq_(i),'trade');
+                    candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                     for j = 1:size(candles,1)
                         mdefut.candles_{i}(j,2:end) = candles(j,2:end);
                     end
