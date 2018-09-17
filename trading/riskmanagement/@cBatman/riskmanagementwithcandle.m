@@ -73,7 +73,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 obj.trade_.runningpnl_ = 0;
                 obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(closeprice-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
                 obj.trade_.closedatetime1_ = closetime;
-                obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
+%                 obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
                 obj.trade_.closeprice_ = closeprice;
             end
         end
@@ -101,7 +101,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.trade_.runningpnl_ = 0;
             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(candleOpen-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
             obj.trade_.closedatetime1_ = obj.trade_.stopdatetime1_ + 1/86400;
-            obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
+%             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             obj.trade_.closeprice_ = candleOpen;
         end
         return
@@ -144,7 +144,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.trade_.runningpnl_ = 0;
             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(closeprice-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
             obj.trade_.closedatetime1_ = closetime;
-            obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
+%             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             obj.trade_.closeprice_ = closeprice;
         end
         
@@ -181,7 +181,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.trade_.runningpnl_ = 0;
             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(closeprice-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
             obj.trade_.closedatetime1_ = closetime;
-            obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
+%             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             obj.trade_.closeprice_ = closeprice;
         end
         
@@ -207,7 +207,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.trade_.runningpnl_ = 0;
             obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(candleLast-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
             obj.trade_.closedatetime1_ = closetime;
-            obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
+%             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             obj.trade_.closeprice_ = candleLast;
         end
         return
@@ -410,7 +410,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(candleLast-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
                 freq = str2double(obj.trade_.opensignal_.frequency_(1:end-1));
                 obj.trade_.closedatetime1_ = candleTime + freq/1440;
-                obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
+%                 obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
                 obj.trade_.closeprice_ = candleLast;
             end
         end

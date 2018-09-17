@@ -12,10 +12,16 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     debug = p.Results.Debug;
     updatepnlforclosedtrade = p.Results.UpdatePnLForClosedTrade;
     
-    if isempty(mdefut), return; end
+    if isempty(mdefut)
+        unwindtrade = [];
+        return
+    end
     
     trade = obj.trade_;
-    if strcmpi(trade.status_,'closed'), return; end
+    if strcmpi(trade.status_,'closed') 
+        unwindtrade = [];
+        return
+    end
      
     instrument = trade.instrument_;
     candleCell = mdefut.getcandles(instrument);
