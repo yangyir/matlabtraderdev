@@ -2,8 +2,8 @@ function [ret] = withdrawentrust(counter,entrust)
 %note:this function is a wrapper which accepts different data types in
 %which the entrust_id is included.
 
-    if ~isa(counter,'CounterCTP')
-        error('withdrawentrust:invalid ctp counter input')
+    if ~(isa(counter,'CounterCTP') || isa(counter,'cCounterRH'))
+        error('withdrawentrust:invalid counter input:either a CTP counter or a RH counter')
     end
     
     if isa(entrust,'Entrust')
@@ -17,7 +17,10 @@ function [ret] = withdrawentrust(counter,entrust)
     end
     
     counter_id = counter.counterId;
-    ret = withdrawoptentrust(counter_id,entrust_id);
+    if isa(counter,'CounterCTP')
+        ret = withdrawoptentrust(counter_id,entrust_id);
+    elseif isa(counter,'cCounterRH')
+        ret = rh_counter_withdrawoptentrust(counter_id,entrust_id);
     %note: ret == 1 indicates the entrust is successfully withdrawn and
     %vice verse.
     

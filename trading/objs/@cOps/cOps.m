@@ -20,6 +20,7 @@ classdef cOps < cMyTimerObj
         mdeopt_@cMDEFut
         counterCTP_@CounterCTP
         counterHSO32_@CounterHSO32
+        counterRH_@cCounterRH
     end
     
     properties (Dependent = true)
@@ -73,6 +74,12 @@ classdef cOps < cMyTimerObj
                     obj.counterHSO32_ = [];
                     error('cOps:registercounter:incompatible counter with book registered!')
                 end
+            elseif isa(counter,'cCounterRH')
+                obj.counterRH_ = counter;
+                if ~obj.isbookcountercompatible_
+                    obj.counterRH_ = [];
+                    error('cOps:registercounter:incompatible counter with book registered!')
+                end
             else
                 error('cOps:registercounter:invalid counter input')
             end
@@ -91,12 +98,14 @@ classdef cOps < cMyTimerObj
         %end of registerpasttrades
         
         function countertype = get.countertype_(obj)
-            if isempty(obj.counterCTP_) && isempty(obj.counterHSO32_)
+            if isempty(obj.counterCTP_) && isempty(obj.counterHSO32_) && isempty(obj.counterRH_)
                 countertype = 'unknown';
-            elseif ~isempty(obj.counterCTP_) && isempty(obj.counterHSO32_)
+            elseif ~isempty(obj.counterCTP_) && isempty(obj.counterHSO32_) && isempty(obj.counterRH_)
                 countertype = 'ctp';
-            elseif isempty(obj.counterCTP_) && ~isempty(obj.counterHSO32_)
+            elseif isempty(obj.counterCTP_) && ~isempty(obj.counterHSO32_) && isempty(obj.counterRH_)
                 countertype = 'o32';
+            elseif isempty(obj.counterCTP_) && isempty(obj.counterHSO32_) && ~isempty(obj.counterRH_)
+                countertype = 'rh';
             else
                 error('cOps:countertype_:unique type required')
             end
@@ -111,9 +120,26 @@ classdef cOps < cMyTimerObj
                 else
                     if isempty(obj.book_.countername_)
                         iscompatible = true;
-                        obj.book_.setcountername(obj.counterCTP_.char)
+                        obj.book_.setcountername(obj.counterCTP_.char);
                     else
                         if strcmpi(obj.book_.countername_,obj.counterCTP_.char)
+                            iscompatible = true;
+                        else
+                            iscompatible = false;
+                            fprintf('cOps:isbookcountercompatible_:book countername %s and countername %s are incompatible\n',...
+                                obj.book_,countername_,obj.counterCTP_.char);
+                        end
+                    end
+                end
+            elseif strcmpi(obj.countertype_,'rh')
+                if isempty(obj.book_)
+                    iscompatible = true;
+                else
+                    if isempty(obj.book_.countername_)
+                        iscompatible = true;
+                        obj.book_.setcountername(obj.counterRH_.char);
+                    else
+                        if strcmpi(obj.book_.countername_,obj.counterRH_.char)
                             iscompatible = true;
                         else
                             iscompatible = false;

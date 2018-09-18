@@ -6,6 +6,8 @@ function counter = getcounter(obj)
         counter = obj.counterCTP_;
     elseif strcmpi(obj.countertype_,'o32')
         counter = obj.counterHSO32_;
+    elseif strcmpi(obj.countertype_,'rh')
+        counter = obj.counterRH_;
     else
         error('cOps:getcounter:internal error')
     end

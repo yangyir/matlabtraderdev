@@ -11,10 +11,15 @@ function [rtt_output] = rtt_setup(varargin)
     p.parse(varargin{:});
     countername = p.Results.CounterName;
     %note:20180905:currently we only work with CTP counter
-    try
-        rtt_counter = CounterCTP.(countername);
-    catch e
-        error('rtt_setup:%s',e.message);
+    %note:20180918:we can now have RH counter
+    if strcmpi(countername,'rh_demo')
+        rtt_counter = cCounterRH.rh_demo;
+    else
+        try
+            rtt_counter = CounterCTP.(countername);
+        catch e
+            error('rtt_setup:%s',e.message);
+        end
     end
         
     bookname = p.Results.BookName;
