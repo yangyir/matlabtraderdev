@@ -1,5 +1,5 @@
-function [] = riskmanagement_futbatman(obj,dtnum)
-%cStratFutBatman
+function [] = riskmanagement_futmultibatman(obj,dtnum)
+%cStratFutMultiBatman
     if isempty(obj.counter_) && ~strcmpi(obj.mode_,'debug'), return;end
     
     instruments = obj.instruments_.getinstrument;

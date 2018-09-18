@@ -1,6 +1,6 @@
 clear all;clc;delete(timerfindall);cd('C:\Users\yiran\Documents\MATLAB');
 %%
-countername = 'simnow_test';
+countername = 'citic_kim_fut';
 bookname = 'book-demotrading';
 markettype = 'futures';
 strategyname = 'wlprbatman';

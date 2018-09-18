@@ -1,4 +1,4 @@
-classdef cStratFutBatman < cStrat
+classdef cStratFutMultiBatman < cStrat
     %note:BATMAN is a very simple trend-following strategy
     %firstly it opens a trade with either long/short direction, and
     %specifying a stoploss to prevent unexpected loss
@@ -38,75 +38,57 @@ classdef cStratFutBatman < cStrat
     %           do nothing and wait for the next close price
     
     properties
-        pxopen_@double
-        pxhigh_@double
-        pxstoploss_@double
-        pxtarget_@double
-        pxwithdrawmin_@double
-        pxwithdrawmax_@double
-        doublecheck_@double
+        bandwidthmin_@double
+        bandwidthmax_@double
     end
     
     methods
-        function obj = cStratFutBatman
-            obj.name_ = 'stratfutbatman';
+        function obj = cStratFutMultiBatman
+            obj.name_ = 'stratfutmultibatman';
         end
     end
     
     %derived (abstract) methods from superclass
     methods
         function signals = gensignals(obj)
-            signals = obj.gensignals_futbatman;
+            signals = obj.gensignals_futmultibatman;
         end
         %end of gensignals
         
         function [] = autoplacenewentrusts(obj,signals)
-            obj.autoplacenewentrusts_futbatman(signals)
+            obj.autoplacenewentrusts_futmultibatman(signals)
         end
         %end of autoplacenewentrusts
         
         function [] = updategreeks(obj)
-            obj.updategreeks_futbatman
+            obj.updategreeks_futmultibatman
         end
             
         function [] = riskmanagement(obj,dtnum)
-            obj.riskmanagement_futbatman(dtnum)
+            obj.riskmanagement_futmultibatman(dtnum)
         end
         
         function [] = initdata(obj)
-            obj.initdata_futbatman;
+            obj.initdata_futmultibatman;
         end
         %end of initdata
     end
     
     methods
         [] = registerinstrument(obj,instrument)
-        [] = setpxopen(obj,instrument,val)
-        [] = setpxhigh(obj,instrument,val)
-        [] = setpxstoploss(obj,instrument,val)
-        [] = setpxtarget(obj,instrument,val)
-        [] = setpxwithdrawmin(obj,instrument,val)
-        [] = setpxwithdrawmax(obj,instrument,val)
-        %
-        val = getpxopen(obj,instrument)
-        val = getpxhigh(obj,instrument)
-        val = getpxstoploss(obj,instrument)
-        val = getpxtarget(obj,instrument)
-        val = getpxwithdrawmin(obj,instrument)
-        val = getpxwithdrawmax(obj,instrument)
+        [] = setbandwidthmin(obj,instrument,val)
+        [] = setbandwidthmax(obj,instrument,val)
+        val = getbandwidthmin(obj,instrument)
+        val = getbandwidthmax(obj,instrument)
         
     end
     
     methods (Access = private)
-        [] = riskmanagement_futbatman(obj,dtnum)
-        [] = updategreeks_futbatman(obj)
-        signals = gensignals_futbatman(obj)
-        [] = autoplacenewentrusts_futbatman(obj,signals)
-        [] = initdata_futbatman(obj)
-    end
-    
-    methods (Static = true)
-        [] = replay(~)
+        [] = riskmanagement_futmultibatman(obj,dtnum)
+        [] = updategreeks_futmultibatman(obj)
+        signals = gensignals_futmultibatman(obj)
+        [] = autoplacenewentrusts_futmultibatman(obj,signals)
+        [] = initdata_futmultibatman(obj)
     end
     
 end
