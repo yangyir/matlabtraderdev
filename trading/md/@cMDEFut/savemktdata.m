@@ -36,7 +36,7 @@ function [] = savemktdata(obj,varargin)
             fn_ = [dir_data_,code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
             cDataFileIO.saveDataToTxtFile(fn_,obj.candles4save_{i},coldefs,'w',true);
         end
-        fprintf('mdefut:savemktdata on %s......\n',datestr(dtnum,'yyyy-mm-dd HH:MM:SS'));
+        fprintf('cMDEFut:savemktdata on %s......\n',datestr(dtnum,'yyyy-mm-dd HH:MM:SS'));
     end
     
     %2.we might not clear candles_ and hist_candles_ at this stage as we
@@ -65,6 +65,17 @@ function [] = savemktdata(obj,varargin)
             fprintf('cMDEFut:savemktdata:internal error:%s\n',e.message);
         end
         
+    end
+    %
+    %
+    %note:the mktdata is scheduled to be saved between 02:30am and 02:40am
+    %on each trading date
+    %we shall logoff the MD server after the mktdata is saved
+    if ~strcmpi(obj.status_,'realtime')
+        if obj.qms_.isconnect
+            obj.logoff;
+            fprintf('cMDEFut:logoff from MD on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
+        end
     end
     
 end
