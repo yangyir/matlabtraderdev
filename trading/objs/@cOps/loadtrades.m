@@ -63,20 +63,25 @@ function [] = loadtrades(obj,varargin)
         filename = [dir_data_,bookname,'_trades_',datestr(lastbd,'yyyymmdd'),'.txt'];
     end
     
-    trades = cTradeOpenArray;
-    trades.fromtxt(filename);
-    livetrades = trades.filterby('CounterName',countername,'BookName',bookname,'Status','live');
-    positions = livetrades.convert2positions;
-    
     newBook = cBook;
     if ~isempty(bookname), newBook.setbookname(bookname);end
     if ~isempty(countername), newBook.setcountername(countername);end
-    if ~isempty(positions), newBook.setpositions(positions);end
+    
+    try
+        trades = cTradeOpenArray;
+        trades.fromtxt(filename);
+        livetrades = trades.filterby('CounterName',countername,'BookName',bookname,'Status','live');
+        positions = livetrades.convert2positions;
+        if ~isempty(positions), newBook.setpositions(positions);end
+
+        obj.trades_ = livetrades;
+    catch
+        %in case the filename doens't exist    
+    end
     obj.book_ = newBook;
     obj.entrusts_ = EntrustArray;
     obj.entrustspending_ = EntrustArray;
     obj.entrustsfinished_ = EntrustArray;
-    obj.trades_ = livetrades;
    
     fprintf('cOps:loadtrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
     
