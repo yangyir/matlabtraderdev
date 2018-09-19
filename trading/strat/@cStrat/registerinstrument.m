@@ -89,5 +89,10 @@ function [] = registerinstrument(strategy,instrument)
         strategy.mde_opt_.registerinstrument(instrument);
     end
     
+    %samplefreq_
+    strategy.setsamplefreq(instrument,1);
+    
+    
+    
 end
 %end of 'registerinstrument'

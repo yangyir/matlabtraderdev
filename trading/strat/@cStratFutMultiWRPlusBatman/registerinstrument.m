@@ -19,18 +19,6 @@ function [] = registerinstrument(obj,instrument)
         end
     end
 
-    %samplefreq_
-    default_samplefreq_ = 1;
-    if isempty(obj.samplefreq_)
-        obj.samplefreq_ = default_samplefreq_*ones(obj.count,1);
-        obj.setsamplefreq(instrument,default_samplefreq_);
-    else
-        if size(obj.samplefreq_,1) < obj.count
-            obj.samplefreq_ = [obj.samplefreq_;default_samplefreq_];
-            obj.setsamplefreq(instrument,default_samplefreq_);
-        end
-    end
-
     %overbought_
     default_overbought_ = 0;
     if isempty(obj.overbought_)

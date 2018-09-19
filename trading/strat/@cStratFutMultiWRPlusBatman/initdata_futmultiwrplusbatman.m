@@ -2,13 +2,15 @@ function [] = initdata_futmultiwrplusbatman(obj)
    
     instruments = obj.getinstruments;
     for i = 1:obj.count
-        if obj.samplefreq_(i) == 1
+        samplefreq = obj.getsamplefreq(instruments{i});
+        
+        if samplefreq == 1
             nbdays = 1;
-        elseif obj.samplefreq_(i) == 3
+        elseif samplefreq == 3
             nbdays = 3;
-        elseif obj.samplefreq_(i) == 5
+        elseif samplefreq == 5
             nbdays = 5;
-        elseif obj.samplefreq_(i) == 15
+        elseif samplefreq == 15
             nbdays = 10;
         end
         obj.mde_fut_.initcandles(instruments{i},'NumberofPeriods',nbdays);

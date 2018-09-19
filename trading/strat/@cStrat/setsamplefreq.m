@@ -1,14 +1,20 @@
 function [] = setsamplefreq(obj,instrument,freq)
-    if isempty(obj.samplefreq_), obj.samplefreq_ = ones(obj.count,1);end
+%cStrat    
+    if ~isnumeric(freq), error('cStrat:setsamplefreq:invalid freq input');end
 
     [flag,idx] = obj.hasinstrument(instrument);
-
-    if flag
-        obj.samplefreq_(idx) = freq;
+    if ~flag
+        if isempty(obj.samplefreq_)
+            obj.samplefreq_ = freq*ones(obj.count,1);
+        else
+            if size(obj.samplefreq_,1) < obj.count
+                obj.samplefreq_ = [obj.samplefreq_;freq];
+            end
+        end
     else
-        error('cStratFutMultiWRPlusBatman:settradingfreq:instrument not found')
+        obj.samplefreq_(idx) = freq;
     end
-
+    
     if ischar(instrument)
         instrument = code2instrument(instrument);
     end
