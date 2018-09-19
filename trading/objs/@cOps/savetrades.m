@@ -46,7 +46,7 @@ function [] = savetrades(obj,varargin)
     counter = obj.getcounter;
     if counter.is_Counter_Login
         counter.logout;
-        fprintf('cOps:log off % on %s......\n',counter.char,datestr(t,'yyyy-mm-dd HH:MM:SS'));
+        fprintf('cOps:log off %s on %s......\n',counter.char,datestr(t,'yyyy-mm-dd HH:MM:SS'));
     end
     
 end
