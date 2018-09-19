@@ -1,5 +1,5 @@
 function [] = printinfo(obj)
-    instruments = obj.instruments_.getinstrument;
+    instruments = obj.getinstruments;
     for i = 1:obj.count
         ticks = obj.mde_fut_.getlasttick(instruments{i});
         if ~isempty(ticks)
