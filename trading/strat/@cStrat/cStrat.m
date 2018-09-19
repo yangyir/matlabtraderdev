@@ -6,6 +6,9 @@ classdef cStrat < cMyTimerObj
         instruments_@cInstrumentArray
         %option related
         underliers_@cInstrumentArray
+        
+        %sample frequency, e.g. 5m, 15m
+        samplefreq_@double
 
         %trading pnl related per underlier
         pnl_stop_type_@double       % 0-rel and 1-abs
@@ -54,6 +57,9 @@ classdef cStrat < cMyTimerObj
     
     %set/get methods
     methods
+        [] = setsamplefreq(obj,instrument,freq)
+        freq = getsamplefreq(obj,instrument)
+        %
         [] = setstoptype(obj,instrument,stoptype)
         type_ = getstoptype(obj,instrument)
         %
@@ -142,6 +148,7 @@ classdef cStrat < cMyTimerObj
         [ret,e] = longclose(obj,code_ctp,lots,closetodayflag,varargin)
         
         [] = unwindposition(obj,instrument,spread)
+        [ret,e] = unwindtrade(obj,tradein)
         pnl = calcrunningpnl(obj,instrument)
         
         [] = refresh(obj,varargin)

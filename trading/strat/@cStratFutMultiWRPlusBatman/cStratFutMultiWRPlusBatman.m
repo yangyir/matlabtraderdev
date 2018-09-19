@@ -2,7 +2,6 @@ classdef cStratFutMultiWRPlusBatman < cStrat
     properties
         % signal related
         nperiods_@double
-        samplefreq_@double
         overbought_@double          %legacy property which is not used anymore
         oversold_@double            %legacy property which is not used anymore
         wr_@double                  %william%R
@@ -28,8 +27,6 @@ classdef cStratFutMultiWRPlusBatman < cStrat
     methods
         [] = registerinstrument(obj,instrument)
         [] = setparameters(obj,instrument,params)
-        [] = setsamplefreq(obj,instrument,freq)
-        freq = getsamplefreq(obj,instrument)
         [] = setboundary(obj,instrument,overbought,oversold)
         [overbought,oversold] = getboundary(obj,instrument)
         [wr,wrts] = getlastwr(obj,instrument)

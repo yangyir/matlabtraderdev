@@ -16,6 +16,10 @@ function [] = settargetfromsignalinfo(obj,signalinfo)
         return
     end
     
+    if isa(signalinfo,'cBatmanManual')
+        obj.pxtarget_ = signalinfo.pxtarget_;
+    end
+    
     error('cBatman::settargetfromsignal:%s not supported',signalinfo.name_)
     
 end

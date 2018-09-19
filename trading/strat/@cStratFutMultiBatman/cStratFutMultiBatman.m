@@ -80,6 +80,7 @@ classdef cStratFutMultiBatman < cStrat
         [] = setbandwidthmax(obj,instrument,val)
         val = getbandwidthmin(obj,instrument)
         val = getbandwidthmax(obj,instrument)
+        [ret,e] = placeentrust(obj,instrument,varargin)
         
     end
     

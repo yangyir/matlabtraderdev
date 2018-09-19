@@ -51,7 +51,7 @@ for i = 1:ntrades
     for j = 1:size(candle_db_freq,1)
         unwindtrade = tradeOpen.riskmanager_.riskmanagementwithcandle(candle_db_freq(j,:),...
             'debug',false,'usecandlelastonly',false,'updatepnlforclosedtrade',true,...
-            'useopencandle',false);
+            'useopencandle',true);
         if ~isempty(unwindtrade)
             profitLoss(i) = unwindtrade.closepnl_;
             break
@@ -89,5 +89,5 @@ end
 open tradesmat
 %%
 tbl = trades.totable;
-trades.toexcel('temp1','shheet1');
+trades.totxt('c:\yangyiran\tbl1.txt');
 

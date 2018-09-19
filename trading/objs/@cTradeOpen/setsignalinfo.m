@@ -36,6 +36,23 @@ function [] = setsignalinfo(obj,varargin)
         return
     end
     
+    if strcmpi(name,'batmanmanual')
+        signalinfo = cBatmanManual;
+        try
+            signalinfo.pxtarget_ = info.pxtarget;
+        catch
+            signalinfo.pxtarget_ = [];
+        end
+        %
+        try
+            signalinfo.pxstoploss_ = info.pxstoploss;
+        catch
+            signalinfo.pxstoploss_ = [];
+        end
+        obj.opensignal_ = signalinfo;
+        return
+    end
+    
     error('cTradeOpen:setsignalinfo:%s not implemented',name);
     
 end
