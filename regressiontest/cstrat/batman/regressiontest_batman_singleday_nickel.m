@@ -5,7 +5,6 @@ startdt = '2018-06-14';
 enddt = '2018-06-19';
 checkdt = '2018-06-19';
 trade_freq = 3;
-stop_nperiod = 72;
 
 %%
 replay_speed = 50;
@@ -17,9 +16,13 @@ replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyy
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
 replay_strat.initdata;
 replay_strat.mde_fut_.printflag_ = true;
-replay_strat.helper_.print_timeinterval_ = 60*trade_freq;
+replay_strat.mde_fut_.print_timeinterval_ = 60;%行情1分钟打印一次
+replay_strat.helper_.print_timeinterval_ = 60;%持仓盈亏信息1分钟打印一次
 clc;
 fprintf('replay get ready......\n');
+%%
+ticks = replay_strat.mde_fut_.replayer_.tickdata_{1};
+timeseries_plot(ticks(:,1:2),'dateformat','HH:MM');
 %%
 clc;
 replay_strat.mde_fut_.start;
@@ -27,9 +30,9 @@ replay_strat.helper_.start;
 replay_strat.start;
 
 %%
-price = 114500;
-target = 114000;
-stoploss = 115000;
+price = 114000;
+target = 113500;
+stoploss = 114600;
 replay_strat.placeentrust(code,'buysell','s','price',price,'volume',3,'target',target,'stoploss',stoploss);
 
 %%

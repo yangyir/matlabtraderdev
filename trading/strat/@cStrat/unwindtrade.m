@@ -1,6 +1,6 @@
 function [ret,e] = unwindtrade(obj,tradein)
 %cStrat
-    if ~isa(tradein,'cTradeOpenArray')
+    if ~isa(tradein,'cTradeOpen')
         ret = 0;
         e = [];
         fprintf('cStrat:unwindtrade:invalid trade input...\n');

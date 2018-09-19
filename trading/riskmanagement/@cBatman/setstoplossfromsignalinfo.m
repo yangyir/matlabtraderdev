@@ -19,6 +19,7 @@ function [] = setstoplossfromsignalinfo(obj,signalinfo)
     
     if isa(signalinfo,'cBatmanManual')
         obj.pxstoploss_ = signalinfo.pxstoploss_;
+        return
     end
     
     error('cBatman::settargetfromsignal:%s not supported',signalinfo.name_)

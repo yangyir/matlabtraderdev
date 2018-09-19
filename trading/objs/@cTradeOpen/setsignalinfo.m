@@ -39,6 +39,12 @@ function [] = setsignalinfo(obj,varargin)
     if strcmpi(name,'batmanmanual')
         signalinfo = cBatmanManual;
         try
+            signalinfo.frequency_ = info.frequency;
+        catch
+            signalinfo.frequency_ = '';
+        end
+        %
+        try
             signalinfo.pxtarget_ = info.pxtarget;
         catch
             signalinfo.pxtarget_ = [];
