@@ -1,5 +1,5 @@
-clear all;clc;delete(timerfindall);cd('C:\Users\yiran\Documents\MATLAB');
-%%
+clear all;clc;delete(timerfindall);dir_ = getenv('TRADINGDIR'); cd(dir_);
+%
 countername = 'citic_kim_fut';
 bookname = 'book-demotrading';
 markettype = 'futures';
@@ -9,6 +9,7 @@ instruments = {'ni1901'};
 combos = rtt_setup('CounterName',countername,'BookName',bookname,...
     'MarketType','futures','StrategyName',strategyname,'Instruments',instruments);
 fprintf('\ncombos successfully created...\n');
+
 %%
 code = instruments{1};
 samplefreq = 5;
@@ -31,10 +32,7 @@ combos.mdefut.start
 %%
 combos.ops.start;
 %%
-%limit order - buy at price which is 10 ticks away from market quote
-volume = 1;
-spread = 10;
-combos.strategy.longopensingleinstrument(instruments{1},volume,spread);
+combos.strategy.start;
 
 %%
 %withdraw
@@ -44,4 +42,4 @@ combos.mdefut.stop
 %%
 c.logout
 %%
-mdlogout
+combos.mdefut.logoff

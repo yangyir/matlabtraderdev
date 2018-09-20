@@ -74,7 +74,7 @@ function [] = savemktdata(obj,varargin)
     if ~strcmpi(obj.status_,'realtime')
         if obj.qms_.isconnect
             obj.logoff;
-            fprintf('cMDEFut:logoff from MD on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
+            fprintf('cMDEFut:logoff from MD on %s......\n',datestr(dtnum,'yyyy-mm-dd HH:MM:SS'));
         end
     end
     
