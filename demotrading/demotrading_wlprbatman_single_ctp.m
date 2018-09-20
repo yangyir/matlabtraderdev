@@ -4,7 +4,6 @@ countername = 'citic_kim_fut';
 bookname = 'book-demotrading';
 markettype = 'futures';
 strategyname = 'wlprbatman';
-% instruments = {'cu1811';'al1811';'zn1811';'ni1811';'ni1901';'rb1901';'i1901';'SR901';'m1901';'IC1809';'IH1809';'IF1809';'T1812'};
 instruments = {'ni1901'};
 combos = rtt_setup('CounterName',countername,'BookName',bookname,...
     'MarketType','futures','StrategyName',strategyname,'Instruments',instruments);
@@ -20,6 +19,8 @@ combos.strategy.setmaxexecutionperbucket(code,1);
 combos.strategy.setbandtarget(code,0.1);
 combos.strategy.setbandstoploss(code,0.05);
 combos.strategy.initdata;
+%%
+combos.strategy.printinfo
 
 %%
 combos.mdefut.login('Connection','CTP','CounterName',countername);
