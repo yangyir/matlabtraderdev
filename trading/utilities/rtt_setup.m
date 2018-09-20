@@ -80,7 +80,7 @@ function [rtt_output] = rtt_setup(varargin)
     if strcmpi(stratname,'wlpr')
         rtt_strategy = cStratFutMultiWR;
     elseif strcmpi(stratname,'batman')
-        rtt_strategy = cStratFutBatman;
+        rtt_strategy = cStratFutMultiBatman;
     elseif strcmpi(stratname,'wlprbatman')
         rtt_strategy = cStratFutMultiWRPlusBatman;
     elseif strcmpi(stratname,'manual')

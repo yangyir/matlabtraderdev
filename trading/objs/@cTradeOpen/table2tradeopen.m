@@ -18,22 +18,27 @@ function [obj] = table2tradeopen(obj,headers,data)
                 end
             end
             if isempty(opensignal_name), continue; end
-            if strcmpi(opensignal_name,'WilliamsR')
-                signal = cWilliamsRInfo;
-                for k = 1:length(proplist)
-                    if isempty(proplist{k}),continue;end
-                    if strcmpi(proplist{k},'opensignal_name_'), continue;end
-                    if isnumchar(vallist{k})
-                        signal.(proplist{k}(length('opensignal_')+1:end)) = str2double(vallist{k});
-                    else
-                        signal.(proplist{k}(length('opensignal_')+1:end)) = vallist{k};
-                    end
-                end
-                obj.opensignal_ = signal;
-            else
+            if ~(strcmpi(opensignal_name,'WilliamsR') || strcmpi(opensignal_name,'BatmanManual'))
                 error('cTradeOpen:table2tradeopen:%s signal type not implemented',opensignal_name);
             end
             
+            if strcmpi(opensignal_name,'WilliamsR')
+                signal = cWilliamsRInfo;
+            elseif strcmpi(opensignal_name,'BatmanManual')
+                signal = cBatmanManual;
+            end
+                
+            for k = 1:length(proplist)
+                if isempty(proplist{k}),continue;end
+                if strcmpi(proplist{k},'opensignal_name_'), continue;end
+                if isnumchar(vallist{k})
+                    signal.(proplist{k}(length('opensignal_')+1:end)) = str2double(vallist{k});
+                else
+                    signal.(proplist{k}(length('opensignal_')+1:end)) = vallist{k};
+                end
+            end
+            obj.opensignal_ = signal;
+            %
         elseif ~isempty(strfind(headers{i},'riskmanager_'))
             proplist = regexp(headers{i},';','split');
             vallist = regexp(data{i},';','split');
