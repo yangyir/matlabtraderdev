@@ -41,6 +41,7 @@ combos.strategy.withdrawentrusts(instruments{1});
 %%
 combos.mdefut.stop
 %%
+warning('on');
 c.logout
 %%
 combos.mdefut.logoff

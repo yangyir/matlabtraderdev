@@ -1,22 +1,23 @@
-function [] = unwindposition(strategy,instrument,spread)
-    if nargin < 1, return; end
-
+function [] = unwindpositions(strategy,instrument,varargin)
+    if ischar(instrument)
+        instrument = code2instrument(instrument);
+    end
+    
+    isshfe = strcmpi(instrument.exchange,'.SHF');
+    
     %check whether the instrument has been registered with the
     %strategy
-%     [flag,idx_instrument] = strategy.instruments_.hasinstrument(instrument);
-    flag = strategy.instruments_.hasinstrument(instrument);
+    flag = strategy.hasinstrument(instrument);
     if ~flag, return; end
 
     %check whether the instrument has been traded already
-    [flag,idx_book] = strategy.bookrunning_.hasposition(instrument);
+    [flag,idx_book] = strategy.helper_.book_.hasposition(instrument);
     if ~flag, return; end
 
-    code = instrument.code_ctp;
-
-%     if ~strcmpi(strategy.mode_,'debug'), strategy.withdrawentrusts(instrument);end
+    %withdraw all pending entrusts associated with this instrument
     strategy.withdrawentrusts(instrument);
 
-    isshfe = strcmpi(strategy.bookrunning_.positions_{idx_book}.instrument_.exchange,'.SHF');
+    code = instrument.code_ctp;
     volume = strategy.bookrunning_.positions_{idx_book}.direction_ * strategy.bookrunning_.positions_{idx_book}.position_total_;
 
 %     if strcmpi(strategy.mode_,'replay')

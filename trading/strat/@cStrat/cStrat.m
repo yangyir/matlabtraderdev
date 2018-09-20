@@ -147,7 +147,7 @@ classdef cStrat < cMyTimerObj
         [ret,e] = longopen(obj,code_ctp,lots,varargin)
         [ret,e] = longclose(obj,code_ctp,lots,closetodayflag,varargin)
         
-        [] = unwindposition(obj,instrument,spread)
+        [] = unwindpositions(obj,instrument,varargin)
         [ret,e] = unwindtrade(obj,tradein)
         pnl = calcrunningpnl(obj,instrument)
         
