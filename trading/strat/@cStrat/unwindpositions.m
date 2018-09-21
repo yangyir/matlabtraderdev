@@ -11,76 +11,49 @@ function [] = unwindpositions(strategy,instrument,varargin)
     if ~flag, return; end
 
     %check whether the instrument has been traded already
-    [flag,idx_book] = strategy.helper_.book_.hasposition(instrument);
+    [flag,idxp] = strategy.helper_.book_.hasposition(instrument);
     if ~flag, return; end
 
     %withdraw all pending entrusts associated with this instrument
     strategy.withdrawentrusts(instrument);
-
-    code = instrument.code_ctp;
-    volume = strategy.bookrunning_.positions_{idx_book}.direction_ * strategy.bookrunning_.positions_{idx_book}.position_total_;
-
-%     if strcmpi(strategy.mode_,'replay')
-%         %update portfolio and pnl_close_ as required in the
-%         %following
-%         %assuming the entrust is completely filled in debug mode
-%         tick = strategy.mde_fut_.getlasttick(instrument);
-%         bid = tick(2);
-%         ask = tick(3);
-%         tick_size = strategy.bookrunning_.positions_{idx_book}.instrument_.tick_size;
-%         if volume > 0
-%             %place entrust with sell flag using the bid price
-%             if nargin < 3
-%                 price = bid - strategy.bidspread_(idx_instrument)*tick_size;
-%             else
-%                 price = bid - spread*tick_size;
-%             end
-%         elseif volume < 0
-%             %place entrust with buy flag using the ask price
-%             if nargin < 3
-%                 price = ask + strategy.askspread_(idx_instrument)*tick_size;
-%             else
-%                 price = bid + spread*tick_size;
-%             end
-%         end
-%         offset = -1;
-%         t = cTransaction;
-%         t.instrument_ = strategy.portfolio_.pos_list{idx_book}.instrument_;
-%         t.price_ = price;
-%         t.volume_= abs(volume);
-%         t.direction_ = -sign(volume);
-%         t.offset_ = offset;
-%         pnl = strategy.portfolio_.updateportfolio(t);
-%         strategy.pnl_close_(idx_instrument) = strategy.pnl_close_(idx_instrument) + pnl;
-%         return
-%     end
-
-    %for 'realtime' mode
-%     spread = 0;
-    if ~isshfe
-        if volume > 0
-            strategy.shortclosesingleinstrument(code,volume,spread);
-        elseif volume < 0
-            strategy.longclosesingleinstrument(code,-volume,spread);
+    
+    volume_total = strategy.helper_.book_.positions_{idxp}.position_total_;
+    volume_today = strategy.helper_.book_.positions_{idxp}.position_today_;
+    direction = strategy.helper_.book_.positions_{idxp}.direction_;
+    
+    if isshfe
+        if volume_today > 0
+            if direction == 1
+                [ret1] = strategy.shortclose(instrument,volume_today,1);
+            elseif direction == -1
+                [ret1] = strategy.longclose(instrument,volume_today,1);
+            end
+        else
+            ret1 = 1;
+        end
+        volume_before = volume_total - volume_today;
+        if volume_before > 0
+            if direction == 1
+                [ret2] = strategy.shortclose(instrument,volume_before);
+            elseif direction == -1
+                [ret2] = strategy.longclose(instreument,volume_before);
+            end
+        else
+            ret2 = 1;
+        end
+        if volume_total > 0 && ret1 && ret2
+            fprintf('%s:positions of %s are unwinded...\n',strategy.name_,instrument.code_ctp);
         end
     else
-        volume_today = strategy.bookrunning_.positions_{idx_book}.direction_ * strategy.bookrunning_.positions_{idx_book}.position_today_;
-        volume_before = volume - volume_today;
-        if volume_today ~= 0
-            if volume_today > 0
-                strategy.shortclosesingleinstrument(code,volume_today,1,spread);
-            elseif volume_today < 0
-                strategy.longclosesingleinstrument(code,-volume_today,1,spread);
-            end
+        if direction == 1 && volume_total > 0
+            [ret] = strategy.shortclose(instrument,volume_total);
+        elseif direction == -1 && volume_total > 0
+            [ret] = strategy.longclose(instrument,volume_total);
         end
-        if volume_before ~= 0
-            if volume_before > 0
-                strategy.shortclosesingleinstrument(code,volume_before,0,spread);
-            elseif volume_before < 0
-                strategy.longclosesingleinstrument(code,-volume_before,0,spread);
-            end
-
+        if ret
+            fprintf('%s:positions of %s are unwinded...\n',strategy.name_,instrument.code_ctp);
         end
     end
+    
 end
 %end of unwindpositions
