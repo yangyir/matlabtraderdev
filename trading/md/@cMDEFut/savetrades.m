@@ -3,7 +3,7 @@ function [] = savetrades(obj,varargin)
 %     variablenotused(obj);
 % the trades are saved between 15:15pm and 15:25pm, when we can disconnect
 % the MDE
-    if ~strcmpi(obj.status_,'realtime'), return; end
+    if ~strcmpi(obj.mode_,'realtime'), return; end
     
     if ~obj.qms_.isconnect, return; end
 

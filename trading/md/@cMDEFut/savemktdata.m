@@ -71,7 +71,7 @@ function [] = savemktdata(obj,varargin)
     %note:the mktdata is scheduled to be saved between 02:30am and 02:40am
     %on each trading date
     %we shall logoff the MD server after the mktdata is saved
-    if ~strcmpi(obj.status_,'realtime')
+    if ~strcmpi(obj.mode_,'realtime')
         if obj.qms_.isconnect
             obj.logoff;
             fprintf('cMDEFut:logoff from MD on %s......\n',datestr(dtnum,'yyyy-mm-dd HH:MM:SS'));

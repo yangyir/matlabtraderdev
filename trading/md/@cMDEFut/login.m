@@ -1,5 +1,7 @@
 function [ret] = login(obj,varargin)
 %cMDEFut
+    if strcmpi(obj.mode_,'replay'), return; end
+    
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('Connection','',@ischar);
