@@ -99,7 +99,7 @@ function [ret,e] = shortopen(strategy,ctp_code,lots,varargin)
         e.time = ordertime;
         e.time2 = datestr(e.time,'yyyy-mm-dd HH:MM:SS');
         e.entrustType = entrusttype;
-%         strategy.updatestratwithentrust(e);
+        strategy.updatestratwithentrust(e);
     end
     
 end
