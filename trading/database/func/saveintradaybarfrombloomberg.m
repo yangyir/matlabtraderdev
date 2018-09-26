@@ -28,7 +28,7 @@ fn_info_ = [dir_info_,code_ctp,'_info.txt'];
 f.loadinfo(fn_info_);
 if isempty(f.contract_size)
     %not loaded
-    f.init(bbg.ds_);
+    f.init(bbg);
     f.saveinfo(fn_info_);
 end
 
