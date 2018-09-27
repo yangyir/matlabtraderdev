@@ -28,6 +28,7 @@ replay_strat.initdata;
 replay_strat.mde_fut_.printflag_ = false;
 replay_strat.helper_.print_timeinterval_ = 60*samplefreq;
 replay_strat.helper_.savedir_ = 'c:\yangyiran\';
+replay_strat.helper_.loaddir_ = 'c:\yangyiran\';
 fprintf('\nreplay get ready......\n\n');
 replay_strat.printinfo;
 
