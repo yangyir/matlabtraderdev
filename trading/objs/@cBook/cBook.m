@@ -59,6 +59,8 @@ classdef cBook < handle
                 
         % position
         [bool,idx] = hasposition(obj,argin)
+        [bool,idx] = haslongposition(obj,argin)
+        [bool,idx] = hasshortposition(obj,argin)
         [] = addpositions(obj,varargin)
         [] = removepositions(obj,varargin)
         [vtotal,vtoday] = getpositions(obj,varargin)
