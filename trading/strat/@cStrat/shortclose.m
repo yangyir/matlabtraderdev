@@ -39,7 +39,8 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     end
         
     try
-        [f2,idxp] = strategy.helper_.book_.hasposition(instrument);
+%         [f2,idxp] = strategy.helper_.book_.hasposition(instrument);
+        [f2,idxp] = strategy.helper_.book_.haslongposition(instrument);
     catch
         f2 = false;
     end
