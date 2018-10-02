@@ -14,26 +14,28 @@ function [] = initreplayer(obj,varargin)
         error('cMDEFut:initreplayer:invalid inputs as both fn and filenames are given')
     end
     
-    if ~isempty(fn)
-        r = cReplayer;
-        r.mode_ = 'singleday';
-        r.loadtickdata('code',codestr,'fn',fn);        
-    elseif ~isempty(fns)
-        r = cReplayer;
-        r.mode_ = 'multiday';
-        r.multidayfiles_ = fns;
-        r.multidayidx_ = 1;
-        r.loadtickdata('code',codestr,'fn',fns{r.multidayidx_});
+    if isempty(obj.replayer_)
+        obj.replayer_ = cReplayer;
     end
     
-    obj.replayer_ = r;
+    
+    if ~isempty(fn)
+        obj.replayer_.mode_ = 'singleday';
+        obj.replayer_.loadtickdata('code',codestr,'fn',fn);        
+    elseif ~isempty(fns)
+        obj.replayer_.mode_ = 'multiday';
+        obj.replayer_.multidayfiles_ = fns;
+        obj.replayer_.multidayidx_ = 1;
+        obj.replayer_.loadtickdata('code',codestr,'fn',fns{r.multidayidx_});
+    end
+    
     obj.mode_ = 'replay';
 
-    [~,idx] = r.instruments_.hasinstrument(codestr);
-    obj.replay_date1_ = floor(r.tickdata_{idx}(1,1));
+    [~,idx] = obj.replayer_.instruments_.hasinstrument(codestr);
+    obj.replay_date1_ = floor(obj.replayer_.tickdata_{idx}(1,1));
     obj.replay_date2_ = datestr(obj.replay_date1_,'yyyy-mm-dd');
     %     
-    obj.replay_datetimevec_ = r.tickdata_{idx}(:,1);
+    obj.replay_datetimevec_ = obj.replayer_.tickdata_{idx}(:,1);
     obj.replay_count_ = 1;
     obj.replay_time1_ = obj.replay_datetimevec_(obj.replay_count_);
     obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
