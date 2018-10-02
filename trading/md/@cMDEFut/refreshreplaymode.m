@@ -20,13 +20,13 @@ function [] = refreshreplaymode(mdefut)
         return
     end
     %
-    if isempty(mdefut.replay_datetimevec_)
-        mdefut.replay_time1_ = now;
-        mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
-        mdefut.replay_date1_ = floor(mdefut.replay_time1_);
-        mdefut.replay_date2_ = datestr(mdefut.replay_date1_,'yyyy-mm-dd');
-        return
-    end
+%     if isempty(mdefut.replay_datetimevec_)
+%         mdefut.replay_time1_ = now;
+%         mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
+%         mdefut.replay_date1_ = floor(mdefut.replay_time1_);
+%         mdefut.replay_date2_ = datestr(mdefut.replay_date1_,'yyyy-mm-dd');
+%         return
+%     end
     %                    
     if mdefut.printflag_ && mdefut.replay_count_ == 1
         fprintf('replay date now: %s\n',mdefut.replay_date2_);

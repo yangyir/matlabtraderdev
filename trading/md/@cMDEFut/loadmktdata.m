@@ -21,16 +21,29 @@ function [] = loadmktdata(obj,varargin)
                     return
                 end
                 %TODO:here we may extend the replay mode with mutltiple futures
-                
+                %note:20181002:finally we have capcity to cope with
+                %multiple futures
                 %below we first load tick data for the next business date
                 multidayidx = obj.replayer_.multidayidx_;
                 multidayidx = multidayidx+1;
                 fns = obj.replayer_.multidayfiles_;
-                obj.replayer_.loadtickdata('code',instruments{1}.code_ctp,'fn',fns{multidayidx});
-                obj.replay_date1_ = floor(obj.replayer_.tickdata_{1}(1,1));
-                obj.replay_date2_ = datestr(obj.replay_date1_,'yyyy-mm-dd');
-                obj.replay_datetimevec_ = obj.replayer_.tickdata_{1}(:,1);
+                for i = 1:ns
+                    obj.replayer_.loadtickdata('code',instruments{i}.code_ctp,'fn',fns{multidayidx,i});
+                    if i == 1
+                        obj.replay_date1_ = floor(obj.replayer_.tickdata_{i}(1,1));
+                        obj.replay_date2_ = datestr(obj.replay_date1_,'yyyy-mm-dd');
+                    else
+                        checkdate = floor(obj.replayer_.tickdata_{i}(1,1));
+                        if checkdate ~= obj.replay_date1_
+                            error('cMDEFut:loadmarketdata:inconsitent tick data found on different cob dates')
+                        end
+                    end
+                    obj.replay_idx_(i) = 0;
+                end
+%                 obj.replay_datetimevec_ = obj.replayer_.tickdata_{1}(:,1);
                 obj.replay_count_ = 1;
+                obj.replay_time1_ = obj.replay_date1_ + obj.replay_datetimevec_(obj.replay_count_)/86400;
+                obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
                 obj.replayer_.multidayidx_ = multidayidx;
             end
         end

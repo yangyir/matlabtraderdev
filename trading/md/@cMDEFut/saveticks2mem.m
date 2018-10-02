@@ -2,9 +2,9 @@ function [] = saveticks2mem(mdefut)
     instruments = mdefut.qms_.instruments_.getinstrument;
     ns = size(instruments,1);
     
-    if strcmpi(mdefut.mode_,'replay') && ns ~= 1
-        error('cMDEFut:saveticks2mem:only single instrument is supported in replay mode');
-    end
+%     if strcmpi(mdefut.mode_,'replay') && ns ~= 1
+%         error('cMDEFut:saveticks2mem:only single instrument is supported in replay mode');
+%     end
     
     if strcmpi(mdefut.mode_,'realtime')
         qs = mdefut.qms_.getquote;
@@ -22,12 +22,23 @@ function [] = saveticks2mem(mdefut)
             mdefut.ticks_count_(i) = count;
         end
     elseif strcmpi(mdefut.mode_,'replay')
-        count = mdefut.ticks_count_(1)+1;
-        mdefut.ticks_{1}(count,1) = mdefut.replayer_.tickdata_{1}(mdefut.replay_count_,1);
-        mdefut.ticks_{1}(count,2) = mdefut.replayer_.tickdata_{1}(mdefut.replay_count_,2);
-        mdefut.ticks_{1}(count,3) = mdefut.replayer_.tickdata_{1}(mdefut.replay_count_,2);
-        mdefut.ticks_{1}(count,4) = mdefut.replayer_.tickdata_{1}(mdefut.replay_count_,2);
-        mdefut.ticks_count_(1) = count;
+        %old style
+%         count = mdefut.ticks_count_(1)+1;
+%         mdefut.ticks_{1}(count,1) = mdefut.replayer_.tickdata_{1}(mdefut.replay_count_,1);
+%         mdefut.ticks_{1}(count,2) = mdefut.replayer_.tickdata_{1}(mdefut.replay_count_,2);
+%         mdefut.ticks_{1}(count,3) = mdefut.replayer_.tickdata_{1}(mdefut.replay_count_,2);
+%         mdefut.ticks_{1}(count,4) = mdefut.replayer_.tickdata_{1}(mdefut.replay_count_,2);
+%         mdefut.ticks_count_(1) = count;
+        for i = 1:ns
+            idx = mdefut.replay_idx_(i);
+            if idx == 0, continue; end
+            count = mdefut.ticks_count_(i) + 1;
+            mdefut.ticks_{i}(count,1) = mdefut.replayer_.tickdata_{i}(idx,1);
+            mdefut.ticks_{i}(count,2) = mdefut.replayer_.tickdata_{i}(idx,2);
+            mdefut.ticks_{i}(count,3) = mdefut.replayer_.tickdata_{i}(idx,2);
+            mdefut.ticks_{i}(count,4) = mdefut.replayer_.tickdata_{i}(idx,2);
+            mdefut.ticks_count_(i) = count;
+        end
     end
 end
 %end of saveticks2mem

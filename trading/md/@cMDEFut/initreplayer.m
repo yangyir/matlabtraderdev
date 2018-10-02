@@ -25,7 +25,7 @@ function [] = initreplayer(obj,varargin)
         obj.replayer_.mode_ = 'multiday';
         obj.replayer_.multidayfiles_ = fns;
         obj.replayer_.multidayidx_ = 1;
-        obj.replayer_.loadtickdata('code',codestr,'fn',fns{r.multidayidx_});
+        obj.replayer_.loadtickdata('code',codestr,'fn',fns{obj.replayer_.multidayidx_});
     end
     
     obj.mode_ = 'replay';
@@ -60,6 +60,8 @@ function [] = initreplayer(obj,varargin)
         'tradingbreak',instruments{idx2}.trading_break);
     candle_ = [buckets,zeros(size(buckets,1),4)];
     obj.candles4save_{idx2} = candle_;
+    
+    obj.replay_idx_(idx2) = 0;
     
     % compute num21_00_00_; num21_00_0_5_;num00_00_00_;num00_00_0_5_ if it
     % is required
@@ -98,24 +100,24 @@ function [] = initreplayer(obj,varargin)
     obj.datenum_close_{idx2,1} = datenum_close_new;
     %
     %
-    if obj.replayer_.instruments_.count == 1
-        obj.replay_datetimevec_ = obj.replayer_.tickdata_{idx}(:,1);
-        obj.replay_count_ = 1;
-        obj.replay_time1_ = obj.replay_datetimevec_(obj.replay_count_);
-        obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
-    else
+%     if obj.replayer_.instruments_.count == 1
+%         obj.replay_datetimevec_ = obj.replayer_.tickdata_{idx}(:,1);
+%         obj.replay_count_ = 1;
+%         obj.replay_time1_ = obj.replay_datetimevec_(obj.replay_count_);
+%         obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
+%     else
         % note:with more than 1 instrument
         % we create a timevec in seconds between 09:00am and 02:30am on the
         % next date
-        dtstart = 9*3600;
-        dtend = 86400 + 2*3600+30*60;
+        dtstart = 529*60;
+        dtend = 86400 + 161*60;
         dtvec = (dtstart:1:dtend)';
         obj.replay_datetimevec_ = dtvec;
         obj.replay_count_ = 1;
         obj.replay_time1_ = obj.replay_date1_ + dtvec(obj.replay_count_)/86400;
         obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
         
-    end
+%     end
 
     
 end

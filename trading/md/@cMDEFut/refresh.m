@@ -9,7 +9,7 @@ function [] = refresh(mdefut,varargin)
             mdefut.updatecandleinmem;
         %    
         elseif strcmpi(mdefut.mode_,'replay')
-            mdefut.refreshreplaymode;
+            mdefut.refreshreplaymode2;
         end
     end
 end

@@ -23,6 +23,7 @@ classdef cMDEFut < cMyTimerObj
         %
         replayer_@cReplayer
         replay_datetimevec_@double
+        replay_idx_@double
         %
         datenum_open_@cell
         datenum_close_@cell
@@ -115,6 +116,7 @@ classdef cMDEFut < cMyTimerObj
         [t] = getreplaytime(obj,varargin)
         %
         [] = refreshreplaymode(obj)
+        [] = refreshreplaymode2(obj)
                 
         [] = savecandles2file(obj,dtnum)
         

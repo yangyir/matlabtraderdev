@@ -24,8 +24,31 @@ function [] = loadtickdata(obj,varargin)
 %             data = getfield(d,flds{1});
             data = d.(flds{1});
             obj.tickdata_{idx} = data;
+            data_timevec = zeros(size(data,1),1);
+            date_start = floor(data(1,1));
+            for i = 1:size(data,1)
+                date_i = floor(data(i,1));
+                if date_i == date_start
+                    data_timevec(i) = 3600*hour(data(i,1))+60*minute(data(i,1))+second(data(i,1));
+                else
+                    data_timevec(i) = 3600*hour(data(i,1))+60*minute(data(i,1))+second(data(i,1))+86400;
+                end
+            end
+            obj.ticktimevec_{idx} = data_timevec;
         else
             obj.tickdata_{idx} = d;
+            data_timevec = zeros(size(d,1),1);
+            date_start = floor(d(1,1));
+            for i = 1:size(d,1)
+                date_i = floor(d(i,1));
+                if date_i == date_start
+                    data_timevec(i) = 3600*hour(d(i,1))+60*minute(d(i,1))+second(d(i,1));
+                else
+                    data_timevec(i) = 3600*hour(d(i,1))+60*minute(d(i,1))+second(d(i,1))+86400;
+                end
+            end
+            obj.ticktimevec_{idx} = data_timevec;
+            
         end
     catch e
         fprintf([e.message,'\n']);
