@@ -18,7 +18,6 @@ function [] = initreplayer(obj,varargin)
         obj.replayer_ = cReplayer;
     end
     
-    
     if ~isempty(fn)
         obj.replayer_.mode_ = 'singleday';
         obj.replayer_.loadtickdata('code',codestr,'fn',fn);        
@@ -32,14 +31,16 @@ function [] = initreplayer(obj,varargin)
     obj.mode_ = 'replay';
 
     [~,idx] = obj.replayer_.instruments_.hasinstrument(codestr);
-    obj.replay_date1_ = floor(obj.replayer_.tickdata_{idx}(1,1));
-    obj.replay_date2_ = datestr(obj.replay_date1_,'yyyy-mm-dd');
-    %     
-    obj.replay_datetimevec_ = obj.replayer_.tickdata_{idx}(:,1);
-    obj.replay_count_ = 1;
-    obj.replay_time1_ = obj.replay_datetimevec_(obj.replay_count_);
-    obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
-
+    if isempty(obj.replay_date1_)
+        obj.replay_date1_ = floor(obj.replayer_.tickdata_{idx}(1,1));
+        obj.replay_date2_ = datestr(obj.replay_date1_,'yyyy-mm-dd');
+    else
+        checkdate = floor(obj.replayer_.tickdata_{idx}(1,1));
+        if checkdate ~= obj.replay_date1_
+            error('cMDEFut:initreplayer:inconsistent tick data found on different cob dates')
+        end
+    end
+    
     % candles_ and candles4save_'s timevec needs to be inline with replay
     % date
     [f2,idx2] = obj.qms_.instruments_.hasinstrument(codestr);
@@ -95,6 +96,26 @@ function [] = initreplayer(obj,varargin)
     end
     obj.datenum_open_{idx2,1} = datenum_open_new;
     obj.datenum_close_{idx2,1} = datenum_close_new;
-    
+    %
+    %
+    if obj.replayer_.instruments_.count == 1
+        obj.replay_datetimevec_ = obj.replayer_.tickdata_{idx}(:,1);
+        obj.replay_count_ = 1;
+        obj.replay_time1_ = obj.replay_datetimevec_(obj.replay_count_);
+        obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
+    else
+        % note:with more than 1 instrument
+        % we create a timevec in seconds between 09:00am and 02:30am on the
+        % next date
+        dtstart = 9*3600;
+        dtend = 86400 + 2*3600+30*60;
+        dtvec = (dtstart:1:dtend)';
+        obj.replay_datetimevec_ = dtvec;
+        obj.replay_count_ = 1;
+        obj.replay_time1_ = obj.replay_date1_ + dtvec(obj.replay_count_)/86400;
+        obj.replay_time2_ = datestr(obj.replay_time1_,'yyyy-mm-dd HH:MM:SS');
+        
+    end
+
     
 end

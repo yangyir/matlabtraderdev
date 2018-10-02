@@ -43,6 +43,7 @@ end
 % id:12,opentime: 21:00:01,direction: 1,price:112420,stoptime: 00:36:00
 
 %%
+delete(timerfindall);
 replay_speed = 50;
 replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
 replay_strat.registerinstrument(code);
