@@ -35,8 +35,6 @@ function [] = saveticks2mem(mdefut)
             count = mdefut.ticks_count_(i) + 1;
             mdefut.ticks_{i}(count,1) = mdefut.replayer_.tickdata_{i}(idx,1);
             mdefut.ticks_{i}(count,2:4) = mdefut.replayer_.tickdata_{i}(idx,2);
-%             mdefut.ticks_{i}(count,3) = mdefut.replayer_.tickdata_{i}(idx,2);
-%             mdefut.ticks_{i}(count,4) = mdefut.replayer_.tickdata_{i}(idx,2);
             mdefut.ticks_count_(i) = count;
         end
     end

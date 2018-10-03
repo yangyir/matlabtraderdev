@@ -7,6 +7,7 @@ function [] = updatecandleinmem(mdefut)
     count = mdefut.ticks_count_;
     instruments = mdefut.qms_.instruments_.getinstrument;
     for i = 1:ns
+        if count(i) == 0,continue;end
         category = mdefut.categories_(i);
         buckets = mdefut.candles_{i}(:,1);
         buckets4save = mdefut.candles4save_{i}(:,1);

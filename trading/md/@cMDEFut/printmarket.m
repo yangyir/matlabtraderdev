@@ -39,11 +39,13 @@ function [] = printmarket(obj)
             return
         end
         
+        rowcount = 0;
         for i = 1:n
             code = instruments{i}.code_ctp;
             lasttick = obj.getlasttick(instruments{i});
             if isempty(lasttick), continue;end
-            if i == 1
+            rowcount = rowcount + 1;
+            if rowcount == 1
                 fprintf('\nlatest market quotes (replay):\n');
                 fprintf('%11s%11s%11s%12s\n','contract','bid','ask','time');
             end
