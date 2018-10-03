@@ -15,7 +15,7 @@ function tick = getlasttick(mdefut,instrument)
             flag = true;
             try
                 ticks = mdefut.ticks_{i};
-                if mdefut.ticks_count_ > 0
+                if mdefut.ticks_count_(i) > 0
                     tick = ticks(mdefut.ticks_count_(i),:);
                 else
                     tick = [];
