@@ -54,12 +54,10 @@ replay_strat.setmaxexecutionperbucket(code,1);
 replay_strat.setbandtarget(code,0.02);
 replay_strat.setbandstoploss(code,0.01);
 %
-% replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.txt'];
 replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
 replay_strat.initdata;
 replay_strat.mde_fut_.printflag_ = false;
-% replay_strat.calcsignal_interval_ = 60*trade_freq;
 replay_strat.helper_.print_timeinterval_ = 60*trade_freq;
 clc;
 fprintf('replay get ready......\n');
@@ -95,6 +93,7 @@ fprintf('total pnl:%s\n',num2str(totalpnl));
 % id:1,opentime: 14:39:02,direction: 1,price:112580,stoptime: 00:15:00,closetime: 21:00:01,pnl:-110
 % id:2,opentime: 21:00:04,direction: 1,price:112420,stoptime: 00:36:00,closetime: 22:24:03,pnl:680
 % total pnl:570
+
 %%
 trades = cTradeOpenArray;
 trades.fromtxt('c:\yangyiran\ops\save\replay_book\replay_book_trades_20180619.txt');
@@ -109,6 +108,8 @@ for j = 1:trades.latest_
             num2str(trade_j.closepnl_));
     end
 end
+% results as of the old version:i.e only 1 instrument and run through tick
+% time rather than calendar time directly:
 % id: 1,opentime: 09:04:50,direction: 1,price:114090,stoptime: 14:54:00,closetime: 09:06:05,pnl:-610
 % id: 2,opentime: 09:06:01,direction: 1,price:113470,stoptime: 14:57:00,closetime: 09:48:01,pnl:510
 % id: 3,opentime: 14:12:51,direction: 1,price:113400,stoptime: 23:48:00,closetime: 14:15:01,pnl:-140

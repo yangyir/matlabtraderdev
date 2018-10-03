@@ -24,6 +24,7 @@ classdef cMDEFut < cMyTimerObj
         replayer_@cReplayer
         replay_datetimevec_@double
         replay_idx_@double
+        replay_updatetime_@logical = true
         %
         datenum_open_@cell
         datenum_close_@cell

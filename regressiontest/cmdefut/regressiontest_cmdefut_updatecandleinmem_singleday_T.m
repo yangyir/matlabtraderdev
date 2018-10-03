@@ -14,6 +14,11 @@ mdefut.initreplayer('code',code,'fn',replay_filename);
 
 %% start the trading (replay) process
 mdefut.start;
+isrunning = strcmpi(mdefut.timer_.running,'on');
+while isrunning
+    isrunning = strcmpi(mdefut.timer_.running,'on');
+    pause(1);
+end
 
 %% delete all in a safe way
 try

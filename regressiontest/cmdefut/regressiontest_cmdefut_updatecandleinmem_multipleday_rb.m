@@ -1,7 +1,7 @@
 clc;
 clear;
 mdefut = cMDEFut;
-mdefut.timer_interval_ = 0.005;
+mdefut.settimerinterval(0.005);
 
 %%
 code = 'rb1810';
