@@ -18,19 +18,26 @@ function [] = initreplayer(obj,varargin)
         obj.replayer_ = cReplayer;
     end
     
+    [flag,idx] = obj.replayer_.instruments_.hasinstrument(codestr);
+    if ~flag
+        obj.replayer_.registerinstrument(codestr);
+        idx = obj.replayer_.instruments_.count;
+    end
+    
+    
     if ~isempty(fn)
         obj.replayer_.mode_ = 'singleday';
         obj.replayer_.loadtickdata('code',codestr,'fn',fn);        
     elseif ~isempty(fns)
         obj.replayer_.mode_ = 'multiday';
-        obj.replayer_.multidayfiles_ = fns;
+        obj.replayer_.multidayfiles_{1,idx} = fns;
         obj.replayer_.multidayidx_ = 1;
         obj.replayer_.loadtickdata('code',codestr,'fn',fns{obj.replayer_.multidayidx_});
     end
     
     obj.mode_ = 'replay';
 
-    [~,idx] = obj.replayer_.instruments_.hasinstrument(codestr);
+    
     if isempty(obj.replay_date1_)
         obj.replay_date1_ = floor(obj.replayer_.tickdata_{idx}(1,1));
         obj.replay_date2_ = datestr(obj.replay_date1_,'yyyy-mm-dd');

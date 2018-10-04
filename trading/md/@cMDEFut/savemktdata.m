@@ -57,7 +57,7 @@ function [] = savemktdata(obj,varargin)
             if strcmpi(obj.replayer_.mode_,'singleday')
                 obj.stop;
             elseif strcmpi(obj.replayer_.mode_,'multiday')
-                if obj.replayer_.multidayidx_ >= size(obj.replayer_.multidayfiles_,1)
+                if obj.replayer_.multidayidx_ >= size(obj.replayer_.multidayfiles_{1},1)
                     obj.stop;
                 end
             end

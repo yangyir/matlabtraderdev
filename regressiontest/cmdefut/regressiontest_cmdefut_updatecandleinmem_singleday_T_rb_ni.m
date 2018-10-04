@@ -3,7 +3,7 @@ clear;delete(timerfindall);
 mdefut = cMDEFut;
 mdefut.settimerinterval(0.005);
 %%
-codes = {'T1809';'rb1810'};
+codes = {'T1809';'rb1810';'ni1809'};
 ncodes = size(codes,1);
 instrs = cell(ncodes,1);
 for i = 1:ncodes
@@ -21,11 +21,11 @@ end
 
 %% start the trading (replay) process
 mdefut.start;
-% isrunning = strcmpi(mdefut.timer_.running,'on');
-% while isrunning
-%     isrunning = strcmpi(mdefut.timer_.running,'on');
-%     pause(1);
-% end
+isrunning = strcmpi(mdefut.timer_.running,'on');
+while isrunning
+    isrunning = strcmpi(mdefut.timer_.running,'on');
+    pause(1);
+end
 
 %% delete all in a safe way
 try

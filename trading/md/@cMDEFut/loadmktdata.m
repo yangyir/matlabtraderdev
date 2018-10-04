@@ -16,7 +16,7 @@ function [] = loadmktdata(obj,varargin)
         if ns == 0, return; end
         if strcmpi(obj.mode_,'replay')
             if strcmpi(obj.replayer_.mode_,'multiday')
-                if obj.replayer_.multidayidx_ >= size(obj.replayer_.multidayfiles_,1)
+                if obj.replayer_.multidayidx_ >= size(obj.replayer_.multidayfiles_{1},1)
                     obj.stop;
                     return
                 end
@@ -28,7 +28,7 @@ function [] = loadmktdata(obj,varargin)
                 multidayidx = multidayidx+1;
                 fns = obj.replayer_.multidayfiles_;
                 for i = 1:ns
-                    obj.replayer_.loadtickdata('code',instruments{i}.code_ctp,'fn',fns{multidayidx,i});
+                    obj.replayer_.loadtickdata('code',instruments{i}.code_ctp,'fn',fns{i}{multidayidx});
                     if i == 1
                         obj.replay_date1_ = floor(obj.replayer_.tickdata_{i}(1,1));
                         obj.replay_date2_ = datestr(obj.replay_date1_,'yyyy-mm-dd');
