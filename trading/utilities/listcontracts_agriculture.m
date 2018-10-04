@@ -54,6 +54,9 @@ elseif strcmpi(assetName,'rapeseed meal')
 elseif strcmpi(assetName,'rubber')
     init_mm = 1;
     init_yy = 2000;
+elseif strcmpi(assetName,'apple')
+    init_mm = 5;
+    init_yy = 2018;
 else
     error('invalid agriculture asset name');
 end

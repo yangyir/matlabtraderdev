@@ -36,6 +36,9 @@ elseif strcmpi(assetName,'methanol')
 elseif strcmpi(assetName,'thermal coal')
     init_mm = 1;
     init_yy = 2014;
+elseif strcmpi(assetName,'crude oil')
+    init_mm = 9;
+    init_yy = 2018;
 else
     error('listcontracts_energy:invalid asset name');
 end
@@ -45,15 +48,30 @@ curr_yy = year(curr_dd);
 curr_mm = month(curr_dd);
 
 %number of contracts traded in total
-n = ceil((12-init_mm)/4)+...    %contracts first year
-    (curr_yy-1-init_yy)*3+...   %contracts between next year and last year
-    ceil(curr_mm/4)+...         %contracts traded so far this year
-    +3;                         %contracts listed from this month
+if ~strcmpi(assetName,'crude oil')
+    n = ceil((12-init_mm)/4)+...    %contracts first year
+        (curr_yy-1-init_yy)*3+...   %contracts between next year and last year
+        ceil(curr_mm/4)+...         %contracts traded so far this year
+        +3;                         %contracts listed from this month
+else
+    if init_yy < curr_yy
+        n = (12-init_mm+1)+...          %contracts for the first year
+            (curr_yy-1-init_yy)*12+...  %contracts between the 2nd and last year
+            curr_mm+...                 %contracts for this year
+            3;                          %now listed and activly traded
+    else
+        n = (curr_mm-init_mm+1)+11;
+    end
+end
 
 contracts = cell(n,1);
 i=1;
 while i<=n
-    mm = (i-1)*4+init_mm;
+    if ~strcmpi(assetName,'crude oil')
+        mm = (i-1)*4+init_mm;
+    else
+        mm = i+init_mm-1;
+    end
     if mod(mm,12)==0
         yy = init_yy+mm/12-1;
     else
