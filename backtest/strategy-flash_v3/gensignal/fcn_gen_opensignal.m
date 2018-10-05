@@ -1,10 +1,10 @@
-clear
-clc
-%%
+function[opensignal_highest,opensignal_outside_highest,opensignal_lowest,opensignal_outside_lowest] = fcn_gen_opensignal(candles)
 % initalise all paras
-load('b_RBTK8_1d.mat');
 % date| open |high |low |close |volume |oi
-candles = f.data;
+opensignal_highest=[];
+opensignal_lowest =[];
+mid_term_highest=[];
+mid_term_lowest =[];
 [short_term_signal,outsidecandle] = fcn_gen_shortcandle_flash(candles);
 [l,nsignal]=size(short_term_signal);
 [l,noutside]=size(outsidecandle);
@@ -46,7 +46,7 @@ for i =1:noutside
         outside_low_datestr(n_low,:) =  datestr(outside_candle(i,1));
     end     
 end 
-%%
+
 % gen signal to short position with the short_term highest candles
 % highest candles
 % datenum| open |high |low |close |highorlow(1) |targetdatenum
@@ -56,6 +56,8 @@ checkflag =1;
 N_mid_highest = 0;
 N_opensignal_highest = 0;
 N_opensignal_outside_highest =0;
+opensignal_outside_highest = [];
+opensignal_outside_lowest = [];
 for i =2:n_highest
     s_highest_mpv = highest(i,3);
     if checkflag ==1
@@ -110,15 +112,8 @@ for i =2:n_highest
         end
     end
 end
-            
-for i =1:N_mid_highest
-   mid_highest_date(i,:) =  mid_term_highest{i}.datestr;
-end
-for i =1:N_opensignal_highest
-   opentime_high_date(i,:) =  opensignal_highest{i}.opentimestr;
-end
 
-%%
+
 % gen signal to long position with the short_term lowest candles
 % lowest candles
 % datenum| open |high |low |close |highorlow(-1) |targetdatenum
@@ -181,12 +176,6 @@ for i =2:n_lowest
         end
     end
 end
-            
-for i =1:N_mid_lowest
-   mid_lowest_date(i,:) =  mid_term_lowest{i}.datestr;
-end
-for i =1:N_opensignal_lowest
-   opentime_low_date(i,:) =  opensignal_lowest{i}.opentimestr;
 end
         
     
