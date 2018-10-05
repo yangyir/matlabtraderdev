@@ -19,7 +19,6 @@ for i = start+1:ntradingdays
     open_mpv = candles(i,2);
     close_mpv = candles(i,5);
     date_mpv =candles(i,1);
-    datestr(date_mpv)
     %module 2
     if checkflag ==2
         if high_mpv>high_init && low_mpv>=low_init
