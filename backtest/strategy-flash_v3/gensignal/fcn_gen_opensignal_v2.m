@@ -1,4 +1,5 @@
-function[opensignal_highest,opensignal_outside_highest,opensignal_lowest,opensignal_outside_lowest] = fcn_gen_opensignal(candles)
+function[opensignal_highest,opensignal_outside_highest,opensignal_lowest,opensignal_outside_lowest] = fcn_gen_opensignal_v2(candles)
+% the trading pattern M or W is included in this version
 % initalise all paras
 % date| open |high |low |close |volume |oi
 opensignal_highest=[];
@@ -62,10 +63,10 @@ opensignal_outside_lowest = [];
 for i =2:n_highest
     s_highest_mpv = highest(i,3);
     if checkflag ==1
-        if s_highest_mpv <= s_highest_init
+        if s_highest_mpv < s_highest_init
             s_highest_init = s_highest_mpv;
             checkflag =1;
-        elseif s_highest_mpv > s_highest_init
+        elseif s_highest_mpv >= s_highest_init
             mid_highest = highest(i,:);
             checkflag = 2;
         end
@@ -160,10 +161,10 @@ N_opensignal_lowest = 0;
 for i =2:n_lowest
     s_lowest_mpv = lowest(i,4);
     if checkflag ==3
-        if s_lowest_mpv >= s_lowest_init
+        if s_lowest_mpv > s_lowest_init
             s_lowest_init = s_lowest_mpv;
             checkflag =3;
-        elseif s_lowest_mpv < s_lowest_init
+        elseif s_lowest_mpv <= s_lowest_init
             mid_lowest = lowest(i,:);
             checkflag = 4;
         end
