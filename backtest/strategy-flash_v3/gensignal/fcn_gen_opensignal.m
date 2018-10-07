@@ -107,7 +107,8 @@ for i =2:n_highest
             elseif opensignal_highest{N_opensignal_highest}.open >= opensignal_highest{N_opensignal_highest}.target && opensignal_highest{N_opensignal_highest}.open <opensignal_highest{N_opensignal_highest}.stoploss1
                 opensignal_highest{N_opensignal_highest}.openprice = opensignal_highest{N_opensignal_highest}.target;
             elseif opensignal_highest{N_opensignal_highest}.open>=opensignal_highest{N_opensignal_highest}.stoploss1
-                opensignal_highest{N_opensignal_highest}.openprice =nan;
+                opensignal_highest{N_opensignal_highest}=[];
+                N_opensignal_highest=N_opensignal_highest-1;
             end
             out1= find(outside_high(:,1) >mid_term_highest{N_mid_highest}.targetdatenum);
             out2 = find(outside_high(:,1)<opensignal_highest{N_opensignal_highest}.opentimenum);
@@ -138,7 +139,8 @@ for i =2:n_highest
                     elseif opensignal_outside_highest{N_opensignal_outside_highest}.open >= opensignal_outside_highest{N_opensignal_outside_highest}.target && opensignal_outside_highest{N_opensignal_outside_highest}.open <opensignal_outside_highest{N_opensignal_outside_highest}.stoploss
                         opensignal_outside_highest{N_opensignal_outside_highest}.openprice = opensignal_outside_highest{N_opensignal_outside_highest}.target;
                     elseif opensignal_outside_highest{N_opensignal_outside_highest}.open>=opensignal_outside_highest{N_opensignal_outside_highest}.stoploss
-                        opensignal_outside_highest{N_opensignal_outside_highest}.openprice =nan;
+                        opensignal_outside_highest{N_opensignal_outside_highest}=[];
+                        N_opensignal_outside_highest=N_opensignal_outside_highest-1;
                     end
                  end
             end
@@ -205,7 +207,8 @@ for i =2:n_lowest
             elseif opensignal_lowest{N_opensignal_lowest}.open <= opensignal_lowest{N_opensignal_lowest}.target && opensignal_lowest{N_opensignal_lowest}.open >opensignal_lowest{N_opensignal_lowest}.stoploss1
                 opensignal_lowest{N_opensignal_lowest}.openprice = opensignal_lowest{N_opensignal_lowest}.target;
             elseif opensignal_lowest{N_opensignal_lowest}.open <= opensignal_lowest{N_opensignal_lowest}.stoploss1
-                opensignal_lowest{N_opensignal_lowest}.openprice =nan;
+                opensignal_lowest{N_opensignal_lowest}=[];
+                N_opensignal_lowest=N_opensignal_lowest-1;
             end
             out3= find(outside_low(:,1) >mid_term_lowest{N_mid_lowest}.targetdatenum);
             out4 = find(outside_low(:,1)<opensignal_lowest{N_opensignal_lowest}.opentimenum);
@@ -235,7 +238,8 @@ for i =2:n_lowest
                     elseif opensignal_outside_lowest{N_opensignal_outside_lowest}.open <= opensignal_outside_lowest{N_opensignal_outside_lowest}.target && opensignal_outside_lowest{N_opensignal_outside_lowest}.open >opensignal_outside_lowest{N_opensignal_outside_lowest}.stoploss
                         opensignal_outside_lowest{N_opensignal_outside_lowest}.openprice = opensignal_outside_lowest{N_opensignal_outside_lowest}.target;
                     elseif opensignal_outside_lowest{N_opensignal_outside_lowest}.open<=opensignal_outside_lowest{N_opensignal_outside_lowest}.stoploss
-                        opensignal_outside_lowest{N_opensignal_outside_lowest}.openprice =nan;
+                        opensignal_outside_lowest{N_opensignal_outside_lowest}=[];
+                        N_opensignal_outside_lowest=N_opensignal_outside_lowest-1;
                     end
                 end
             end
