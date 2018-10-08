@@ -13,14 +13,13 @@ function indicators = calc_technical_indicators(mdefut,instrument)
                 indicators = [];
                 return;
             end
-            indicators = ones(size(tbl,1),1);
+            indicators = cell(size(tbl,1),1);
             for j = 1:size(tbl,1)
                 name = tbl{j}.name;
                 val = tbl{j}.values;
                 switch lower(name)
                     case 'williamr'
-                        wr = calc_wr_(mdefut,instrument,val{:});
-                        indicators(j) = wr(end);
+                        indicators{j} = calc_wr_(mdefut,instrument,val{:});
                     otherwise
                 end
             end

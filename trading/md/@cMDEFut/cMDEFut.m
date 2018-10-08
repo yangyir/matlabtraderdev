@@ -116,8 +116,8 @@ classdef cMDEFut < cMyTimerObj
         [] = loadtrades(obj,varargin)
         [t] = getreplaytime(obj,varargin)
         %
-        [] = refreshreplaymode(obj)
-        [] = refreshreplaymode2(obj)
+        [] = refreshreplaymode(obj,varargin)
+        [] = refreshreplaymode2(obj,varargin)
                 
         [] = savecandles2file(obj,dtnum)
         

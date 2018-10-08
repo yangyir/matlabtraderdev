@@ -56,7 +56,13 @@ function [ret] = initcandles(mdefut,instrument,varargin)
         return
     end
 
-    if ~isa(instrument,'cInstrument'), error('cMDEFut:initcandles:invalid instrument input');end
+    if ~isa(instrument,'cInstrument')
+        try
+            instrument = code2instrument(instrument);
+        catch
+            error('cMDEFut:initcandles:invalid instrument input')
+        end
+    end
     flag = false;
     for i = 1:ns
         if strcmpi(instruments{i}.code_ctp,instrument.code_ctp)

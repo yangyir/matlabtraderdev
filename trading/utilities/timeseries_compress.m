@@ -160,16 +160,24 @@ if strcmpi(interval_str,'m') && ~isequal(interval_num,1)
     d_temp = cell(length(days_str),1);
     
     for i = 1:length(days_num)
-        buckets = getintradaybuckets('Date',days_num(i),...
+        buckets = getintradaybuckets2('Date',days_num(i),...
                                      'Frequency',freq,...
                                      'TradingHours',tradingHours,...
                                      'TradingBreak',tradingBreak);        
-        t_start = datenum([datestr(days_num(i)),' 00:00:00'],...
-                            'dd-mmm-yyyy HH:MM:SS');
-        t_end = datenum([datestr(days_num(i)),' 23:59:59'],...
-                            'dd-mmm-yyyy HH:MM:SS');
+%         t_start = datenum([datestr(days_num(i)),' 00:00:00'],...
+%                             'dd-mmm-yyyy HH:MM:SS');
+%         t_end = datenum([datestr(days_num(i)),' 23:59:59'],...
+%                             'dd-mmm-yyyy HH:MM:SS');
+        t_start_i = buckets(1);
+        if strcmpi(interval_str,'m')
+            t_end_i = buckets(end) + interval_num/1440;
+        elseif strcmpi(interval_str,'h')
+            t_end_i = buckets(end) + interval_num/24;
+        else
+            error('timeseries_compress:invalid frequency input')
+        end
         %find the data on the same date first
-        idx = data(:,1)>=t_start&data(:,1)<t_end;
+        idx = data(:,1)>=t_start_i&data(:,1)<t_end_i;
         data_i = data(idx,:);
         %now start to compress data
         if ~isempty(data_i)
@@ -183,7 +191,8 @@ if strcmpi(interval_str,'m') && ~isequal(interval_num,1)
                 if j < length(buckets)
                     t_end = buckets(j+1);
                 else
-                    t_end = data_i(end,1);
+%                     t_end = data_i(end,1);
+                    t_end = t_end_i;
                 end
                 idx = data_i(:,1)>=t_start&data_i(:,1)<t_end;
                 d = data_i(idx,:);
