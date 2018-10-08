@@ -1,10 +1,10 @@
-clear
-clc
-%%
+function[opensignal_highest,opensignal_outside_highest,opensignal_lowest,opensignal_outside_lowest] = fcn_gen_opensignal(candles)
 % initalise all paras
-load('b_RBTK8_1d.mat');
 % date| open |high |low |close |volume |oi
-candles = f.data;
+opensignal_highest=[];
+opensignal_lowest =[];
+mid_term_highest=[];
+mid_term_lowest =[];
 [short_term_signal,outsidecandle] = fcn_gen_shortcandle_flash(candles);
 [l,nsignal]=size(short_term_signal);
 [l,noutside]=size(outsidecandle);
@@ -25,7 +25,7 @@ else
     highest = short_term_candle(2:2:end,:);
     lowest = short_term_candle(1:2:end,:);  
 end
-outside_candle = zeros(noutside,7);
+outside_candle = zeros(noutside,8);
 n_high =0;
 n_low = 0; 
 for i =1:noutside
@@ -36,6 +36,7 @@ for i =1:noutside
     outside_candle(i,5) = outsidecandle{i}.close;
     outside_candle(i,6) = outsidecandle{i}.highorlow;
     outside_candle(i,7) = outsidecandle{i}.targetprice;
+    outside_candle(i,8) = outsidecandle{i}.stoploss;
     if outside_candle(i,6) ==1
         n_high = n_high+1;
         outside_high(n_high,:) =outside_candle(i,:);
@@ -46,7 +47,7 @@ for i =1:noutside
         outside_low_datestr(n_low,:) =  datestr(outside_candle(i,1));
     end     
 end 
-%%
+
 % gen signal to short position with the short_term highest candles
 % highest candles
 % datenum| open |high |low |close |highorlow(1) |targetdatenum
@@ -56,6 +57,8 @@ checkflag =1;
 N_mid_highest = 0;
 N_opensignal_highest = 0;
 N_opensignal_outside_highest =0;
+opensignal_outside_highest = [];
+opensignal_outside_lowest = [];
 for i =2:n_highest
     s_highest_mpv = highest(i,3);
     if checkflag ==1
@@ -86,9 +89,27 @@ for i =2:n_highest
             N_opensignal_highest=N_opensignal_highest+1;
             opensignal_highest{N_opensignal_highest} = struct('opentimenum', highest(i,7),...  
                 'opentimestr',datestr(highest(i,7)),...
-                'openprice',highest(i,4),...
-                'shortorlong',-1*highest(i,6),...
-                'outsideornot',0);
+                'target',highest(i,4),...
+                'direction',-1*highest(i,6),...
+                'N_position',1,...
+                'outsideornot',0,...
+                'open',highest(i,2),...
+                'stoploss1',highest(i,3),...
+                'stoploss2',mid_highest(1,3),...
+                'openprice',nan,...
+                'closetimenum',nan,...
+                'closetimestr',nan,...
+                'closeprice',nan,...
+                'pnl',nan);
+            %calculate the openprice
+            if opensignal_highest{N_opensignal_highest}.open <opensignal_highest{N_opensignal_highest}.target
+                opensignal_highest{N_opensignal_highest}.openprice = opensignal_highest{N_opensignal_highest}.open;
+            elseif opensignal_highest{N_opensignal_highest}.open >= opensignal_highest{N_opensignal_highest}.target && opensignal_highest{N_opensignal_highest}.open <opensignal_highest{N_opensignal_highest}.stoploss1
+                opensignal_highest{N_opensignal_highest}.openprice = opensignal_highest{N_opensignal_highest}.target;
+            elseif opensignal_highest{N_opensignal_highest}.open>=opensignal_highest{N_opensignal_highest}.stoploss1
+                opensignal_highest{N_opensignal_highest}=[];
+                N_opensignal_highest=N_opensignal_highest-1;
+            end
             out1= find(outside_high(:,1) >mid_term_highest{N_mid_highest}.targetdatenum);
             out2 = find(outside_high(:,1)<opensignal_highest{N_opensignal_highest}.opentimenum);
             out = intersect(out1,out2);
@@ -100,25 +121,36 @@ for i =2:n_highest
                     N_opensignal_outside_highest =N_opensignal_outside_highest+1;
                     opensignal_outside_highest{N_opensignal_outside_highest} = struct('opentimenum',outside_high(out(j,1),1),...
                     'opentimestr',datestr(outside_high(out(j,1),1)),...
-                    'openprice',outside_high(out(j,1),7),...
-                    'shortorlong',-1*highest(i,6),...
-                    'outsideornot',1);
-                end
+                    'target',outside_high(out(j,1),7),...
+                    'direction',-1*highest(i,6),...
+                    'N_position',1,...
+                    'outsideornot',1,...
+                    'open',outside_high(out(j,1),2),...
+                    'stoploss',outside_high(out(j,1),8),...
+                    'openprice',nan,...
+                    'closetimenum',nan,...
+                    'closetimestr',nan,...
+                    'closeprice',nan,...
+                    'pnl',nan,...
+                    'riskmanagement',nan);
+                    %calculate the openprice
+                    if opensignal_outside_highest{N_opensignal_outside_highest}.open <opensignal_outside_highest{N_opensignal_outside_highest}.target
+                        opensignal_outside_highest{N_opensignal_outside_highest}.openprice = opensignal_outside_highest{N_opensignal_outside_highest}.open;
+                    elseif opensignal_outside_highest{N_opensignal_outside_highest}.open >= opensignal_outside_highest{N_opensignal_outside_highest}.target && opensignal_outside_highest{N_opensignal_outside_highest}.open <opensignal_outside_highest{N_opensignal_outside_highest}.stoploss
+                        opensignal_outside_highest{N_opensignal_outside_highest}.openprice = opensignal_outside_highest{N_opensignal_outside_highest}.target;
+                    elseif opensignal_outside_highest{N_opensignal_outside_highest}.open>=opensignal_outside_highest{N_opensignal_outside_highest}.stoploss
+                        opensignal_outside_highest{N_opensignal_outside_highest}=[];
+                        N_opensignal_outside_highest=N_opensignal_outside_highest-1;
+                    end
+                 end
             end
             s_highest_init = highest(i,3);
             checkflag =1;
         end
     end
 end
-            
-for i =1:N_mid_highest
-   mid_highest_date(i,:) =  mid_term_highest{i}.datestr;
-end
-for i =1:N_opensignal_highest
-   opentime_high_date(i,:) =  opensignal_highest{i}.opentimestr;
-end
 
-%%
+
 % gen signal to long position with the short_term lowest candles
 % lowest candles
 % datenum| open |high |low |close |highorlow(-1) |targetdatenum
@@ -157,9 +189,27 @@ for i =2:n_lowest
             N_opensignal_lowest=N_opensignal_lowest+1;
             opensignal_lowest{N_opensignal_lowest} = struct('opentimenum', lowest(i,7),...  
                 'opentimestr',datestr(lowest(i,7)),...
-                'openprice',lowest(i,3),...
-                'shortorlong',-1*lowest(i,6),...
-                'outsideornot',0);
+                'target',lowest(i,3),...
+                'direction',-1*lowest(i,6),...
+                'N_position',1,...
+                'outsideornot',0,...
+                'open',lowest(i,2),...
+                'stoploss1',lowest(i,4),...
+                'stoploss2',mid_lowest(1,4),...
+                'openprice',nan,...
+                'closetimenum',nan,...
+                'closetimestr',nan,...
+                'closeprice',nan,...
+                'pnl',nan);
+            %calculate the openprice
+            if opensignal_lowest{N_opensignal_lowest}.open >opensignal_lowest{N_opensignal_lowest}.target
+                opensignal_lowest{N_opensignal_lowest}.openprice = opensignal_lowest{N_opensignal_lowest}.open;
+            elseif opensignal_lowest{N_opensignal_lowest}.open <= opensignal_lowest{N_opensignal_lowest}.target && opensignal_lowest{N_opensignal_lowest}.open >opensignal_lowest{N_opensignal_lowest}.stoploss1
+                opensignal_lowest{N_opensignal_lowest}.openprice = opensignal_lowest{N_opensignal_lowest}.target;
+            elseif opensignal_lowest{N_opensignal_lowest}.open <= opensignal_lowest{N_opensignal_lowest}.stoploss1
+                opensignal_lowest{N_opensignal_lowest}=[];
+                N_opensignal_lowest=N_opensignal_lowest-1;
+            end
             out3= find(outside_low(:,1) >mid_term_lowest{N_mid_lowest}.targetdatenum);
             out4 = find(outside_low(:,1)<opensignal_lowest{N_opensignal_lowest}.opentimenum);
             outt = intersect(out3,out4);
@@ -171,9 +221,26 @@ for i =2:n_lowest
                     N_opensignal_outside_lowest =N_opensignal_outside_lowest+1;
                     opensignal_outside_lowest{N_opensignal_outside_lowest} = struct('opentimenum',outside_low(outt(j,1),1),...
                     'opentimestr',datestr(outside_low(outt(j,1),1)),...
-                    'openprice',outside_low(outt(j,1),7),...
-                    'shortorlong',-1*lowest(i,6),...
-                    'outsideornot',1);
+                    'target',outside_low(outt(j,1),7),...
+                    'direction',-1*lowest(i,6),...
+                    'N_position',1,...
+                    'outsideornot',1,...
+                    'open',outside_low(out(j,1),2),...
+                    'stoploss',outside_low(out(j,1),8),...
+                    'openprice',nan,...
+                    'closetimenum',nan,...
+                    'closetimestr',nan,...
+                    'closeprice',nan,...
+                    'pnl',nan,...
+                    'riskmanagement',nan);
+                     if opensignal_outside_lowest{N_opensignal_outside_lowest}.open >opensignal_outside_lowest{N_opensignal_outside_lowest}.target
+                        opensignal_outside_lowest{N_opensignal_outside_lowest}.openprice = opensignal_outside_lowest{N_opensignal_outside_lowest}.open;
+                    elseif opensignal_outside_lowest{N_opensignal_outside_lowest}.open <= opensignal_outside_lowest{N_opensignal_outside_lowest}.target && opensignal_outside_lowest{N_opensignal_outside_lowest}.open >opensignal_outside_lowest{N_opensignal_outside_lowest}.stoploss
+                        opensignal_outside_lowest{N_opensignal_outside_lowest}.openprice = opensignal_outside_lowest{N_opensignal_outside_lowest}.target;
+                    elseif opensignal_outside_lowest{N_opensignal_outside_lowest}.open<=opensignal_outside_lowest{N_opensignal_outside_lowest}.stoploss
+                        opensignal_outside_lowest{N_opensignal_outside_lowest}=[];
+                        N_opensignal_outside_lowest=N_opensignal_outside_lowest-1;
+                    end
                 end
             end
             s_lowest_init = lowest(i,4);
@@ -181,12 +248,6 @@ for i =2:n_lowest
         end
     end
 end
-            
-for i =1:N_mid_lowest
-   mid_lowest_date(i,:) =  mid_term_lowest{i}.datestr;
-end
-for i =1:N_opensignal_lowest
-   opentime_low_date(i,:) =  opensignal_lowest{i}.opentimestr;
 end
         
     
