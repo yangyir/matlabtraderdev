@@ -1,6 +1,6 @@
 function [ dataIntradaybar,codeList ] = bkfuns_loadintradaydata( bbgConn, assetList )
     %
-    bkdataDir = 'C:\Users\yiran\OneDrive\backtest\';
+    bkdataDir = [getenv('ONEDRIVE'),'\backtest\'];
     lastbd = businessdate(getlastbusinessdate,-1);
     
     nasset = length(assetList);
