@@ -21,7 +21,7 @@ function [ dataIntradaybar,codeList ] = bkfuns_loadintradaydata( bbgConn, assetL
             if lastobs < lastbd
                 %load the latest data from bloomberg
                 dataNew = bbgConn.timeseries(assetInfo{i}.BloombergSec1,...
-                    {businessdate(floor(lastobs),1),datestr(lastbd,'yyyy-mm-dd')},1,'trade');
+                    {businessdate(floor(lastobs),1),datestr(getlastbusinessdate,'yyyy-mm-dd')},1,'trade');
                 evalstr = ['dataIntradaybar{i} = [',assetList{i},'_1m;dataNew];'];
                 eval(evalstr);
             else
