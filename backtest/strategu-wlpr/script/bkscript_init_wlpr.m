@@ -9,6 +9,7 @@ assetList_wlpr = {'govtbond_10y'};
 [dataIntradaybar_wlpr,codeList_wlpr] = bkfuns_loadintradaydata( bbgConn, assetList_wlpr );
 
 %% generate trades
+nasset_wlpr = size(assetList_wlpr,1);
 tradesAll_wlpr = cell(nasset_wlpr,1);
 dataIntradaybarUsed_wlpr = cell(nasset_wlpr,1);
 sampleFreq_wlpr = {'15m'};
@@ -21,7 +22,9 @@ for i = 1:nasset_wlpr
         'ShortOpenSpread',0);
 end
 %%
-% bkfunc_checksingletrade_wlpr(assetList_wlpr{1},assetList_wlpr,dataIntradaybarUsed_wlpr,tradesAll_wlpr,1);
+iAsset = 1;
+iTrade = 1;
+bkfunc_checksingletrade_wlpr(assetList_wlpr{iAsset},assetList_wlpr,dataIntradaybarUsed_wlpr,tradesAll_wlpr,iTrade);
 %%
 % idxAsset = 1;
 % idxTrade = 1;
