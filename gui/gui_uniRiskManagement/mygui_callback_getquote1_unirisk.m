@@ -34,6 +34,7 @@ optmargin_o32=0;
      quote_data{5,1} = futmargin_o32/num_asset_o32*100;
      quote_data{6,1} = stockasset_o32;
      quote_data{7,1} = stockasset_o32/num_asset_o32*100;
+     quote_data{8,1} = 1-quote_data{3,1}-quote_data{7,1};
      % RH
      
      quote_data{1,2} = accountinfo.pre_interest;

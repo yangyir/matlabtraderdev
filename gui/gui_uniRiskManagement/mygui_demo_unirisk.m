@@ -33,15 +33,16 @@ function handles = mygui_demo_unirisk
      num_asset_o32 = quote_data{1,1};
 %      futmargin_o32 = str2double(string(packet34003.getStr('occupy_deposit_balance')));
 %      optmargin_o32 = str2double(string(packet34004.getStr('occupy_deposit_balance')));
-futmargin_o32=0;
-optmargin_o32=0;
+    futmargin_o32=0;
+    optmargin_o32=0;
      stockasset_o32= str2double(string(packet35003.getStr('stock_asset')));
      quote_data{2,1} = futmargin_o32+optmargin_o32;
      quote_data{3,1} = (futmargin_o32+optmargin_o32)/num_asset_o32 * 100;
      quote_data{4,1} = futmargin_o32;
      quote_data{5,1} = futmargin_o32/num_asset_o32*100;
      quote_data{6,1} = stockasset_o32;
-     quote_data{7,1} = stockasset_o32/num_asset_o32*100;
+     quote_data{8,1} = stockasset_o32/num_asset_o32*100;
+     quote_data{7,1} = 
      % RH
      
      quote_data{1,2} = accountinfo.pre_interest;
@@ -84,7 +85,7 @@ optmargin_o32=0;
      else
          quote_data_warning{2,3} = '   超出限额';
      end
-    if quote_data{7,3} <= quote_data_warning{1,3}
+    if quote_data{7,3} <= quote_data_warning{3,1}
          quote_data_warning{3,3} = '     正常';
      else
          quote_data_warning{3,3} = '   超出限额';
@@ -98,7 +99,9 @@ optmargin_o32=0;
 %         delete(timerfindall);
 %     catch
 %     end
-    
+%      handles.timer = timer('Period',0.05,'ExecutionMode','FixedRate',...
+%          'TimerFcn',{@mygui_callback_getquote1_unirisk, handles});
+%      start(handles.timer);
 %     O32_INSTANCE.start;
     
     set(handles.operation1.button_futquote,'CallBack',{@mygui_callback_getquote1_unirisk, handles});
