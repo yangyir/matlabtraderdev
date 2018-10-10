@@ -15,7 +15,7 @@ pnl1 = tradepnl_mat1(:,6);
 ccumpnl1 =  cumsum(pnl1);
 sumpnl1 = sum(pnl1);
 plot(ccumpnl1);
-title('riskmanagement1')
+title('riskmanagement1');
 %%
 % riskmanagement 2 : stoploss2 Ç¿ÖÆÖ¹ËðÏß
 [opensignal_outside_highest2,opensignal_outside_lowest2,opensignal_highest2,opensignal_lowest2] = fcn_closeposition_v2(candles);
@@ -24,3 +24,5 @@ tradepnl_mat2= fcn_mat2mat_pnl_multiple(opensignal_outside_highest2,opensignal_o
 pnl2 = tradepnl_mat2(:,6);
 ccumpnl2 =  cumsum(pnl2);
 sumpnl2 = sum(pnl2);
+plot(ccumpnl2);
+title('riskmanagement2');
