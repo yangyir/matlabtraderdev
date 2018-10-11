@@ -1,6 +1,10 @@
-if ~(exist('conn','var') && isa(conn,'cBloomberg')), conn = cBloomberg; end
+function [] = saveactivefuturesfrombloomberg(bbg)
+
+if ~isa(bbg,'cBloomberg')
+    error('saveactivefuturesfrombloomberg;invalid bloomberg instance input')
+end
+
 activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
-tickdatadir = [getenv('DATAPATH'),'ticks\'];
 datestart = datenum('2018-04-10');   % Bloomberg only record tick/intraday bucket data for 6 months
 
 %%
@@ -26,7 +30,7 @@ for idate = 1:ndates
     %
     futs = cell(nasset,1);
     for iasset = 1:nasset
-        futs{iasset} = getactivefutures(conn.ds_,assetlist{iasset},'date',busdates(idate));
+        futs{iasset} = getactivefutures(bbg.ds_,assetlist{iasset},'date',busdates(idate));
     end
     %
     fid = fopen([activefuturesdir,filename],'w');
@@ -36,26 +40,29 @@ for idate = 1:ndates
     fclose(fid);
 end
 
-%%
-% find the last record date of the tick data
-lastrecord = zeros(nasset,1);
-for i = 1:nasset
-    foldername = [tickdatadir,ctpcodelist{i,2},'\'];
-    try
-        cd(foldername);
-    catch
-        mkdir(foldername);
-    end
-    
-    listing = dir(foldername);
-    obs = zeros(size(listing,1),1);
-    for j = 1:size(listing,1)
-        idx = strfind(listing(j).name,ctpcodelist{i,2});
-        if isempty(idx)
-            obs(j) = -1;
-        else
-            obs(j) = datenum(listing(j).name(length(ctpcodelist{i,2})+2:length(ctpcodelist{i,2})+9),'yyyymmdd');
-        end
-    end
-    lastrecord(i) = max(obs);   
+%
+% % find the last record date of the tick data
+% lastrecord = zeros(nasset,1);
+% for i = 1:nasset
+%     foldername = [tickdatadir,ctpcodelist{i,2},'\'];
+%     try
+%         cd(foldername);
+%     catch
+%         mkdir(foldername);
+%     end
+%     
+%     listing = dir(foldername);
+%     obs = zeros(size(listing,1),1);
+%     for j = 1:size(listing,1)
+%         idx = strfind(listing(j).name,ctpcodelist{i,2});
+%         if isempty(idx)
+%             obs(j) = -1;
+%         else
+%             obs(j) = datenum(listing(j).name(length(ctpcodelist{i,2})+2:length(ctpcodelist{i,2})+9),'yyyymmdd');
+%         end
+%     end
+%     lastrecord(i) = max(obs);   
+% end
+
+fprintf('finish save active futures from bloomberg...\n');
 end

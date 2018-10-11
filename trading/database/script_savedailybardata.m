@@ -7,44 +7,193 @@ if ~(exist('conn','var') && isa(conn,'cBloomberg'))
 end
 
 %%
+saveactivefuturesfrombloomberg(conn);
+lastbd = getlastbusinessdate;
+activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
+filename = ['activefutures_',datestr(lastbd,'yyyymmdd'),'.txt'];
+activefutures = cDataFileIO.loadDataFromTxtFile([activefuturesdir,filename]);
+assetlist = getassetmaptable;
+nasset = length(assetlist);
+%%
 %base metals
-bm_codes_ctp = {'cu1811';'cu1812';'cu1901';'cu1902';'cu1903';...
-    'al1810';'al1811';'al1812';'al1901';'al1902';'al1903';...
-    'zn1810';'zn1811';'zn1812';'zn1901';'zn1902';'zn1903';...
-    'pb1810';'pb1811';'pb1812';'pb1901';'pb1902';'pb1903';...
-    'ni1811';'ni1901'};
+bm = {'copper';'aluminum';'zinc';'lead';'nickel'};
+for i = 1:size(bm,1)
+    for iasset = 1:nasset
+        if strcmpi(assetlist{iasset},bm{i})
+            activefut_i = activefutures{iasset};
+            break
+        end
+    end
+    savedailybarfrombloomberg(conn,activefut_i,override);
+    %
+    excode = activefut_i(1:2);
+    yystr = activefut_i(3:4);
+    yynum = str2double(yystr);
+    mmstr = activefut_i(5:6);
+    mmnum = str2double(mmstr);
+    %
+    if ~strcmpi(bm{i},'nickel')
+        %SIX consective futures for base metals except for nickel
+        nfut = 5;
+        mmdiff = 1;
+    else
+        %TWO futures for nickel expired every other month
+        nfut = 1;
+        mmdiff = 2;
+    end
+    %
+    for ifut = 1:nfut
+        mmnum = mmnum + mmdiff;
+        if mmnum > 12
+            mmnum = mmnum-12;
+            yynum = yynum+1;
+        end
+        if mmnum < 10
+            mmstr = ['0',num2str(mmnum)];
+        else
+            mmstr = num2str(mmnum);
+        end
+        code = [excode,num2str(yynum),mmstr];
+        savedailybarfrombloomberg(conn,code,override);
+    end
 
-for i = 1:size(bm_codes_ctp,1)
-    savedailybarfrombloomberg(conn,bm_codes_ctp{i},override);
 end
 fprintf('done for saving daily bar data for base metal futures......\n');
 
 %%
 % govtbond futures
-govtbond_codes_ctp = {'TF1809';'TF1812';'TF1903';...
-    'T1809';'T1812';'T1903'};
-
-for i = 1:size(govtbond_codes_ctp,1)
-    savedailybarfrombloomberg(conn,govtbond_codes_ctp{i},override);
+govtbond = {'govtbond_5y';'govtbond_10y'};
+for i = 1:size(govtbond,1)
+    for iasset = 1:nasset
+        if strcmpi(assetlist{iasset},govtbond{i})
+            activefut_i = activefutures{iasset};
+            break
+        end
+    end
+    savedailybarfrombloomberg(conn,activefut_i,override);
+    %
+    for ichar = 1:length(activefut_i)
+        if isnumchar(activefut_i(ichar))
+            break
+        end
+    end
+        
+    excode = activefut_i(1:ichar-1);
+    yystr = activefut_i(ichar:ichar+1);
+    yynum = str2double(yystr);
+    mmstr = activefut_i(ichar+2:ichar+3);
+    mmnum = str2double(mmstr);
+    %
+    %quartetly expired futures
+    nfut = 1;
+    mmdiff = 3;
+    %
+    for ifut = 1:nfut
+        mmnum = mmnum + mmdiff;
+        if mmnum > 12
+            mmnum = mmnum-12;
+            yynum = yynum+1;
+        end
+        if mmnum < 10
+            mmstr = ['0',num2str(mmnum)];
+        else
+            mmstr = num2str(mmnum);
+        end
+        code = [excode,num2str(yynum),mmstr];
+        savedailybarfrombloomberg(conn,code,override);
+    end
 end
+
 fprintf('done for saving daily bar data for govt bond futures......\n');
 
 %%
 % equity index
-eqindex_codes_ctp = {'IF1809';'IF1810';'IF1811';'IF1812';...
-    'IH1809';'IH1810';'IH1811';'IH1812';...
-    'IC1809';'IC1810';'IC1811';'IC1812'};
-
-for i = 1:size(eqindex_codes_ctp,1)
-    savedailybarfrombloomberg(conn,eqindex_codes_ctp{i},override);
+eqindex = {'eqindex_300';'eqindex_50';'eqindex_500'};
+for i = 1:size(eqindex,1)
+    for iasset = 1:nasset
+        if strcmpi(assetlist{iasset},eqindex{i})
+            activefut_i = activefutures{iasset};
+            break
+        end
+    end
+    savedailybarfrombloomberg(conn,activefut_i,override);
+    %
+    for ichar = 1:length(activefut_i)
+        if isnumchar(activefut_i(ichar))
+            break
+        end
+    end
+        
+    excode = activefut_i(1:ichar-1);
+    yystr = activefut_i(ichar:ichar+1);
+    yynum = str2double(yystr);
+    mmstr = activefut_i(ichar+2:ichar+3);
+    mmnum = str2double(mmstr);
+    %
+    % next futures contract only ignore the quarter contract for the
+    % time bing
+    nfut = 1;
+    mmdiff = 1;
+    %
+    for ifut = 1:nfut
+        mmnum = mmnum + mmdiff;
+        if mmnum > 12
+            mmnum = mmnum-12;
+            yynum = yynum+1;
+        end
+        if mmnum < 10
+            mmstr = ['0',num2str(mmnum)];
+        else
+            mmstr = num2str(mmnum);
+        end
+        code = [excode,num2str(yynum),mmstr];
+        savedailybarfrombloomberg(conn,code,override);
+    end
 end
+
 fprintf('done for saving daily bar data for equity index futures......\n');
 %%
 % precious metals
-pm_codes_ctp = {'au1812';'ag1812'};
-
-for i = 1:size(pm_codes_ctp,1)
-    savedailybarfrombloomberg(conn,pm_codes_ctp{i},override);
+pm = {'gold';'silver'};
+for i = 1:size(pm,1)
+    for iasset = 1:nasset
+        if strcmpi(assetlist{iasset},pm{i})
+            activefut_i = activefutures{iasset};
+            break
+        end
+    end
+    savedailybarfrombloomberg(conn,activefut_i,override);
+    %
+    for ichar = 1:length(activefut_i)
+        if isnumchar(activefut_i(ichar))
+            break
+        end
+    end
+        
+    excode = activefut_i(1:ichar-1);
+    yystr = activefut_i(ichar:ichar+1);
+    yynum = str2double(yystr);
+    mmstr = activefut_i(ichar+2:ichar+3);
+    mmnum = str2double(mmstr);
+    %
+    % next futures contract semi-annual
+    nfut = 1;
+    mmdiff = 6;
+    %
+    for ifut = 1:nfut
+        mmnum = mmnum + mmdiff;
+        if mmnum > 12
+            mmnum = mmnum-12;
+            yynum = yynum+1;
+        end
+        if mmnum < 10
+            mmstr = ['0',num2str(mmnum)];
+        else
+            mmstr = num2str(mmnum);
+        end
+        code = [excode,num2str(yynum),mmstr];
+        savedailybarfrombloomberg(conn,code,override);
+    end
 end
 fprintf('done for saving daily bar data for precious metal futures\n');
 
@@ -57,6 +206,12 @@ end
 fprintf('done for saving daily bar data for agriculture futures\n');
 
 %%
+
+
+%%
+
+
+
 % agriculture for options
 black_codes_ctp = {'rb1810';'rb1901';'i1809';'i1901'};
 for i = 1:size(black_codes_ctp,1)
