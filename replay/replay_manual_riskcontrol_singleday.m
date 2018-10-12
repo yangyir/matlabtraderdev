@@ -13,7 +13,7 @@ combos.strategy.setavailablefund(1e6,'firstset',true);
 
 %%
 % replay set up
-replayspeed = 10;
+replayspeed = 1;
 checkdt = '2018-06-19';
 replayfn = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 
@@ -27,7 +27,11 @@ combos.strategy.mode_ = 'replay';
 combos.strategy.settimerinterval(1/replayspeed);
 
 fprintf('\nready for replay with replay time at:%s...\n',combos.mdefut.replay_time2_);
-
+%%
+unit_base = 1; %volume to open per entrust of per instrument
+unit_max = 3;  %maximum volume per instrument
+combos.strategy.setmaxunits(code,unit_max);
+combos.strategy.setbaseunits(code,unit_base);
 %%
 clc;
 %always start the MDE first
@@ -38,36 +42,26 @@ combos.ops.start;
 %
 %last we start the strategy
 combos.strategy.start;
-%
-% test procedure: 1. to place 2 open long entrusts at price1 and price2
-% with volume1 and volume2 respectively. Once these 2 entrusts have been
-% completely exercuted, place 2 close short entrusts at price2+0.4 and
-% price2 +0.45 with unit volume respectively
-volume1 = 6;
-volume2 = 2;
-price1 = 95.095;
-price2 = 95.115;
-nentrusts = combos.ops.entrusts_.latest;
-while nentrusts == 0
-    combos.strategy.longopen(code,volume1,'overrideprice',price1);
-    combos.strategy.longopen(code,volume2,'overrideprice',price2);
-    nentrusts = combos.ops.entrusts_.latest;
-end
-
-closetoday = 1;
-nfinished = combos.ops.entrustsfinished_.latest;
-while nfinished ~= 2
-    pause(10);
-    nfinished = combos.ops.entrustsfinished_.latest;
-    if nfinished == 2
-        break
-    end
-end
-combos.strategy.shortclose(code,1,closetoday,'overrideprice',price2+0.4);
-combos.strategy.shortclose(code,1,closetoday,'overrideprice',price2+0.45);
-
 %%
-combos.strategy.withdrawentrusts(code,'time',combos.mdefut.getreplaytime);
+%try to place an entrust
+volume1 = 1;
+combos.strategy.longopen(code,volume1,'spread',0);
+%%
+%try to place an limit order which is 20 spread lower then the current
+%market
+volume2 = 1;
+combos.strategy.longopen(code,volume1,'spread',20);
+%%
+fprintf('\n');
+currentmargin = combos.strategy.getcurrentmargin;
+fprintf('%10s:%8s\n','currentmargin',num2str(round(currentmargin)));
+%
+availablefund = combos.strategy.getavailablefund;
+fprintf('%10s:%8s\n','availablefund',num2str(round(availablefund)));
+%
+frozenmargin = combos.strategy.getfrozenmargin;
+fprintf('%10s:%8s\n','frozenmargin',num2str(round(frozenmargin)));
+
 %%
 combos.mdefut.stop;
 %%

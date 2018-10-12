@@ -40,6 +40,11 @@ classdef cStrat < cMyTimerObj
         %
         calsignal_bucket_@double
         calcsignal_@double
+        %
+        totalequity_@double     %number
+        currentmargin_@double   %number
+        availablefund_@double   %number
+        frozenmargin_@double    %number
         
     end
        
@@ -52,6 +57,7 @@ classdef cStrat < cMyTimerObj
         %market data engine
         mde_fut_@cMDEFut
         mde_opt_@cMDEOpt
+        %
         
     end
     
@@ -113,8 +119,15 @@ classdef cStrat < cMyTimerObj
         calcsignal = getcalcsignal(obj)
         %
         [flag] = istime2calcsignal(obj,t)
+        %
+%         [] = setmarginalloc(obj,instrument,val)
+%         alloc =  getmarginalloc(obj,instrument)
         
-        
+        [ret] = setavailablefund(obj,val,varargin)
+        val = getcurrentmargin(obj)
+        val = getavailablefund(obj)
+        val = getfrozenmargin(obj)
+
     end
     %end of set/get methods
     
@@ -153,6 +166,9 @@ classdef cStrat < cMyTimerObj
         
         [] = refresh(obj,varargin)
         
+        %risk control for placing entrust
+        [ret] = riskcontrol2placeentrust(obj,instrument,varargin)
+        
     end
     %end of trading-related methods
     
@@ -184,8 +200,8 @@ classdef cStrat < cMyTimerObj
         [t] = getreplaytime(obj,varargin)
     end
     
-    %mdefut-related methods
-    methods
+
+    methods 
         
     end
     

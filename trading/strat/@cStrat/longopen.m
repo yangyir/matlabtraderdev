@@ -89,16 +89,19 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
         else
             ordertime = strategy.getreplaytime;
         end
-    end 
+    end
     
-    [ret,e] = strategy.trader_.placeorder(ctp_code,'b','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
-    if ret
-        e.date = floor(ordertime);
-        e.date2 = datestr(e.date,'yyyy-mm-dd');
-        e.time = ordertime;
-        e.time2 = datestr(e.time,'yyyy-mm-dd HH:MM:SS');
-        e.entrustType = entrusttype; 
-        strategy.updatestratwithentrust(e);
+    flag = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
+    if flag
+        [ret,e] = strategy.trader_.placeorder(ctp_code,'b','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
+        if ret
+            e.date = floor(ordertime);
+            e.date2 = datestr(e.date,'yyyy-mm-dd');
+            e.time = ordertime;
+            e.time2 = datestr(e.time,'yyyy-mm-dd HH:MM:SS');
+            e.entrustType = entrusttype; 
+            strategy.updatestratwithentrust(e);
+        end
     end
     
 end
