@@ -76,6 +76,36 @@ end
 fprintf('done for saving tick data for energy futures\n\n');
 
 %%
+% agriculture
+list = {'sugar';'cotton';'corn';'egg';...
+            'soybean';'soymeal';'soybean oil';'palm oil';...
+            'rapeseed oil';'rapeseed meal';...
+            'apple';...
+            'rubber'};
+for i = 1:size(list,1)
+    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+    for j = 1:size(codelist,1)
+        savetickfrombloomberg(conn,codelist{j},...
+            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+            'todate',todate);
+    end
+end
+fprintf('done for saving tick data for agriculture futures\n\n');
+
+%%
+% industry
+list = {'coke';'coking coal';'deformed bar';'iron ore';'glass'};
+for i = 1:size(list,1)
+    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+    for j = 1:size(codelist,1)
+        savetickfrombloomberg(conn,codelist{j},...
+            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+            'todate',todate);
+    end
+end
+fprintf('done for saving tick data for industry futures\n\n');
+
+%%
 %clear variables
 clear i j
 clear override conn list codelist

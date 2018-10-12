@@ -96,6 +96,7 @@ end
 fprintf('done for saving intraday bar data for energy futures\n\n');
 
 %%
+% agriculture
 list = {'sugar';'cotton';'corn';'egg';...
             'soybean';'soymeal';'soybean oil';'palm oil';...
             'rapeseed oil';'rapeseed meal';...
@@ -115,6 +116,7 @@ end
 fprintf('done for saving intraday bar data for agriculture futures\n\n');
 
 %%
+% industry
 list = {'coke';'coking coal';'deformed bar';'iron ore';'glass'};
 for i = 1:size(list,1)
     futlist_i = listcontracts(list{i},'connection','bloomberg');
