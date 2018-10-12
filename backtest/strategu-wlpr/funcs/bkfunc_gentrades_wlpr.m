@@ -67,7 +67,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
         %bucket starting from dateTimeVec(i) and dateTimeVec(i+1)
         opendatetime = datetime+1/86400;
         if ~isempty(nstopperiod)
-            stopdatetime = gettradestoptime(code,opendatetime,freq_,nstopperiod);
+            stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
         else
             stopdatetime = [];
         end

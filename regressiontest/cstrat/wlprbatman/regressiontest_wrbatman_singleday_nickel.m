@@ -9,8 +9,8 @@ stop_nperiod = 72;
 db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
-trades = backtest_gentrades_wr(code,candle_db_1m,'tradefrequency',trade_freq,...
-    'lengthofstopperiod',stop_nperiod);
+trades = bkfunc_gentrades_wlpr(code,candle_db_1m,'SampleFrequency',[num2str(trade_freq),'m'],...
+    'NStopPeriod',stop_nperiod);
 %find trades which executed on the checkdt
 checkdt_start = [checkdt,' ',instrument.break_interval{1,1}];
 checkdt_end = [datestr(datenum(checkdt,'yyyy-mm-dd')+1,'yyyy-mm-dd'),' ',instrument.break_interval{end,end}];
