@@ -12,7 +12,7 @@ function signals = gensignals_futmultiwrplusbatman(obj)
         catch e
             fprintf('calc_technical_indicators failed:%s\n',e.message);
         end
-        if ~isempty(ti), obj.wr_(i) = ti(end); end
+        if ~isempty(ti), obj.wr_(i) = ti{i}(1); end
         %
         %note;here we are inline with the backtesting process, i.e. we
         %exclude the last candle stick, which might not be fully feeded

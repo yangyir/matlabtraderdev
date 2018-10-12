@@ -46,6 +46,7 @@ end
 delete(timerfindall);
 replay_speed = 50;
 replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
+replay_strat.setavailablefund(1e6,'firstset',true);
 replay_strat.registerinstrument(code);
 replay_strat.setsamplefreq(code,trade_freq);
 replay_strat.setautotradeflag(code,1);
