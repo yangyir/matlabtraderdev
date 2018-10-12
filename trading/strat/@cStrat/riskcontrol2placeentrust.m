@@ -76,7 +76,9 @@ end
 %fourth to check whether margin is sufficient to place an entrust
 if ischar(instrument), instrument = code2instrument(instrument);end
 marginratio = instrument.init_margin_rate;
-marginrequirement = marginratio * price * volume;
+ticksize = instrument.tick_size;
+tickvalue = instrument.tick_value;
+marginrequirement = marginratio * price * volume /ticksize*tickvalue;
 availablefund = obj.getavailablefund;
 
 if marginrequirement > availablefund
