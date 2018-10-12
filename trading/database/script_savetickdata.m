@@ -6,90 +6,77 @@ if ~(exist('conn','var') && isa(conn,'cBloomberg'))
     conn = cBloomberg;
 end
 
-fromdate = datestr(businessdate(getlastbusinessdate,-1),'yyyy-mm-dd');
+% fromdate = datestr(businessdate(getlastbusinessdate,-1),'yyyy-mm-dd');
+fromdate = '2018-10-08';
 todate = datestr(getlastbusinessdate,'yyyy-mm-dd');
 
 %%
-%base metals
-%only extrat those active contracts
-bm_codes = {'cu';'aa';'zna';'pbl';'xii'};
-bm_codes_ctp = {'cu';'al';'zn';'pb';'ni'};
-expiries = zeros(size(bm_codes));
-for i = 1:size(bm_codes,1)
-    check = conn.ds_.getdata([bm_codes{i},'a comdty'],'last_tradeable_dt');
-    expiries(i) = check.last_tradeable_dt;
-    yearstr = num2str(year(expiries(i))-2000);
-    mm = month(expiries(i));
-    if mm > 9
-        monthstr = num2str(mm);
-    else
-        monthstr = ['0',num2str(mm)];
+% base metals
+list = {'copper';'aluminum';'zinc';'lead';'nickel'};
+for i = 1:size(list,1)
+    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+    for j = 1:size(codelist,1)
+        savetickfrombloomberg(conn,codelist{j},...
+            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+            'todate',todate);
     end
-    bm_codes_ctp{i} = [bm_codes_ctp{i},yearstr,monthstr];
 end
-
-for i = 1:size(bm_codes_ctp,1)
-    savetickfrombloomberg(conn,bm_codes_ctp{i},'fromdate',fromdate,'todate',todate);
-end
-fprintf('done for saving tick data for base metal futures......\n');
+fprintf('done for saving tick data for base metal futures......\n\n');
 
 %%
-% govtbond futures
-govtbond_codes = {'tfc';'tft'};
-govtbond_codes_ctp = {'TF';'T'};
-expiries = zeros(size(govtbond_codes));
-for i = 1:size(govtbond_codes,1)
-    check = conn.ds_.getdata([govtbond_codes{i},'a comdty'],'last_tradeable_dt');
-    expiries(i) = check.last_tradeable_dt;
-    yearstr = num2str(year(expiries(i))-2000);
-    mm = month(expiries(i));
-    if mm > 9
-        monthstr = num2str(mm);
-    else
-        monthstr = ['0',num2str(mm)];
+% govt bond
+list = {'govtbond_5y';'govtbond_10y'};
+for i = 1:size(list,1)
+    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+    for j = 1:size(codelist,1)
+        savetickfrombloomberg(conn,codelist{j},...
+            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+            'todate',todate);
     end
-    govtbond_codes_ctp{i} = [govtbond_codes_ctp{i},yearstr,monthstr];
 end
-
-for i = 1:size(govtbond_codes_ctp,1)
-    savetickfrombloomberg(conn,govtbond_codes_ctp{i},'fromdate',fromdate,'todate',todate);
-end
-fprintf('done for saving tick data for govt bond futures......\n');
+fprintf('done for saving tick data for govt bond futures......\n\n');
 
 %%
-%precious metals
-% pm_codes_ctp = {'au1712';'au1806';'ag1712';'ag1806'};
-% 
-% for i = 1:size(pm_codes_ctp,1)
-%     saveintradaybarfrombloomberg(conn,pm_codes_ctp{i},override);
-% end
-% fprintf('done for saving intraday bar data for precious metal futures\n');
+% equity index futures
+list = {'eqindex_300';'eqindex_50';'eqindex_500'};
+for i = 1:size(list,1)
+    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+    for j = 1:size(codelist,1)
+        savetickfrombloomberg(conn,codelist{j},...
+            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+            'todate',todate);
+    end
+end
+fprintf('done for saving tick data for eqindex futures......\n\n');
 
 %%
-%rebal & iron ore
-rb_codes = {'rbt';'ioe'};
-rb_codes_ctp = {'rb';'i'};
-expiries = zeros(size(rb_codes));
-for i = 1:size(rb_codes,1)
-    check = conn.ds_.getdata([rb_codes{i},'a comdty'],'last_tradeable_dt');
-    expiries(i) = check.last_tradeable_dt;
-    yearstr = num2str(year(expiries(i))-2000);
-    mm = month(expiries(i));
-    if mm > 9
-        monthstr = num2str(mm);
-    else
-        monthstr = ['0',num2str(mm)];
+% precious metals
+list = {'gold';'silver'};
+for i = 1:size(list,1)
+    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+    for j = 1:size(codelist,1)
+        savetickfrombloomberg(conn,codelist{j},...
+            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+            'todate',todate);
     end
-    rb_codes_ctp{i} = [rb_codes_ctp{i},yearstr,monthstr];
 end
+fprintf('done for saving tick data for precious metal futures\n\n');
 
-for i = 1:size(govtbond_codes_ctp,1)
-    savetickfrombloomberg(conn,rb_codes_ctp{i},'fromdate',fromdate,'todate',todate);
+%%
+% energy
+list = {'pta';'lldpe';'pp';'methanol';'thermal coal';'crude oil'};
+for i = 1:size(list,1)
+    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+    for j = 1:size(codelist,1)
+        savetickfrombloomberg(conn,codelist{j},...
+            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+            'todate',todate);
+    end
 end
-fprintf('done for saving tick data for deformde bar and iron ore futures......\n');
+fprintf('done for saving tick data for energy futures\n\n');
 
 %%
 %clear variables
-clear i
-clear override conn bm_codes_ctp govtbond_codes_ctp pm_codes_ctp
+clear i j
+clear override conn list codelist
 
