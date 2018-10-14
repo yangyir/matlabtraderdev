@@ -5,7 +5,5 @@ function mygui_callback_getquote2_unirisk( hObject , eventdata , handles )
     c.logout; 
     c_rh = cCounterRH.rh_demo;
     c_rh.logout;
-        pause(1);
-%     end
-    
+  pause(1);
 end

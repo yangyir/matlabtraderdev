@@ -1,9 +1,6 @@
-function handles = mygui_demo_unirisk
-    handles = mygui_framework_unirisk;
-    c = CounterHSO32.sunqtest_2310_o32;
-    c.login; 
-    c_rh = cCounterRH.rh_demo;
-    c_rh.login;
+function getquote1_fcn(handles,c)
+%     c = CounterHSO32.sunqtest_2310_o32;
+%     c.login; 
     [errorCode35003,errorMsg35003,packet35003] = c.queryCombiAccount_35003;%资金总额o32
     variablenotused(errorCode35003);
     variablenotused(errorMsg35003);
@@ -13,7 +10,7 @@ function handles = mygui_demo_unirisk
     [errorCode34004,errorMsg34004,packet34004] = c.queryCombiAccount_34004;%期权保证金o32   
     variablenotused(errorCode34004);
     variablenotused(errorMsg34004);
-    accountinfo = c_rh.queryAccount;%查询账户资金情况rh
+%     accountinfo = c_rh.queryAccount;%查询账户资金情况rh
     quote_data = cell(9,3);
     % O32
     quote_data{1,1} = str2double(string(packet35003.getStr('total_asset')));
@@ -32,15 +29,16 @@ function handles = mygui_demo_unirisk
      quote_data{9,1} = 100-quote_data{3,1}-quote_data{7,1};
      quote_data{8,1} = quote_data{9,1} * num_asset_o32/100;
      % RH
-     quote_data{1,2} = accountinfo.pre_interest;
-     quote_data{2,2} = accountinfo.current_margin; %缺少期权部分(RH端的期权还有问题， IT部门在解决中...
-     quote_data{3,2} = accountinfo.current_margin/accountinfo.pre_interest* 100;
-     quote_data{4,2} = accountinfo.current_margin;
-     quote_data{5,2} = accountinfo.current_margin/accountinfo.pre_interest* 100;
-     quote_data{6,2} = 0;%RH端不做股票，所以权益类资产总额为0
-     quote_data{7,2} = 0;%权益类资产总额占比0
-     quote_data{9,2} = 100-quote_data{3,2}-quote_data{7,2};
-     quote_data{8,2} = quote_data{9,2} * accountinfo.pre_interest/100;
+%      quote_data{1,2} = accountinfo.pre_interest;
+%      quote_data{2,2} = accountinfo.current_margin; %缺少期权部分(RH端的期权还有问题， IT部门在解决中...
+%      quote_data{3,2} = accountinfo.current_margin/accountinfo.pre_interest* 100;
+%      quote_data{4,2} = accountinfo.current_margin;
+%      quote_data{5,2} = accountinfo.current_margin/accountinfo.pre_interest* 100;
+%      quote_data{6,2} = 0;%RH端不做股票，所以权益类资产总额为0
+%      quote_data{7,2} = 0;%权益类资产总额占比0
+%      quote_data{9,2} = 100-quote_data{3,2}-quote_data{7,2};
+%      quote_data{8,2} = quote_data{9,2} * accountinfo.pre_interest/100;
+quote_data{:,2} = 0;
      % O32 + RH
      quote_data{1,3} = quote_data{1,1}+quote_data{1,2};
      quote_data{2,3} = quote_data{2,1}+quote_data{2,2};
@@ -89,8 +87,5 @@ function handles = mygui_demo_unirisk
      else
          quote_data_warning{4,3} = '超出限额范围';
      end
-    set(handles.warning.table ,'Data',quote_data_warning);
-    % 
-    set(handles.operation1.button_futquote,'CallBack',{@mygui_callback_getquote1_unirisk, handles});
-    set(handles.operation2.button_futquote,'CallBack',{@mygui_callback_getquote2_unirisk, handles});
-end
+      set(handles.warning.table ,'Data',quote_data_warning);
+ end
