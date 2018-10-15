@@ -1,5 +1,5 @@
 %
-filename = 'C:\yangyiran\config\generalconfig.txt';
+filename = 'generalconfig.txt';
 riskcontrols = cStratConfigArray;
 fprintf('load risk control configurations from %s\n',filename);
 
@@ -24,7 +24,7 @@ for i = 1:np
     end
     fprintf('\n');
 end
-% load risk control configurations from C:\yangyiran\config\generalconfig.txt
+% load risk control configurations from generalconfig.txt
 % display configurations:
 % 
 %                   codectp	    cu1812	    zn1812
@@ -80,6 +80,7 @@ end
 
 %%
 % now test with an instrument which is not included in the StratConfigArray
+fprintf('\n');
 code2check = 'ni1901';
 try
     val = riskcontrols.getconfigvalue('code',code2check,'propname','autotrade');
@@ -90,6 +91,7 @@ end
 %%
 % now test with a configuration property that is not inlcluded in
 % cStratConfig
+fprintf('\n');
 try
     val = riskcontrols.getconfigvalue('code',code,'propname','weight');
 catch e
