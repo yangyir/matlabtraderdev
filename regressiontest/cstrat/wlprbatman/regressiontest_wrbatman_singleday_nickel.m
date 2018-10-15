@@ -48,12 +48,12 @@ replay_speed = 50;
 replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
 replay_strat.setavailablefund(1e6,'firstset',true);
 replay_strat.registerinstrument(code);
-replay_strat.setsamplefreq(code,trade_freq);
-replay_strat.setautotradeflag(code,1);
-replay_strat.setmaxunits(code,100);
-replay_strat.setmaxexecutionperbucket(code,1);
-replay_strat.setbandtarget(code,0.02);
-replay_strat.setbandstoploss(code,0.01);
+% replay_strat.setsamplefreq(code,trade_freq);
+% replay_strat.setautotradeflag(code,1);
+% replay_strat.setmaxunits(code,100);
+% replay_strat.setmaxexecutionperbucket(code,1);
+% replay_strat.setbandtarget(code,0.02);
+% replay_strat.setbandstoploss(code,0.01);
 %
 replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);

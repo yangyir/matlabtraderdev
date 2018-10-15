@@ -38,7 +38,19 @@ function signals = gensignals_futmultiwrplusbatman(obj)
         lowestpx_before = obj.lownperiods_(i);
         if lowestpx_last < lowestpx_before, obj.lownperiods_(i) = lowestpx_last;end       
         
-        samplefreq = obj.getsamplefreq(instruments{i});
+%         samplefreq = obj.getsamplefreq(instruments{i});
+        try
+            samplefreqstr = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','SampleFreq');
+        catch e
+            %note:the code is executed here because
+            %1)either riskcontrols are not initiated at all
+            %2)or riskcontrols for such instrument is not set
+            fprintf('%s\n',e.message);
+            continue
+        end
+        
+        samplefreq = str2double(samplefreqstr(1:end-1));
+        
         %note:first time set highest and lowest
         if firstH || firstL
             signals{i,1} = struct('name','williamsr',...

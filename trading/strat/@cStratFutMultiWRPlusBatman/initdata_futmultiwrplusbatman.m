@@ -2,8 +2,15 @@ function [] = initdata_futmultiwrplusbatman(obj)
    
     instruments = obj.getinstruments;
     for i = 1:obj.count
-        samplefreq = obj.getsamplefreq(instruments{i});
-        
+        try
+            samplefreqstr = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','SampleFreq');
+        catch
+            samplefreqstr = '5m';
+        end
+
+%         samplefreq = obj.getsamplefreq(instruments{i});
+        samplefreq = str2double(samplefreqstr(1:end-1));
+
         if samplefreq == 1
             nbdays = 1;
         elseif samplefreq == 3
