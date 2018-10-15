@@ -1,5 +1,5 @@
 classdef cStratConfig < handle
-    %class cInstrumentConfig
+    %class cStratConfig
     %used in trading for storing all parameters
     
     properties (GetAccess = public, SetAccess = private)
@@ -47,6 +47,7 @@ classdef cStratConfig < handle
            code = p.Results.code;
            obj.codectp_ = code;
         end
+        
     end
     
     methods
