@@ -1,0 +1,15 @@
+CodeCTP	cu1812	zn1812
+SampleFreq	5m	5m
+PnLStopType	ABS	ABS
+PnLStop	50000	20000
+PnLLimitType	ABS	ABS	
+PnLLimit	50000	20000
+BidOpenSpread	0	0
+BidCloseSpread	0	0
+AskOpenSpread	0	0
+AskCloseSpread	0	0
+BaseUnits	1	2
+MaxUnits	5	10
+AutoTrade	0	0
+ExecutionPerBucket	1	1
+MaxExecutionPerBucket	1	1
