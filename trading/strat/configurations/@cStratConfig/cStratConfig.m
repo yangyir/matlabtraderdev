@@ -3,6 +3,8 @@ classdef cStratConfig < handle
     %used in trading for storing all parameters
     
     properties (GetAccess = public, SetAccess = private)
+        name_@char
+        
         codectp_@char
         
         samplefreq_@char = '5m'       %sample frequency, e.g. 5m, 15m
@@ -26,7 +28,6 @@ classdef cStratConfig < handle
         
         %automatic trading?
         autotrade_@double = 0
-        
         %
         executionperbucket_@double = 0
         maxexecutionperbucket_@double = 0
@@ -46,6 +47,7 @@ classdef cStratConfig < handle
            p.parse(varargin{:});
            code = p.Results.code;
            obj.codectp_ = code;
+           obj.name_ = 'cStratConfig';
         end
         
     end
@@ -83,6 +85,9 @@ classdef cStratConfig < handle
     methods
         [] = loadfromfile(obj,varargin)
         [ret] = isequal(obj,anotherconfig)
+        function [] = setname(obj,namestr)
+            obj.name_ = namestr;
+        end
     end
     
     methods (Static = true)

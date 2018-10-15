@@ -7,35 +7,6 @@ classdef cStrat < cMyTimerObj
         %option related
         underliers_@cInstrumentArray
         
-%         %sample frequency, e.g. 5m, 15m
-%         samplefreq_@double
-% 
-%         %trading pnl related per underlier
-%         pnl_stop_type_@double       % 0-rel and 1-abs
-%         pnl_stop_@double            % stop ratio as of the margin used
-%         
-%         pnl_limit_type_@double      % 0-rel and 1-abs
-%         pnl_limit_@double           % limit ratio as of the margin used
-%                 
-%         pnl_running_@double         % pnl for existing positions
-%         pnl_close_@double           % pnl for closed positions
-%         
-%         %order/entrust related
-%         %positive bid spread means to order a sell with a higher price
-%         bidopenspread_@double
-%         bidclosespread_@double
-%         %positive ask spread means to order a buy with a lower price
-%         askopenspread_@double
-%         askclosespread_@double
-%         
-%         %size related
-%         baseunits_@double
-%         maxunits_@double
-%         %automatic trading?
-%         autotrade_@double
-%         %
-%         executionperbucket_@double
-%         maxexecutionperbucket_@double
         executionbucketnumber_@double
         %
         calsignal_bucket_@double
@@ -65,51 +36,6 @@ classdef cStrat < cMyTimerObj
     
     %set/get methods
     methods
-%         [] = setsamplefreq(obj,instrument,freq)
-%         freq = getsamplefreq(obj,instrument)
-%         %
-%         [] = setstoptype(obj,instrument,stoptype)
-%         type_ = getstoptype(obj,instrument)
-%         %
-%         [] = setstopamount(obj,instrument,stop)
-%         amount_ = getstopamount(obj,instrument)
-%         %
-%         [] = setlimittype(obj,instrument,limitype)
-%         type_ = getlimittype(obj,instrument)
-%         %
-%         [] = setlimitamount(obj,instrument,limit)
-%         amount_ = getlimitamount(obj,instrument)
-%         %
-%         [] = setpnlrunning(obj,instrument,pnl)
-%         pnl = getpnlrunning(obj,instrument)
-%         %
-%         [] = setpnlclose(obj,instrument,pnl)
-%         pnl = getpnlclose(obj,instrument)
-%         %
-%         [] = setbidopenspread(obj,instrument,spread)
-%         spread = getbidopenspread(obj,instrument)
-%         [] = setbidclosespread(obj,instrument,spread)
-%         spread = getbidclosespread(obj,instrument)
-%         %
-%         [] = setaskopenspread(obj,instrument,spread)
-%         spread = getaskopenspread(obj,instrument)
-%         [] = setaskclosespread(obj,instrument,spread)
-%         spread = getclosespread(obj,instrument)
-%         %
-%         [] = setbaseunits(obj,instrument,baseunits)
-%         baseunits = getbaseunits(obj,instrument)
-%         %
-%         [] = setmaxunits(obj,instrument,maxunits)
-%         maxunits = getmaxunits(obj,instrument)
-%         %
-%         [] = setautotradeflag(obj,instrument,autotrade)
-%         autotrade = getautotradeflag(obj,instrument)
-%         %
-%         [] = setmaxexecutionperbucket(obj,instrument,value)
-%         n = getmaxexecutionperbucket(obj,instrument)
-%         %
-%         [] = setexecutionperbucket(obj,instrument,value)
-%         n = getexecutionperbucket(obj,instrument)
         %
         [] = setexecutionbucketnumber(obj,instrument,value)
         n = getexecutionbucketnumber(obj,instrument)
@@ -122,9 +48,6 @@ classdef cStrat < cMyTimerObj
         %
         [flag] = istime2calcsignal(obj,t)
         %
-%         [] = setmarginalloc(obj,instrument,val)
-%         alloc =  getmarginalloc(obj,instrument)
-        
         [ret] = setavailablefund(obj,val,varargin)
         val = getcurrentmargin(obj)
         val = getavailablefund(obj)
@@ -169,8 +92,10 @@ classdef cStrat < cMyTimerObj
         [] = refresh(obj,varargin)
         
         %risk control for placing entrust
-        [] = loadriskcontrolconfigfromfile(obj,filename,varargin)
+        [] = loadriskcontrolconfigfromfile(obj,varargin)
         [ret] = riskcontrol2placeentrust(obj,instrument,varargin)
+        %
+        [t] = getreplaytime(obj,varargin)
         
     end
     %end of trading-related methods
@@ -199,15 +124,8 @@ classdef cStrat < cMyTimerObj
             %cStrat doesn't run loadtrades,cOps runs it
             variablenotused(obj);
         end
-        
-        [t] = getreplaytime(obj,varargin)
-    end
-    
 
-    methods 
-        
-    end
-    
+    end 
     
     %abstract methods
     methods (Abstract)

@@ -2,7 +2,7 @@ classdef cStratConfigWR < cStratConfig
     %class cStratConfigWR
     %used in trading with cStratFutMultiWR
     
-    properties (GetAccess = public, SetAccess = private)
+    properties (GetAccess = public, SetAccess = public)
         numofperiod_@double = 144
         overbought_@double = 0
         oversold_@double = -100
@@ -13,6 +13,7 @@ classdef cStratConfigWR < cStratConfig
     methods
         function obj = cStratConfigWR(varargin)
             obj = obj@cStratConfig(varargin{:});
+            obj.setname('cStratConfigWR');
         end
         
         function [] = set.executiontype_(obj,val)
@@ -36,7 +37,10 @@ classdef cStratConfigWR < cStratConfig
             obj.overbought_ = val;
         end
         
+        function [] = loadfromfile(obj,varargin)
+            loadfromfile@cStratConfig(obj,varargin{:});
+        end
+        
     end
-    
     
 end

@@ -16,22 +16,32 @@ tline = fgetl(fid);
 lineinfo = regexp(tline,'\t','split');
 n = size(lineinfo,2) - 1;
 foundCodeCTP = false;
+foundName = false;
 while ischar(tline)
     lineinfo = regexp(tline,'\t','split');
     propname = lineinfo{1};
     if strcmpi(propname,'CodeCTP')
         foundCodeCTP = true;
         codelistfromfile = lineinfo;
-        break
+%         break
     end
+    %
+    if strcmpi(propname,'Name')
+        foundName = true;
+        namelistfromfile = lineinfo;
+    end
+
+    tline = fgetl(fid);
 end
 fclose(fid);
 
 if ~foundCodeCTP, error([class(obj),':loadfromfile:CodeCTP not found']); end
+if ~foundName, error([class(obj),':loadfromfile:Name not found']); end
 
 if isempty(codelist)
     for icode = 2:length(codelistfromfile)
-        config_i = feval(class(obj.node_));
+%         config_i = feval(class(obj.node_));
+        config_i = feval(namelistfromfile{icode});
         config_i.loadfromfile('code',codelistfromfile{icode},'filename',filename);
         if ~obj.hasconfig(config_i)
             obj.push(config_i);

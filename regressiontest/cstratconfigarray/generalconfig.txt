@@ -1,3 +1,4 @@
+Name	cStratConfig	cStratConfig
 CodeCTP	cu1812	zn1812
 SampleFreq	5m	5m
 PnLStopType	ABS	ABS

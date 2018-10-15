@@ -1,4 +1,5 @@
 %
+clc;
 filename = 'generalconfig.txt';
 riskcontrols = cStratConfigArray;
 fprintf('load risk control configurations from %s\n',filename);

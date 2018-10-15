@@ -16,8 +16,6 @@ function [] = registerinstrument(strategy,instrument)
     end
 
     if isempty(strategy.instruments_), strategy.instruments_ = cInstrumentArray;end
-    %
-%     if isempty(strategy.riskcontrols_), strategy.riskcontrols_ = cStratConfigArray;end
     
     %check whether the instrument is an option or not
     [optflag,~,~,underlierstr,~] = isoptchar(codestr);
@@ -43,55 +41,6 @@ function [] = registerinstrument(strategy,instrument)
         instrument = code2instrument(codestr);
         strategy.instruments_.addinstrument(instrument);
     end
-
-%     %pnl_stop_type_
-%     strategy.setstoptype(instrument,'rel');
-% 
-%     %pnl_stop_
-%     strategy.setstopamount(instrument,-inf);
-% 
-%     %pnl_limit_type_
-%     strategy.setlimittype(instrument,'rel');
-% 
-%     %pnl_limit_
-%     strategy.setlimitamount(instrument,inf);
-% 
-%     %pnl_running_
-%     strategy.setpnlrunning(instrument,0);
-% 
-%     %pnl_close_
-%     strategy.setpnlclose(instrument,0);
-% 
-%     %bidspread_
-%     strategy.setbidopenspread(instrument,0);
-%     strategy.setbidclosespread(instrument,0);
-% 
-%     %askspread_
-%     strategy.setaskopenspread(instrument,0);
-%     strategy.setaskclosespread(instrument,0);
-% 
-%     %autotrade_
-%     strategy.setautotradeflag(instrument,0);
-%     
-%      %baseunits
-%      strategy.setbaseunits(instrument,1);
-% 
-%     %maxunits
-%     strategy.setmaxunits(instrument,1);
-% 
-%     %executionperbucket
-%     strategy.setexecutionperbucket(instrument,0);
-% 
-%     %maxexecutionperbucket
-%     strategy.setmaxexecutionperbucket(instrument,1);
-% 
-%     %executionbucketnumber
-%     strategy.setexecutionbucketnumber(instrument,0);
-    
-%     riskcontrolthisinstrument = cStratConfig('code',codestr);
-%     if ~strategy.riskcontrols_.hasconfig(riskcontrolthisinstrument)
-%         strategy.riskcontrols_.push(riskcontrolthisinstrument);
-%     end
     
     %calsignal_bucket_
     strategy.setcalcsignalbucket(instrument,0);
@@ -106,10 +55,9 @@ function [] = registerinstrument(strategy,instrument)
         strategy.mde_opt_.registerinstrument(instrument);
     end
     
-%     %samplefreq_
-%     strategy.setsamplefreq(instrument,1);
-%     
-    
+    samplefreq = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','samplefreq');
+    samplefreqnum = str2double(samplefreq(1:end-1));
+    strategy.mde_fut_.setcandlefreq(samplefreqnum,instrument);
     
 end
 %end of 'registerinstrument'

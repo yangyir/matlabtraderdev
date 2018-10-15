@@ -47,13 +47,32 @@ delete(timerfindall);
 replay_speed = 50;
 replay_strat = replay_setstrat('wlprbatman','replayspeed',replay_speed);
 replay_strat.setavailablefund(1e6,'firstset',true);
-replay_strat.registerinstrument(code);
-% replay_strat.setsamplefreq(code,trade_freq);
-% replay_strat.setautotradeflag(code,1);
-% replay_strat.setmaxunits(code,100);
-% replay_strat.setmaxexecutionperbucket(code,1);
-% replay_strat.setbandtarget(code,0.02);
-% replay_strat.setbandstoploss(code,0.01);
+% Name	cStratConfigWRBatman
+% CodeCTP	ni1809
+% SampleFreq	3m
+% PnLStopType	ABS
+% PnLStop	50000
+% PnLLimitType	ABS
+% PnLLimit	50000
+% BidOpenSpread	0
+% BidCloseSpread	0
+% AskOpenSpread	0
+% AskCloseSpread	0
+% BaseUnits	1
+% MaxUnits	100
+% AutoTrade	1
+% ExecutionPerBucket	1
+% MaxExecutionPerBucket	1
+% NumofPeriod	144
+% OverBought	0
+% OverSold	-100
+% ExecutionType	fixed
+% BandwidthMin	0.333333
+% BandwidthMax	0.5
+% BandStopLoss	0.01
+% BandTarget	0.02
+% BandType	0
+replay_strat.loadriskcontrolconfigfromfile('filename','wrbatmanconfig_regressiontest.txt');
 %
 replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);

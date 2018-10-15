@@ -18,12 +18,14 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
         if ~isempty(trade_i.riskmanager_), continue;end
         %
         instrument = trade_i.instrument_;
-        bandtype = obj.getbandtype(instrument);
+        bandtype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtype');
         if bandtype ~= 0, error('cStratFutMultiWRPlusBatman:riskmanagement_futmultiwrplusbatman:invalid type for batman');end
-        bandwidthmin = obj.getbandwidthmin(instrument);
-        bandwidthmax = obj.getbandwidthmax(instrument);
-        bandstoploss = obj.getbandstoploss(instrument);
-        bandtarget = obj.getbandtarget(instrument);      
+        
+        bandwidthmin = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmin');
+        bandwidthmax = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmax');
+        bandstoploss = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandstoploss');
+        bandtarget = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtarget');
+        
         extrainfo = struct('bandstoploss',bandstoploss,...
             'bandtarget',bandtarget,...
             'bandwidthmin',bandwidthmin,...
@@ -41,8 +43,8 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
             direction = unwindtrade.opendirection_;
             code = instrument.code_ctp;
             volume = unwindtrade.openvolume_;
-            closebidspread = obj.getbidclosespread(instrument);
-            closeaskspread = obj.getaskclosespread(instrument);
+            bidclosespread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
+            askclosespread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
             lasttick = obj.mde_fut_.getlasttick(instrument);
             tradeid = unwindtrade.id_;
                         
@@ -53,7 +55,7 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
                 closetodayFlag = isclosetoday(unwindtrade.opendatetime1_,lasttick(1));
             end
             if direction == 1
-                overridepx = lasttick(2) + closebidspread*instrument.tick_size;
+                overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
                 ret = obj.shortclose(code,...
                     volume,...
                     closetodayFlag,...
@@ -61,7 +63,7 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
                     'overrideprice',overridepx,...
                     'tradeid',tradeid);
             elseif direction == -1
-                overridepx = lasttick(3) - closeaskspread*instrument.tick_size;
+                overridepx = lasttick(3) - askclosespread*instrument.tick_size;
                 ret = obj.longclose(code,...
                     volume,...
                     closetodayFlag,...

@@ -1,7 +1,16 @@
-function [] = loadriskcontrolconfigfromfile(obj,filename,varargin)
+function [] = loadriskcontrolconfigfromfile(obj,varargin)
 %cStrat
-p = inputParser;
-p.CaseSensitive = false;p.KeepUnmatched = true;
+if isempty(obj.riskcontrols_)
+    obj.riskcontrols_ = cStratConfigArray;
+end
+
+obj.riskcontrols_.loadfromfile(varargin{:});
+
+ninstrument = obj.riskcontrols_.latest_;
+
+for i = 1:ninstrument
+    obj.registerinstrument(obj.riskcontrols_.node_(i).codectp_);
+end
 
 
 end

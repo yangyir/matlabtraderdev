@@ -4,8 +4,9 @@ function [highp,hight] = gethighnperiods(obj,instrument)
     end
     
     [flag,idx] = obj.hasinstrument(instrument);
+    instruments = obj.getinstruments;
     if flag
-        nperiods = obj.nperiods_(idx);
+        nperiods = obj.riskcontrols_.getconfigvalue('code',instruments{idx}.code_ctp,'propname','numofperiod');
     else
         error('cStratFutMultiWRPlusBatman:gethighnperiods:instrument not found')
     end
