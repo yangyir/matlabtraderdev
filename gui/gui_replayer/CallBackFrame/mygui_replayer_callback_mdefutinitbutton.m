@@ -312,7 +312,7 @@ function mygui_replayer_callback_mdefutinitbutton( hObject , eventdata , handles
     ctpcodelist = cell(ninstruments,1);
 
     columnnames = {'last trade','bid','ask','update time','last close','change','wlhight','wllow'};
-    data = zeros(ninstruments,length(columnnames));
+    data = cell(ninstruments,length(columnnames));
 
     for i = 1:ninstruments
         ctpcodelist{i} = instruments2trade{i}.code_ctp;
@@ -322,12 +322,19 @@ function mygui_replayer_callback_mdefutinitbutton( hObject , eventdata , handles
         MDEFUT_INSTANCE.initcandles(instruments2trade{i},'NumberofPeriods',nbdays);
         MDEFUT_INSTANCE.settechnicalindicator(instruments2trade{i},wlprparams);
         wrinfo = MDEFUT_INSTANCE.calc_technical_indicators(instruments2trade{i});
-        data(i,7) = wrinfo{1}(2);
-        data(i,8) = wrinfo{1}(3);
-        data(i,5) = wrinfo{1}(4);
+        data{i,1} = 0;
+        data{i,2} = 0;
+        data{i,3} = 0;
+        histcandles = MDEFUT_INSTANCE.gethistcandles(instruments2trade{i});
+        data{i,4} = datestr(histcandles{1}(end,1),'dd/mmm HH:MM');
+        data{i,5} = num2str(wrinfo{1}(4));
+        data{i,5} = 0;
+        data{i,7} = num2str(wrinfo{1}(2));
+        data{i,8} = num2str(wrinfo{1}(3));
     end
 
-    set(handles.mktdatatbl.table,'RowName',ctpcodelist,'Data',num2cell(data));
+%     set(handles.mktdatatbl.table,'RowName',ctpcodelist,'Data',num2cell(data));
+    set(handles.mktdatatbl.table,'RowName',ctpcodelist,'Data',data);
     %
     if ninstruments > 0
         set(handles.mktdataplot.popupmenu,'String',ctpcodelist);
