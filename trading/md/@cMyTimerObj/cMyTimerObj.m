@@ -18,8 +18,8 @@ classdef cMyTimerObj < handle
         replay_time1_@double
         replay_time2_@char
         %
-        %         timer_@timer
         timer_                       %do not assign data variable type
+        gui_                         %do not assign data variable type                   
         
     end
     

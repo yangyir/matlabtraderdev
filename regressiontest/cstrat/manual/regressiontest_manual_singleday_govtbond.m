@@ -21,7 +21,7 @@ plot(tickdata(:,2));grid on;
 replay_strat.mde_fut_.start;
 replay_strat.helper_.start;
 replay_strat.start;
-%%
+%% ֹͣreplay
 replay_strat.mde_fut_.stop;
 %%
 replay_strat.mde_fut_.printmarket;
