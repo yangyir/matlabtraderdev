@@ -28,7 +28,7 @@ function tick = getlasttick(mdefut,instrument)
     end
 
     if ~flag
-        error('cMDEFut:getlaststick:instrument not found')
+        error('cMDEFut:getlaststick:instrument %s not found',code_ctp)
     end
 end
 %end of getlasttick

@@ -29,7 +29,7 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
         
     isopt = isoptchar(ctp_code);
     instrument = code2instrument(ctp_code);
-    [f1, idx] = strategy.instruments_.hasinstrument(instrument);
+    f1 = strategy.instruments_.hasinstrument(instrument);
     if ~f1
         fprintf('cStrat:longclose:%s not registered in strategy...\n',ctp_code);
         ret = 0;
@@ -38,7 +38,6 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     end
     
     try
-%         [f2,idxp] = strategy.helper_.book_.hasposition(instrument);
         [f2,idxp] = strategy.helper_.book_.hasshortposition(instrument);
     catch
         f2 = false;
@@ -130,7 +129,7 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
         if ~isempty(spread)
             spread2use = spread;
         else
-            spread2use = strategy.askclosespread_(idx);
+            spread2use = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','askclosespread');
         end
         if spread2use == 0
             entrusttype = 'market';

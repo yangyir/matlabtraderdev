@@ -1,13 +1,13 @@
 function positions = convert2positions(obj)
 %positions is cell
 positions = {};
-n = obj.latest_;
+ntrades = obj.latest_;
 
-if n == 0, return;end
-codes = cell(n,1);
+if ntrades == 0, return;end
+codes = cell(ntrades,1);
 count = 0;
-for i = 1:n
-    trade_i = obj.node_(i);
+for itrade = 1:ntrades
+    trade_i = obj.node_(itrade);
     if strcmpi(trade_i.status_,'closed')
         continue;
     end
@@ -28,34 +28,34 @@ positions_intermediate = cell(ninstrument,2);
 %directions can be stored at the same time.
 
 npos = 0;
-for i = 1:n
-    trade_i = obj.node_(i);
+for itrade = 1:ntrades
+    trade_i = obj.node_(itrade);
     if strcmpi(trade_i.status_,'closed')
         continue;
     end
     code_ctp = trade_i.code_;
-    for j = 1:ninstrument
-        if strcmpi(code_ctp,codes{j})
+    for iinstrument = 1:ninstrument
+        if strcmpi(code_ctp,codes{iinstrument})
             openprice = trade_i.openprice_;
             opendirection = trade_i.opendirection_;
             openvolume = trade_i.openvolume_;
             opentime = trade_i.opendatetime1_;
             if opendirection == 1
-                if isempty(positions_intermediate{j,1})
+                if isempty(positions_intermediate{iinstrument,1})
                     pos = cPos;
                     pos.override('code',code_ctp,'price',openprice,'volume',opendirection*openvolume,'time',opentime);
-                    positions_intermediate{j,1} = pos;
+                    positions_intermediate{iinstrument,1} = pos;
                 else
-                    positions_intermediate{j,1}.add('code',code_ctp,'price',openprice,'volume',opendirection*openvolume,'time',opentime);
+                    positions_intermediate{iinstrument,1}.add('code',code_ctp,'price',openprice,'volume',opendirection*openvolume,'time',opentime);
                 end
                 npos = npos + 1;
             elseif opendirection == -1
-                if isempty(positions_intermediate{j,2})
+                if isempty(positions_intermediate{iinstrument,2})
                     pos = cPos;
                     pos.override('code',code_ctp,'price',openprice,'volume',opendirection*openvolume,'time',opentime);
-                    positions_intermediate{j,2} = pos;
+                    positions_intermediate{iinstrument,2} = pos;
                 else
-                    positions_intermediate{j,2}.add('code',code_ctp,'price',openprice,'volume',opendirection*openvolume,'time',opentime);
+                    positions_intermediate{iinstrument,2}.add('code',code_ctp,'price',openprice,'volume',opendirection*openvolume,'time',opentime);
                 end
                 npos = npos + 1;
             end
@@ -69,14 +69,16 @@ end
 %resize positions_intermediate into 1 column
 positions = cell(npos,1);
 count = 0;
-for i = 1:ninstrument
-    for j = 1:2
-        if ~isempty(positions_intermediate{i,j})
+for itrade = 1:ninstrument
+    for iinstrument = 1:2
+        if ~isempty(positions_intermediate{itrade,iinstrument})
             count = count + 1;
-            positions{count,1} = positions_intermediate{i,j};
+            positions{count,1} = positions_intermediate{itrade,iinstrument};
         end
     end
 end
+
+positions = positions(1:count);
 
 
 end

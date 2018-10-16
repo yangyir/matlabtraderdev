@@ -27,15 +27,6 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
             
     isopt = isoptchar(ctp_code);
     instrument = code2instrument(ctp_code);
-    %only place entrusts in case the instrument has been registered
-    %with the strategy
-    [bool, idx] = strategy.instruments_.hasinstrument(instrument);
-    if ~bool
-        ret = 0;
-        e = [];
-        fprintf('cStrat:longopen:%s not registered in strategy...\n',ctp_code)
-        return; 
-    end
     
     if strcmpi(strategy.mode_,'realtime')
         if isopt
@@ -43,14 +34,27 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
         else
             q = strategy.mde_fut_.qms_.getquote(ctp_code);
         end
+        if isempty(q)
+            ret = 0;
+            e = [];
+            fprintf('cStrat:longopen:%s quote not found...\n',ctp_code);
+            return
+        end
         askpx = q.ask1;
     elseif strcmpi(strategy.mode_,'replay')
         if isopt
             error('cStrat:longopen:not implemented yet for option in replay mode')
         else
-            tick = strategy.mde_fut_.getlasttick(ctp_code);
+            try
+                tick = strategy.mde_fut_.getlasttick(ctp_code);
+                askpx = tick(3);
+            catch err
+                ret = 0;
+                e = [];
+                fprintf('%s\n',err.message);
+                return
+            end       
         end
-        askpx = tick(3);
     end
     
     if ~isempty(overridepx)
@@ -71,7 +75,7 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
         if ~isempty(spread)
             spread2use = spread;
         else
-            spread2use = strategy.askopenspread_(idx);
+            spread2use = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','askopenspread');
         end
         if spread2use == 0
             entrusttype = 'market';
