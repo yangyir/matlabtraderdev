@@ -12,7 +12,8 @@ classdef cStrat < cMyTimerObj
         calsignal_bucket_@double
         calcsignal_@double
         %
-        totalequity_@double     %number
+        preequity_@double
+        currentequity_@double     %number
         currentmargin_@double   %number
         availablefund_@double   %number
         frozenmargin_@double    %number
