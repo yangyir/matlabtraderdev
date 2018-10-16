@@ -95,7 +95,7 @@ function [ret,e] = shortopen(strategy,ctp_code,lots,varargin)
         end
     end 
     
-    flag = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
+    flag = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',-1);
     if flag
         [ret,e] = strategy.trader_.placeorder(ctp_code,'s','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
 
