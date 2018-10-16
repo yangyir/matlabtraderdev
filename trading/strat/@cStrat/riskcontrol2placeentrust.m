@@ -70,7 +70,23 @@ else
     direction_exist = pos.direction_;
 end
 
-volume2check = volume*direction + volume_exist*direction_exist;
+%NOTE:apart from this entrust with existing positions, we shall check all
+%other pending entrust with the same instrument
+npending = obj.helper_.entrustspending_.latest;
+volume_pending = 0;
+if npending == 0
+    volume_pending = 0;
+else
+    for ipending = npending
+        e_i = obj.helper_.entrustspending_.node(ipending);
+        if strcmpi(e_i.instrumentCode,code) && e_i.offsetFlag == 1
+            volume_pending = volume_pending + e_i.volume * e_i.direction;
+        end
+    end
+end
+
+volume2check = volume*direction + volume_exist*direction_exist+volume_pending;
+
 try
     maxvolume = obj.riskcontrols_.getconfigvalue('code',code,'propname','maxunits');
 catch
@@ -78,7 +94,7 @@ catch
 end
 if volume2check > maxvolume
     ret = 0;
-    warning('%s:failed to place entrust as max allowance of %d lots on %s breached...\n',class(obj),maxvolume,code);
+    fprintf('%s:failed to place entrust as max allowance of %d lots on %s breached...\n',class(obj),maxvolume,code);
     return
 end
 
