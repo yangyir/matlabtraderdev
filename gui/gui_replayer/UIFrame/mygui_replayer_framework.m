@@ -24,7 +24,7 @@ panelFontSize = 10;
 %
 %% general setup
 generalsetupPanelW = 0.12;
-generalsetupPanelH = 0.2;
+generalsetupPanelH = 0.25;
 generalsetupPanelX = panel2LeftFrame;
 generalsetupPanelY = 1-generalsetupPanelH-panel2TopFrame;
 handles.generalsetup.panelbox = uipanel('Parent', parent, 'Title', 'General Setup', ...
@@ -42,7 +42,7 @@ box2boxH = 4*panel2panelH;
 box2boxV = 4*panel2panelV;
 boxFontSize = 8;
 boxBackGroundColor = [0.8 1 0.8];
-textboxNames = {'StartDate';'EndDate';'SampleFreq';'ReplaySpeed';'StrategyName';'RiskConfig'};
+textboxNames = {'StartDate';'EndDate';'SampleFreq';'ReplaySpeed';'StrategyName';'RiskConfig';'StartupFund'};
 textboxCount = size(textboxNames,1);
 %
 textboxX = box2LeftPanel;
@@ -112,6 +112,19 @@ for i = 1:textboxCount
             'FontSize', boxFontSize, ...
             'FontWeight', 'bold');
     end
+    %
+    if strcmpi(textboxNames{i},'StartupFund')
+        editboxname = [lower(textboxNames{i}),'_edit'];
+        editboxPositionY = textboxPosY;
+        editboxPositionX = textboxX + textboxW + box2boxH;
+        handles.generalsetup.(editboxname) = uicontrol('Parent', panelbox, 'style', 'edit', ...
+            'Backgroundcolor', boxBackGroundColor, 'Foregroundcolor', 'b', 'String', {'1000000'}, ...
+            'Units', 'Normalized',...
+            'Position', [editboxPositionX editboxPositionY textboxW textboxH], ...
+            'FontSize', boxFontSize, ...
+            'FontWeight', 'bold');
+    end
+    %
 end
 
 %% instruments
@@ -335,7 +348,7 @@ buttonW = 0.15*0.9;
 buttonH = 0.6;
 buttonX = 0.86;
 buttonY = (1-buttonH)/2;
-handles.manualops.pushbutton  = uicontrol('Parent', panelbox, 'style', 'pushbutton', ...
+handles.manualops.placeorderbutton  = uicontrol('Parent', panelbox, 'style', 'pushbutton', ...
         'Backgroundcolor', 'k', 'Foregroundcolor', 'r', 'String', {'Place Order'}, 'Units', 'Normalized', ...
                 'Position', [buttonX buttonY buttonW buttonH], 'FontSize', 8, ...
                 'FontWeight', 'bold');

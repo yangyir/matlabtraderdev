@@ -3,6 +3,7 @@ function mygui_replayer_callback_mdefutinitbutton( hObject , eventdata , handles
     variablenotused(eventdata);
 
     global MDEFUT_INSTANCE;
+    global STRAT_INSTANCE;
 
     replayspeedcell = get(handles.generalsetup.replayspeed_popupmenu,'string');
     idx = get(handles.generalsetup.replayspeed_popupmenu,'value');
