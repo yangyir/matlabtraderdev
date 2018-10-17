@@ -178,7 +178,7 @@ classdef cOps < cMyTimerObj
         %
         [] = printpendingentrusts(obj)
         [] = printallentrusts(obj)
-        pnl = calcrunningpnl(obj,varargin)
+        [runningpnl,closedpnl] = calcpnl(obj,varargin)
         [] = printrunningpnl(obj,varargin)
         %
         counter = getcounter(obj)

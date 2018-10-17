@@ -1,4 +1,12 @@
 function [] = registerinstrument(strategy,instrument)
+%cStrat
+%note:any risk control per instrument is not set-up here
+%a seperate funcs called 'loadriskcontrolconfigfromfile' is used instead
+%for setting up risk controls. We strictly forbidden to set up any risk
+%control variables via any code process but with loading data from the file
+%directly.i.e.any default risk control values will prevent strategy from
+%placing any entrust
+
     if ischar(instrument)
         codestr = instrument;
     elseif isa(instrument,'cInstrument')
@@ -8,6 +16,7 @@ function [] = registerinstrument(strategy,instrument)
     end
 
     if isempty(strategy.instruments_), strategy.instruments_ = cInstrumentArray;end
+    
     %check whether the instrument is an option or not
     [optflag,~,~,underlierstr,~] = isoptchar(codestr);
     %note:yangyiran 20180726
@@ -25,56 +34,13 @@ function [] = registerinstrument(strategy,instrument)
         u = code2instrument(underlierstr);
         strategy.underliers_.addinstrument(u);
     end
+    
     if isa(instrument,'cInstrument')
         strategy.instruments_.addinstrument(instrument);
     elseif ischar(instrument)
         instrument = code2instrument(codestr);
         strategy.instruments_.addinstrument(instrument);
     end
-
-    %pnl_stop_type_
-    strategy.setstoptype(instrument,'rel');
-
-    %pnl_stop_
-    strategy.setstopamount(instrument,-inf);
-
-    %pnl_limit_type_
-    strategy.setlimittype(instrument,'rel');
-
-    %pnl_limit_
-    strategy.setlimitamount(instrument,inf);
-
-    %pnl_running_
-    strategy.setpnlrunning(instrument,0);
-
-    %pnl_close_
-    strategy.setpnlclose(instrument,0);
-
-    %bidspread_
-    strategy.setbidopenspread(instrument,0);
-    strategy.setbidclosespread(instrument,0);
-
-    %askspread_
-    strategy.setaskopenspread(instrument,0);
-    strategy.setaskclosespread(instrument,0);
-
-    %autotrade_
-    strategy.setautotradeflag(instrument,0);
-    
-     %baseunits
-     strategy.setbaseunits(instrument,1);
-
-    %maxunits
-    strategy.setmaxunits(instrument,1);
-
-    %executionperbucket
-    strategy.setexecutionperbucket(instrument,0);
-
-    %maxexecutionperbucket
-    strategy.setmaxexecutionperbucket(instrument,1);
-
-    %executionbucketnumber
-    strategy.setexecutionbucketnumber(instrument,0);
     
     %calsignal_bucket_
     strategy.setcalcsignalbucket(instrument,0);
@@ -89,10 +55,9 @@ function [] = registerinstrument(strategy,instrument)
         strategy.mde_opt_.registerinstrument(instrument);
     end
     
-    %samplefreq_
-    strategy.setsamplefreq(instrument,1);
-    
-    
+    samplefreq = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','samplefreq');
+    samplefreqnum = str2double(samplefreq(1:end-1));
+    strategy.mde_fut_.setcandlefreq(samplefreqnum,instrument);
     
 end
 %end of 'registerinstrument'

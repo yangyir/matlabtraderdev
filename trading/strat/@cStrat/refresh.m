@@ -6,6 +6,11 @@ function [] = refresh(strategy,varargin)
         error('cStrat:refresh:mdefut or mdeopt not registed in strategy......\n')
     end
     
+    if isempty(strategy.helper_)
+        strategy.stop;
+        error('cStrat:refresh:ops not registed in strategy......\n')
+    end
+    
     try
         if strcmpi(strategy.mde_fut_.timer_.running,'off')
             fprintf('%s stops because %s is off\n',strategy.timer_.Name,strategy.mde_fut_.timer_.Name);
@@ -20,6 +25,14 @@ function [] = refresh(strategy,varargin)
     if ~isempty(strategy.mde_fut_)
         if strcmpi(strategy.mde_fut_.status_,'sleep'), return; end
     end
+    
+    %update totalequity_, currentmargin_, availablefund_ and frozenmargin_
+    [runningpnl,closedpnl] = strategy.helper_.calcpnl('mdefut',strategy.mde_fut_);
+    totalpnl = sum(sum(runningpnl+closedpnl));
+    strategy.currentequity_ = strategy.preequity_ + totalpnl;
+    strategy.currentmargin_ = strategy.getcurrentmargin;
+    strategy.frozenmargin_ = strategy.getfrozenmargin;
+    strategy.availablefund_ = strategy.currentequity_ - strategy.currentmargin_ - strategy.frozenmargin_;
     
     p = inputParser;
     p.CaseSensitive = false; p.KeepUnmatched = true;
@@ -36,14 +49,14 @@ function [] = refresh(strategy,varargin)
     end
     %
     try
-        if strcmpi(strategy.mode_,'realtime')
+%         if strcmpi(strategy.mode_,'realtime')
             strategy.riskmanagement(t);
-        elseif strcmpi(strategy.mode_,'replay')
-            tick = strategy.mde_fut_.getlasttick(inst{1});
-            %note:stratety might run in front of the mdefut and thus tick
-            %shall return empty in such case
-            if ~isempty(tick), strategy.riskmanagement(tick(1));end
-        end
+%         elseif strcmpi(strategy.mode_,'replay')
+%             tick = strategy.mde_fut_.getlasttick(inst{1});
+%             %note:stratety might run in front of the mdefut and thus tick
+%             %shall return empty in such case
+%             if ~isempty(tick), strategy.riskmanagement(tick(1));end
+%         end
     catch e
         msg = ['error:cStrat:riskmanagment:',e.message,'\n'];
         fprintf(msg);
@@ -82,15 +95,5 @@ function [] = refresh(strategy,varargin)
         msg = ['error:cStrat:autoplacenewentrusts:',e.message,'\n'];
         fprintf(msg);
     end
-    
-%     if strcmpi(strategy.mode_,'replay') && strcmpi(strategy.status_,'working')
-%         try
-%             if calcsignalflag
-% %                 strategy.helper_.printrunningpnl('mdefut',strategy.mde_fut_);
-% %                 strategy.helper_.printallentrusts;
-%             end
-%         catch
-%         end
-%     end
         
 end

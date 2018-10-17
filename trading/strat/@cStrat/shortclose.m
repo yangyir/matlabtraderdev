@@ -30,7 +30,7 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     isopt = isoptchar(ctp_code);
     instrument = code2instrument(ctp_code);
     
-    [f1, idx] = strategy.instruments_.hasinstrument(instrument);
+    f1 = strategy.instruments_.hasinstrument(instrument);
     if ~f1
         fprintf('cStrat:shortclose:%s not registered in strategy...\n',ctp_code);
         ret = 0;
@@ -39,7 +39,6 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     end
         
     try
-%         [f2,idxp] = strategy.helper_.book_.hasposition(instrument);
         [f2,idxp] = strategy.helper_.book_.haslongposition(instrument);
     catch
         f2 = false;
@@ -130,7 +129,7 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
         if ~isempty(spread)
             spread2use = spread;
         else
-            spread2use = strategy.bidclosespread_(idx);
+            spread2use = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','bidclosespread');
         end
         if spread2use == 0
             entrusttype = 'market';

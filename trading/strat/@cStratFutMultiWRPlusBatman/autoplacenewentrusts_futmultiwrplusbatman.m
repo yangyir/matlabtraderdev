@@ -10,8 +10,7 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         
         %to check whether the instrument is set with autotrade flag
         instrument = signal.instrument;
-%         [~,ii] = obj.hasinstrument(instrument);
-        autotrade = obj.getautotradeflag(instrument);
+        autotrade = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','autotrade');
         if ~autotrade,continue;end
         
         %to check whether position for the instrument exists,
@@ -33,10 +32,13 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         %note:we trade the  base unit volume till the maximum units are
         %breached
         if volume_exist == 0
-            volume = obj.getbaseunits(instrument);
+%             volume = obj.getbaseunits(instrument);
+            volume = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','baseunits');
         else
-            maxvolume = obj.getmaxunits(instrument);
-            npending = obj.getbaseunits(instrument);
+%             maxvolume = obj.getmaxunits(instrument);
+            maxvolume = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','maxunits');
+%             npending = obj.getbaseunits(instrument);
+            npending = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','baseunits');
             volume = max(min(maxvolume-volume_exist,npending),0);            
         end
         

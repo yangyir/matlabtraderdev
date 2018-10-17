@@ -19,7 +19,7 @@ function [ret] = setavailablefund(obj,val,varargin)
             end
             obj.availablefund_ = val;
             if firstset
-                obj.totalequity_ = val;
+                obj.preequity_ = val;
             end
             ret = 1;
         catch e
@@ -29,7 +29,7 @@ function [ret] = setavailablefund(obj,val,varargin)
     elseif strcmpi(obj.mode_,'replay')
         obj.availablefund_ = val;
         if firstset
-            obj.totalequity_ = val;
+            obj.preequity_ = val;
         end
         ret = 1;
     end

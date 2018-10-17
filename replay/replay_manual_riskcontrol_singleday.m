@@ -28,10 +28,10 @@ combos.strategy.settimerinterval(1/replayspeed);
 
 fprintf('\nready for replay with replay time at:%s...\n',combos.mdefut.replay_time2_);
 %%
-unit_base = 1; %volume to open per entrust of per instrument
-unit_max = 3;  %maximum volume per instrument
-combos.strategy.setmaxunits(code,unit_max);
-combos.strategy.setbaseunits(code,unit_base);
+% unit_base = 1; %volume to open per entrust of per instrument
+% unit_max = 3;  %maximum volume per instrument
+% combos.strategy.setmaxunits(code,unit_max);
+% combos.strategy.setbaseunits(code,unit_base);
 %%
 clc;
 %always start the MDE first

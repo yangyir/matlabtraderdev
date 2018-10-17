@@ -1,4 +1,8 @@
 function [instruments] = getinstruments(obj)
 %cStrat
-    instruments = obj.instruments_.getinstrument;
+    if isempty(obj.instruments_)
+        instruments = {};
+    else
+        instruments = obj.instruments_.getinstrument;
+    end
 end
