@@ -11,15 +11,24 @@ function [ handles,mdefut,strat,ops ] = mygui_replayer_entry
     MDEFUT_INSTANCE.mode_ = 'replay';
     MDEFUT_INSTANCE.gui_ = handles;
     %
-    strat = cStratManual;
-    STRAT_INSTANCE = strat;
-    STRAT_INSTANCE.mode_ = 'replay';
-    STRAT_INSTANCE.gui_ = handles;
-    %
-    ops = cOps;
+    trader = cTrader;
+    trader.init('replay_trader');
+    book = cBook('BookName','replay_book','TraderName',trader.name_,'CounterName','replay_counter');
+    trader.addbook(book);
+    ops = cOps('Name','replay_ops');
+    ops.registerbook(book);
+    ops.registermdefut(mdefut);
     OPS_INSTANCE = ops;
     OPS_INSTANCE.mode_ = 'replay';
     OPS_INSTANCE.gui_ = handles;
+    %
+    strat = cStratManual;
+    STRAT_INSTANCE = strat;
+    STRAT_INSTANCE.mode_ = 'replay';
+    STRAT_INSTANCE.registermdefut(MDEFUT_INSTANCE);
+    STRAT_INSTANCE.registerhelper(OPS_INSTANCE);
+    STRAT_INSTANCE.gui_ = handles;
+    
     
     set(handles.mktdataops.mdefutInitButton,'CallBack',{@mygui_replayer_callback_mdefutinitbutton, handles});
     set(handles.mktdataops.mdefutStartButton,'CallBack',{@mygui_replayer_callback_mdefutstartbutton, handles});

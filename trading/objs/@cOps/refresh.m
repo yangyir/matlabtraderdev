@@ -36,4 +36,82 @@ function [] = refresh(obj,varargin)
         fprintf(msg);
     end
     
+    if ~isempty(obj.gui_)
+        %positions
+        positions = obj.trades_.convert2positions;
+        npos = size(positions,1);
+        if npos > 0
+            colnames = get(obj.gui_.positions.table,'ColumnName');
+            rownames = cell(npos,1);
+            data = cell(npos,length(colnames));
+            for i = 1:npos
+                rownames{i} = positions{i}.code_ctp_;
+                data{i,1} = positions{i}.direction_;
+                data{i,2} = positions{i}.position_total_;
+                data{i,3} = positions{i}.position_today_;
+                data{i,4} = positions{i}.cost_open_;
+                [runningpnl,closedpnl] = obj.calcpnl('code',positions{i}.code_ctp_,'mdefut',obj.mdefut_);
+                if positions{i}.direction_ == 1
+                    data{i,5} = runningpnl(1);
+                    data{i,6} = closedpnl(1);
+                else
+                    data{i,5} = runningpnl(2);
+                    data{i,6} = closedpnl(2);
+                end 
+            end
+            set(obj.gui_.positions.table,'Data',data,'RowName',rownames);
+        end
+        %
+        entrustypes = get(obj.gui_.entrusts.popupmenu,'string');
+        entrustidx = get(obj.gui_.entrusts.popupmenu,'value');
+        entrusttype = entrustypes{entrustidx};
+        if strcmpi(entrusttype,'all')
+            entrusts = obj.entrusts_;
+        elseif strcmpi(entrusttype,'pending')
+            entrusts = obj.entrustspending_;
+        elseif strcmpi(entrusttype,'finished')
+            entrusts = obj.entrustsfinished_;
+        end
+        
+        nentrust = entrusts.latest;
+        entrustdata = cell(nentrust,9);
+
+        for i = 1:nentrust
+            entrustdata{i,1} = entrusts.node(i).entrustNo;%id
+            entrustdata{i,2} = entrusts.node(i).instrumentCode;%instrument code
+            if entrusts.node(i).direction == 1
+                entrustdata{i,3} = 'buy';
+            else
+                entrustdata{i,3} = 'sell';
+            end
+            %
+            if entrusts.node(i).offsetFlag == 1
+                entrustdata{i,4} = 'open';
+            else
+                entrustdata{i,4} = 'closed';
+            end
+            %
+            if entrusts.node(i).volume == entrusts.node(i).dealVolume
+                entrustdata{i,5} = 'settled';
+            elseif entrusts.node(i).cancelVolume > 0
+                entrustdata{i,5} = 'cancelled';
+            else
+                entrustdata{i,5} = 'pending';
+            end
+            %
+            if entrusts.node(i).volume == entrusts.node(i).dealVolume
+                entrustdata{i,6} = entrusts.node(i).dealPrice;
+            else
+                entrustdata{i,6} = entrusts.node(i).price;
+            end
+
+            entrustdata{i,7} = entrusts.node(i).volume;%volume
+            entrustdata{i,8} = entrusts.node(i).dealVolume;%dealvolume
+            entrustdata{i,9} = datestr(entrusts.node(i).time,'mm-dd HH:MM:SS');
+        end
+        set(obj.gui_.entrusts.table,'Data',entrustdata);
+
+
+    end
+    
 end

@@ -106,6 +106,9 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
             e.entrustType = entrusttype; 
             strategy.updatestratwithentrust(e);
         end
+    else
+        ret = 0;
+        e = [];
     end
     
 end

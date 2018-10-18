@@ -98,7 +98,6 @@ function [ret,e] = shortopen(strategy,ctp_code,lots,varargin)
     flag = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',-1);
     if flag
         [ret,e] = strategy.trader_.placeorder(ctp_code,'s','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
-
         if ret
             e.date = floor(ordertime);
             e.date2 = datestr(e.date,'yyyy-mm-dd');
@@ -107,6 +106,9 @@ function [ret,e] = shortopen(strategy,ctp_code,lots,varargin)
             e.entrustType = entrusttype;
             strategy.updatestratwithentrust(e);
         end
+    else
+        ret = 0;
+        e = [];        
     end
     
 end

@@ -3,6 +3,8 @@ function mygui_replayer_callback_mdefutstartbutton( hObject , eventdata , handle
     variablenotused(eventdata);
 
     global MDEFUT_INSTANCE;
+    global OPS_INSTANCE;
+    global STRAT_INSTANCE;
     
     try
         delete(timerfindall);
@@ -10,8 +12,10 @@ function mygui_replayer_callback_mdefutstartbutton( hObject , eventdata , handle
     end
     
     MDEFUT_INSTANCE.start;
+    OPS_INSTANCE.start;
+    STRAT_INSTANCE.start;
     
-    statusstr = 'status:market data engine is running...';
+    statusstr = 'market data engine is running...';
     set(handles.statusbar.statustext,'string',statusstr);
     
 end

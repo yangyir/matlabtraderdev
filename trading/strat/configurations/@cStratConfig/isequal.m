@@ -12,9 +12,18 @@ function [ret] = isequal(obj,anotherconfig)
     ret = true;
     for i = 1:length(p)
         if strcmpi(p{i},'instrument_'), continue; end
-        if obj.(p{i}) ~= anotherconfig.(p{i})
-            ret = false;
-            break
+        v1 = obj.(p{i});
+        v2 = anotherconfig.(p{i});
+        if isnumeric(v1)
+            if v1 ~= v2
+                ret = false;
+                break
+            end 
+        elseif ischar(v1)
+            if ~strcmpi(v1,v2)
+                ret = false;
+                break
+            end
         end
     end
     

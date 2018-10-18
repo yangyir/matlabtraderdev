@@ -10,10 +10,8 @@ function [] = registerhelper(strategy,helper)
         return
     end
     
-    %trader name convention
-    tradername = [strategy.name_,'->',counter.char];
-    
     book = helper.book_;
+    tradername = book.tradername_;
     trader = cTrader;trader.init(tradername);
     trader.addbook(book);
     strategy.trader_ = trader;
