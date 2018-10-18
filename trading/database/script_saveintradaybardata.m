@@ -8,7 +8,7 @@ end
 lastbd = getlastbusinessdate;
 
 %%
-% saveactivefuturesfrombloomberg(conn);
+saveactivefuturesfrombloomberg(conn);
 % activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
 % filename = ['activefutures_',datestr(lastbd,'yyyymmdd'),'.txt'];
 % activefutures = cDataFileIO.loadDataFromTxtFile([activefuturesdir,filename]);

@@ -34,6 +34,33 @@ function [] = refresh(strategy,varargin)
     strategy.frozenmargin_ = strategy.getfrozenmargin;
     strategy.availablefund_ = strategy.currentequity_ - strategy.currentmargin_ - strategy.frozenmargin_;
     
+    if ~isempty(strategy.gui_)
+        try
+            set(strategy.gui_.tradingstats.preinterest_edit,'string',num2str(strategy.preequity_));
+            set(strategy.gui_.tradingstats.availablefund_edit,'string',num2str(strategy.availablefund_));
+            set(strategy.gui_.tradingstats.currentmargin_edit,'string',num2str(strategy.currentmargin_));
+            set(strategy.gui_.tradingstats.frozenmargin_edit,'string',num2str(strategy.frozenmargin_));
+            val = sum(sum(runningpnl));
+            if val >= 0
+                set(strategy.gui_.tradingstats.runningpnl_edit,'string',num2str(val),'foregroundcolor','b');
+            else
+                set(strategy.gui_.tradingstats.runningpnl_edit,'string',num2str(val),'foregroundcolor','r');
+            end
+            val = sum(sum(closedpnl));
+            if val >= 0
+                set(strategy.gui_.tradingstats.closedpnl_edit,'string',num2str(val),'foregroundcolor','b');
+            else
+                set(strategy.gui_.tradingstats.closedpnl_edit,'string',num2str(val),'foregroundcolor','r');
+            end
+            if strcmpi(strategy.mode_,'replay')
+                set(strategy.gui_.tradingstats.time_edit,'string',datestr(strategy.replay_time1_,'dd/mmm HH:MM:SS'));
+            else
+                set(strategy.gui_.tradingstats.time_edit,'string',datestr(now,'dd/mmm HH:MM:SS'));
+            end
+        catch
+        end
+    end
+    
     p = inputParser;
     p.CaseSensitive = false; p.KeepUnmatched = true;
     p.addParameter('Time',now,@isnumeric);

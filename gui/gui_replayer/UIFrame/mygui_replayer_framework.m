@@ -20,11 +20,11 @@ panel2TopFrame = 0.02;
 panel2BottomFrame = 0.02;
 panel2panelH = 0.01;
 panel2panelV = 0.01;
-panelFontSize = 10;
+panelFontSize = 9;
 %
 %% general setup
-generalsetupPanelW = 0.12;
-generalsetupPanelH = 0.25;
+generalsetupPanelW = 0.11;
+generalsetupPanelH = 0.24;
 generalsetupPanelX = panel2LeftFrame;
 generalsetupPanelY = 1-generalsetupPanelH-panel2TopFrame;
 handles.generalsetup.panelbox = uipanel('Parent', parent, 'Title', 'General Setup', ...
@@ -42,7 +42,8 @@ box2boxH = 4*panel2panelH;
 box2boxV = 4*panel2panelV;
 boxFontSize = 8;
 boxBackGroundColor = [0.8 1 0.8];
-textboxNames = {'StartDate';'EndDate';'SampleFreq';'ReplaySpeed';'StrategyName';'RiskConfig';'StartupFund'};
+% textboxNames = {'StartDate';'EndDate';'SampleFreq';'ReplaySpeed';'StrategyName';'RiskConfig';'StartupFund'};
+textboxNames = {'StartDate';'EndDate';'ReplaySpeed';'StrategyName';'RiskConfig';'StartupFund';'MktDataDir';'TradesDir'};
 textboxCount = size(textboxNames,1);
 %
 textboxX = box2LeftPanel;
@@ -59,12 +60,29 @@ for i = 1:textboxCount
     'FontSize', boxFontSize, ...
     'FontWeight', 'bold');
     %
-    if strcmpi(textboxNames{i},'StartDate') || strcmpi(textboxNames{i},'EndDate')
+    if strcmpi(textboxNames{i},'StartDate') || strcmpi(textboxNames{i},'EndDate') || ...
+            strcmpi(textboxNames{i},'MktDataDir') || ...
+            strcmpi(textboxNames{i},'TradesDir') || ...
+            strcmpi(textboxNames{i},'RiskConfig') || ...
+            strcmpi(textboxNames{i},'StartupFund')
+        
+        if strcmpi(textboxNames{i},'StartDate') || strcmpi(textboxNames{i},'EndDate')
+            editstr = datestr(lastbd,'yyyy-mm-dd');
+        elseif strcmpi(textboxNames{i},'MktDataDir')
+            editstr = 'C:\yangyiran\mdefut\save\';
+        elseif strcmpi(textboxNames{i},'TradesDir')
+            editstr = 'C:\yangyiran\ops\save\';
+        elseif strcmpi(textboxNames{i},'RiskConfig')
+            editstr = 'config_manual.txt';
+        elseif strcmpi(textboxNames{i},'StartupFund')
+            editstr = '1000000';
+        end
+        
         editboxname = [lower(textboxNames{i}),'_edit'];
         editboxPositionY = textboxPosY;
         editboxPositionX = textboxX + textboxW + box2boxH;
         handles.generalsetup.(editboxname) = uicontrol('Parent', panelbox, 'style', 'edit', ...
-            'Backgroundcolor', boxBackGroundColor, 'Foregroundcolor', 'b', 'String', {datestr(lastbd,'yyyy-mm-dd')}, ...
+            'Backgroundcolor', boxBackGroundColor, 'Foregroundcolor', 'b', 'String', {editstr}, ...
             'Units', 'Normalized',...
             'Position', [editboxPositionX editboxPositionY textboxW textboxH], ...
             'FontSize', boxFontSize, ...
@@ -101,37 +119,58 @@ for i = 1:textboxCount
             'FontWeight', 'bold');
     end
     %
-    if strcmpi(textboxNames{i},'RiskConfig')
-        editboxname = [lower(textboxNames{i}),'_edit'];
-        editboxPositionY = textboxPosY;
-        editboxPositionX = textboxX + textboxW + box2boxH;
-        handles.generalsetup.(editboxname) = uicontrol('Parent', panelbox, 'style', 'edit', ...
-            'Backgroundcolor', boxBackGroundColor, 'Foregroundcolor', 'b', 'String', {'config_manual.txt'}, ...
-            'Units', 'Normalized',...
-            'Position', [editboxPositionX editboxPositionY textboxW textboxH], ...
-            'FontSize', boxFontSize, ...
-            'FontWeight', 'bold');
-    end
-    %
-    if strcmpi(textboxNames{i},'StartupFund')
-        editboxname = [lower(textboxNames{i}),'_edit'];
-        editboxPositionY = textboxPosY;
-        editboxPositionX = textboxX + textboxW + box2boxH;
-        handles.generalsetup.(editboxname) = uicontrol('Parent', panelbox, 'style', 'edit', ...
-            'Backgroundcolor', boxBackGroundColor, 'Foregroundcolor', 'b', 'String', {'1000000'}, ...
-            'Units', 'Normalized',...
-            'Position', [editboxPositionX editboxPositionY textboxW textboxH], ...
-            'FontSize', boxFontSize, ...
-            'FontWeight', 'bold');
-    end
-    %
 end
+%% tradingstats
+tradingstatsPanelX = panel2LeftFrame;
+tradingstatsPanelW = generalsetupPanelW;
+tradingstatsPanelH = 0.2;
+tradingstatsPanelY = generalsetupPanelY - panel2panelV - tradingstatsPanelH;
+handles.tradingstats.panelbox = uipanel('Parent', parent, 'Title', 'TradingStats', ...
+    'Units', 'Normalized', ...
+    'Position', [tradingstatsPanelX tradingstatsPanelY tradingstatsPanelW tradingstatsPanelH],...
+    'FontSize', panelFontSize, 'FontWeight', 'bold', 'TitlePosition', 'lefttop');
+panelbox = handles.tradingstats.panelbox;
+textboxNames = {'PreInterest';'AvailableFund';'CurrentMargin';'FrozenMargin';'RunningPnL';'ClosedPnL';'Time'};
+textboxCount = size(textboxNames,1);
+%
+textboxX = box2LeftPanel;
+textboxW = (1-box2LeftPanel-box2RightPanel-box2boxH)/2;
+textboxH = (1-box2TopPanel-box2BottomPanel-(textboxCount-1)*box2boxV)/textboxCount;
 
+for i = 1:textboxCount
+    %on the left hand-side
+    textboxname = [lower(textboxNames{i}),'_text'];
+    textboxPosY = 1-box2TopPanel-i*textboxH-(i-1)*box2boxV;
+    handles.tradingstats.(textboxname) = uicontrol('Parent', panelbox, 'style', 'text', ...
+    'Foregroundcolor', 'k','String', textboxNames{i}, 'Units', 'Normalized',... 
+    'Position', [textboxX textboxPosY textboxW textboxH],... 
+    'FontSize', boxFontSize, ...
+    'FontWeight', 'bold');
+    % 
+    if strcmpi(textboxNames{i},'PreInterest') || strcmpi(textboxNames{i},'AvailableFund')
+        editstr = '1000000';
+    elseif strcmpi(textboxNames{i},'CurrentMargin') || strcmpi(textboxNames{i},'FrozenMargin') ...
+            || strcmpi(textboxNames{i},'RunningPnL') || strcmpi(textboxNames{i},'ClosedPnL')
+        editstr = '0';
+    elseif strcmpi(textboxNames{i},'Time')
+        editstr = [datestr(lastbd,'dd/mmm'),' 09:00:00'];
+    end
+
+    editboxname = [lower(textboxNames{i}),'_edit'];
+    editboxPositionY = textboxPosY;
+    editboxPositionX = textboxX + textboxW + box2boxH;
+    handles.tradingstats.(editboxname) = uicontrol('Parent', panelbox, 'style', 'edit', ...
+        'Backgroundcolor', 'w', 'Foregroundcolor', 'b', 'String', {editstr}, ...
+        'Units', 'Normalized',...
+        'Position', [editboxPositionX editboxPositionY textboxW textboxH], ...
+        'FontSize', boxFontSize, ...
+        'FontWeight', 'bold');
+end
 %% instruments
 instrumentPanelX = panel2LeftFrame;
 instrumentPanelW = generalsetupPanelW;
 instrumentPanelY = panel2BottomFrame;
-instrumentPanelH = generalsetupPanelY-instrumentPanelY-panel2panelV;
+instrumentPanelH = tradingstatsPanelY-instrumentPanelY-panel2panelV;
 handles.instruments.panelbox = uipanel('Parent', parent, 'Title', 'Instruments', ...
     'Units', 'Normalized', ...
     'Position', [instrumentPanelX instrumentPanelY instrumentPanelW instrumentPanelH],...
@@ -228,7 +267,7 @@ handles.mktdataplot.panelbox = uipanel('Parent', parent, 'Title', 'Market Data P
     'FontWeight', 'bold', 'TitlePosition', 'lefttop');
 panelbox = handles.mktdataplot.panelbox;
 %the plot ara will be 85% height of the panel and 3% from left and right
-mktdataPlotAxesX = 0.03;
+mktdataPlotAxesX = 0.05;
 mktdataPlotAxesW = 1-2*mktdataPlotAxesX;
 mktdataPlotAxesH = 0.85;
 mktdataPlotAxesY = (1-mktdataPlotAxesH)/2;

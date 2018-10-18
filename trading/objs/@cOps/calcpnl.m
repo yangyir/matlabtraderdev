@@ -8,9 +8,9 @@ function [runingpnl,closedpnl] = calcpnl(obj,varargin)
     if ~strcmpi(codestr,'all')
         instrumentstrs = regexp(codestr,',','split');
     else
-        n = size(obj.book_.positions_,1);
+        n = obj.trades_.latest_;
         instrumentstrs = cell(n,1);
-        for i = 1:n, instrumentstrs{i} = obj.book_.positions_{i}.code_ctp_; end
+        for i = 1:n, instrumentstrs{i} = obj.trades_.node_(i).code_; end
     end
     instrumentstrs = unique(instrumentstrs);
     n = size(instrumentstrs,1);

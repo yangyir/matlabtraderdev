@@ -15,6 +15,7 @@ function [] = refresh(mdefut,varargin)
     
     
     if ~isempty(mdefut.gui_)
+        %update mktdata table
         try
             tblRowName = get(mdefut.gui_.mktdatatbl.table,'RowName');
             tblColName = get(mdefut.gui_.mktdatatbl.table,'ColumnName');
@@ -46,8 +47,84 @@ function [] = refresh(mdefut,varargin)
                 end
             end
             set(mdefut.gui_.mktdatatbl.table,'Data',data);
-        catch
+        catch err
+            fprintf(err.message);
         end
+        %update plot
+        try
+%             if ~mdefut.gui_.mktdataplot.flag, return; end
+            
+            codelist = get(mdefut.gui_.mktdataplot.popupmenu,'string');
+            codeidx = get(mdefut.gui_.mktdataplot.popupmenu,'value');
+            code2plot = codelist{codeidx};
+            histcandles = mdefut.gethistcandles(code2plot);
+            if ~isempty(histcandles)
+                histcandles = histcandles{1};
+            else
+                histcandles = [];
+            end
+            lhist = size(histcandles,1);
+            
+            candles = mdefut.getcandles(code2plot);
+            if ~isempty(candles)
+                candles = candles{1};
+            else
+                candles = [];
+            end
+            lcurrent = size(candles,1);
+            
+            %take maximum 200 candles into plot and all the current candles
+            %shall be included
+            ltotal = lhist + lcurrent;
+            if ltotal > 0
+                if ltotal <= 200
+                    idxstart = 1;
+                else
+                    if lcurrent >= 200
+                        idxstart = lcurrent - 199;
+                    else
+                        idxstart = lhist-(200-lcurrent);
+                    end
+                end
+                candles2plot = [histcandles;candles];
+                candles2plot = candles2plot(idxstart:end,:);
+            else
+                candles2plot = [];
+            end
+
+            if ~isempty(candles2plot)
+                candle(candles2plot(:,3),candles2plot(:,4),candles2plot(:,5),candles2plot(:,2),'b');
+                grid on;
+                date_format = 'dd/mmm HH:MM';
+                xgrid = [0 25 50 75 100 125 150 175 200];
+                xgrid = xgrid';
+                idx = xgrid < size(candles2plot,1);
+                xgrid = xgrid(idx,:);
+                t_num = zeros(1,length(xgrid));
+                for i = 1:length(t_num)
+                    if xgrid(i) == 0
+                        t_num(i) = candles2plot(1,1);
+                    elseif xgrid(i) > size(candles2plot,1)
+                        t_start = candles2plot(1,1);
+                        t_last = candles2plot(end,1);
+                        t_num(i) = t_last + (xgrid(i)-size(candles2plot,1))*...
+                            (t_last - t_start)/size(candles2plot,1);
+                    else
+                        t_num(i) = candles2plot(xgrid(i),1);
+                    end
+                end
+                if isempty(date_format)
+                    t_str = datestr(t_num);
+                else
+                    t_str = datestr(t_num,date_format);
+                end
+                set(mdefut.gui_.mktdataplot.axes,'XTick',xgrid);
+                set(mdefut.gui_.mktdataplot.axes,'XTickLabel',t_str);       
+            end
+        catch err
+            fprintf(err.message);
+        end
+        
     end
     
 end

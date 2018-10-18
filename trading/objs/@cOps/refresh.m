@@ -40,8 +40,8 @@ function [] = refresh(obj,varargin)
         %positions
         positions = obj.trades_.convert2positions;
         npos = size(positions,1);
+        colnames = get(obj.gui_.positions.table,'ColumnName');
         if npos > 0
-            colnames = get(obj.gui_.positions.table,'ColumnName');
             rownames = cell(npos,1);
             data = cell(npos,length(colnames));
             for i = 1:npos
@@ -60,6 +60,9 @@ function [] = refresh(obj,varargin)
                 end 
             end
             set(obj.gui_.positions.table,'Data',data,'RowName',rownames);
+        else
+            data = cell(1,length(colnames));
+            set(obj.gui_.positions.table,'Data',data);
         end
         %
         entrustypes = get(obj.gui_.entrusts.popupmenu,'string');

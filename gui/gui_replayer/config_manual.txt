@@ -1,6 +1,6 @@
 Name	cStratConfig	cStratConfig	cStratConfig
 CodeCTP	T1812	cu1811	ni1901
-SampleFreq	1m	1m	1m
+SampleFreq	15m	15m	15m
 PnLStopType	ABS	ABS	ABS
 PnLStop	50000	50000	50000
 PnLLimitType	ABS	ABS	ABS
