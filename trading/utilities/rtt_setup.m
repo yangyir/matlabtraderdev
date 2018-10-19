@@ -7,13 +7,14 @@ function [rtt_output] = rtt_setup(varargin)
     p.addParameter('StrategyName','manual',@ischar);
     p.addParameter('Instruments',{},@iscell);
     p.addParameter('TradesFileName','',@ischar);
+    p.addParameter('RiskConfigFileName','',@ischar);
     
     p.parse(varargin{:});
     countername = p.Results.CounterName;
     %note:20180905:currently we only work with CTP counter
     %note:20180918:we can now have RH counter
-    if strcmpi(countername,'rh_demo')
-        rtt_counter = cCounterRH.rh_demo;
+    if strcmpi(countername,'rh_demo') || strcmpi(countername,'rh_demo_tf')
+        rtt_counter = cCounterRH.(countername);
     else
         try
             rtt_counter = CounterCTP.(countername);
@@ -93,10 +94,15 @@ function [rtt_output] = rtt_setup(varargin)
     rtt_strategy.registermdefut(rtt_mdefut);
     if isa(rtt_mdeopt,'cMDEOpt'), rtt_strategy.registermdeopt(rtt_mdeopt);end
     
+    configfn = p.Results.RiskConfigFileName;
+    if isempty(configfn)
+        error('rtt_setup:missing input of RiskConfigFile');
+    end
+    
     if ~isempty(instruments)
-        for i = 1:size(instruments,1)
-            rtt_strategy.registerinstrument(instruments{i});
-        end
+        rtt_strategy.loadriskcontrolconfigfromfile('filename',configfn,'codelist',instruments);
+    else
+        rtt_strategy.loadriskcontrolconfigfromfile('filename',configfn);
     end
     
     rtt_strategy.settimerinterval(0.5);

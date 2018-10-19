@@ -10,6 +10,9 @@ function [ret] = setavailablefund(obj,val,varargin)
         %the available fund cannot breach the available fund of the account
         try
             c = obj.helper_.getcounter;
+            if ~c.is_Counter_Login
+                c.login;
+            end
             info = c.queryAccount;
             availabefundfromcounter = info.available_fund;
             if val > availabefundfromcounter

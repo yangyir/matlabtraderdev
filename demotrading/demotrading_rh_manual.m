@@ -1,12 +1,13 @@
 clear all;clc;delete(timerfindall);cd('C:\yangyiran');
 %%
-countername = 'rh_demo';
+countername = 'rh_demo_tf';
 bookname = 'book-demotrading-rh';
 markettype = 'futures';
 strategyname = 'manual';
-instruments = {'cu1811';'al1811';'zn1811';'ni1811';'ni1901';'rb1901'};
+% instruments = {'cu1811';'al1811';'zn1811';'ni1811';'ni1901';'rb1901'};
+configfn = 'manualconfig_rh.txt';
 combos = rtt_setup('CounterName',countername,'BookName',bookname,...
-    'MarketType','futures','StrategyName',strategyname,'Instruments',instruments);
+    'MarketType','futures','StrategyName',strategyname,'RiskConfigFileName',configfn);
 fprintf('\ncombos successfully created...\n');
 %%
 combos.mdefut.login('Connection','CTP','CounterName','citic_kim_fut');

@@ -9,8 +9,8 @@ function [ret] = initcandles(mdefut,instrument,varargin)
     if strcmpi(mdefut.mode_,'replay')
         ds = cLocal;
     else
-%         ds = cBloomberg;
-        ds = cLocal;
+        ds = cBloomberg;
+%         ds = cLocal;
     end
     if nargin < 2
 %     if isempty(instrument)
