@@ -25,32 +25,6 @@ if calibrateVolModel && ~calcDailyReturn
     error('rollfutures:vol model can be only estimated given daily returns')
 end
 
-% if strcmpi(assetName,'govtbond_5y') || strcmpi(assetName,'govtbond_10y') ||...
-%         strcmpi(assetName,'eqindex_300') || strcmpi(assetName,'eqindex_50') ||...
-%         strcmpi(assetName,'eqindex_500')
-%     isFinancial = true;
-% else
-%     isFinancial = false;
-% end
-% 
-% if ~isholiday(today)
-%     hh = hour(now);
-%     if hh > 16 && hh < 21   %market is still closed
-%         dateTo = today;
-%     else
-%         if isFinancial
-%             if hh <= 15
-%                 dateTo = businessdate(today,-1);
-%             else
-%                 dateTo = today;
-%             end
-%         else
-%             dateTo = businessdate(today,-1);
-%         end
-%     end
-% else
-%     dateTo = businessdate(today,-1);
-% end
 dateTo = getlastbusinessdate;
 
 %list all futures contracts
