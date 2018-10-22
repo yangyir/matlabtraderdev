@@ -1,4 +1,4 @@
-function [ret] = riskcontrol2placeentrust(obj,instrument,varargin)
+function [ret,errmsg] = riskcontrol2placeentrust(obj,instrument,varargin)
 %cStrat
 %note:risk control of placing (open) entrust
 %rules:
@@ -17,19 +17,22 @@ p.parse(varargin{:})
 price = p.Results.price;
 if isempty(price)
     ret = 0;
-    fprintf('cStrat:riskcontrol2placeentrust:invalid price input\n')
+    errmsg = [class(obj),':riskcontrol2placeentrust:invalid price input...']; 
+    fprintf('%s\n',errmsg)
     return
 end
 volume = p.Results.volume;
 if isempty(volume) || volume <= 0
     ret = 0;
-    fprintf('cStrat:riskcontrol2placeentrust:invalid volume input\n')
+    errmsg = [class(obj),'riskcontrol2placeentrust:invalid volume input...'];
+    fprintf('%s\n',errmsg);
     return
 end
 direction = p.Results.direction;
 if isempty(direction) || ~(direction == 1 || direction == -1)
     ret = 0;
-    fprintf('cStrat:riskcontrol2placeentrust:invalid direction input\n')
+    errmsg = [class(obj),'riskcontrol2placeentrust:invalid direction input...'];
+    fprintf('%s\n',errmsg);
     return
 end
 
@@ -43,7 +46,8 @@ end
 flag = obj.instruments_.hasinstrument(instrument);
 if ~flag
     ret = 0;
-    fprintf('%s:failed to place entrust as %s not registed with strategy...\n', class(obj),code);
+    errmsg = [class(obj),':failed to place entrust as ',code,' not registed with strategy... '];
+    fprintf('%s\n',errmsg);
     return
 end
 
@@ -55,7 +59,8 @@ catch
 end
 if volume > maxvolumeperentrust
     ret = 0;
-    fprintf('%s:failed to place entrust as max allowance of %d lots per entrust on %s breached...\n',class(obj),maxvolumeperentrust,code);
+    errmsg = sprintf('%s:failed to place entrust as max allowance of %d lots per entrust on %s breached...',class(obj),maxvolumeperentrust,code); 
+    fprintf('%s\n',errmsg);
     return
 end
 
@@ -94,7 +99,8 @@ catch
 end
 if volume2check > maxvolume
     ret = 0;
-    fprintf('%s:failed to place entrust as max allowance of %d lots on %s breached...\n',class(obj),maxvolume,code);
+    errmsg = sprintf('%s:failed to place entrust as max allowance of %d lots on %s breached...',class(obj),maxvolume,code);
+    fprintf('%s\n',errmsg);
     return
 end
 
@@ -108,11 +114,12 @@ availablefund = obj.getavailablefund;
 
 if marginrequirement > availablefund
     ret = 0;
-    fprintf('%s:failed to place entrust with insufficent funds...\n',class(obj),num2str(marginrequirement));
+    errmsg = sprintf('%s:failed to place entrust with insufficent funds...',class(obj),num2str(marginrequirement));
+    fprintf('%s\n',errmsg);
     return
 end
 
 ret = 1;
-
+errmsg = '';
 
 end

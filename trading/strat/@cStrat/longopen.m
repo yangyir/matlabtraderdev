@@ -1,4 +1,4 @@
-function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
+function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = false;
     p.addParameter('spread',[],@isnumeric);
@@ -14,14 +14,16 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
     if ~ischar(ctp_code)
         ret = 0;
         e = [];
-        fprintf('cStrat:longopen:invalid order code...\n')
+        msg = sprintf('%s:longopen:invalid order code...',class(strategy));
+        fprintf('%s\n',msg);
         return
     end
     
     if lots <= 0
         ret = 0;
         e = [];
-        fprintf('cStrat:longopen:invalid order volume...\n')
+        msg = sprintf('%s:longopen:invalid order volume...',class(strategy));
+        fprintf('%s\n',msg);
         return
     end
             
@@ -37,7 +39,8 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
         if isempty(q)
             ret = 0;
             e = [];
-            fprintf('cStrat:longopen:%s quote not found...\n',ctp_code);
+            msg = sprintf('%s:longopen:%s quote not found...',class(strategy),ctp_code);
+            fprintf('%s\n',msg);
             return
         end
         askpx = q.ask1;
@@ -51,7 +54,8 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
             catch err
                 ret = 0;
                 e = [];
-                fprintf('%s\n',err.message);
+                msg = sprintf('%s',err.message);
+                fprintf('%s\n',msg);
                 return
             end       
         end
@@ -95,9 +99,9 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
         end
     end
     
-    flag = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
+    [flag,errmsg] = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
     if flag
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'b','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
+        [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'b','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
         if ret
             e.date = floor(ordertime);
             e.date2 = datestr(e.date,'yyyy-mm-dd');
@@ -109,6 +113,7 @@ function [ret,e] = longopen(strategy,ctp_code,lots,varargin)
     else
         ret = 0;
         e = [];
+        msg = errmsg;
     end
     
 end

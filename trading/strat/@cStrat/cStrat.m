@@ -81,10 +81,10 @@ classdef cStrat < cMyTimerObj
         [] = withdrawentrusts(obj,instrument,varargin)
         
         %long/short open/close positions
-        [ret,e] = shortopen(obj,code_ctp,lots,varargin)
-        [ret,e] = shortclose(obj,code_ctp,lots,closetodayflag,varargin)
-        [ret,e] = longopen(obj,code_ctp,lots,varargin)
-        [ret,e] = longclose(obj,code_ctp,lots,closetodayflag,varargin)
+        [ret,e,msg] = shortopen(obj,code_ctp,lots,varargin)
+        [ret,e,msg] = shortclose(obj,code_ctp,lots,closetodayflag,varargin)
+        [ret,e,msg] = longopen(obj,code_ctp,lots,varargin)
+        [ret,e,msg] = longclose(obj,code_ctp,lots,closetodayflag,varargin)
         
         [] = unwindpositions(obj,instrument,varargin)
         [ret,e] = unwindtrade(obj,tradein)
@@ -94,7 +94,7 @@ classdef cStrat < cMyTimerObj
         
         %risk control for placing entrust
         [] = loadriskcontrolconfigfromfile(obj,varargin)
-        [ret] = riskcontrol2placeentrust(obj,instrument,varargin)
+        [ret,errmsg] = riskcontrol2placeentrust(obj,instrument,varargin)
         %
         [t] = getreplaytime(obj,varargin)
         

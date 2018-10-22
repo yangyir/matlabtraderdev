@@ -1,4 +1,4 @@
-function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
+function [ret,e,msg] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = false;
     p.addParameter('spread',[],@isnumeric);
@@ -14,14 +14,16 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     if ~ischar(ctp_code)
         ret = 0;
         e = [];
-        fprintf('cStrat:longclose:invalid order code...\n')
+        msg = sprintf('%s:longclose:invalid order code...',class(strategy));
+        fprintf('%s\n',msg);
         return
     end
     
     if lots <= 0
         ret = 0;
         e = [];
-        fprintf('cStrat:longclose:invalid order volume...\n')
+        msg = sprintf('%s:longclose:invalid order volume...',class(strategy));
+        fprintf('%s\n',msg);
         return
     end
     
@@ -31,7 +33,8 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     instrument = code2instrument(ctp_code);
     f1 = strategy.instruments_.hasinstrument(instrument);
     if ~f1
-        fprintf('cStrat:longclose:%s not registered in strategy...\n',ctp_code);
+        msg = sprintf('%s:longclose:%s not registered in strategy...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         ret = 0;
         e = [];
         return; 
@@ -45,7 +48,8 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     end
     
     if ~f2
-        fprintf('cStrat:longclose:%s not traded in strategy\n',ctp_code);
+        msg = sprintf('%s:longclose:%s not traded in strategy...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         ret = 0;
         e = [];
         return; 
@@ -54,14 +58,16 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     volume = abs(strategy.helper_.book_.positions_{idxp}.position_total_);
     direction = strategy.helper_.book_.positions_{idxp}.direction_;
     if volume <= 0 || direction ~= -1
-        fprintf('cStrat:longclose:%s:existing short position not found\n',ctp_code);
+        msg = sprintf('%s:longclose:%s:existing short position not found...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         ret = 0;
         e = [];
         return
     end
     
     if abs(volume) < abs(lots)
-        fprintf('cStrat:longclose:%s:input size exceeds existing size\n',ctp_code);
+        msg = sprintf('%s:longclose:%s:input size exceeds existing size...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         ret = 0;
         e = [];
         return
@@ -82,14 +88,16 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
             end
         end
     catch err
-        fprintf('cStrat:longclose:%s:internal error when some pending entrust exists:%s...\n',ctp_code,err.message);
+        msg = sprintf('%s:longclose:%s:internal error when some pending entrust exists:%s...',class(strategy),ctp_code,err.message);
+        fprintf('%s\n',msg);
         ret = 0;
         e = [];
         return
     end
     
     if abs(volume) < abs(lots) + volumepending
-        fprintf('cStrat:longclose:%s:input size exceeds existing size with pending entrusts\n',ctp_code);
+        msg = sprintf('cStrat:longclose:%s:input size exceeds existing size with pending entrusts\n',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         ret = 0;
         e = [];
         return
@@ -150,9 +158,9 @@ function [ret,e] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     end 
     
     if closetodayFlag
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'b','ct',price,lots,strategy.helper_,'time',ordertime);
+        [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'b','ct',price,lots,strategy.helper_,'time',ordertime);
     else
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'b','c',price,lots,strategy.helper_,'time',ordertime);
+        [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'b','c',price,lots,strategy.helper_,'time',ordertime);
     end
     
     if ret

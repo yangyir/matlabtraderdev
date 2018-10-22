@@ -1,4 +1,4 @@
-function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,varargin)
+function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,varargin)
 %cTrader
     if ~ischar(codestr), error('cTrader:placeorder:invalid code input'); end
     if ~ischar(bsflag), error('cTrader:placeorder:invalid buy/sell flag input'); end
@@ -82,11 +82,15 @@ function [ret,entrust] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,vararg
             entrust.tradeid_ = tradeid;
         end
                 
-        fprintf('%s placed entrust:%2d,code:%8s,direct:%2d,offset:%d, price:%6s, amount:%3d\n',...
+        msg = sprintf('%s placed entrust:%2d,code:%8s,direct:%2d,offset:%d, price:%6s, amount:%3d',...
             datestr(entrust.time,'yyyymmdd HH:MM:SS'),...
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
+        fprintf('%s\n',msg);
         ops.entrusts_.push(entrust);
         ops.entrustspending_.push(entrust);
+    else
+        msg = sprintf('%s','entrust not placed');
+        fprintf('%s\n',msg);
     end
     
 end

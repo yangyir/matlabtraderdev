@@ -30,23 +30,23 @@ function guicallback_placeorderbutton( hObject , eventdata , handles )
     if strcmpi(ordertype,'normal')
         if strcmpi(direction,'buy')
             if strcmpi(offset,'open')
-                ret = STRAT_INSTANCE.longopen(ctpcode,volume,'overrideprice',price);    
+                [ret,~,msg] = STRAT_INSTANCE.longopen(ctpcode,volume,'overrideprice',price);    
             elseif strcmpi(offset,'close') 
-                ret = STRAT_INSTANCE.longclose(ctpcode,volume,0,'overrideprice',price);
+                [ret,~,msg] = STRAT_INSTANCE.longclose(ctpcode,volume,0,'overrideprice',price);
             elseif strcmpi(offset,'closetoday')
-                ret = STRAT_INSTANCE.longclose(ctpcode,volume,1,'overrideprice',price);
+                [ret,~,msg] = STRAT_INSTANCE.longclose(ctpcode,volume,1,'overrideprice',price);
             end
         elseif strcmpi(direction,'sell')
             if strcmpi(offset,'open')
-                ret = STRAT_INSTANCE.shortopen(ctpcode,volume,'overrideprice',price);
+                [ret,~,msg] = STRAT_INSTANCE.shortopen(ctpcode,volume,'overrideprice',price);
             elseif strcmpi(offset,'close') 
-                ret = STRAT_INSTANCE.shortclose(ctpcode,volume,0,'overrideprice',price);
+                [ret,~,msg] = STRAT_INSTANCE.shortclose(ctpcode,volume,0,'overrideprice',price);
             elseif strcmpi(offset,'closetoday')
-                ret = STRAT_INSTANCE.shortclose(ctpcode,volume,1,'overrideprice',price);
+                [ret,~,msg] = STRAT_INSTANCE.shortclose(ctpcode,volume,1,'overrideprice',price);
             end
         end
         if ret == 0
-            statusstr = 'entrust failed to be placed...';
+            statusstr = msg;
             set(handles.statusbar.statustext,'string',statusstr);
         end
     elseif strcmpi(ordertype,'conditional')

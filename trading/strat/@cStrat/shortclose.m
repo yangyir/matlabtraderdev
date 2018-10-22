@@ -1,4 +1,4 @@
-function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
+function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('spread',[],@isnumeric);
@@ -14,14 +14,16 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     if ~ischar(ctp_code)
         ret = 0;
         e = [];
-        fprintf('cStrat:shortclose:invalid order code...\n')
+        msg = sprintf('%s:shortclose:invalid order code...',class(strategy));
+        fprintf('%s\n',msg);
         return
     end
     
     if lots <= 0
         ret = 0;
         e = [];
-        fprintf('cStrat:shortclose:invalid order volume...\n')
+        msg = sprintf('%s:shortclose:invalid order volume...',class(strategy));
+        fprintf('%s\n',msg);
         return
     end
 
@@ -32,9 +34,10 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     
     f1 = strategy.instruments_.hasinstrument(instrument);
     if ~f1
-        fprintf('cStrat:shortclose:%s not registered in strategy...\n',ctp_code);
         ret = 0;
         e = [];
+        msg = sprintf('%s:shortclose:%s not registered in strategy...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         return; 
     end
         
@@ -45,25 +48,28 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     end
     
     if ~f2
-        fprintf('cStrat:shortclose:%s not traded in strategy\n',ctp_code);
         ret = 0;
         e = [];
+        msg = sprintf('%s:shortclose:%s not traded in strategy...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         return; 
     end
     
     volume = abs(strategy.helper_.book_.positions_{idxp}.position_total_);
     direction = strategy.helper_.book_.positions_{idxp}.direction_;
     if volume <= 0 || direction ~= 1
-        fprintf('cStrat:shortclose:%s:existing long position not found\n',ctp_code);
         ret = 0;
         e = [];
+        msg = sprintf('%s:shortclose:%s:existing long position not found...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         return
     end
     
     if abs(volume) < abs(lots)
-        fprintf('cStrat:shortclose:%s:input size exceeds existing size\n',ctp_code);
         ret = 0;
         e = [];
+        msg = sprintf('%s:shortclose:%s:input size exceeds existing size...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         return
     end
     
@@ -82,16 +88,18 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
             end
         end
     catch err
-        fprintf('cStrat:shortclose:%s:internal error when some pending entrust exists:%s...\n',ctp_code,err.message);
         ret = 0;
         e = [];
+        msg = sprintf('%s:shortclose:%s:internal error when some pending entrust exists:%s...',class(strategy),ctp_code,err.message);
+        fprintf('%s\n',msg);
         return
     end
     
     if abs(volume) < abs(lots) + volumepending
-        fprintf('cStrat:shortclose:%s:input size exceeds existing size with pending entrusts\n',ctp_code);
         ret = 0;
         e = [];
+        msg = sprintf('%s:shortclose:%s:input size exceeds existing size with pending entrusts...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
         return
     end
     
@@ -151,9 +159,9 @@ function [ret,e] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     end 
     
     if closetodayFlag
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'s','ct',price,lots,strategy.helper_,'time',ordertime);
+        [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'s','ct',price,lots,strategy.helper_,'time',ordertime);
     else
-        [ret,e] = strategy.trader_.placeorder(ctp_code,'s','c',price,lots,strategy.helper_,'time',ordertime);
+        [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'s','c',price,lots,strategy.helper_,'time',ordertime);
     end
     
     if ret
