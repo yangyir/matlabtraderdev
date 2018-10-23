@@ -1,10 +1,10 @@
-function [ handles,mdefut,strat,ops ] = mygui_replayer_entry
+function [ handles,mdefut,strat,ops ] = guientry_rp_manual
     %
     global MDEFUT_INSTANCE;
     global STRAT_INSTANCE;
     global OPS_INSTANCE;
     
-    handles = mygui_replayer_framework;
+    handles = guiframework_rp_manual;
     
     mdefut = cMDEFut;
     MDEFUT_INSTANCE = mdefut;
