@@ -1,0 +1,16 @@
+Name	cStratConfigBatman	cStratConfigBatman	cStratConfigBatman	cStratConfigBatman
+CodeCTP	ni1901	zn1812	cu1812	sc1812
+SampleFreq	5m	5m	5m	5m
+PnLStopType	ABS	ABS	ABS	ABS
+PnLStop	50000	50000	50000	50000
+PnLLimitType	ABS	ABS	ABS	ABS
+PnLLimit	50000	50000	50000	50000
+BidOpenSpread	0	0	0	0
+BidCloseSpread	0	0	0	0
+AskOpenSpread	0	0	0	0
+AskCloseSpread	0	0	0	0
+BaseUnits	4	4	4	4
+MaxUnits	20	20	20	20
+AutoTrade	0	0	0	0
+ExecutionPerBucket	1	1	1	1
+MaxExecutionPerBucket	1	1	1	1

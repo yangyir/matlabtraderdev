@@ -61,10 +61,22 @@ function [ret,e] = placeentrust(obj,instrument,varargin)
         end
     end
     
-    samplefreq = obj.getsamplefreq(instrument);
+    try
+        samplefreqstr = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+    catch err
+        %note:the code is executed here because
+        %1)either riskcontrols are not initiated at all
+        %2)or riskcontrols for such instrument is not set
+        fprintf('%s\n',['Error:',err.message]);
+        ret = 0;
+        e = [];
+        return
+    end
+    
+    
     signalinfo = struct('name','batmanmanual',...
         'instrument',instrument,...
-        'frequency',[num2str(samplefreq),'m'],...
+        'frequency',samplefreqstr,...
         'pxtarget',pxtarget,...
         'pxstoploss',pxstoploss);
     
