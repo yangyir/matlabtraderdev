@@ -20,7 +20,8 @@ classdef cOps < cMyTimerObj
         mdeopt_@cMDEFut
         counterCTP_@CounterCTP
         counterHSO32_@CounterHSO32
-        counterRH_@cCounterRH
+%         counterRH_@cCounterRH
+        counterRH_@CounterRH
     end
     
     properties (Dependent = true)
@@ -74,7 +75,8 @@ classdef cOps < cMyTimerObj
                     obj.counterHSO32_ = [];
                     error('cOps:registercounter:incompatible counter with book registered!')
                 end
-            elseif isa(counter,'cCounterRH')
+%             elseif isa(counter,'cCounterRH')
+            elseif isa(counter,'CounterRH')
                 obj.counterRH_ = counter;
                 if ~obj.isbookcountercompatible_
                     obj.counterRH_ = [];

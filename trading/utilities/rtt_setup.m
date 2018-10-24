@@ -10,6 +10,12 @@ function [rtt_output] = rtt_setup(varargin)
     p.addParameter('RiskConfigFileName','',@ischar);
     
     p.parse(varargin{:});
+    
+    configfn = p.Results.RiskConfigFileName;
+    if isempty(configfn)
+        error('rtt_setup:missing input of RiskConfigFile');
+    end
+        
     countername = p.Results.CounterName;
     %note:20180905:currently we only work with CTP counter
     %note:20180918:we can now have RH counter
@@ -93,11 +99,6 @@ function [rtt_output] = rtt_setup(varargin)
     rtt_strategy.registerhelper(rtt_helper);
     rtt_strategy.registermdefut(rtt_mdefut);
     if isa(rtt_mdeopt,'cMDEOpt'), rtt_strategy.registermdeopt(rtt_mdeopt);end
-    
-    configfn = p.Results.RiskConfigFileName;
-    if isempty(configfn)
-        error('rtt_setup:missing input of RiskConfigFile');
-    end
     
     if ~isempty(instruments)
         rtt_strategy.loadriskcontrolconfigfromfile('filename',configfn,'codelist',instruments);
