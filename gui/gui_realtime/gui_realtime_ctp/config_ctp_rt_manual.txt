@@ -1,0 +1,16 @@
+Name	cStratConfig
+CodeCTP	T1812
+SampleFreq	15m
+PnLStopType	ABS
+PnLStop	50000
+PnLLimitType	ABS
+PnLLimit	50000
+BidOpenSpread	0	
+BidCloseSpread	0
+AskOpenSpread	0
+AskCloseSpread	0
+BaseUnits	4
+MaxUnits	20
+AutoTrade	0
+ExecutionPerBucket	1		
+MaxExecutionPerBucket	1
