@@ -24,9 +24,9 @@ function [] = unwindpositions(strategy,instrument,varargin)
     if isshfe
         if volume_today > 0
             if direction == 1
-                [ret1] = strategy.shortclose(instrument,volume_today,1);
+                [ret1] = strategy.shortclose(instrument.code_ctp,volume_today,1);
             elseif direction == -1
-                [ret1] = strategy.longclose(instrument,volume_today,1);
+                [ret1] = strategy.longclose(instrument.code_ctp,volume_today,1);
             end
         else
             ret1 = 1;
@@ -34,9 +34,9 @@ function [] = unwindpositions(strategy,instrument,varargin)
         volume_before = volume_total - volume_today;
         if volume_before > 0
             if direction == 1
-                [ret2] = strategy.shortclose(instrument,volume_before);
+                [ret2] = strategy.shortclose(instrument.code_ctp,volume_before);
             elseif direction == -1
-                [ret2] = strategy.longclose(instreument,volume_before);
+                [ret2] = strategy.longclose(instreument.code_ctp,volume_before);
             end
         else
             ret2 = 1;
