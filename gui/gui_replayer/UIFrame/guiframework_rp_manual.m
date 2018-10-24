@@ -1,4 +1,4 @@
-function handles = mygui_replayer_framework
+function handles = guiframework_rp_manual
 %%
 lastbd = businessdate(getlastbusinessdate,-1);
 close all;
@@ -22,6 +22,27 @@ panel2panelH = 0.01;
 panel2panelV = 0.01;
 panelFontSize = 9;
 %
+
+%%
+% note: we have 9 panels in three blocks, i.e. 3 panels in each block
+%
+% THE FIRST BLOCK
+% we have 'general setup' on the top, 'trading stats' in the middle
+% and 'instrument-realted risk configurations' on the bottom
+%
+% THE SECOND BLOCK
+% we have 'market data table' which is for displaying latest mkt quotes
+% we have 'market data ops' in the middle
+% and we have 'maket data plot' on the bottom
+%
+% THE THIRD BLOCK
+% we have 'position table' which is displaying positions
+% we have 'market data ops' in the middle
+% and we have 'maket data plot' on the bottom
+%
+
+
+
 %% general setup
 generalsetupPanelW = 0.11;
 generalsetupPanelH = 0.24;
@@ -210,7 +231,7 @@ handles.mktdatatbl.panelbox = uipanel('Parent', parent, 'Title', 'Market Data', 
     'Position', [mktdataTblPanelX mktdataTblPanelY mktdataTblPanelW mktdataTblPanelH],...
     'FontSize', 10, 'FontWeight', 'bold', 'TitlePosition', 'lefttop');
 panelbox = handles.mktdatatbl.panelbox;
-
+[~,~,~,~,~,~,~,~,~,~,~,assetlist] = getassetmaptable;
 activefuts = cDataFileIO.loadDataFromTxtFile([getenv('DATAPATH'),'activefutures\activefutures_',datestr(lastbd,'yyyymmdd'),'.txt']);
 nfuts = size(activefuts,1);
 %table will centred with 1.5% distance 2 each side of the panel
@@ -219,11 +240,19 @@ mktdataTblW = 1-2*positionTblX;
 mktdataTblH = 1-2*positionTblX;
 mktdataTblY = (1-mktdataTblH)/2;
 
-columnnames = {'last trade','bid','ask','update time','last close','change','wlhigh','wllow'};
+columnnames = {'instrument','trade','bid','ask','update time','last close','change','wlhigh','wllow'};
+columnwidth = [80 70 70 70 100 70 70 70 70];
+data = cell(nfuts,length(columnnames));
+for i = 1:nfuts
+    data{i,1} = activefuts{i};
+    for j = 2:length(columnnames)
+        data{i,j} = NaN;
+    end
+end
 handles.mktdatatbl.table  = uitable('Parent', panelbox, 'Units', 'Normalized', ...
     'Position', [positionTblX mktdataTblY mktdataTblW mktdataTblH], 'FontSize' , 8 , 'FontWeight' ,'bold', ...
-    'Data', num2cell(ones(nfuts, length(columnnames))*NaN), 'ColumnWidth', num2cell(ones(1,5)*80), 'BackgroundColor', tbbackcolor,...
-    'RowName',activefuts,...
+    'Data', data, 'ColumnWidth', num2cell(columnwidth), 'BackgroundColor', tbbackcolor,...
+    'RowName',assetlist,...
     'ColumnName',columnnames);
 
 %% mktdataops
@@ -386,11 +415,18 @@ for i = 1:nfields;
 end
 
 buttonW = 0.15*0.9;
-buttonH = 0.6;
+buttonH = 0.4;
 buttonX = 0.86;
-buttonY = (1-buttonH)/2;
+buttonY = 1-buttonH;
 handles.manualops.placeorderbutton  = uicontrol('Parent', panelbox, 'style', 'pushbutton', ...
         'Backgroundcolor', 'k', 'Foregroundcolor', 'r', 'String', {'Place Order'}, 'Units', 'Normalized', ...
+                'Position', [buttonX buttonY buttonW buttonH], 'FontSize', 8, ...
+                'FontWeight', 'bold');
+
+%
+buttonY = 1-2*buttonH-4*panel2panelV;
+handles.manualops.cancelorderbutton  = uicontrol('Parent', panelbox, 'style', 'pushbutton', ...
+        'Backgroundcolor', 'k', 'Foregroundcolor', 'r', 'String', {'Cancel Order'}, 'Units', 'Normalized', ...
                 'Position', [buttonX buttonY buttonW buttonH], 'FontSize', 8, ...
                 'FontWeight', 'bold');
 
