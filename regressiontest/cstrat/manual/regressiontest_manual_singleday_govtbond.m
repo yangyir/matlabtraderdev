@@ -1,26 +1,57 @@
 clear;delete(timerfindall);clc;
-replay_speed = 5;
-replay_strat = replay_setstrat('manual','replayspeed',replay_speed);
+%% general setup
+bookname = 'replay_manual';
+strategyname = 'manual';
+riskconfigfilename = 'manualconfig_regression.txt';
+combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',riskconfigfilename);
 availablefund = 1e6;
-replay_strat.setavailablefund(availablefund,'firstset',true);
-replay_strat.loadriskcontrolconfigfromfile('filename','manualconfig_regression.txt');
-replay_filename = 'C:\yangyiran\regressiondata\T1809_20180619_tick.mat';
-replay_strat.mde_fut_.initreplayer('code','T1809','fn',replay_filename);
-replay_strat.mde_fut_.printflag_ = false;
-replay_strat.printflag_ = false;
-display(replay_strat.riskcontrols_.node_(1))
-% bidopenspread_: 1
-% bidclosespread_: 0
-% askopenspread_: 1
-% askclosespread_: 0
+combos.strategy.setavailablefund(availablefund,'firstset',true);
+
+%% replay
+fprintf('\n');
+fprintf('switch mode to replay...\n');
+if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
+if ~isempty(combos.mdeopt), combos.mdeopt.mode_ = 'replay';end
+if ~isempty(combos.ops), combos.ops.mode_ = 'replay';end
+if ~isempty(combos.strategy), combos.strategy.mode_ = 'replay';end
+replayspeed = 5;
+fprintf('set replay speed to %s...\n',num2str(replayspeed));
+if ~isempty(combos.mdefut),combos.mdefut.settimerinterval(0.5/replayspeed);end
+if ~isempty(combos.mdeopt),combos.mdeopt.settimerinterval(0.5/replayspeed);end
+if ~isempty(combos.ops),combos.ops.settimerinterval(1/replayspeed);end
+if ~isempty(combos.strategy),combos.strategy.settimerinterval(1/replayspeed);end
+fprintf('load replay data....\n');
+replaydt1 = '2018-06-19';
+replaydt2 = '2018-06-22';
+replaydts = gendates('fromdate',replaydt1,'todate',replaydt2);
+try
+    instruments = combos.strategy.getinstruments;
+    ninstruments = size(instruments,1);
+    for i = 1:ninstruments
+        code = instruments{i}.code_ctp;
+        filenames = cell(size(replaydts,1),1);
+        for j = 1:size(replaydts,1)
+            filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.mat'];
+        end
+        combos.mdefut.initreplayer('code',code,'filenames',filenames);
+    end
+catch err
+    fprintf('Error:%s\n',err.message);
+end
+fprintf('replay ready...\n');
+
 %%
 close all;
-tickdata = replay_strat.mde_fut_.replayer_.tickdata_{1};
-plot(tickdata(:,2));grid on;
+tickdata = combos.mdefut.replayer_.tickdata_{1};
+timeseries_plot(tickdata(:,1:2),'dateformat','HH:MM');grid on;
 %%
-replay_strat.mde_fut_.start;
-replay_strat.helper_.start;
-replay_strat.start;
+try
+    combos.mdefut.start;
+    combos.ops.start;
+    combos.strategy.start
+catch err
+    fprintf('Error:%s\n',err.message);
+end
 %% ֹͣreplay
 replay_strat.mde_fut_.stop;
 %%

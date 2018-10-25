@@ -1,16 +1,16 @@
-Name	cStratConfig
-CodeCTP	T1809
-SampleFreq	5m
-PnLStopType	ABS
-PnLStop	50000
-PnLLimitType	ABS
-PnLLimit	50000
-BidOpenSpread	1
-BidCloseSpread	0
-AskOpenSpread	1
-AskCloseSpread	0
-BaseUnits	4
-MaxUnits	20
-AutoTrade	0
-ExecutionPerBucket	1
-MaxExecutionPerBucket	1
+Name	cStratConfig	cStratConfig	cStratConfig
+CodeCTP	T1809	ni1809	rb1810
+SampleFreq	5m	5m	5m
+PnLStopType	ABS	ABS	ABS
+PnLStop	50000	50000	50000
+PnLLimitType	ABS	ABS	ABS
+PnLLimit	50000	50000	50000
+BidOpenSpread	0	0	0
+BidCloseSpread	0	0	0
+AskOpenSpread	0	0	0
+AskCloseSpread	0	0	0
+BaseUnits	4	4	4
+MaxUnits	20	30	20
+AutoTrade	0	0	0
+ExecutionPerBucket	1	1	1
+MaxExecutionPerBucket	1	1	1
