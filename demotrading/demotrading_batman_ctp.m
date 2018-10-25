@@ -21,12 +21,13 @@ combos.ops.start;
 combos.strategy.start;
 %%
 code = 'zn1812';
-price = 22305;
-target = 22255;
-stoploss = 22505;
+price = 22555;
+target = 22440;
+stoploss = 22650;
 volume = 1;
 combos.strategy.placeentrust(code,'buysell','s','price',price,'volume',volume,'target',target,'stoploss',stoploss);
-
+%%
+combos.strategy.unwindpositions('zn1812')
 %%
 %withdraw
 combos.strategy.withdrawentrusts(code);
