@@ -1,0 +1,16 @@
+Name	cStratConfig	cStratConfig	cStratConfig	cStratConfig	cStratConfig	cStratConfig
+CodeCTP	cu1811	al1811	zn1811	pb1811	ni1811	rb1901
+SampleFreq	5m	5m	5m	5m	5m	5m
+PnLStopType	REL	REL	REL	REL	REL	REL
+PnLStop	inf	inf	inf	inf	inf	inf
+PnLLimitType	REL	REL	REL	REL	REL	REL
+PnLLimit	inf	inf	inf	inf	inf	inf
+BidOpenSpread	0	0	0	0	0	0
+BidCloseSpread	0	0	0	0	0	0
+AskOpenSpread	0	0	0	0	0	0
+AskCloseSpread	0	0	0	0	0	0
+BaseUnits	1	1	1	1	1	1
+MaxUnits	1	1	1	1	1	1
+AutoTrade	0	0	0	0	0	0
+ExecutionPerBucket	0	0	0	0	0	0
+MaxExecutionPerBucket	1	1	1	1	1	1
