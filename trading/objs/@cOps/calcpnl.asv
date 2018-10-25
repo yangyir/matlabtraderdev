@@ -49,20 +49,13 @@ function [runingpnl,closedpnl] = calcpnl(obj,varargin)
                 for itrade = 1:nclosed
                     trade = trades.node_(itrade);
                     if trade.opendirection_ == 1
-                        try
-                            closedpnl(i,1) = closedpnl(i,1) + trade.closepnl_;
-                        catch
-                            pause(1)
-                        end
-                            
+                        closedpnl(i,1) = closedpnl(i,1) + trade.closepnl_;
                     else
                         closedpnl(i,2) = closedpnl(i,2) + trade.closepnl_;
                     end
                 end
             end
         end
-    catch err
-        error('cOps:calcpnl:error in compute closed pnl:%s',err.message)
-    end
+    
     
 end

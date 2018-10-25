@@ -74,7 +74,8 @@ replay_strat.setavailablefund(1e6,'firstset',true);
 % BandType	0
 replay_strat.loadriskcontrolconfigfromfile('filename','wrbatmanconfig_regressiontest.txt');
 %
-replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
+% replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
+replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
 replay_strat.initdata;
 replay_strat.mde_fut_.printflag_ = false;

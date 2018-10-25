@@ -119,7 +119,7 @@ function [] = refresh(strategy,varargin)
     try
         strategy.autoplacenewentrusts(signals);
     catch e
-        msg = ['error:cStrat:autoplacenewentrusts:',e.message,'\n'];
+        msg = ['error:',class(strategy),':autoplacenewentrusts:',e.message,'\n'];
         fprintf(msg);
     end
         
