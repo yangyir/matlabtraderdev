@@ -38,6 +38,14 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
     isopt = isoptchar(ctp_code);
     instrument = code2instrument(ctp_code);
     
+    if isempty(ordertime)
+        if strcmpi(strategy.mode_,'realtime')
+            ordertime = now;
+        else
+            ordertime = strategy.getreplaytime;
+        end
+    end
+    
     if strcmpi(strategy.mode_,'realtime')
         if isopt
             q = strategy.mde_opt_.qms_.getquote(ctp_code);
@@ -97,14 +105,6 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
             entrusttype = 'stop';
         end
         price = askpx - spread2use*instrument.tick_size;
-    end
-         
-    if isempty(ordertime)
-        if strcmpi(strategy.mode_,'realtime')
-            ordertime = now;
-        else
-            ordertime = strategy.getreplaytime;
-        end
     end
     
     [flag,errmsg] = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
