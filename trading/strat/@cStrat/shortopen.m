@@ -11,6 +11,15 @@ function [ret,e,msg] = shortopen(strategy,ctp_code,lots,varargin)
     ordertime = p.Results.time;
     signalinfo = p.Results.signalinfo;
     
+    if isempty(strategy.timer_) || strcmpi(strategy.timer_.running,'off')
+        ret = 0;
+        e = [];
+        msg = sprintf('%s:shortopen:strategy is not running...',class(strategy));
+        fprintf('%s\n',msg);
+        return
+    end
+
+    
     if ~ischar(ctp_code)
         ret = 0;
         e = [];

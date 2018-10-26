@@ -147,6 +147,7 @@ classdef cFutures < cInstrument
         [] = demo(obj)
         [] = init_bbg(obj,conn)
         [assetname,exch] = getexchangestr(obj)
+        [ret] = isable2trade(obj,t)
         
     end
     

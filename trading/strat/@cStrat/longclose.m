@@ -11,6 +11,15 @@ function [ret,e,msg] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     ordertime = p.Results.time;
     tradeid = p.Results.tradeid;
     
+    if isempty(strategy.timer_) || strcmpi(strategy.timer_.running,'off')
+        ret = 0;
+        e = [];
+        msg = sprintf('%s:longclose:strategy is not running...',class(strategy));
+        fprintf('%s\n',msg);
+        return
+    end
+
+    
     if ~ischar(ctp_code)
         ret = 0;
         e = [];

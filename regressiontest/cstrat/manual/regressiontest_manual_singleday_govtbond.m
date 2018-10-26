@@ -52,8 +52,31 @@ try
 catch err
     fprintf('Error:%s\n',err.message);
 end
-%% 停止replay
-replay_strat.mde_fut_.stop;
+%%
+code = 'T1809';
+volume1 = 4;
+volume2 = 4;
+volume3 = 4;
+volume4 = 4;
+volume5 = 4;
+price1 = 95.12;
+price2 = 95.11;
+price3 = 95.10;
+price4 = 95.095;
+price5 = 95.095;
+nentrusts = combos.ops.entrusts_.latest;
+while nentrusts == 0
+    combos.strategy.longopen(code,volume1,'overrideprice',price1);
+    combos.strategy.longopen(code,volume2,'overrideprice',price2);
+    combos.strategy.longopen(code,volume3,'overrideprice',price3);
+    combos.strategy.longopen(code,volume4,'overrideprice',price4);
+    combos.strategy.longopen(code,volume5,'overrideprice',price5);
+    nentrusts = combos.ops.entrusts_.latest;
+end
+
+
+%% 停止regression
+combos.mdefut.stop;
 %%
 replay_strat.mde_fut_.printmarket;
 %% 用系统设定好的开仓spread开单

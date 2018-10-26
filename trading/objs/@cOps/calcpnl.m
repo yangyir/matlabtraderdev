@@ -48,15 +48,19 @@ function [runingpnl,closedpnl] = calcpnl(obj,varargin)
             else
                 for itrade = 1:nclosed
                     trade = trades.node_(itrade);
+                    %the trade's closepnl maynot be updated yet
                     if trade.opendirection_ == 1
                         try
                             closedpnl(i,1) = closedpnl(i,1) + trade.closepnl_;
                         catch
-                            pause(1)
+                            pause(obj.timer_interval_);
                         end
-                            
                     else
-                        closedpnl(i,2) = closedpnl(i,2) + trade.closepnl_;
+                        try
+                            closedpnl(i,2) = closedpnl(i,2) + trade.closepnl_;
+                        catch
+                            pause(obj.timer_interval_);
+                        end
                     end
                 end
             end
