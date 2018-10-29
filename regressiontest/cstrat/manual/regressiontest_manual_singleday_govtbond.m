@@ -3,18 +3,22 @@ clear;delete(timerfindall);clc;
 bookname = 'replay_manual';
 strategyname = 'manual';
 riskconfigfilename = 'manualconfig_regression.txt';
+% Name	cStratConfig	cStratConfig	cStratConfig
+% CodeCTP	T1809	ni1809	rb1810
+% SampleFreq	5m	5m	5m
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',riskconfigfilename);
-availablefund = 1e6;
-combos.strategy.setavailablefund(availablefund,'firstset',true);
-
-%% replay
+% replay
 fprintf('\n');
 fprintf('switch mode to replay...\n');
 if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
 if ~isempty(combos.mdeopt), combos.mdeopt.mode_ = 'replay';end
 if ~isempty(combos.ops), combos.ops.mode_ = 'replay';end
 if ~isempty(combos.strategy), combos.strategy.mode_ = 'replay';end
-replayspeed = 5;
+availablefund = 1e6;
+combos.strategy.setavailablefund(availablefund,'firstset',true);
+%
+%
+replayspeed = 20;
 fprintf('set replay speed to %s...\n',num2str(replayspeed));
 if ~isempty(combos.mdefut),combos.mdefut.settimerinterval(0.5/replayspeed);end
 if ~isempty(combos.mdeopt),combos.mdeopt.settimerinterval(0.5/replayspeed);end
@@ -54,6 +58,11 @@ catch err
 end
 %%
 code = 'T1809';
+instruments = combos.strategy.getinstruments;
+[~,idx] = combos.strategy.hasinstrument(code);
+instrument = instruments{idx};
+t = combos.strategy.getreplaytime;
+
 volume1 = 4;
 volume2 = 4;
 volume3 = 4;
@@ -72,52 +81,52 @@ while nentrusts == 0
     combos.strategy.longopen(code,volume4,'overrideprice',price4);
     combos.strategy.longopen(code,volume5,'overrideprice',price5);
     nentrusts = combos.ops.entrusts_.latest;
+    pause(5);
 end
-
 
 %% 停止regression
 combos.mdefut.stop;
-%%
-replay_strat.mde_fut_.printmarket;
+
 %% 用系统设定好的开仓spread开单
 longvolume1 = 1;
-replay_strat.longopen('T1809',longvolume1);
+combos.strategy.longopen('T1809',longvolume1);
+% cStratManual:failed to place entrust as max allowance of 20 lots on T1809 breached...
 %% 用价格-1开市价（market)单
-longvolume2 = 1;
-replay_strat.longopen('T1809',longvolume2,'overrideprice',-1);
+longvolume2 = 5;
+combos.strategy.longopen('T1809',longvolume2,'overrideprice',-1);
+% cStratManual:failed to place entrust as max allowance of 4 lots per entrust on T1809 breached...
 %% 用低于市场价的价格开单（limited order)
 longvolume3 = 2;
-replay_strat.longopen('T1809',longvolume3,'overrideprice',95.11);
+combos.strategy.longopen('T1809',longvolume3,'overrideprice',95.11);
+% cStratManual:failed to place entrust as max allowance of 20 lots on T1809 breached...
 %% 用自己定义的开仓spread开单
 longvolume4 = 2;
 askopenspread = 5;
-replay_strat.longopen('T1809',longvolume3,'spread',askopenspread);
-%% 尝试一手开超过4手，系统应该会报错
-longvolume5 = 5;
-replay_strat.longopen('T1809',longvolume5);
-%cStratManual:failed to place entrust as max allowance of 4 lots per entrust on T1809 breached...
+combos.strategy.longopen('T1809',longvolume3,'spread',askopenspread);
+% cStratManual:failed to place entrust as max allowance of 20 lots on T1809 breached...
 
 %%
 shortvolume1 = 1;
-replay_strat.shortopen('T1809',shortvolume1);
+combos.strategy.shortopen('T1809',shortvolume1);
+%%
+shortvolume2 = 1;
+combos.strategy.shortopen('T1809',shortvolume1,'overrideprice',95.55);
 %% 撤销委托
-replay_strat.withdrawentrusts('T1809')
-%% 打印持仓
-replay_strat.helper_.printrunningpnl('mdefut',replay_strat.mde_fut_)
+combos.strategy.withdrawentrusts('T1809')
 
 %% 获取某一个品种的持仓盈亏情况
-[runningpnl,closedpnl] = replay_strat.helper_.calcpnl('code','T1809','mdefut',replay_strat.mde_fut_)
+[runningpnl,closedpnl] = replay_strat.helper_.calcpnl('code','T1809','mdefut'combos.mdefut)
 %% 打印策略资金信息
 fprintf('\n');
-currentmargin = replay_strat.getcurrentmargin;
+currentmargin = combos.strategy.getcurrentmargin;
 fprintf('%13s:%8s\n','CurrentMargin',num2str(round(currentmargin)));
 %
-availablefund = replay_strat.getavailablefund;
+availablefund = combos.strategy.getavailablefund;
 fprintf('%13s:%8s\n','AvailableFund',num2str(round(availablefund)));
 %
-frozenmargin = replay_strat.getfrozenmargin;
+frozenmargin = combos.strategy.getfrozenmargin;
 fprintf('%13s:%8s\n','FrozenMargin',num2str(round(frozenmargin)));
 %
-[runningpnl,closedpnl] = replay_strat.helper_.calcpnl('mdefut',replay_strat.mde_fut_);
+[runningpnl,closedpnl] = combos.strategy.helper_.calcpnl('mdefut',combos.mdefut);
 fprintf('%13s:%8s\n','RunningPnL',num2str(sum(runningpnl)));
 fprintf('%13s:%8s\n','ClosedPnL',num2str(sum(closedpnl)));

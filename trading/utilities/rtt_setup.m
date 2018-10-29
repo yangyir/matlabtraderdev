@@ -19,8 +19,8 @@ function [rtt_output] = rtt_setup(varargin)
     countername = p.Results.CounterName;
     %note:20180905:currently we only work with CTP counter
     %note:20180918:we can now have RH counter
-    if strcmpi(countername,'rh_demo') || strcmpi(countername,'rh_demo_tf')
-        rtt_counter = cCounterRH.(countername);
+    if strcmpi(countername,'rh_demo_tf')
+        rtt_counter = CounterRH.(countername);
     else
         try
             rtt_counter = CounterCTP.(countername);
