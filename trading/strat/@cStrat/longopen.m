@@ -46,6 +46,14 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
         end
     end
     
+    if ~instrument.isable2trade(ordertime)
+        ret = 0;
+        e = [];
+        msg = sprintf('%s:longopen:non-trableable time for %s...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
+        return
+    end
+    
     if strcmpi(strategy.mode_,'realtime')
         if isopt
             q = strategy.mde_opt_.qms_.getquote(ctp_code);

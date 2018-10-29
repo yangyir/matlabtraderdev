@@ -41,6 +41,23 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
     isopt = isoptchar(ctp_code);
     instrument = code2instrument(ctp_code);
     
+    if isempty(ordertime)
+        if strcmpi(strategy.mode_,'realtime')
+            ordertime = now;
+        else
+            ordertime = strategy.getreplaytime;
+        end
+    end
+    
+        
+    if ~instrument.isable2trade(ordertime)
+        ret = 0;
+        e = [];
+        msg = sprintf('%s:shortclose:non-trableable time for %s...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
+        return
+    end
+    
     f1 = strategy.instruments_.hasinstrument(instrument);
     if ~f1
         ret = 0;
@@ -159,13 +176,7 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
     end
 
     
-    if isempty(ordertime)
-        if strcmpi(strategy.mode_,'realtime')
-            ordertime = now;
-        else
-            ordertime = strategy.getreplaytime;
-        end
-    end 
+ 
     
     if closetodayFlag
         [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'s','ct',price,lots,strategy.helper_,'time',ordertime);

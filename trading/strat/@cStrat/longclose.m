@@ -40,6 +40,23 @@ function [ret,e,msg] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
         
     isopt = isoptchar(ctp_code);
     instrument = code2instrument(ctp_code);
+    
+    if isempty(ordertime)
+        if strcmpi(strategy.mode_,'realtime')
+            ordertime = now;
+        else
+            ordertime = strategy.getreplaytime;
+        end
+    end
+    
+    if ~instrument.isable2trade(ordertime)
+        ret = 0;
+        e = [];
+        msg = sprintf('%s:longclose:non-trableable time for %s...',class(strategy),ctp_code);
+        fprintf('%s\n',msg);
+        return
+    end
+    
     f1 = strategy.instruments_.hasinstrument(instrument);
     if ~f1
         msg = sprintf('%s:longclose:%s not registered in strategy...',class(strategy),ctp_code);
@@ -157,14 +174,7 @@ function [ret,e,msg] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
         end
         price = askpx - spread2use*instrument.tick_size;
     end
-    
-    if isempty(ordertime)
-        if strcmpi(strategy.mode_,'realtime')
-            ordertime = now;
-        else
-            ordertime = strategy.getreplaytime;
-        end
-    end 
+     
     
     if closetodayFlag
         [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'b','ct',price,lots,strategy.helper_,'time',ordertime);
