@@ -85,6 +85,12 @@ classdef cStrat < cMyTimerObj
         [ret,e,msg] = shortclose(obj,code_ctp,lots,closetodayflag,varargin)
         [ret,e,msg] = longopen(obj,code_ctp,lots,varargin)
         [ret,e,msg] = longclose(obj,code_ctp,lots,closetodayflag,varargin)
+        %
+        %long/short open/close with conditional price
+        [ret,e,msg] = condshortopen(obj,code_ctp,condpx,lots,varargin)
+        [ret,e,msg] = condshortclose(obj,code_ctp,condpx,lots,closetodayflag,varargin)
+        [ret,e,msg] = condlongopen(obj,code_ctp,condpx,lots,varargin)
+        [ret,e,msg] = condlongclose(obj,code_ctp,condpx,lots,closetodayflag,varargin)
         
         [] = unwindpositions(obj,instrument,varargin)
         [ret,e] = unwindtrade(obj,tradein)

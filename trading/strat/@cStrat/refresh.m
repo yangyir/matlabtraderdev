@@ -71,21 +71,14 @@ function [] = refresh(strategy,varargin)
     try
         strategy.updategreeks;
     catch e
-        msg = ['error:cStrat:updategreeks:',e.message,'\n'];
+        msg = ['error:',class(strategy),':updategreeks:',e.message,'\n'];
         fprintf(msg);
     end
     %
     try
-%         if strcmpi(strategy.mode_,'realtime')
-            strategy.riskmanagement(t);
-%         elseif strcmpi(strategy.mode_,'replay')
-%             tick = strategy.mde_fut_.getlasttick(inst{1});
-%             %note:stratety might run in front of the mdefut and thus tick
-%             %shall return empty in such case
-%             if ~isempty(tick), strategy.riskmanagement(tick(1));end
-%         end
+        strategy.riskmanagement(t);
     catch e
-        msg = ['error:cStrat:riskmanagment:',e.message,'\n'];
+        msg = ['error:',class(strategy),':riskmanagment:',e.message,'\n'];
         fprintf(msg);
     end
     %

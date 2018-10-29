@@ -14,9 +14,10 @@ function tick = getlasttick(mdefut,instrument)
         if strcmpi(code_ctp,instruments{i}.code_ctp)
             flag = true;
             try
-                ticks = mdefut.ticks_{i};
+%                 ticks = mdefut.ticks_{i};
                 if mdefut.ticks_count_(i) > 0
-                    tick = ticks(mdefut.ticks_count_(i),:);
+%                     tick = ticks(mdefut.ticks_count_(i),:);
+                    tick = mdefut.ticksquick_(i,:);
                 else
                     tick = [];
                 end

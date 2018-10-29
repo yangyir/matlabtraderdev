@@ -14,7 +14,8 @@ function [pnl] = calc_pnl(obj,varargin)
     
     if obj.is_opt_ && isempty(mdeopt), pnl = NaN;return;end
     
-    if isempty(mdefut.ticks_), pnl = NaN; return;end
+%     if isempty(mdefut.ticks_), pnl = NaN; return;end
+    if isempty(mdefut.ticksquick_), pnl = NaN; return;end
 
     if ~obj.is_opt_
         tick = mdefut.getlasttick(obj.code_ctp_);

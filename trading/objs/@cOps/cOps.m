@@ -11,6 +11,7 @@ classdef cOps < cMyTimerObj
         entrustspending_@EntrustArray
         entrustsfinished_@EntrustArray
         %
+        condentrustspending_@EntrustArray
         trades_@cTradeOpenArray
     end
     
