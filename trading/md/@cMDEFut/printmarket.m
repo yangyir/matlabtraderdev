@@ -35,14 +35,23 @@ function [] = printmarket(obj)
             return;
         end
         
-        if isempty(obj.ticks_)
+%         if isempty(obj.ticks_)
+%             return
+%         end
+        if isempty(obj.ticksquick_)
             return
         end
         
         rowcount = 0;
         for i = 1:n
             code = instruments{i}.code_ctp;
-            lasttick = obj.getlasttick(instruments{i});
+%             lasttick = obj.getlasttick(instruments{i});
+            count = obj.ticks_count_(i);
+            if count > 0
+                lasttick = obj.ticksquick_(i,:);
+            else
+                lasttick = [];
+            end
             if isempty(lasttick), continue;end
             rowcount = rowcount + 1;
             if rowcount == 1

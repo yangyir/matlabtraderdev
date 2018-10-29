@@ -163,21 +163,21 @@ function [] = registerinstrument(mdefut,instrument)
         end
     end
 
-    % init ticks_
-    if isempty(mdefut.ticks_)
-        n = 1e5;%note:this size shall be enough for day trading
-        d = cell(ns,1);
-        for i = 1:ns, d{i} = zeros(n,7);end
-        mdefut.ticks_ = d;
-    else
-        ns_ = size(mdefut.ticks_,1);
-        if ns_ ~= ns
-            ticks = cell(ns,1);
-            for i = 1:ns_, ticks{i} = mdefut.ticks_{i}; end
-            ticks{ns} = zeros(1e5,7);
-            mdefut.ticks_ = ticks;
-        end
-    end
+%     % init ticks_
+%     if isempty(mdefut.ticks_)
+%         n = 1e5;%note:this size shall be enough for day trading
+%         d = cell(ns,1);
+%         for i = 1:ns, d{i} = zeros(n,7);end
+%         mdefut.ticks_ = d;
+%     else
+%         ns_ = size(mdefut.ticks_,1);
+%         if ns_ ~= ns
+%             ticks = cell(ns,1);
+%             for i = 1:ns_, ticks{i} = mdefut.ticks_{i}; end
+%             ticks{ns} = zeros(1e5,7);
+%             mdefut.ticks_ = ticks;
+%         end
+%     end
 
     % init ticks_count_
     if isempty(mdefut.ticks_count_)
@@ -191,6 +191,19 @@ function [] = registerinstrument(mdefut,instrument)
             mdefut.ticks_count_ = ticks_count;
         end 
     end
+    
+    % init ticksquick_
+    if isempty(mdefut.ticksquick_)
+        mdefut.ticksquick_ = zeros(ns,7);
+    else
+        ns_ = size(mdefut.ticksquick_,1);
+        if ns_ ~= ns
+            ticksquick = zeros(ns,7);
+            ticksquick(1:ns_,:) = mdefut.ticksquick_;
+            ticksquick(ns_+1:ns,:) = 0;
+            mdefut.ticksquick_ = ticksquick;
+        end
+    end  
     
     % init categories_
     category = getfutcategory(instrument);

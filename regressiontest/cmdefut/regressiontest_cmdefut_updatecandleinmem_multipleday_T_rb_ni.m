@@ -20,7 +20,7 @@ replay_filenames = cell(ncodes,1);
 for i = 1:ncodes
     filenames = cell(ndates,1);
     for j = 1:size(replay_dates,1)
-        filenames{j,1} = ['C:\yangyiran\regressiondata\',codes{i},'_',datestr(replay_dates(j),'yyyymmdd'),'_tick.mat'];
+        filenames{j,1} = [codes{i},'_',datestr(replay_dates(j),'yyyymmdd'),'_tick.mat'];
     end
     replay_filenames{i,1} = filenames;
     mdefut.initreplayer('code',codes{i},'filenames',replay_filenames{i,1});

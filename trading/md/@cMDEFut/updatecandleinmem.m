@@ -1,9 +1,11 @@
 function [] = updatecandleinmem(mdefut)
-    if isempty(mdefut.ticks_), return; end
+%     if isempty(mdefut.ticks_), return; end
+    if isempty(mdefut.ticksquick_), return; end
     if isempty(mdefut.candles4save_), return; end
     if isempty(mdefut.candles_),return;end
     
-    ns = size(mdefut.ticks_,1);
+%     ns = size(mdefut.ticks_,1);
+    ns = size(mdefut.ticksquick_,1);
     count = mdefut.ticks_count_;
     instruments = mdefut.qms_.instruments_.getinstrument;
     for i = 1:ns
@@ -11,8 +13,10 @@ function [] = updatecandleinmem(mdefut)
         category = mdefut.categories_(i);
         buckets = mdefut.candles_{i}(:,1);
         buckets4save = mdefut.candles4save_{i}(:,1);
-        t = mdefut.ticks_{i}(count(i),1);
-        px_trade = mdefut.ticks_{i}(count(i),4);
+%         t = mdefut.ticks_{i}(count(i),1);
+%         px_trade = mdefut.ticks_{i}(count(i),4);
+        t = mdefut.ticksquick_(i,1);
+        px_trade = mdefut.ticksquick_(i,4);
 
         %note:Bloomberg rule
         %open bracket on the left hand side and close bracket on the right

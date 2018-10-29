@@ -1,5 +1,6 @@
 clc;
 clear;
+delete(timerfindall);
 mdefut = cMDEFut;
 mdefut.settimerinterval(0.005);
 
@@ -9,19 +10,23 @@ instr = code2instrument(code);
 mdefut.registerinstrument(instr);
 
 %%
-replay_startdt = '2018-06-04';
-replay_enddt = '2018-06-05';
+replay_startdt = '2018-06-19';
+replay_enddt = '2018-06-20';
 replay_dates = gendates('fromdate',replay_startdt,'todate',replay_enddt);
 replay_filenames = cell(size(replay_dates));
 for i = 1:size(replay_dates,1)
-    replay_filenames{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.txt'];
+    replay_filenames{i} = [code,'_',datestr(replay_dates(i),'yyyymmdd'),'_tick.mat'];
 end
 mdefut.initreplayer('code',code,'filenames',replay_filenames);
 % mdefut.initreplayer('code',code,'fn',replay_filenames{1});
 
 %% start the trading (replay) process
 mdefut.start;
-
+isrunning = strcmpi(mdefut.timer_.running,'on');
+while isrunning
+    isrunning = strcmpi(mdefut.timer_.running,'on');
+    pause(1);
+end
 %% delete all in a safe way
 try
     mdefut.stop;

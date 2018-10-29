@@ -9,7 +9,7 @@ mdefut.registerinstrument(instr);
 
 %%
 checkdt = '2018-06-19';
-replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
+replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 mdefut.initreplayer('code',code,'fn',replay_filename);
 
 %% start the trading (replay) process

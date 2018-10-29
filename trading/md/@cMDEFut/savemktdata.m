@@ -43,9 +43,14 @@ function [] = savemktdata(obj,varargin)
     %need them for the next day trading
     
 
-    if ~isempty(obj.ticks_)
-        obj.ticks_ = {};
-    end
+%     if ~isempty(obj.ticks_)
+%         obj.ticks_ = {};
+%     end
+      
+      if ~isempty(obj.ticksquick_)
+          obj.ticksquick_ = [];
+      end
+    
 %     if ~isempty(obj.candles_), obj.candles_ = {};end
     if ~isempty(obj.candles4save_)
         obj.candles4save_ = {};

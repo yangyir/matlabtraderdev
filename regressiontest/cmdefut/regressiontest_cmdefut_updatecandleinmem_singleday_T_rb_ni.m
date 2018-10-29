@@ -15,7 +15,7 @@ end
 checkdt = '2018-06-19';
 replay_filenames = cell(ncodes,1);
 for i = 1:ncodes
-    replay_filenames{i} = ['C:\yangyiran\regressiondata\',codes{i},'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
+    replay_filenames{i} = [codes{i},'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
     mdefut.initreplayer('code',codes{i},'fn',replay_filenames{i});
 end
 

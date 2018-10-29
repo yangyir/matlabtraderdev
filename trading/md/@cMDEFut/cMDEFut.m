@@ -11,6 +11,7 @@ classdef cMDEFut < cMyTimerObj
         qms_@cQMS
         %real-time data
         ticks_@cell
+        ticksquick_@double
         candles_@cell
         candle_freq_@double
         candles4save_@cell
