@@ -1,14 +1,16 @@
-function calcflag = getcalcsignalflag(obj,instrument)
-    [flag,idx_instrument] = obj.instruments_.hasinstrument(instrument);
+function calcflag = getcalcsignalflag(strategy,instrument)
+%cStrategy
+    [flag,idx_instrument] = strategy.instruments_.hasinstrument(instrument);
     if ~flag
-        error('cStrat:getcalcsignalflag:instrument not found')
+        error('%s:getcalcsignalflag:instrument not found',class(strategy))
     end
     
-    inst = obj.instruments_.getinstrument;
-    if strcmpi(obj.status_,'working')
-        candles = obj.mde_fut_.candles_{idx_instrument};
+%     inst = obj.instruments_.getinstrument;
+    inst = strategy.getinstruments;
+    if strcmpi(strategy.status_,'working')
+        candles = strategy.mde_fut_.candles_{idx_instrument};
         buckets = candles(:,1);
-        tick = obj.mde_fut_.getlasttick(inst{idx_instrument});
+        tick = strategy.mde_fut_.getlasttick(inst{idx_instrument});
         %yangyiran:20180722
         %note:tick might be empty since mdefut runs a bit late than the
         %strategy. this is completely due to different timer associated
@@ -36,13 +38,17 @@ function calcflag = getcalcsignalflag(obj,instrument)
                 this_count = [];
             end
         end
-        %
+        %we need to make sure we need to calc(re-calc) signal here
+        %rule:we start to recalc signal once the candle K is fully
+        %feeded. however, the newset flag is set once the first tick
+        %after the candle bucket arrives and is reset FALSE after the
+        %second tick arrives.
         if ~isempty(this_count)
-            if this_count ~= obj.calsignal_bucket_(idx_instrument)
+            if this_count ~= strategy.calsignal_bucket_(idx_instrument)
                 strategy.calcsignal_(idx_instrument) = 1;
-                obj.calsignal_bucket_(idx_instrument) = this_count;
-                if obj.printflag_
-                    fprintf('\n%s:calc signal at:%s\n',obj.name_,datestr(t,'yyyy-mm-dd HH:MM:SS'));
+                strategy.calsignal_bucket_(idx_instrument) = this_count;
+                if strategy.printflag_
+                    fprintf('\n%s:calc signal of %s at:%s\n',strategy.name_,instrument.code_ctp,datestr(t,'yyyy-mm-dd HH:MM:SS'));
                 end
             else
                 strategy.calcsignal_(idx_instrument) = 0;

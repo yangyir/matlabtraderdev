@@ -2,38 +2,92 @@ function [] = refresh(strategy,varargin)
     %note:cStrat::refresh
     %add sanity check
     if isempty(strategy.mde_fut_) && isempty(strategy.mde_opt_)
+        %note:here we must stop the strategy
         strategy.stop;
-        error('cStrat:refresh:mdefut or mdeopt not registed in strategy......\n')
+        error('%s:refresh:mdefut or mdeopt not registed in strategy......\n',class(strategy))
+    end
+    
+    if isempty(strategy.mde_fut_) && ~isempty(strategy.mde_opt_)
+        %note:here we must stop the strategy
+        strategy.stop;
+        error('%s:refresh:mdeopt case not fully implemented yet......\n',class(strategy))
     end
     
     if isempty(strategy.helper_)
+        %note:here we must stop the strategy
         strategy.stop;
-        error('cStrat:refresh:ops not registed in strategy......\n')
+        error('%s:refresh:ops not registed in strategy......\n',class(strategy))
     end
     
     try
         if strcmpi(strategy.mde_fut_.timer_.running,'off')
-            fprintf('%s stops because %s is off\n',strategy.timer_.Name,strategy.mde_fut_.timer_.Name);
+            fprintf('%s stops because MDE %s is off\n',class(strategy),strategy.mde_fut_.timer_.Name);
             strategy.stop;
             return
         end 
     catch e
-        fprintf('error:cMDEFut::refresh::%s\n',e.message);
+        fprintf('error:%s::refresh::%s\n',class(strategy),e.message);
+        if strcmpi(strategy.onerror_,'stop')
+            strategy.stop;
+        end
         return
     end
     
+    %do nothing if mdefut is sleeping
     if ~isempty(strategy.mde_fut_)
         if strcmpi(strategy.mde_fut_.status_,'sleep'), return; end
     end
+    %do nothing if mdeopt is sleeping
+    if ~isempty(strategy.mde_opt_)
+        if strcmpi(strategy.mde_opt_.status_,'sleep'), return; end
+    end
     
+    %process conditional entrust if there is any
+    try
+        ncondpending = strategy.helper_.condentrustspending_.latest;
+        if ncondpending > 0
+            for i = 1:ncondpending
+                condentrust = strategy.helper_.condentrustspending_.node(i);
+                codestr = condentrust.instrumentCode;
+                condpx = condentrust.price;
+                volume = condentrust.volume;
+                lasttick = strategy.mde_fut_.getlasttick(codestr);
+                if isempty(lasttick), continue; end
+                direction = condentrust.direction;
+                if direction == 1 && lastick(3) >= condpx
+                    strategy.helper_.condentrustspending_.removeByIndex(i);
+                    strategy.longopen(codestr,volume,'overrideprice',condpx);
+                elseif direction == -1 && lastick(2) <= condpx
+                    strategy.helper_.condentrustspending_.removeByIndex(i);
+                    strategy.shortopen(codestr,volume,'overrideprice',condpx);
+                end
+            end
+        end
+    catch e
+        msg = ['error:',class(strategy),':refresh in updating conditional entrusts:',e.message,'\n'];
+        fprintf(msg);
+        if strcmpi(strategy.onerror_,'stop')
+            strategy.stop;
+        end
+    end
+    %
     %update totalequity_, currentmargin_, availablefund_ and frozenmargin_
-    [runningpnl,closedpnl] = strategy.helper_.calcpnl('mdefut',strategy.mde_fut_);
-    totalpnl = sum(sum(runningpnl+closedpnl));
-    strategy.currentequity_ = strategy.preequity_ + totalpnl;
-    strategy.currentmargin_ = strategy.getcurrentmargin;
-    strategy.frozenmargin_ = strategy.getfrozenmargin;
-    strategy.availablefund_ = strategy.currentequity_ - strategy.currentmargin_ - strategy.frozenmargin_;
-    
+    try
+        [runningpnl,closedpnl] = strategy.helper_.calcpnl('mdefut',strategy.mde_fut_);
+        totalpnl = sum(sum(runningpnl+closedpnl));
+        strategy.currentequity_ = strategy.preequity_ + totalpnl;
+        strategy.currentmargin_ = strategy.getcurrentmargin;
+        strategy.frozenmargin_ = strategy.getfrozenmargin;
+        strategy.availablefund_ = strategy.currentequity_ - strategy.currentmargin_ - strategy.frozenmargin_;
+    catch e
+        msg = ['error:',class(strategy),':refresh in updating margins:',e.message,'\n'];
+        fprintf(msg);
+        if strcmpi(strategy.onerror_,'stop')
+            strategy.stop;
+        end
+    end
+    %
+    %update gui
     if ~isempty(strategy.gui_)
         try
             set(strategy.gui_.tradingstats.preinterest_edit,'string',num2str(strategy.preequity_));
@@ -58,55 +112,52 @@ function [] = refresh(strategy,varargin)
                 set(strategy.gui_.tradingstats.time_edit,'string',datestr(now,'dd/mmm HH:MM:SS'));
             end
         catch
+            msg = ['error:',class(strategy),':refresh in updating gui:',e.message,'\n'];
+            fprintf(msg);
+            if strcmpi(strategy.onerror_,'stop')
+                strategy.stop;
+            end
         end
     end
-    
+    %
+    %
     p = inputParser;
     p.CaseSensitive = false; p.KeepUnmatched = true;
     p.addParameter('Time',now,@isnumeric);
     p.parse(varargin{:});
     t = p.Results.Time;
-    
-    inst = strategy.getinstruments;
+    %
+    %update greeks
     try
-        strategy.updategreeks;
+        if ~isempty(strategy.mde_opt_), strategy.updategreeks;end
     catch e
         msg = ['error:',class(strategy),':updategreeks:',e.message,'\n'];
         fprintf(msg);
+        if strcmpi(strategy.onerror_,'stop')
+            strategy.stop;
+        end
     end
     %
+    %risk management
     try
         strategy.riskmanagement(t);
     catch e
         msg = ['error:',class(strategy),':riskmanagment:',e.message,'\n'];
         fprintf(msg);
+        if strcmpi(strategy.onerror_,'stop')
+            strategy.stop;
+        end
     end
     %
-    calcsignalflag = false;
-    signals = {};
+    %generate trading signals
     try
-        if strcmpi(strategy.status_,'working')
-            %note:yangyiran 20180727
-            %we need to make sure we need to calc(re-calc) signal here
-            %rule:we start to recalc signal once the candle K is fully
-            %feeded. however, the newset flag is set once the first tick
-            %after the candle bucket arrives and is reset FALSE after the
-            %second tick arrives.
-            try
-                calcsignalflag = strategy.getcalcsignalflag(inst{1});
-            catch e
-                msg = ['error:cStrat:getcalcsignalflag:',e.message,'\n'];
-                fprintf(msg);
-            end
-            if calcsignalflag
-                signals = strategy.gensignals;
-            else
-                signals = {};
-            end
-        end
+        signals = strategy.gensignals;
     catch e
-        msg = ['error:cStrat:gensignals:',e.message,'\n'];
+        msg = ['error:',class(strategy),':gensignals:',e.message,'\n'];
         fprintf(msg);
+        if strcmpi(strategy.onerror_,'stop')
+            strategy.stop;
+        end
     end
     %
     try
@@ -114,6 +165,9 @@ function [] = refresh(strategy,varargin)
     catch e
         msg = ['error:',class(strategy),':autoplacenewentrusts:',e.message,'\n'];
         fprintf(msg);
+        if strcmpi(strategy.onerror_,'stop')
+            strategy.stop;
+        end
     end
         
 end

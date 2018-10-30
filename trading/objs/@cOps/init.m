@@ -8,6 +8,7 @@ function [obj] = init(obj,varargin)
     obj.entrusts_ = EntrustArray;
     obj.entrustspending_ = EntrustArray;
     obj.entrustsfinished_ = EntrustArray;
+    obj.condentrustspending_ = EntrustArray;
     obj.trades_ = cTradeOpenArray;
     %
     obj.settimerinterval(1);
