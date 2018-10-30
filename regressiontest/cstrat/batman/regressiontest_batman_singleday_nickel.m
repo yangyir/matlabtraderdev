@@ -4,15 +4,36 @@ code = 'ni1809';
 startdt = '2018-06-14';
 enddt = '2018-06-19';
 checkdt = '2018-06-19';
-trade_freq = 3;
 
 %%
+delete(timerfindall);
 replay_speed = 50;
 replay_strat = replay_setstrat('batman','replayspeed',replay_speed);
-replay_strat.registerinstrument(code);
-replay_strat.setsamplefreq(code,trade_freq);
+replay_strat.setavailablefund(1e6,'firstset',true);
+% Name	cStratConfigBatman
+% CodeCTP	ni1809
+% SampleFreq	3m
+% PnLStopType	ABS
+% PnLStop	50000
+% PnLLimitType	ABS
+% PnLLimit	50000
+% BidOpenSpread	0
+% BidCloseSpread	0
+% AskOpenSpread	0
+% AskCloseSpread	0
+% BaseUnits	1
+% MaxUnits	100
+% AutoTrade	1
+% ExecutionPerBucket	1
+% MaxExecutionPerBucket	1
+% BandwidthMin	0.333333
+% BandwidthMax	0.5
+% BandStopLoss	0.01
+% BandTarget	0.02
+% BandType	0
+replay_strat.loadriskcontrolconfigfromfile('filename','batmanconfig_regressiontest.txt');
 %
-replay_filename = ['C:\yangyiran\regressiondata\',code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
+replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.mat'];
 replay_strat.mde_fut_.initreplayer('code',code,'fn',replay_filename);
 replay_strat.initdata;
 replay_strat.mde_fut_.printflag_ = true;
