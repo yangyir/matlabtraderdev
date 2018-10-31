@@ -1,3 +1,0 @@
-script_saveinfo_futures;
-
-script_saveinfo_option;
