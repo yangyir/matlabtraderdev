@@ -18,8 +18,8 @@ function [] = riskmanagement_futmultibatman(obj,dtnum)
         if ~isempty(trade_i.riskmanager_), continue;end
         %
         instrument = trade_i.instrument_;
-        bandwidthmin = obj.getbandwidthmin(instrument);
-        bandwidthmax = obj.getbandwidthmax(instrument);
+        bandwidthmin = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmin');
+        bandwidthmax = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmax');
         
         extrainfo = struct('bandstoploss',NaN,...
             'bandtarget',NaN,...

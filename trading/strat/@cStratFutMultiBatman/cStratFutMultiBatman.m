@@ -37,11 +37,6 @@ classdef cStratFutMultiBatman < cStrat
     %d. if p >= pxWithdawMin && p <= high
     %           do nothing and wait for the next close price
     
-    properties
-        bandwidthmin_@double
-        bandwidthmax_@double
-    end
-    
     methods
         function obj = cStratFutMultiBatman
             obj.name_ = 'stratfutmultibatman';
@@ -75,11 +70,6 @@ classdef cStratFutMultiBatman < cStrat
     end
     
     methods
-        [] = registerinstrument(obj,instrument)
-        [] = setbandwidthmin(obj,instrument,val)
-        [] = setbandwidthmax(obj,instrument,val)
-        val = getbandwidthmin(obj,instrument)
-        val = getbandwidthmax(obj,instrument)
         [ret,e] = placeentrust(obj,instrument,varargin)
         
     end

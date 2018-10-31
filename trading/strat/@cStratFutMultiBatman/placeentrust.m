@@ -3,7 +3,7 @@ function [ret,e] = placeentrust(obj,instrument,varargin)
     if ~strcmpi(obj.status_,'working')
         ret = 0;
         e = [];
-        fprintf('cStratFultMultiBatman:placeentrust is not allowed when the strategy is not working')
+        fprintf('%s:placeentrust is not allowed when the strategy is not working',class(obj))
     end
     
     if ischar(instrument), instrument = code2instrument(instrument); end
