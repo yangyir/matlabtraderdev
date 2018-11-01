@@ -99,6 +99,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     for j = 1:size(candles,1)
                         mdefut.candles_{i}(j,2:end) = candles(j,2:end);
                     end
+                    mdefut.candles_count_(i) = idx;
                 end
             end
             ret = true;
