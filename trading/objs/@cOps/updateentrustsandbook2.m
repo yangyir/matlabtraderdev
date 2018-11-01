@@ -180,7 +180,7 @@ function [] = updateentrustsandbook2(obj)
                                 instrument = trade_i.instrument_;
                                 trade_i.status_ = 'closed';
                                 trade_i.closedatetime1_ = e.complete_time_;
-                                trade_i.closeprice_ = e.dealPrice;
+                                trade_i.closeprice_ = e.price;
                                 trade_i.runningpnl_ = 0;
                                 trade_i.closepnl_ = trade_i.opendirection_*trade_i.openvolume_*(e.price-trade_i.openprice_)/ instrument.tick_size * instrument.tick_value;
                             end

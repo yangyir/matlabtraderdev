@@ -40,7 +40,7 @@ function [] = printallentrusts(obj)
         end
 
         if obj.entrusts_.node(i).volume == obj.entrusts_.node(i).dealVolume
-            fprintf('%12s',num2str(obj.entrusts_.node(i).dealPrice));
+            fprintf('%12s',num2str(obj.entrusts_.node(i).price));
         else
             fprintf('%12s',num2str(obj.entrusts_.node(i).price));
         end

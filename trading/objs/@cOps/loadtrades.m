@@ -75,6 +75,7 @@ function [] = loadtrades(obj,varargin)
         if ~isempty(positions), newBook.setpositions(positions);end
 
         obj.trades_ = livetrades;
+        fprintf('cOps:loadtrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
     catch
         %in case the filename doens't exist    
     end
@@ -82,11 +83,10 @@ function [] = loadtrades(obj,varargin)
     obj.entrusts_ = EntrustArray;
     obj.entrustspending_ = EntrustArray;
     obj.entrustsfinished_ = EntrustArray;
-   
-    fprintf('cOps:loadtrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
-    %
+    obj.condentrustspending_ = EntrustArray;
     %
     if strcmpi(obj.mode_,'replay'), return; end
+    %
     counter = obj.getcounter;
     if ~counter.is_Counter_Login
         counter.login;

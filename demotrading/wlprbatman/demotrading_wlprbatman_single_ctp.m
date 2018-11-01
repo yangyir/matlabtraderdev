@@ -18,7 +18,7 @@ fprintf('\ncombos successfully created...\n');
 combos.strategy.printinfo
 
 %%
-fprintf('\ncombos mdefut ctp login...\');
+fprintf('\ncombos mdefut ctp login...\n');
 combos.mdefut.login('Connection','CTP','CounterName',countername);
 %%
 c = combos.ops.getcounter;
