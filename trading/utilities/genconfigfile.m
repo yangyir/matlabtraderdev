@@ -83,11 +83,11 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
             elseif strcmpi(rownames{i},'pnlstoptype_')
                 fprintf(fid,'%s','ABS');
             elseif strcmpi(rownames{i},'pnlstop_')
-                fprintf(fid,'%s','UNSET');
+                fprintf(fid,'%s','-9.99');
             elseif strcmpi(rownames{i},'pnllimittype_')
                 fprintf(fid,'%s','ABS');
             elseif strcmpi(rownames{i},'pnllimit_')
-                fprintf(fid,'%s','UNSET');
+                fprintf(fid,'%s','-9.99');
             elseif strcmpi(rownames{i},'bidopenspread_')
                 fprintf(fid,'%s','0');
             elseif strcmpi(rownames{i},'bidclosespread_')
@@ -99,7 +99,7 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
             elseif strcmpi(rownames{i},'baseunits_')
                 fprintf(fid,'%s','1');
             elseif strcmpi(rownames{i},'maxunits_')
-                fprintf(fid,'%s','50');
+                fprintf(fid,'%s','10');
             elseif strcmpi(rownames{i},'autotrade_')
                 fprintf(fid,'%s','0');
             elseif strcmpi(rownames{i},'executionperbucket_')
