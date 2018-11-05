@@ -14,10 +14,10 @@ combos = rtt_setup('bookname',bookname,...
 %%
 fprintf('\nprint trades from backtest...\n');
 instruments = combos.strategy.getinstruments;
-startdt = '2018-06-14';
+startdt = '2018-06-04';
 enddt = '2018-06-19';
 checkdt = '2018-06-19';
-trade_freq = 5;
+trade_freq = 15;
 stop_nperiod = 72;
 db = cLocal;
 ninstruments = size(instruments,1);
