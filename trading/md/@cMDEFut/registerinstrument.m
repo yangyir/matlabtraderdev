@@ -26,6 +26,7 @@ function [] = registerinstrument(mdefut,instrument)
         if ns_ ~= ns
             titable = cell(ns,1);
             for i = 1:ns_, titable{i} = mdefut.technical_indicator_table_{i};end
+            mdefut.technical_indicator_table_ = titable;
         end
     end
 

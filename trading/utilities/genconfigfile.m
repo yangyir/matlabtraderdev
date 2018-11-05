@@ -101,11 +101,35 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
             elseif strcmpi(rownames{i},'maxunits_')
                 fprintf(fid,'%s','10');
             elseif strcmpi(rownames{i},'autotrade_')
-                fprintf(fid,'%s','0');
+                if strcmpi(stratname,'wlpr') || strcmpi(stratname,'wlprbatman')
+                    fprintf(fid,'%s','1');
+                else
+                    fprintf(fid,'%s','0');
+                end
             elseif strcmpi(rownames{i},'executionperbucket_')
                 fprintf(fid,'%s','1');
             elseif strcmpi(rownames{i},'maxexecutionperbucket_')
                 fprintf(fid,'%s','1');
+            %wlpr
+            elseif strcmpi(rownames{i},'numofperiod_')
+                fprintf(fid,'%s','144');
+            elseif strcmpi(rownames{i},'overbought_')
+                fprintf(fid,'%s','0');
+            elseif strcmpi(rownames{i},'oversold_')
+                fprintf(fid,'%s','-100');
+            elseif strcmpi(rownames{i},'executiontype_')
+                fprintf(fid,'%s','fixed');    
+            %batman
+            elseif strcmpi(rownames{i},'bandwidthmin_')
+                fprintf(fid,'%s','0.333333');
+            elseif strcmpi(rownames{i},'bandwidthmax_')
+                fprintf(fid,'%s','0.5');
+            elseif strcmpi(rownames{i},'bandstoploss_')
+                fprintf(fid,'%s','0.01');
+            elseif strcmpi(rownames{i},'bandtarget_')
+                fprintf(fid,'%s','0.02');
+            elseif strcmpi(rownames{i},'bandtype_')
+                fprintf(fid,'%s','0');    
             else
                 %TODO:add more properties
             end
