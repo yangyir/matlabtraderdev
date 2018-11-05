@@ -1,0 +1,16 @@
+name	cStratConfig	cStratConfig	cStratConfig	cStratConfig	cStratConfig	cStratConfig	cStratConfig
+codectp	TF1812	T1812	cu1812	al1812	zn1812	pb1812	ni1901
+samplefreq	15m	15m	15m	15m	15m	15m	15m
+pnlstoptype	ABS	ABS	ABS	ABS	ABS	ABS	ABS
+pnlstop	-9.99	-9.99	-9.99	-9.99	-9.99	-9.99	-9.99
+pnllimittype	ABS	ABS	ABS	ABS	ABS	ABS	ABS
+pnllimit	-9.99	-9.99	-9.99	-9.99	-9.99	-9.99	-9.99
+bidopenspread	0	0	0	0	0	0	0
+bidclosespread	0	0	0	0	0	0	0
+askopenspread	0	0	0	0	0	0	0
+askclosespread	0	0	0	0	0	0	0
+baseunits	1	1	1	1	1	1	1
+maxunits	10	10	10	10	10	10	10
+autotrade	0	0	0	0	0	0	0
+executionperbucket	1	1	1	1	1	1	1
+maxexecutionperbucket	1	1	1	1	1	1	1
