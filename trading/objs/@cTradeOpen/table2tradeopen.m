@@ -31,7 +31,7 @@ function [obj] = table2tradeopen(obj,headers,data)
             for k = 1:length(proplist)
                 if isempty(proplist{k}),continue;end
                 if strcmpi(proplist{k},'opensignal_name_'), continue;end
-                if isnumchar(vallist{k})
+                if ~isnan(str2double(vallist{k}))
                     signal.(proplist{k}(length('opensignal_')+1:end)) = str2double(vallist{k});
                 else
                     signal.(proplist{k}(length('opensignal_')+1:end)) = vallist{k};
