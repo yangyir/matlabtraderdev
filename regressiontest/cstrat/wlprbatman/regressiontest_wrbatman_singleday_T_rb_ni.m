@@ -15,12 +15,13 @@ combos = rtt_setup('bookname',bookname,...
 startdt = '2018-06-04';
 enddt = '2018-06-19';
 checkdt = '2018-06-19';
+instruments = combos.strategy.getinstruments;
+ninstruments = size(instruments,1);
 
 %%
 fprintf('\nprint trades from backtest...\n');
-instruments = combos.strategy.getinstruments;
 db = cLocal;
-ninstruments = size(instruments,1);
+
 trades = cell(ninstruments,1);
 trades2check = cell(ninstruments,1);
 for i = 1:ninstruments;
@@ -46,32 +47,31 @@ for i = 1:ninstruments;
     fprintf('%s:\n',instruments{i}.code_ctp);
     for j = 1:trades2check{i}.latest_
         trade_j = trades2check{i}.node_(j);
-        fprintf('id:%2d,opentime:%s,direction:%2d,price:%s,stoptime:%s\n',...
+        fprintf('id:%2d,opentime:%s,direction:%2d,price:%s\n',...
             j,trade_j.opendatetime2_(end-8:end),trade_j.opendirection_,...
-            num2str(trade_j.openprice_),...
-            trade_j.stopdatetime2_(end-8:end));
+            num2str(trade_j.openprice_));
     end
 end
 fprintf('\n');
 % print trades from backtest...
 % T1809:
-% id: 1,opentime: 09:15:01,direction:-1,price:95.22,stoptime: 09:15:00
-% id: 2,opentime: 13:00:01,direction:-1,price:95.24,stoptime: 13:00:00
-% id: 3,opentime: 13:15:01,direction:-1,price:95.405,stoptime: 13:15:00
-% id: 4,opentime: 13:30:01,direction:-1,price:95.44,stoptime: 13:30:00
-% id: 5,opentime: 14:00:01,direction:-1,price:95.445,stoptime: 14:00:00
-% id: 6,opentime: 14:30:01,direction:-1,price:95.54,stoptime: 14:30:00
+% id: 1,opentime: 09:15:01,direction:-1,price:95.22
+% id: 2,opentime: 13:00:01,direction:-1,price:95.24
+% id: 3,opentime: 13:15:01,direction:-1,price:95.405
+% id: 4,opentime: 13:30:01,direction:-1,price:95.44
+% id: 5,opentime: 14:00:01,direction:-1,price:95.445
+% id: 6,opentime: 14:30:01,direction:-1,price:95.54
 % rb1810:
-% id: 1,opentime: 13:30:01,direction: 1,price:3755,stoptime: 14:15:00
-% id: 2,opentime: 13:45:01,direction: 1,price:3748,stoptime: 14:30:00
-% id: 3,opentime: 14:15:01,direction: 1,price:3743,stoptime: 21:00:00
-% id: 4,opentime: 14:30:01,direction: 1,price:3742,stoptime: 21:15:00
+% id: 1,opentime: 13:30:01,direction: 1,price:3755
+% id: 2,opentime: 13:45:01,direction: 1,price:3748
+% id: 3,opentime: 14:15:01,direction: 1,price:3743
+% id: 4,opentime: 14:30:01,direction: 1,price:3742
 % ni1809:
-% id: 1,opentime: 09:00:01,direction: 1,price:114090,stoptime: 13:45:00
-% id: 2,opentime: 14:00:01,direction: 1,price:113400,stoptime: 22:30:00
-% id: 3,opentime: 14:15:01,direction: 1,price:113260,stoptime: 22:45:00
-% id: 4,opentime: 14:30:01,direction: 1,price:112890,stoptime: 23:00:00
-% id: 5,opentime: 21:00:01,direction: 1,price:112420,stoptime: 23:30:00
+% id: 1,opentime: 09:00:01,direction: 1,price:114090
+% id: 2,opentime: 14:00:01,direction: 1,price:113400
+% id: 3,opentime: 14:15:01,direction: 1,price:113260
+% id: 4,opentime: 14:30:01,direction: 1,price:112890
+% id: 5,opentime: 21:00:01,direction: 1,price:112420
 %%
 % replay
 fprintf('\nrunning replay...\n');
@@ -108,7 +108,7 @@ catch err
 end
 combos.strategy.initdata;
 combos.mdefut.printflag_ = false;
-combos.ops.print_timeinterval_ = 60*trade_freq;
+combos.ops.print_timeinterval_ = 60*15;
 fprintf('replay ready...\n');
 
 %%
@@ -170,18 +170,19 @@ for i = 1:ninstruments
         end
     end
 end
-
+% 
 % T1809:
-% id: 1,opentime: 13:03:17,direction:-1,price:95.24,stoptime: 13:00:00,closetime: 13:15:01,pnl:-1700
-% id: 2,opentime: 13:15:01,direction:-1,price:95.405,stoptime: 13:14:59,closetime: 13:30:22,pnl:-250
-% id: 3,opentime: 13:30:01,direction:-1,price:95.44,stoptime: 13:30:00,closetime: 14:10:45,pnl:-150
-% id: 4,opentime: 14:10:21,direction:-1,price:95.445,stoptime: 13:59:59,closetime: 14:15:01,pnl:-800
-% id: 5,opentime: 14:35:29,direction:-1,price:95.54,stoptime: 14:30:00,closetime: 15:00:52,pnl:-200
+% id: 1,opentime: 09:15:00,direction:-1,price:95.22,closetime: 10:00:00,pnl:400
+% id: 2,opentime: 13:03:17,direction:-1,price:95.24,closetime: 13:15:01,pnl:-1700
+% id: 3,opentime: 13:15:01,direction:-1,price:95.41,closetime: 13:30:01,pnl:-200
+% id: 4,opentime: 13:30:01,direction:-1,price:95.44,closetime: 14:10:45,pnl:-150
+% id: 5,opentime: 14:10:23,direction:-1,price:95.445,closetime: 14:15:01,pnl:-800
+% id: 6,opentime: 14:35:29,direction:-1,price:95.54,closetime: 15:00:54,pnl:-200
 % rb1810:
-% id: 1,opentime: 13:32:26,direction: 1,price:3755,closetime: 13:45:02,pnl:-20
-% id: 2,opentime: 13:45:16,direction: 1,price:3748,closetime: 14:15:01,pnl:-10
+% id: 1,opentime: 13:32:26,direction: 1,price:3755,closetime: 13:45:00,pnl:-20
+% id: 2,opentime: 13:45:14,direction: 1,price:3748,closetime: 14:15:01,pnl:-10
 % id: 3,opentime: 14:19:54,direction: 1,price:3743,closetime: 14:37:10,pnl:-30
 % ni1809:
 % id: 1,opentime: 09:04:49,direction: 1,price:114090,closetime: 09:21:08,pnl:-60
 % id: 2,opentime: 14:12:47,direction: 1,price:113400,closetime: 14:15:01,pnl:-140
-% id: 3,opentime: 14:15:01,direction: 1,price:113260,closetime: 14:30:00,pnl:-360
+% id: 3,opentime: 14:15:17,direction: 1,price:113260,closetime: 14:30:00,pnl:-360

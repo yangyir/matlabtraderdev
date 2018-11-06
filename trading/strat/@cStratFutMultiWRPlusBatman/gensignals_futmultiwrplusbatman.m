@@ -52,8 +52,7 @@ function signals = gensignals_futmultiwrplusbatman(strategy)
                 fprintf('%s\n',e.message);
                 continue
             end
-                    
-%             samplefreq = str2double(samplefreqstr(1:end-1));
+            
             lengthofperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','numofperiod');
                     
             %note:first time set highest and lowest
@@ -70,7 +69,7 @@ function signals = gensignals_futmultiwrplusbatman(strategy)
                     
             %note:first time set entrusts
             %IMPORTANT:shall be open entrust
-            n = strategy.helper_.numberofentrusts('Offset','Open');
+            n = strategy.helper_.numberofentrusts('Offset','Open','Code',instruments{i}.code_ctp);
             if n == 0
                 signals{i,1} = struct('name','williamsr',...
                     'instrument',instruments{i},...

@@ -5,10 +5,12 @@ function [n] = numberofentrusts(obj,varargin)
     p.addParameter('Status','all',@ischar);
     p.addParameter('Direction','all',@ischar);
     p.addParameter('Offset','all',@ischar);
+    p.addParameter('Code','all',@ischar);
     p.parse(varargin{:});
     statusin = p.Results.Status;
     directionin = p.Results.Direction;
     offsetin = p.Results.Offset;
+    codein = p.Results.Code;
     
     if ~(strcmpi(statusin,'all') || strcmpi(statusin,'finished') || strcmpi(status,'pending'))
         error('cOps:numberofentrusts:invalid status input')
@@ -50,16 +52,46 @@ function [n] = numberofentrusts(obj,varargin)
         end
     end
     
+    if strcmpi(codein,'all')
+        usecode = 0;
+    else
+        usecode = 1;
+    end
+    
     n = 0;
     for i = 1:entrusts.latest
        if ~usedirection && ~useoffset
-           n = n + 1;
+           if usecode
+               if strcmpi(entrusts.node(i).instrumentCode,codein)
+                   n = n + 1;
+               end
+           else
+               n = n + 1;
+           end
        elseif ~usedirection && useoffset && entrusts.node(i).offsetFlag == useoffset
-           n = n + 1;
+           if usecode
+               if strcmpi(entrusts.node(i).instrumentCode,codein)
+                   n = n + 1;
+               end
+           else
+               n = n + 1;
+           end
        elseif usedirection && entrusts.node(i).direction == usedirection && ~useoffset
-           n = n + 1;
+           if usecode
+               if strcmpi(entrusts.node(i).instrumentCode,codein)
+                   n = n + 1;
+               end
+           else
+               n = n + 1;
+           end
        elseif usedirection && entrusts.node(i).direction == usedirection && useoffset && entrusts.node(i).offsetFlag == useoffset
-           n = n + 1;
+           if usecode
+               if strcmpi(entrusts.node(i).instrumentCode,codein)
+                   n = n + 1;
+               end
+           else
+               n = n + 1;
+           end
        end 
     end
     
