@@ -10,9 +10,13 @@ function [] = settargetfromsignalinfo(obj,signalinfo)
         pxlowest = signalinfo.lowestlow_;
         pxopen = obj.trade_.openprice_;
         direction = obj.trade_.opendirection_;
-        target = direction*(pxhighest-pxlowest)*obj.bandtarget_;
-        tickSize = obj.trade_.instrument_.tick_size;
-        obj.pxtarget_ = pxopen + round(target/tickSize)*tickSize;
+        if obj.bandtarget_ ~= -9.99
+            target = direction*(pxhighest-pxlowest)*obj.bandtarget_;
+            tickSize = obj.trade_.instrument_.tick_size;
+            obj.pxtarget_ = pxopen + round(target/tickSize)*tickSize;
+        else
+            obj.pxtarget_ = NaN;
+        end
         return
     end
     
