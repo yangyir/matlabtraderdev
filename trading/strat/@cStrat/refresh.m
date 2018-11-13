@@ -87,6 +87,21 @@ function [] = refresh(strategy,varargin)
         end
     end
     %
+    %check whether red line is breached or not
+    if ~isempty(strategy.redline_)
+        %if the redline is breached, we will unwind all existing positions
+        if strategy.currentequity_ <= strategy.redline_
+            instruments = strategy.getinstruments;
+            n = strat.count;
+            for i = 1:n
+                flag = strategy.helper_.book_.hasposition(instruments{i});
+                if flag
+                    strat.unwindpositions(instruments{i});
+                end
+            end
+        end
+    end
+    %
     %update gui
     if ~isempty(strategy.gui_)
         try

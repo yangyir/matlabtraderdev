@@ -13,10 +13,14 @@ classdef cStrat < cMyTimerObj
         calcsignal_@double
         %
         preequity_@double
-        currentequity_@double     %number
+        currentequity_@double   %number
         currentmargin_@double   %number
         availablefund_@double   %number
         frozenmargin_@double    %number
+        %
+        %
+        amberline_@double       %critical line below which no new positions are allowed to open
+        redline_@double         %critical line below which all existing positions are forced to close
         
     end
        
@@ -53,6 +57,9 @@ classdef cStrat < cMyTimerObj
         val = getcurrentmargin(obj)
         val = getavailablefund(obj)
         val = getfrozenmargin(obj)
+        %
+        [ret] = setamberline(obj,val)
+        [ret] = setredline(obj,val)
 
     end
     %end of set/get methods

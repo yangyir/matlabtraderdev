@@ -7,6 +7,7 @@ function [ret,errmsg] = riskcontrol2placeentrust(obj,instrument,varargin)
 %   3.not to breach the maximum volume allowance for the instrumet of
 %   interest
 %   4.not to breach the existing margin allowance of strategy
+%   5.not to breach the amber line of the strategy itself
 %
 p = inputParser;
 p.CaseSensitive = false;p.KeepUnmatched = false;
@@ -114,9 +115,21 @@ availablefund = obj.getavailablefund;
 
 if marginrequirement > availablefund
     ret = 0;
-    errmsg = sprintf('%s:failed to place entrust with insufficent funds...',class(obj),num2str(marginrequirement));
+    errmsg = sprintf('%s:failed to place entrust with insufficent funds...',class(obj));
     fprintf('%s\n',errmsg);
     return
+end
+
+%fifth to check whether the amber line of the strategy is breached or not
+currentequity = obj.currentequity_;
+amberline = obj.amberline_;
+if ~isempty(amberline)
+    if currentequity < amberline
+        ret = 0;
+        errmsg = sprintf('%s:failed to place entrust with amberline breached...',class(obj));
+        fprintf('%s\n',errmsg);
+        return
+    end
 end
 
 ret = 1;
