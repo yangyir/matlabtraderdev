@@ -1,6 +1,6 @@
 function [] = setexecutionbucketnumber(strategy,instrument,value)
 %cStrat
-    if ~isnumeric(value), error('cStrat:setexecutionbucketnumber:invalid date type input');end
+    if ~isnumeric(value), error('%s:setexecutionbucketnumber:invalid date type input',class(strategy));end
     
     [flag,idx] = strategy.instruments_.hasinstrument(instrument);
     if ~flag

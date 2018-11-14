@@ -4,6 +4,6 @@ function n = getexecutionbucketnumber(strat,instrument)
     if flag
         n = strat.executionbucketnumber_(idx);
     else
-        error('cStrat:getexecutionbucketnumber:instrument not found')
+        error('%s:getexecutionbucketnumber:instrument not found',class(strat))
     end
 end

@@ -36,6 +36,20 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         candleTime = candleK(end,1);
         if openBucket < candleTime
             trade.status_ = 'set';
+            if isnan(obj.pxstoploss_) && isnan(obj.pxtarget_)
+                %note:in case pxstoploss_ and pxtarget_ are not set here,
+                %we use the high/low as of the open candle for
+                %target/stoploss respectively
+                candleHigh = candleK(end,3);
+                candleLow = candleK(end,4);
+                if trade.opendirection_ == 1
+                    obj.pxstoploss_ = candleLow;
+                    obj.pxtarget_ = candleHigh;
+                else
+                    obj.pxstoploss_ = candleHigh;
+                    obj.pxtarget_ = candleLow;
+                end
+            end
         end
     end
     

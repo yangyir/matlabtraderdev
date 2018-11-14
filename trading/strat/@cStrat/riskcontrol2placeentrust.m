@@ -7,6 +7,8 @@ function [ret,errmsg] = riskcontrol2placeentrust(obj,instrument,varargin)
 %   3.not to breach the maximum volume allowance for the instrumet of
 %   interest
 %   4.not to breach the existing margin allowance of strategy
+%   5.not to breach the amber line of the strategy itself
+%   6.not to breach the maximum execution number per bucket
 %
 p = inputParser;
 p.CaseSensitive = false;p.KeepUnmatched = false;
@@ -43,7 +45,7 @@ else
 end
 
 %first check whether the instrument is registed with the strategy
-flag = obj.instruments_.hasinstrument(instrument);
+[flag,idx] = obj.instruments_.hasinstrument(instrument);
 if ~flag
     ret = 0;
     errmsg = [class(obj),':failed to place entrust as ',code,' not registed with strategy... '];
@@ -114,7 +116,35 @@ availablefund = obj.getavailablefund;
 
 if marginrequirement > availablefund
     ret = 0;
-    errmsg = sprintf('%s:failed to place entrust with insufficent funds...',class(obj),num2str(marginrequirement));
+    errmsg = sprintf('%s:failed to place entrust with insufficent funds...',class(obj));
+    fprintf('%s\n',errmsg);
+    return
+end
+
+%fifth to check whether the amber line of the strategy is breached or not
+currentequity = obj.currentequity_;
+amberline = obj.amberline_;
+if ~isempty(amberline)
+    if currentequity < amberline
+        ret = 0;
+        errmsg = sprintf('%s:failed to place entrust with amberline breached...',class(obj));
+        fprintf('%s\n',errmsg);
+        return
+    end
+end
+
+%sixth to check whether the max execution number per bucket is breached
+try
+    maxexecutionperbucket = obj.riskcontrols_.getconfigvalue('code',code,'propname','maxexecutionperbucket');
+
+catch
+    maxexecutionperbucket = 1;
+    
+end
+numexecuted = obj.executionperbucket_(idx);
+if numexecuted >= maxexecutionperbucket
+    ret = 0;
+    errmsg = sprintf('%s:failed to place entrust with maximum execution per bucket breached...',class(obj));
     fprintf('%s\n',errmsg);
     return
 end

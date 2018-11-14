@@ -69,6 +69,13 @@ function [ret,e,msg] = shortopen(strategy,ctp_code,lots,varargin)
             return
         end
         bidpx = q.bid1;
+        if bidpx > 1e6
+            ret = 0;
+            e = [];
+            msg = sprintf('%s:shortopen:%s reaches lower limit...',class(strategy),ctp_code);
+            fprintf('%s\n',msg);
+            return
+        end
     elseif strcmpi(strategy.mode_,'replay')
         if isopt
             error('cStrat:shortopen:not implemented yet for option in replay mode')

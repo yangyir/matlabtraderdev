@@ -106,8 +106,6 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
                 else
                     fprintf(fid,'%s','0');
                 end
-            elseif strcmpi(rownames{i},'executionperbucket_')
-                fprintf(fid,'%s','1');
             elseif strcmpi(rownames{i},'maxexecutionperbucket_')
                 fprintf(fid,'%s','1');
             %wlpr

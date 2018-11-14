@@ -68,6 +68,13 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
             return
         end
         askpx = q.ask1;
+        if askpx > 1e6
+            ret = 0;
+            e = [];
+            msg = sprintf('%s:longopen:%s reaches upper limit...',class(strategy),ctp_code);
+            fprintf('%s\n',msg);
+            return
+        end
     elseif strcmpi(strategy.mode_,'replay')
         if isopt
             error('cStrat:longopen:not implemented yet for option in replay mode')

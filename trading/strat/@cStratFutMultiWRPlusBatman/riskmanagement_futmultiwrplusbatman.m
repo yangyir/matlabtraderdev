@@ -19,17 +19,25 @@ function [] = riskmanagement_futmultiwrplusbatman(obj,dtnum)
         %
         instrument = trade_i.instrument_;
         bandtype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtype');
-        if bandtype ~= 0, error('cStratFutMultiWRPlusBatman:riskmanagement_futmultiwrplusbatman:invalid type for batman');end
-        
         bandwidthmin = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmin');
         bandwidthmax = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmax');
-        bandstoploss = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandstoploss');
-        bandtarget = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtarget');
         
-        extrainfo = struct('bandstoploss',bandstoploss,...
-            'bandtarget',bandtarget,...
-            'bandwidthmin',bandwidthmin,...
-            'bandwidthmax',bandwidthmax);
+        if bandtype == 0
+            %conventional set-up with bandtype == 0
+            bandstoploss = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandstoploss');
+            bandtarget = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtarget');
+            extrainfo = struct('bandstoploss',bandstoploss,...
+                'bandtarget',bandtarget,...
+                'bandwidthmin',bandwidthmin,...
+                'bandwidthmax',bandwidthmax);
+        elseif bandtype == 1
+            extrainfo = struct('bandstoploss',-9.99,...
+                'bandtarget',-9.99,...
+                'bandwidthmin',bandwidthmin,...
+                'bandwidthmax',bandwidthmax);
+        else
+            error('%s:riskmanagement_futmultiwrplusbatman:invalid bandtype',class(obj))
+        end
         trade_i.setriskmanager('name','batman','extrainfo',extrainfo);        
     end
     
