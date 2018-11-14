@@ -35,9 +35,15 @@ for i = 1:m
     val = propvalues{i,codecol};
     valnum = str2double(val);
     if isnan(valnum)
-        obj.([lower(propnames{i}),'_']) = val;
+        try
+            obj.([lower(propnames{i}),'_']) = val;
+        catch
+        end
     else
-        obj.([lower(propnames{i}),'_']) = valnum;
+        try
+            obj.([lower(propnames{i}),'_']) = valnum;
+        catch
+        end
     end
     
 end

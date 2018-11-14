@@ -1,13 +1,7 @@
 classdef cStratFutMultiWR < cStrat
     
     properties
-        %strategy related 
-        numofperiods_@double
-        tradingfreq_@double
-        overbought_@double
-        oversold_@double
         wr_@double                  %william%R
-        executiontype_@cell
     end
     
     methods
@@ -20,17 +14,8 @@ classdef cStratFutMultiWR < cStrat
     
     methods
         [] = registerinstrument(obj,instrument)
-        [] = setparameters(obj,instrument,params)
-        [] = settradingfreq(obj,instrument,freq)
-        freq = gettradingfreq(obj,instrument)
-        [] = setboundary(obj,instrument,overbought,oversold)
-        [overbought,oversold] = getboundary(obj,instrument)
-        [] = setexecutiontype(obj,instrument,typein)
-        typeout = getexecutiontype(obj,instrument)
         [wr,wrts] = getlastwr(obj,instrument)
         [] = printinfo(obj)
-        [] = readparametersfromtxtfile(obj,fn_)
-        [] = initdata4debug(obj,instrument,dtstart,dtend)
     end
     
     %derived (abstract) methods from superclass
@@ -67,10 +52,7 @@ classdef cStratFutMultiWR < cStrat
         [] = autoplacenewentrusts_futmultiwr(obj,signals)
         [] = initdata_futmultiwr(obj)
     end
-    
-    methods (Static = true)
-        [] = debug(~)
-    end
+
     
 end
 

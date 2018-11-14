@@ -1,5 +1,5 @@
 function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
-    if isempty(obj.helper_), error('cStrat::autoplacenewentrusts::missing helper');end
+    if isempty(obj.helper_), error('%s::autoplacenewentrusts::missing helper!!!',class(obj));end
     for i = 1:size(signals,1)
         signal = signals{i};
         %to check whether this is a valid signal
@@ -29,7 +29,7 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
 %             direction_exist = pos.direction_;
         end
         
-        %note:we trade the  base unit volume till the maximum units are
+        %note:we trade the base unit volume till the maximum units are
         %breached
         if volume_exist == 0
 %             volume = obj.getbaseunits(instrument);

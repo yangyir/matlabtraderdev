@@ -11,7 +11,7 @@ classdef cStandard < cTradeRiskManager
     end
     
     methods
-        [] = riskmanagement(obj,varargin)
+        [unwindtrade] = riskmanagement(obj,varargin)
     end
     
     

@@ -1,56 +1,55 @@
 function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
-    if isempty(strategy.counter_) && ~strcmpi(strategy.mode_,'debug'), return; end
-
+%cStratFutMultiWR
+    if isempty(strategy.helper_), error('%s::autoplacenewentrusts::missing helper!!!',class(strategy));end
     %now check the signals
     for i = 1:size(signals,1)
         signal = signals{i};
-        %firstly to check whether there is a valid signal
+        %to check whether there is a valid signal
         if isempty(signal), continue; end
 
-        %secondly to check whether the instrument is registed with the
-        %strategy itself
+        %to check whether the instrument is set with autotrade flag
         instrument = signal.instrument;
-        [~,ii] = strategy.instruments_.hasinstrument(instrument);
-        if ~strategy.autotrade_(ii),continue;end
-        
-        %third to check whether the signal is unnatural
-        direction = signal.direction;
-        if direction == 0, continue; end
+        autotrade = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','autotrade');
+        if ~autotrade,continue;end
 
-        %fourth to check whether the instrument has been traded or not,
-        %i.e. there is an existing position
-        [flag,idx] = strategy.bookrunning_.hasposition(instrument);
+        %to check whether position for the instrument exists,
+        try
+            [flag,idx] = obj.helper_.book_.hasposition(instrument);
+        catch
+            flag = false;
+            idx = 0;
+        end
         if ~flag
             volume_exist = 0;
-            direction_exist = 0;
         else
-            pos = strategy.bookrunning_.positions_{idx};
+            pos = obj.helper_.book_.positions_{idx};
             volume_exist = pos.position_total_;
-            direction_exist = pos.direction_;
         end
         
-        %note:in case the exist positions are with the different direction
-        %as of the signal, we shall first unwind the existing position and
-        %then open up position with the new direction
-        %maybe some todo here, i am not sure
-        unwind_count = 0;
-        while direction_exist * direction < 0
-            %try to unwind the position
-            strategy.unwindposition(instrument,unwind_count);
-            %update the position and direction
-            pos = strategy.bookrunning_.positions_{idx};
-            volume_exist = pos.position_total_;
-            direction_exist = pos.direction_;
-            unwind_count = unwind_count + 1;
-        end
+        direction = signal.direction;
+        
+%         %note:in case the exist positions are with the different direction
+%         %as of the signal, we shall first unwind the existing position and
+%         %then open up position with the new direction
+%         %maybe some todo here, i am not sure
+%         unwind_count = 0;
+%         while direction_exist * direction < 0
+%             %try to unwind the position
+%             strategy.unwindposition(instrument,unwind_count);
+%             %update the position and direction
+%             pos = strategy.bookrunning_.positions_{idx};
+%             volume_exist = pos.position_total_;
+%             direction_exist = pos.direction_;
+%             unwind_count = unwind_count + 1;
+%         end
 
         %note:in case there is no existing position, we would trade the
         %base units. o/w, the execution methodology is specified
         if volume_exist == 0
-            volume = strategy.getbaseunits(instrument);
+            volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','baseunits');
         else
-            maxvolume = strategy.getmaxunits(instrument);
-            executiontype = strategy.getexecutiontype(instrument);
+            maxvolume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','maxunits');
+            executiontype = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','executiontype');
             if strcmpi(executiontype,'martingale')
                 %note:'martingale' execution type means the existing
                 %position units are traded every time when the signal is
@@ -72,67 +71,59 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         %check wheter we've already executed trades within the
         %bucket and if so check whether the maximum executed number
         %is breached or not
-        bucketnum = strategy.mde_fut_.getcandlecount(instrument);
-        if bucketnum > 0 && bucketnum == strategy.executionbucketnumber_(ii);
-            if strategy.executionperbucket_(ii) >=  strategy.maxexecutionperbucket_(ii)
+        maxexecutionperbucket = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','maxexecutionperbucket');
+        candlebucketnum = strategy.mde_fut_.getcandlecount(instrument);
+        executionbucketnum = strategy.getexecutionbucketnumber(instrument);
+        if candlebucketnum > 0 && candlebucketnum == executionbucketnum;
+            executionfinished = strategy.getexecutionperbucket(instrument);
+            if executionfinished >=  maxexecutionperbucket
                 %note: if the maximum execution time is reached we
                 %won't open up new positions for this bucket
                 continue;
             end
         end
 
-%         if strcmpi(strategy.mode_,'debug')
-%             tick = strategy.mde_fut_.getlasttick(instrument);
-%             bid = tick(2);
-%             ask = tick(3);
-%             if direction < 0
-%                 price =  bid + strategy.bidspread_(ii)*instrument.tick_size;
-%             else
-%                 price =  ask - strategy.askspread_(ii)*instrument.tick_size;
-%             end
-%             if strategy.executionbucketnumber_(ii) ~= bucketnum;
-%                 strategy.executionbucketnumber_(ii) = bucketnum;
-%                 strategy.executionperbucket_(ii) = 1;
-%             else
-%                 strategy.executionperbucket_(ii) = strategy.executionperbucket_(ii)+1;
-%             end
-%             %assuming the entrust is completely filled
-%             strategy.bookrunning_.addpositions('code',instrument.code_ctp,'price',price,...
-%                 'volume',direction*abs(volume),'time',tick(1));
-%             return    
-%         end
-
         %note:there is a maximum limit of 500 entrust placement/withdrawn. as
         %a result, we try to make sure the same entrust, i.e. same underlier
         %futures, entrust price, volume and direction are not repeatly
         %placed.
-        if strcmpi(strategy.mode_,'realtime')
+        bidopenspread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidopenspread');
+        askopenspread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askopenspread');
+        
+        if strcmpi(obj.mode_,'realtime')
+            ordertime = now;
             q = strategy.mde_fut_.qms_.getquote(instrument.code_ctp);
             if direction < 0
-                price = q.bid1 + strategy.bidspread_(ii)*instrument.tick_size;
+                price = q.bid1 + bidopenspread*instrument.tick_size;
             else
-                price = q.ask1 - strategy.askspread_(ii)*instrument.tick_size;
+                price = q.ask1 - askopenspread*instrument.tick_size;
             end
-            ordertime = now;
         else
-            tick = strategy.mde_fut_.getlasttick(instrument);
+            tick = obj.mde_fut_.getlasttick(instrument);
+            if isempty(tick),continue;end
+            ordertime = tick(1);
             bid = tick(2);
             ask = tick(3);
             if direction < 0
-                price =  bid + strategy.bidspread_(ii)*instrument.tick_size;
+                price =  bid + bidopenspread*instrument.tick_size;
             else
-                price =  ask - strategy.askspread_(ii)*instrument.tick_size;
+                price =  ask - askopenspread*instrument.tick_size;
             end
-            ordertime = tick(1);
         end
+        
         withdraw_flag = true;
         n = strategy.helper_.entrustspending_.latest;
         for jj = 1:n
             e = strategy.helper_.entrustspending_.node(jj);
-            f1 = strcmpi(e.instrumentCode,instrument.code_ctp);
-            f2 = e.price == price;
-            f3 = e.volume == abs(volume);
-            if f1&&f2&&f3
+            f1 = strcmpi(e.instrumentCode,instrument.code_ctp);%the same instrument
+            f2 = e.direction == direction; %the same direction
+            if e.direction == 1
+                f3 = e.price <= price;
+            elseif e.direction == -1
+                f3 = e.price >= price;
+            end
+            f4 = e.volume == abs(volume);  %the same volume
+            if f1&&f2&&f3&&f4
                 withdraw_flag = false;
                 break
             end
@@ -144,11 +135,11 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         if withdraw_flag, strategy.withdrawentrusts(instrument); end
                 
         if direction < 0
-            strategy.shortopensingleinstrument(instrument.code_ctp,abs(volume),0,...
-                'overrideprice',price,'time',ordertime);
+            obj.shortopen(instrument.code_ctp,abs(volume),...
+                'overrideprice',highestprice,'time',ordertime,'signalinfo',signal);
         else
-            strategy.longopensingleinstrument(instrument.code_ctp,abs(volume),0,...
-                'overrideprice',price,'time',ordertime);
+            obj.longopen(instrument.code_ctp,abs(volume),...
+                'overrideprice',lowestprice,'time',ordertime,'signalinfo',signal);
         end
 
 %         strategy.counter_.queryEntrust(e);

@@ -1,33 +1,51 @@
 function signals = gensignals_futmultiwr(strategy)
-    if strcmpi(strategy.mode_,'debug'),
-        strategy.printinfo;
-%         n = strategy.portfolio_.count;
-        n = size(strategy.bookrunning_.positions_,1);
-        if n > 0
-            fprintf('holdings:%4.0f\tclose pnl:%4.2f\trunning pnl:%4.2f\n',...
-                strategy.bookrunning_.positions_{1}.direction_*strategy.bookrunning_.positions_{1}.position_total_,...
-                strategy.pnl_close_(1),...
-                strategy.pnl_running_(1));
-        end
-    end
-
+%cStratFutMultiWR
     signals = cell(size(strategy.count,1),1);
-    instruments = strategy.instruments_.getinstrument;
+    instruments = strategy.getinstruments;
 
     for i = 1:strategy.count
-        ti = strategy.mde_fut_.calc_technical_indicators(instruments{i});
-        if ~isempty(ti)
-            strategy.wr_(i) = ti(end);
+        try
+            calcsignalflag = strategy.getcalcsignalflag(instruments{i});
+        catch e
+            calcsignalflag = 0;
+            msg = ['error:%s:getcalcsignalflag:',class(strategy),e.message,'\n'];
+            fprintf(msg);
+            if strcmpi(strategy.onerror_,'stop'), strategy.stop; end
         end
-        if strategy.wr_(i) <= strategy.oversold_(i)
-            signals{i,1} = struct('instrument',instruments{i},...
-                'direction',1);
-        elseif strategy.wr_(i) >= strategy.overbought_(i)
-            signals{i,1} = struct('instrument',instruments{i},...
-                'direction',-1);
-        else
-            signals{i,1} = struct('instrument',instruments{i},...
-                'direction',0);
+        %
+        if ~calcsignalflag
+            signals{i,1} = {};
+        else    
+        
+            ti = strategy.mde_fut_.calc_technical_indicators(instruments{i});
+            if ~isempty(ti)
+                strategy.wr_(i) = ti{1}(1);
+            end
+            overbought = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
+                'propname','overbought');
+            oversold = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
+                'propname','oversold');
+            samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
+               'propname','samplefreq');
+            
+            lengthofperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','numofperiod');
+
+            
+            if strategy.wr_(i) <= oversold
+                signals{i,1} = struct('name','williamsr',...
+                    'instrument',instruments{i},...
+                    'frequency',samplefreqstr,...
+                    'lengthofperiod',lengthofperiod,...
+                    'direction',1);
+            elseif strategy.wr_(i) >= overbought
+                signals{i,1} = struct(...
+                    'instrument',instruments{i},...
+                    'frequency',samplefreqstr,...
+                    'lengthofperiod',lengthofperiod,...
+                    'direction',-1);
+            else
+                signals{i,1} = {};
+            end
         end
     end
 end

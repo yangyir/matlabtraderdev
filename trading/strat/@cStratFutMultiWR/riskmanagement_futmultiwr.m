@@ -1,62 +1,79 @@
 function [] = riskmanagement_futmultiwr(strategy,dtnum)
-    if isempty(strategy.counter_) && ~strcmpi(strategy.mode_,'debug'), return; end
 
-    instruments = strategy.instruments_.getinstrument;
+    ismarketopen = zeros(strategy.count,1);
+    instruments = strategy.getinstruments;
     for i = 1:strategy.count
         %firstly to check whether this is in trading hours
-        ismarketopen = istrading(dtnum,instruments{i}.trading_hours,...
+        ismarketopen(i) = istrading(dtnum,instruments{i}.trading_hours,...
             'tradingbreak',instruments{i}.trading_break);
-        if ~ismarketopen, continue; end
-
-        %secondly to check whether the instrument has been traded
-        %and recorded in the embedded portfolio
-%         [isinstrumenttraded,idx] = strategy.portfolio_.hasposition(instruments{i});
-        [isinstrumenttraded,idx] = strategy.bookrunning_.hasposition(instruments{i});
-
-        if ~isinstrumenttraded, continue; end
-
-        %calculate running pnl in case the embedded porfolio has
-        %got the instrument already
-
-%         position = strategy.portfolio_.pos_list{idx};
-        position = strategy.bookrunning_.positions_{idx};
-        volume = position.direction_*position.position_total_;
-        cost = position.cost_carry_;
-        strategy.calcrunningpnl(instruments{i});
-
-        %                     pnl_ = obj.pnl_running_(i) + obj.pnl_close_(i);
-        pnl_ = strategy.pnl_running_(i);
-
-        multi = instruments{i}.contract_size;
-        if ~isempty(strfind(instruments{i}.code_bbg,'TFC')) ||...
-                ~isempty(strfind(instruments{i}.code_bbg,'TFT'))
-            multi = multi/100;
-        end
-
-        margin = instruments{i}.init_margin_rate;
-        if isempty(margin), margin = 0.1;end
-
-        if strcmpi(strategy.pnl_limit_type_{i},'rel')
-            limit_ = strategy.pnl_limit_(i)*cost*abs(volume)*multi*margin;
-        else
-            limit_ = strategy.pnl_limit_(i);
-        end
-        if limit_ < 0, limit_ = -limit_;end
-
-        if strcmpi(strategy.pnl_stop_type_{i},'rel')
-            stop_ = strategy.pnl_stop_(i)*cost*abs(volume)*multi*margin;
-        else
-            stop_ = strategy.pnl_stop_(i);
-        end
-        if stop_ > 0, stop_ = -stop_;end
-
-        % in case the pnl has either breach the limit or
-        % the stop level, we will unwind the existing
-        % positions
-        if pnl_ >= limit_ || pnl_ <= stop_
-            strategy.unwindposition(instruments{i});
-        end
     end
+    
+    if sum(ismarketopen) == 0, return; end
+
+    ntrades = strategy.helper_.trades_.latest_;
+    %set risk manager
+    for i = 1:ntrades
+        trade_i = strategy.helper_.trades_.node_(i);
+        if strcmpi(trade_i.status_,'closed'), continue; end
+        if ~isempty(trade_i.riskmanager_), continue;end
+        %
+        pxstoploss = -9.99;
+        pxtarget = -9.99;
+            
+        extrainfo = struct('pxstoploss',pxstoploss,...
+                'pxtarget',pxtarget);
+        
+        trade_i.setriskmanager('name','standard','extrainfo',extrainfo);        
+    end
+    
+    %set status of trade
+    for i = 1:ntrades
+        trade_i = strategy.helper_.trades_.node_(i);
+        unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',strategy.mde_fut_,...
+            'UpdatePnLForClosedTrade',false);
+        if ~isempty(unwindtrade)
+            instrument = unwindtrade.instrument_;
+            direction = unwindtrade.opendirection_;
+            code = instrument.code_ctp;
+            volume = unwindtrade.openvolume_;
+            bidclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
+            askclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
+            lasttick = strategy.mde_fut_.getlasttick(instrument);
+            tradeid = unwindtrade.id_;
+                        
+            %we need to unwind the trade
+            if strcmpi(strategy.mode_,'replay')
+                closetodayFlag = 0;
+            else
+                closetodayFlag = isclosetoday(unwindtrade.opendatetime1_,lasttick(1));
+            end
+            if direction == 1
+                overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
+                ret = strategy.shortclose(code,...
+                    volume,...
+                    closetodayFlag,...
+                    'time',lasttick(1),...
+                    'overrideprice',overridepx,...
+                    'tradeid',tradeid);
+            elseif direction == -1
+                overridepx = lasttick(3) - askclosespread*instrument.tick_size;
+                ret = strategy.longclose(code,...
+                    volume,...
+                    closetodayFlag,...
+                    'time',lasttick(1),...
+                    'overrideprice',overridepx,...
+                    'tradeid',tradeid);
+            end
+            %we shall only replace entrust here and we are not sure whether
+            %entrust is executed or not
+            if ~ret
+                fprintf('%s:riskmanagement_futmultiwr:unwind trade failed!!!\n',class(strategy));
+            end  
+            
+        end
+                
+    end
+    
 
 end
 %end of riskmangement

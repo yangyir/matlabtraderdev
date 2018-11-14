@@ -23,7 +23,7 @@ function [ret] = ctplogin(obj,varargin)
     obj.watcher_.ds.login;
     ret = 1;
     if ret
-        fprintf('CTP counter "%s" successfully login!!!\n',countername);
+        fprintf('CTP MD counter "%s" successfully login!!!\n',countername);
     end
     
     

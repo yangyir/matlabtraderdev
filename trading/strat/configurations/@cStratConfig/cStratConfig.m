@@ -10,9 +10,9 @@ classdef cStratConfig < handle
         samplefreq_@char = '5m'       %sample frequency, e.g. 5m, 15m
         
         pnlstoptype_@char = 'abs'     % rel or abs
-        pnlstop_@double = 0          
+        pnlstop_@double = -9.99          
         pnllimittype_@char = 'abs'    % rel or abs
-        pnllimit_@double = 0       
+        pnllimit_@double = -9.99       
                
         %order/entrust related
         %positive bid spread means to order a sell with a higher price

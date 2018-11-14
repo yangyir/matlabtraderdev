@@ -41,6 +41,17 @@ function [] = setriskmanager(obj,varargin)
     elseif strcmpi(name,'standard')
         riskmanager = cStandard;
         riskmanager.trade_ = obj;
+        riskmanager.status_ = 'unset';
+        try
+            riskmanager.pxtarget_ = info.pxtarget;
+        catch
+            riskmanager.pxtarget_ = -9.99;
+        end
+        try
+            riskmanager.pxstoploss_ = info.pxstoploss;
+        catch
+            riskmanager.pxstoploss_ = -9.99;
+        end
         obj.riskmanager_ = riskmanager;
     else
         error('cTradeOpen:setriskmanager:%s not supported',name);

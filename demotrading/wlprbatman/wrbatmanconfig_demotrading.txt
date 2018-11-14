@@ -1,5 +1,5 @@
 Name	cStratConfigWRBatman
-CodeCTP	ni1901
+CodeCTP	sc1812
 SampleFreq	15m
 PnLStopType	ABS
 PnLStop	50000
@@ -7,12 +7,11 @@ PnLLimitType	ABS
 PnLLimit	50000
 BidOpenSpread	0
 BidCloseSpread	0
-AskOpenSpread	0
+AskOpenSpread	3
 AskCloseSpread	0
-BaseUnits	2
-MaxUnits	10
+BaseUnits	1
+MaxUnits	5
 AutoTrade	1
-ExecutionPerBucket	1
 MaxExecutionPerBucket	1
 NumofPeriod	144
 OverBought	0
@@ -20,6 +19,6 @@ OverSold	-100
 ExecutionType	fixed
 BandwidthMin	0.333333
 BandwidthMax	0.5
-BandStopLoss	0.01
-BandTarget	0.02
+BandStopLoss	0.02
+BandTarget	0.03
 BandType	0

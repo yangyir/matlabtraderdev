@@ -45,7 +45,7 @@ else
 end
 
 %first check whether the instrument is registed with the strategy
-[flag,idx] = obj.instruments_.hasinstrument(instrument);
+[flag,idxinstrument] = obj.instruments_.hasinstrument(instrument);
 if ~flag
     ret = 0;
     errmsg = [class(obj),':failed to place entrust as ',code,' not registed with strategy... '];
@@ -141,7 +141,7 @@ catch
     maxexecutionperbucket = 1;
     
 end
-numexecuted = obj.executionperbucket_(idx);
+numexecuted = obj.executionperbucket_(idxinstrument);
 if numexecuted >= maxexecutionperbucket
     ret = 0;
     errmsg = sprintf('%s:failed to place entrust with maximum execution per bucket breached...',class(obj));

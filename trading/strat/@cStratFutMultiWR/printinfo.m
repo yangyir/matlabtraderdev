@@ -1,5 +1,5 @@
 function [] = printinfo(strategy)
-    instruments = strategy.instruments_.getinstrument;
+    instruments = strategy.getinstruments;
     for i = 1:strategy.count
         ticks = strategy.mde_fut_.getlasttick(instruments{i});
         if ~isempty(ticks)
@@ -14,9 +14,9 @@ function [] = printinfo(strategy)
             else
                 candles = strategy.mde_fut_.gethistcandles(instruments{i});
             end
-            t = candles(end,1);
+            t = candles{1}(end,1);
             fprintf('%s %s: trade:%4.1f; williamr:%4.1f\n',...
-                datestr(t,'yyyy-mm-dd HH:MM:SS'),instruments{i}.code_ctp,candles(end,5),strategy.wr_(i));
+                datestr(t,'yyyy-mm-dd HH:MM:SS'),instruments{i}.code_ctp,candles{1}(end,5),strategy.wr_(i));
         end
     end
     fprintf('\n');
