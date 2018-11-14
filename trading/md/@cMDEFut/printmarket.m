@@ -21,7 +21,13 @@ function [] = printmarket(obj)
         for i = 1:n
             code = quotes{i}.code_ctp;
             bid = quotes{i}.bid1;
+            if bid > 1e6
+                bid = NaN;
+            end
             ask = quotes{i}.ask1;
+            if ask > 1e6
+                ask = NaN;
+            end
             timet = datestr(quotes{i}.update_time1,'HH:MM:SS');
             dataformat = '%11s%11s%11s%12s\n';
             

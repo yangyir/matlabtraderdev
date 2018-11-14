@@ -8,6 +8,7 @@ classdef cStrat < cMyTimerObj
         underliers_@cInstrumentArray
         
         executionbucketnumber_@double
+        executionperbucket_@double
         %
         calsignal_bucket_@double
         calcsignal_@double
@@ -44,6 +45,9 @@ classdef cStrat < cMyTimerObj
         %
         [] = setexecutionbucketnumber(obj,instrument,value)
         n = getexecutionbucketnumber(obj,instrument)
+        %
+        [] = setexecutionperbucket(obj,instrument,value)
+        n = getexecutionperbucket(obj,instrument)
         %
         [] = setcalcsignalbucket(obj,instrument,val)
         calcsignalbucket = getcalcsignalbucket(obj)

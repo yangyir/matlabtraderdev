@@ -29,7 +29,6 @@ classdef cStratConfig < handle
         %automatic trading?
         autotrade_@double = 0
         %
-        executionperbucket_@double = 0
         maxexecutionperbucket_@double = 0
         
     end
