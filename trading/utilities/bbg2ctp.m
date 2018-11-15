@@ -14,7 +14,7 @@ for i = 1:length(codestr)
 end
 
 if idx_numchar == 0
-    error('ctp2bbg:invalid ctp code input')
+    error('bbg2ctp:invalid ctp code input')
 end
 
 %double check whether idx_numchar+1 is a numchar or not as for some bbgcode
