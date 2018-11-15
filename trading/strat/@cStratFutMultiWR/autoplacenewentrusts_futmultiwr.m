@@ -9,12 +9,12 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
 
         %to check whether the instrument is set with autotrade flag
         instrument = signal.instrument;
-        autotrade = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','autotrade');
+        autotrade = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','autotrade');
         if ~autotrade,continue;end
 
         %to check whether position for the instrument exists,
         try
-            [flag,idx] = obj.helper_.book_.hasposition(instrument);
+            [flag,idx] = strategy.helper_.book_.hasposition(instrument);
         catch
             flag = false;
             idx = 0;
@@ -22,7 +22,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         if ~flag
             volume_exist = 0;
         else
-            pos = obj.helper_.book_.positions_{idx};
+            pos = strategy.helper_.book_.positions_{idx};
             volume_exist = pos.position_total_;
         end
         
@@ -58,7 +58,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             elseif strcmpi(executiontype,'fixed')
                 %note:'fixed' execution type means the base units are
                 %traded every time when the signal is valid
-                n = strategy.getbaseunits(instrument);
+                n = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','baseunits');
                 volume = max(min(maxvolume-volume_exist,n),0);
             elseif strcmpi(executiontype,'option')
                 error('option execution type not implemented yet')
@@ -90,7 +90,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         bidopenspread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidopenspread');
         askopenspread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askopenspread');
         
-        if strcmpi(obj.mode_,'realtime')
+        if strcmpi(strategy.mode_,'realtime')
             ordertime = now;
             q = strategy.mde_fut_.qms_.getquote(instrument.code_ctp);
             if direction < 0
@@ -99,7 +99,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                 price = q.ask1 - askopenspread*instrument.tick_size;
             end
         else
-            tick = obj.mde_fut_.getlasttick(instrument);
+            tick = strategy.mde_fut_.getlasttick(instrument);
             if isempty(tick),continue;end
             ordertime = tick(1);
             bid = tick(2);
@@ -135,11 +135,11 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         if withdraw_flag, strategy.withdrawentrusts(instrument); end
                 
         if direction < 0
-            obj.shortopen(instrument.code_ctp,abs(volume),...
-                'overrideprice',highestprice,'time',ordertime,'signalinfo',signal);
+            strategy.shortopen(instrument.code_ctp,abs(volume),...
+                'overrideprice',price,'time',ordertime,'signalinfo',signal);
         else
-            obj.longopen(instrument.code_ctp,abs(volume),...
-                'overrideprice',lowestprice,'time',ordertime,'signalinfo',signal);
+            strategy.longopen(instrument.code_ctp,abs(volume),...
+                'overrideprice',price,'time',ordertime,'signalinfo',signal);
         end
 
 %         strategy.counter_.queryEntrust(e);

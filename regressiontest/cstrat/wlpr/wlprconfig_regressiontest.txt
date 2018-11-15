@@ -1,7 +1,7 @@
 numofperiod	144
-overbought	0
-oversold	-100
-executiontype	fixed
+overbought	-1
+oversold	-99
+executiontype	martingale
 name	cStratConfigWR
 codectp	ni1809
 samplefreq	15m

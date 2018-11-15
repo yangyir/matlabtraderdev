@@ -1,9 +1,8 @@
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprconfig_regressiontest.txt'];
-genconfigfile('wlpr',configfile,'instruments',{'ni1809'});
-
-%%
+% genconfigfile('wlpr',configfile,'instruments',{'ni1809'});
+%
 %user inputs:
 clear;clc;delete(timerfindall);
 bookname = 'replay_wlpr';
@@ -68,6 +67,9 @@ end
 fprintf('load historical candle data...\n');
 combos.strategy.initdata;
 combos.strategy.printinfo;
+combos.mdefut.printflag_ = false;
+combos.ops.printflag_ = true;
+% combos.ops.print_timeinterval_ = 60*15;
 fprintf('replay ready...\n');
 %%
 combos.mdefut.start;
@@ -75,3 +77,5 @@ combos.ops.start;
 combos.strategy.start;
 %%
 combos.mdefut.stop
+%%
+combos.ops.printrunningpnl('MDEFut',combos.mdefut)
