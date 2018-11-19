@@ -1,10 +1,18 @@
 classdef cMDEOpt < cMyTimerObj
     %Note: the class of Market Data Engine for listed options
     properties
+        qms_@cQMS
+        %
         options_@cInstrumentArray
         underliers_@cInstrumentArray
-        qms_@cQMS    
-        display_@double = 1
+        %
+        %
+        %for underliers
+        candles_@cell
+        datenum_open_@cell
+        datenum_close_@cell
+        %
+        
     end
     
     properties
@@ -31,17 +39,40 @@ classdef cMDEOpt < cMyTimerObj
     properties (Access = private)
         quotes_@cell
         pivottable_@cell
+        categories_@double
     end
+    
+    methods
+        function obj = cMDEOpt(varargin)
+            obj = init(obj,varargin{:});
+        end
+    end
+    
+    methods
+        %login/logout
+        [ret] = login(obj,varargin)
+        [ret] = logoff(obj)
+    end
+    
     
     methods
         [] = loadoptions(obj,code_ctp_underlier,numstrikes)
         [] = registerinstrument(obj,instrument)
+        %
         [] = refresh(obj,varargin)
+        [] = print(obj,varargin)
+        [] = savemktdata(obj,varargin)
+        [] = savetrades(obj,varargin)
+        [] = loadmktdata(obj,varargin)
+        [] = loadtrades(obj,varargin)
+        [t] = getreplaytime(obj,varargin)
+        %
         tbl = voltable(obj)
         res = getgreeks(obj,instrument)
     end
     
     methods (Access = private)
+        obj = init(obj,varargin)
         [] = savequotes2mem(obj) 
         tbl = genpivottable(obj)
         tbl = displaypivottable(obj)

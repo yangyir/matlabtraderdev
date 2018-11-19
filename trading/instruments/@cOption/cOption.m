@@ -30,9 +30,14 @@ classdef cOption < cInstrument
         trading_break@char
         
         holidays = 'shanghai'
-        
-        
+             
     end
+    
+    
+    properties (GetAccess = public, Dependent = true)
+        break_interval@cell;
+    end
+    
     
     methods
         function [] = delete(obj)
@@ -80,6 +85,37 @@ classdef cOption < cInstrument
             end
             obj.code_H5 = vout;
         end
+        
+        function break_interval = get.break_interval(obj)
+           nlength = length(obj.trading_hours);
+           % 09:00-11:30; which length is 12
+               if length(obj.trading_break)<3
+                   M= round(nlength/12);
+                   break_interval =cell(M,2);
+                   for i = 1:M
+                       break_interval{i,1} = [obj.trading_hours(1+(i-1)*12:5+(i-1)*12),':00'];
+                       break_interval{i,2} = [obj.trading_hours(7+(i-1)*12:11+(i-1)*12),':00'];
+                   end
+               else
+                   nlength2 = length(obj.trading_break);
+                   M1 = round(nlength/12);
+                   M2 = round(nlength2/12);
+                   break_interval = cell(M1+M2,2);
+                   for i =1:(M1+M2)
+                       if i ==1
+                           break_interval{i,1} = [obj.trading_hours(1:5),':00'];
+                           break_interval{i,2} = [obj.trading_break(1:5),':00'];
+                       elseif i ==2
+                           break_interval{i,1} = [obj.trading_break(7:11),':00'];
+                           break_interval{i,2} = [obj.trading_hours(7:11),':00'];
+                       else
+                           break_interval{i,1} = [obj.trading_hours(1+(i-2)*12:5+(i-2)*12),':00'];
+                           break_interval{i,2} = [obj.trading_hours(7+(i-2)*12:11+(i-2)*12),':00'];
+                       end
+                   end
+               end
+        end
+        
         
         function obj = cOption(codestr)
             if nargin < 1

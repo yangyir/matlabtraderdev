@@ -53,8 +53,20 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
             obj.impvol = 0.01;
         end
     else
-        %TODO
-        error('not implemeneted')
+        mid = 0.5*(obj.bid_underlier + obj.ask_underlier);
+        midopt = 0.5*(obj.bid1 + obj.ask1);
+        r = obj.riskless_rate;
+        if strcmpi(obj.opt_type,'C')
+            opttype = 'Calls';
+        else
+            opttype = 'Puts';
+        end
+        warning('off')
+        obj.impvol = blkimpv(mid,obj.opt_strike,r,obj.opt_business_tau,midopt,[],[],{opttype});
+        if isnan(obj.impvol )
+            obj.impvol = 0.01;
+        end
+        
     end
 
 
@@ -73,8 +85,18 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
         obj.delta = (pxUp - pxDn)/(midUp-midDn);
         obj.gamma = (pxUp+pxDn-obj.bid1-obj.ask1)/(0.005^2)*0.01/mid;
     else
-        %TODO
-        error('not implemeneted')
+        midUp = mid*(1+0.005);
+        midDn = mid*(1-0.005);
+        if strcmpi(obj.opt_type,'C')
+            pxUp = blkprice(midUp,obj.opt_strike,r,obj.opt_business_tau,obj.impvol);
+            pxDn = blkprice(midDn,obj.opt_strike,r,obj.opt_business_tau,obj.impvol);
+        else
+            [~,pxUp] = blkprice(midUp,obj.opt_strike,r,obj.opt_business_tau,obj.impvol);
+            [~,pxDn] = blkprice(midDn,obj.opt_strike,r,obj.opt_business_tau,obj.impvol);
+        end
+        %note:we record the percentage level delta and gamma
+        obj.delta = (pxUp - pxDn)/(midUp-midDn);
+        obj.gamma = (pxUp+pxDn-obj.bid1-obj.ask1)/(0.005^2)*0.01/mid;
     end
 
     %calculate theta
@@ -87,8 +109,15 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
         end
         obj.theta = pxCarry - 0.5*(obj.bid1 + obj.ask1);
     else
-        %TODO
-        error('not implemeneted')
+        datecarry = businessdate(cob_date);
+        bds = gendates('fromdate',datecarry,'todate',obj.opt_expiry_date1);
+        tau = length(bds)/252;
+        if strcmpi(obj.opt_type,'C')
+            pxCarry = blkprice(mid,obj.opt_strike,r,tau,obj.impvol);
+        else
+            [~,pxCarry] = blkprice(mid,obj.opt_strike,r,tau,obj.impvol);
+        end
+        obj.theta = pxCarry - 0.5*(obj.bid1 + obj.ask1);
     end
 
     %calculate vega
@@ -104,8 +133,16 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
         end
         obj.vega = pxVolUp - pxVolDn;
     else
-        %TODO
-        error('not implemeneted')
+        ivUp = obj.impvol + 0.005;
+        ivDn = obj.impvol - 0.005;
+        if strcmpi(obj.opt_type,'C')
+            pxVolUp = blkprice(mid,obj.opt_strike,r,obj.opt_business_tau,ivUp);
+            pxVolDn = blkprice(mid,obj.opt_strike,r,obj.opt_business_tau,ivDn);
+        else
+            [~,pxVolUp] = blkprice(mid,obj.opt_strike,r,obj.opt_business_tau,ivUp);
+            [~,pxVolDn] = blkprice(mid,obj.opt_strike,r,obj.opt_business_tau,ivDn);
+        end
+        obj.vega = pxVolUp - pxVolDn;    
     end
 
 end

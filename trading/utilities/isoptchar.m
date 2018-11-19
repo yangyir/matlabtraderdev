@@ -10,6 +10,9 @@ function [flag,opt_type,opt_strike,underlierstr,opt_expiry] = isoptchar(codestr)
 %code-option type-option strike, e.g.m1801-C-2700
 %however, the format of comdty option traded in zhengzhou is as of: future
 %ctp code option type option strike, e.g.SR801C6600
+%
+%the format of copper option traded in shanghai is as of:future ctop code
+%option type option strike, e.g.cu1901C50000
 
 
 flag = false;
@@ -61,7 +64,21 @@ for i = 1:size(codelist)
                 mmnum_opt = mmnum - 1;
                 yynum_opt = yynum;
             end
-            opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,5,1);     
+            opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,5,1);
+        elseif strcmpi(exlist{i},'.SHF')
+            underlierstr = [assetshortcode,tenor(1:4)];
+            mmnum = str2double(tenor(3:4));
+            yynum = 2000+str2double(tenor(1:2));
+            %shanghai:the expiry date of the option is on the last 5 business date of the
+            %pre-month of the underlier futures' exiry
+            if mmnum == 1
+                mmnum_opt = 12;
+                yynum_opt = yynum - 1;
+            else
+                mmnum_opt = mmnum - 1;
+                yynum_opt = yynum;
+            end
+            opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,5,-1);     
         else
             underlierstr = [assetshortcode,tenor(1:3)];
             mmnum = str2double(tenor(2:3));

@@ -10,7 +10,7 @@ function [] = refresh(obj,varargin)
         obj.savequotes2mem;
         
         fprintf('%s mdeopt runs......\n',datestr(now,'yyyy-mm-dd HH:MM:SS'));
-        if obj.display_, obj.displaypivottable; end
+%         if obj.printflag_, obj.displaypivottable; end
         
         %fill greeks
         options = obj.options_.getinstrument;
@@ -44,6 +44,7 @@ function [] = refresh(obj,varargin)
                     [~,pvcarrydn] = bjsprice(pxdn,k,r,nextdate,expirydate,iv,r);
                 end
             else
+                tau = q.opt_business_tau-1/252;
                 if strcmpi(options{i}.opt_type,'C')
                     pvcarry = blkprice(px,k,r,tau,iv);
                     pvcarryup = blkprice(pxup,k,r,tau,iv);

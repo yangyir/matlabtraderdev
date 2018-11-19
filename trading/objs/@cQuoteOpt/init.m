@@ -20,6 +20,11 @@ function [] = init(obj,codestr)
         obj.opt_expiry_date2 = datestr(expiry,'yyyy-mm-dd');
 
         obj.init_flag = true;
+        
+        if ~isempty(strfind(codestr,'cu'))
+            obj.opt_american = false;
+        end
+        
     else
         obj.init_flag = false;
     end
