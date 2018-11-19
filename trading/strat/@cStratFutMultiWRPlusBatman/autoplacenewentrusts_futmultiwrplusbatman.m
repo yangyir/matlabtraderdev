@@ -32,12 +32,9 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         %note:we trade the base unit volume till the maximum units are
         %breached
         if volume_exist == 0
-%             volume = obj.getbaseunits(instrument);
             volume = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','baseunits');
         else
-%             maxvolume = obj.getmaxunits(instrument);
             maxvolume = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','maxunits');
-%             npending = obj.getbaseunits(instrument);
             npending = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','baseunits');
             volume = max(min(maxvolume-volume_exist,npending),0);            
         end
@@ -120,13 +117,18 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
         end
            
         if place_entrustshort_flag
+            bidopenspread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidopenspread');
+            price = highestprice + bidopenspread*instrument.tick_size;
             obj.shortopen(instrument.code_ctp,abs(volume),...
-                'overrideprice',highestprice,'time',ordertime,'signalinfo',signal);
+                'overrideprice',price,'time',ordertime,'signalinfo',signal);
+            
         end
         
         if place_entrustlong_flag
+            askopenspread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askopenspread');
+            price = lowestprice - askopenspread*instrument.tick_size;
             obj.longopen(instrument.code_ctp,abs(volume),...
-                'overrideprice',lowestprice,'time',ordertime,'signalinfo',signal);
+                'overrideprice',price,'time',ordertime,'signalinfo',signal);
         end
         
     end
