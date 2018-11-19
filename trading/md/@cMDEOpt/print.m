@@ -10,8 +10,7 @@ function [] = print(obj,varargin)
         fprintf('%s:mdeopt sleeps......\n',datestr(time,'yyyy-mm-dd HH:MM:SS'));
     elseif strcmpi(obj.status_,'working')
         isanyinstrumenttrading = false;
-        instruments = obj.qms_.instruments_.getinstrument;
-        n = obj.qms_.instruments_.count;
+        n = obj.underliers_.count;
         for i = 1:n
             dtnum_open = obj.datenum_open_{i};
             dtnum_close = obj.datenum_close_{i};
@@ -23,7 +22,7 @@ function [] = print(obj,varargin)
             end
         end
         if isanyinstrumenttrading
-            obj.displaypivottable
+            obj.displaypivottable;
         end
         
     end

@@ -65,15 +65,15 @@ function tbl = displaypivottable(obj)
         if i > 1 && ~strcmpi(obj.pivottable_{i,1},obj.pivottable_{i-1,1}) ,fprintf('\n'); end
 
         fprintf('%12s ', obj.pivottable_{i,3});
-        fprintf('%6.1f ',bc);
-        fprintf('%6.1f ',ac);
+        fprintf('%6s ',num2str(bc));
+        fprintf('%6s ',num2str(ac));
         fprintf('%6.1f%% ',ivc*100);
-        fprintf('%6.0f ',strike);
+        fprintf('%6s ',num2str(strike));
         fprintf('%14s ', obj.pivottable_{i,4});
-        fprintf('%6.1f ',bp);
-        fprintf('%6.1f ',ap);
+        fprintf('%6s ',num2str(bp));
+        fprintf('%6s ',num2str(ap));
         fprintf('%6.1f%% ',ivp*100);
-        fprintf('%9.1f ',um);
+        fprintf('%9s ',num2str(um));
         fprintf('\n');
 
     end

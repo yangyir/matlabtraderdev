@@ -62,7 +62,8 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
             opttype = 'Puts';
         end
         warning('off')
-        obj.impvol = blkimpv(mid,obj.opt_strike,r,obj.opt_business_tau,midopt,[],[],{opttype});
+%         obj.impvol = blkimpv(mid,obj.opt_strike,r,obj.opt_business_tau,midopt,[],[],{opttype});
+        obj.impvol = blkimpv(mid,obj.opt_strike,r,obj.opt_calendar_tau,midopt,[],[],{opttype});
         if isnan(obj.impvol )
             obj.impvol = 0.01;
         end
@@ -88,11 +89,11 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
         midUp = mid*(1+0.005);
         midDn = mid*(1-0.005);
         if strcmpi(obj.opt_type,'C')
-            pxUp = blkprice(midUp,obj.opt_strike,r,obj.opt_business_tau,obj.impvol);
-            pxDn = blkprice(midDn,obj.opt_strike,r,obj.opt_business_tau,obj.impvol);
+            pxUp = blkprice(midUp,obj.opt_strike,r,obj.opt_calendar_tau,obj.impvol);
+            pxDn = blkprice(midDn,obj.opt_strike,r,obj.opt_calendar_tau,obj.impvol);
         else
-            [~,pxUp] = blkprice(midUp,obj.opt_strike,r,obj.opt_business_tau,obj.impvol);
-            [~,pxDn] = blkprice(midDn,obj.opt_strike,r,obj.opt_business_tau,obj.impvol);
+            [~,pxUp] = blkprice(midUp,obj.opt_strike,r,obj.opt_calendar_tau,obj.impvol);
+            [~,pxDn] = blkprice(midDn,obj.opt_strike,r,obj.opt_calendar_tau,obj.impvol);
         end
         %note:we record the percentage level delta and gamma
         obj.delta = (pxUp - pxDn)/(midUp-midDn);
@@ -110,8 +111,7 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
         obj.theta = pxCarry - 0.5*(obj.bid1 + obj.ask1);
     else
         datecarry = businessdate(cob_date);
-        bds = gendates('fromdate',datecarry,'todate',obj.opt_expiry_date1);
-        tau = length(bds)/252;
+        tau = (obj.opt_expiry_date1 - datecarry)/365;
         if strcmpi(obj.opt_type,'C')
             pxCarry = blkprice(mid,obj.opt_strike,r,tau,obj.impvol);
         else
@@ -136,11 +136,11 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
         ivUp = obj.impvol + 0.005;
         ivDn = obj.impvol - 0.005;
         if strcmpi(obj.opt_type,'C')
-            pxVolUp = blkprice(mid,obj.opt_strike,r,obj.opt_business_tau,ivUp);
-            pxVolDn = blkprice(mid,obj.opt_strike,r,obj.opt_business_tau,ivDn);
+            pxVolUp = blkprice(mid,obj.opt_strike,r,obj.opt_calendar_tau,ivUp);
+            pxVolDn = blkprice(mid,obj.opt_strike,r,obj.opt_calendar_tau,ivDn);
         else
-            [~,pxVolUp] = blkprice(mid,obj.opt_strike,r,obj.opt_business_tau,ivUp);
-            [~,pxVolDn] = blkprice(mid,obj.opt_strike,r,obj.opt_business_tau,ivDn);
+            [~,pxVolUp] = blkprice(mid,obj.opt_strike,r,obj.opt_calendar_tau,ivUp);
+            [~,pxVolDn] = blkprice(mid,obj.opt_strike,r,obj.opt_calendar_tau,ivDn);
         end
         obj.vega = pxVolUp - pxVolDn;    
     end
