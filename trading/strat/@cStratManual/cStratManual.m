@@ -35,9 +35,15 @@ classdef cStratManual < cStrat
     end
     
     methods (Access = public)
-        %some technical analysis associated funcs
+        %some technical analysis related funcs
         wrinfo = wlpr(obj,instrument,nperiod)
-        
+        [] = stratplot(obj,instrument,varargin)
+    end
+    
+    methods (Access = public)
+        %some trading related funcs
+        [ret,entrusts] = placeentrusts(obj,varargin)
+        [ret] = placeconditionalentrusts(obj,varargin)
     end
     
     
