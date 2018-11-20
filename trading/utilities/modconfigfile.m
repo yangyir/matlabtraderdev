@@ -40,12 +40,12 @@ function [ret] = modconfigfile(filename,varargin)
         config2mod = configs.node_(idx);
         for i = 1:size(propnames);
             try
-                config2mod.([lower(propnames{i},'_']) = propvalues{i};
+                config2mod.([lower(propnames{i}),'_']) = propvalues{i};
             catch
-                fprintf('WARNING:modconfigfile:%s is not a property of %s!!!\n',propnames{i},class(config2mode));
+                fprintf('WARNING:modconfigfile:%s is not a property of %s!!!\n',propnames{i},class(config2mod));
             end
         end
-        configs.to
+        configs.totxt('filename',filename);
         
         
     else

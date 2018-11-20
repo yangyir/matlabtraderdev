@@ -35,6 +35,7 @@ classdef cStratConfigArray < cArray
         [ret] = hasconfig(obj,config)
         [config] = getconfig(obj,varargin)
         [val] = getconfigvalue(obj,varargin)
+        [ret] = totxt(obj,varargin)
     end
     
     methods (Static = true)

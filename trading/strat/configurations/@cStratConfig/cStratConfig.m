@@ -2,7 +2,7 @@ classdef cStratConfig < handle
     %class cStratConfig
     %used in trading for storing all parameters
     
-    properties (GetAccess = public, SetAccess = private)
+    properties (GetAccess = public, SetAccess = public)
         name_@char
         
         codectp_@char
