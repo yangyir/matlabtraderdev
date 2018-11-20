@@ -1,24 +1,24 @@
-Name	cStratConfigWRBatman
-CodeCTP	sc1812
-SampleFreq	15m
-PnLStopType	ABS
-PnLStop	50000
-PnLLimitType	ABS
-PnLLimit	50000
-BidOpenSpread	0
-BidCloseSpread	0
-AskOpenSpread	3
-AskCloseSpread	0
-BaseUnits	1
-MaxUnits	5
-AutoTrade	1
-MaxExecutionPerBucket	1
-NumofPeriod	144
-OverBought	0
-OverSold	-100
-ExecutionType	fixed
-BandwidthMin	0.333333
-BandwidthMax	0.5
-BandStopLoss	0.02
-BandTarget	0.03
-BandType	0
+Name	cStratConfigWRBatman	cStratConfigWRBatman	cStratConfigWRBatman	cStratConfigWRBatman
+CodeCTP	sc1901	ni1901	zn1901	al1901
+SampleFreq	15m	15m	15m	15m
+PnLStopType	ABS	ABS	ABS	ABS
+PnLStop	-9.99	-9.99	-9.99	-9.99	
+PnLLimitType	ABS	ABS	ABS	ABS
+PnLLimit	-9.99	-9.99	-9.99	-9.99
+BidOpenSpread	10	10	10	10	
+BidCloseSpread	0	0	0	0
+AskOpenSpread	5	5	5	5
+AskCloseSpread	0	0	0	0
+BaseUnits	1	2	1	1
+MaxUnits	5	10	8	8	
+AutoTrade	1	1	1	1
+MaxExecutionPerBucket	1	1	1	1
+NumofPeriod	144	144	144	144
+OverBought	0	0	0	0
+OverSold	-100	-100	-100	-100
+ExecutionType	fixed	fixed	fixed	fixed
+BandwidthMin	0.333333	0.333333	0.333333	0.333333
+BandwidthMax	0.5	0.5	0.5	0.5
+BandStopLoss	0.02	0.02	0.02	0.02
+BandTarget	0.03	0.03	0.03	0.03
+BandType	0	0	0	0
