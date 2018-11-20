@@ -4,7 +4,7 @@ countername = 'citic_kim_fut';
 bookname = 'book-demotrading-wlprbatman';
 strategyname = 'wlprbatman';
 riskconfigfilename = 'wrbatmanconfig_demotrading.txt';
-% tradesfilename = 'C:\yangyiran\ops\save\citic_kim_fut-book-demotrading-wlprbatman\citic_kim_fut-book-demotrading-wlprbatman_trades_20181101.txt';
+% tradesfilename = 'C:\yangyiran\ops\save\citic_kim_fut-book-demotrading-wlprbatman\citic_kim_fut-book-demotrading-wlprbatman_trades_20181115.txt';
 tradesfilename = '';
 combos = rtt_setup('CounterName',countername,...
     'BookName',bookname,...
@@ -45,3 +45,5 @@ warning('on');
 c.logout
 %%
 combos.mdefut.logoff
+%%
+combos.strategy.unwindpositions('sc1901');
