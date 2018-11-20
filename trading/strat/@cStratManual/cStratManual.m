@@ -1,11 +1,13 @@
 classdef cStratManual < cStrat
     
     properties
+        usehistoricaldata_@logical
     end
     
     methods
         function obj = cStratManual
             obj.name_ = 'stratmanual';
+            obj.usehistoricaldata_ = false;
         end
         
         function signals = gensignals(obj)
@@ -28,9 +30,19 @@ classdef cStratManual < cStrat
         end
         
         function [] = initdata(obj)
-            variablenotused(obj);
-        end
+            obj.initdata_manual;
+        end 
+    end
+    
+    methods (Access = public)
+        %some technical analysis associated funcs
+        wrinfo = wlpr(obj,instrument,nperiod)
         
+    end
+    
+    
+    methods (Access = private)
+        [] = initdata_manual(obj)
     end
     
 end
