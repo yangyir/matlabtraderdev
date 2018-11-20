@@ -1,4 +1,8 @@
 function output = opt_eodinfo(opt,cobdate)
+    if ischar(opt)
+        opt = code2instrument(opt);
+    end
+
     if ~isa(opt,'cOption')
         error('opt_eodinfo:invalid option input')
     end
@@ -23,7 +27,7 @@ function output = opt_eodinfo(opt,cobdate)
     if opt.opt_american
         iv = bjsimpv(price,k,r,datenum(cobdate),opt.opt_expiry_date1,pv,[],r,[],optclass);
     else
-        tau = (sec.opt_expiry_date1 - datenum(cobdate))/365;
+        tau = (opt.opt_expiry_date1 - datenum(cobdate))/365;
         iv = blkimpv(price,k,r,tau,pv,[],[],{optclass});
     end
     
@@ -36,8 +40,8 @@ function output = opt_eodinfo(opt,cobdate)
             [~,pvcarry] = bjsprice(price,k,r,carrydate,opt.opt_expiry_date1,iv,r);
         end
     else
-        taucarry = (sec.opt_expiry_date1 - carrydate)/365;
-        if strcmpi(sec.opt_type,'C')
+        taucarry = (opt.opt_expiry_date1 - carrydate)/365;
+        if strcmpi(opt.opt_type,'C')
             pvcarry = blkprice(price,k,r,taucarry,iv);
         else
             [~,pvcarry] = blkprice(price,k,r,taucarry,iv);
@@ -96,8 +100,8 @@ function output = opt_eodinfo(opt,cobdate)
         'pv',pv,...    
         'iv',iv,...
         'theta',theta,...
-        'delta',delta,...
-        'gamma',gamma,...
+        'delta',delta*price,...
+        'gamma',gamma*price,...
         'vega',vega);
     
     
