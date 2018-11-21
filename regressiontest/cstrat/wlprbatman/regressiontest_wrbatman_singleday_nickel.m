@@ -131,13 +131,13 @@ for j = 1:trades.latest_
 end
 % results as of the old version:i.e only 1 instrument and run through tick
 % time rather than calendar time directly:
-% id: 1,opentime: 09:04:50,direction: 1,price:114090,stoptime: 14:54:00,closetime: 09:06:05,pnl:-610
-% id: 2,opentime: 09:06:01,direction: 1,price:113470,stoptime: 14:57:00,closetime: 09:48:01,pnl:510
-% id: 3,opentime: 14:12:51,direction: 1,price:113400,stoptime: 23:48:00,closetime: 14:15:01,pnl:-140
-% id: 4,opentime: 14:15:18,direction: 1,price:113260,stoptime: 23:51:00,closetime: 14:18:02,pnl:-140
-% id: 5,opentime: 14:18:04,direction: 1,price:113120,stoptime: 23:54:00,closetime: 14:21:10,pnl:-90
-% id: 6,opentime: 14:26:06,direction: 1,price:113010,stoptime: 00:00:00,closetime: 14:28:29,pnl:-40
-% id: 7,opentime: 14:28:20,direction: 1,price:113000,stoptime: 00:03:00,closetime: 14:30:02,pnl:-100
-% id: 8,opentime: 14:30:04,direction: 1,price:112890,stoptime: 00:06:00,closetime: 14:33:25,pnl:-50
-% id: 9,opentime: 14:33:16,direction: 1,price:112870,stoptime: 00:09:00,closetime: 14:36:06,pnl:-50
-% id:10,opentime: 14:36:19,direction: 1,price:112790,stoptime: 00:12:00,closetime: 14:40:10,pnl:-200
+% id: 1,opentime: 09:04:49,direction: 1,price:114090,stoptime: 14:53:59,closetime: 09:04:50,pnl:-170
+% id: 2,opentime: 09:06:00,direction: 1,price:113470,stoptime: 14:57:00,closetime: 09:48:01,pnl:510
+% id: 3,opentime: 14:12:47,direction: 1,price:113400,stoptime: 23:48:00,closetime: 14:15:19,pnl:-160
+% id: 4,opentime: 14:15:01,direction: 1,price:113260,stoptime: 23:51:00,closetime: 14:18:04,pnl:-170
+% id: 5,opentime: 14:18:01,direction: 1,price:113120,stoptime: 23:53:59,closetime: 14:27:01,pnl:40
+% id: 6,opentime: 14:21:02,direction: 1,price:113010,stoptime: 23:57:00,closetime: 14:30:00,pnl:-110
+% id: 7,opentime: 14:28:09,direction: 1,price:113000,stoptime: 00:02:59,closetime: 14:34:13,pnl:-180
+% id: 8,opentime: 14:30:02,direction: 1,price:112890,stoptime: 00:06:00,closetime: 14:36:55,pnl:-190
+% id: 9,opentime: 14:33:10,direction: 1,price:112870,stoptime: 00:09:00,closetime: 14:37:05,pnl:-190
+% id:10,opentime: 14:36:16,direction: 1,price:112790,stoptime: 00:11:59,closetime: 14:38:06,pnl:-190

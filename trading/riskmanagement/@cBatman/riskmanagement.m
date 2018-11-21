@@ -1,4 +1,5 @@
 function [unwindtrade] = riskmanagement(obj,varargin)
+%cBatman
     unwindtrade = {};
     if strcmpi(obj.status_,'closed'), return; end
 
@@ -12,16 +13,10 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     debug = p.Results.Debug;
     updatepnlforclosedtrade = p.Results.UpdatePnLForClosedTrade;
     
-    if isempty(mdefut)
-        unwindtrade = [];
-        return
-    end
+    if isempty(mdefut), return; end
     
     trade = obj.trade_;
-    if strcmpi(trade.status_,'closed') 
-        unwindtrade = [];
-        return
-    end
+    if strcmpi(trade.status_,'closed'), return; end
      
     instrument = trade.instrument_;
     candleCell = mdefut.getcandles(instrument);
@@ -29,32 +24,12 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     candleK = candleCell{1};
     buckets = candleK(:,1);
     
-    if strcmpi(trade.status_,'unset')
-        %set the trade when the candle moves to the next candle after the
-        %trade open
-        openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
-        candleTime = candleK(end,1);
-        if openBucket < candleTime
-            trade.status_ = 'set';
-            if isnan(obj.pxstoploss_) && isnan(obj.pxtarget_)
-                %note:in case pxstoploss_ and pxtarget_ are not set here,
-                %we use the high/low as of the open candle for
-                %target/stoploss respectively
-                candleHigh = candleK(end,3);
-                candleLow = candleK(end,4);
-                if trade.opendirection_ == 1
-                    obj.pxstoploss_ = candleLow;
-                    obj.pxtarget_ = candleHigh;
-                else
-                    obj.pxstoploss_ = candleHigh;
-                    obj.pxtarget_ = candleLow;
-                end
-            end
-        end
-    end
-    
-    if ~strcmpi(trade.status_,'set'), return; end
-    
+    %20181121:big bug fix
+    %mantory stoploss shall always be checked for every tick whether breach
+    %the stoploss
+    %rule1:we check this regardless whether the trade has been set
+    %rule2:once the stoploss is breached, we shall inform the strat/trader
+    %to unwind the trade
     lasttick = mdefut.getlasttick(instrument);
     if isempty(lasttick), return; end
     ticktime = lasttick(1);
@@ -62,13 +37,7 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     tickask = lasttick(3);
     ticktrade = lasttick(4);
     
-    %first, we use tick price to determine whether the stoploss is breached
-    %rule1:we check this if and only if the trade has been set, i.e. the
-    %last candle bucket moves beyond the candle bucket when the trade is
-    %executed.
-    %rule2:once the stoploss is breached, we shall inform the strat/trader
-    %to unwind the trade
-    isstoplossbreached = strcmpi(trade.status_,'set') && ((trade.opendirection_ == 1 && ticktrade < obj.pxstoploss_) || ...
+    isstoplossbreached = ((trade.opendirection_ == 1 && ticktrade < obj.pxstoploss_) || ...
                 (trade.opendirection_ == -1 && ticktrade > obj.pxstoploss_));
     
     if isstoplossbreached    
@@ -96,6 +65,7 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         
         return
     else
+        %mandatory stop loss is not breached and the trade is still alive
         if trade.opendirection_ == 1
             trade.runningpnl_ = trade.openvolume_*(tickbid-trade.openprice_)/ instrument.tick_size * instrument.tick_value;
         else
@@ -103,6 +73,32 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         end
     end
     
+    if strcmpi(trade.status_,'unset')
+        %set the trade when the candle moves to the next candle after the
+        %trade open
+        openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
+        candleTime = candleK(end,1);
+        if openBucket < candleTime
+            trade.status_ = 'set';
+            if isnan(obj.pxstoploss_) && isnan(obj.pxtarget_)
+                %note:in case pxstoploss_ and pxtarget_ are not set here,
+                %we use the high/low as of the open candle for
+                %target/stoploss respectively
+                candleHigh = candleK(end,3);
+                candleLow = candleK(end,4);
+                if trade.opendirection_ == 1
+                    obj.pxstoploss_ = candleLow;
+                    obj.pxtarget_ = candleHigh;
+                else
+                    obj.pxstoploss_ = candleHigh;
+                    obj.pxtarget_ = candleLow;
+                end
+            end
+        end
+    end
+    
+    if ~strcmpi(trade.status_,'set'), return; end
+        
     %below the trade is still alive and we check with the latest poped-up
     %candle to determine whether we need to update the batman properties
     

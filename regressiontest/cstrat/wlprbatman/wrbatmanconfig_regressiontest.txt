@@ -20,6 +20,6 @@ OverSold	-100
 ExecutionType	fixed
 BandwidthMin	0.333333
 BandwidthMax	0.5
-BandStopLoss	0.01
+BandStopLoss	0.05
 BandTarget	0.02
 BandType	0
