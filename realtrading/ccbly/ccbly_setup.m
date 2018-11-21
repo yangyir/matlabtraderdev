@@ -9,14 +9,14 @@
 %% user inputs
 ui_stratname = 'manual';
 ui_stratfund = 1e6;
-ui_usehistoricaldata = truel;
+ui_usehistoricaldata = true;
 
 %% check the existing risk configurations
 fprintf('existing risk configurations...\n');
 ccbly_printriskconfig;
 
 %% mod the risk configurations if nececcary
-ui_codes = {'T1903'};
+ui_codes = {'au1906';'ag1906';'cu1901';'zn1901';'ni1901';'sc1901';'rb1901';'i1901'};
 ui_propnames = {'bidopenspread';'askopenspread';'use'};
 ui_propvalues = {5;5;1};
 ui_override = true;
@@ -58,9 +58,9 @@ ccbly.strategy.initdata;
 
 fprintf('\nccbly successfully created...\n');
 
-%% ctp login 
 
-ccbly.mdefut.login('Connection','ctp','countername',countername);
-
+%%
+ccbly.mdefut.start
+%%
 clear ccbly_book2trade
 

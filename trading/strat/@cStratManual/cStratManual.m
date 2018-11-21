@@ -25,8 +25,7 @@ classdef cStratManual < cStrat
         end
         
         function [] = riskmanagement(obj,dtnum)
-            variablenotused(obj);
-            variablenotused(dtnum);
+            obj.riskmanagement_manual(dtnum)
         end
         
         function [] = initdata(obj)
@@ -38,6 +37,9 @@ classdef cStratManual < cStrat
         %some technical analysis related funcs
         wrinfo = wlpr(obj,instrument,nperiod)
         [] = stratplot(obj,instrument,varargin)
+        %
+        wrinfo = wlpr2(obj,instrument1,instrument2,weight1,weight2,nperiod,varargin)
+        [] = stratplot2(obj,instrument1,instrument2,varargin)
     end
     
     methods (Access = public)
@@ -49,6 +51,7 @@ classdef cStratManual < cStrat
     
     methods (Access = private)
         [] = initdata_manual(obj)
+        [] = riskmanagement_manual(obj,dtnum)
     end
     
 end
