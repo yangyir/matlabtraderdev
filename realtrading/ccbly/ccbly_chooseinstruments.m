@@ -3,17 +3,18 @@
 %assettypes data type is cell
 %assetnames data type is cell
 %conditiontype data type is char and must either be 'OR' or 'AND'
-fprintf('running ccbly_chooseinstruments...\n');
+fprintf('running ''ccbly_chooseinstruments''...\n');
 
-ccblyfut_assettypes = {'basemetal';'preciousmetal';'govtbond';'eqindex'};
-ccblyfut_assetnames = {'crude oil';'deformed bar';'iron ore'};
-ccblyfut_conditiontype = 'or';
+ccbly_assettypes = {'basemetal';'preciousmetal';'govtbond';'eqindex'};
+ccbly_assetnames = {'crude oil';'deformed bar';'iron ore'};
+ccbly_conditiontype = 'or';
 
-ccblyfut_futs2trade = getactivefuts('AssetTypes',ccblyfut_assettypes,...
-    'AssetNames',ccblyfut_assetnames,...
-    'ConditionType',ccblyfut_conditiontype);
-if ~isempty(ccblyfut_futs2trade)
+ccbly_futs2trade = getactivefuts('AssetTypes',ccbly_assettypes,...
+    'AssetNames',ccbly_assetnames,...
+    'ConditionType',ccbly_conditiontype);
+if ~isempty(ccbly_futs2trade)
     fprintf('selected instruments:\n');
-    for i = 1:size(ccblyfut_futs2trade,1),fprintf('\t%s\n',ccblyfut_futs2trade{i});end
+    for i = 1:size(ccbly_futs2trade,1),fprintf('\t%s\n',ccbly_futs2trade{i});end
 end
 
+clear i

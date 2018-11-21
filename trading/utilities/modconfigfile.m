@@ -9,7 +9,7 @@ function [ret] = modconfigfile(filename,varargin)
     end
     
     p = inputParser;
-    p.CaseSensitive = true;p.KeepUnmatched = false;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('Code','',@ischar);
     p.addParameter('PropNames',{},@iscell);
     p.addParameter('PropValues',{},@iscell);

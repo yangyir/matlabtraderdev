@@ -50,7 +50,7 @@ function [rtt_output] = rtt_setup(varargin)
         error('rtt_setup:invalid market type input, must either be futures or options')
     end
     
-    bookname = [countername,'-',bookname];
+%     bookname = [countername,'-',bookname];
     helpername = [bookname,'-ops'];
     
     %first setup a book

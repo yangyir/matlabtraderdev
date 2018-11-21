@@ -30,6 +30,9 @@ classdef cStratConfig < handle
         autotrade_@double = 0
         %
         maxexecutionperbucket_@double = 0
+        %
+        %
+        use_@double = 0
         
     end
     
