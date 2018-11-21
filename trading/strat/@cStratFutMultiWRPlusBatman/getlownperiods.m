@@ -50,6 +50,12 @@ function [lowp,lowt] = getlownperiods(obj,instrument)
         error('cStratFutMultiWRPlusBatman:gethighperiods:insufficient historical data')
     end
     
+    %BUG FIX
+    %to remove zero entries
+    idx = lowpx>0;
+    lowpx = higpx(idx);
+    timevec = timevec(idx);
+    
     lowp = min(lowpx(end-nperiods-1:end));
     idx = lowpx == lowp;
     lowt = timevec(idx);
