@@ -1,4 +1,4 @@
-underlier = 'cu1901';
+underlier = 'cu1902';
 cobdate = getlastbusinessdate;
 predate = businessdate(cobdate,-1);
 data = cDataFileIO.loadDataFromTxtFile([underlier,'_daily.txt']);
