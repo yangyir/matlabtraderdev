@@ -1,4 +1,5 @@
-function [] = loadoptions(obj,code_ctp_underlier,numstrikes)
+function [calls,puts] = loadoptions(obj,code_ctp_underlier,numstrikes)
+%cMDEOpt
     if nargin < 3
         [calls,puts] = getlistedoptions(code_ctp_underlier);
     else
@@ -8,5 +9,7 @@ function [] = loadoptions(obj,code_ctp_underlier,numstrikes)
         obj.registerinstrument(calls{i});
         obj.registerinstrument(puts{i});
     end
+    
+    
 end
 %end of loadoptions

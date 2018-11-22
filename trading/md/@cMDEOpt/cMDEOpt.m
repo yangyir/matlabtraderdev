@@ -54,9 +54,17 @@ classdef cMDEOpt < cMyTimerObj
         [ret] = logoff(obj)
     end
     
+    methods
+        %option specific ones
+        [calls,puts] = loadoptions(obj,code_ctp_underlier,numstrikes)
+        [] = plotvolslice(obj,code_ctp_underlier,numstrikes,varargin)
+        tbl = voltable(obj)
+        res = getgreeks(obj,instrument)
+    end
+    
     
     methods
-        [] = loadoptions(obj,code_ctp_underlier,numstrikes)
+        
         [] = registerinstrument(obj,instrument)
         %
         [] = refresh(obj,varargin)
@@ -67,8 +75,7 @@ classdef cMDEOpt < cMyTimerObj
         [] = loadtrades(obj,varargin)
         [t] = getreplaytime(obj,varargin)
         %
-        tbl = voltable(obj)
-        res = getgreeks(obj,instrument)
+        
     end
     
     methods (Access = private)

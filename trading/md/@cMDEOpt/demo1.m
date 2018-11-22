@@ -1,48 +1,46 @@
+%% user inputs
 code_ctp_underlier = 'cu1902';
 numstrikes = 5;
-[calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes);
-strikes = zeros(numstrikes,1);
-%
+%%
 mdeopt = cMDEOpt;
-for i = 1:numstrikes
-    mdeopt.registerinstrument(calls{i});
-    mdeopt.registerinstrument(puts{i});
-    strikes(i) = calls{i}.opt_strike;
-end
+[calls,puts] = mdeopt.loadoptions(code_ctp_underlier,numstrikes);
+strikes = zeros(numstrikes,1);
+for i = 1:numstrikes, strikes(i) = calls{i}.opt_strike;end
 %%
 mdeopt.login('connection','ctp','countername','ccb_ly_fut');
 mdeopt.start
 
+%% plot latest vol vs. last business's carry vol
+mdeopt.plotvolslice(code_ctp_underlier,numstrikes);
 %%
-lastbd = getlastbusinessdate;
-ivcallscarry = zeros(numstrikes,1);
-ivputscarry = zeros(numstrikes,1);
-for i = 1:numstrikes
-    pnlbreakc_i = pnlriskbreakdown1(calls{i}.code_ctp,lastbd);
-    ivcallscarry(i) = pnlbreakc_i.iv2;
-    pnlbreakp_i = pnlriskbreakdown1(puts{i}.code_ctp,lastbd);
-    ivputscarry(i) = pnlbreakp_i.iv2;
-end
 
-%%
 ivcalls = zeros(numstrikes,1);
 ivputs = zeros(numstrikes,1);
+ivcallscarry = zeros(numstrikes,1);
+ivputscarry = zeros(numstrikes,1);
 for i = 1:numstrikes    
     greeksc_i = mdeopt.getgreeks(calls{i});
     ivcalls(i) = greeksc_i.impvol;
+    ivcallscarry(i) = greeksc_i.impvolcarryyesterday;
     %
     greeksp_i = mdeopt.getgreeks(puts{i});
     ivputs(i) = greeksp_i.impvol;
+    ivputscarry(i) = greeksp_i.impvolcarryyesterday;
 end
 figure(1);
 subplot(121);plot(strikes,ivcalls,'b-*');
-hold on;plot(strikes,ivcallscarry,'b-o');hold off;
+hold on;plot(strikes,ivcallscarry,'r-o');legend('iv-call','ivcarry-call');hold off;
 title('iv calls');grid on;
-subplot(122);plot(strikes,ivputs,'r*-');
-hold on;plot(strikes,ivputscarry,'r-o');hold off;
+subplot(122);plot(strikes,ivputs,'b*-');
+hold on;plot(strikes,ivputscarry,'r-o');legend('iv-put','ivcarry-put');hold off;
 title('iv puts');grid on;
 
 %% long straddle
+
+
+
+
+%%
 strikebucket = 1000;
 qu = mdeopt.qms_.getquote(code_ctp_underlier);
 plastu = qu.last_trade;
