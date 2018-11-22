@@ -12,40 +12,15 @@ mdeopt.start
 
 %% plot latest vol vs. last business's carry vol
 mdeopt.plotvolslice(code_ctp_underlier,numstrikes);
-%%
 
-ivcalls = zeros(numstrikes,1);
-ivputs = zeros(numstrikes,1);
-ivcallscarry = zeros(numstrikes,1);
-ivputscarry = zeros(numstrikes,1);
-for i = 1:numstrikes    
-    greeksc_i = mdeopt.getgreeks(calls{i});
-    ivcalls(i) = greeksc_i.impvol;
-    ivcallscarry(i) = greeksc_i.impvolcarryyesterday;
-    %
-    greeksp_i = mdeopt.getgreeks(puts{i});
-    ivputs(i) = greeksp_i.impvol;
-    ivputscarry(i) = greeksp_i.impvolcarryyesterday;
-end
-figure(1);
-subplot(121);plot(strikes,ivcalls,'b-*');
-hold on;plot(strikes,ivcallscarry,'r-o');legend('iv-call','ivcarry-call');hold off;
-title('iv calls');grid on;
-subplot(122);plot(strikes,ivputs,'b*-');
-hold on;plot(strikes,ivputscarry,'r-o');legend('iv-put','ivcarry-put');hold off;
-title('iv puts');grid on;
+%% synthetic straddle vol
 
-%% long straddle
-
+iv1_c = 
 
 
 
 %%
-strikebucket = 1000;
-qu = mdeopt.qms_.getquote(code_ctp_underlier);
-plastu = qu.last_trade;
-strike1 = floor(plastu/strikebucket)*strikebucket;
-strike2 = ceil(plastu/strikebucket)*strikebucket;
+
 c2trade1 = [code_ctp_underlier,'C',num2str(strike2)];c2trade2 = [code_ctp_underlier,'C',num2str(strike2+strikebucket)]
 p2trade1 = [code_ctp_underlier,'P',num2str(strike1)];p2trade2 = [code_ctp_underlier,'P',num2str(strike1-strikebucket)];
 qc1 = mdeopt.qms_.getquote(c2trade1);qc2 = mdeopt.qms_.getquote(c2trade2);
