@@ -53,7 +53,7 @@ function [highp,hight] = gethighnperiods(obj,instrument)
     %BUG FIX
     %remove zero entries
     idx = highpx>0;
-    highpx = higpx(idx);
+    highpx = highpx(idx);
     timevec = timevec(idx);
     
     

@@ -134,20 +134,20 @@ if ~isempty(amberline)
 end
 
 %sixth to check whether the max execution number per bucket is breached
-try
-    maxexecutionperbucket = obj.riskcontrols_.getconfigvalue('code',code,'propname','maxexecutionperbucket');
-
-catch
-    maxexecutionperbucket = 1;
-    
-end
-numexecuted = obj.executionperbucket_(idxinstrument);
-if numexecuted >= maxexecutionperbucket
-    ret = 0;
-    errmsg = sprintf('%s:failed to place entrust with maximum execution per bucket breached...',class(obj));
-    fprintf('%s\n',errmsg);
-    return
-end
+% try
+%     maxexecutionperbucket = obj.riskcontrols_.getconfigvalue('code',code,'propname','maxexecutionperbucket');
+% 
+% catch
+%     maxexecutionperbucket = 1;
+%     
+% end
+% numexecuted = obj.executionperbucket_(idxinstrument);
+% if numexecuted >= maxexecutionperbucket
+%     ret = 0;
+%     errmsg = sprintf('%s:failed to place entrust with maximum execution per bucket breached...',class(obj));
+%     fprintf('%s\n',errmsg);
+%     return
+% end
 
 ret = 1;
 errmsg = '';

@@ -53,7 +53,7 @@ function [lowp,lowt] = getlownperiods(obj,instrument)
     %BUG FIX
     %to remove zero entries
     idx = lowpx>0;
-    lowpx = higpx(idx);
+    lowpx = lowpx(idx);
     timevec = timevec(idx);
     
     lowp = min(lowpx(end-nperiods-1:end));

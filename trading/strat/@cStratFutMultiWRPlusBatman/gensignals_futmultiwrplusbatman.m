@@ -38,10 +38,10 @@ function signals = gensignals_futmultiwrplusbatman(strategy)
             end
                     
             highestpx_before = strategy.highnperiods_(i);
-            if highestpx_last > highestpx_before, strategy.highnperiods_(i) = highestpx_last;end
+            if highestpx_last > highestpx_before || highestpx_before <= 0, strategy.highnperiods_(i) = highestpx_last;end
 
             lowestpx_before = strategy.lownperiods_(i);
-            if lowestpx_last < lowestpx_before, strategy.lownperiods_(i) = lowestpx_last;end
+            if lowestpx_last < lowestpx_before || lowestpx_before <= 0, strategy.lownperiods_(i) = lowestpx_last;end
                     
             try
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','SampleFreq');
@@ -81,7 +81,8 @@ function signals = gensignals_futmultiwrplusbatman(strategy)
                 continue;
             end
                     
-            if highestpx_last > highestpx_before || lowestpx_last < lowestpx_before
+            if highestpx_last > highestpx_before || lowestpx_last < lowestpx_before ...
+                    || highestpx_before <= 0 || lowestpx_before <= 0
                 signals{i,1} = struct('name','williamsr',...
                     'instrument',instruments{i},...
                     'frequency',samplefreqstr,...

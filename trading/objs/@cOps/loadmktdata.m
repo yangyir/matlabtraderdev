@@ -14,6 +14,6 @@ function [] = loadmktdata(obj,varargin)
     counter = obj.getcounter;
     if ~counter.is_Counter_Login
         counter.login;
-        fprintf('cOps:login to % on %s......\n',counter.char,datestr(t,'yyyy-mm-dd HH:MM:SS'));
+        fprintf('cOps:login to %s on %s......\n',counter.char,datestr(t,'yyyy-mm-dd HH:MM:SS'));
     end
 end
