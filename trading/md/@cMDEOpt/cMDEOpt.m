@@ -60,6 +60,7 @@ classdef cMDEOpt < cMyTimerObj
         [] = plotvolslice(obj,code_ctp_underlier,numstrikes,varargin)
         tbl = voltable(obj)
         res = getgreeks(obj,instrument)
+        res = getatmgreeks(obj,code_ctp_underlier,varargin)
     end
     
     
