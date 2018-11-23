@@ -27,7 +27,8 @@ function [lowp,lowt] = getlownperiods(obj,instrument)
     %backtest process
     if ~isempty(candlesticks)
         candlesticks = candlesticks{1};
-        candlesticks = candlesticks(1:end-1,:);
+%         candlesticks = candlesticks(1:end-1,:);
+        candlesticks = candlesticks(1:end,:);
     else
         candlesticks = [];
     end    
