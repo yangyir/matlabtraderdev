@@ -7,7 +7,7 @@ PnLLimitType	ABS	ABS	ABS	ABS	ABS
 PnLLimit	-9.99	-9.99	-9.99	-9.99	-9.99
 BidOpenSpread	10	10	10	10	6	
 BidCloseSpread	0	0	0	0	0
-AskOpenSpread	6	10	6	5	6
+AskOpenSpread	7	10	8	4	8
 AskCloseSpread	0	0	0	0	0
 BaseUnits	1	2	1	2	1
 MaxUnits	5	10	8	8	10
