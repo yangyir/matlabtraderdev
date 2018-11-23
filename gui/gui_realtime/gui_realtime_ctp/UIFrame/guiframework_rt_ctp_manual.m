@@ -3,25 +3,35 @@ function handles = guiframework_rt_ctp_manual
 lastbd = businessdate(getlastbusinessdate,-1);
 startupfund = 1000000;
 close all;
-fgWidth = 1800;
-fgHeight = 1000;
+%figure width and height
+fgWidth = 1800;fgHeight = 1000;
+%figure size
 fgsz = [0, 0, fgWidth, fgHeight];
+%figure background color
 backcolor  = [0.85, 0.85, 0.85];
+%table background color
 tbbackcolor = [1 1 0.8;1 1 1];
-handles.output = figure('ToolBar', 'none', 'Menubar', 'none',...
-    'Color', backcolor,'Position',fgsz);
-set(handles.output, 'Name', 'CTP Realtime Manual Trading Framework', 'NumberTitle', 'off');
+handles.output = figure(1);
+%set figure properties
+set(handles.output,'Name','CTP Realtime Manual Trading Framework');
+set(handles.output,'Position',fgsz);
+set(handles.output,'Color',backcolor);
+set(handles.output,'Menubar','none');
+set(handles.output,'ToolBar','none');
+set(handles.output,'NumberTitle','off');
+%
 movegui(handles.output, 'north')
 parent = handles.output;
-statusbarPanelH = 0.04;
-%%
-panel2LeftFrame = 0.01;
-panel2RightFrame = 0.01;
-panel2TopFrame = 0.02;
-panel2BottomFrame = 0.02;
-panel2panelH = 0.01;
-panel2panelV = 0.01;
-panelFontSize = 9;
+% panel and frame properties
+panel2LeftFrame = 0.01;     %distance between the very left panel and the left frame
+panel2RightFrame = 0.01;    %distance between the very right panel and the right frame
+panel2TopFrame = 0.02;      %distance between the very top panel and the top frame
+panel2BottomFrame = 0.02;   %distance between the very bottom panel and the bottome frame
+panel2panelH = 0.01;        %horizontal distance between panels
+panel2panelV = 0.01;        %vertical distance between panels
+panelFontSize = 9;          %panel font size
+% 
+statusbarPanelH = 0.04;     %height of the status bar on the righ bottom of the frame
 %
 %% general setup
 generalsetupPanelW = 0.11;

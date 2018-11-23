@@ -3,7 +3,7 @@ ccbly.mdefut.login('Connection','ctp','countername',ccbly_countername);
 ccbly.mdefut.start;
 
 %%
-code = 'au1906';
+code = 'ni1901';
 wlprinfo = ccbly.strategy.wlpr(code);
 disp(wlprinfo);
 %

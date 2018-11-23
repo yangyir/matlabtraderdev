@@ -16,7 +16,7 @@ fprintf('existing risk configurations...\n');
 ccbly_printriskconfig;
 
 %% mod the risk configurations if nececcary
-ui_codes = {'au1906';'ag1906';'cu1901';'zn1901';'ni1901';'sc1901';'rb1901';'i1901'};
+ui_codes = ccbly_futs2trade;
 ui_propnames = {'bidopenspread';'askopenspread';'use'};
 ui_propvalues = {5;5;1};
 ui_override = true;
@@ -59,8 +59,6 @@ ccbly.strategy.initdata;
 fprintf('\nccbly successfully created...\n');
 
 
-%%
-ccbly.mdefut.start
 %%
 clear ccbly_book2trade
 

@@ -4,6 +4,7 @@ function [ret,e] = placeentrust(obj,instrument,varargin)
         ret = 0;
         e = [];
         fprintf('%s:placeentrust is not allowed when the strategy is not working',class(obj))
+        return
     end
     
     if ischar(instrument), instrument = code2instrument(instrument); end
