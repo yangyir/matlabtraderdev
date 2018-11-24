@@ -102,11 +102,18 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     %todo:here we shall return an error
                 else
                     idx = idx(end);
-                    candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
-                    for j = 1:size(candles,1)
-                        mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                    if idx <= size(buckets,1)
+                        try
+                            ds2 = cBloomberg;
+                            candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                            for j = 1:size(candles,1)
+                                mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                            end
+                            mdefut.candles_count_(i) = idx;
+                        catch e
+                            fprintf('%s\n',e.message);
+                        end
                     end
-                    mdefut.candles_count_(i) = idx;
                 end
             end
             ret = true;

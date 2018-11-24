@@ -17,6 +17,10 @@ function [] = refresh(obj,varargin)
             if strcmpi(obj.mdefut_.timer_.running,'off')
                 fprintf('%s stops because %s is off\n',obj.timer_.Name,obj.mdefut_.timer_.Name);
                 obj.stop;
+                if ~isempty(obj.gui_)
+                    set(obj.gui_.tradingstats.opsstatus_edit,'string',obj.status_);
+                    set(obj.gui_.tradingstats.opsrunning_edit,'string',obj.timer_.running);
+                end
                 return
             end 
         catch e
@@ -37,6 +41,9 @@ function [] = refresh(obj,varargin)
     end
     
     if ~isempty(obj.gui_)
+        set(obj.gui_.tradingstats.opsstatus_edit,'string',obj.status_);
+        set(obj.gui_.tradingstats.opsrunning_edit,'string',obj.timer_.running);
+        
         %positions
         positions = obj.trades_.convert2positions;
         npos = size(positions,1);

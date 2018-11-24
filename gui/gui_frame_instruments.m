@@ -9,7 +9,7 @@ function [handles] = gui_frame_instruments(handles,ui_frame)
     blackList = {'Coke';'CokingCoal'};
     engeryList = {'PTA';'LLDPE';'PP';'Methanol';'ThermalCoal'};
     agricultureList = {'Soybean';'Soymeal';'SoybeanOil';'PalmOil';'Apple';...
-        'Sugar';'Cotton';'RapeseedOil';'RapeseedMeal'};
+        'Sugar';'Cotton';'RapeseedOil';'RapeseedMeal'}; 
     %
     %we will have equityList,govtbondList,preciousmetalList and
     %basemetalList on the left hand side and the rest on the right hand side
@@ -24,7 +24,7 @@ function [handles] = gui_frame_instruments(handles,ui_frame)
     checkbox2checkboxV = (1-checkboxH*ninstruments)/(ninstruments+1);
     checkboxFontSize = 8;
     for i = 1:ninstruments
-        checkboxname = [listLeft{i},'_checkbox'];
+        checkboxname = [lower(listLeft{i}),'_checkbox'];
         checkboxPosY = 1-(checkbox2checkboxV*i+checkboxH*i);
         handles.instruments.(checkboxname) = uicontrol('Parent', panelbox, 'style', 'checkbox', ...
         'Foregroundcolor', 'k', 'String', listLeft{i}, ...
@@ -43,7 +43,7 @@ function [handles] = gui_frame_instruments(handles,ui_frame)
     checkboxH = 0.9*(1/(ninstruments+1));
     checkbox2checkboxV = (1-checkboxH*ninstruments)/(ninstruments+1);
     for i = 1:ninstruments
-        checkboxname = [listRight{i},'_checkbox'];
+        checkboxname = [lower(listRight{i}),'_checkbox'];
         checkboxPosY = 1-(checkbox2checkboxV*i+checkboxH*i);
         handles.instruments.(checkboxname) = uicontrol('Parent', panelbox, 'style', 'checkbox', ...
         'Foregroundcolor', 'k', 'String', listRight{i}, ...
@@ -52,5 +52,9 @@ function [handles] = gui_frame_instruments(handles,ui_frame)
         'FontSize', checkboxFontSize, ...
         'FontWeight', 'bold');
     end
-    handles.instruments.listLeft = listLeft;
+    handles.instruments.listRight = listRight;
+    instrumentlist = [listLeft;listRight];
+    handles.instruments.instrumentlist = instrumentlist;
+    
+    
 end

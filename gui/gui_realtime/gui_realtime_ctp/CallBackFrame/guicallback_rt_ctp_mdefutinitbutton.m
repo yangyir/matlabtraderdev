@@ -11,9 +11,27 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
     countername = counterlist{counteridx};
     counter = CounterCTP.(countername);    
     
+    
+    classname = class(STRAT_INSTANCE);
+    if strcmpi(classname,'cStratManual')
+        bookname = [countername,'-manual'];
+        tradername = 'trader-manual';
+    elseif strcmpi(classname,'cStratFutMultiBatman')
+        bookname = [countername,'-batman'];
+        tradername = 'trader-batman';
+    elseif strcmpi(classname,'cStratFutMultiWR')
+        bookname = [countername,'-wlpr'];
+        tradername = 'trader-wlpr';
+    elseif strcmpi(classname,'cStratFutMultiWRPlusBatman')
+        bookname = [countername,'-wlprbatman'];
+        tradername = 'trader-wlprbatman';
+    else
+        error('%s is not a supportive strategy name')
+    end
     trader = cTrader;
-    trader.init('trader_ctp_manual');
-    book = cBook('BookName','tfzq_book_rh_manual','TraderName',trader.name_,'CounterName',countername);
+    trader.init(tradername);
+        
+    book = cBook('BookName',bookname,'TraderName',trader.name_,'CounterName',countername);
     trader.addbook(book);
     OPS_INSTANCE.registerbook(book);
     OPS_INSTANCE.registercounter(counter);
@@ -30,7 +48,7 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
     end
     
     %load strategy risk configurations
-    configfilename = get(handles.generalsetup.riskconfig_edit,'string');
+    configfilename = get(handles.generalsetup.riskconfigfile_edit,'string');
     STRAT_INSTANCE.loadriskcontrolconfigfromfile('filename',configfilename{1});
     instruments2trade = STRAT_INSTANCE.getinstruments;
     ninstruments = size(instruments2trade,1);
@@ -40,7 +58,7 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
     list = handles.instruments.instrumentlist;
     for i = 1:size(list,1)
         try
-            propname_i = [list{i},'_checkbox'];
+            propname_i = [lower(list{i}),'_checkbox'];
             set(handles.instruments.(propname_i),'value',0);
         catch
             fprintf('%s not set to blank...\n',propname_i);
@@ -51,7 +69,7 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
         assetname = instruments2trade{i}.asset_name;
         info = getassetinfo(assetname);
         assetnamemap = info.AssetNameMap;
-        propname = [assetnamemap,'_checkbox'];
+        propname = [lower(assetnamemap),'_checkbox'];
         try
             set(handles.instruments.(propname),'value',1);
         catch
@@ -59,21 +77,21 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
         end
     end
     
-    loadhistlist = get(handles.generalsetup.loadhistdata_popupmenu,'string');
-    loadhistidx = get(handles.generalsetup.loadhistdata_popupmenu,'value');
-    loadhiststr = loadhistlist{loadhistidx};
+    usehistlist = get(handles.generalsetup.usehistdata_popupmenu,'string');
+    usehistidx = get(handles.generalsetup.usehistdata_popupmenu,'value');
+    usehiststr = usehistlist{usehistidx};
     
-    if strcmpi(loadhiststr,'yes')
-        loadflag = 1;
+    if strcmpi(usehiststr,'yes')
+        useflag = 1;
     else
-        loadflag = 0;
+        useflag = 0;
     end
         
     %load historical data
-    if loadflag
-        columnnames = {'last trade','bid','ask','update time','last close','change','wlhigh','wllow'};
+    if useflag
+        columnnames = {'last trade','bid','ask','update time','last close','change','highest','lowest','wlpr'};
     else
-        columnnames = {'last trade','bid','ask','update time'};
+        columnnames = {'last trade','bid','ask','update time','last close','change'};
     end
     data = cell(ninstruments,length(columnnames));
 
@@ -81,13 +99,24 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
         MDEFUT_INSTANCE.login('Connection','CTP','CounterName',countername);
     end
     
+    %refresh twice
     MDEFUT_INSTANCE.qms_.refresh;
     MDEFUT_INSTANCE.qms_.refresh;
     
     for i = 1:ninstruments
+        dailydata = cDataFileIO.loadDataFromTxtFile([instruments2trade{i}.code_ctp,'_daily.txt']);
+        idx = dailydata(:,1) == getlastbusinessdate;
+        try
+            lastcloseprice = dailydata(idx,5);
+        catch
+            statusstr = ['last close of ',instruments2trade{i}.code_ctp,'...not found!!!'];
+            set(handles.statusbar.statustext,'string',statusstr);
+            pause(1);
+            continue;
+        end
         ctpcodelist{i} = instruments2trade{i}.code_ctp;
         quote = MDEFUT_INSTANCE.qms_.getquote(ctpcodelist{i});
-        if loadflag
+        if useflag
             %init data
             statusstr = ['load historical candles of ',ctpcodelist{i},'...'];
             set(handles.statusbar.statustext,'string',statusstr);
@@ -124,20 +153,30 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
             MDEFUT_INSTANCE.settechnicalindicator(instruments2trade{i},wlprparams);
 
             wrinfo = MDEFUT_INSTANCE.calc_technical_indicators(instruments2trade{i});
-            data{i,1} = quote.last_trade;
-            data{i,2} = quote.bid1;
-            data{i,3} = quote.ask1;
+            data{i,1} = num2str(quote.last_trade);
+            if quote.bid1 > 1e10
+                data{i,2} = '-';
+            else
+                data{i,2} = num2str(quote.bid1);
+            end
+            if quote.ask1 > 1e10
+                data{i,3} = '-';
+            else
+                data{i,3} = num2str(quote.ask1);
+            end
+                
 %             histcandles = MDEFUT_INSTANCE.gethistcandles(instruments2trade{i});
             data{i,4} = datestr(quote.update_time1,'dd/mmm HH:MM');
-            data{i,5} = num2str(wrinfo{1}(4));
-            data{i,5} = 0;
+            data{i,5} = num2str(lastcloseprice);
+            data{i,6} = 0;
             data{i,7} = num2str(wrinfo{1}(2));
             data{i,8} = num2str(wrinfo{1}(3));
         else
-            data{i,1} = quote.last_trade;
-            data{i,2} = quote.bid1;
-            data{i,3} = quote.ask1;
+            data{i,1} = num2str(quote.last_trade);
+            data{i,2} = num2str(quote.bid1);
+            data{i,3} = num2str(quote.ask1);
             data{i,4} = datestr(quote.update_time1,'dd/mmm HH:MM');
+            data{i,5} = num2str(lastcloseprice);
         end
     end
 

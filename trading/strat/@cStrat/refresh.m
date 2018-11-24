@@ -4,18 +4,30 @@ function [] = refresh(strategy,varargin)
     if isempty(strategy.mde_fut_) && isempty(strategy.mde_opt_)
         %note:here we must stop the strategy
         strategy.stop;
+        if ~isempty(strategy.gui_)
+            set(strategy.gui_.tradingstats.strategystatus_edit,'string',strategy.status_);
+            set(strategy.gui_.tradingstats.strategyrunning_edit,'string',strategy.timer_.running);
+        end
         error('%s:refresh:mdefut or mdeopt not registed in strategy......\n',class(strategy))
     end
     
     if isempty(strategy.mde_fut_) && ~isempty(strategy.mde_opt_)
         %note:here we must stop the strategy
         strategy.stop;
+        if ~isempty(strategy.gui_)
+            set(strategy.gui_.tradingstats.strategystatus_edit,'string',strategy.status_);
+            set(strategy.gui_.tradingstats.strategyrunning_edit,'string',strategy.timer_.running);
+        end
         error('%s:refresh:mdeopt case not fully implemented yet......\n',class(strategy))
     end
     
     if isempty(strategy.helper_)
         %note:here we must stop the strategy
         strategy.stop;
+        if ~isempty(strategy.gui_)
+            set(strategy.gui_.tradingstats.strategystatus_edit,'string',strategy.status_);
+            set(strategy.gui_.tradingstats.strategyrunning_edit,'string',strategy.timer_.running);
+        end
         error('%s:refresh:ops not registed in strategy......\n',class(strategy))
     end
     
@@ -23,12 +35,20 @@ function [] = refresh(strategy,varargin)
         if strcmpi(strategy.mde_fut_.timer_.running,'off')
             fprintf('%s stops because MDE %s is off\n',class(strategy),strategy.mde_fut_.timer_.Name);
             strategy.stop;
+            if ~isempty(strategy.gui_)
+                set(strategy.gui_.tradingstats.strategystatus_edit,'string',strategy.status_);
+                set(strategy.gui_.tradingstats.strategyrunning_edit,'string',strategy.timer_.running);
+            end
             return
         end 
     catch e
         fprintf('error:%s::refresh::%s\n',class(strategy),e.message);
         if strcmpi(strategy.onerror_,'stop')
             strategy.stop;
+            if ~isempty(strategy.gui_)
+                set(strategy.gui_.tradingstats.strategystatus_edit,'string',strategy.status_);
+                set(strategy.gui_.tradingstats.strategyrunning_edit,'string',strategy.timer_.running);
+            end
         end
         return
     end
@@ -104,6 +124,8 @@ function [] = refresh(strategy,varargin)
     %
     %update gui
     if ~isempty(strategy.gui_)
+        set(strategy.gui_.tradingstats.strategystatus_edit,'string',strategy.status_);
+        set(strategy.gui_.tradingstats.strategyrunning_edit,'string',strategy.timer_.running);
         try
             set(strategy.gui_.tradingstats.preinterest_edit,'string',num2str(strategy.preequity_));
             set(strategy.gui_.tradingstats.availablefund_edit,'string',num2str(strategy.availablefund_));

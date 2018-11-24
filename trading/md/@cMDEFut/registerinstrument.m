@@ -90,7 +90,12 @@ function [] = registerinstrument(mdefut,instrument)
 
     % init of candles
     if strcmpi(mdefut.mode_,'realtime')
-        cobdate = today;
+        hh = hour(now);
+        if hh < 3
+            cobdate = today - 1;
+        else
+            cobdate = today;
+        end
     else
         cobdate = mdefut.replay_date1_;
     end

@@ -15,17 +15,22 @@ function [] = refresh(mdefut,varargin)
     
     
     if ~isempty(mdefut.gui_)
+        %update mde status
+        set(mdefut.gui_.tradingstats.time_edit,'string',datestr(now,'dd/mmm HH:MM:SS'));
+        set(mdefut.gui_.tradingstats.mdestatus_edit,'string',mdefut.status_);
+        set(mdefut.gui_.tradingstats.mderunning_edit,'string',mdefut.timer_.running);
         %update mktdata table
         try
             tblRowName = get(mdefut.gui_.mktdatatbl.table,'RowName');
             tblColName = get(mdefut.gui_.mktdatatbl.table,'ColumnName');
+            tbldata = get(mdefut.gui_.mktdatatbl.table,'Data');
             nrows = size(tblRowName,1);
             ncols = length(tblColName);
             data = cell(nrows,ncols);
             for i = 1:nrows
                 if ncols > 4
                     histcandles = mdefut.gethistcandles(tblRowName{i});
-                    lastClose = histcandles{1}(end,5);
+                    lastClose = str2double(tbldata{i,5});
                     wrinfo = mdefut.calc_technical_indicators(tblRowName{i});
                     data{i,7} = num2str(wrinfo{1}(2));
                     data{i,8} = num2str(wrinfo{1}(3));
@@ -35,8 +40,17 @@ function [] = refresh(mdefut,varargin)
                 
                 if ~isempty(lasttick)
                     data{i,1} = num2str(lasttick(4));   %last trade
-                    data{i,2} = num2str(lasttick(2));   %bid
-                    data{i,3} = num2str(lasttick(3));   %ask
+                    if abs(lasttick(2)) > 1e10
+                        data{i,2} = '-';
+                    else
+                        data{i,2} = num2str(lasttick(2));   %bid
+                    end
+                    if abs(lasttick(3)) > 1e10
+                        data{i,3} = '-';
+                    else
+                        data{i,3} = num2str(lasttick(3));   %ask
+                    end
+                        
                     data{i,4} = datestr(lasttick(1),'HH:MM:SS');
                     if ncols > 4
                         data{i,6} = num2str(lasttick(4)-lastClose);
