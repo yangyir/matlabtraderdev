@@ -1,6 +1,6 @@
 clear all;clc;delete(timerfindall);dir_ = getenv('TRADINGDIR'); cd(dir_);
 %
-countername = 'citic_kim_fut';
+countername = 'ccb_ly_fut';
 bookname = 'book-demotrading-wlprbatman';
 strategyname = 'wlprbatman';
 riskconfigfilename = 'wrbatmanconfig_demotrading.txt';
@@ -66,3 +66,20 @@ elseif trade2unwind.opendirection_ == -1 && ~strcmpi(trade2unwind.status_,'close
         'overrideprice',q.ask1-closespread,...
         'tradeid',trade2unwind.id_);
 end
+%%
+timers = timerfindall;
+for i = 1:size(timers,2)
+    fprintf('%s:running:%s\n',timers(i).tag,timers(i).Running);
+end
+%%
+if strcmpi(countername,'ccb_ly_fut')
+    tradesoutputdir = [getenv('ONEDRIVE'),'\trading\ccblyfut\'];
+elseif strcmpi(countername,'citic_kim_fut')
+    tradesoutputdir = [getenv('ONEDRIVE'),'\trading\citickimfut\'];
+end
+tradesoutputdir = [tradesoutputdir,strategyname,'\',bookname,'\'];
+if isempty(dir(tradesoutputdir)),mkdir(tradesoutputdir);end
+
+filename = ['trades_',datestr(getlastbusinessdate,'yyyymmdd'),'.txt'];
+combos.ops.trades_.totxt([tradesoutputdir,filename]);
+
