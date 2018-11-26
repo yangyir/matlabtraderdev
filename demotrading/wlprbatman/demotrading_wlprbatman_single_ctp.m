@@ -4,8 +4,24 @@ countername = 'ccb_ly_fut';
 bookname = 'book-demotrading-wlprbatman';
 strategyname = 'wlprbatman';
 riskconfigfilename = 'wrbatmanconfig_demotrading.txt';
+%
+%
+loadtrades = 1;
+if loadtrades
+    if strcmpi(countername,'ccb_ly_fut')
+        tradesoutputdir = [getenv('ONEDRIVE'),'\trading\ccblyfut\'];
+    elseif strcmpi(countername,'citic_kim_fut')
+        tradesoutputdir = [getenv('ONEDRIVE'),'\trading\citickimfut\'];
+    end
+    tradesoutputdir = [tradesoutputdir,strategyname,'\',bookname,'\'];
+    if isempty(dir(tradesoutputdir)),mkdir(tradesoutputdir);end
+    filename = ['trades_',datestr(getlastbusinessdate,'yyyymmdd'),'.txt'];
+    tradesfilename = [tradesoutputdir,filename];
+else
 % tradesfilename = 'C:\yangyiran\ops\save\citic_kim_fut-book-demotrading-wlprbatman\citic_kim_fut-book-demotrading-wlprbatman_trades_20181115.txt';
-tradesfilename = '';
+    tradesfilename = '';
+end
+%
 combos = rtt_setup('CounterName',countername,...
     'BookName',bookname,...
     'StrategyName',strategyname,...
