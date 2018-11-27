@@ -5,6 +5,7 @@ classdef cWilliamsRInfo < cSignalInfo
         lengthofperiod_@double
         highesthigh_@double
         lowestlow_@double
+        wrmode_@char
     end
     
     methods

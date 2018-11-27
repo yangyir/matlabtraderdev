@@ -10,6 +10,24 @@ function [] = registerinstrument(strategy,instrument)
             strategy.wr_ = [strategy.wr_;NaN];
         end
     end
+    %
+    %highest of nperiods
+    if isempty(strategy.maxnperiods_)
+        strategy.maxnperiods_ = NaN(strategy.count,1);
+    else
+        if size(strategy.maxnperiods_,1) < strategy.count
+            strategy.maxnperiods_ = [strategy.maxnperiods_;NaN];
+        end
+    end
+    
+    %lowest of nperiods
+    if isempty(strategy.minnperiods_)
+        strategy.minnperiods_ = NaN(strategy.count,1);
+    else
+        if size(strategy.minnperiods_,1) < strategy.count
+            strategy.minnperiods_ = [strategy.minnperiods_;NaN];
+        end
+    end
     
     if ischar(instrument)
         ctpcode = instrument;

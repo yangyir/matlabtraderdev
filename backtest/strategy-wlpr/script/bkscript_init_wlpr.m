@@ -5,7 +5,7 @@ clear
 if ~exist('bbgConn','var'), bbgConn = bbgconnect;end
 
 %% Download intraday bar data from Bloomberg
-assetList_wlpr = {'govtbond_10y'};
+assetList_wlpr = {'crude oil'};
 [dataIntradaybar_wlpr,codeList_wlpr] = bkfuns_loadintradaydata( bbgConn, assetList_wlpr );
 
 %% generate trades
@@ -19,13 +19,34 @@ for i = 1:nasset_wlpr
         'SampleFrequency',sampleFreq_wlpr{i},...
         'NPeriod',nperiod_wlpr(i),...
         'LongOpenSpread',0,...
-        'ShortOpenSpread',0);
+        'ShortOpenSpread',0,...
+        'TradeType','reverse');
+    fprintf('%s:%d trades\n',codeList_wlpr{i},tradesAll_wlpr{i}.latest_);
 end
 %%
+clc;
 iAsset = 1;
-iTrade = 1;
+iTrade = 6;
+trade2check = tradesAll_wlpr{iAsset}.node_(iTrade);
 bkfunc_checksingletrade_wlpr(assetList_wlpr{iAsset},assetList_wlpr,dataIntradaybarUsed_wlpr,tradesAll_wlpr,iTrade);
-%%
-% idxAsset = 1;
-% idxTrade = 1;
-% [pnls,pnlBest,pnlWorst] = bkfunc_tradepnldistribution(tradesAll_wlpr{idxAsset}.node_(idxTrade),dataIntradaybarUsed_wlpr{idxAsset});
+%
+batman_extrainfo = struct('bandstoploss',0.01,'bandtarget',0.02);
+
+fprintf('risk management running on trade %d of %s...\n',iTrade,assetList_wlpr{iAsset});
+
+trade2check.setriskmanager('name','batman','extrainfo',batman_extrainfo);
+for j = 1:size(dataIntradaybarUsed_wlpr{iAsset},1)
+    unwindtrade = trade2check.riskmanager_.riskmanagementwithcandle(dataIntradaybarUsed_wlpr{iAsset}(j,:),...
+            'debug',true,...
+            'usecandlelastonly',false,...
+            'updatepnlforclosedtrade',true,...
+            'useopencandle',true,...
+            'resetstoplossandtargetonopencandle',true);
+        
+    if ~isempty(unwindtrade)
+        profitLoss = unwindtrade.closepnl_;
+        break
+    end
+end
+
+fprintf('pnl of checked trade:%s...\n',num2str(profitLoss))

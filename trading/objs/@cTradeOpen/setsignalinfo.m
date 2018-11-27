@@ -32,6 +32,12 @@ function [] = setsignalinfo(obj,varargin)
         catch
             signalinfo.lengthofperiod_ = [];
         end
+        %
+        try
+            signalinfo.tradetype_ = info.tradetype;
+        catch
+            signalinfo.tradetype_ = 'reverse';
+        end
         obj.opensignal_ = signalinfo;
         return
     end
