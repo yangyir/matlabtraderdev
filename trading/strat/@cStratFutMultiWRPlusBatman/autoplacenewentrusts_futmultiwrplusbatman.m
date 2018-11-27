@@ -115,8 +115,34 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
             %management purpose
             obj.withdrawentrusts(instrument,'time',ordertime,'direction',1,'offset',1);
         end
-           
-        if place_entrustshort_flag
+        
+        %note:
+        %we make a new rule for placing entrust
+        %if the last trade >= 0.7(highest-lowest)+lowest, we place the short
+        %entrust only
+        %if the last trade <= 0.3(highest-lowest)+lowest, we place the long
+        %entrust only
+        %if the last trade is in beween 0.3 and 0.7, we place both entrusts
+        tick = obj.mde_fut_.getlasttick(instrument);
+        if ~isempty(tick)
+            lasttrade = tick(4);
+            threshold = (lasttrade - lowestprice)/(highestprice-lowestprice);
+            if threshold >= 0.7
+                place_entrustshort_flag2 = true;
+                place_entrustlong_flag2 = false;
+            elseif threshold <= 0.3
+                place_entrustshort_flag2 = false;
+                place_entrustlong_flag2 = true;
+            else
+                place_entrustshort_flag2 = true;
+                place_entrustlong_flag2 = true;
+            end
+        else
+            place_entrustshort_flag2 = true;
+            place_entrustlong_flag2 = true;
+        end
+            
+        if place_entrustshort_flag && place_entrustshort_flag2
             bidopenspread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidopenspread');
             price = highestprice + bidopenspread*instrument.tick_size;
             obj.shortopen(instrument.code_ctp,abs(volume),...
@@ -124,7 +150,7 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
             
         end
         
-        if place_entrustlong_flag
+        if place_entrustlong_flag && place_entrustlong_flag2
             askopenspread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askopenspread');
             price = lowestprice - askopenspread*instrument.tick_size;
             obj.longopen(instrument.code_ctp,abs(volume),...
