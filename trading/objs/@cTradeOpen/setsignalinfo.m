@@ -34,9 +34,9 @@ function [] = setsignalinfo(obj,varargin)
         end
         %
         try
-            signalinfo.tradetype_ = info.tradetype;
+            signalinfo.wrmode_ = info.wrmode;
         catch
-            signalinfo.tradetype_ = 'reverse';
+            signalinfo.wrmode_ = 'reverse';
         end
         obj.opensignal_ = signalinfo;
         return
