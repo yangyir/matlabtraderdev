@@ -36,9 +36,16 @@ function [ dataIntradaybar,codeList ] = bkfuns_loadintradaydata( bbgConn, assetL
         end
         temp = bbgConn.getdata(assetInfo{i}.BloombergSecA,'parsekyable_des');
         codeList{i} = bbg2ctp(temp.parsekyable_des{1});
-        evalstr = sprintf('%s_1m = dataIntradaybar{i};',assetList{i});
-        eval(evalstr);
-        save([bkdataDir,assetList{i},'.mat'],[assetList{i},'_1m']);
+        check = regexp(assetList{i},' ','split');
+        if length(check) == 2
+            evalstr = sprintf('%s_1m = dataIntradaybar{i};',[check{1},check{2}]);
+            eval(evalstr);
+            save([bkdataDir,check{1},check{2},'.mat'],[check{1},check{2},'_1m']);
+        else
+            evalstr = sprintf('%s_1m = dataIntradaybar{i};',assetList{i});
+            eval(evalstr);
+            save([bkdataDir,assetList{i},'.mat'],[assetList{i},'_1m']);
+        end
     end
 
 end

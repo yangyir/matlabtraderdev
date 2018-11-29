@@ -6,7 +6,8 @@
 fprintf('running ''ccbly_chooseinstruments''...\n');
 
 ccbly_assettypes = {'basemetal';'preciousmetal';'govtbond';'eqindex'};
-ccbly_assetnames = {'crude oil';'deformed bar';'iron ore'};
+ccbly_assetnames = {'crude oil';'deformed bar';'iron ore';...
+    'sugar';'soymeal';'palm oil'};
 ccbly_conditiontype = 'or';
 
 ccbly_futs2trade = getactivefuts('AssetTypes',ccbly_assettypes,...

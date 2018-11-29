@@ -7,6 +7,7 @@ classdef cStratConfigWR < cStratConfig
         overbought_@double = 0
         oversold_@double = -100
         executiontype_@char = 'fixed'
+        wrmode_@char = 'classic'
         
     end
     
@@ -35,6 +36,15 @@ classdef cStratConfigWR < cStratConfig
                 error([class(obj),':invalid overbought_'])
             end
             obj.overbought_ = val;
+        end
+        
+        function [] = set.wrmode_(obj,val)
+            if ~(strcmpi(val,'classic') || ...
+                    strcmpi(val,'reverse1') || strcmpi(val,'reverse2') || ...
+                    strcmpi(val,'follow') || strcmpi(val,'all'))
+                error([class(obj),':invalid wrmode_'])
+            end
+            obj.wrmode_ = val;
         end
         
         function [] = loadfromfile(obj,varargin)

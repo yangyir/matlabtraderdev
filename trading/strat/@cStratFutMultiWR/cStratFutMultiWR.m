@@ -2,6 +2,8 @@ classdef cStratFutMultiWR < cStrat
     
     properties
         wr_@double                  %william%R
+        maxnperiods_@double         %maximum price as of the previous candles exclude the latest one
+        minnperiods_@double         %minimum price as of the previous candles exclude the latest one
     end
     
     methods
@@ -15,6 +17,8 @@ classdef cStratFutMultiWR < cStrat
     methods
         [] = registerinstrument(obj,instrument)
         [wr,wrts] = getlastwr(obj,instrument)
+        [maxp,maxt,maxcandle] = getmaxnperiods(obj,instrument,varargin)
+        [minp,mint.mincandle] = getminnperiods(obj,instrument,varargin)
         [] = printinfo(obj)
     end
     
