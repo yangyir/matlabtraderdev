@@ -15,8 +15,8 @@ classdef cStratFutMultiWRPlusBatman < cStrat
     methods
         [] = registerinstrument(obj,instrument)
 %         [wr,wrts] = getlastwr(obj,instrument)
-        [highp,hight] = gethighnperiods(obj,instrument)
-        [lowp,lowt] = getlownperiods(obj,instrument)
+        [highp,hight] = gethighnperiods(obj,instrument,varargin)
+        [lowp,lowt] = getlownperiods(obj,instrument,varargin)
         %
         [] = printinfo(obj)
     end

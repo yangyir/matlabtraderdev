@@ -1,4 +1,4 @@
-function [lowp,lowt] = getlownperiods(obj,instrument)
+function [lowp,lowt] = getlownperiods(obj,instrument,varargin)
     if ~(isa(instrument,'cInstrument') || ischar(instrument)) 
         error('cStratFutMultiWRPlusBatman:getlownperiods:invalid instrument input')
     end
@@ -10,6 +10,12 @@ function [lowp,lowt] = getlownperiods(obj,instrument)
     else
         error('cStratFutMultiWRPlusBatman:getlownperiods:instrument not found')
     end
+    
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('IncludeLastCandle',false,@islogical);
+    p.parse(varargin{:});
+    includeLastCandle = p.Results.IncludeLastCandle;
 
     %note:both func 'gethistcandles' and 'getcandles' return cell-type
     %variables
@@ -27,8 +33,11 @@ function [lowp,lowt] = getlownperiods(obj,instrument)
     %backtest process
     if ~isempty(candlesticks)
         candlesticks = candlesticks{1};
-%         candlesticks = candlesticks(1:end-1,:);
-        candlesticks = candlesticks(1:end,:);
+        if includeLastCandle
+            candlesticks = candlesticks(1:end,:);
+        else
+            candlesticks = candlesticks(1:end-1,:);
+        end
     else
         candlesticks = [];
     end    
