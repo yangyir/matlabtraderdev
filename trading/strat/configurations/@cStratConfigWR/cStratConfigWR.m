@@ -8,7 +8,7 @@ classdef cStratConfigWR < cStratConfig
         oversold_@double = -100
         executiontype_@char = 'fixed'
         wrmode_@char = 'classic'
-        
+        includelastcandle_@double = 0
     end
     
     methods

@@ -26,6 +26,8 @@ function signals = gensignals_futmultiwr(strategy)
                'propname','samplefreq');
             lengthofperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
                 'propname','numofperiod');
+            includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
+                'propname','includelastcandle');
             ti = strategy.mde_fut_.calc_technical_indicators(instruments{i});
             %
             if strcmpi(wrmode,'classic')
@@ -62,16 +64,16 @@ function signals = gensignals_futmultiwr(strategy)
                 %we sell at the previous max (plus specified bid spread);
                 %and buy at the previous min (minus specified offer spread)
                 %here the latest candle are included to avoid price jump
-                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',true);
-                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',true);
+                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
                 elseif strcmpi(wrmode,'reverse2')
                 %note in mode 'reverse2', we generate signals based on the
                 %candle which contains either the latest max or min prices
                 %then we try to open 1)long once the latest price
                 %breaches above the highest of that candle or 2)short once the
                 %lastest price breaches below the lowest of that candle   
-                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',false);
-                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',false);
+                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
                 elseif strcmpi(wrmode,'follow')
                 %note in mode 'follow', we generate signals based on the
                 %candle which contains either the latest max or min prices
@@ -80,8 +82,8 @@ function signals = gensignals_futmultiwr(strategy)
                 %high price or open 2)long once the latest price breaches
                 %above the latest max price with stoploss at that candle's
                 %low price
-                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',false);
-                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',false);
+                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
                 end
                 %
                 firstMax = false;
@@ -149,18 +151,10 @@ function signals = gensignals_futmultiwr(strategy)
                 end
                 signals{i,1} = {};
                 %
-                
-                
-                
-            elseif strcmpi(wrmode,'follow')
-                
             elseif strcmpi(wrmode,'all')
+                error('ERROR:%s:gensignals_futmultiwr:invalid williamR mode')
             end
-            
-            
-
-            
-            
+                        
             if strategy.printflag_
                 tick = strategy.mde_fut_.getlasttick(instruments{i});
                 fprintf('%s %s: trade:%4.1f; wlpr:%4.1f; high:%s; low:%s; lastclose:%s\n',...
