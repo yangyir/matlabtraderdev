@@ -44,14 +44,24 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     idx = idx(end);
                     mdefut.candles_count_(i) = idx;
                     if idx < size(buckets,1)
-                        try
-                            ds2 = cBloomberg;
-                            candles = ds2.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),mdefut.candle_freq_(i),'trade');
+                        hh = hour(t);
+                        if hh < 21 && hh >= 16
+                            candles = ds.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),mdefut.candle_freq_(i),'trade');
                             for j = 1:size(candles,1)
                                 mdefut.candles_{i}(j,2:end) = candles(j,2:end);
                             end
-                        catch e
-                            fprintf('%s\n',e.message);
+                            mdefut.candles_count_(i) = idx;
+                        else
+                            try
+                                ds2 = cBloomberg;
+                                candles = ds2.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),mdefut.candle_freq_(i),'trade');
+                                for j = 1:size(candles,1)
+                                    mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                                end
+                                mdefut.candles_count_(i) = idx;
+                            catch e
+                                fprintf('%s\n',e.message);
+                            end
                         end
                     end
                 end
@@ -103,15 +113,24 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                 else
                     idx = idx(end);
                     if idx <= size(buckets,1)
-                        try
-                            ds2 = cBloomberg;
-                            candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                        hh = hour(t);
+                        if hh < 21 && hh >= 16
+                            candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                             for j = 1:size(candles,1)
                                 mdefut.candles_{i}(j,2:end) = candles(j,2:end);
                             end
                             mdefut.candles_count_(i) = idx;
-                        catch e
-                            fprintf('%s\n',e.message);
+                        else
+                            try
+                                ds2 = cBloomberg;
+                                candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                                for j = 1:size(candles,1)
+                                    mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                                end
+                                mdefut.candles_count_(i) = idx;
+                            catch e
+                                fprintf('%s\n',e.message);
+                            end
                         end
                     end
                 end
