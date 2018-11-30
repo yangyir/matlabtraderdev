@@ -16,4 +16,4 @@ askclosespread	0
 baseunits	1
 maxunits	10
 autotrade	1
-maxexecutionperbucket	1
+use	1

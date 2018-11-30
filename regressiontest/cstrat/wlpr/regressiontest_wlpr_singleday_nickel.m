@@ -1,32 +1,59 @@
 %%
+code = 'ni1809';
+startdt = '2018-06-04';
+enddt = '2018-06-19';
+db = cLocal;
+instrument = code2instrument(code);
+candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
+%%
+configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprconfig_regressiontest.txt'];
+config = cStratConfigWR;
+config.loadfromfile('code',code,'filename',configfile);
+candle_used = timeseries_compress(candle_db_1m,...
+        'frequency',config.samplefreq_,...
+        'tradinghours',instrument.trading_hours,...
+        'tradingbreak',instrument.trading_break);
+nperiod = config.numofperiod_;
+
+if strcmpi(config.wrmode_,'classic')
+    overbought = config.overbought_;
+    oversold = config.oversold_;
+    wr = willpctr(candle_used(:,3),candle_used(:,4),candle_used(:,5),nperiod);
+    tidx = candle_used(:,1) >= datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS');
+    wrused = [candle_used(tidx,1),wr(tidx),candle_used(tidx,2)];
+    wridx = wrused(:,2) <= oversold | wrused(:,2) >= overbought;
+    ntrades = sum(wridx);
+    tradingbucket = zeros(ntrades,1);
+    tradingopenprice = zeros(ntrades,1);
+    tradingdirection = zeros(ntrades,1);
+    tradingprice = zeros(ntrades,1);
+    count = 0;
+    for i = 1:size(wridx,1)
+        if wridx(i)
+            count = count + 1;
+            tradingbucket(count,1) = wrused(i+1,1);
+            tradingprice(count,1) = wrused(i+1,3);
+            if wrused(i,2) <= oversold
+                tradingdirection(count) = 1;
+            else
+                tradingdirection(count) = -1;
+            end
+            fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s\n',...
+                count,datestr(tradingbucket(count),'yyyy-mm-dd HH:MM'),tradingdirection(count),...
+                num2str(tradingprice(count)));
+        end
+    end
+end
+
+%%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprconfig_regressiontest.txt'];
-% genconfigfile('wlpr',configfile,'instruments',{'ni1809'});
 %
 %user inputs:
 clear;clc;delete(timerfindall);
 bookname = 'replay_wlpr';
 strategyname = 'wlpr';
 riskconfigfilename = 'wlprconfig_regressiontest.txt';
-% numofperiod	144
-% overbought	0
-% oversold	-100
-% executiontype	fixed
-% name	cStratConfigWR
-% codectp	ni1809
-% samplefreq	15m
-% pnlstoptype	ABS
-% pnlstop	-9.99
-% pnllimittype	ABS
-% pnllimit	-9.99
-% bidopenspread	0
-% bidclosespread	0
-% askopenspread	0
-% askclosespread	0
-% baseunits	1
-% maxunits	10
-% autotrade	1
-% maxexecutionperbucket	1
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',riskconfigfilename);
 % replay
 fprintf('nruning regressiontest_wlpr_singleday_nickel...\n');
