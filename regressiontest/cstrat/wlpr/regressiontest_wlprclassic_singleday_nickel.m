@@ -1,4 +1,5 @@
 %%
+clear;delete(timerfindall);
 code = 'ni1809';
 startdt = '2018-06-04';
 enddt = '2018-06-19';
@@ -44,6 +45,9 @@ if strcmpi(config.wrmode_,'classic')
         end
     end
 end
+% id: 1,openbucket:2018-06-19 14:15,direction: 1,price:113260
+% id: 2,openbucket:2018-06-19 14:20,direction: 1,price:113060
+% id: 3,openbucket:2018-06-19 14:30,direction: 1,price:112900
 
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);

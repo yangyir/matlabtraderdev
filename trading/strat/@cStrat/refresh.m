@@ -74,12 +74,22 @@ function [] = refresh(strategy,varargin)
                 lasttick = strategy.mde_fut_.getlasttick(codestr);
                 if isempty(lasttick), continue; end
                 direction = condentrust.direction;
-                if direction == 1 && lastick(3) >= condpx
+                if direction == 1 && lasttick(3) >= condpx
                     strategy.helper_.condentrustspending_.removeByIndex(i);
-                    strategy.longopen(codestr,volume,'overrideprice',condpx);
-                elseif direction == -1 && lastick(2) <= condpx
+                    if isempty(condentrust.signalinfo_)
+                        strategy.longopen(codestr,volume,'overrideprice',condpx);
+                    else
+                        strategy.longopen(codestr,volume,'overrideprice',condpx,...
+                            'signalinfo',condentrust.signalinfo_);
+                    end
+                elseif direction == -1 && lasttick(2) <= condpx
                     strategy.helper_.condentrustspending_.removeByIndex(i);
-                    strategy.shortopen(codestr,volume,'overrideprice',condpx);
+                    if isempty(condentrust.signalinfo_)
+                        strategy.shortopen(codestr,volume,'overrideprice',condpx);
+                    else
+                        strategy.shortopen(codestr,volume,'overrideprice',condpx,...
+                            'signalinfo',condentrust.signalinfo_);
+                    end
                 end
             end
         end

@@ -134,8 +134,6 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             tick = strategy.mde_fut_.getlasttick(instrument);
             if isempty(tick),continue;end
             ordertime = tick(1);
-            bid = tick(2);
-            ask = tick(3);
             lasttrade = tick(4);
             threshold = (lasttrade - lowestprice)/(highestprice-lowestprice);
             if threshold >= 0.7
@@ -150,7 +148,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             end
             
             if placelong
-                price =  ask - askopenspread*instrument.tick_size;
+                price =  lowestprice - askopenspread*instrument.tick_size;
                 isplacenewrequired = true;
                 n = strategy.helper_.entrustspending_.latest;
                 for jj = 1:n
@@ -162,7 +160,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                     if e.volume ~= volume,continue;end  %the same volume
                     if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
                     %is it a better long position deal?
-                    if e.price >= price
+                    if e.price <= price
                         isplacenewrequired = false;
                         continue;
                     end
@@ -177,7 +175,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             end
             
             if placeshort
-                price =  bid + bidopenspread*instrument.tick_size;
+                price =  highestprice + bidopenspread*instrument.tick_size;
                 isplacenewrequired = true;
                 n = strategy.helper_.entrustspending_.latest;
                 for jj = 1:n
@@ -189,7 +187,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                     if e.volume ~= volume,continue;end  %the same volume
                     if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
                     %is it a better long position deal?
-                    if e.price <= price
+                    if e.price >= price
                         isplacenewrequired = false;
                         continue;
                     end
@@ -203,16 +201,79 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                         'overrideprice',price,'time',ordertime,'signalinfo',signal);
                 end
             end
-            
-            
-            
-                
-                
-            
-            
-            
+            %
         elseif strcmpi(wrmode,'reverse2')
         elseif strcmpi(wrmode,'follow')
+            tick = strategy.mde_fut_.getlasttick(instrument);
+            if isempty(tick),continue;end
+            lasttrade = tick(4);
+            threshold = (lasttrade - lowestprice)/(highestprice-lowestprice);
+            if threshold >= 0.7
+                placelong = true;
+                placeshort = false;
+            elseif threshold <= 0.3
+                placelong = false;
+                placeshort = true;
+            else
+                placelong = true;
+                placeshort = true;
+            end
+            
+            if placelong
+                price =  highestprice + askopenspread*instrument.tick_size;
+                isplacenewrequired = true;
+                n = strategy.helper_.condentrustspending_.latest;
+                for jj = 1:n
+                    e = strategy.helper_.condentrustspending_.node(jj);
+                    if e.offsetFlag ~= 1, continue; end
+                    if isempty(e.signalinfo_), continue; end
+                    if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+                    if e.direction ~= 1, continue;end %the same direction
+                    if e.volume ~= volume,continue;end  %the same volume
+                    if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
+                    %is it a better long position deal?
+                    if e.price <= price
+                        isplacenewrequired = false;
+                        continue;
+                    end
+                    %if the code reaches here, the existing conditional 
+                    %entrust shall be canceled
+                    strategy.helper_.condentrustspending_.removeByIndex(jj);
+                end
+                if isplacenewrequired
+                    strategy.condlongopen(instrument.code_ctp,price,...
+                        volume,'signalinfo',signal);
+                end
+            end
+            
+            if placeshort
+                price =  lowestprice - bidopenspread*instrument.tick_size;
+                isplacenewrequired = true;
+                n = strategy.helper_.condentrustspending_.latest;
+                for jj = 1:n
+                    e = strategy.helper_.condentrustspending_.node(jj);
+                    if e.offsetFlag ~= 1, continue; end
+                    if isempty(e.signalinfo_), continue; end
+                    if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+                    if e.direction ~= -1, continue;end %the same direction
+                    if e.volume ~= volume,continue;end  %the same volume
+                    if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
+                    %is it a better long position deal?
+                    if e.price >= price
+                        isplacenewrequired = false;
+                        continue;
+                    end
+                    %if the code reaches here, the existing conditional 
+                    %entrust shall be canceled
+                    strategy.helper_.condentrustspending_.removeByIndex(jj);
+                end
+                if isplacenewrequired
+                    strategy.condshortopen(instrument.code_ctp,price,...
+                        volume,'signalinfo',signal);
+                end          
+            end
+            
+            
         elseif strcmpi(wrmode,'all')
         end
 

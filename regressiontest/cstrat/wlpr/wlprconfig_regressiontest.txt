@@ -1,10 +1,10 @@
 numofperiod	144
 overbought	-1
 oversold	-99
-executiontype	martingale
+executiontype	fixed
 name	cStratConfigWR
 codectp	ni1809
-samplefreq	15m
+samplefreq	5m
 pnlstoptype	ABS
 pnlstop	-9.99
 pnllimittype	ABS

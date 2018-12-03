@@ -64,6 +64,27 @@ function [] = updateentrustsandbook2(obj)
                 if flagCanceled
                     e.complete_time_ = e.cancelTime;
                 end
+                %
+                %note:here we need to double check the dealprice of the
+                %entrust returned by the queryEntrus function
+                if f0 && f1 && f2 && ~flagCanceled && e.dealVolume > 1
+                    codestr = e.instrumentCode;
+                    isopt = isoptchar(codestr);
+                    if isopt
+                        ticks = obj.mdeopt_.getlasttick(codestr);
+                    else
+                        ticks = obj.mdefut_.getlasttick(codestr);
+                    end
+                    if isempty(ticks), continue; end
+                    if ticks(4) == 0, continue; end
+                    ret = abs(log(e.dealPrice/ticks(4)));
+                    if ret >= 0.1
+                        %note:the dealPrice returned here is the multiple
+                        %of the real dealPrice and the volume
+                        fprintf('incorrect deal price returned\n');
+                        e.dealPrice = e.price;
+                    end
+                end
             elseif strcmpi(obj.mode_,'replay')
                 codestr = e.instrumentCode;
                 isopt = isoptchar(codestr);

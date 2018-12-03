@@ -6,7 +6,7 @@ strategyname = 'wlprbatman';
 riskconfigfilename = 'wrbatmanconfig_demotrading.txt';
 %
 %
-loadtrades = 1;
+loadtrades = 0;
 if loadtrades
     if strcmpi(countername,'ccb_ly_fut')
         tradesoutputdir = [getenv('ONEDRIVE'),'\trading\ccblyfut\'];
@@ -62,12 +62,13 @@ c.logout
 %%
 combos.mdefut.logoff
 %% unwind particular trade
-idx = 3;
+idx = 2;
 closespread = 0;
+closetodayFlag = 1;
 trade2unwind = combos.ops.trades_.node_(idx);
 if trade2unwind.opendirection_ == 1 && ~strcmpi(trade2unwind.status_,'closed')
     q = combos.mdefut.qms_.getquote(trade2unwind.code_);
-    ret = obj.shortclose(trade2unwind.code_,...
+    ret = combos.strategy.shortclose(trade2unwind.code_,...
         trade2unwind.openvolume_,...
         closetodayFlag,...
         'time',now,...
@@ -75,7 +76,7 @@ if trade2unwind.opendirection_ == 1 && ~strcmpi(trade2unwind.status_,'closed')
         'tradeid',trade2unwind.id_);
 elseif trade2unwind.opendirection_ == -1 && ~strcmpi(trade2unwind.status_,'closed')
     q = combos.mdefut.qms_.getquote(trade2unwind.code_);
-    ret = obj.longclose(trade2unwind.code_,...
+    ret = combos.strategy.longclose(trade2unwind.code_,...
         trade2unwind.openvolume_,...
         closetodayFlag,...
         'time',now,...
