@@ -138,8 +138,8 @@ function [] = autoplacenewentrusts_futmultiwrplusbatman(obj,signals)
                 place_entrustlong_flag2 = true;
             end
         else
-            place_entrustshort_flag2 = true;
-            place_entrustlong_flag2 = true;
+            place_entrustshort_flag2 = false;
+            place_entrustlong_flag2 = false;
         end
             
         if place_entrustshort_flag && place_entrustshort_flag2

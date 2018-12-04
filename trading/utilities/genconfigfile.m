@@ -106,6 +106,8 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
                 else
                     fprintf(fid,'%s','0');
                 end
+            elseif strcmpi(rownames{i},'use_')
+                fprintf(fid,'%s','0');
             elseif strcmpi(rownames{i},'maxexecutionperbucket_')
                 fprintf(fid,'%s','1');
             %wlpr
@@ -127,7 +129,7 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
             elseif strcmpi(rownames{i},'bandtarget_')
                 fprintf(fid,'%s','0.02');
             elseif strcmpi(rownames{i},'bandtype_')
-                fprintf(fid,'%s','0');    
+                fprintf(fid,'%s','0');
             else
                 %TODO:add more properties
             end

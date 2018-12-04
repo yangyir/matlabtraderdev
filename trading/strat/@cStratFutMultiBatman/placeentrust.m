@@ -52,6 +52,7 @@ function [ret,e] = placeentrust(obj,instrument,varargin)
             ret = 0;
             e = [];
             fprintf('cStratFutMultiBatman:invalid target/stoploss input for long open trade...\n');
+            return
         end
     elseif directionnum == -1
         %pxstoploss > price > pxtarget
@@ -59,6 +60,7 @@ function [ret,e] = placeentrust(obj,instrument,varargin)
             ret = 0;
             e = [];
             fprintf('cStratFutMultiBatman:invalid target/stoploss input for short open trade...\n');
+            return
         end
     end
     

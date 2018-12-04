@@ -262,4 +262,4 @@ for j = 1:length(strikes2_copper)
     p_code_ = [futcode2,'P',num2str(strikes2_copper(j))];
     savedailybarfrombloomberg(conn,p_code_,override);
 end
-fprintf('done for white copper options......\n\n');
+fprintf('done for copper options......\n\n');
