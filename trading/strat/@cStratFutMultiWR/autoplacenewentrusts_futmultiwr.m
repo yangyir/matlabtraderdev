@@ -51,21 +51,6 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         %note:exit if the maxvolume is breached
         if volume == 0, continue;end
 
-%         %check wheter we've already executed trades within the
-%         %bucket and if so check whether the maximum executed number
-%         %is breached or not
-%         maxexecutionperbucket = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','maxexecutionperbucket');
-%         candlebucketnum = strategy.mde_fut_.getcandlecount(instrument);
-%         executionbucketnum = strategy.getexecutionbucketnumber(instrument);
-%         if candlebucketnum > 0 && candlebucketnum == executionbucketnum;
-%             executionfinished = strategy.getexecutionperbucket(instrument);
-%             if executionfinished >=  maxexecutionperbucket
-%                 %note: if the maximum execution time is reached we
-%                 %won't open up new positions for this bucket
-%                 continue;
-%             end
-%         end
-
         %note:there is a maximum limit of 500 entrust placement/withdrawn. as
         %a result, we try to make sure the same entrust, i.e. same underlier
         %futures, entrust price, volume and direction are not repeatly
@@ -76,7 +61,8 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         wrmode = signal.wrmode;
         highestprice = signal.highesthigh;
         lowestprice = signal.lowestlow;
-        
+        highestcandle = signal.highestcandle;
+        lowestcandle = signal.lowestcandle;
         %
         if strcmpi(wrmode,'classic')
             direction = signal.direction;
@@ -131,6 +117,11 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             end
             %
         elseif strcmpi(wrmode,'reverse1')
+            %note:in mode 'reverse1', we generate signals based on the
+            %previous max and min prices of the selected period, i.e.
+            %we sell at the previous max (plus specified bid spread);
+            %and buy at the previous min (minus specified offer spread)
+            %here the latest candle are included to avoid price jump
             tick = strategy.mde_fut_.getlasttick(instrument);
             if isempty(tick),continue;end
             ordertime = tick(1);
@@ -203,7 +194,86 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             end
             %
         elseif strcmpi(wrmode,'reverse2')
+            %note in mode 'reverse2', we generate signals based on the
+            %candle which contains either the latest max or min prices
+            %then we try to open 1)long once the latest price
+            %breaches above the highest of that candle or 2)short once the
+            %lastest price breaches below the lowest of that candle
+            tick = strategy.mde_fut_.getlasttick(instrument);
+            if isempty(tick),continue;end
+            %
+            lasttrade = tick(4);
+            
+            %rule:1)no new high is achieved with the tick
+            %2)the tick is higher than the candle's low
+            %3)open a conditional entrust with short position at the
+            %candle's low price
+            if lasttrade <= highestprice && lasttrade > highestcandle(4)
+                price = highestcandle(4) - bidopenspread*instrument.tick_size;
+                isplacenewrequired = true;
+                n = strategy.helper_.condentrustspending_.latest;
+                for jj = 1:n
+                    e = strategy.helper_.condentrustspending_.node(jj);
+                    if e.offsetFlag ~= 1, continue; end
+                    if isempty(e.signalinfo_), continue; end
+                    if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+                    if e.direction ~= -1, continue;end %the same direction
+                    if e.volume ~= volume,continue;end  %the same volume
+                    if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
+                    %is it a better long position deal?
+                    if e.price >= price
+                        isplacenewrequired = false;
+                        continue;
+                    end
+                    %if the code reaches here, the existing conditional
+                    %entrust shall be canceled
+                    strategy.helper_.condentrustspending_.removeByIndex(jj);
+                end
+                if isplacenewrequired
+                    strategy.condshortopen(instrument.code_ctp,price,...
+                        volume,'signalinfo',signal);
+                end
+            end
+            %
+            %rule:1)no new low is achieved with the tick
+            %2)the tick is lower than the candle's high
+            %3)open a conditional entrust with long position at the
+            %candle's high price
+            if lasttrade >= lowestprice && lasttrade < lowestcandle(3)
+                price = highestcandle(3) + askopenspread*instrument.tick_size;
+                isplacenewrequired = true;
+                n = strategy.helper_.condentrustspending_.latest;
+                for jj = 1:n
+                    e = strategy.helper_.condentrustspending_.node(jj);
+                    if e.offsetFlag ~= 1, continue; end
+                    if isempty(e.signalinfo_), continue; end
+                    if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+                    if e.direction ~= 1, continue;end %the same direction
+                    if e.volume ~= volume,continue;end  %the same volume
+                    if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
+                    %is it a better long position deal?
+                    if e.price <= price
+                        isplacenewrequired = false;
+                        continue;
+                    end
+                    %if the code reaches here, the existing conditional 
+                    %entrust shall be canceled
+                    strategy.helper_.condentrustspending_.removeByIndex(jj);
+                end
+                if isplacenewrequired
+                    strategy.condlongopen(instrument.code_ctp,price,...
+                        volume,'signalinfo',signal);
+                end
+            end
+            %
         elseif strcmpi(wrmode,'follow')
+            %note in mode 'follow', we generate signals based on the
+            %candle which contains either the latest max or min prices
+            %then we try to open 1)short once the latest price breaches
+            %below the latest min price with stoploss at that candle's
+            %high price or open 2)long once the latest price breaches
+            %above the latest max price with stoploss at that candle's
+            %low price
             tick = strategy.mde_fut_.getlasttick(instrument);
             if isempty(tick),continue;end
             lasttrade = tick(4);
