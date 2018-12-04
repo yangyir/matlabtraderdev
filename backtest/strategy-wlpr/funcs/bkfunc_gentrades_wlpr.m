@@ -59,8 +59,8 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
         for i = idx_start:idx_end
             pxMax = max(pxHighVec(i-nperiod:i-1));
             pxMin = min(pxLowVec(i-nperiod:i-1));
-            pxHigh = pxHighVec(i);
-            pxLow = pxLowVec(i);
+%             pxHigh = pxHighVec(i);
+%             pxLow = pxLowVec(i);
             datetime = dateTimeVec(i);
             extrainfo = struct('frequency',freq,...
                 'lengthofperiod',nperiod,...
