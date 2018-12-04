@@ -13,7 +13,7 @@ function [minp,mint,mincandle] = getminnperiods(obj,instrument,varargin)
     end
     
     p = inputParser;
-    p.addParameter('IncludeLastCandle',false,@islogical);
+    p.addParameter('IncludeLastCandle',0,@isnumeric);
     p.parse(varargin{:});
     includeLastCandle = p.Results.IncludeLastCandle;
     %

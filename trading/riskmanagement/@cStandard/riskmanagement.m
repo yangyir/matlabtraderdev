@@ -56,6 +56,8 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     
     if ~strcmpi(trade.status_,'set'), return; end
     
+    if obj.pxstoploss_ == -9.99, return; end
+    
     lasttick = mdefut.getlasttick(instrument);
     if isempty(lasttick), return; end
     ticktime = lasttick(1);
@@ -74,7 +76,6 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     
     if isstoplossbreached    
         obj.status_ = 'closed';
-        obj.checkflag_ = 0;
         trade.status_ = 'closed';
         unwindtrade = trade;
         if debug

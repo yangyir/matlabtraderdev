@@ -1,5 +1,11 @@
 function [ret,e,msg] = condshortopen(strategy,code_ctp,condpx,lots,varargin)
 %cStrategy
+   p = inputParser;
+   p.CaseSensitive = false;p.KeepUnmatched = false;
+   p.addParameter('signalinfo',{},@isstruct);
+   p.parse(varargin{:});
+   signalinfo = p.Results.signalinfo;
+   
    if isempty(strategy.timer_) || strcmpi(strategy.timer_.running,'off')
         ret = 0;
         e = [];
@@ -73,7 +79,7 @@ function [ret,e,msg] = condshortopen(strategy,code_ctp,condpx,lots,varargin)
    end
    
    %note:condition short open holds in case the condpx < bidpx
-   if condpx >= bidpx
+   if condpx > bidpx
        ret = 0;
        e = [];
        msg = sprintf('%s:condshortopen:conditional price is higher than the market price...\n',class(strategy));
@@ -93,8 +99,11 @@ function [ret,e,msg] = condshortopen(strategy,code_ctp,condpx,lots,varargin)
            if ~isopt, e.assetType = 'Future';end
            e.time = ordertime;
            e.date = floor(ordertime);
+           if ~isempty(signalinfo)
+               e.signalinfo_ = signalinfo;
+           end
            msg = sprintf('%s placed conditional short open entrust with code:%8s, price:%6s, amount:%3d',...
-               datestr(entrust.time,'yyyymmdd HH:MM:SS'),...
+               datestr(e.time,'yyyymmdd HH:MM:SS'),...
                code_ctp,condpx,lots);
            strategy.helper_.condentrustspending_.push(e);
            ret = 1;

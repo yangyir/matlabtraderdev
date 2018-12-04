@@ -1,5 +1,5 @@
 Name	cStratConfigWRBatman	cStratConfigWRBatman	cStratConfigWRBatman	cStratConfigWRBatman	cStratConfigWRBatman
-CodeCTP	sc1901	ni1901	zn1901	al1901	rb1901
+CodeCTP	sc1901	ni1901	zn1901	al1901	rb1905
 SampleFreq	15m	15m	15m	15m	15m
 PnLStopType	ABS	ABS	ABS	ABS	ABS
 PnLStop	-9.99	-9.99	-9.99	-9.99	-9.99	
@@ -9,8 +9,8 @@ BidOpenSpread	10	10	10	10	6
 BidCloseSpread	0	0	0	0	0
 AskOpenSpread	7	10	8	4	8
 AskCloseSpread	0	0	0	0	0
-BaseUnits	1	2	1	2	1
-MaxUnits	5	10	8	8	10
+BaseUnits	1	2	1	2	3
+MaxUnits	5	10	8	8	20
 AutoTrade	1	1	1	1	1
 MaxExecutionPerBucket	1	1	1	1	1
 NumofPeriod	144	144	144	144	144

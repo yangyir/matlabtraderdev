@@ -1,4 +1,4 @@
-function [highp,hight] = gethighnperiods(obj,instrument)
+function [highp,hight] = gethighnperiods(obj,instrument,varargin)
     if ~(isa(instrument,'cInstrument') || ischar(instrument)) 
         error('cStratFutMultiWRPlusBatman:gethighnperiods:invalid instrument input')
     end
@@ -11,6 +11,12 @@ function [highp,hight] = gethighnperiods(obj,instrument)
         error('cStratFutMultiWRPlusBatman:gethighnperiods:instrument not found')
     end
 
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('IncludeLastCandle',false,@islogical);
+    p.parse(varargin{:});
+    includeLastCandle = p.Results.IncludeLastCandle;
+    
     %note:both func 'gethistcandles' and 'getcandles' return cell-type
     %variables
     histcandles = obj.mde_fut_.gethistcandles(instrument);
@@ -27,8 +33,11 @@ function [highp,hight] = gethighnperiods(obj,instrument)
     %backtest process
     if ~isempty(candlesticks)
         candlesticks = candlesticks{1};
-%         candlesticks = candlesticks(1:end-1,:);
-        candlesticks = candlesticks(1:end,:);
+        if includeLastCandle
+            candlesticks = candlesticks(1:end,:);
+        else
+            candlesticks = candlesticks(1:end-1,:);
+        end
     else
         candlesticks = [];
     end

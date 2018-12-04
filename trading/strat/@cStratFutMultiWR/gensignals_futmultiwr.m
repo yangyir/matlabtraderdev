@@ -8,7 +8,7 @@ function signals = gensignals_futmultiwr(strategy)
             calcsignalflag = strategy.getcalcsignalflag(instruments{i});
         catch e
             calcsignalflag = 0;
-            msg = ['error:%s:getcalcsignalflag:',class(strategy),e.message,'\n'];
+            msg = ['ERROR:%s:getcalcsignalflag:',class(strategy),e.message,'\n'];
             fprintf(msg);
             if strcmpi(strategy.onerror_,'stop'), strategy.stop; end
         end
@@ -26,7 +26,28 @@ function signals = gensignals_futmultiwr(strategy)
                'propname','samplefreq');
             lengthofperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
                 'propname','numofperiod');
+            includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
+                'propname','includelastcandle');
+            
+            if strcmpi(wrmode,'reverse2') && includelastcandle
+                error('ERROR:%s:gensignals_futmultiwr:last candle shall be excluded with reverse2 mode',class(obj))
+            end
+            
+            if strcmpi(wrmode,'follow') && includelastcandle
+                error('ERROR:%s:gensignals_futmultiwr:last candle shall be excluded with follow mode',class(obj))
+            end
+            
             ti = strategy.mde_fut_.calc_technical_indicators(instruments{i});
+            [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+            [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+            %
+            %refresh max and min prices
+            maxpx_before = strategy.maxnperiods_(i);
+            if maxpx_last > maxpx_before || maxpx_before <= 0, strategy.maxnperiods_(i) = maxpx_last;end
+            
+            minpx_before = strategy.minnperiods_(i);
+            if minpx_last < minpx_before || minpx_before <= 0, strategy.minnperiods_(i) = minpx_last;end
+            %
             %
             if strcmpi(wrmode,'classic')
                 %note:in mode 'classic', we generate signal based on WR, i.e.
@@ -41,8 +62,13 @@ function signals = gensignals_futmultiwr(strategy)
                         'direction',1,...
                         'highesthigh',ti{1}(2),...
                         'lowestlow',ti{1}(3),...
+                        'highestcandle',maxcandle,...
+                        'lowestcandle',mincandle,...
                         'wrmode',wrmode);
-                elseif strategy.wr_(i) >= overbought
+                    continue;
+                end
+                
+                if strategy.wr_(i) >= overbought
                     signals{i,1} = struct('name','williamsr',...
                         'instrument',instruments{i},...
                         'frequency',samplefreqstr,...
@@ -50,71 +76,14 @@ function signals = gensignals_futmultiwr(strategy)
                         'direction',-1,...
                         'highesthigh',ti{1}(2),...
                         'lowestlow',ti{1}(3),...
-                        'wrmode',wrmode);
-                else
-                    signals{i,1} = {};
-                end
-                %
-            elseif strcmpi(wrmode,'reverse1') || strcmpi(wrmode,'reverse2') || strcmpi(wrmode,'follow')
-                if strcmpi(wrmode,'reverse1') 
-                %note:in mode 'reverse1', we generate signals based on the
-                %previous max and min prices of the selected period, i.e.
-                %we sell at the previous max (plus specified bid spread);
-                %and buy at the previous min (minus specified offer spread)
-                %here the latest candle are included to avoid price jump
-                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',true);
-                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',true);
-                elseif strcmpi(wrmode,'reverse2')
-                %note in mode 'reverse2', we generate signals based on the
-                %candle which contains either the latest max or min prices
-                %then we try to open 1)long once the latest price
-                %breaches above the highest of that candle or 2)short once the
-                %lastest price breaches below the lowest of that candle   
-                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',false);
-                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',false);
-                elseif strcmpi(wrmode,'follow')
-                %note in mode 'follow', we generate signals based on the
-                %candle which contains either the latest max or min prices
-                %then we try to open 1)short once the latest price breaches
-                %below the latest min price with stoploss at that candle's
-                %high price or open 2)long once the latest price breaches
-                %above the latest max price with stoploss at that candle's
-                %low price
-                    [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',false);
-                    [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',false);
-                end
-                %
-                firstMax = false;
-                if isempty(strategy.maxnperiods_(i)) || isnan(strategy.maxnperiods_(i))
-                    strategy.maxnperiods_(i) = maxpx_last;
-                    firstMax = true;
-                end
-                   
-                firstMin = false;
-                if isempty(strategy.minnperiods_(i)) || isnan(strategy.minnperiods_(i))
-                    strategy.minnperiods_(i) = minpx_last;
-                    firstMin = true;
-                end
-                %refresh max and min prices
-                maxpx_before = strategy.maxnperiods_(i);
-                if maxpx_last > maxpx_before || maxpx_before <= 0, strategy.maxnperiods_(i) = maxpx_last;end
-
-                minpx_before = strategy.minnperiods_(i);
-                if minpx_last < minpx_before || minpx_before <= 0, strategy.minnperiods_(i) = minpx_last;end
-                
-                if firstMax || firstMin
-                    signals{i,1} = struct('name','williamsr',...
-                        'instrument',instruments{i},...
-                        'frequency',samplefreqstr,...
-                        'lengthofperiod',lengthofperiod,...
-                        'checkflag',1,...
-                        'highesthigh',maxpx_last,...
-                        'lowestlow',minpx_last,...
                         'highestcandle',maxcandle,...
                         'lowestcandle',mincandle,...
                         'wrmode',wrmode);
                     continue;
                 end
+                signals{i,1} = {};
+                %
+            elseif strcmpi(wrmode,'reverse1') || strcmpi(wrmode,'reverse2') || strcmpi(wrmode,'follow')
                 %
                 %note:first time set entrusts
                 %IMPORTANT:shall be open entrust
@@ -149,18 +118,10 @@ function signals = gensignals_futmultiwr(strategy)
                 end
                 signals{i,1} = {};
                 %
-                
-                
-                
-            elseif strcmpi(wrmode,'follow')
-                
             elseif strcmpi(wrmode,'all')
+                error('ERROR:%s:gensignals_futmultiwr:all mode not supported')
             end
-            
-            
-
-            
-            
+                        
             if strategy.printflag_
                 tick = strategy.mde_fut_.getlasttick(instruments{i});
                 fprintf('%s %s: trade:%4.1f; wlpr:%4.1f; high:%s; low:%s; lastclose:%s\n',...
@@ -168,27 +129,6 @@ function signals = gensignals_futmultiwr(strategy)
                 num2str(ti{1}(2)),num2str(ti{1}(3)),num2str(ti{1}(4)));
             end
             
-            
-         
-            if strategy.wr_(i) <= oversold
-                signals{i,1} = struct('name','williamsr',...
-                    'instrument',instruments{i},...
-                    'frequency',samplefreqstr,...
-                    'lengthofperiod',lengthofperiod,...
-                    'direction',1,...
-                    'highesthigh',ti{1}(2),...
-                    'lowestlow',ti{1}(3));
-            elseif strategy.wr_(i) >= overbought
-                signals{i,1} = struct(...
-                    'instrument',instruments{i},...
-                    'frequency',samplefreqstr,...
-                    'lengthofperiod',lengthofperiod,...
-                    'direction',-1,...
-                    'highesthigh',ti{1}(2),...
-                    'lowestlow',ti{1}(3));
-            else
-                signals{i,1} = {};
-            end
         end
     end
 end
