@@ -159,8 +159,10 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
         for i = idx_start:idx_end
             pxMax = max(pxHighVec(i-nperiod:i-1));
             pxMin = min(pxLowVec(i-nperiod:i-1));
-            idxMax = find(pxHighVec == pxMax,'last');
-            idxMin = find(pxLowVec == pxMin,'last');
+            idxMax = find(pxHighVec == pxMax);
+            if length(idxMax) > 1, idxMax = idxMax(end);end
+            idxMin = find(pxLowVec == pxMin);
+            if length(idxMin) > 1, idxMin = idxMin(end);end
             pxHigh = pxHighVec(i);
             pxLow = pxLowVec(i);
             datetime = dateTimeVec(i);
