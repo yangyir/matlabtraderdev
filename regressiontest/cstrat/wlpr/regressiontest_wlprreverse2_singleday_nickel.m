@@ -30,15 +30,10 @@ for i = 1:trades.latest_
                 num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2018-06-19 09:00:01,direction: 1,price:114090
-% id: 2,openbucket:2018-06-19 09:05:01,direction: 1,price:113860
-% id: 3,openbucket:2018-06-19 14:10:01,direction: 1,price:113400
-% id: 4,openbucket:2018-06-19 14:15:01,direction: 1,price:113260
-% id: 5,openbucket:2018-06-19 14:20:01,direction: 1,price:113050
-% id: 6,openbucket:2018-06-19 14:25:01,direction: 1,price:113010
-% id: 7,openbucket:2018-06-19 14:30:01,direction: 1,price:112890
-% id: 8,openbucket:2018-06-19 14:35:01,direction: 1,price:112810
-% id: 9,openbucket:2018-06-19 21:00:01,direction: 1,price:112420
+% id: 1,openbucket:2018-06-19 09:10:01,direction: 1,price:114290
+% id: 2,openbucket:2018-06-19 09:30:01,direction: 1,price:114510
+% id: 3,openbucket:2018-06-19 21:30:01,direction: 1,price:113360
+% id: 4,openbucket:2018-06-19 21:35:01,direction: 1,price:113470
 
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);

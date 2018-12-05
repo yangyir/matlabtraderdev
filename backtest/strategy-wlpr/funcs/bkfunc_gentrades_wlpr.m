@@ -156,65 +156,84 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
         end
         %
     elseif strcmpi(wrmode,'reverse2')
-        for i = idx_start:idx_end
-            pxMax = max(pxHighVec(i-nperiod:i-1));
-            pxMin = min(pxLowVec(i-nperiod:i-1));
-            idxMax = find(pxHighVec == pxMax);
-            if length(idxMax) > 1, idxMax = idxMax(end);end
-            idxMin = find(pxLowVec == pxMin);
-            if length(idxMin) > 1, idxMin = idxMin(end);end
-            pxHigh = pxHighVec(i);
-            pxLow = pxLowVec(i);
-            datetime = dateTimeVec(i);
-            extrainfo = struct('frequency',freq,...
-                'lengthofperiod',nperiod,...
-                'highesthigh',pxMax,...
-                'lowestlow',pxMin,...
-                'tradetype',wrmode);
-            %note: we add 1 sec to the timevec indicting it fells between the
-            %bucket starting from dateTimeVec(i) and dateTimeVec(i+1)
-            opendatetime = datetime+1/86400;
-            if ~isempty(nstopperiod)
-                stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
-            else
-                stopdatetime = [];
-            end
-            if pxHigh <= pxMax
-                %note:conditions:1)no new high is achieved
-                %2)price breaches below the low price of the candle in which
-                %the max price is observed
-                %3)the stoploss price is the max price
-                if pxLow < pxLowVec(idxMax)
-                    trade_i = cTradeOpen('code',code,...
-                        'opendatetime',opendatetime,...
-                        'opendirection',-1,...
-                        'openvolume',1,...
-                        'openprice',pxLowVec(idxMax),...
-                        'targetprice',[],...
-                        'stoplossprice',pxMax,...
-                        'stopdatetime',stopdatetime);
-                    trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
-                    trades.push(trade_i);
+        idx_check = idx_start;
+        while idx_check <= idx_end
+            pxMax = max(pxHighVec(idx_check-nperiod:idx_check-1));
+            pxMin = min(pxLowVec(idx_check-nperiod:idx_check-1));
+            newMax = false;
+            newMin = false;
+            for i = idx_check:idx_end
+                pxHigh = pxHighVec(i);
+                pxLow = pxLowVec(i);
+                if pxHigh > pxMax
+                    %if a new high is breached, we break the loop
+                    pxMax = pxHigh;
+                    idx_check = i+1;
+                    newMax = true;
+                    break
+                end
+                %
+                if pxLow < pxMin
+                    %if a new low is breached, we break the loop
+                    pxMin = pxLow;
+                    idx_check = i+1;
+                    newMin = true;
+                    break
                 end
             end
             %
-            if pxLow >= pxMin
-                %note:conditions:1)no new low is achieved
-                %2)price breaches up the high price of the candle in which
-                %the min price is observed
-                %3)the stoploss price is the min price
-                if pxHigh > pxHighVec(idxMin)
-                    trade_i = cTradeOpen('code',code,...
-                        'opendatetime',opendatetime,...
-                        'opendirection',1,...
-                        'openvolume',1,...
-                        'openprice',pxHighVec(idxMin),...
-                        'targetprice',[],...
-                        'stoplossprice',pxMin,...
-                        'stopdatetime',stopdatetime);
-                    trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
-                    trades.push(trade_i);
+            if newMax || newMin
+                extrainfo = struct('frequency',freq,...
+                    'lengthofperiod',nperiod,...
+                    'highesthigh',pxMax,...
+                    'lowestlow',pxMin,...
+                    'tradetype',wrmode);
+                for i = idx_check:idx_end
+                    %we start from the next candle onwards
+                    pxHigh = pxHighVec(i);
+                    pxLow = pxLowVec(i);
+                    pxOpen = pxOpenVec(i);
+                    datetime = dateTimeVec(i);
+                    %note: we add 1 sec to the timevec indicting it fells between the
+                    %bucket starting from dateTimeVec(i) and dateTimeVec(i+1)
+                    opendatetime = datetime+1/86400;
+                    if ~isempty(nstopperiod)
+                        stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
+                    else
+                        stopdatetime = [];
+                    end
+                    
+                    if newMax && pxLow < pxLowVec(idx_check)
+                        trade_i = cTradeOpen('code',code,...
+                            'opendatetime',opendatetime,...
+                            'opendirection',-1,...
+                            'openvolume',1,...
+                            'openprice',min(pxOpen,pxLowVec(idx_check)),...
+                            'targetprice',[],...
+                            'stoplossprice',pxMax,...
+                            'stopdatetime',stopdatetime);
+                        trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
+                        trades.push(trade_i);
+                        idx_check = i;
+                        break
+                    end
+                    %
+                    if newMin && pxHigh > pxHighVec(idx_check)
+                        trade_i = cTradeOpen('code',code,...
+                            'opendatetime',opendatetime,...
+                            'opendirection',1,...
+                            'openvolume',1,...
+                            'openprice',max(pxOpen,pxHighVec(idx_check)),...
+                            'targetprice',[],...
+                            'stoplossprice',pxMin,...
+                            'stopdatetime',stopdatetime);
+                        trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
+                        trades.push(trade_i);
+                        idx_check = i;
+                    end
                 end
+            else
+                idx_check = idx_check + 1;
             end
         end
         %

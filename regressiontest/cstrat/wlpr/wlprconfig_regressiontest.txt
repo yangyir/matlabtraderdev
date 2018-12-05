@@ -17,3 +17,4 @@ baseunits	1
 maxunits	10
 autotrade	1
 use	1
+wrmode	classic

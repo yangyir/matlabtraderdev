@@ -21,15 +21,15 @@ for i = 1:nasset_wlpr
         'OverBought',-0.5,...
         'OverSold',-99.5,...
         'TradeType','classic');
-    fprintf('%s:%d trades\n',codeList_wlpr{i},tradesAll_wlpr{i}.latest_);
+    fprintf('%s:%d trades\n',assetList_wlpr{i},tradesAll_wlpr{i}.latest_);
 end
 %%
 clc;
 iAsset = 1;
-iTrade = 6;
+iTrade = 50;
 trade2check = tradesAll_wlpr{iAsset}.node_(iTrade);
 bkfunc_checksingletrade_wlpr(assetList_wlpr{iAsset},assetList_wlpr,dataIntradaybarUsed_wlpr,tradesAll_wlpr,iTrade);
-%
+%%
 batman_extrainfo = struct('bandstoploss',0.01,'bandtarget',0.02);
 
 fprintf('risk management running on trade %d of %s...\n',iTrade,assetList_wlpr{iAsset});
