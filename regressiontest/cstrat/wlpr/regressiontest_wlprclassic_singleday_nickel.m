@@ -1,4 +1,5 @@
 %%
+clc;
 clear;delete(timerfindall);
 code = 'ni1809';
 startdt = '2018-06-04';
@@ -10,45 +11,28 @@ candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprconfig_regressiontest.txt'];
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
-candle_used = timeseries_compress(candle_db_1m,...
-        'frequency',config.samplefreq_,...
-        'tradinghours',instrument.trading_hours,...
-        'tradingbreak',instrument.trading_break);
-nperiod = config.numofperiod_;
-
-if strcmpi(config.wrmode_,'classic')
-    overbought = config.overbought_;
-    oversold = config.oversold_;
-    wr = willpctr(candle_used(:,3),candle_used(:,4),candle_used(:,5),nperiod);
-    tidx = candle_used(:,1) >= datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS');
-    wrused = [candle_used(tidx,1),wr(tidx),candle_used(tidx,2)];
-    wridx = wrused(:,2) <= oversold | wrused(:,2) >= overbought;
-    ntrades = sum(wridx);
-    tradingbucket = zeros(ntrades,1);
-    tradingopenprice = zeros(ntrades,1);
-    tradingdirection = zeros(ntrades,1);
-    tradingprice = zeros(ntrades,1);
-    count = 0;
-    for i = 1:size(wridx,1)
-        if wridx(i)
-            count = count + 1;
-            tradingbucket(count,1) = wrused(i+1,1);
-            tradingprice(count,1) = wrused(i+1,3);
-            if wrused(i,2) <= oversold
-                tradingdirection(count) = 1;
-            else
-                tradingdirection(count) = -1;
-            end
-            fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s\n',...
-                count,datestr(tradingbucket(count),'yyyy-mm-dd HH:MM'),tradingdirection(count),...
-                num2str(tradingprice(count)));
-        end
+[trades] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
+    'SampleFrequency',config.samplefreq_,...
+    'NPeriod',config.numofperiod_,...
+    'AskOpenSpread',config.askopenspread_,...
+    'BidOpenSpread',config.bidopenspread_,...
+    'WRMode',config.wrmode_,...
+    'OverBought',config.overbought_,...
+    'OverSold',config.oversold_);
+%
+count = 0;
+clc;
+for i = 1:trades.latest_
+    if trades.node_(i).opendatetime1_ > datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS')
+        count = count + 1;
+        fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s\n',...
+                count,trades.node_(i).opendatetime2_,trades.node_(i).opendirection_,...
+                num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2018-06-19 14:15,direction: 1,price:113260
-% id: 2,openbucket:2018-06-19 14:20,direction: 1,price:113060
-% id: 3,openbucket:2018-06-19 14:30,direction: 1,price:112900
-
+% id: 1,openbucket:2018-06-19 14:15:01,direction: 1,price:113260
+% id: 2,openbucket:2018-06-19 14:20:01,direction: 1,price:113060
+% id: 3,openbucket:2018-06-19 14:30:01,direction: 1,price:112900
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprconfig_regressiontest.txt'];
@@ -109,4 +93,14 @@ combos.strategy.start;
 %%
 combos.mdefut.stop
 %%
-combos.ops.printrunningpnl('MDEFut',combos.mdefut)
+fprintf('\ntrades info from replay......\n')
+for j = 1:combos.ops.trades_.latest_
+    trade_j = combos.ops.trades_.node_(j);
+    fprintf('id:%2d,opentime:%s,direction:%2d,price:%s\n',...
+        j,trade_j.opendatetime2_(end-8:end),trade_j.opendirection_,...
+        num2str(trade_j.openprice_));
+end
+% trades info from replay......
+% id: 1,opentime: 14:15:01,direction: 1,price:113260
+% id: 2,opentime: 14:20:01,direction: 1,price:113060
+% id: 3,opentime: 14:30:00,direction: 1,price:112900

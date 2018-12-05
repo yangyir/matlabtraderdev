@@ -11,54 +11,34 @@ candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprreverse1config_regressiontest.txt'];
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
-candle_used = timeseries_compress(candle_db_1m,...
-        'frequency',config.samplefreq_,...
-        'tradinghours',instrument.trading_hours,...
-        'tradingbreak',instrument.trading_break);
-nperiod = config.numofperiod_;
-
-includelastcandle = config.includelastcandle_;
-if includelastcandle, error('includelastcandle shall be 0');end
-
-bidopenspread = config.bidopenspread_;
-askopenspread = config.askopenspread_;
-ticksize = instrument.tick_size;
-
-startdtnum = datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS');
-if strcmpi(config.wrmode_,'reverse1')
-    ntrade = 0;
-    for i = nperiod+1:size(candle_used,1)
-        t = candle_used(i,1);
-        if t < startdtnum, continue;end
-        pxmax = max(candle_used(i-nperiod:i-1,3));
-        pxmin = min(candle_used(i-nperiod:i-1,4));
-        pxhigh = candle_used(i,3);
-        pxlow = candle_used(i,4);
-        if pxhigh > pxmax + bidopenspread*ticksize
-            ntrade = ntrade + 1;
-            fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s,max:%s,min:%s\n',...
-                ntrade,datestr(t,'yyyy-mm-dd HH:MM'),-1,...
-                num2str(pxmax + bidopenspread*ticksize),...
-                num2str(pxmax),num2str(pxmin));
-        end
-        if pxlow < pxmin - askopenspread*ticksize
-            ntrade = ntrade + 1;
-            fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s,max:%s,min:%s\n',...
-                ntrade,datestr(t,'yyyy-mm-dd HH:MM'),1,...
-                num2str(pxmin - askopenspread*ticksize),...
-                num2str(pxmax),num2str(pxmin));
-        end
+[trades] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
+    'SampleFrequency',config.samplefreq_,...
+    'NPeriod',config.numofperiod_,...
+    'AskOpenSpread',config.askopenspread_,...
+    'BidOpenSpread',config.bidopenspread_,...
+    'WRMode',config.wrmode_,...
+    'OverBought',config.overbought_,...
+    'OverSold',config.oversold_);
+%
+count = 0;
+clc;
+for i = 1:trades.latest_
+    if trades.node_(i).opendatetime1_ > datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS')
+        count = count + 1;
+        fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s\n',...
+                count,trades.node_(i).opendatetime2_,trades.node_(i).opendirection_,...
+                num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2018-06-19 09:00,direction: 1,price:114090,max:117650,min:114090
-% id: 2,openbucket:2018-06-19 09:05,direction: 1,price:113860,max:117630,min:113860
-% id: 3,openbucket:2018-06-19 14:10,direction: 1,price:113400,max:116450,min:113400
-% id: 4,openbucket:2018-06-19 14:15,direction: 1,price:113260,max:116450,min:113260
-% id: 5,openbucket:2018-06-19 14:20,direction: 1,price:113050,max:116450,min:113050
-% id: 6,openbucket:2018-06-19 14:25,direction: 1,price:113010,max:116450,min:113010
-% id: 7,openbucket:2018-06-19 14:30,direction: 1,price:112890,max:116450,min:112890
-% id: 8,openbucket:2018-06-19 14:35,direction: 1,price:112810,max:116450,min:112810
-% id: 9,openbucket:2018-06-19 21:00,direction: 1,price:112420,max:116450,min:112420
+% id: 1,openbucket:2018-06-19 09:00:01,direction: 1,price:114090
+% id: 2,openbucket:2018-06-19 09:05:01,direction: 1,price:113860
+% id: 3,openbucket:2018-06-19 14:10:01,direction: 1,price:113400
+% id: 4,openbucket:2018-06-19 14:15:01,direction: 1,price:113260
+% id: 5,openbucket:2018-06-19 14:20:01,direction: 1,price:113050
+% id: 6,openbucket:2018-06-19 14:25:01,direction: 1,price:113010
+% id: 7,openbucket:2018-06-19 14:30:01,direction: 1,price:112890
+% id: 8,openbucket:2018-06-19 14:35:01,direction: 1,price:112810
+% id: 9,openbucket:2018-06-19 21:00:01,direction: 1,price:112420
 
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
@@ -117,4 +97,22 @@ combos.strategy.start;
 %%
 combos.mdefut.stop
 %%
-combos.ops.printrunningpnl('MDEFut',combos.mdefut)
+%%
+fprintf('\ntrades info from replay......\n')
+for j = 1:combos.ops.trades_.latest_
+    trade_j = combos.ops.trades_.node_(j);
+    fprintf('id:%2d,opentime:%s,direction:%2d,price:%s\n',...
+        j,trade_j.opendatetime2_(end-8:end),trade_j.opendirection_,...
+        num2str(trade_j.openprice_));
+end
+% %
+% trades info from replay......
+% id: 1,opentime: 09:04:49,direction: 1,price:114090
+% id: 2,opentime: 09:05:08,direction: 1,price:113860
+% id: 3,opentime: 14:12:47,direction: 1,price:113400
+% id: 4,opentime: 14:15:15,direction: 1,price:113260
+% id: 5,opentime: 14:20:41,direction: 1,price:113050
+% id: 6,opentime: 14:25:37,direction: 1,price:113010
+% id: 7,opentime: 14:30:04,direction: 1,price:112890
+% id: 8,opentime: 14:35:10,direction: 1,price:112810
+% id: 9,opentime: 21:00:04,direction: 1,price:112420

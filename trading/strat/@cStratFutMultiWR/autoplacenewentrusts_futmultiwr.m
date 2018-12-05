@@ -64,14 +64,18 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
         highestcandle = signal.highestcandle;
         lowestcandle = signal.lowestcandle;
         %
+        tick = strategy.mde_fut_.getlasttick(instrument);
+        if isempty(tick),continue;end
+        bid = tick(2);
+        ask = tick(3);
+        %in case the market is stopped when the upper or lower limit is
+        %breached
+        if abs(bid) > 1e10 || abs(ask) > 1e10, continue; end
+        ordertime = tick(1);
+        lasttrade = tick(4);
+        
         if strcmpi(wrmode,'classic')
             direction = signal.direction;
-            tick = strategy.mde_fut_.getlasttick(instrument);
-            if isempty(tick),continue;end
-            
-            ordertime = tick(1);
-            bid = tick(2);
-            ask = tick(3);
             if direction < 0
                 price =  bid + bidopenspread*instrument.tick_size;
             else
@@ -122,10 +126,6 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %we sell at the previous max (plus specified bid spread);
             %and buy at the previous min (minus specified offer spread)
             %here the latest candle are included to avoid price jump
-            tick = strategy.mde_fut_.getlasttick(instrument);
-            if isempty(tick),continue;end
-            ordertime = tick(1);
-            lasttrade = tick(4);
             threshold = (lasttrade - lowestprice)/(highestprice-lowestprice);
             if threshold >= 0.7
                 placelong = false;
@@ -134,12 +134,12 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                 placelong = true;
                 placeshort = false;
             else
-                placelong = true;
-                placeshort = true;
+                placelong = false;
+                placeshort = false;
             end
             
             if placelong
-                price =  lowestprice - askopenspread*instrument.tick_size;
+                price =  min(lowestprice,ask) - askopenspread*instrument.tick_size;
                 isplacenewrequired = true;
                 n = strategy.helper_.entrustspending_.latest;
                 for jj = 1:n
@@ -166,7 +166,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             end
             
             if placeshort
-                price =  highestprice + bidopenspread*instrument.tick_size;
+                price =  max(highestprice,bid) + bidopenspread*instrument.tick_size;
                 isplacenewrequired = true;
                 n = strategy.helper_.entrustspending_.latest;
                 for jj = 1:n
@@ -199,10 +199,6 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %then we try to open 1)long once the latest price
             %breaches above the highest of that candle or 2)short once the
             %lastest price breaches below the lowest of that candle
-            tick = strategy.mde_fut_.getlasttick(instrument);
-            if isempty(tick),continue;end
-            %
-            lasttrade = tick(4);
             
             %rule:1)no new high is achieved with the tick
             %2)the tick is higher than the candle's low
@@ -274,9 +270,6 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %high price or open 2)long once the latest price breaches
             %above the latest max price with stoploss at that candle's
             %low price
-            tick = strategy.mde_fut_.getlasttick(instrument);
-            if isempty(tick),continue;end
-            lasttrade = tick(4);
             threshold = (lasttrade - lowestprice)/(highestprice-lowestprice);
             if threshold >= 0.7
                 placelong = true;
@@ -285,8 +278,8 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                 placelong = false;
                 placeshort = true;
             else
-                placelong = true;
-                placeshort = true;
+                placelong = false;
+                placeshort = false;
             end
             
             if placelong
