@@ -57,7 +57,7 @@ function [minp,mint,mincandle] = getminnperiods(obj,instrument,varargin)
     else
         timevec = [histcandles(:,1);candlesticks(:,1)];
         lowpx = [histcandles(:,4);candlesticks(:,4)];
-        candlesall = [candlesticks;histcandles];
+        candlesall = [histcandles;candlesticks];
     end
     
     if size(timevec,1) < nperiods
@@ -74,5 +74,9 @@ function [minp,mint,mincandle] = getminnperiods(obj,instrument,varargin)
     idx = lowpx == minp;
     mint = timevec(idx);
     mincandle = candlesall(idx,:);
+    
+    if size(mincandle,1) > 1
+        mincandle = mincandle(end,:);
+    end
     
 end

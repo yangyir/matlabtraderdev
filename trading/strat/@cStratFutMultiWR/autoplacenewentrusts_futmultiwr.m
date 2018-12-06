@@ -236,7 +236,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %3)open a conditional entrust with long position at the
             %candle's high price
             if lasttrade >= lowestprice && lasttrade < lowestcandle(3)
-                price = highestcandle(3) + askopenspread*instrument.tick_size;
+                price = lowestcandle(3) + askopenspread*instrument.tick_size;
                 isplacenewrequired = true;
                 n = strategy.helper_.condentrustspending_.latest;
                 for jj = 1:n

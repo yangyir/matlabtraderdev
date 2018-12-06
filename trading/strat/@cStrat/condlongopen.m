@@ -94,7 +94,7 @@ function [ret,e,msg] = condlongopen(strategy,code_ctp,condpx,lots,varargin)
            end
            offset = 1;
            e = Entrust;
-           e.fillEntrust(1,code_ctp,-1,condpx,lots,offset,code_ctp);
+           e.fillEntrust(1,code_ctp,1,condpx,lots,offset,code_ctp);
            e.multiplier = cs;
            if ~isopt, e.assetType = 'Future';end
            e.time = ordertime;

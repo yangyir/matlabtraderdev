@@ -74,5 +74,8 @@ function [maxp,maxt,maxcandle] = getmaxnperiods(obj,instrument,varargin)
     idx = highpx == maxp;
     maxt = timevec(idx);
     maxcandle = candlesall(idx,:);
+    if size(maxcandle,1) > 1
+        maxcandle = maxcandle(end,:);
+    end
 
 end
