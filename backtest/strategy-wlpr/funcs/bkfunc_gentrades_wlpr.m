@@ -157,6 +157,8 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
         %
     elseif strcmpi(wrmode,'reverse2')
         idx_check = idx_start;
+        idx_newmax = [];
+        idx_newmin = [];
         while idx_check <= idx_end
             pxMax = max(pxHighVec(idx_check-nperiod:idx_check-1));
             pxMin = min(pxLowVec(idx_check-nperiod:idx_check-1));
@@ -168,47 +170,54 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                 if pxHigh > pxMax
                     %if a new high is breached, we break the loop
                     pxMax = pxHigh;
-                    idx_check = i+1;
+                    idx_newmax = i;
+                    %and we start to check from the next time point
+                    idx_check = idx_newmax+1;
                     newMax = true;
                     break
                 end
                 %
                 if pxLow < pxMin
                     %if a new low is breached, we break the loop
+                    idx_newmin = i;
                     pxMin = pxLow;
-                    idx_check = i+1;
+                    %and we start to check from the next time point
+                    idx_check = idx_newmin+1;
                     newMin = true;
                     break
                 end
             end
             %
-            if newMax || newMin
-                extrainfo = struct('frequency',freq,...
-                    'lengthofperiod',nperiod,...
-                    'highesthigh',pxMax,...
-                    'lowestlow',pxMin,...
-                    'tradetype',wrmode);
+            extrainfo = struct('frequency',freq,...
+                'lengthofperiod',nperiod,...
+                'highesthigh',pxMax,...
+                'lowestlow',pxMin,...
+                'tradetype',wrmode);
+            
+            if newMax
+                opendirection = -1;
                 for i = idx_check:idx_end
-                    %we start from the next candle onwards
+                    %we start from the next candle after the new high
+                    %and we stop in case a new max is reached
                     pxHigh = pxHighVec(i);
                     pxLow = pxLowVec(i);
-                    pxOpen = pxOpenVec(i);
                     datetime = dateTimeVec(i);
-                    %note: we add 1 sec to the timevec indicting it fells between the
-                    %bucket starting from dateTimeVec(i) and dateTimeVec(i+1)
-                    opendatetime = datetime+1/86400;
-                    if ~isempty(nstopperiod)
-                        stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
-                    else
-                        stopdatetime = [];
-                    end
-                    
-                    if newMax && pxLow < pxLowVec(idx_check)
+                    %but we first check whether we can open a trade
+                    if pxHigh <= pxMax && pxLow >= pxLowVec(idx_newmax), continue;end
+                    %
+                    if pxLow < pxLowVec(idx_newmax)
+                        opendatetime = datetime+1/86400;
+                        if ~isempty(nstopperiod)
+                            stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
+                        else
+                             stopdatetime = [];
+                        end
+                        %
                         trade_i = cTradeOpen('code',code,...
                             'opendatetime',opendatetime,...
-                            'opendirection',-1,...
+                            'opendirection',opendirection,...
                             'openvolume',1,...
-                            'openprice',min(pxOpen,pxLowVec(idx_check)),...
+                            'openprice',min(pxOpenVec(i),pxLowVec(idx_newmax)),...
                             'targetprice',[],...
                             'stoplossprice',pxMax,...
                             'stopdatetime',stopdatetime);
@@ -217,19 +226,46 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                         idx_check = i;
                         break
                     end
+                    if pxHigh > pxMax, idx_check = i;break;end
+                    if pxLow < pxMin, idx_check = i;break;end
+                end
+            elseif newMin
+                opendirection = 1;
+                for i = idx_check:idx_end
+                    pxHigh = pxHighVec(i);
+                    pxLow = pxLowVec(i);
+                    datetime = dateTimeVec(i);
+                    if pxLow >= pxMin && pxHigh <= pxHighVec(idx_newmin), continue;end
                     %
-                    if newMin && pxHigh > pxHighVec(idx_check)
+                    if pxHigh > pxHighVec(idx_newmin)
+                        opendatetime = datetime+1/86400;
+                        if ~isempty(nstopperiod)
+                            stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
+                        else
+                             stopdatetime = [];
+                        end
                         trade_i = cTradeOpen('code',code,...
                             'opendatetime',opendatetime,...
-                            'opendirection',1,...
+                            'opendirection',opendirection,...
                             'openvolume',1,...
-                            'openprice',max(pxOpen,pxHighVec(idx_check)),...
+                            'openprice',max(pxOpenVec(i),pxHighVec(idx_newmin)),...
                             'targetprice',[],...
                             'stoplossprice',pxMin,...
                             'stopdatetime',stopdatetime);
                         trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
                         trades.push(trade_i);
                         idx_check = i;
+                        break
+                    end
+                    if pxHigh > pxMax
+                        pxMax = pxHigh;
+                        idx_check = i;
+                        break
+                    end
+                    if pxLow < pxMin
+                        pxMin = pxLow;
+                        idx_check = i;
+                        break
                     end
                 end
             else
