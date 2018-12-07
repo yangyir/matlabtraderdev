@@ -8,7 +8,7 @@ db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %%
-configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprconfig_regressiontest.txt'];
+configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprclassicconfig_regressiontest.txt'];
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
 [trades] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
@@ -35,7 +35,6 @@ end
 % id: 3,openbucket:2018-06-19 14:30:01,direction: 1,price:112900
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
-configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprconfig_regressiontest.txt'];
 %
 %user inputs:
 clear;clc;delete(timerfindall);

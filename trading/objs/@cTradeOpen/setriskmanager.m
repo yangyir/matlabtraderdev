@@ -41,14 +41,18 @@ function [] = setriskmanager(obj,varargin)
     elseif strcmpi(name,'standard')
         riskmanager = cStandard;
         riskmanager.trade_ = obj;
-        riskmanager.status_ = 'unset';
         try
-            riskmanager.pxtarget_ = info.pxtarget;
+            riskmanager.status_ = info.status_;
+        catch
+            riskmanager.status_ = 'unset';
+        end
+        try
+            riskmanager.pxtarget_ = info.pxtarget_;
         catch
             riskmanager.pxtarget_ = -9.99;
         end
         try
-            riskmanager.pxstoploss_ = info.pxstoploss;
+            riskmanager.pxstoploss_ = info.pxstoploss_;
         catch
             riskmanager.pxstoploss_ = -9.99;
         end

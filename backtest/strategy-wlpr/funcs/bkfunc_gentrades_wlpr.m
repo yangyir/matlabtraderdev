@@ -23,7 +23,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
     
     wrmode = p.Results.WRMode;
     if ~(strcmpi(wrmode,'classic') || strcmpi(wrmode,'follow') ...
-            || strcmpi(wrmode,'reverse1') || strcmpi(wrmode,'reverse2') ...
+            || strcmpi(wrmode,'reverse') || strcmpi(wrmode,'flash') ...
             || strcmpi(wrmode,'all'))
         error('bkfunc_gentrades_wlpr:invalid wrmode input')
     end
@@ -107,7 +107,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
             end
         end
         %
-    elseif strcmpi(wrmode,'reverse1')
+    elseif strcmpi(wrmode,'reverse')
         for i = idx_start:idx_end
             pxMax = max(pxHighVec(i-nperiod:i-1));
             pxMin = min(pxLowVec(i-nperiod:i-1));
@@ -155,7 +155,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
             %
         end
         %
-    elseif strcmpi(wrmode,'reverse2')
+    elseif strcmpi(wrmode,'flash')
         idx_check = idx_start;
         idx_newmax = [];
         idx_newmin = [];

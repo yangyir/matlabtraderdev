@@ -8,8 +8,7 @@ db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %%
-clc
-configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprreverse2config_regressiontest.txt'];
+configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprreverseconfig_regressiontest.txt'];
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
 [trades] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
@@ -22,6 +21,7 @@ config.loadfromfile('code',code,'filename',configfile);
     'OverSold',config.oversold_);
 %
 count = 0;
+clc;
 for i = 1:trades.latest_
     if trades.node_(i).opendatetime1_ > datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS')
         count = count + 1;
@@ -30,13 +30,16 @@ for i = 1:trades.latest_
                 num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2018-06-19 09:10:01,direction: 1,price:114290
-% id: 2,openbucket:2018-06-19 14:40:01,direction: 1,price:112880
-% id: 3,openbucket:2018-06-19 21:05:01,direction: 1,price:112870
-% figure(1);
-% idxstart = 883;
-% candle(px_used(idxstart:end,3),px_used(idxstart:end,4),px_used(idxstart:end,5),px_used(idxstart:end,2))
-% grid on;
+% id: 1,openbucket:2018-06-19 09:00:01,direction: 1,price:114090
+% id: 2,openbucket:2018-06-19 09:05:01,direction: 1,price:113860
+% id: 3,openbucket:2018-06-19 14:10:01,direction: 1,price:113400
+% id: 4,openbucket:2018-06-19 14:15:01,direction: 1,price:113260
+% id: 5,openbucket:2018-06-19 14:20:01,direction: 1,price:113050
+% id: 6,openbucket:2018-06-19 14:25:01,direction: 1,price:113010
+% id: 7,openbucket:2018-06-19 14:30:01,direction: 1,price:112890
+% id: 8,openbucket:2018-06-19 14:35:01,direction: 1,price:112810
+% id: 9,openbucket:2018-06-19 21:00:01,direction: 1,price:112420
+
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %

@@ -9,10 +9,14 @@ classdef cStratConfig < handle
         
         samplefreq_@char = '5m'       %sample frequency, e.g. 5m, 15m
         
-        pnlstoptype_@char = 'abs'     % rel or abs
-        pnlstop_@double = -9.99          
-        pnllimittype_@char = 'abs'    % rel or abs
-        pnllimit_@double = -9.99       
+        %risk related
+        riskmanagername_@char = 'standard'
+        stoptypepertrade_@char = 'rel'     % rel or abs
+        stopamountpertrade_@double = -9.99          
+        limittypepertrade_@char = 'rel'    % rel or abs
+        limitamountpertrade_@double = -9.99
+        %todo:
+        %we shall add stop/limit per asset as well going forward
                
         %order/entrust related
         %positive bid spread means to order a sell with a higher price
@@ -60,23 +64,38 @@ classdef cStratConfig < handle
             end
         end
         
-        function [] = set.pnlstoptype_(obj,typein)
+        function [] = set.stoptypepertrade_(obj,typein)
             if ~(strcmpi(typein,'abs') || strcmpi(typein,'rel'))
-                error([class(obj),':invalid pnl_stop_type_'])
+                error([class(obj),':invalid stoptypepertrade_'])
             end
-            obj.pnlstoptype_ = typein;
+            obj.stoptypepertrade_ = typein;
         end
         
-        function [] = set.pnllimittype_(obj,typein)
+        function [] = set.limittypepertrade_(obj,typein)
             if ~(strcmpi(typein,'abs') || strcmpi(typein,'rel'))
-                error([class(obj),':invalid pnl_stop_type_'])
+                error([class(obj),':invalid limitamountpertrade_'])
             end
-            obj.pnllimittype_ = typein;
+            obj.limittypepertrade_ = typein;
         end
         
-        function [] = set.pnlstop_(obj,val)
+        function [] = set.stopamountpertrade_(obj,val)
             if val > 0, val = -val;end
-            obj.pnlstop_ = val;
+            obj.stopamountpertrade_ = val;
+        end
+        
+        function [] = set.limitamountpertrade_(obj,val)
+            if val == -9.99
+                obj.limitamountpertrade_ = val;
+            else
+                obj.limitamountpertrade_ = abs(val);
+            end
+        end
+        
+        function [] = set.riskmanagername_(obj,val)
+            if ~(strcmpi(val,'standard') || strcmpi(val,'batman'))
+                error([class(obj),':invalid riskmanagername_'])
+            end
+            obj.riskmanagername_ = val;
         end
         
     end

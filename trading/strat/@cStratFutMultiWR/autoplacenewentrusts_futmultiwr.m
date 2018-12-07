@@ -120,8 +120,8 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                 end
             end
             %
-        elseif strcmpi(wrmode,'reverse1')
-            %note:in mode 'reverse1', we generate signals based on the
+        elseif strcmpi(wrmode,'reverse')
+            %note:in mode 'reverse', we generate signals based on the
             %previous max and min prices of the selected period, i.e.
             %we sell at the previous max (plus specified bid spread);
             %and buy at the previous min (minus specified offer spread)
@@ -193,8 +193,8 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                 end
             end
             %
-        elseif strcmpi(wrmode,'reverse2')
-            %note in mode 'reverse2', we generate signals based on the
+        elseif strcmpi(wrmode,'flash')
+            %note in mode 'flash', we generate signals based on the
             %candle which contains either the latest max or min prices
             %then we try to open 1)long once the latest price
             %breaches above the highest of that candle or 2)short once the

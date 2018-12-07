@@ -142,6 +142,9 @@ classdef cStrat < cMyTimerObj
             %cStrat doesn't run loadtrades,cOps runs it
             variablenotused(obj);
         end
+        
+        [] = riskmanagement(obj,dtnum)
+        
 
     end 
     
@@ -150,7 +153,7 @@ classdef cStrat < cMyTimerObj
         signals = gensignals(obj)
         [] = autoplacenewentrusts(obj,signals)
         [] = updategreeks(obj)
-        [] = riskmanagement(obj,dtnum)
+%         [] = riskmanagement(obj,dtnum)
         [] = initdata(obj)
     end
     

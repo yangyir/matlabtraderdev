@@ -33,17 +33,30 @@ function signals = gensignals_futmultiwr(strategy)
                 error('ERROR:%s:gensignals_futmultiwr:last candle shall be excluded with follow mode',class(obj))
             end
             
-            ti = strategy.mde_fut_.calc_technical_indicators(instruments{i});
-            [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
-            [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
-            %
-            %refresh max and min prices
-            maxpx_before = strategy.maxnperiods_(i);
-            if maxpx_last > maxpx_before || maxpx_before <= 0, strategy.maxnperiods_(i) = maxpx_last;end
+            if strcmpi(wrmode,'classic')
+                ti = strategy.mde_fut_.calc_technical_indicators(instruments{i});
+                maxpx_last = ti{1}(2);
+                minpx_last = ti{1}(3);
+                if strategy.printflag_
+                    tick = strategy.mde_fut_.getlasttick(instruments{i});
+                    if isempty(tick),continue;end
+                    fprintf('%s %s: trade:%s; wlpr:%4.1f; high:%s; low:%s; lastclose:%s\n',...
+                        datestr(tick(1),'yyyy-mm-dd HH:MM:SS'),instruments{i}.code_ctp,num2str(tick(4)),strategy.wr_(i),...
+                        num2str(maxpx_last),num2str(minpx_last),num2str(ti{1}(4)));
+                end
+            else
+                [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+                [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+                %
+                %refresh max and min prices
+                maxpx_before = strategy.maxnperiods_(i);
+                if maxpx_last > maxpx_before || maxpx_before <= 0, strategy.maxnperiods_(i) = maxpx_last;end
+
+                minpx_before = strategy.minnperiods_(i);
+                if minpx_last < minpx_before || minpx_before <= 0, strategy.minnperiods_(i) = minpx_last;end
+                %
+            end
             
-            minpx_before = strategy.minnperiods_(i);
-            if minpx_last < minpx_before || minpx_before <= 0, strategy.minnperiods_(i) = minpx_last;end
-            %
             %
             if strcmpi(wrmode,'classic')
                 %note:in mode 'classic', we generate signal based on WR, i.e.
@@ -60,10 +73,10 @@ function signals = gensignals_futmultiwr(strategy)
                         'frequency',samplefreqstr,...
                         'lengthofperiod',lengthofperiod,...
                         'direction',1,...
-                        'highesthigh',ti{1}(2),...
-                        'lowestlow',ti{1}(3),...
-                        'highestcandle',maxcandle,...
-                        'lowestcandle',mincandle,...
+                        'highesthigh',maxpx_last,...
+                        'lowestlow',minpx_last,...
+                        'highestcandle',[],...
+                        'lowestcandle',[],...
                         'wrmode',wrmode);
                     continue;
                 end
@@ -74,16 +87,16 @@ function signals = gensignals_futmultiwr(strategy)
                         'frequency',samplefreqstr,...
                         'lengthofperiod',lengthofperiod,...
                         'direction',-1,...
-                        'highesthigh',ti{1}(2),...
-                        'lowestlow',ti{1}(3),...
-                        'highestcandle',maxcandle,...
-                        'lowestcandle',mincandle,...
+                        'highesthigh',maxpx_last,...
+                        'lowestlow',minpx_last,...
+                        'highestcandle',[],...
+                        'lowestcandle',[],...
                         'wrmode',wrmode);
                     continue;
                 end
                 signals{i,1} = {};
                 %
-            elseif strcmpi(wrmode,'reverse1') || strcmpi(wrmode,'reverse2') || strcmpi(wrmode,'follow')
+            elseif strcmpi(wrmode,'reverse') || strcmpi(wrmode,'flash') || strcmpi(wrmode,'follow')
                 %
                 %note:first time set entrusts
                 %IMPORTANT:shall be open entrust
@@ -122,12 +135,7 @@ function signals = gensignals_futmultiwr(strategy)
                 error('ERROR:%s:gensignals_futmultiwr:all mode not supported')
             end
                         
-            if strategy.printflag_
-                tick = strategy.mde_fut_.getlasttick(instruments{i});
-                fprintf('%s %s: trade:%4.1f; wlpr:%4.1f; high:%s; low:%s; lastclose:%s\n',...
-                datestr(tick(1),'yyyy-mm-dd HH:MM:SS'),instruments{i}.code_ctp,tick(4),strategy.wr_(i),...
-                num2str(ti{1}(2)),num2str(ti{1}(3)),num2str(ti{1}(4)));
-            end
+            
             
         end
     end

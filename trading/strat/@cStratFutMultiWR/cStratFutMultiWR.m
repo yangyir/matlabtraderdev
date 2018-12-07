@@ -38,9 +38,9 @@ classdef cStratFutMultiWR < cStrat
             obj.updategreeks_futmultiwr
         end
             
-        function [] = riskmanagement(obj,dtnum)
-            obj.riskmanagement_futmultiwr(dtnum)
-        end
+%         function [] = riskmanagement(obj,dtnum)
+%             obj.riskmanagement_futmultiwr(dtnum)
+%         end
         
         function [] = initdata(obj)
             obj.initdata_futmultiwr;

@@ -28,12 +28,14 @@ end
 % load risk control configurations from generalconfig.txt
 % display configurations:
 % 
+%                      name	cStratConfig	cStratConfig
 %                   codectp	    cu1812	    zn1812
 %                samplefreq	        5m	        5m
-%               pnlstoptype	       ABS	       ABS
-%                   pnlstop	    -50000	    -20000
-%              pnllimittype	       ABS	       ABS
-%                  pnllimit	     50000	     20000
+%           riskmanagername	  standard	  standard
+%          stoptypepertrade	       rel	       rel
+%        stopamountpertrade	     -9.99	     -9.99
+%         limittypepertrade	       rel	       rel
+%       limitamountpertrade	     -9.99	     -9.99
 %             bidopenspread	         0	         0
 %            bidclosespread	         0	         0
 %             askopenspread	         0	         0
@@ -41,8 +43,7 @@ end
 %                 baseunits	         1	         2
 %                  maxunits	         5	        10
 %                 autotrade	         0	         0
-%        executionperbucket	         1	         1
-%     maxexecutionperbucket	         1	         1
+%                       use	         0	         0
 
 %%
 % get funcs
