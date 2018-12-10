@@ -17,7 +17,7 @@ function [] = printmarket(obj)
         %enrich printed information with last close and change
         
         fprintf('\nlatest market quotes:\n');
-        fprintf('%11s%11s%11s%11s%12s%11s%11s%11s\n','contract','bid','ask','close','time','wr','max','min');
+        fprintf('%11s%11s%11s%11s%12s%12s%11s%11s%11s\n','contract','bid','ask','close','change','time','wr','max','min');
         for i = 1:n
             code = quotes{i}.code_ctp;
             bid = quotes{i}.bid1;
@@ -29,14 +29,18 @@ function [] = printmarket(obj)
                 ask = NaN;
             end
             timet = datestr(quotes{i}.update_time1,'HH:MM:SS');
+            delta = ((quotes{i}.last_trade/obj.lastclose_(i))-1)*100;
             wrinfo = obj.calc_technical_indicators(code);
-            dataformat = '%11s%11s%11s%11s%12s%11.1f%11s%11s\n';
+            dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11.1f%11s%11s\n';
             
-            if ~isempty(wrinfo)
-                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),timet,...
+            if ~isempty(wrinfo{1})
+                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
+                    delta,timet,...
                     wrinfo{1}(1),num2str(wrinfo{1}(2)),num2str(wrinfo{1}(3)));
             else
-                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),timet,...
+                dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11s%11s%11s\n';
+                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
+                    delta,timet,...
                     'nan','nan','nan');
             end
         end
