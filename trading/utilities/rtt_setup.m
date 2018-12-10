@@ -85,7 +85,19 @@ function [rtt_output] = rtt_setup(varargin)
     rtt_helper.registermdefut(rtt_mdefut);
     if isa(rtt_mdeopt,'cMDEOpt'), rtt_helper.registermdeopt(rtt_mdeopt);end
     if ~isempty(tfn), rtt_helper.registerpasttrades(livetrades);end
-    
+    dir_ = [getenv('DATAPATH'),'realtimetrading\'];
+    if strcmpi(countername,'citic_kim_fut')
+        dir_ = [dir_,'citickim\',bookname,'\'];
+    elseif strcmpi(countername,'ccb_ly_fut')
+        dir_ = [dir_,'ccbly\',bookname,'\'];
+    elseif strcmpi(countername,'ccb_yy_fut')
+        dir_ = [dir_,'ccbyy\',bookname,'\'];
+    else
+        error('rtt_setup:invalid countername')
+    end
+    rtt_helper.savedir_ = dir_;
+    rtt_helper.loaddir_ = dir_;
+            
     if strcmpi(stratname,'wlpr')
         rtt_strategy = cStratFutMultiWR;
     elseif strcmpi(stratname,'batman')
