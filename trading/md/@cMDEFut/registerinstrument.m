@@ -116,7 +116,7 @@ function [] = registerinstrument(mdefut,instrument)
         if ns_ ~= ns
             lastcloses = zeros(ns,1);
             lastcloses(1:ns_) = mdefut.lastclose_;
-            for i = 1:ns_+1:ns
+            for i = ns_+1:ns
                 filename = [instruments{i}.code_ctp,'_daily.txt'];
                 dailypx = cDataFileIO.loadDataFromTxtFile(filename);
                 idx = dailypx(:,1) == lastbd;

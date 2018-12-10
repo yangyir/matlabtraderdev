@@ -41,8 +41,12 @@ function indicators = calc_wr_(mdefut,instrument,varargin)
         closep = [histcandles(:,5);candlesticks(:,5)];
     end
 
-    wrs = willpctr(highp,lowp,closep,nperiods);
-    indicators = [wrs(end),max(highp(end-nperiods+1:end)),min(lowp(end-nperiods+1:end)),closep(end)];
+    if size(closep,1) >= nperiods
+        wrs = willpctr(highp,lowp,closep,nperiods);
+        indicators = [wrs(end),max(highp(end-nperiods+1:end)),min(lowp(end-nperiods+1:end)),closep(end)];
+    else
+        indicators = [];
+    end
 
 end
 %end of calc_wr_
