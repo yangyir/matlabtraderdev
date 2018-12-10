@@ -201,11 +201,12 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                     %and we stop in case a new max is reached
                     pxHigh = pxHighVec(i);
                     pxLow = pxLowVec(i);
+                    pxOpen = pxOpenVec(i);
                     datetime = dateTimeVec(i);
                     %but we first check whether we can open a trade
                     if pxHigh <= pxMax && pxLow >= pxLowVec(idx_newmax), continue;end
                     %
-                    if pxLow < pxLowVec(idx_newmax)
+                    if pxLow < pxLowVec(idx_newmax) && pxOpen <= pxMax
                         opendatetime = datetime+1/86400;
                         if ~isempty(nstopperiod)
                             stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
@@ -217,7 +218,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                             'opendatetime',opendatetime,...
                             'opendirection',opendirection,...
                             'openvolume',1,...
-                            'openprice',min(pxOpenVec(i),pxLowVec(idx_newmax)),...
+                            'openprice',min(pxOpen,pxLowVec(idx_newmax)),...
                             'targetprice',[],...
                             'stoplossprice',pxMax,...
                             'stopdatetime',stopdatetime);
@@ -234,10 +235,11 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                 for i = idx_check:idx_end
                     pxHigh = pxHighVec(i);
                     pxLow = pxLowVec(i);
+                    pxOpen = pxOpenVec(i);
                     datetime = dateTimeVec(i);
                     if pxLow >= pxMin && pxHigh <= pxHighVec(idx_newmin), continue;end
                     %
-                    if pxHigh > pxHighVec(idx_newmin)
+                    if pxHigh > pxHighVec(idx_newmin) && pxOpen >= pxMin
                         opendatetime = datetime+1/86400;
                         if ~isempty(nstopperiod)
                             stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
@@ -248,7 +250,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                             'opendatetime',opendatetime,...
                             'opendirection',opendirection,...
                             'openvolume',1,...
-                            'openprice',max(pxOpenVec(i),pxHighVec(idx_newmin)),...
+                            'openprice',max(pxOpen,pxHighVec(idx_newmin)),...
                             'targetprice',[],...
                             'stoplossprice',pxMin,...
                             'stopdatetime',stopdatetime);
@@ -257,16 +259,8 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                         idx_check = i;
                         break
                     end
-                    if pxHigh > pxMax
-                        pxMax = pxHigh;
-                        idx_check = i;
-                        break
-                    end
-                    if pxLow < pxMin
-                        pxMin = pxLow;
-                        idx_check = i;
-                        break
-                    end
+                    if pxHigh > pxMax, idx_check = i;break;end
+                    if pxLow < pxMin, idx_check = i;break;end
                 end
             else
                 idx_check = idx_check + 1;
