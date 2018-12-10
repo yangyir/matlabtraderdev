@@ -8,6 +8,8 @@ function [rtt_output] = rtt_setup(varargin)
     p.addParameter('Instruments',{},@iscell);
     p.addParameter('TradesFileName','',@ischar);
     p.addParameter('RiskConfigFileName','',@ischar);
+    p.addParameter('InitialFundLevel',[],@isnumeric);
+    p.addParameter('UseHistoricalData',true,@islogical);
     
     p.parse(varargin{:});
     
@@ -109,6 +111,19 @@ function [rtt_output] = rtt_setup(varargin)
     rtt_strategy.settimerinterval(0.5);
     rtt_helper.settimerinterval(1);
     rtt_strategy.settimerinterval(1);
+    
+    stratfund = p.Results.InitialFundLevel;
+    if ~isempty(stratfund)
+        rtt_strategy.setavailablefund(stratfund,'firstset',true,'checkavailablefund',false);
+    end
+    
+    usehistoricaldata = p.Results.UseHistoricalData;
+    if usehistoricaldata
+        rtt_strategy.usehistoricaldata_ = true;
+        rtt_strategy.initdata;
+    else
+        rtt_strategy.usehistoricaldata_ = false;
+    end
     
     rtt_output = struct('counter',rtt_counter,...
         'book',rtt_book,...
