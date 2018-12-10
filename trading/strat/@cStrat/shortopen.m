@@ -127,6 +127,10 @@ function [ret,e,msg] = shortopen(strategy,ctp_code,lots,varargin)
     
     [flag,errmsg] = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',-1);
     if flag
+        if isempty(signalinfo) && strcmpi(class(strategy),'cStratManual')
+            freq = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','samplefreq');
+            signalinfo = struct('name','manual','frequency',freq);
+        end
         [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'s','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
         if ret
             e.date = floor(ordertime);
