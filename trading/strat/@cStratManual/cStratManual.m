@@ -25,7 +25,7 @@ classdef cStratManual < cStrat
         end
         
         function [] = riskmanagement(obj,dtnum)
-            obj.riskmanagement_manual(dtnum)
+            riskmanagement@cStrat(obj,dtnum);
         end
         
         function [] = initdata(obj)

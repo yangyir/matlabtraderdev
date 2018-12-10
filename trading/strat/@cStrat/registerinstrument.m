@@ -65,5 +65,13 @@ function [] = registerinstrument(strategy,instrument)
     samplefreqnum = str2double(samplefreq(1:end-1));
     strategy.mde_fut_.setcandlefreq(samplefreqnum,instrument);
     
+    try
+        np = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','numofperiod');
+    catch
+        np = 144;
+    end
+    param = struct('name','WilliamR','values',{{'numofperiods',np}});
+    strategy.mde_fut_.settechnicalindicator(instrument,param);
+    
 end
 %end of 'registerinstrument'

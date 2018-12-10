@@ -99,6 +99,37 @@ function [] = registerinstrument(mdefut,instrument)
     else
         cobdate = mdefut.replay_date1_;
     end
+    
+    %init of lastclose_
+    lastbd = businessdate(cobdate,-1);
+    if isempty(mdefut.lastclose_)
+        mdefut.lastclose_ = nan(ns,1);
+        for i = 1:ns
+            filename = [instruments{i}.code_ctp,'_daily.txt'];
+            dailypx = cDataFileIO.loadDataFromTxtFile(filename);
+            idx = dailypx(:,1) == lastbd;
+            lastpx = dailypx(idx,5);
+            if ~isempty(lastpx), mdefut.lastclose_(i) = lastpx;end
+        end
+    else
+        ns_ = size(mdefut.lastclose_,1);
+        if ns_ ~= ns
+            lastcloses = zeros(ns,1);
+            lastcloses(1:ns_) = mdefut.lastclose_;
+            for i = 1:ns_+1:ns
+                filename = [instruments{i}.code_ctp,'_daily.txt'];
+                dailypx = cDataFileIO.loadDataFromTxtFile(filename);
+                idx = dailypx(:,1) == lastbd;
+                lastpx = dailypx(idx,5);
+                if ~isempty(lastpx)
+                    lastcloses(i) = lastpx;
+                else
+                    lastcloses(i) = NaN;
+                end
+            end
+            mdefut.lastclose_ = lastcloses;
+        end
+    end
 
     if isempty(mdefut.candles_)
         mdefut.candles_ = cell(ns,1);

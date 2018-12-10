@@ -1,6 +1,6 @@
 classdef cBatmanManual < cSignalInfo
     properties
-        frequency_@char
+        
         pxtarget_@double
         pxstoploss_@double
     end

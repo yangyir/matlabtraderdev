@@ -80,13 +80,15 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
                 fprintf(fid,'%s',instruments{j});
             elseif strcmpi(rownames{i},'samplefreq_')
                 fprintf(fid,'%s','15m');
-            elseif strcmpi(rownames{i},'pnlstoptype_')
+            elseif strcmpi(rownames{i},'riskmanagername_')
+                fprintf(fid,'%s','standard');
+            elseif strcmpi(rownames{i},'stoptypepertrade_')
                 fprintf(fid,'%s','ABS');
-            elseif strcmpi(rownames{i},'pnlstop_')
+            elseif strcmpi(rownames{i},'stopamountpertrade_')
                 fprintf(fid,'%s','-9.99');
-            elseif strcmpi(rownames{i},'pnllimittype_')
+            elseif strcmpi(rownames{i},'limittypepertrade_')
                 fprintf(fid,'%s','ABS');
-            elseif strcmpi(rownames{i},'pnllimit_')
+            elseif strcmpi(rownames{i},'limitamountpertrade_')
                 fprintf(fid,'%s','-9.99');
             elseif strcmpi(rownames{i},'bidopenspread_')
                 fprintf(fid,'%s','0');
@@ -107,9 +109,9 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
                     fprintf(fid,'%s','0');
                 end
             elseif strcmpi(rownames{i},'use_')
-                fprintf(fid,'%s','0');
-            elseif strcmpi(rownames{i},'maxexecutionperbucket_')
                 fprintf(fid,'%s','1');
+%             elseif strcmpi(rownames{i},'maxexecutionperbucket_')
+%                 fprintf(fid,'%s','1');
             %wlpr
             elseif strcmpi(rownames{i},'numofperiod_')
                 fprintf(fid,'%s','144');

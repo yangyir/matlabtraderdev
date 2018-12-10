@@ -1,7 +1,7 @@
 function [] = riskmanagement_futmultiwr(strategy,dtnum)
 
     %registerinstrument of superclass
-    registerinstrument@cStrat(strategy,dtnum);
+    riskmanagement@cStrat(strategy,dtnum);
 
 %     ismarketopen = zeros(strategy.count,1);
 %     instruments = strategy.getinstruments;

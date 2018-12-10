@@ -7,7 +7,16 @@ function [] = setsignalinfo(obj,varargin)
     name = p.Results.Name;
     info = p.Results.ExtraInfo;
     
-    if strcmpi(name,'WilliamsR')
+    if strcmpi(name,'manual')
+        signalinfo = cSignalInfo;
+        try
+            signalinfo.frequency_ = info.frequency;
+        catch
+            signalinfo.frequency_ = '';
+        end
+        obj.opensignal_ = signalinfo;
+        return
+    elseif strcmpi(name,'WilliamsR')
         signalinfo = cWilliamsRInfo;
         try
             signalinfo.frequency_ = info.frequency;
