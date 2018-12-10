@@ -18,7 +18,8 @@ function [obj] = table2tradeopen(obj,headers,data)
                 end
             end
             if isempty(opensignal_name), continue; end
-            if ~(strcmpi(opensignal_name,'WilliamsR') || strcmpi(opensignal_name,'BatmanManual'))
+            if ~(strcmpi(opensignal_name,'WilliamsR') || strcmpi(opensignal_name,'BatmanManual') ...
+                    ||strcmpi(opensignal_name,'Manual'))
                 error('cTradeOpen:table2tradeopen:%s signal type not implemented',opensignal_name);
             end
             
@@ -26,6 +27,8 @@ function [obj] = table2tradeopen(obj,headers,data)
                 signal = cWilliamsRInfo;
             elseif strcmpi(opensignal_name,'BatmanManual')
                 signal = cBatmanManual;
+            elseif strcmpi(opensignal_name,'Manual')
+                signal = cSignalInfo;
             end
                 
             for k = 1:length(proplist)

@@ -9,7 +9,7 @@
 %% user inputs
 ui_stratname = 'manual';
 ui_stratfund = 1e6;
-ui_usehistoricaldata = true;
+ui_usehistoricaldata = false;
 
 %% check the existing risk configurations
 fprintf('existing risk configurations...\n');
@@ -17,8 +17,12 @@ ccbly_printriskconfig;
 
 %% mod the risk configurations if nececcary
 ui_codes = ccbly_futs2trade;
-ui_propnames = {'bidopenspread';'askopenspread';'use'};
-ui_propvalues = {5;5;1};
+ui_propnames = {'stoptypepertrade';'stopamountpertrade';...
+    'limittypepertrade';'limitamountpertrade';...
+    'bidopenspread';'askopenspread'};
+ui_propvalues = {'REL';0.005;...
+    'REL';0.005;...
+    0;0};
 ui_override = true;
 fprintf('\n')
 ccbly_modriskconfig;
@@ -49,12 +53,14 @@ end
 ccbly = rtt_setup('CounterName',ccbly_countername,...
     'BookName',ccbly_book2trade,...
     'StrategyName',ui_stratname,...
-    'RiskConfigFileName',ccbly_riskconfigfile2use);
+    'RiskConfigFileName',ccbly_riskconfigfile2use,...
+    'InitialFundLevel',ui_stratfund,...
+    'UseHistoricalData',ui_usehistoricaldata);
 %
-ccbly.strategy.setavailablefund(ui_stratfund,'firstset',true,...
-    'checkavailablefund',false);
-ccbly.strategy.usehistoricaldata_ = true;
-ccbly.strategy.initdata;
+% ccbly.strategy.setavailablefund(ui_stratfund,'firstset',true,...
+%     'checkavailablefund',false);
+% ccbly.strategy.usehistoricaldata_ = true;
+% ccbly.strategy.initdata;
 
 fprintf('\nccbly successfully created...\n');
 

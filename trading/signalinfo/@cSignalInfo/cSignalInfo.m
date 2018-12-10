@@ -6,6 +6,9 @@ classdef cSignalInfo < handle
     end
     
     methods
+        function obj = cSignalInfo
+            obj.name_ = 'Manual';
+        end
     end
     
 end
