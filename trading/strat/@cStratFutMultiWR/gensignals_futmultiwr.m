@@ -25,8 +25,8 @@ function signals = gensignals_futmultiwr(strategy)
             includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
                 'propname','includelastcandle');
             
-            if strcmpi(wrmode,'reverse2') && includelastcandle
-                error('ERROR:%s:gensignals_futmultiwr:last candle shall be excluded with reverse2 mode',class(obj))
+            if strcmpi(wrmode,'flash') && includelastcandle
+                error('ERROR:%s:gensignals_futmultiwr:last candle shall be excluded with flash mode',class(obj))
             end
             
             if strcmpi(wrmode,'follow') && includelastcandle
