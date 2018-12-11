@@ -110,9 +110,11 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
                 end
             elseif strcmpi(rownames{i},'use_')
                 fprintf(fid,'%s','1');
-%             elseif strcmpi(rownames{i},'maxexecutionperbucket_')
-%                 fprintf(fid,'%s','1');
             %wlpr
+            elseif strcmpi(rownames{i},'wrmode_')
+                fprintf(fid,'%s','classic');
+            elseif strcmpi(rownames{i},'includelastcandle_')
+                fprintf(fid,'%s','0');
             elseif strcmpi(rownames{i},'numofperiod_')
                 fprintf(fid,'%s','144');
             elseif strcmpi(rownames{i},'overbought_')
@@ -127,9 +129,9 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
             elseif strcmpi(rownames{i},'bandwidthmax_')
                 fprintf(fid,'%s','0.5');
             elseif strcmpi(rownames{i},'bandstoploss_')
-                fprintf(fid,'%s','0.01');
+                fprintf(fid,'%s','-9.99');
             elseif strcmpi(rownames{i},'bandtarget_')
-                fprintf(fid,'%s','0.02');
+                fprintf(fid,'%s','-9.99');
             elseif strcmpi(rownames{i},'bandtype_')
                 fprintf(fid,'%s','0');
             else
