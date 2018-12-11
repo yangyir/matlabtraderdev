@@ -21,10 +21,10 @@ function [] = initdata_futmultiwrplusbatman(obj)
             nbdays = 10;
         end
         obj.mde_fut_.initcandles(instruments{i},'NumberofPeriods',nbdays);
-        ti = obj.mde_fut_.calc_technical_indicators(instruments{i});
-        if ~isempty(ti)
-            obj.wr_(i) = ti{i}(1);
-        end
+%         ti = obj.mde_fut_.calc_technical_indicators(instruments{i});
+%         if ~isempty(ti)
+%             obj.wr_(i) = ti{i}(1);
+%         end
         obj.highnperiods_(i) = obj.gethighnperiods(instruments{i});
         obj.lownperiods_(i) = obj.getlownperiods(instruments{i});
     end
