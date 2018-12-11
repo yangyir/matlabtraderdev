@@ -27,7 +27,7 @@ function [] = initdata_futmultiwr(obj)
         
         ti = obj.mde_fut_.calc_technical_indicators(instruments{i});
         if ~isempty(ti)
-            obj.wr_(i) = ti{i}(1);
+            obj.wr_(i) = ti{1}(1);
         end
         %
         obj.maxnperiods_(i) = obj.getmaxnperiods(instruments{i});
