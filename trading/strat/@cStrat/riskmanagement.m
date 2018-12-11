@@ -47,22 +47,36 @@ function [] = riskmanagement(obj,dtnum)
         end
         %
         if strcmpi(riskmanagername,'standard')
-            extrainfo = struct('pxtarget_',pxtarget,'pxstoploss_',pxstoploss);
+            extrainfo = struct('pxtarget',pxtarget,'pxstoploss',pxstoploss);
         elseif strcmpi(riskmanagername,'batman')
-            bandtype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtype');
-            bandwidthmin = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmin');
-            bandwidthmax = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmax');
+            try
+                bandtype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtype');
+            catch
+                bandtype = 1;
+            end
+            try
+                bandwidthmin = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmin');
+            catch
+                bandwidthmin = 0.3333;  %default value 1/3
+            end
+            try
+                bandwidthmax = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandwidthmax');
+            catch
+                bandwidthmax = 0.5;     %default value 1/2
+            end
             if bandtype == 0
                 %conventional set-up with bandtype == 0
                 bandstoploss = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandstoploss');
                 bandtarget = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtarget');
-                extrainfo = struct('pxtarget',pxtarget,'pxstoploss',pxstoploss,...
+                extrainfo = struct('pxtarget',pxtarget,...
+                    'pxstoploss',pxstoploss,...
                     'bandstoploss',bandstoploss,...
                     'bandtarget',bandtarget,...
                     'bandwidthmin',bandwidthmin,...
                     'bandwidthmax',bandwidthmax);
             elseif bandtype == 1
-                extrainfo = struct('pxtarget_',pxtarget,'pxstoploss_',pxstoploss,...
+                extrainfo = struct('pxtarget',pxtarget,...
+                    'pxstoploss',pxstoploss,...
                     'bandstoploss',-9.99,...
                     'bandtarget',-9.99,...
                     'bandwidthmin',bandwidthmin,...

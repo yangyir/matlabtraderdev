@@ -7,7 +7,7 @@
 %wlprbatman:ccbly_riskconfigs_wlprbatman.txt
 
 %% user inputs
-ui_stratname = 'manual';
+ui_stratname = 'wlpr';
 ui_stratfund = 1e6;
 ui_usehistoricaldata = false;
 
@@ -17,12 +17,8 @@ ccbly_printriskconfig;
 
 %% mod the risk configurations if nececcary
 ui_codes = ccbly_futs2trade;
-ui_propnames = {'stoptypepertrade';'stopamountpertrade';...
-    'limittypepertrade';'limitamountpertrade';...
-    'bidopenspread';'askopenspread'};
-ui_propvalues = {'REL';0.005;...
-    'REL';0.005;...
-    0;0};
+ui_propnames = {'wrmode';'samplefreq';'riskmanagername'};
+ui_propvalues = {'flash';'3m';'batman'};
 ui_override = true;
 fprintf('\n')
 ccbly_modriskconfig;

@@ -1,4 +1,5 @@
 function [] = setstoplossfromsignalinfo(obj,signalinfo)
+%cBatman
     if isempty(signalinfo), return; end
 
     if ~isa(signalinfo,'cSignalInfo')

@@ -8,7 +8,7 @@ db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %%
-configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprclassicconfig_regressiontest.txt'];
+configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprreversebatmanconfig_regressiontest.txt'];
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
 [trades] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
@@ -30,18 +30,25 @@ for i = 1:trades.latest_
                 num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2018-06-19 14:15:01,direction: 1,price:113260
-% id: 2,openbucket:2018-06-19 14:20:01,direction: 1,price:113060
-% id: 3,openbucket:2018-06-19 14:30:01,direction: 1,price:112900
+% id: 1,openbucket:2018-06-19 09:00:01,direction: 1,price:114090
+% id: 2,openbucket:2018-06-19 09:05:01,direction: 1,price:113860
+% id: 3,openbucket:2018-06-19 14:10:01,direction: 1,price:113400
+% id: 4,openbucket:2018-06-19 14:15:01,direction: 1,price:113260
+% id: 5,openbucket:2018-06-19 14:20:01,direction: 1,price:113050
+% id: 6,openbucket:2018-06-19 14:25:01,direction: 1,price:113010
+% id: 7,openbucket:2018-06-19 14:30:01,direction: 1,price:112890
+% id: 8,openbucket:2018-06-19 14:35:01,direction: 1,price:112810
+% id: 9,openbucket:2018-06-19 21:00:01,direction: 1,price:112420
+
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
 %user inputs:
-clear;clc;delete(timerfindall);
-bookname = 'replay_wlpr';
+bookname = 'replay_wlprreverse1';
 strategyname = 'wlpr';
-riskconfigfilename = 'wlprconfig_regressiontest.txt';
-combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',riskconfigfilename);
+availablefund = 1e6;
+combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
+    'initialfundlevel',availablefund,'usehistoricaldata',false);
 % replay
 fprintf('nruning regressiontest_wlpr_singleday_nickel...\n');
 fprintf('switch mode to replay...\n');
@@ -49,9 +56,6 @@ if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
 if ~isempty(combos.mdeopt), combos.mdeopt.mode_ = 'replay';end
 if ~isempty(combos.ops), combos.ops.mode_ = 'replay';end
 if ~isempty(combos.strategy), combos.strategy.mode_ = 'replay';end
-%
-availablefund = 1e6;
-combos.strategy.setavailablefund(availablefund,'firstset',true);
 %
 replayspeed = 50;
 fprintf('set replay speed to %s...\n',num2str(replayspeed));
@@ -92,6 +96,7 @@ combos.strategy.start;
 %%
 combos.mdefut.stop
 %%
+%%
 fprintf('\ntrades info from replay......\n')
 for j = 1:combos.ops.trades_.latest_
     trade_j = combos.ops.trades_.node_(j);
@@ -99,7 +104,14 @@ for j = 1:combos.ops.trades_.latest_
         j,trade_j.opendatetime2_(end-8:end),trade_j.opendirection_,...
         num2str(trade_j.openprice_));
 end
+% %
 % trades info from replay......
-% id: 1,opentime: 14:15:01,direction: 1,price:113260
-% id: 2,opentime: 14:20:01,direction: 1,price:113060
-% id: 3,opentime: 14:30:00,direction: 1,price:112900
+% id: 1,opentime: 09:04:49,direction: 1,price:114090
+% id: 2,opentime: 09:05:08,direction: 1,price:113860
+% id: 3,opentime: 14:12:47,direction: 1,price:113400
+% id: 4,opentime: 14:15:15,direction: 1,price:113260
+% id: 5,opentime: 14:20:41,direction: 1,price:113050
+% id: 6,opentime: 14:25:37,direction: 1,price:113010
+% id: 7,opentime: 14:30:04,direction: 1,price:112890
+% id: 8,opentime: 14:35:10,direction: 1,price:112810
+% id: 9,opentime: 21:00:04,direction: 1,price:112420

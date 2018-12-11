@@ -131,10 +131,10 @@ function [rtt_output] = rtt_setup(varargin)
     
     usehistoricaldata = p.Results.UseHistoricalData;
     if usehistoricaldata
-        rtt_strategy.usehistoricaldata_ = true;
+        if strcmpi(stratname,'manual'), rtt_strategy.usehistoricaldata_ = true; end
         rtt_strategy.initdata;
     else
-        rtt_strategy.usehistoricaldata_ = false;
+        if strcmpi(stratname,'manual'), rtt_strategy.usehistoricaldata_ = false;end
     end
     
     rtt_output = struct('counter',rtt_counter,...
