@@ -101,7 +101,7 @@ function [] = registerinstrument(mdefut,instrument)
     end
     
     %init of lastclose_
-    lastbd = businessdate(cobdate,-1);
+    lastbd = getlastbusinessdate(cobdate);
     if isempty(mdefut.lastclose_)
         mdefut.lastclose_ = nan(ns,1);
         for i = 1:ns
