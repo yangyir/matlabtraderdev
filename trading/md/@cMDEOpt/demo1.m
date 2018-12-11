@@ -14,13 +14,21 @@ mdeopt.start
 mdeopt.plotvolslice(code_ctp_underlier,numstrikes);
 
 %% synthetic straddle vol
-
-greeks1 = mdeopt.getgreeks('cu1902C50000');
-greeks2 = mdeopt.getgreeks('cu1902C49000');
-deltacarry = 3*(greeks1.deltacarry + greeks2.deltacarry)
-theta = 3*(greeks1.theta + greeks2.theta)
-gammacarry = 3*(greeks1.gammacarry + greeks2.gammacarry)
-vegacarry = 3*(greeks1.vegacarry + greeks2.vegacarry)
+opts = {'cu1902C49000';'cu1902C50000';'cu1902P49000';'cu1902P50000'};
+wts = [1;6;6;1];
+deltacarry = 0;
+theta = 0;
+gammacarry = 0;
+vegacarry = 0;
+for i = 1:size(opts,1)
+    greeks = mdeopt.getgreeks(opts{i});
+    deltacarry = deltacarry + wts(i)*greeks.deltacarry;
+    theta = theta + wts(i)*greeks.theta;
+    gammacarry = gammacarry + wts(i)*greeks.gammacarry;
+    vegacarry = vegacarry + wts(i)*greeks.vegacarry;
+end
+fprintf('theta:%s; delta:%s; gamma:%s, vega:%s...\n',...
+    num2str(theta),num2str(deltacarry),num2str(gammacarry),num2str(vegacarry));
 
 
 

@@ -13,44 +13,69 @@ function [] = setriskmanager(obj,varargin)
         riskmanager = cBatman;
         riskmanager.trade_ = obj;
         try
-            riskmanager.status_ = info.status;
+            riskmanager.status_ = info.status_;
         catch
             riskmanager.status_ = 'unset';
         end
         try
-            riskmanager.pxtarget_ = info.pxtarget;
+            riskmanager.pxtarget_ = info.pxtarget_;
         catch
             riskmanager.pxtarget_ = -9.99;
         end
         try
-            riskmanager.pxstoploss_ = info.pxstoploss;
+            riskmanager.pxstoploss_ = info.pxstoploss_;
         catch
             riskmanager.pxstoploss_ = -9.99;
         end
         try
-            riskmanager.bandwidthmin_ = info.bandwidthmin;
+            riskmanager.bandwidthmin_ = info.bandwidthmin_;
         catch
             riskmanager.bandwidthmin_ = 0.3333;
         end
         try
-            riskmanager.bandwidthmax_ = info.bandwidthmax;
+            riskmanager.bandwidthmax_ = info.bandwidthmax_;
         catch
             riskmanager.bandwidthmax_ = 0.5;
         end
         try
-            riskmanager.bandstoploss_ = info.bandstoploss;
+            riskmanager.bandstoploss_ = info.bandstoploss_;
         catch
             riskmanager.bandstoploss_ = -9.99;
         end
         try
-            riskmanager.bandtarget_ = info.bandtarget;
+            riskmanager.bandtarget_ = info.bandtarget_;
         catch
             riskmanager.bandtarget_ = -9.99;
         end
-        
-        if info.bandstoploss ~= -9.99 && info.bandtarget ~= -9.99
+        if info.bandstoploss_ ~= -9.99 && info.bandtarget_ ~= -9.99 && ...
+                strcmpi(info.status_,'unset')
             riskmanager.setstoplossfromsignalinfo(obj.opensignal_);
             riskmanager.settargetfromsignalinfo(obj.opensignal_);
+        end
+        try
+            riskmanager.pxsupportmin_ = info.pxsupportmin_;
+        catch
+            riskmanager.pxsupportmin_ = [];
+        end
+        try
+            riskmanager.pxsupportmax_ = info.pxsupportmax_;
+        catch
+            riskmanager.pxsupportmax_ = [];
+        end
+        try
+            riskmanager.pxresistence_ = info.pxresistence_;
+        catch
+            riskmanager.pxresistence_ = [];
+        end
+        try
+            riskmanager.checkflag_ = info.checkflag_;
+        catch
+            riskmanager.checkflag_ = [];
+        end
+        try
+            riskmanager.pxdynamicopen_ = info.pxdynamicopen_;
+        catch
+            riskmanager.pxdynamicopen_ = [];
         end
         obj.riskmanager_ = riskmanager;
         
@@ -58,17 +83,17 @@ function [] = setriskmanager(obj,varargin)
         riskmanager = cStandard;
         riskmanager.trade_ = obj;
         try
-            riskmanager.status_ = info.status;
+            riskmanager.status_ = info.status_;
         catch
             riskmanager.status_ = 'unset';
         end
         try
-            riskmanager.pxtarget_ = info.pxtarget;
+            riskmanager.pxtarget_ = info.pxtarget_;
         catch
             riskmanager.pxtarget_ = -9.99;
         end
         try
-            riskmanager.pxstoploss_ = info.pxstoploss;
+            riskmanager.pxstoploss_ = info.pxstoploss_;
         catch
             riskmanager.pxstoploss_ = -9.99;
         end

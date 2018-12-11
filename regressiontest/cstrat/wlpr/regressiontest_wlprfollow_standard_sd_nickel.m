@@ -8,7 +8,7 @@ db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %%
-configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprfollowconfig_regressiontest.txt'];
+configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\config_wlprfollow_standard_regressiontest.txt'];
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
 [trades] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
@@ -44,9 +44,11 @@ end
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
 %user inputs:
-bookname = 'replay_wlprfollow';
+bookname = 'replay_wlprfollowstandard';
 strategyname = 'wlpr';
-combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile);
+availablefund = 1e6;
+combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
+    'initialfundlevel',availablefund,'usehistoricaldata',false);
 % replay
 fprintf('nruning regressiontest_wlpr_singleday_nickel...\n');
 fprintf('switch mode to replay...\n');
@@ -54,9 +56,6 @@ if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
 if ~isempty(combos.mdeopt), combos.mdeopt.mode_ = 'replay';end
 if ~isempty(combos.ops), combos.ops.mode_ = 'replay';end
 if ~isempty(combos.strategy), combos.strategy.mode_ = 'replay';end
-%
-availablefund = 1e6;
-combos.strategy.setavailablefund(availablefund,'firstset',true);
 %
 replayspeed = 50;
 fprintf('set replay speed to %s...\n',num2str(replayspeed));
@@ -89,6 +88,7 @@ combos.strategy.printinfo;
 combos.mdefut.printflag_ = false;
 combos.ops.printflag_ = true;
 % combos.ops.print_timeinterval_ = 60*15;
+disp(combos.strategy.riskcontrols_.node_(1));
 fprintf('replay ready...\n');
 %%
 combos.mdefut.start;

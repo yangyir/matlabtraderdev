@@ -46,7 +46,7 @@ cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
 %user inputs:
 delete(timerfindall);
-bookname = 'replay_wlpr';
+bookname = 'replay_wlprclassicstandard';
 strategyname = 'wlpr';
 availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...

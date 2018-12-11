@@ -87,11 +87,11 @@ function [rtt_output] = rtt_setup(varargin)
     if ~isempty(tfn), rtt_helper.registerpasttrades(livetrades);end
     dir_ = [getenv('DATAPATH'),'realtimetrading\'];
     if strcmpi(countername,'citic_kim_fut')
-        dir_ = [dir_,'citickim\',bookname,'\'];
+        dir_ = [dir_,'citickim\'];
     elseif strcmpi(countername,'ccb_ly_fut')
-        dir_ = [dir_,'ccbly\',bookname,'\'];
+        dir_ = [dir_,'ccbly\'];
     elseif strcmpi(countername,'ccb_yy_fut')
-        dir_ = [dir_,'ccbyy\',bookname,'\'];
+        dir_ = [dir_,'ccbyy\'];
     else
         error('rtt_setup:invalid countername')
     end

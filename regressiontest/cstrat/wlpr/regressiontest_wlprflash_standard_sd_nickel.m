@@ -9,10 +9,10 @@ instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %%
 clc
-configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprreverse2config_regressiontest.txt'];
+configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\config_wlprflash_standard_regressiontest.txt'];
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
-[trades] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
+[trades,candle_used] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
     'SampleFrequency',config.samplefreq_,...
     'NPeriod',config.numofperiod_,...
     'AskOpenSpread',config.askopenspread_,...
@@ -20,6 +20,14 @@ config.loadfromfile('code',code,'filename',configfile);
     'WRMode',config.wrmode_,...
     'OverBought',config.overbought_,...
     'OverSold',config.oversold_);
+wr = willpctr(candle_used(:,3),candle_used(:,4),candle_used(:,5),config.numofperiod_);
+figure(1)
+subplot(211);
+idx = find(candle_used(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
+candle(candle_used(idx:end,3),candle_used(idx:end,4),candle_used(idx:end,5),candle_used(idx:end,2));
+grid on;
+subplot(212);
+plot(wr(idx:end));grid on;
 %
 count = 0;
 for i = 1:trades.latest_
@@ -41,9 +49,11 @@ end
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
 %user inputs:
-bookname = 'replay_wlprreverse1';
+bookname = 'replay_wlprflashstandard';
 strategyname = 'wlpr';
-combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile);
+availablefund = 1e6;
+combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
+    'initialfundlevel',availablefund,'usehistoricaldata',false);
 % replay
 fprintf('nruning regressiontest_wlpr_singleday_nickel...\n');
 fprintf('switch mode to replay...\n');
@@ -51,9 +61,6 @@ if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
 if ~isempty(combos.mdeopt), combos.mdeopt.mode_ = 'replay';end
 if ~isempty(combos.ops), combos.ops.mode_ = 'replay';end
 if ~isempty(combos.strategy), combos.strategy.mode_ = 'replay';end
-%
-availablefund = 1e6;
-combos.strategy.setavailablefund(availablefund,'firstset',true);
 %
 replayspeed = 50;
 fprintf('set replay speed to %s...\n',num2str(replayspeed));
@@ -86,6 +93,7 @@ combos.strategy.printinfo;
 combos.mdefut.printflag_ = false;
 combos.ops.printflag_ = true;
 % combos.ops.print_timeinterval_ = 60*15;
+disp(combos.strategy.riskcontrols_.node_(1));
 fprintf('replay ready...\n');
 %%
 combos.mdefut.start;

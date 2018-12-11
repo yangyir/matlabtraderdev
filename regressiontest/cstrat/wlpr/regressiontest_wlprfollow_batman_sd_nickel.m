@@ -8,7 +8,7 @@ db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %%
-configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\wlprfollowbatmanconfig_regressiontest.txt'];
+configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\config_wlprfollow_batman_regressiontest.txt'];
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
 [trades] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
@@ -30,21 +30,21 @@ for i = 1:trades.latest_
                 num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2018-06-19 09:00:01,direction: 1,price:114090
-% id: 2,openbucket:2018-06-19 09:05:01,direction: 1,price:113860
-% id: 3,openbucket:2018-06-19 14:10:01,direction: 1,price:113400
-% id: 4,openbucket:2018-06-19 14:15:01,direction: 1,price:113260
-% id: 5,openbucket:2018-06-19 14:20:01,direction: 1,price:113050
-% id: 6,openbucket:2018-06-19 14:25:01,direction: 1,price:113010
-% id: 7,openbucket:2018-06-19 14:30:01,direction: 1,price:112890
-% id: 8,openbucket:2018-06-19 14:35:01,direction: 1,price:112810
-% id: 9,openbucket:2018-06-19 21:00:01,direction: 1,price:112420
+% id: 1,openbucket:2018-06-19 09:00:01,direction: -1,price:114090
+% id: 2,openbucket:2018-06-19 09:05:01,direction: -1,price:113860
+% id: 3,openbucket:2018-06-19 14:10:01,direction: -1,price:113400
+% id: 4,openbucket:2018-06-19 14:15:01,direction: -1,price:113260
+% id: 5,openbucket:2018-06-19 14:20:01,direction: -1,price:113050
+% id: 6,openbucket:2018-06-19 14:25:01,direction: -1,price:113010
+% id: 7,openbucket:2018-06-19 14:30:01,direction: -1,price:112890
+% id: 8,openbucket:2018-06-19 14:35:01,direction: -1,price:112810
+% id: 9,openbucket:2018-06-19 21:00:01,direction: -1,price:112420
 
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
 %user inputs:
-bookname = 'replay_wlprreverse';
+bookname = 'replay_wlprfollowbatman';
 strategyname = 'wlpr';
 availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
@@ -88,6 +88,7 @@ combos.strategy.printinfo;
 combos.mdefut.printflag_ = false;
 combos.ops.printflag_ = true;
 % combos.ops.print_timeinterval_ = 60*15;
+disp(combos.strategy.riskcontrols_.node_(1));
 fprintf('replay ready...\n');
 %%
 combos.mdefut.start;

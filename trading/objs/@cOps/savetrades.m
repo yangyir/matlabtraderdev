@@ -34,7 +34,7 @@ function [] = savetrades(obj,varargin)
         obj.trades_.totxt(fn_);
         fprintf('cOps:savetrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
         obj.entrusts_ = EntrustArray;
-        obj.entrusts_ = EntrustArray;
+        obj.condentrustspending_ = EntrustArray;
         obj.entrustspending_ = EntrustArray;
         obj.entrustsfinished_ = EntrustArray;
         obj.trades_ = cTradeOpenArray;
