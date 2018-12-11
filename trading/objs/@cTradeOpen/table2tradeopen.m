@@ -62,11 +62,21 @@ function [obj] = table2tradeopen(obj,headers,data)
             for k = 1:length(proplist)
                 if isempty(proplist{k}),continue;end
                 if strcmpi(proplist{k},'riskmanager_name_'), continue; end
-                if isnumchar(vallist{k})
-                    riskmangerinfo.(proplist{k}(length('riskmanager_')+1:end)) = str2double(vallist{k});
+                if ischar(vallist{k})
+                    valnum = str2double(vallist{k});
+                    if isnan(valnum)
+                        riskmangerinfo.(proplist{k}(length('riskmanager_')+1:end)) = vallist{k};
+                    else
+                        riskmangerinfo.(proplist{k}(length('riskmanager_')+1:end)) = valnum;
+                    end
                 else
                     riskmangerinfo.(proplist{k}(length('riskmanager_')+1:end)) = vallist{k};
-                end
+                end                
+%                 if isnumchar(vallist{k})
+%                     riskmangerinfo.(proplist{k}(length('riskmanager_')+1:end)) = str2double(vallist{k});
+%                 else
+%                     riskmangerinfo.(proplist{k}(length('riskmanager_')+1:end)) = vallist{k};
+%                 end
             end
             obj.setriskmanager('name',riskmanager_name,'extrainfo',riskmangerinfo);
         elseif ~isempty(strfind(headers{i},'datetime2_'))

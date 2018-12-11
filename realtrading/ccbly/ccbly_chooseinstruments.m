@@ -5,7 +5,7 @@
 %conditiontype data type is char and must either be 'OR' or 'AND'
 fprintf('running ''ccbly_chooseinstruments''...\n');
 
-ccbly_assettypes = {'basemetal';'preciousmetal';'govtbond';'eqindex'};
+ccbly_assettypes = {'basemetal';'preciousmetal';'govtbond'};
 ccbly_assetnames = {'crude oil';'deformed bar';'iron ore';...
     'sugar';'soymeal';'palm oil';'methanol'};
 ccbly_conditiontype = 'or';
