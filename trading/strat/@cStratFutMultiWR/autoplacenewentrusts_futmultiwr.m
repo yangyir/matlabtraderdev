@@ -207,6 +207,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             if lasttrade <= highestprice && lasttrade > highestcandle(4)
                 price = highestcandle(4) - bidopenspread*instrument.tick_size;
                 isplacenewrequired = true;
+                condentrusts2remove = EntrustArray;
                 n = strategy.helper_.condentrustspending_.latest;
                 for jj = 1:n
                     e = strategy.helper_.condentrustspending_.node(jj);
@@ -223,8 +224,27 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                     end
                     %if the code reaches here, the existing conditional
                     %entrust shall be canceled
-                    strategy.helper_.condentrustspending_.removeByIndex(jj);
+                    condentrusts2remove.push(e);
+%                     strategy.helper_.condentrustspending_.removeByIndex(jj);
                 end
+                %now we first remove any conditional entrusts if required
+                n2remove = condentrusts2remove.latest;
+                for k = 1:n2remove
+                    e2remove = condentrusts2remove.node(k);
+                    npending = strategy.helper_.condentrustspending_.latest;
+                    for kk = npending:-1:1
+                        e = strategy.helper_.condentrustspending_.node(kk);
+                        if strcmpi(e.instrumentCode,e2remove.instrumentCode) && ...
+                                (e.direction == e2remove.direction) && ...
+                                (e.volume == e2remove.volume) && ...
+                                (e.price == e2remove.price)
+                            rmidx = kk;
+                            strategy.helper_.condentrustspending_.removeByIndex(rmidx);
+                            break
+                        end
+                    end
+                end
+                %
                 if isplacenewrequired
                     strategy.condshortopen(instrument.code_ctp,price,...
                         volume,'signalinfo',signal);
@@ -238,6 +258,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             if lasttrade >= lowestprice && lasttrade < lowestcandle(3)
                 price = lowestcandle(3) + askopenspread*instrument.tick_size;
                 isplacenewrequired = true;
+                condentrusts2remove = EntrustArray;
                 n = strategy.helper_.condentrustspending_.latest;
                 for jj = 1:n
                     e = strategy.helper_.condentrustspending_.node(jj);
@@ -254,8 +275,27 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
                     end
                     %if the code reaches here, the existing conditional 
                     %entrust shall be canceled
-                    strategy.helper_.condentrustspending_.removeByIndex(jj);
+                    condentrusts2remove.push(e);
+%                     strategy.helper_.condentrustspending_.removeByIndex(jj);
                 end
+                %now we first remove any conditional entrusts if required
+                n2remove = condentrusts2remove.latest;
+                for k = 1:n2remove
+                    e2remove = condentrusts2remove.node(k);
+                    npending = strategy.helper_.condentrustspending_.latest;
+                    for kk = npending:-1:1
+                        e = strategy.helper_.condentrustspending_.node(kk);
+                        if strcmpi(e.instrumentCode,e2remove.instrumentCode) && ...
+                                (e.direction == e2remove.direction) && ...
+                                (e.volume == e2remove.volume) && ...
+                                (e.price == e2remove.price)
+                            rmidx = kk;
+                            strategy.helper_.condentrustspending_.removeByIndex(rmidx);
+                            break
+                        end
+                    end
+                end
+                %
                 if isplacenewrequired
                     strategy.condlongopen(instrument.code_ctp,price,...
                         volume,'signalinfo',signal);

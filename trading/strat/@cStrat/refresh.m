@@ -65,6 +65,7 @@ function [] = refresh(strategy,varargin)
     %process conditional entrust if there is any
     try
         ncondpending = strategy.helper_.condentrustspending_.latest;
+        condentrusts2remove = EntrustArray;
         if ncondpending > 0
             for i = 1:ncondpending
                 condentrust = strategy.helper_.condentrustspending_.node(i);
@@ -75,7 +76,8 @@ function [] = refresh(strategy,varargin)
                 if isempty(lasttick), continue; end
                 direction = condentrust.direction;
                 if direction == 1 && lasttick(3) >= condpx
-                    strategy.helper_.condentrustspending_.removeByIndex(i);
+%                     strategy.helper_.condentrustspending_.removeByIndex(i);
+                    condentrusts2remove.push(condentrust);
                     if isempty(condentrust.signalinfo_)
                         strategy.longopen(codestr,volume,'overrideprice',condpx);
                     else
@@ -83,7 +85,8 @@ function [] = refresh(strategy,varargin)
                             'signalinfo',condentrust.signalinfo_);
                     end
                 elseif direction == -1 && lasttick(2) <= condpx
-                    strategy.helper_.condentrustspending_.removeByIndex(i);
+%                     strategy.helper_.condentrustspending_.removeByIndex(i);
+                    condentrusts2remove.push(condentrust);
                     if isempty(condentrust.signalinfo_)
                         strategy.shortopen(codestr,volume,'overrideprice',condpx);
                     else
@@ -93,6 +96,25 @@ function [] = refresh(strategy,varargin)
                 end
             end
         end
+        %
+        %
+        n2remove = condentrusts2remove.latest;
+        for k = 1:n2remove
+            e2remove = condentrusts2remove.node(k);
+            ncondpending = strategy.helper_.condentrustspending_.latest;
+            for kk = ncondpending:-1:1
+                econd = strategy.helper_.condentrustspending_.node(kk);
+                if strcmpi(e2remove.instrumentCode,econd.instrumentCode) && ...
+                        e2remove.direction ==  econd.direction && ...
+                        e2remove.volume == econd.volume && ...
+                        e2remove.price == econd.price
+                    rmidx = kk;
+                    strategy.helper_.condentrustspending_.removeByIndex(rmidx);
+                    break
+                end
+            end
+        end
+        %
     catch e
         msg = ['error:',class(strategy),':refresh in updating conditional entrusts:',e.message,'\n'];
         fprintf(msg);
