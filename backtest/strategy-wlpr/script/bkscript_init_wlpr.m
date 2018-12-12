@@ -5,7 +5,7 @@ clear
 if ~exist('bbgConn','var'), bbgConn = bbgconnect;end
 
 %% Download intraday bar data from Bloomberg
-assetList_wlpr = {'crude oil'};
+assetList_wlpr = {'iron ore'};
 [dataIntradaybar_wlpr,codeList_wlpr] = bkfuns_loadintradaydata( bbgConn, assetList_wlpr );
 
 %% generate trades
@@ -18,15 +18,15 @@ for i = 1:nasset_wlpr
     [tradesAll_wlpr{i},dataIntradaybarUsed_wlpr{i}] = bkfunc_gentrades_wlpr(codeList_wlpr{i},dataIntradaybar_wlpr{i},...
         'SampleFrequency',sampleFreq_wlpr{i},...
         'NPeriod',nperiod_wlpr(i),...
-        'OverBought',-0.5,...
-        'OverSold',-99.5,...
-        'TradeType','classic');
+        'OverBought',-0.1,...
+        'OverSold',-99.9,...
+        'WRMode','classic');
     fprintf('%s:%d trades\n',assetList_wlpr{i},tradesAll_wlpr{i}.latest_);
 end
 %%
 clc;
 iAsset = 1;
-iTrade = 50;
+iTrade = 4;
 trade2check = tradesAll_wlpr{iAsset}.node_(iTrade);
 bkfunc_checksingletrade_wlpr(assetList_wlpr{iAsset},assetList_wlpr,dataIntradaybarUsed_wlpr,tradesAll_wlpr,iTrade);
 %%
