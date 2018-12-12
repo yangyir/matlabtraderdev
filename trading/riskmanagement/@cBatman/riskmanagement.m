@@ -80,21 +80,6 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         candleTime = candleK(end,1);
         if openBucket < candleTime
             trade.status_ = 'set';
-            if isa(trade.opensignal_,'cWilliamsRInfo')
-                if strcmpi(trade.opensignal_.wrmode_,'flash')
-                    %we reset the high/low as of the open candle for
-                    %target/stoploss respectively in FLASH
-                    candleHigh = candleK(end-1,3);
-                    candleLow = candleK(end-1,4);
-                    if trade.opendirection_ == 1
-                        obj.pxstoploss_ = candleLow;
-                        obj.pxtarget_ = candleHigh;
-                    else
-                        obj.pxstoploss_ = candleHigh;
-                        obj.pxtarget_ = candleLow;
-                    end
-                end
-            end
         end
     end
     
