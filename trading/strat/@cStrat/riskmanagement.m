@@ -82,12 +82,12 @@ function [] = riskmanagement(obj,dtnum)
                     isflash = false;
                 end
                 if isflash
-                    pxtarget = trade_i.openprice_;
                     if trade_i.opendirection_ == 1
                         pxstoploss = trade_i.opensignal_.lowestlow_;
                     else
                         pxstoploss = trade_i.opensignal_.highesthigh_;
                     end
+                    pxtarget = (trade_i.openprice_-pxstoploss)*trade_i.opendirection_*0.5;
                     extrainfo = struct('pxtarget_',pxtarget,...
                         'pxstoploss_',pxstoploss,...
                         'bandstoploss_',-9.99,...

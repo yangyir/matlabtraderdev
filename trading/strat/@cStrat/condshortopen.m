@@ -49,9 +49,9 @@ function [ret,e,msg] = condshortopen(strategy,code_ctp,condpx,lots,varargin)
    
    if strcmpi(strategy.mode_,'realtime')
         if isopt
-            q = strategy.mde_opt_.qms_.getquote(ctp_code);
+            q = strategy.mde_opt_.qms_.getquote(code_ctp);
         else
-            q = strategy.mde_fut_.qms_.getquote(ctp_code);
+            q = strategy.mde_fut_.qms_.getquote(code_ctp);
         end
         if isempty(q)
             ret = 0;

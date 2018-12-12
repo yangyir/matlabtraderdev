@@ -92,6 +92,8 @@ function [rtt_output] = rtt_setup(varargin)
         dir_ = [dir_,'ccbly\'];
     elseif strcmpi(countername,'ccb_yy_fut')
         dir_ = [dir_,'ccbyy\'];
+    elseif strcmpi(countername,'dh_professorWan_fut')
+        dir_ = [dir_,'dhpw\'];
     else
         error('rtt_setup:invalid countername')
     end
