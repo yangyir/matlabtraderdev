@@ -204,6 +204,7 @@ function [] = refresh(strategy,varargin)
         fprintf(msg);
         if strcmpi(strategy.onerror_,'stop')
             strategy.stop;
+            return
         end
     end
     %
@@ -215,6 +216,7 @@ function [] = refresh(strategy,varargin)
         fprintf(msg);
         if strcmpi(strategy.onerror_,'stop')
             strategy.stop;
+            return
         end
     end
     %
@@ -226,6 +228,7 @@ function [] = refresh(strategy,varargin)
         fprintf(msg);
         if strcmpi(strategy.onerror_,'stop')
             strategy.stop;
+            return
         end
     end
     %
@@ -236,6 +239,7 @@ function [] = refresh(strategy,varargin)
         fprintf(msg);
         if strcmpi(strategy.onerror_,'stop')
             strategy.stop;
+            return
         end
     end
         
