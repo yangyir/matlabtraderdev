@@ -15,6 +15,12 @@ function quotes = getquotes_ctp(watcher)
     quotes = zeros(ns+nu,7);
 
     data = watcher.ds.realtime(list_ctp,'');
+    if isempty(data)
+        quotes(:,1) = today;
+        quotes(:,2) = now;
+        quotes(:,3:7) = NaN;
+        return; 
+    end
     for i = 1:ns+nu
         mkt = data{i}.mkt;
         level = data{i}.level;
