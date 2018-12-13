@@ -10,15 +10,21 @@
 ui_stratname = 'wlpr';
 ui_stratfund = 1e6;
 ui_usehistoricaldata = false;
+ui_assettypes = {'basemetal';'preciousmetal';'govtbond';'energy'};
+ui_assetnames = {'deformed bar';'iron ore';...
+    'sugar';'soymeal';'palm oil';'corn';'rapeseed meal';'apple'};
 
 %% check the existing risk configurations
-fprintf('existing risk configurations...\n');
 ccbly_printriskconfig;
 
 %% mod the risk configurations if nececcary
 ui_codes = ccbly_futs2trade;
-ui_propnames = {'wrmode';'samplefreq';'riskmanagername'};
-ui_propvalues = {'flash';'3m';'batman'};
+ui_propnames = {'overbought';'oversold';'wrmode';'samplefreq';'riskmanagername';...
+    'stoptypepertrade';'stopamountpertrade';'limittypepertrade';'limitamountpertrade';...
+    'baseunits';'maxunits'};
+ui_propvalues = {-0.25;-99.75;'classic';'5m';'batman';...
+    'rel';-0.008;'rel';0.005;...
+    2;6};
 ui_override = true;
 fprintf('\n')
 ccbly_modriskconfig;

@@ -5,9 +5,18 @@
 %conditiontype data type is char and must either be 'OR' or 'AND'
 fprintf('running ''ccbly_chooseinstruments''...\n');
 
-ccbly_assettypes = {'basemetal';'preciousmetal';'govtbond'};
-ccbly_assetnames = {'crude oil';'deformed bar';'iron ore';...
-    'sugar';'soymeal';'palm oil';'methanol'};
+if exist('ui_assettypes','var')
+    ccbly_assettypes = ui_assettypes;
+else
+    ccbly_assettypes = {'basemetal';'preciousmetal';'govtbond';'energy'};
+end
+%
+if exist('ui_assetnames','var')
+    ccbly_assetnames = ui_assetnames;
+else
+    ccbly_assetnames = {'deformed bar';'iron ore';...
+        'sugar';'soymeal';'palm oil';'corn';'rapeseed meal';'apple'};
+end
 ccbly_conditiontype = 'or';
 
 ccbly_futs2trade = getactivefuts('AssetTypes',ccbly_assettypes,...

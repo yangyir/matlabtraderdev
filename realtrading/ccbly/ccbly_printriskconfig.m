@@ -1,6 +1,8 @@
 %
 % fprintf('runing ''ccbly_printriskconfig''...\n')
 %
+ccbly_genriskconfig;
+
 riskconfigs2check = cStratConfigArray;
 %
 if ~exist('ccbly_path','var'), ccbly_init; end
@@ -26,6 +28,7 @@ if n > 0
     proplist = properties(riskconfigs2check.node_(1));
 end
 
+fprintf('existing risk configurations...\n');
 for i = 1:size(proplist,1)
     if strcmpi(proplist{i},'instrument_'), continue; end
     if strcmpi(proplist{i},'name_'), continue; end
