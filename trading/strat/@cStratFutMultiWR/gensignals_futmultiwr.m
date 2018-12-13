@@ -44,9 +44,12 @@ function signals = gensignals_futmultiwr(strategy)
                         datestr(tick(1),'yyyy-mm-dd HH:MM:SS'),instruments{i}.code_ctp,num2str(tick(4)),strategy.wr_(i),...
                         num2str(maxpx_last),num2str(minpx_last),num2str(ti{1}(4)));
                 end
+            elseif strcmpi(wrmode,'flash')
+                [maxpx_last,maxpx_before,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+                [minpx_last,minpx_before,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
             else
-                [maxpx_last,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
-                [minpx_last,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+                [maxpx_last,~,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
+                [minpx_last,~,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
                 %
                 %refresh max and min prices
                 maxpx_before = strategy.maxnperiods_(i);
@@ -101,7 +104,7 @@ function signals = gensignals_futmultiwr(strategy)
                 %note:first time set entrusts
                 %IMPORTANT:shall be open entrust
                 n = strategy.helper_.numberofentrusts('Offset','Open','Code',instruments{i}.code_ctp);
-                if n == 0
+                if n == 0 && (strcmpi(wrmode,'reverse') ||strcmpi(wrmode,'follow'))
                     signals{i,1} = struct('name','williamsr',...
                         'instrument',instruments{i},...
                         'frequency',samplefreqstr,...
