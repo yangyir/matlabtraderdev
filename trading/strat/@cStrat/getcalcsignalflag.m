@@ -48,7 +48,7 @@ function calcflag = getcalcsignalflag(strategy,instrument)
                 strategy.calcsignal_(idx_instrument) = 1;
                 strategy.calsignal_bucket_(idx_instrument) = this_count;
                 if strategy.printflag_
-                    fprintf('\n%s:calc signal of %s at:%s\n',strategy.name_,instrument.code_ctp,datestr(t,'yyyy-mm-dd HH:MM:SS'));
+                    fprintf('%s:calc signal of %s at:%s\n',strategy.name_,instrument.code_ctp,datestr(t,'yyyy-mm-dd HH:MM:SS'));
                 end
             else
                 strategy.calcsignal_(idx_instrument) = 0;
