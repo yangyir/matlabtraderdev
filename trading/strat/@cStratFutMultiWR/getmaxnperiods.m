@@ -1,4 +1,4 @@
-function [maxp,maxt,maxcandle] = getmaxnperiods(obj,instrument,varargin)
+function [maxp,maxp_before,maxt,maxcandle] = getmaxnperiods(obj,instrument,varargin)
 %cStratFutMultiWR
     if ~(isa(instrument,'cInstrument') || ischar(instrument)) 
         error('%s:getmaxnperiods:invalid instrument input',class(obj))
@@ -71,11 +71,11 @@ function [maxp,maxt,maxcandle] = getmaxnperiods(obj,instrument,varargin)
     timevec = timevec(idx);
     
     maxp = max(highpx(end-nperiods-1:end));
+    maxp_before = max(highpx(end-nperiods-1-1:end-1));
     idx = highpx == maxp;
     maxt = timevec(idx);
     maxcandle = candlesall(idx,:);
     if size(maxcandle,1) > 1
         maxcandle = maxcandle(end,:);
     end
-
 end

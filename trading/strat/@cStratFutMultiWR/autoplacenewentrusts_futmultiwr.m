@@ -205,7 +205,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %3)open a conditional entrust with short position at the
             %candle's low price
             if lasttrade <= highestprice && lasttrade > highestcandle(4)
-                price = highestcandle(4) - bidopenspread*instrument.tick_size;
+                price = highestcandle(4) - instrument.tick_size;
                 isplacenewrequired = true;
                 condentrusts2remove = EntrustArray;
                 n = strategy.helper_.condentrustspending_.latest;
@@ -256,7 +256,7 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %3)open a conditional entrust with long position at the
             %candle's high price
             if lasttrade >= lowestprice && lasttrade < lowestcandle(3)
-                price = lowestcandle(3) + askopenspread*instrument.tick_size;
+                price = lowestcandle(3) + instrument.tick_size;
                 isplacenewrequired = true;
                 condentrusts2remove = EntrustArray;
                 n = strategy.helper_.condentrustspending_.latest;

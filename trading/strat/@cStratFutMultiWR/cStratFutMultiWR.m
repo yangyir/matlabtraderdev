@@ -17,8 +17,8 @@ classdef cStratFutMultiWR < cStrat
     methods
         [] = registerinstrument(obj,instrument)
         [wr,wrts] = getlastwr(obj,instrument)
-        [maxp,maxt,maxcandle] = getmaxnperiods(obj,instrument,varargin)
-        [minp,mint,mincandle] = getminnperiods(obj,instrument,varargin)
+        [maxp,maxp_before,maxt,maxcandle] = getmaxnperiods(obj,instrument,varargin)
+        [minp,minp_before,mint,mincandle] = getminnperiods(obj,instrument,varargin)
         [] = printinfo(obj)
     end
     

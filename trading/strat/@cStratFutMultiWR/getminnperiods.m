@@ -1,4 +1,4 @@
-function [minp,mint,mincandle] = getminnperiods(obj,instrument,varargin)
+function [minp,minp_before,mint,mincandle] = getminnperiods(obj,instrument,varargin)
 %cStratFutMultiWR
     if ~(isa(instrument,'cInstrument') || ischar(instrument)) 
         error('%s:getminnperiods:invalid instrument input',class(obj))
@@ -71,6 +71,7 @@ function [minp,mint,mincandle] = getminnperiods(obj,instrument,varargin)
     timevec = timevec(idx);
     
     minp = min(lowpx(end-nperiods-1:end));
+    minp_before = min(lowpx(end-nperiods-1-1:end-1));
     idx = lowpx == minp;
     mint = timevec(idx);
     mincandle = candlesall(idx,:);
