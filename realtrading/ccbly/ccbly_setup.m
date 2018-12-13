@@ -9,12 +9,13 @@
 %% user inputs
 ui_stratname = 'wlpr';
 ui_stratfund = 1e6;
-ui_usehistoricaldata = false;
+ui_usehistoricaldata = true;
 ui_assettypes = {'basemetal';'preciousmetal';'govtbond';'energy'};
 ui_assetnames = {'deformed bar';'iron ore';...
     'sugar';'soymeal';'palm oil';'corn';'rapeseed meal';'apple'};
 
 %% check the existing risk configurations
+ccbly_genriskconfig;
 ccbly_printriskconfig;
 
 %% mod the risk configurations if nececcary
@@ -33,23 +34,15 @@ ccbly_printriskconfig;
 
 %% create combos of strategy, mdefut and ops
 if strcmpi(ui_stratname,'manual')
-    ccbly_book2trade = ccbly_bookname_manual;
-    ccbly_riskconfigfile2use = ccbly_riskconfigfilename_manual;
+    ccbly_book2trade = ccbly_bookname_manual;ccbly_riskconfigfile2use = ccbly_riskconfigfilename_manual;
 elseif strcmpi(ui_stratname,'batman')
-    ccbly_book2trade = ccbly_bookname_batman;
-    ccbly_riskconfigfile2use = ccbly_riskconfigfilename_batman;
+    ccbly_book2trade = ccbly_bookname_batman;ccbly_riskconfigfile2use = ccbly_riskconfigfilename_batman;
 elseif strcmpi(ui_stratname,'wlpr')
-    ccbly_book2trade = ccbly_bookname_wlpr;
-    ccbly_riskconfigfile2use = ccbly_riskconfigfilename_wlpr;
+    ccbly_book2trade = ccbly_bookname_wlpr;ccbly_riskconfigfile2use = ccbly_riskconfigfilename_wlpr;
 elseif strcmpi(ui_stratname,'wlprbatman')
-    ccbly_book2trade = ccbly_bookname_wlprbatman;
-    ccbly_riskconfigfile2use = ccbly_riskconfigfilename_wlprbatman;
+    ccbly_book2trade = ccbly_bookname_wlprbatman;ccbly_riskconfigfile2use = ccbly_riskconfigfilename_wlprbatman;
 else
-    if isempty(ui_stratname)
-        error('ERROR:ccb_setup:blank stratey name input!!!');
-    else
-        error('ERROR:ccb_setup:%s is not a valid stratey name!!!',ui_stratname);
-    end
+    error('ERROR:ccb_setup:%s is not a valid stratey name!!!',ui_stratname);
 end
 
 ccbly = rtt_setup('CounterName',ccbly_countername,...

@@ -16,13 +16,13 @@ if ~exist('ccbly_riskconfigfilename_manual','var')
 end
 
 if strcmpi(ui_stratname,'manual')
-    configfile2mod = ccbly_riskconfigfilename_manual;
+    configfile2mod = [ccbly_path_manual,ccbly_riskconfigfilename_manual];
 elseif strcmpi(ui_stratname,'batman')
-    configfile2mod = ccbly_riskconfigfilename_batman;
+    configfile2mod = [ccbly_path_batman,ccbly_riskconfigfilename_batman];
 elseif strcmpi(ui_stratname,'wlpr')
-    configfile2mod = ccbly_riskconfigfilename_wlpr;
+    configfile2mod = [ccbly_path_wlpr,ccbly_riskconfigfilename_wlpr];
 elseif strcmpi(ui_stratname,'wlprbatman')
-    configfile2mod = ccbly_riskconfigfilename_wlprbatman;
+    configfile2mod = [ccbly_path_wlprbatman,ccbly_riskconfigfilename_wlprbatman];
 else
     if isempty(ui_stratname)
         error('ERROR:ccb_modriskconfig:blank stratey name input!!!');

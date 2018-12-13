@@ -1,7 +1,6 @@
 %
 % fprintf('runing ''ccbly_printriskconfig''...\n')
 %
-ccbly_genriskconfig;
 
 riskconfigs2check = cStratConfigArray;
 %
@@ -50,4 +49,4 @@ end
 
 
 
-clear i n val
+clear i j n val proplist

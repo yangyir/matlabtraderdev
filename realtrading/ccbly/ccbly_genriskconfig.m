@@ -6,9 +6,8 @@ if ~exist('ccbly_countername','var')
     ccbly_init;
 end
 
-if ~exist('ccbly_futs2trade','var')
-    ccbly_chooseinstruments;
-end
+ccbly_chooseinstruments;
+
 
 ccbly_riskconfigfilename_manual = 'ccbly_riskconfigs_mannual.txt';
 ccbly_riskconfigfilename_batman = 'ccbly_riskconfigs_batman.txt';
