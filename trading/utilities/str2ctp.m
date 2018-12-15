@@ -37,7 +37,9 @@ for i = 1:size(codelist)
             idx = strfind(upper(tenor),'C');
             if isempty(idx)
                 idx = strfind(upper(tenor),'P');
-                if isempty(idx), error('str2ctp:invalid input'); end
+                if isempty(idx)
+                    error('str2ctp:invalid input'); 
+                end
             end
             tenor = [tenor(1:idx-1),upper(tenor(idx)),tenor(idx+1:end)];
         end

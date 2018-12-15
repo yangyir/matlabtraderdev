@@ -73,7 +73,9 @@ if strcmpi(excode, '.CZC')
     ctpcode =[upper(ctpshortcode),yearstr,mmstr];
 else
     currentyear = num2str(year(today));
-    yearstr = [currentyear(3),yearstr];
+    if length(yearstr) < 2
+        yearstr = [currentyear(3),yearstr];
+    end
     if strcmpi(excode,'.CFE')
         ctpcode =[upper(ctpshortcode),yearstr,mmstr];
     else
