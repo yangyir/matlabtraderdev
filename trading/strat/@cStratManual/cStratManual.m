@@ -22,12 +22,8 @@ classdef cStratManual < cStrat
         
         function [] = updategreeks(obj)
             variablenotused(obj);
-        end
-        
-        function [] = riskmanagement(obj,dtnum)
-            riskmanagement@cStrat(obj,dtnum);
-        end
-        
+        end        
+      
         function [] = initdata(obj)
             obj.initdata_manual;
         end 
@@ -42,16 +38,8 @@ classdef cStratManual < cStrat
         [] = stratplot2(obj,instrument1,instrument2,varargin)
     end
     
-    methods (Access = public)
-        %some trading related funcs
-        [ret,entrusts] = placeentrusts(obj,varargin)
-        [ret] = placeconditionalentrusts(obj,varargin)
-    end
-    
-    
     methods (Access = private)
         [] = initdata_manual(obj)
-        [] = riskmanagement_manual(obj,dtnum)
     end
     
 end

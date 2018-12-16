@@ -3,7 +3,7 @@ function [ret,e] = unwindtrade(obj,tradein)
     if ~isa(tradein,'cTradeOpen')
         ret = 0;
         e = [];
-        fprintf('cStrat:unwindtrade:invalid trade input...\n');
+        fprintf('%s:unwindtrade:invalid trade input...\n',class(obj));
         return
     end
     
@@ -12,6 +12,12 @@ function [ret,e] = unwindtrade(obj,tradein)
     code = instrument.code_ctp;
     volume = tradein.openvolume_;
     lasttick = obj.mde_fut_.getlasttick(instrument);
+    if isempty(lasttick)
+        ret = 0;
+        e = [];
+        fprintf('%s:unwindtrade:no tick returns...\n',class(obj));
+        return
+    end
     tradeid = tradein.id_;
     
     %we need to unwind the trade

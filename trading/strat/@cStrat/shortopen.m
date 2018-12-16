@@ -138,7 +138,7 @@ function [ret,e,msg] = shortopen(strategy,ctp_code,lots,varargin)
             e.time = ordertime;
             e.time2 = datestr(e.time,'yyyy-mm-dd HH:MM:SS');
             e.entrustType = entrusttype;
-            strategy.updatestratwithentrust(e);
+%             strategy.updatestratwithentrust(e);
         end
     else
         %note:the errmsg was printed on screen already

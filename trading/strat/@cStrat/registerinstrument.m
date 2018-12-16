@@ -48,11 +48,11 @@ function [] = registerinstrument(strategy,instrument)
     %calcsignal_
     strategy.setcalcsignal(instrument,0);
     
-    %executionperbucket_
-    strategy.setexecutionperbucket(instrument,0);
-    
-    %executionbucketnumber_
-    strategy.setexecutionbucketnumber(instrument,1);
+%     %executionperbucket_
+%     strategy.setexecutionperbucket(instrument,0);
+%     
+%     %executionbucketnumber_
+%     strategy.setexecutionbucketnumber(instrument,1);
     
     if ~optflag
         strategy.mde_fut_.registerinstrument(instrument);

@@ -7,9 +7,6 @@ classdef cStrat < cMyTimerObj
         %option related
         underliers_@cInstrumentArray
         
-        executionbucketnumber_@double
-        executionperbucket_@double
-        %
         calsignal_bucket_@double
         calcsignal_@double
         %
@@ -42,12 +39,6 @@ classdef cStrat < cMyTimerObj
     
     %set/get methods
     methods
-        %
-        [] = setexecutionbucketnumber(obj,instrument,value)
-        n = getexecutionbucketnumber(obj,instrument)
-        %
-        [] = setexecutionperbucket(obj,instrument,value)
-        n = getexecutionperbucket(obj,instrument)
         %
         [] = setcalcsignalbucket(obj,instrument,val)
         calcsignalbucket = getcalcsignalbucket(obj)
@@ -88,8 +79,10 @@ classdef cStrat < cMyTimerObj
         [] = registerhelper(obj,helper)
         
         %process portfolio with entrusts
-        [] = updatestratwithentrust(obj,e)
+        [] = updatecondentrusts(obj)
         [] = withdrawentrusts(obj,instrument,varargin)
+        [ret,e,msg] = placeentrust(obj,instrument,varargin)
+        [ret,e,msg] = placecondentrust(obj,instrument,varargin)
         
         %long/short open/close positions
         [ret,e,msg] = shortopen(obj,code_ctp,lots,varargin)
@@ -104,6 +97,7 @@ classdef cStrat < cMyTimerObj
         [ret,e,msg] = condlongclose(obj,code_ctp,condpx,lots,closetodayflag,varargin)
         
         [] = unwindpositions(obj,instrument,varargin)
+        [] = unwindall(obj,varargin)
         [ret,e] = unwindtrade(obj,tradein)
         pnl = calcrunningpnl(obj,instrument)
         

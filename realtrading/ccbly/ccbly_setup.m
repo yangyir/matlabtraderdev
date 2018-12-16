@@ -10,7 +10,7 @@
 ui_stratname = 'wlpr';
 ui_stratfund = 1e6;
 ui_usehistoricaldata = true;
-ui_assettypes = {'basemetal';'preciousmetal';'govtbond';'energy'};
+ui_assettypes = {'basemetal';'preciousmetal';'energy'};
 ui_assetnames = {'deformed bar';'iron ore';...
     'sugar';'soymeal';'palm oil';'corn';'rapeseed meal';'apple'};
 

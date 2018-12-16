@@ -28,7 +28,7 @@ function [obj] = table2tradeopen(obj,headers,data)
             elseif strcmpi(opensignal_name,'BatmanManual')
                 signal = cBatmanManual;
             elseif strcmpi(opensignal_name,'Manual')
-                signal = cSignalInfo;
+                signal = cManualInfo;
             end
                 
             for k = 1:length(proplist)

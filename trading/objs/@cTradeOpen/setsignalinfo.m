@@ -8,11 +8,27 @@ function [] = setsignalinfo(obj,varargin)
     info = p.Results.ExtraInfo;
     
     if strcmpi(name,'manual')
-        signalinfo = cSignalInfo;
+%         signalinfo = cSignalInfo;
+        signalinfo =  cManualInfo;
         try
             signalinfo.frequency_ = info.frequency;
         catch
             signalinfo.frequency_ = '';
+        end
+        try
+            signalinfo.riskmanagername_ = info.riskmanagername;
+        catch
+            signalinfo.riskmanagername_ = 'standard';
+        end
+        try
+            signalinfo.pxtarget_ = info.pxtarget;
+        catch
+            signalinfo.pxtarget_ = -9.99;
+        end
+        try
+            signalinfo.pxstoploss_ = info.pxstoploss;
+        catch
+            signalinfo.pxstoploss_ = -9.99;
         end
         obj.opensignal_ = signalinfo;
         return
