@@ -73,7 +73,7 @@ end
 
 if strcmpi(assetName,'nickel')
     if init_yy < curr_yy
-        n = 1+...                       %contracts for the first year
+        n = 2+...                       %contracts for the first year
             (curr_yy-1-init_yy)*6+...   %contracts between the 2nd and last year
             ceil(curr_mm/2)+...         %contracts (expired) for this year
             3;                          %now listed
