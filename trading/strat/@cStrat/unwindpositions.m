@@ -21,14 +21,14 @@ function [] = unwindpositions(strategy,instrument,varargin)
     %note:as all risk/pnl is managed on trade level, we shall unwind all
     %trades associated with the instrument given
     try
-        ntrades = strategy.helper_.trades_.lastest_;
+        ntrades = strategy.helper_.trades_.latest_;
     catch
         ntrades = 0;
     end
     for itrade = 1:ntrades
         trade_i = strategy.helper_.trades_.node_(itrade);
         if strcmpi(trade_i.code_,instrument.code_ctp) && ...
-                ~strcmpi(trade_i.status,'closed')
+                ~strcmpi(trade_i.status_,'closed')
             strategy.unwindtrade(trade_i);
         end
     end

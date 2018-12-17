@@ -189,7 +189,7 @@ function [ret,e,msg] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
         e.time2 = datestr(e.time,'yyyy-mm-dd HH:MM:SS');
         e.entrustType = entrusttype;
         if ~isempty(tradeid), e.tradeid_ = tradeid;end
-        strategy.updatestratwithentrust(e);
+%         strategy.updatestratwithentrust(e);
     end
     
 end
