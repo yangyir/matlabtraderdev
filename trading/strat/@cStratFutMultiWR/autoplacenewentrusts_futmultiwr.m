@@ -204,50 +204,89 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %2)the tick is higher than the candle's low
             %3)open a conditional entrust with short position at the
             %candle's low price
-            if lasttrade <= highestprice && lasttrade > highestcandle(4)
-                price = highestcandle(4) - instrument.tick_size;
-                isplacenewrequired = true;
-                condentrusts2remove = EntrustArray;
-                n = strategy.helper_.condentrustspending_.latest;
-                for jj = 1:n
-                    e = strategy.helper_.condentrustspending_.node(jj);
-                    if e.offsetFlag ~= 1, continue; end
-                    if isempty(e.signalinfo_), continue; end
-                    if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
-                    if e.direction ~= -1, continue;end %the same direction
-                    if e.volume ~= volume,continue;end  %the same volume
-                    if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
-                    %is it a better long position deal?
-                    if e.price >= price
-                        isplacenewrequired = false;
-                        continue;
+            checkflag = signal.checkflag;
+            if lasttrade <= highestprice && checkflag == 1
+                if lasttrade >= highestcandle(4)
+                    price = highestcandle(4) - instrument.tick_size;
+                    isplacenewrequired = true;
+                    condentrusts2remove = EntrustArray;
+                    n = strategy.helper_.condentrustspending_.latest;
+                    for jj = 1:n
+                        e = strategy.helper_.condentrustspending_.node(jj);
+                        if e.offsetFlag ~= 1, continue; end
+                        if isempty(e.signalinfo_), continue; end
+                        if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+                        if e.direction ~= -1, continue;end %the same direction
+                        if e.volume ~= volume,continue;end  %the same volume
+                        if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
+                        %is it a better long position deal?
+                        if e.price >= price
+                            isplacenewrequired = false;
+                            continue;
+                        end
+                        %if the code reaches here, the existing conditional
+                        %entrust shall be canceled
+                        condentrusts2remove.push(e);
+    %                     strategy.helper_.condentrustspending_.removeByIndex(jj);
                     end
-                    %if the code reaches here, the existing conditional
-                    %entrust shall be canceled
-                    condentrusts2remove.push(e);
-%                     strategy.helper_.condentrustspending_.removeByIndex(jj);
-                end
-                %now we first remove any conditional entrusts if required
-                n2remove = condentrusts2remove.latest;
-                for k = 1:n2remove
-                    e2remove = condentrusts2remove.node(k);
-                    npending = strategy.helper_.condentrustspending_.latest;
-                    for kk = npending:-1:1
-                        e = strategy.helper_.condentrustspending_.node(kk);
-                        if strcmpi(e.instrumentCode,e2remove.instrumentCode) && ...
-                                (e.direction == e2remove.direction) && ...
-                                (e.volume == e2remove.volume) && ...
-                                (e.price == e2remove.price)
-                            rmidx = kk;
-                            strategy.helper_.condentrustspending_.removeByIndex(rmidx);
-                            break
+                    %now we first remove any conditional entrusts if required
+                    n2remove = condentrusts2remove.latest;
+                    for k = 1:n2remove
+                        e2remove = condentrusts2remove.node(k);
+                        npending = strategy.helper_.condentrustspending_.latest;
+                        for kk = npending:-1:1
+                            e = strategy.helper_.condentrustspending_.node(kk);
+                            if strcmpi(e.instrumentCode,e2remove.instrumentCode) && ...
+                                    (e.direction == e2remove.direction) && ...
+                                    (e.volume == e2remove.volume) && ...
+                                    (e.price == e2remove.price)
+                                rmidx = kk;
+                                strategy.helper_.condentrustspending_.removeByIndex(rmidx);
+                                break
+                            end
                         end
                     end
-                end
-                %
-                if isplacenewrequired
-                    strategy.condshortopen(instrument.code_ctp,price,...
-                        volume,'signalinfo',signal);
+                    %
+                    if isplacenewrequired
+                        strategy.condshortopen(instrument.code_ctp,price,...
+                            volume,'signalinfo',signal);
+                    end
+                elseif lasttrade < highestcandle(4)
+                    %market order
+                    price = bid;
+                    strategy.shortopen(instrument.code_ctp,volume,...
+                        'overrideprice',price,'time',ordertime,'signalinfo',signal);
+                    %also we need to remove any pending conditional entrust
+                    %associated with this instrument
+                    condentrusts2remove = EntrustArray;
+                    n = strategy.helper_.condentrustspending_.latest;
+                    for jj = 1:n
+                        e = strategy.helper_.condentrustspending_.node(jj);
+                        if e.offsetFlag ~= 1, continue; end
+                        if isempty(e.signalinfo_), continue; end
+                        if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+                        if e.direction ~= -1, continue;end %the same direction
+                        if e.volume ~= volume,continue;end  %the same volume
+                        if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
+                        condentrusts2remove.push(e);
+                    end
+                    %now we first remove any conditional entrusts if required
+                    n2remove = condentrusts2remove.latest;
+                    for k = 1:n2remove
+                        e2remove = condentrusts2remove.node(k);
+                        npending = strategy.helper_.condentrustspending_.latest;
+                        for kk = npending:-1:1
+                            e = strategy.helper_.condentrustspending_.node(kk);
+                            if strcmpi(e.instrumentCode,e2remove.instrumentCode) && ...
+                                    (e.direction == e2remove.direction) && ...
+                                    (e.volume == e2remove.volume) && ...
+                                    (e.price == e2remove.price)
+                                rmidx = kk;
+                                strategy.helper_.condentrustspending_.removeByIndex(rmidx);
+                                break
+                            end
+                        end
+                    end
                 end
             end
             %
@@ -255,50 +294,88 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %2)the tick is lower than the candle's high
             %3)open a conditional entrust with long position at the
             %candle's high price
-            if lasttrade >= lowestprice && lasttrade < lowestcandle(3)
-                price = lowestcandle(3) + instrument.tick_size;
-                isplacenewrequired = true;
-                condentrusts2remove = EntrustArray;
-                n = strategy.helper_.condentrustspending_.latest;
-                for jj = 1:n
-                    e = strategy.helper_.condentrustspending_.node(jj);
-                    if e.offsetFlag ~= 1, continue; end
-                    if isempty(e.signalinfo_), continue; end
-                    if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
-                    if e.direction ~= 1, continue;end %the same direction
-                    if e.volume ~= volume,continue;end  %the same volume
-                    if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
-                    %is it a better long position deal?
-                    if e.price <= price
-                        isplacenewrequired = false;
-                        continue;
+            if lasttrade >= lowestprice && checkflag == -1
+                if lasttrade <= lowestcandle(3)
+                    price = lowestcandle(3) + instrument.tick_size;
+                    isplacenewrequired = true;
+                    condentrusts2remove = EntrustArray;
+                    n = strategy.helper_.condentrustspending_.latest;
+                    for jj = 1:n
+                        e = strategy.helper_.condentrustspending_.node(jj);
+                        if e.offsetFlag ~= 1, continue; end
+                        if isempty(e.signalinfo_), continue; end
+                        if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+                        if e.direction ~= 1, continue;end %the same direction
+                        if e.volume ~= volume,continue;end  %the same volume
+                        if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
+                        %is it a better long position deal?
+                        if e.price <= price
+                            isplacenewrequired = false;
+                            continue;
+                        end
+                        %if the code reaches here, the existing conditional 
+                        %entrust shall be canceled
+                        condentrusts2remove.push(e);
+    %                     strategy.helper_.condentrustspending_.removeByIndex(jj);
                     end
-                    %if the code reaches here, the existing conditional 
-                    %entrust shall be canceled
-                    condentrusts2remove.push(e);
-%                     strategy.helper_.condentrustspending_.removeByIndex(jj);
-                end
-                %now we first remove any conditional entrusts if required
-                n2remove = condentrusts2remove.latest;
-                for k = 1:n2remove
-                    e2remove = condentrusts2remove.node(k);
-                    npending = strategy.helper_.condentrustspending_.latest;
-                    for kk = npending:-1:1
-                        e = strategy.helper_.condentrustspending_.node(kk);
-                        if strcmpi(e.instrumentCode,e2remove.instrumentCode) && ...
-                                (e.direction == e2remove.direction) && ...
-                                (e.volume == e2remove.volume) && ...
-                                (e.price == e2remove.price)
-                            rmidx = kk;
-                            strategy.helper_.condentrustspending_.removeByIndex(rmidx);
-                            break
+                    %now we first remove any conditional entrusts if required
+                    n2remove = condentrusts2remove.latest;
+                    for k = 1:n2remove
+                        e2remove = condentrusts2remove.node(k);
+                        npending = strategy.helper_.condentrustspending_.latest;
+                        for kk = npending:-1:1
+                            e = strategy.helper_.condentrustspending_.node(kk);
+                            if strcmpi(e.instrumentCode,e2remove.instrumentCode) && ...
+                                    (e.direction == e2remove.direction) && ...
+                                    (e.volume == e2remove.volume) && ...
+                                    (e.price == e2remove.price)
+                                rmidx = kk;
+                                strategy.helper_.condentrustspending_.removeByIndex(rmidx);
+                                break
+                            end
                         end
                     end
-                end
-                %
-                if isplacenewrequired
-                    strategy.condlongopen(instrument.code_ctp,price,...
-                        volume,'signalinfo',signal);
+                    %
+                    if isplacenewrequired
+                        strategy.condlongopen(instrument.code_ctp,price,...
+                            volume,'signalinfo',signal);
+                    end
+                elseif lasttrade > lowestcandle(3)
+                    %market order
+                    price = ask;
+                    strategy.longopen(instrument.code_ctp,volume,...
+                        'overrideprice',price,'time',ordertime,'signalinfo',signal);
+                    %also we need to remove any pending conditional entrust
+                    %associated with this instrument
+                    condentrusts2remove = EntrustArray;
+                    n = strategy.helper_.condentrustspending_.latest;
+                    for jj = 1:n
+                        e = strategy.helper_.condentrustspending_.node(jj);
+                        if e.offsetFlag ~= 1, continue; end
+                        if isempty(e.signalinfo_), continue; end
+                        if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+                        if e.direction ~= 1, continue;end %the same direction
+                        if e.volume ~= volume,continue;end  %the same volume
+                        if ~strcmpi(e.signalinfo_.wrmode,wrmode),continue;end %the same open signal
+                        condentrusts2remove.push(e);
+                    end
+                    %now we first remove any conditional entrusts if required
+                    n2remove = condentrusts2remove.latest;
+                    for k = 1:n2remove
+                        e2remove = condentrusts2remove.node(k);
+                        npending = strategy.helper_.condentrustspending_.latest;
+                        for kk = npending:-1:1
+                            e = strategy.helper_.condentrustspending_.node(kk);
+                            if strcmpi(e.instrumentCode,e2remove.instrumentCode) && ...
+                                    (e.direction == e2remove.direction) && ...
+                                    (e.volume == e2remove.volume) && ...
+                                    (e.price == e2remove.price)
+                                rmidx = kk;
+                                strategy.helper_.condentrustspending_.removeByIndex(rmidx);
+                                break
+                            end
+                        end
+                    end             
                 end
             end
             %

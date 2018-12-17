@@ -1,12 +1,15 @@
 %%
 clear;clc;
-codes = {'ni1809';'rb1810';'T1809'};
-startdt = '2018-06-04';
-enddt = '2018-06-19';
-strategyname = 'manual';
-fn = 'config_manual_regressiontest.txt';
-dir_ = [getenv('HOME'),'regressiontest\cstrat\',strategyname,'\'];
+% user_inputs
+codes = {'rb1905'};
+startdt = '2018-12-10';
+enddt = '2018-12-14';
+strategyname = 'wlpr';
+fn = 'config_wlprflash_replay.txt';
+dir_ = [getenv('HOME'),'replay\',strategyname,'\'];
 genconfigfile(strategyname,[dir_,fn],'instruments',codes);
+%modify risk configurations
+for i = 1:size(codes,1),modconfigfile([dir_,fn],'code',codes{i},'PropNames',{'samplefreq';'wrmode';'riskmanagername'},'PropValues',{'3m';'flash';'batman'});end
 
 %%
 db = cLocal;
@@ -14,23 +17,24 @@ instruments = cell(size(codes));
 candle_db_1m = cell(size(codes));
 for i = 1:size(codes,1), instruments{i} = code2instrument(codes{i});end
 for i = 1:size(codes,1), candle_db_1m{i} = db.intradaybar(instruments{i},startdt,enddt,1,'trade');end
-%%
-configfile = [dir_,fn];
+clc
+configfile =[dir_,fn];
 configs = cell(size(codes));
+trades = cell(size(codes));
 candle_used = cell(size(codes));
 wr = cell(size(codes));
 for i = 1:size(codes,1)
-    configs{i} = cStratConfig;
+    configs{i} = cStratConfigWR;
     configs{i}.loadfromfile('code',codes{i},'filename',configfile);
-    [~,candle_used{i}] = bkfunc_gentrades_wlpr(codes{i},candle_db_1m{i},...
+    [trades{i},candle_used{i}] = bkfunc_gentrades_wlpr(codes{i},candle_db_1m{i},...
         'SampleFrequency',configs{i}.samplefreq_,...
-        'NPeriod',144,...
+        'NPeriod',configs{i}.numofperiod_,...
         'AskOpenSpread',configs{i}.askopenspread_,...
         'BidOpenSpread',configs{i}.bidopenspread_,...
-        'WRMode','classic',...
-        'OverBought',-0,...
-        'OverSold',-100);
-    wr{i} = willpctr(candle_used{i}(:,3),candle_used{i}(:,4),candle_used{i}(:,5),144);
+        'WRMode',configs{i}.wrmode_,...
+        'OverBought',configs{i}.overbought_,...
+        'OverSold',configs{i}.oversold_);
+    wr{i} = willpctr(candle_used{i}(:,3),candle_used{i}(:,4),candle_used{i}(:,5),configs{i}.numofperiod_);
     figure(i)
     subplot(211);
     idx = find(candle_used{i}(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
@@ -40,12 +44,28 @@ for i = 1:size(codes,1)
     plot(wr{i}(idx:end));grid on;
 end
 %
+for i = 1:size(codes,1)
+    count = 0;
+    for j = 1:trades{i}.latest_
+        if trades{i}.node_(j).opendatetime1_ > datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS')
+            count = count + 1;
+            fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s\n',...
+                    count,trades{i}.node_(j).opendatetime2_,trades{i}.node_(j).opendirection_,...
+                    num2str(trades{i}.node_(j).openprice_));
+        end
+    end
+    fprintf('\n');
+end
+% id: 1,openbucket:2018-12-14 09:33:01,direction:-1,price:3442
+% id: 2,openbucket:2018-12-14 09:51:01,direction:-1,price:3446
+% id: 3,openbucket:2018-12-14 21:03:01,direction:-1,price:3446
+
 %%
 clc;delete(timerfindall);
 cd(dir_);
 %
 %user inputs:
-bookname = ['replay_',strategyname];
+bookname = 'replay_wlprflash_rb';
 availablefund = 1e6;
 usehistdata = false;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
@@ -76,7 +96,7 @@ try
         code = instruments{i}.code_ctp;
         filenames = cell(size(replaydts,1),1);
         for j = 1:size(replaydts,1)
-            filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.mat'];
+            filenames{j} = [getenv('DATAPATH'),'ticks\',code,'\',code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
         end
         combos.mdefut.initreplayer('code',code,'filenames',filenames);
     end
@@ -95,34 +115,17 @@ combos.ops.start;
 combos.strategy.start;
 %%
 combos.mdefut.stop
-%% nickel
-prices = [114000;113500;113000;112900;112800];
-for i = 1:size(prices,1)
-    combos.strategy.placeentrust(codes{1},'buysell','b','price',prices(i),'volume',1,...
-    'limit',prices(i)+500,'stop',prices(i)-1000,'riskmanagername','standard');
-end
-%% deformed bar
-prices = [3780;3750];
-for i = 1:size(prices,1)
-    combos.strategy.placeentrust(codes{2},'buysell','b','price',prices(i),'volume',1,...
-        'limit',prices(i)+20,'stop',prices(i)-40,'riskmanagername','standard');
-end
-%% govtbond
-prices = [95.2;95.18;95.16;95.15];
-for i = 1:size(prices,1)
-    combos.strategy.placeentrust(codes{3},'buysell','b','price',prices(i),'volume',1,...
-        'limit',prices(i)+0.3,'stop',prices(i)-0.5,'riskmanagername','standard');
-end
+
 %%
 loaddir = [combos.ops.loaddir_,bookname,'\'];
 tradesfn = [bookname,'_trades_',datestr(enddt,'yyyymmdd'),'.txt'];
-trades = cTradeOpenArray;
-trades.fromtxt([loaddir,tradesfn]);
+tradesexecuted = cTradeOpenArray;
+tradesexecuted.fromtxt([loaddir,tradesfn]);
 fprintf('\ntrades executed on %s...\n',datestr(enddt,'yyyymmdd'));
 closedpnl = 0;
 runningpnl = 0;
-for j = 1:trades.latest_
-    trade_j = trades.node_(j);
+for j = 1:tradesexecuted.latest_
+    trade_j = tradesexecuted.node_(j);
     if strcmpi(trade_j.status_,'closed')
         fprintf('id:%2d,opentime:%s,direction:%2d,price:%s,status:%s,closedpnl:%s\n',...
             j,trade_j.opendatetime2_(end-8:end),trade_j.opendirection_,...
@@ -136,23 +139,14 @@ for j = 1:trades.latest_
             num2str(trade_j.openprice_),...
             trade_j.status_,...
             num2str(trade_j.runningpnl_));
-        runningpnl = runningpnl + trade_j.runningpnl_;
+        runningpnl = trade_j.runningpnl_;
     end
 end
 fprintf('closedpnl:%s,runningpnl:%s...\n',num2str(closedpnl),num2str(runningpnl));
-% trades executed on 20180619...
-% id: 1,opentime: 09:04:50,direction: 1,price:114000,status:closed,closedpnl:510
-% id: 2,opentime: 09:05:36,direction: 1,price:113500,status:closed,closedpnl:530
-% id: 3,opentime: 09:23:18,direction: 1,price:95.17,status:closed,closedpnl:3350
-% id: 4,opentime: 09:23:25,direction: 1,price:95.175,status:closed,closedpnl:3100
-% id: 5,opentime: 09:34:01,direction: 1,price:95.16,status:closed,closedpnl:3050
-% id: 6,opentime: 09:36:05,direction: 1,price:95.15,status:closed,closedpnl:3050
-% id: 7,opentime: 11:18:39,direction: 1,price:3780,status:closed,closedpnl:-410
-% id: 8,opentime: 13:44:39,direction: 1,price:3750,status:closed,closedpnl:210
-% id: 9,opentime: 14:26:05,direction: 1,price:113000,status:set,runningpnl:40
-% id:10,opentime: 14:29:34,direction: 1,price:112900,status:set,runningpnl:140
-% id:11,opentime: 14:35:10,direction: 1,price:112800,status:set,runningpnl:240
-% closedpnl:13390,runningpnl:240...
+% trades executed on 20181214...
+% id: 1,opentime: 09:36:45,direction:-1,price:3439,status:closed,closedpnl:-70
+% closedpnl:-70,runningpnl:0...
+
 %%
 fprintf('\ntrades info from replay......\n')
 for j = 1:combos.ops.trades_.latest_
@@ -164,6 +158,4 @@ for j = 1:combos.ops.trades_.latest_
         num2str(trade_j.closepnl_));
 end
 % trades info from replay......
-% id: 1,opentime: 14:26:05,direction: 1,price:113000,status:closed,closedpnl:520
-% id: 2,opentime: 14:29:34,direction: 1,price:112900,status:closed,closedpnl:530
-% id: 3,opentime: 14:35:10,direction: 1,price:112800,status:closed,closedpnl:510
+
