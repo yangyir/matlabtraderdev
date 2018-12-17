@@ -30,6 +30,11 @@ function [pnl] = calc_pnl(obj,varargin)
     bid = tick(2);
     ask = tick(3);
     if bid == 0 || ask == 0, pnl = NaN; return;end
+    if abs(bid) > 1e10 && abs(ask) > 1e10
+        [~,idx] = mdefut.qms_.instruments_.hasinstrument(obj.code_ctp_);
+        bid =  mdefut.lastclose_(idx);
+        ask = bid;
+    end
 
     volume = obj.direction_ * obj.position_total_;
     instrument = obj.instrument_;

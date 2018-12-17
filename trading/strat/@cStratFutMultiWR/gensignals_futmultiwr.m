@@ -37,7 +37,7 @@ function signals = gensignals_futmultiwr(strategy)
                 ti = strategy.mde_fut_.calc_technical_indicators(instruments{i});
                 maxpx_last = ti{1}(2);
                 minpx_last = ti{1}(3);
-                if strategy.printflag_
+                if strategy.printflag_ && strcmpi(strategy.mode_,'replay')
                     tick = strategy.mde_fut_.getlasttick(instruments{i});
                     if isempty(tick),continue;end
                     fprintf('%s %s: trade:%s; wlpr:%4.1f; high:%s; low:%s; lastclose:%s\n',...

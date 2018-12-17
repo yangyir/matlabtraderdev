@@ -101,7 +101,12 @@ function [] = registerinstrument(mdefut,instrument)
     end
     
     %init of lastclose_
-    lastbd = businessdate(cobdate,-1);
+    hh = hour(now);
+    if hh < 16 && hh > 2
+        lastbd = businessdate(cobdate,-1);
+    else
+        lastbd = cobdate;
+    end
     if isempty(mdefut.lastclose_)
         mdefut.lastclose_ = nan(ns,1);
         for i = 1:ns

@@ -17,7 +17,11 @@ function val = getcurrentmargin(obj)
                 if isempty(tick)
                     price = pos.cost_open_;
                 else
-                    price = tick(2);
+                    if abs(tick(2)) > 1e10
+                        price = pos.cost_open_;
+                    else
+                        price = tick(2);
+                    end
                 end
                 val = val + price*volume*marginrate/ticksize*tickvalue;
             else
