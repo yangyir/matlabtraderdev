@@ -7,6 +7,7 @@ strategyname = 'manual';
 fn = 'config_manual_regressiontest.txt';
 dir_ = [getenv('HOME'),'regressiontest\cstrat\',strategyname,'\'];
 genconfigfile(strategyname,[dir_,fn],'instruments',codes);
+for i = 1:size(codes,1),modconfigfile([dir_,fn],'code',codes{i},'propnames',{'samplefreq'},'PropValues',{'5m'});end
 
 %%
 db = cLocal;
@@ -99,19 +100,19 @@ combos.mdefut.stop
 prices = [114000;113500;113000;112900;112800];
 for i = 1:size(prices,1)
     combos.strategy.placeentrust(codes{1},'buysell','b','price',prices(i),'volume',1,...
-    'limit',prices(i)+500,'stop',prices(i)-1000,'riskmanagername','standard');
+    'limit',prices(i)+400,'stop',prices(i)-1000,'riskmanagername','batman');
 end
 %% deformed bar
 prices = [3780;3750];
 for i = 1:size(prices,1)
     combos.strategy.placeentrust(codes{2},'buysell','b','price',prices(i),'volume',1,...
-        'limit',prices(i)+20,'stop',prices(i)-40,'riskmanagername','standard');
+        'limit',prices(i)+20,'stop',prices(i)-40,'riskmanagername','batman');
 end
 %% govtbond
 prices = [95.2;95.18;95.16;95.15];
 for i = 1:size(prices,1)
     combos.strategy.placeentrust(codes{3},'buysell','b','price',prices(i),'volume',1,...
-        'limit',prices(i)+0.3,'stop',prices(i)-0.5,'riskmanagername','standard');
+        'limit',prices(i)+0.1,'stop',prices(i)-0.2,'riskmanagername','batman');
 end
 %%
 loaddir = [combos.ops.loaddir_,bookname,'\'];
@@ -141,18 +142,19 @@ for j = 1:trades.latest_
 end
 fprintf('closedpnl:%s,runningpnl:%s...\n',num2str(closedpnl),num2str(runningpnl));
 % trades executed on 20180619...
-% id: 1,opentime: 09:04:50,direction: 1,price:114000,status:closed,closedpnl:510
-% id: 2,opentime: 09:05:36,direction: 1,price:113500,status:closed,closedpnl:530
-% id: 3,opentime: 09:23:18,direction: 1,price:95.17,status:closed,closedpnl:3350
-% id: 4,opentime: 09:23:25,direction: 1,price:95.175,status:closed,closedpnl:3100
-% id: 5,opentime: 09:34:01,direction: 1,price:95.16,status:closed,closedpnl:3050
-% id: 6,opentime: 09:36:05,direction: 1,price:95.15,status:closed,closedpnl:3050
+% id: 1,opentime: 09:04:50,direction: 1,price:114000,status:closed,closedpnl:250
+% id: 2,opentime: 09:05:36,direction: 1,price:113500,status:closed,closedpnl:480
+% id: 3,opentime: 09:15:24,direction: 1,price:95.2,status:set,runningpnl:2700
+% id: 4,opentime: 09:16:59,direction: 1,price:95.18,status:set,runningpnl:2900
+% id: 5,opentime: 09:34:01,direction: 1,price:95.16,status:set,runningpnl:3100
+% id: 6,opentime: 09:36:05,direction: 1,price:95.15,status:set,runningpnl:3200
 % id: 7,opentime: 11:18:39,direction: 1,price:3780,status:closed,closedpnl:-410
-% id: 8,opentime: 13:44:39,direction: 1,price:3750,status:closed,closedpnl:210
+% id: 8,opentime: 13:44:39,direction: 1,price:3750,status:set,runningpnl:190
 % id: 9,opentime: 14:26:05,direction: 1,price:113000,status:set,runningpnl:40
 % id:10,opentime: 14:29:34,direction: 1,price:112900,status:set,runningpnl:140
 % id:11,opentime: 14:35:10,direction: 1,price:112800,status:set,runningpnl:240
-% closedpnl:13390,runningpnl:240...
+% closedpnl:320,runningpnl:12510...
+
 %%
 fprintf('\ntrades info from replay......\n')
 for j = 1:combos.ops.trades_.latest_
@@ -164,6 +166,11 @@ for j = 1:combos.ops.trades_.latest_
         num2str(trade_j.closepnl_));
 end
 % trades info from replay......
-% id: 1,opentime: 14:26:05,direction: 1,price:113000,status:closed,closedpnl:520
-% id: 2,opentime: 14:29:34,direction: 1,price:112900,status:closed,closedpnl:530
-% id: 3,opentime: 14:35:10,direction: 1,price:112800,status:closed,closedpnl:510
+% id: 1,opentime: 09:15:24,direction: 1,price:95.2,status:set,closedpnl:0
+% id: 2,opentime: 09:16:59,direction: 1,price:95.18,status:set,closedpnl:0
+% id: 3,opentime: 09:34:01,direction: 1,price:95.16,status:set,closedpnl:0
+% id: 4,opentime: 09:36:05,direction: 1,price:95.15,status:set,closedpnl:0
+% id: 5,opentime: 13:44:39,direction: 1,price:3750,status:set,closedpnl:0
+% id: 6,opentime: 14:26:05,direction: 1,price:113000,status:closed,closedpnl:280
+% id: 7,opentime: 14:29:34,direction: 1,price:112900,status:closed,closedpnl:320
+% id: 8,opentime: 14:35:10,direction: 1,price:112800,status:closed,closedpnl:310
