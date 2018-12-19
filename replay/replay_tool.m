@@ -1,27 +1,48 @@
+%% note: only for one business date
 clear;clc;
 % user_inputs
 lastbd = getlastbusinessdate;
 activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
 filename = ['activefutures_',datestr(lastbd,'yyyymmdd'),'.txt'];
 codes = cDataFileIO.loadDataFromTxtFile([activefuturesdir,filename]);
-
-
-startdt = datestr(dateadd(lastbd,'-5d'),'yyyy-mm-dd');
-enddt = datestr(lastbd,'yyyy-mm-dd');
+checkdt = lastbd;
+%%
+codes = {'m1905'};
+checkdt = datenum('2018-12-14','yyyy-mm-dd');
+%%
+enddt = datestr(checkdt,'yyyy-mm-dd');
 strategyname = 'wlpr';
 fn = 'config_wlprflash_replay.txt';
 dir_ = [getenv('HOME'),'replay\',strategyname,'\'];
 genconfigfile(strategyname,[dir_,fn],'instruments',codes);
 %modify risk configurations
-for i = 1:size(codes,1),modconfigfile([dir_,fn],'code',codes{i},'PropNames',{'samplefreq';'wrmode';'riskmanagername'},'PropValues',{'5m';'flash';'batman'});end
+for i = 1:size(codes,1),modconfigfile([dir_,fn],'code',codes{i},...
+    'PropNames',{'numofperiod';'samplefreq';'wrmode';'riskmanagername'},...
+    'PropValues',{144;'5m';'flash';'batman'});
+end
 
 %%
 db = cLocal;
 instruments = cell(size(codes));
 candle_db_1m = cell(size(codes));
 for i = 1:size(codes,1), instruments{i} = code2instrument(codes{i});end
-for i = 1:size(codes,1), candle_db_1m{i} = db.intradaybar(instruments{i},startdt,enddt,1,'trade');end
-clc
+for i = 1:size(codes,1)
+    if strcmpi(configs{i}.samplefreq_,'1m')
+        startdt = datestr(dateadd(checkdt,'-1d'),'yyyy-mm-dd');
+    elseif strcmpi(configs{i}.samplefreq_,'3m')
+        startdt = datestr(dateadd(checkdt,'-3d'),'yyyy-mm-dd');
+    elseif strcmpi(configs{i}.samplefreq_,'5m')
+        startdt = datestr(dateadd(checkdt,'-5d'),'yyyy-mm-dd');
+    elseif strcmpi(configs{i}.samplefreq_,'15m')
+        startdt = datestr(dateadd(checkdt,'-10d'),'yyyy-mm-dd');
+    else
+        startdt = datestr(dateadd(checkdt,'-10d'),'yyyy-mm-dd');
+    end
+    data = db.intradaybar(instruments{i},startdt,enddt,1,'trade');
+    idx = find(data(:,1) >= datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
+    multiplier = str2double(configs{i}.samplefreq_(1:end-1));
+    candle_db_1m{i} = data(idx-multiplier*configs{i}.numofperiod_:end,:);
+end
 configfile =[dir_,fn];
 configs = cell(size(codes));
 trades = cell(size(codes));
@@ -39,15 +60,9 @@ for i = 1:size(codes,1)
         'OverBought',configs{i}.overbought_,...
         'OverSold',configs{i}.oversold_);
     wr{i} = willpctr(candle_used{i}(:,3),candle_used{i}(:,4),candle_used{i}(:,5),configs{i}.numofperiod_);
-%     figure(i)
-%     subplot(211);
-%     idx = find(candle_used{i}(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
-%     candle(candle_used{i}(idx:end,3),candle_used{i}(idx:end,4),candle_used{i}(idx:end,5),candle_used{i}(idx:end,2));
-%     grid on;
-%     subplot(212);
-%     plot(wr{i}(idx:end));grid on;
 end
 %
+clc;
 for i = 1:size(codes,1)
     count = 0;
     for j = 1:trades{i}.latest_
@@ -62,12 +77,22 @@ for i = 1:size(codes,1)
 end
 
 %%
-code = 'pp1905';
+code = 'm1905';
 idxfut = strcmpi(codes,code);
-figure(1)
+figure(idxfut)
 subplot(211);
 idx = find(candle_used{idxfut}(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
+
+for i = 1:trades{idxfut}.latest_
+    tradei = trades{idxfut}.node_(i);
+    opentime = tradei.opendatetime1_;
+    idxtrade = find(candle_used{idxfut}(:,1) > opentime,1,'first');
+    plot(idxtrade-idx,tradei.openprice_,'marker','o','color','r','markersize',10,'linewidth',3,'markerfacecolor','r');
+    hold on;
+end
+
 candle(candle_used{idxfut}(idx:end,3),candle_used{idxfut}(idx:end,4),candle_used{idxfut}(idx:end,5),candle_used{idxfut}(idx:end,2));
 grid on;
+hold off;
 subplot(212);
 plot(wr{idxfut}(idx:end));grid on;
