@@ -81,7 +81,7 @@ function [] = updateentrustsandbook2(obj)
                     if ret >= 0.1
                         %note:the dealPrice returned here is the multiple
                         %of the real dealPrice and the volume
-                        fprintf('incorrect deal price returned\n');
+                        fprintf('cOps:updateentrustsandbook2:incorrect deal price returned\n');
                         e.dealPrice = e.price;
                     end
                 end
