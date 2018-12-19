@@ -7,8 +7,8 @@ filename = ['activefutures_',datestr(lastbd,'yyyymmdd'),'.txt'];
 codes = cDataFileIO.loadDataFromTxtFile([activefuturesdir,filename]);
 checkdt = lastbd;
 %%
-codes = {'m1905'};
-checkdt = datenum('2018-12-14','yyyy-mm-dd');
+codes = {'cu1902'};
+checkdt = datenum('2018-12-19','yyyy-mm-dd');
 %%
 enddt = datestr(checkdt,'yyyy-mm-dd');
 strategyname = 'wlpr';
@@ -18,15 +18,21 @@ genconfigfile(strategyname,[dir_,fn],'instruments',codes);
 %modify risk configurations
 for i = 1:size(codes,1),modconfigfile([dir_,fn],'code',codes{i},...
     'PropNames',{'numofperiod';'samplefreq';'wrmode';'riskmanagername'},...
-    'PropValues',{144;'5m';'flash';'batman'});
+    'PropValues',{144;'15m';'flash';'batman'});
 end
 
 %%
 db = cLocal;
 instruments = cell(size(codes));
 candle_db_1m = cell(size(codes));
+configfile =[dir_,fn];
+configs = cell(size(codes));
+
 for i = 1:size(codes,1), instruments{i} = code2instrument(codes{i});end
+
 for i = 1:size(codes,1)
+    configs{i} = cStratConfigWR;
+    configs{i}.loadfromfile('code',codes{i},'filename',configfile);
     if strcmpi(configs{i}.samplefreq_,'1m')
         startdt = datestr(dateadd(checkdt,'-1d'),'yyyy-mm-dd');
     elseif strcmpi(configs{i}.samplefreq_,'3m')
@@ -43,14 +49,11 @@ for i = 1:size(codes,1)
     multiplier = str2double(configs{i}.samplefreq_(1:end-1));
     candle_db_1m{i} = data(idx-multiplier*configs{i}.numofperiod_:end,:);
 end
-configfile =[dir_,fn];
-configs = cell(size(codes));
+
 trades = cell(size(codes));
 candle_used = cell(size(codes));
 wr = cell(size(codes));
 for i = 1:size(codes,1)
-    configs{i} = cStratConfigWR;
-    configs{i}.loadfromfile('code',codes{i},'filename',configfile);
     [trades{i},candle_used{i}] = bkfunc_gentrades_wlpr(codes{i},candle_db_1m{i},...
         'SampleFrequency',configs{i}.samplefreq_,...
         'NPeriod',configs{i}.numofperiod_,...
