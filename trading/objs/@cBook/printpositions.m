@@ -21,13 +21,13 @@ function [] = printpositions(obj)
     end
     
     fprintf('\n本子-%s:\n',obj.bookname_);
-    fprintf('%s%12s%10s%9s%10s\n','合约','买卖','持仓','今仓','开仓均价');
+    fprintf('%10s%12s%11s%11s%15s\n','contract','b/s','vol','volt','cost');
     for i = 1:size(obj.positions_,1)
         p = obj.positions_{i};
         if p.position_total_ == 0, continue;end
         isopt = isoptchar(p.code_ctp_);
         if ~isopt
-            dataformat = '%6s%11s%11s%11s%15s\n';
+            dataformat = '%10s%11s%11s%11s%15s\n';
         else
             dataformat = '%s%5s%11s%11s%15s\n';
         end

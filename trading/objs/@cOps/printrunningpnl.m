@@ -55,13 +55,13 @@ function [] = printrunningpnl(obj,varargin)
     else
         fprintf('\n%s->close pnl:%s;time:%s\n',obj.book_.bookname_,num2str(closepnl),obj.replay_time2_);
     end
-    fprintf('%s%12s%10s%9s%10s%12s\n','合约','买卖','持仓','今仓','开仓均价','盈亏');
+    fprintf('%10s%12s%11s%11s%15s%15s\n','contract','b/s','vol','volt','cost','pnl');
     for i = 1:size(positions,1)
         p = positions{i};
         if p.position_total_ == 0, continue;end
         isopt = isoptchar(p.code_ctp_);
         if ~isopt
-            dataformat = '%6s%11s%11s%11s%15s%15s\n';
+            dataformat = '%10s%12s%11s%11s%15s%15s\n';
         else
             dataformat = '%s%5s%11s%11s%15s%15s\n';
         end
