@@ -1,7 +1,7 @@
 function [] = printpositions(obj)
 %cBook
     if isempty(obj.positions_)
-        fprintf('\n本子-%s:\n',obj.bookname_);
+        fprintf('\nbook-%s:\n',obj.bookname_);
         fprintf('empty book......\n');
         return
     end
@@ -15,12 +15,12 @@ function [] = printpositions(obj)
         end
     end
     if holding == 0
-        fprintf('\n本子-%s:\n',obj.bookname_);
+        fprintf('\nbook-%s:\n',obj.bookname_);
         fprintf('empty book......\n');
         return
     end
     
-    fprintf('\n本子-%s:\n',obj.bookname_);
+    fprintf('\nbook-%s:\n',obj.bookname_);
     fprintf('%10s%12s%11s%11s%15s\n','contract','b/s','vol','volt','cost');
     for i = 1:size(obj.positions_,1)
         p = obj.positions_{i};
