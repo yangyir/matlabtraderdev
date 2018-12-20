@@ -130,5 +130,15 @@ function [] = move2cobdate(obj,cobdate)
     if ~isempty(obj.num00_00_0_5_)
         obj.num00_00_0_5_ = datenum([datestr(datenuminput+1,'yyyy-mm-dd'),' 00:00:0.5']);
     end
+    
+    %lastclose_
+    lastbd = businessdate(datenuminput,-1);
+    for i = 1:ns
+        filename = [instruments{i}.code_ctp,'_daily.txt'];
+        dailypx = cDataFileIO.loadDataFromTxtFile(filename);
+        idx = dailypx(:,1) == lastbd;
+        lastpx = dailypx(idx,5);
+        if ~isempty(lastpx), obj.lastclose_(i) = lastpx;end
+    end
 
 end

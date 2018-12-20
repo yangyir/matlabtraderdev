@@ -20,7 +20,8 @@ function [unwindtrade] = riskmanagement(obj,varargin)
      
     instrument = trade.instrument_;
     candleCell = mdefut.getcandles(instrument);
-    if isempty(candleCell), error('cBatman:riskmanagement:internal error');end
+%     if isempty(candleCell), error('cBatman:riskmanagement:internal error');end
+    if isempty(candleCell), return;end
     candleK = candleCell{1};
     buckets = candleK(:,1);
     
@@ -110,7 +111,10 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     if this_count ~= obj.bucket_count_
         %this shall be the time we update batman info
         if this_count == 0
-            fprintf('todo')
+            fprintf('todo\n')
+            %here we shall use the last historical data for updating batman
+            %info:TODO
+            return
         end
         
         candlepoped = candleK(this_count,:);
