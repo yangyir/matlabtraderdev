@@ -1,13 +1,14 @@
 function [] = updatecondentrusts(strategy)
 %cStrat
     if isempty(strategy.helper_), return; end
-        
+
     try
         ncondpending = strategy.helper_.condentrustspending_.latest;
         condentrusts2remove = EntrustArray;
         if ncondpending > 0
             for i = 1:ncondpending
                 condentrust = strategy.helper_.condentrustspending_.node(i);
+                signalinfo = condentrust.signalinfo_;
                 codestr = condentrust.instrumentCode;
                 condpx = condentrust.price;
                 volume = condentrust.volume;
@@ -16,6 +17,32 @@ function [] = updatecondentrusts(strategy)
                 if isempty(lasttick), continue; end
                 
                 direction = condentrust.direction;
+                
+                if ~isempty(signalinfo)
+                    if isa(signalinfo,'cWilliamsRInfo')
+                        isflash = strcmpi(signalinfo.wrmode_,'flash');
+                    else
+                        isflash = false;
+                    end    
+                else
+                    isflash = false;
+                end
+                
+                if isflash
+                    %need to make sure either the max or min prices are
+                    %updated or not. if it is updated, then the existing
+                    %conditional entrust shall be removed
+                    if direction == 1 && lasttick(4) < signalinfo.lowestlow_
+                        condentrusts2remove.push(condentrust);
+                        continue;
+                    end
+                    %
+                    if direction == -1 && lasttick(4) > signalinfo.highesthigh_
+                        condentrusts2remove.push(condentrust);
+                        continue;
+                    end
+                end
+                %
                 if direction == 1 && lasttick(3) >= condpx
                     condentrusts2remove.push(condentrust);
                     if isempty(condentrust.signalinfo_)
