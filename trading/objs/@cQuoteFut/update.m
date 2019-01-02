@@ -43,14 +43,21 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_)
 
     if obj.bond_flag
         warning('off','finance:bndyield:solutionConvergenceFailure');
-        ylds = bndyield([obj.last_trade,obj.bid1,obj.ask1],0.03,...
-            obj.update_date1,dateadd(obj.update_date1,obj.bond_tenor));
-        obj.yield_last_trade = ylds(1)*1e2;
-        obj.yield_bid1 = ylds(2)*1e2;
-        obj.yield_ask1 = ylds(3)*1e2;
+        if ~(isnan(obj.last_trade) || isnan(obj.bid1) || isnan(obj.ask1))
+            ylds = bndyield([obj.last_trade,obj.bid1,obj.ask1],0.03,...
+                obj.update_date1,dateadd(obj.update_date1,obj.bond_tenor));
+            obj.yield_last_trade = ylds(1)*1e2;
+            obj.yield_bid1 = ylds(2)*1e2;
+            obj.yield_ask1 = ylds(3)*1e2;
 
-        obj.duration = bnddurp(obj.last_trade,0.03,obj.update_date1,...
-            dateadd(obj.update_date1,obj.bond_tenor));
+            obj.duration = bnddurp(obj.last_trade,0.03,obj.update_date1,...
+                dateadd(obj.update_date1,obj.bond_tenor));
+        else
+            obj.yield_last_trade = NaN;
+            obj.yield_bid1 = NaN;
+            obj.yield_ask1 = NaN;
+            obj.duration = NaN;
+        end
     end
 
 end

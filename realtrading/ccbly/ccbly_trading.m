@@ -15,6 +15,9 @@ if ~ccbly_counter.is_Counter_Login, ccbly_counter.login; end
 %% mde login
 ccbly.mdefut.login('connection','CTP','countername',ccbly_countername);
 %%
+ccbly.mdefut.qms_.setdatasource('ctp');
+ccbly.mdefut.qms_.watcher_.ds = cCTP.(ccbly_countername);
+%%
 ccbly.mdefut.start;
 ccbly.ops.start;
 %%
@@ -44,16 +47,24 @@ end
 disp(ccbly.strategy.riskcontrols_.node_(idx))
 
 %%
-code = 'rb1905';
-ccbly.strategy.longopen(code,1,'overrideprice',3312);
+ccbly.strategy.unwindpositions('sc1903');
 %%
-ccbly.strategy.withdrawentrusts(code);
+ccbly.strategy.withdrawentrusts('cu1902');
 %%
 ccbly.mdefut.stop;
 %%
 trade = ccbly.ops.trades_.node_(4);
 ccbly.strategy.unwindtrade(trade)
-
+%%
+ccbly.strategy.placeentrust('sc1903','buysell','b','price',397.0,'volume',1,...
+    'stop',395.6,'limit',400,'RiskManagerName','standard');
+%%
+ccbly.strategy.placeentrust('cu1902','buysell','b','price',48190,'volume',1,...
+    'stop',48060,'limit',48400,'RiskManagerName','batman');
+%% reset
+ccbly.ops.trades_.node_(4).riskmanager_.pxstoploss_ = 48260;
+% ccbly.ops.trades_.node_(4).riskmanager_.pxtarget_ = 48400;
+ccbly.ops.trades_.node_(4).riskmanager_
 
 
 

@@ -20,7 +20,19 @@ if strcmpi(ui_stratname,'manual')
 elseif strcmpi(ui_stratname,'batman')
     configfile2mod = [ccbly_path_batman,ccbly_riskconfigfilename_batman];
 elseif strcmpi(ui_stratname,'wlpr')
-    configfile2mod = [ccbly_path_wlpr,ccbly_riskconfigfilename_wlpr];
+    if exist('ui_wrmode','var')
+        if strcmpi(ui_wrmode,'classic')
+            configfile2mod = [ccbly_path_wlpr,ccbly_riskconfigfilename_wlprclassic];
+        elseif strcmpi(ui_wrmode,'flash')
+            configfile2mod = [ccbly_path_wlpr,ccbly_riskconfigfilename_wlprflash];
+        elseif strcmpi(ui_wrmode,'reverse')
+            configfile2mod = [ccbly_path_wlpr,ccbly_riskconfigfilename_wlprreverse];
+        end
+    else
+        configfile2mod = [ccbly_path_wlpr,ccbly_riskconfigfilename_wlpr];
+    end
+    
+    
 elseif strcmpi(ui_stratname,'wlprbatman')
     configfile2mod = [ccbly_path_wlprbatman,ccbly_riskconfigfilename_wlprbatman];
 else

@@ -12,6 +12,9 @@ ccbly_chooseinstruments;
 ccbly_riskconfigfilename_manual = 'ccbly_riskconfigs_mannual.txt';
 ccbly_riskconfigfilename_batman = 'ccbly_riskconfigs_batman.txt';
 ccbly_riskconfigfilename_wlpr = 'ccbly_riskconfigs_wlpr.txt';
+ccbly_riskconfigfilename_wlprclassic = 'ccbly_riskconfigs_wlprclassic.txt';
+ccbly_riskconfigfilename_wlprflash = 'ccbly_riskconfigs_wlprflash.txt';
+ccbly_riskconfigfilename_wlprreverse = 'ccbly_riskconfigs_wlprreverse.txt';
 ccbly_riskconfigfilename_wlprbatman = 'ccbly_riskconfigs_wlprbatman.txt';
 
 %
@@ -22,6 +25,12 @@ genconfigfile(ccbly_stratname_batman,[ccbly_path_batman,ccbly_riskconfigfilename
     'instruments',ccbly_futs2trade);
 %
 genconfigfile(ccbly_stratname_wlpr,[ccbly_path_wlpr,ccbly_riskconfigfilename_wlpr],...
+    'instruments',ccbly_futs2trade);
+genconfigfile(ccbly_stratname_wlpr,[ccbly_path_wlpr,ccbly_riskconfigfilename_wlprclassic],...
+    'instruments',ccbly_futs2trade);
+genconfigfile(ccbly_stratname_wlpr,[ccbly_path_wlpr,ccbly_riskconfigfilename_wlprflash],...
+    'instruments',ccbly_futs2trade);
+genconfigfile(ccbly_stratname_wlpr,[ccbly_path_wlpr,ccbly_riskconfigfilename_wlprreverse],...
     'instruments',ccbly_futs2trade);
 %
 genconfigfile(ccbly_stratname_wlprbatman,[ccbly_path_wlprbatman,ccbly_riskconfigfilename_wlprbatman],...
