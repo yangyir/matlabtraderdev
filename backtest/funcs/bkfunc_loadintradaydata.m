@@ -1,4 +1,4 @@
-function [ dataIntradaybar,codeList ] = bkfuns_loadintradaydata( bbgConn, assetList )
+function [ dataIntradaybar,codeList ] = bkfunc_loadintradaydata( bbgConn, assetList )
     %
     bkdataDir = [getenv('ONEDRIVE'),'\backtest\'];
     lastbd = businessdate(getlastbusinessdate,-1);
