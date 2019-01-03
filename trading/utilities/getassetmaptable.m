@@ -13,7 +13,7 @@ asset_list={'eqindex_300';'eqindex_50';'eqindex_500';...
             'rapeseed oil';'rapeseed meal';...
             'apple';...
             'rubber';...
-            'coke';'coking coal';'deformed bar';'iron ore';'glass'};
+            'coke';'coking coal';'deformed bar';'iron ore';'hot-roiled coil';'glass'};
 %
 %asset type
 type_list={'eqindex';'eqindex';'eqindex';...
@@ -26,7 +26,7 @@ type_list={'eqindex';'eqindex';'eqindex';...
            'agriculture';'agriculture';...
            'agriculture';...
            'agriculture';...
-           'industrial';'industrial';'industrial';'industrial';'industrial';};
+           'industrial';'industrial';'industrial';'industrial';'industrial';'industrial';};
 %
 %bloomberg code
 bcode_list={'IFB';'FFB';'FFD';...
@@ -39,7 +39,7 @@ bcode_list={'IFB';'FFB';'FFD';...
             'ZRO';'ZRR';...
             'APW';...
             'RT';...
-            'KEE';'CKC';'RBT';'IOE';'FGL'};
+            'KEE';'CKC';'RBT';'IOE';'ROC';'FGL'};
 %
 %wind code
 wcode_list={'IF';'IH';'IC';...
@@ -52,7 +52,7 @@ wcode_list={'IF';'IH';'IC';...
             'OI';'RM';...
             'AP';...
             'RU';...
-            'J';'JM';'RB';'I';'FG'};
+            'J';'JM';'RB';'I';'HC';'FG'};
 %
 %exchange code
 exchange_list={'.CFE';'.CFE';'.CFE';...
@@ -65,7 +65,7 @@ exchange_list={'.CFE';'.CFE';'.CFE';...
                '.CZC';'.CZC';...
                '.CZC';...
                '.SHF';...
-               '.DCE';'.DCE';'.SHF';'.DCE';'.CZC'};
+               '.DCE';'.DCE';'.SHF';'.DCE';'.SHF';'.CZC'};
 %
 %trading hours
 trading_hours={'09:30-11:30','13:00-15:00','n/a';%eqindex_300
@@ -102,6 +102,7 @@ trading_hours={'09:30-11:30','13:00-15:00','n/a';%eqindex_300
                '09:00-11:30','13:30-15:00','21:00-23:30';%coking coal
                '09:00-11:30','13:30-15:00','21:00-23:00';%deformed bar
                '09:00-11:30','13:30-15:00','21:00-23:30';%iron ore
+               '09:00-11:30','13:30-15:00','21:00-23:00';%hot-roiled coil
                '09:00-11:30','13:30-15:00','21:00-23:30'};%glass
  %             
  %trading break
@@ -139,6 +140,7 @@ trading_hours={'09:30-11:30','13:00-15:00','n/a';%eqindex_300
                 '10:15-10:30';%coking coal
                 '10:15-10:30';%deformed bar
                 '10:15-10:30';%iron ore
+                '10:15-10:30';%hot-rolled coil
                 '10:15-10:30'};%glass
 %
 %contract size
@@ -152,7 +154,7 @@ contract_size=[300;300;200;...%eqindex_300;eqindex_50;eqindex_500
                10;10;...%rapeseed oil;rapeseed meal
                10;...%apple
                10;...%rubber
-               100;60;10;100;20];%coke;coking coal;deformed bar;iron ore;glass
+               100;60;10;100;10;20];%coke;coking coal;deformed bar;iron ore;glass
 %
 %tick size
 tick_size=[0.2;0.2;0.2;...%eqindex_300;eqindex_50;eqindex_500
@@ -165,7 +167,7 @@ tick_size=[0.2;0.2;0.2;...%eqindex_300;eqindex_50;eqindex_500
            2;1;...%rapeseed oil;rapeseed meal
            1;...%apple
            5;...%rubber
-           0.5;0.5;1;0.5;1];%coke;coking coal;deformed bar;iron ore;glass
+           0.5;0.5;1;0.5;1;1];%coke;coking coal;deformed bar;iron ore;glass
 
 %
 %margin rate
@@ -179,7 +181,7 @@ margin_rate = [0.41;0.41;0.41;...%eqindex_300;eqindex_50;eqindex_500
                0.08;0.12;...%rapeseed oil;rapeseed meal
                0.1;...%apple
                0.12;...%rubber
-               0.2;0.2;0.13;0.15;0.12];%coke;coking coal;deformed bar;iron ore;glass
+               0.2;0.2;0.13;0.15;0.08;0.12];%coke;coking coal;deformed bar;iron ore;glass
 
 %
 %transaction cost
@@ -217,6 +219,7 @@ transaction_cost = {0.000023,0.0023,'REL';%eqindex_300
     0.00012,0.00072,'REL';%coking coal
     0.0001,0.0001,'REL';%deformed bar
     0.00012,0.0003,'REL';%iron ore
+    0.0001,0.0001,'REL';%hot-rolled coil
     3,12,'ABS'};%glass
 
 asset_list_map ={'CSI300';'SSE50';'CSI500';...
@@ -229,7 +232,7 @@ asset_list_map ={'CSI300';'SSE50';'CSI500';...
             'RapeseedOil';'RapeseedMeal';...
             'Apple';...
             'Rubber';...
-            'Coke';'CokingCoal';'Rebar';'IronOre';'Glass'};
+            'Coke';'CokingCoal';'Rebar';'IronOre';'HotRolledCoil';'Glass'};
 
 
     
