@@ -35,6 +35,9 @@ elseif strcmpi(assetName,'iron ore')
 elseif strcmpi(assetName,'glass') 
     init_mm = 5;
     init_yy = 2014;
+elseif strcmpi(assetName,'hotroiled coil')
+    init_mm = 10;
+    init_yy = 2014;
 else
     error('invalid industrial asset name');
 end
@@ -52,11 +55,11 @@ n = ceil((12-init_mm)/4)+...    %contracts first year
 contracts = cell(n,1);
 i=1;
 while i<=n
-    if strcmpi(assetName,'deformed bar') && init_mm==10
+    if (strcmpi(assetName,'deformed bar') || strcmpi(assetName,'hotroiled coil')) && init_mm==10
         init_mm = 9;
     end
     mm = (i-1)*4+init_mm;
-    if strcmpi(assetName,'deformed bar') && mod(mm,12)==9
+    if (strcmpi(assetName,'deformed bar') || strcmpi(assetName,'hotroiled coil')) && mod(mm,12)==9
         mm = mm+1;
     end
     if mod(mm,12)==0
