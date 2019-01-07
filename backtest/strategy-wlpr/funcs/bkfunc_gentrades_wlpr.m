@@ -148,53 +148,29 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
         end
         %
     elseif strcmpi(wrmode,'flash')
-        idx_check = idx_start;
-        idx_newmax = [];
-        idx_newmin = [];
-        while idx_check <= idx_end
-            pxMax = max(pxHighVec(idx_check-nperiod:idx_check-1));
-            pxMin = min(pxLowVec(idx_check-nperiod:idx_check-1));
-            newMax = false;
-            newMin = false;
-            for i = idx_check:idx_end
-                pxHigh = pxHighVec(i);
-                pxLow = pxLowVec(i);
-                if pxHigh > pxMax
-                    %if a new high is breached, we break the loop
-                    pxMax = pxHigh;
-                    idx_newmax = i;
-                    %and we start to check from the next time point
-                    idx_check = idx_newmax+1;
-                    newMax = true;
-                    break
-                end
-                %
-                if pxLow < pxMin
-                    %if a new low is breached, we break the loop
-                    idx_newmin = i;
-                    pxMin = pxLow;
-                    %and we start to check from the next time point
-                    idx_check = idx_newmin+1;
-                    newMin = true;
-                    break
-                end
-            end
-            %
+        for i = idx_start:idx_end
+            pxMax = max(pxHighVec(i-nperiod:i-1));
+            pxMin = min(pxLowVec(i-nperiod:i-1));
+            pxHigh = pxHighVec(i);
+            pxLow = pxLowVec(i);
+            newMax = pxHigh > pxMax;
+            newMin = pxLow < pxMin;
             extrainfo = struct('frequency',freq,...
                 'lengthofperiod',nperiod,...
                 'highesthigh',pxMax,...
                 'lowestlow',pxMin,...
                 'wrmode',wrmode);
-            
             if newMax
+                pxMax = pxHigh;
                 opendirection = -1;
-                for i = idx_check:idx_end
+                idx_newmax = i;
+                for j = idx_newmax+1:idx_end
                     %we start from the next candle after the new high
                     %and we stop in case a new max is reached
-                    pxHigh = pxHighVec(i);
-                    pxLow = pxLowVec(i);
-                    pxOpen = pxOpenVec(i);
-                    datetime = dateTimeVec(i);
+                    pxHigh = pxHighVec(j);
+                    pxLow = pxLowVec(j);
+                    pxOpen = pxOpenVec(j);
+                    datetime = dateTimeVec(j);
                     %but we first check whether we can open a trade
                     if pxHigh <= pxMax && pxLow >= pxLowVec(idx_newmax), continue;end
                     %
@@ -215,19 +191,22 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                             'stopdatetime',stopdatetime);
                         trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
                         trades.push(trade_i);
-                        idx_check = i;
                         break
                     end
-                    if pxHigh > pxMax, idx_check = i;break;end
-                    if pxLow < pxMin, idx_check = i;break;end
+                    if pxHigh > pxMax, break;end
+                    if pxLow < pxMin, break;end
                 end
-            elseif newMin
+            end
+            %
+            if newMin
+                pxMin = pxLow;
                 opendirection = 1;
-                for i = idx_check:idx_end
-                    pxHigh = pxHighVec(i);
-                    pxLow = pxLowVec(i);
-                    pxOpen = pxOpenVec(i);
-                    datetime = dateTimeVec(i);
+                idx_newmin = i;
+                for j = idx_newmin+1:idx_end
+                    pxHigh = pxHighVec(j);
+                    pxLow = pxLowVec(j);
+                    pxOpen = pxOpenVec(j);
+                    datetime = dateTimeVec(j);
                     if pxLow >= pxMin && pxHigh <= pxHighVec(idx_newmin), continue;end
                     %
                     if pxHigh > pxHighVec(idx_newmin) && pxOpen >= pxMin
@@ -235,7 +214,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                         if ~isempty(nstopperiod)
                             stopdatetime = gettradestoptime(code,opendatetime,freq,nstopperiod);
                         else
-                             stopdatetime = [];
+                            stopdatetime = [];
                         end
                         trade_i = cTradeOpen('code',code,...
                             'opendatetime',opendatetime,...
@@ -246,15 +225,12 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
                             'stopdatetime',stopdatetime);
                         trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
                         trades.push(trade_i);
-                        idx_check = i;
                         break
                     end
-                    if pxHigh > pxMax, idx_check = i;break;end
-                    if pxLow < pxMin, idx_check = i;break;end
+                    if pxHigh > pxMax, break;end
+                    if pxLow < pxMin, break;end
                 end
-            else
-                idx_check = idx_check + 1;
-            end
+            end            
         end
         %
     elseif strcmpi(wrmode,'follow')
