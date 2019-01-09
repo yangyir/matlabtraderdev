@@ -133,17 +133,26 @@ lastFuturesIdx = i;
 %check whether the first list futures which expires after the last business
 %date has been rolled or not
 if i < length(contractList)
-    idx1 = i;
-    idx2 = idx1+1;
-    vol1 = contractList{idx1}.getTimeSeries('Connection','bloomberg',...
-        'Fields',{'close','oi'},'FromDate',dateTo,'ToDate',dateTo,...
-        'frequency','1d');
-    vol2 = contractList{idx2}.getTimeSeries('Connection','bloomberg',...
-        'Fields',{'close','oi'},'FromDate',dateTo,'ToDate',dateTo,...
-        'frequency','1d');
-    if vol1(1,end) < vol2(1,end)
-        lastFuturesIdx = lastFuturesIdx+1;
+%     idx1 = i;
+%     idx2 = idx1+1;
+%     vol1 = contractList{idx1}.getTimeSeries('Connection','bloomberg',...
+%         'Fields',{'close','oi'},'FromDate',dateTo,'ToDate',dateTo,...
+%         'frequency','1d');
+%     vol2 = contractList{idx2}.getTimeSeries('Connection','bloomberg',...
+%         'Fields',{'close','oi'},'FromDate',dateTo,'ToDate',dateTo,...
+%         'frequency','1d');
+%     if vol1(1,end) < vol2(1,end)
+%         lastFuturesIdx = lastFuturesIdx+1;
+%     end
+    ncheck = length(contractList)-i+1;
+    ois = zeros(ncheck,3);
+    for j = 1:ncheck
+        ois(j,:) = contractList{j+i-1}.getTimeSeries('Connection','bloomberg',...
+            'Fields',{'close','oi'},'FromDate',dateTo,'ToDate',dateTo,...
+            'frequency','1d');
     end
+    maxoi = max(ois(:,end));
+    lastFuturesIdx = find(ois(:,end) == maxoi) + i-1;
 end
 
 futures = cell(lastFuturesIdx-firstFuturesIdx+1,1);
