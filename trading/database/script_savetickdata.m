@@ -94,7 +94,7 @@ fprintf('done for saving tick data for agriculture futures\n\n');
 
 %%
 % industry
-list = {'coke';'coking coal';'deformed bar';'iron ore';'glass'};
+list = {'coke';'coking coal';'deformed bar';'iron ore';'hotroiled coil';'glass'};
 for i = 1:size(list,1)
     [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
     for j = 1:size(codelist,1)

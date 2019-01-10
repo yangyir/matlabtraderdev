@@ -123,7 +123,7 @@ fprintf('done for saving intraday bar data for agriculture futures\n\n');
 
 %%
 % industry
-list = {'coke';'coking coal';'deformed bar';'iron ore';'glass'};
+list = {'coke';'coking coal';'deformed bar';'iron ore';'hotroiled coil';'glass'};
 for i = 1:size(list,1)
     futlist_i = listcontracts(list{i},'connection','bloomberg');
     check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
