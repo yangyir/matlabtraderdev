@@ -19,6 +19,12 @@ function data = history(obj,instrument,fields,fromdate,todate)
             data = [data(idx,1),data(idx,3)];
         elseif strcmpi(fields,'low')
             data = [data(idx,1),data(idx,4)];
+        elseif strcmpi(fields,'volume')
+            data = [data(idx,1),data(idx,6)];
+        elseif strcmpi(fields,'open_int')
+            data = [data(idx,1),data(idx,7)];
+        elseif strcmpi(fields,'all')
+            data = data(idx,:);
         else
             data = [];
             %todo

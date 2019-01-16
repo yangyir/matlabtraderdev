@@ -46,7 +46,7 @@ files = dir(dir_data_);
 nfiles = size(files,1);
 
 
-coldefs = {'date','open','high','low','close'};
+coldefs = {'date','open','high','low','close','volume','openinterest'};
 permission = 'w';
 usedatestr = false;
 startdate = f.first_trade_date1;
@@ -64,7 +64,7 @@ for j = 1:nfiles
 end
 
 if ~flag || (flag && override)
-    data = bbg.history(f,{'px_open','px_high','px_low','px_last'},startdate,enddate);
+    data = bbg.history(f,{'px_open','px_high','px_low','px_last','volume','open_int'},startdate,enddate);
     if isempty(data)
         fprintf('%s:there is no available data for the currently loaded security......\n',code_ctp);
         return
@@ -76,7 +76,7 @@ if flag && ~override
     data = cDataFileIO.loadDataFromTxtFile(fn_);
     lastcob = data(end,1);
     if lastcob < enddate
-        data_new = bbg.history(f,{'px_open','px_high','px_low','px_last'},businessdate(lastcob,1),enddate);
+        data_new = bbg.history(f,{'px_open','px_high','px_low','px_last','volume','open_int'},businessdate(lastcob,1),enddate);
         data = [data,data_new];
         cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
     end    

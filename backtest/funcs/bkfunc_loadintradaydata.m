@@ -1,4 +1,6 @@
 function [ dataIntradaybar,codeList ] = bkfunc_loadintradaydata( bbgConn, assetList )
+%NOTE:this function loads the intraday prices from Bloomberg with the first
+%futures contract set by Bloomberg itself
     %
     bkdataDir = [getenv('ONEDRIVE'),'\backtest\'];
     lastbd = businessdate(getlastbusinessdate,-1);
