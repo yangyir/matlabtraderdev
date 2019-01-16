@@ -18,7 +18,15 @@ function dateout = dateadd(datein,interval,bump,midofthemonth)
     intervalnum = str2double(interval(1:end-1));
     
     if strcmpi(intervalstr,'d')
-        dateout = datein + intervalnum;    
+        dateout = datein + intervalnum;
+    elseif strcmpi(intervalstr,'b')
+        %number of business days
+        count = 1;
+        dateout = datein;
+        while count <= abs(intervalnum)
+            dateout = businessdate(dateout,sign(intervalnum));
+            count = count + 1;
+        end
     elseif strcmpi(intervalstr,'m')
         yyyy = year(datein);
         mm = month(datein);
