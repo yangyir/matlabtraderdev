@@ -1,4 +1,4 @@
-function [rollInfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
+function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     bbg = cBloomberg;
     ldb = cLocal;
     lbd = getlastbusinessdate;
@@ -52,7 +52,7 @@ function [rollInfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     end
     %
     %build continous futures with taking account of rolling futures
-    rollInfo = cell(length(futures)-1,6);
+    rollinfo = cell(length(futures)-1,6);
     for i = 1:length(futures)-1
         data1 = pxoidata{i};
         data2 = pxoidata{i+1};
@@ -74,16 +74,16 @@ function [rollInfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
                 continue
             end
             tRoll = oidiff(tRoll(end)+1,1);
-            rollInfo{i,1} = tRoll;
-            rollInfo{i,2} = find(data1(:,1) == tRoll);
-            rollInfo{i,3} = find(data2(:,1) == tRoll);
-            rollInfo{i,4} = bbg2ctp(futures{i});
-            rollInfo{i,5} = bbg2ctp(futures{i+1});
-            rollInfo{i,6} = datestr(tRoll);
+            rollinfo{i,1} = tRoll;
+            rollinfo{i,2} = find(data1(:,1) == tRoll);
+            rollinfo{i,3} = find(data2(:,1) == tRoll);
+            rollinfo{i,4} = bbg2ctp(futures{i});
+            rollinfo{i,5} = bbg2ctp(futures{i+1});
+            rollinfo{i,6} = datestr(tRoll);
         end    
     end
     %
     %
-    res = rollInfo;
+    res = rollinfo;
     
 end

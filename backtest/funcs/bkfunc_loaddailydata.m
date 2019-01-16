@@ -23,7 +23,7 @@ function [ dataDailybar,codeList ] = bkfunc_loaddailydata( bbgConn, assetList )
 %                 dataNew = bbgConn.timeseries(assetInfo{i}.BloombergSec1,...
 %                     {businessdate(floor(lastobs),1),datestr(getlastbusinessdate,'yyyy-mm-dd')},1,'trade');
                 dataNew = bbgConn.history(assetInfo{i}.BloombergSec1,...
-                    {'px_open','px_high','px_low','px_last','volume'},businessdate(lastobs,1),datestr(getlastbusinessdate,'yyyy-mm-dd'));
+                    {'px_open','px_high','px_low','px_last','volume','open_int'},businessdate(lastobs,1),datestr(getlastbusinessdate,'yyyy-mm-dd'));
                 evalstr = ['dataDailybar{i} = [',assetList{i},'_daily;dataNew];'];
                 eval(evalstr);
             else
@@ -34,9 +34,9 @@ function [ dataDailybar,codeList ] = bkfunc_loaddailydata( bbgConn, assetList )
         else
             %load data from bloomberg if there is no file exist
             dataDailybar{i} = bbgConn.history(assetInfo{i}.BloombergSec1,...
-                {'px_open','px_high','px_low','px_last','volume'},'2015-01-01',datestr(getlastbusinessdate,'yyyy-mm-dd'));
+                {'px_open','px_high','px_low','px_last','volume','open_int'},'2015-01-01',datestr(getlastbusinessdate,'yyyy-mm-dd'));
         end
-        temp = bbgConn.getdata(assetInfo{i}.BloombergSecA,'parsekyable_des');
+        temp = bbgConn.ds_.getdata(assetInfo{i}.BloombergSecA,'parsekyable_des');
         codeList{i} = bbg2ctp(temp.parsekyable_des{1});
         check = regexp(assetList{i},' ','split');
         if length(check) == 2
