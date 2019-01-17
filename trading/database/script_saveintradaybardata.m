@@ -116,7 +116,10 @@ for i = 1:size(list,1)
     livefutlist_i = futlist_i(idx);
     for j = 1:size(livefutlist_i,1)
         code_j = bbg2ctp(livefutlist_i{j});
-        saveintradaybarfrombloomberg(conn,code_j,override);
+        try
+            saveintradaybarfrombloomberg(conn,code_j,override);
+        catch
+        end
     end
 end
 fprintf('done for saving intraday bar data for agriculture futures\n\n');
@@ -132,7 +135,10 @@ for i = 1:size(list,1)
     livefutlist_i = futlist_i(idx);
     for j = 1:size(livefutlist_i,1)
         code_j = bbg2ctp(livefutlist_i{j});
-        saveintradaybarfrombloomberg(conn,code_j,override);
+        try
+            saveintradaybarfrombloomberg(conn,code_j,override);
+        catch
+        end
     end
 end
 fprintf('done for saving intraday bar data for industry futures\n\n');
