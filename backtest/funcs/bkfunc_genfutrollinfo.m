@@ -8,12 +8,23 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     for i = 1:size(futlist,1)
         code = bbg2ctp(futlist{i});
         instrument = code2instrument(code);
-        ltd = instrument.last_trade_date1;
-        expiries(i) = ltd;
-        if ltd > lbd
+        if isempty(instrument.contract_size)
             savedailybarfrombloomberg(bbg,code,true);
+            instrument = code2instrument(code);
+            ltd = instrument.last_trade_date1;
+            if isempty(ltd)
+                continue;
+            else
+                expiries(i) = ltd;
+            end
         else
-            savedailybarfrombloomberg(bbg,code,false);
+            ltd = instrument.last_trade_date1;
+            expiries(i) = ltd;
+            if ltd > lbd
+                savedailybarfrombloomberg(bbg,code,true);
+            else
+                savedailybarfrombloomberg(bbg,code,false);
+            end
         end
     end
     

@@ -78,6 +78,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
             %
             %open a short position with the open price of this candle
             if wr(i-1) >= overbought
+%             if abs(wr(i-1) - overbought) <= instrument.tick_size/(pxMax-pxMin)
                 trade_i = cTradeOpen('code',code,...
                     'opendatetime',opendatetime,...
                     'opendirection',-1,...
@@ -90,6 +91,7 @@ function [trades,px_used] = bkfunc_gentrades_wlpr(code,px_input,varargin)
             %
             %open a long position with the open price of this candle
             if wr(i-1) <= oversold
+%             if abs(wr(i-1) - oversold) <= instrument.tick_size/(pxMax-pxMin)
                 %note: we add 1 sec to the timevec indicting it fells between the
                 %bucket starting from dateTimeVec(i) and dateTimeVec(i+1)
                 trade_i = cTradeOpen('code',code,...
