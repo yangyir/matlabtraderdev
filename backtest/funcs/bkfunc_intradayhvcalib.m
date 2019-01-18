@@ -4,11 +4,13 @@ function [res] = bkfunc_intradayhvcalib(asset,rollinfotbl,varargin)
     p.addRequired('AssetName',@ischar);
     p.addRequired('RollInfoTable',@iscell);
     p.addParameter('StartDate','2018-01-01',@ischar);
+    p.addParameter('Frequency',1,@isnumeric);
     p.parse(asset,rollinfotbl,varargin{:});
     assetname = p.Results.AssetName;
     rolltbl = p.Results.RollInfoTable;
     dtstartstr = p.Results.StartDate;
     dtstartnum = datenum(dtstartstr,'yyyy-mm-dd');
+    freq = p.Results.Frequency;
     for i = 1:size(rolltbl,1)
         if rolltbl{i,1} > dtstartnum
             break
@@ -47,7 +49,7 @@ function [res] = bkfunc_intradayhvcalib(asset,rollinfotbl,varargin)
         intradaydata2use{i}.dt1str = dt1;
         intradaydata2use{i}.dt2str = dt2;
         intradaydata2use{i}.codectp = instrument_i.code_ctp;
-        intradaydata2use{i}.data = db.intradaybar(instrument_i,dt1,dt2,1,'trade');
+        intradaydata2use{i}.data = db.intradaybar(instrument_i,dt1,dt2,freq,'trade');
     end
     
     res = struct('assetname',assetname,...

@@ -4,10 +4,16 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
     p.addParameter('DoPlot',1,@isnumeric);
     p.addParameter('RiskManagement','OptionPlusWR',@ischar);
     p.addParameter('OptionPremiumRatio',1,@isnumeric);
+    p.addParameter('WRWidth',10,@isnumeric);
+    p.addParameter('UseDefaultFlashStopLoss',1,@isnumeric);
+    p.addParameter('RiskTolerance',1000,@isnumeric);
     p.parse(varargin{:});
     doplot = p.Results.DoPlot;
     riskmanagement = p.Results.RiskManagement;
     pratio = p.Results.OptionPremiumRatio;
+    ww = p.Results.WRWidth;
+    usedefaultflashsl = p.Results.UseDefaultFlashStopLoss;
+%     risktolerance = p.Results.RiskTolerance;
     nperiod = trade.opensignal_.lengthofperiod_;
     wlpr = willpctr(candles(:,3),candles(:,4),candles(:,5),nperiod);
     
@@ -53,7 +59,6 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
     end
     
     %% risk management
-    
     tradeout = trade.copy;
     instrument = code2instrument(trade.code_);
     if strcmpi(riskmanagement,'OptionPlusWR')
@@ -66,12 +71,21 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
         if tradeout.opendirection_ == 1
             pstoploss = ceil(pstoploss/instrument.tick_size)*instrument.tick_size;
             criticalvalue1 = -100;
-            criticalvalue2 = -90;
+            criticalvalue2 = criticalvalue1 + ww;
         else
             pstoploss = floor(pstoploss/instrument.tick_size)*instrument.tick_size;
             criticalvalue1 = -0;
-            criticalvalue2 = -10;
+            criticalvalue2 = criticalvalue1 - ww;
         end
+        if strcmpi(tradeout.opensignal_.wrmode_,'flash') && usedefaultflashsl
+            if tradeout.opendirection_ == 1
+                pstoploss = tradeout.opensignal_.lowestlow_;
+            else
+                pstoploss = tradeout.opensignal_.highesthigh_;
+            end
+            
+        end
+        
         if doplot
             subplot(211);
             hold on;
@@ -118,17 +132,17 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
             if breachcriticalline == 0
                 if tradeout.opendirection_ == 1
                     if wr > criticalvalue2
-%                         fprintf('breach critical line:%2.0f\n',criticalvalue2);
+                        fprintf('breach critical line:%2.0f\n',criticalvalue2);
                         breachcriticalline = 1;
                         criticalvalue1 = criticalvalue2;
-                        criticalvalue2 = min(criticalvalue2 + 10,0);
+                        criticalvalue2 = min(criticalvalue2 + ww,0);
                     end
                 elseif tradeout.opendirection_ == -1
                     if wr < criticalvalue2
-%                         fprintf('breach critical line:%2.0f\n',criticalvalue2);
+                        fprintf('breach critical line:%2.0f\n',criticalvalue2);
                         breachcriticalline = 1;
                         criticalvalue1 = criticalvalue2;
-                        criticalvalue2 = max(criticalvalue2 - 10,-100);
+                        criticalvalue2 = max(criticalvalue2 - ww,-100);
                         
                     end
                 end
@@ -136,25 +150,25 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
                 %we have breach the critical line already
                 if tradeout.opendirection_ == 1
                     if wr > criticalvalue2
-%                         fprintf('breach critical line:%2.0f\n',criticalvalue2);
+                        fprintf('breach critical line:%2.0f\n',criticalvalue2);
                         breachcriticalline = 1;
                         criticalvalue1 = criticalvalue2;
-                        criticalvalue2 = min(criticalvalue2 + 10,0);
+                        criticalvalue2 = min(criticalvalue2 + ww,0);
                     end
                 elseif tradeout.opendirection_ == -1
                     if wr < criticalvalue2
-%                         fprintf('breach critical line:%2.0f\n',criticalvalue2);
+                        fprintf('breach critical line:%2.0f\n',criticalvalue2);
                         breachcriticalline = 1;
                         criticalvalue1 = criticalvalue2;
-                        criticalvalue2 = max(criticalvalue2 - 10,-100);
+                        criticalvalue2 = max(criticalvalue2 - ww,-100);
                     end
                 end
-                if tradeout.opendirection_ == 1 && wr < criticalvalue1 + (criticalvalue1 - criticalvalue2)*0.5
+                if tradeout.opendirection_ == 1 && wr < criticalvalue1 - 0.5*ww
                     closeflag = 1;
-%                     fprintf('close wr:%2.1f\n',wr);
-                elseif tradeout.opendirection_ == -1 && wr > criticalvalue1 - (criticalvalue2 -criticalvalue1)*0.5
+                    fprintf('close wr:%2.1f\n',wr);
+                elseif tradeout.opendirection_ == -1 && wr > criticalvalue1 + 0.5*ww
                     closeflag = 1;
-%                     fprintf('close wr:%2.1f\n',wr);
+                    fprintf('close wr:%2.1f\n',wr);
                 end
             end
             if closeflag

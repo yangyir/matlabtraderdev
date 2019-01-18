@@ -23,7 +23,7 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
             if ltd > lbd
                 savedailybarfrombloomberg(bbg,code,true);
             else
-                savedailybarfrombloomberg(bbg,code,false);
+                savedailybarfrombloomberg(bbg,code,true);
             end
         end
     end
@@ -35,7 +35,12 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     for i = 1:ncheck
         code = bbg2ctp(futlist{i+lastFutIdx-1});
         instrument = code2instrument(code);
-        ois(i,:) = bbg.history(instrument,'open_int',lbd,lbd);
+        data = bbg.history(instrument,'open_int',lbd,lbd);
+        if isempty(data)
+            data = bbg.ds_.getdata(instrument.code_bbg,'open_int');
+            data = [lbd,data.open_int];
+        end
+        ois(i,:) = data;
     end
     maxoi = max(ois(:,end));
     lastFutIdx = find(ois(:,end) == maxoi) + lastFutIdx-1;
@@ -49,10 +54,11 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
         fromDate = expiry - 365;
         toDate = min(expiry,lbd);
         code = bbg2ctp(futures{i});
-%         pxclose = ldb.history(code,'last_trade',fromDate,toDate);
-%         openint = ldb.history(code,'open_int',fromDate,toDate);
-%         pxoidata{i} = [pxclose,openint(:,end)];
-        pxoidata{i} = ldb.history(code,'all',fromDate,toDate);
+        try
+            pxoidata{i} = ldb.history(code,'all',fromDate,toDate);
+        catch
+            pxoidata{i} = [];
+        end
         %--- some data analysis here to remove the NaNs
         if ~isempty(pxoidata{i})    
             idx = ~isnan(pxoidata{i}(:,2)) & ~isnan(pxoidata{i}(:,3)) & ...

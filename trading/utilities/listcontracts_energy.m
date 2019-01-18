@@ -55,10 +55,11 @@ if ~strcmpi(assetName,'crude oil')
         +3;                         %contracts listed from this month
 else
     if init_yy < curr_yy
-        n = (12-init_mm+1)+...          %contracts for the first year
-            (curr_yy-1-init_yy)*12+...  %contracts between the 2nd and last year
-            curr_mm+...                 %contracts for this year
-            3;                          %now listed and activly traded
+%         n = (12-init_mm+1)+...          %contracts for the first year
+%             (curr_yy-1-init_yy)*12+...  %contracts between the 2nd and last year
+%             curr_mm+...                 %contracts for this year
+%             3;                          %now listed and activly traded
+        n = 4;
     else
         n = (curr_mm-init_mm+1)+11;
     end
@@ -70,7 +71,16 @@ while i<=n
     if ~strcmpi(assetName,'crude oil')
         mm = (i-1)*4+init_mm;
     else
-        mm = i+init_mm-1;
+%         mm = i+init_mm-1;
+        if i == 1
+            mm = 9;
+        elseif i == 2
+            mm = 12;
+        elseif i == 3
+            mm = 13;
+        elseif i == 4
+            mm = 15;
+        end
     end
     if mod(mm,12)==0
         yy = init_yy+mm/12-1;
