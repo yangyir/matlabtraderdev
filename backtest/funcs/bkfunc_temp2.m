@@ -69,7 +69,7 @@ xlabel('number of trades');
 ylabel('cumulative pnl');
 
 %%
-i = 2;
+i = 1;
 [trades,px_used] = bkfunc_gentrades_wlpr(pricedata{i}.codectp,pricedata{i}.data,...
         'wrmode','flash',...
         'nperiod',144,...
@@ -101,9 +101,33 @@ for j = 1:trades.latest_
     end
 end
 %%
-j=56;
+j=25;
 tradeout = bkfunc_checksingletrade(trades.node_(j),pricedata{i}.data,'doplot',1,...
             'riskmanagement','OptionPlusWR',...
             'OptionPremiumRatio',0.333,...
             'UseDefaultFlashStopLoss',1,...
-            'WRWidth',10)
+            'WRWidth',10);
+%%
+tradein = trades.node_(j);
+if tradein.opendirection_ == -1
+    pxstop = tradein.opensignal_.highesthigh_;
+else
+    pxstop = tradein.opensignal_.lowestlow_;
+end
+extrainfo = struct('pxstoploss_',pxstop);
+tradein.setriskmanager('name','wrstep','extrainfo',extrainfo);
+candlek = pricedata{i}.data;
+nperiod = tradein.opensignal_.lengthofperiod_;
+wlpr = willpctr(candlek(:,3),candlek(:,4),candlek(:,5),nperiod);
+%%
+tradein.status_ = 'unset';
+tradein.riskmanager_.status_ = 'unset';
+for k = 1:size(wlpr,1)
+    [tradeout2] = tradein.riskmanager_.riskmanagementwithcandle(candlek(k,:),wlpr(k,:),...
+        'UseCandleLastOnly',false,...
+        'UpdatePnLForClosedTrade',true);
+end
+
+
+
+

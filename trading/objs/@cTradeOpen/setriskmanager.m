@@ -78,9 +78,28 @@ function [] = setriskmanager(obj,varargin)
             riskmanager.pxdynamicopen_ = [];
         end
         obj.riskmanager_ = riskmanager;
-        
+        %
     elseif strcmpi(name,'standard')
         riskmanager = cStandard;
+        riskmanager.trade_ = obj;
+        try
+            riskmanager.status_ = info.status_;
+        catch
+            riskmanager.status_ = 'unset';
+        end
+        try
+            riskmanager.pxtarget_ = info.pxtarget_;
+        catch
+            riskmanager.pxtarget_ = -9.99;
+        end
+        try
+            riskmanager.pxstoploss_ = info.pxstoploss_;
+        catch
+            riskmanager.pxstoploss_ = -9.99;
+        end
+        obj.riskmanager_ = riskmanager;
+    elseif strcmpi(name,'wrstep')
+        riskmanager = cWRStep;
         riskmanager.trade_ = obj;
         try
             riskmanager.status_ = info.status_;
