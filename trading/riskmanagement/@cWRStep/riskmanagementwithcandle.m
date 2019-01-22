@@ -199,16 +199,18 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,wr,varargin)
                 obj.status_ = 'closed';
                 closetime = candleTime + freq/1440;
             end
-            if debug, fprintf('close wr:%2.1f\n',wr);end
-        elseif obj.opendirection_ == -1
-            if wr > criticalvalue1 + 0.5*obj.stepvalue_
+            if debug && strcmpi(obj.status_,'closed'), fprintf('close wr:%2.1f\n',wr);end
+        elseif obj.trade_.opendirection_ == -1
+            if wr > obj.criticalvalue1_ + 0.5*obj.stepvalue_
                 obj.status_ = 'closed';
+                freq = str2double(obj.trade_.opensignal_.frequency_(1:end-1));
                 closetime = candleTime + freq/1440;
             elseif abs(wr+100) <= instrument.tick_size/(pmax-pmin)
                 obj.status_ = 'closed';
+                freq = str2double(obj.trade_.opensignal_.frequency_(1:end-1));
                 closetime = candleTime + freq/1440;
             end
-            if debug, fprintf('close wr:%2.1f\n',wr);end
+            if debug && strcmpi(obj.status_,'closed'), fprintf('close wr:%2.1f\n',wr);end
         end
     end
     %

@@ -3,16 +3,22 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('DoPlot',1,@isnumeric);
     p.addParameter('RiskManagement','OptionPlusWR',@ischar);
-    p.addParameter('OptionPremiumRatio',1,@isnumeric);
-    p.addParameter('WRWidth',10,@isnumeric);
-    p.addParameter('UseDefaultFlashStopLoss',1,@isnumeric);
+    p.addParameter('OptionPremiumRatio',1,@isnumeric);%ratio of the option premium as the stoploss
+    p.addParameter('WRWidth',10,@isnumeric);%Williams Ratio Step
+    p.addParameter('UseDefaultFlashStopLoss',1,@isnumeric);%use the maximum or minimum as the stop price
     p.addParameter('RiskTolerance',1000,@isnumeric);
+    p.addParameter('Print',0,@isnumeric);%print intermediate results
     p.parse(varargin{:});
     doplot = p.Results.DoPlot;
     riskmanagement = p.Results.RiskManagement;
     pratio = p.Results.OptionPremiumRatio;
     ww = p.Results.WRWidth;
+    if ~(ww == 5 || ww == 10 || ww == 20 || ww == 25 || ww == 50)
+        error('bkfunc_checksingletrade:invalid wrwidth input')
+    end
+    wrsteps = -100:ww:0;
     usedefaultflashsl = p.Results.UseDefaultFlashStopLoss;
+    doprint = p.Results.Print;
 %     risktolerance = p.Results.RiskTolerance;
     nperiod = trade.opensignal_.lengthofperiod_;
     wlpr = willpctr(candles(:,3),candles(:,4),candles(:,5),nperiod);
@@ -70,12 +76,22 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
         pstoploss = trade.openprice_ - trade.opendirection_*stoploss*trade.openprice_;
         if tradeout.opendirection_ == 1
             pstoploss = ceil(pstoploss/instrument.tick_size)*instrument.tick_size;
-            criticalvalue1 = -100;
-            criticalvalue2 = criticalvalue1 + ww;
+            if strcmpi(tradeout.opensignal_.wrmode_,'flash')  || strcmpi(tradeout.opensignal_.wrmode_,'classic')
+                %in case of flash, the open time is within any time of the
+                %candle, we take the previous max/min's associated wr
+                criticalvalue1 = -100;
+                criticalvalue2 = criticalvalue1 + ww;
+            else
+                error('bkfunc_checksingletrade:not supported wrmode')
+            end
         else
             pstoploss = floor(pstoploss/instrument.tick_size)*instrument.tick_size;
-            criticalvalue1 = -0;
-            criticalvalue2 = criticalvalue1 - ww;
+            if strcmpi(tradeout.opensignal_.wrmode_,'flash')  || strcmpi(tradeout.opensignal_.wrmode_,'classic')
+                criticalvalue1 = -0;
+                criticalvalue2 = criticalvalue1 - ww;
+            else
+                error('bkfunc_checksingletrade:not supported wrmode')
+            end
         end
         if strcmpi(tradeout.opensignal_.wrmode_,'flash') && usedefaultflashsl
             if tradeout.opendirection_ == 1
@@ -98,6 +114,7 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
         for i = idx_open:size(candles,1)
             plow = candles(i,4);
             phigh = candles(i,3);
+            popen = candles(i,2);
             %1.close out the trade once the stoploss is breached
             if (plow < pstoploss && tradeout.opendirection_ == 1) || ...
                (phigh > pstoploss && tradeout.opendirection_ == -1 )     
@@ -106,9 +123,20 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
                 closeflag = 0;
             end
             if closeflag
-                tradeout.closeprice_ = pstoploss;
-                tradeout.closepnl_ = (pstoploss-tradeout.openprice_)*tradeout.opendirection_/instrument.tick_size*instrument.tick_value;
-                closetime = candles(i,1)+1/86400;
+                if tradeout.opendirection_ == 1 && popen < pstoploss
+                    tradeout.closeprice_ = popen;
+                    closetime = candles(i,1)+1/86400;
+                elseif tradeout.opendirection_ == -1  && popen > pstoploss
+                    tradeout.closeprice_ = popen;
+                    closetime = candles(i,1)+1/86400;
+                else
+                    tradeout.closeprice_ = pstoploss;
+                    freq = str2double(tradeout.opensignal_.frequency_(1:end-1));
+                    closetime = candles(i,1)+freq/1440;
+                end
+
+                tradeout.closepnl_ = (tradeout.closeprice_-tradeout.openprice_)*tradeout.opendirection_/instrument.tick_size*instrument.tick_value;
+
                 tradeout.closedatetime1_ = closetime;
                 if doplot
                     subplot(211);
@@ -127,55 +155,63 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
             % is closed. if it breached the critical line, we make the next
             % critical line
             wr = wlpr(i);
+            % note:wr is calculated with the close price which shall be
+            % known after the trade open
             pmax = max(candles(i-nperiod+1:i,3));
             pmin = min(candles(i-nperiod+1:i,4));
             if breachcriticalline == 0
                 if tradeout.opendirection_ == 1
                     if wr > criticalvalue2
-                        fprintf('breach critical line:%2.0f\n',criticalvalue2);
+                        if doprint, fprintf('breach critical line:%2.0f\n',criticalvalue2);end
                         breachcriticalline = 1;
+                        wr_idx = find(wrsteps > wr,1,'first');
                         criticalvalue1 = criticalvalue2;
-                        criticalvalue2 = min(criticalvalue2 + ww,0);
+                        criticalvalue2 = wrsteps(wr_idx);
                     end
                 elseif tradeout.opendirection_ == -1
                     if wr < criticalvalue2
-                        fprintf('breach critical line:%2.0f\n',criticalvalue2);
+                        if doprint, fprintf('breach critical line:%2.0f\n',criticalvalue2);end
                         breachcriticalline = 1;
+                        wr_idx = find(wrsteps < wr,1,'last');
                         criticalvalue1 = criticalvalue2;
-                        criticalvalue2 = max(criticalvalue2 - ww,-100);
-                        
+                        criticalvalue2 = wrsteps(wr_idx);     
                     end
                 end
             else
                 %we have breach the critical line already
                 if tradeout.opendirection_ == 1
                     if wr > criticalvalue2
-                        fprintf('breach critical line:%2.0f\n',criticalvalue2);
+                        if doprint, fprintf('breach critical line:%2.0f\n',criticalvalue2);end
                         breachcriticalline = 1;
+                        wr_idx = find(wrsteps > wr,1,'first');
                         criticalvalue1 = criticalvalue2;
-                        criticalvalue2 = min(criticalvalue2 + ww,0);
+                        criticalvalue2 = wrsteps(wr_idx);
+%                         criticalvalue2 = min(criticalvalue2 + ww,0);
                     end
                 elseif tradeout.opendirection_ == -1
                     if wr < criticalvalue2
-                        fprintf('breach critical line:%2.0f\n',criticalvalue2);
+                        if doprint, fprintf('breach critical line:%2.0f\n',criticalvalue2);end
                         breachcriticalline = 1;
+                        wr_idx = find(wrsteps < wr,1,'last');
                         criticalvalue1 = criticalvalue2;
-                        criticalvalue2 = max(criticalvalue2 - ww,-100);
+                        criticalvalue2 = wrsteps(wr_idx);
+%                         criticalvalue2 = max(criticalvalue2 - ww,-100);
                     end
                 end
-                if tradeout.opendirection_ == 1 && wr < criticalvalue1 - 0.5*ww
+                if tradeout.opendirection_ == 1 && wr < criticalvalue1 + 0*(criticalvalue2-criticalvalue1)
                     closeflag = 1;
-                    fprintf('close wr:%2.1f\n',wr);
-                elseif tradeout.opendirection_ == -1 && wr > criticalvalue1 + 0.5*ww
+                    if doprint, fprintf('close wr:%2.1f\n',wr);end
+                elseif tradeout.opendirection_ == -1 && wr > criticalvalue1 + 0*(criticalvalue2-criticalvalue1)
                     closeflag = 1;
-                    fprintf('close wr:%2.1f\n',wr);
+                    if doprint, fprintf('close wr:%2.1f\n',wr);end
                 end
             end
             if closeflag
                 %close with the next candle's open price
                 tradeout.closeprice_ = candles(i+1,2);
                 tradeout.closepnl_ = (tradeout.closeprice_-tradeout.openprice_)*tradeout.opendirection_/instrument.tick_size*instrument.tick_value;
-                closetime = candles(i+1,1)+1/86400;
+                freq = str2double(tradeout.opensignal_.frequency_(1:end-1));
+                closetime = candles(i+1,1)+freq/1440;
                 tradeout.closedatetime1_ = closetime;
                 if doplot
                     subplot(211);
@@ -199,7 +235,8 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
             if closeflag
                 tradeout.closeprice_ = candles(i+1,2);
                 tradeout.closepnl_ = (tradeout.closeprice_-tradeout.openprice_)*tradeout.opendirection_/instrument.tick_size*instrument.tick_value;
-                closetime = candles(i+1,1)+1/86400;
+                freq = str2double(tradeout.opensignal_.frequency_(1:end-1));
+                closetime = candles(i+1,1)+freq/1440;
                 tradeout.closedatetime1_ = closetime;
                 if doplot
                     subplot(211);
