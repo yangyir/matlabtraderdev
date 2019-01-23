@@ -48,7 +48,7 @@ function [] = setriskmanager(obj,varargin)
             riskmanager.bandtarget_ = -9.99;
         end
         if info.bandstoploss_ ~= -9.99 && info.bandtarget_ ~= -9.99 && ...
-                strcmpi(info.status_,'unset')
+                strcmpi( riskmanager.status_,'unset')
             riskmanager.setstoplossfromsignalinfo(obj.opensignal_);
             riskmanager.settargetfromsignalinfo(obj.opensignal_);
         end
