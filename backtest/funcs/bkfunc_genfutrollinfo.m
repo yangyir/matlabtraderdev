@@ -2,8 +2,21 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     bbg = cBloomberg;
     ldb = cLocal;
     lbd = getlastbusinessdate;
-
-    futlist = listcontracts(assetname,'connection','bloomberg');
+    
+    if strcmpi(assetname,'nickel')
+        list = {'ni1509';...
+            'ni1601';'ni1605';'ni1609';...
+            'ni1701';'ni1705';'ni1709';...
+            'ni1801';'ni1805';'ni1807';'ni1809';'ni1811';...
+            'ni1901';'ni1905';'ni1909'};
+        futlist = cell(size(list));
+        for i = 1:size(futlist,1)
+            futlist{i} = ctp2bbg(list{i});
+        end
+    elseif strcmpi(assetname,'unknown')
+    else
+        futlist = listcontracts(assetname,'connection','bloomberg');
+    end
     expiries = zeros(size(futlist,1),1);
     for i = 1:size(futlist,1)
         code = bbg2ctp(futlist{i});

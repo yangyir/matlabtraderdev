@@ -4,21 +4,33 @@ function [res] = bkfunc_loadintradaydata2(asset,rollinfotbl,varargin)
     p.addRequired('AssetName',@ischar);
     p.addRequired('RollInfoTable',@iscell);
     p.addParameter('StartDate','2018-01-01',@ischar);
+    p.addParameter('EndDate',datestr(getlastbusinessdate,'yyyy-mm-dd'),@ischar);
     p.addParameter('Frequency',1,@isnumeric);
     p.addParameter('DaysShift',0,@isnumeric);
     p.parse(asset,rollinfotbl,varargin{:});
     assetname = p.Results.AssetName;
     rolltbl = p.Results.RollInfoTable;
     dtstartstr = p.Results.StartDate;
+    dtendstr = p.Results.EndDate;
     dtstartnum = datenum(dtstartstr,'yyyy-mm-dd');
+    dtendnum = datenum(dtendstr,'yyyy-mm-dd');
     freq = p.Results.Frequency;
     daysshift = p.Results.DaysShift;
+    istart = 1;
+    iend = size(rolltbl,1);
     for i = 1:size(rolltbl,1)
         if rolltbl{i,1} > dtstartnum
+            istart = i;
             break
         end
     end
-    rolltbl2use = rolltbl(i:end,:);
+    for i = 1:size(rolltbl,1)
+        if rolltbl{i,1} > dtendnum
+            iend = i-1;
+            break
+        end
+    end
+    rolltbl2use = rolltbl(istart:iend,:);
     %
     db = cLocal;
     nrolls = size(rolltbl2use,1);
@@ -54,7 +66,11 @@ function [res] = bkfunc_loadintradaydata2(asset,rollinfotbl,varargin)
                 dt1 = dateadd(rolltbl2use{i-1,1},[num2str(daysshift),'b']);
                 dt1 = [datestr(dt1,'yyyy-mm-dd'),' ',mktopentimestr];
             end
-            dt2 = [datestr(getlastbusinessdate,'yyyy-mm-dd'),' ',mktclosetimestr];
+            if iend == size(rolltbl,1)
+                dt2 = [datestr(getlastbusinessdate,'yyyy-mm-dd'),' ',mktclosetimestr];
+            else
+                dt2 = [datestr(rolltbl{iend+1,1},'yyyy-mm-dd'),' ',mktopentimestr];
+            end
         end
         intradaydata2use{i}.dt1str = dt1;
         intradaydata2use{i}.dt2str = dt2;
