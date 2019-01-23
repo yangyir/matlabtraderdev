@@ -1,4 +1,4 @@
-assetname = 'crude oil';
+assetname = 'deformed bar';
 [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname);
 %%
 freq = 15;
