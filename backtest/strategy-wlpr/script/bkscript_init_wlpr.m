@@ -5,8 +5,9 @@ clear
 if ~exist('bbgConn','var'), bbgConn = bbgconnect;end
 
 %% Download intraday bar data from Bloomberg
-assetList_wlpr = {'iron ore'};
-[dataIntradaybar_wlpr,codeList_wlpr] = bkfuns_loadintradaydata( bbgConn, assetList_wlpr );
+assetList_wlpr = {'govtbond_10y'};
+[ dataDailybar_wlpr ] = bkfunc_loaddailydata( bbgConn, assetList_wlpr );
+[dataIntradaybar_wlpr,codeList_wlpr] = bkfunc_loadintradaydata( bbgConn, assetList_wlpr );
 
 %% generate trades
 nasset_wlpr = size(assetList_wlpr,1);

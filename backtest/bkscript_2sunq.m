@@ -31,7 +31,7 @@ else
 end
 db = cLocal;
 instrument = code2instrument(ui_futcode);
-candlek = db.intradaybar(instrument,dt1,dt2,freq,'trade');
+candlek = db.intradaybar(instrument,dt1,dt2,ui_freq,'trade');
 %%
 % generate trades with user inputs of wrmode and other inputs as required
 % -------------------------- user inputs ---------------------------------%
@@ -68,6 +68,7 @@ for itrade = 1:ntrades
             'usecandlelastonly',false,...
             'updatepnlforclosedtrade',true);
         if ~isempty(unwindtrade)
+            fprintf('%s\n',num2str(unwindtrade.closepnl_));
             pnl(itrade) = unwindtrade.closepnl_;
             break
         end
