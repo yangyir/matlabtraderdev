@@ -1,15 +1,20 @@
+% shall be used along with replay_tool.m
 %%
-clear;clc;
+% clear;clc;
 % user_inputs
-codes = {'rb1905'};
-startdt = '2018-12-10';
-enddt = '2018-12-14';
+% codes = {'cu1902'};
+% startdt = '2018-12-10';
+% enddt = '2018-12-19';
 strategyname = 'wlpr';
 fn = 'config_wlprflash_replay.txt';
 dir_ = [getenv('HOME'),'replay\',strategyname,'\'];
 genconfigfile(strategyname,[dir_,fn],'instruments',codes);
 %modify risk configurations
-for i = 1:size(codes,1),modconfigfile([dir_,fn],'code',codes{i},'PropNames',{'samplefreq';'wrmode';'riskmanagername'},'PropValues',{'3m';'flash';'batman'});end
+for i = 1:size(codes,1)
+    modconfigfile([dir_,fn],'code',codes{i},...
+        'PropNames',{'samplefreq';'wrmode';'riskmanagername'},...
+        'PropValues',{'15m';'flash';'batman'});
+end
 
 %%
 db = cLocal;
@@ -37,7 +42,7 @@ for i = 1:size(codes,1)
     wr{i} = willpctr(candle_used{i}(:,3),candle_used{i}(:,4),candle_used{i}(:,5),configs{i}.numofperiod_);
     figure(i)
     subplot(211);
-    idx = find(candle_used{i}(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
+    idx = find(candle_used{i}(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first')-5;
     candle(candle_used{i}(idx:end,3),candle_used{i}(idx:end,4),candle_used{i}(idx:end,5),candle_used{i}(idx:end,2));
     grid on;
     subplot(212);
