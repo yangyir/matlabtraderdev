@@ -54,10 +54,18 @@ end
         
 if length(yystr) == 1
     %Ö£ÉÌËù
-    if yynum < year(today)-2010
-        byystr = ['1',yystr];
+    if year(today) < 2019
+        if yynum < year(today)-2010
+            byystr = ['1',yystr];
+        else
+            byystr = yystr(end);
+        end
     else
-        byystr = yystr(end);
+        if yynum < year(today)-2020
+            byystr = ['2',yystr];
+        else
+            byystr = yystr(end);
+        end
     end
 else
     if yynum < year(today)-2000

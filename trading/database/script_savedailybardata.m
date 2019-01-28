@@ -172,7 +172,49 @@ for j = 1:length(strikes2_soymeal)
     savedailybarfrombloomberg(conn,p_code_,override);
 end
 fprintf('done for soymeal options......\n\n');
+%%
+% corn option
+futlist_i = listcontracts('corn','connection','bloomberg');
+check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
+ltd = check_i.last_tradeable_dt;
+idx = ltd >= lastbd;
+livefutlist_i = futlist_i(idx);
+check_i = getdata(conn.ds_,livefutlist_i,'open_int');
+open_int = check_i.open_int;
+open_int_sorted = sort(open_int,'descend');
 
+idx1 = find(open_int == open_int_sorted(1));
+idx2 = find(open_int == open_int_sorted(2));
+
+check_i = history(conn.ds_,livefutlist_i{idx1},'px_last',lastbd,lastbd);
+px1 = check_i(2);
+futcode1 = bbg2ctp(livefutlist_i{idx1});
+%
+check_i = history(conn.ds_,livefutlist_i{idx2},'px_last',lastbd,lastbd);
+px2 = check_i(2);
+futcode2 = bbg2ctp(livefutlist_i{idx2});
+%
+bucketsize = 20;
+nopt = 10;
+strikes1_corn = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+strikes2_corn = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+
+for j = 1:length(strikes1_corn)
+    c_code_ = [futcode1,'-C-',num2str(strikes1_corn(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode1,'-P-',num2str(strikes1_corn(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+
+for j = 1:length(strikes2_corn)
+    c_code_ = [futcode2,'-C-',num2str(strikes2_corn(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode2,'-P-',num2str(strikes2_corn(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+fprintf('done for corn options......\n\n');
 %%
 % sugar
 futlist_i = listcontracts('sugar','connection','bloomberg');
@@ -197,26 +239,70 @@ futcode2 = bbg2ctp(livefutlist_i{idx2});
 %
 bucketsize = 100;
 nopt = 10;
-strikes1_soymeal = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
-strikes2_soymeal = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+strikes1_sugar = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+strikes2_sugar = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
 
-for j = 1:length(strikes1_soymeal)
-    c_code_ = [futcode1,'C',num2str(strikes1_soymeal(j))];
+for j = 1:length(strikes1_sugar)
+    c_code_ = [futcode1,'C',num2str(strikes1_sugar(j))];
     savedailybarfrombloomberg(conn,c_code_,override);
     %
-    p_code_ = [futcode1,'P',num2str(strikes1_soymeal(j))];
+    p_code_ = [futcode1,'P',num2str(strikes1_sugar(j))];
     savedailybarfrombloomberg(conn,p_code_,override);
 end
 
-for j = 1:length(strikes2_soymeal)
-    c_code_ = [futcode2,'C',num2str(strikes2_soymeal(j))];
+for j = 1:length(strikes2_sugar)
+    c_code_ = [futcode2,'C',num2str(strikes2_sugar(j))];
     savedailybarfrombloomberg(conn,c_code_,override);
     %
-    p_code_ = [futcode2,'P',num2str(strikes2_soymeal(j))];
+    p_code_ = [futcode2,'P',num2str(strikes2_sugar(j))];
     savedailybarfrombloomberg(conn,p_code_,override);
 end
 fprintf('done for white sugar options......\n\n');
 %%
+% cotton
+futlist_i = listcontracts('cotton','connection','bloomberg');
+check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
+ltd = check_i.last_tradeable_dt;
+idx = ltd >= lastbd;
+livefutlist_i = futlist_i(idx);
+check_i = getdata(conn.ds_,livefutlist_i,'open_int');
+open_int = check_i.open_int;
+open_int_sorted = sort(open_int,'descend');
+
+idx1 = find(open_int == open_int_sorted(1));
+idx2 = find(open_int == open_int_sorted(2));
+
+check_i = history(conn.ds_,livefutlist_i{idx1},'px_last',lastbd,lastbd);
+px1 = check_i(2);
+futcode1 = bbg2ctp(livefutlist_i{idx1});
+%
+check_i = history(conn.ds_,livefutlist_i{idx2},'px_last',lastbd,lastbd);
+px2 = check_i(2);
+futcode2 = bbg2ctp(livefutlist_i{idx2});
+%
+bucketsize = 200;
+nopt = 10;
+strikes1_cotton = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+strikes2_cotton = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+
+for j = 1:length(strikes1_cotton)
+    c_code_ = [futcode1,'C',num2str(strikes1_cotton(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode1,'P',num2str(strikes1_cotton(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+
+for j = 1:length(strikes2_cotton)
+    c_code_ = [futcode2,'C',num2str(strikes2_cotton(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode2,'P',num2str(strikes2_cotton(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+fprintf('done for white cotton options......\n\n');
+%%
+% copper
 futlist_i = listcontracts('copper','connection','bloomberg');
 check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
 ltd = check_i.last_tradeable_dt;
@@ -263,3 +349,47 @@ for j = 1:length(strikes2_copper)
     savedailybarfrombloomberg(conn,p_code_,override);
 end
 fprintf('done for copper options......\n\n');
+%%
+% ruber option
+futlist_i = listcontracts('rubber','connection','bloomberg');
+check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
+ltd = check_i.last_tradeable_dt;
+idx = ltd >= lastbd;
+livefutlist_i = futlist_i(idx);
+check_i = getdata(conn.ds_,livefutlist_i,'open_int');
+open_int = check_i.open_int;
+open_int_sorted = sort(open_int,'descend');
+
+idx1 = find(open_int == open_int_sorted(1));
+idx2 = find(open_int == open_int_sorted(2));
+
+check_i = history(conn.ds_,livefutlist_i{idx1},'px_last',lastbd,lastbd);
+px1 = check_i(2);
+futcode1 = bbg2ctp(livefutlist_i{idx1});
+%
+check_i = history(conn.ds_,livefutlist_i{idx2},'px_last',lastbd,lastbd);
+px2 = check_i(2);
+futcode2 = bbg2ctp(livefutlist_i{idx2});
+%
+bucketsize = 250;
+nopt = 10;
+strikes1_rubber = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+strikes2_rubber = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+%
+for j = 1:length(strikes1_rubber)
+    c_code_ = [futcode1,'C',num2str(strikes1_rubber(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode1,'P',num2str(strikes1_rubber(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+
+for j = 1:length(strikes2_rubber)
+    c_code_ = [futcode2,'C',num2str(strikes2_rubber(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode2,'P',num2str(strikes2_rubber(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+fprintf('done for rubber options......\n\n');
+

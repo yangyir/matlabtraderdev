@@ -36,6 +36,12 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
         else
             bucketsize = 2000;
         end
+    elseif ~isempty(strfind(code_ctp_underlier,'ru'))
+        bucketsize = 250;
+    elseif ~isempty(strfind(code_ctp_underlier,'c'))
+        bucketsize = 20;
+    elseif ~isempty(strfind(code_ctp,'underlier','CF'))
+        bucketsize = 200;
     else
         error('getlistedoptions:unknown underlier')
     end
@@ -52,7 +58,7 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
     calls = cell(numstrikes,1);
     puts = cell(numstrikes,1);
     
-    if ~isempty(strfind(code_ctp_underlier,'m'))
+    if ~isempty(strfind(code_ctp_underlier,'m')) || ~isempty(strfind(code_ctp_underlier,'c'))
         for i = 1:numstrikes
             code_c{i} = [code_ctp_underlier,'-C-',num2str(strikes(i))];
             calls{i} = cOption(code_c{i});
@@ -63,7 +69,7 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
             puts{i}.loadinfo([code_p{i},'_info.txt']);
             
         end
-    elseif ~isempty(strfind(code_ctp_underlier,'SR'))
+    elseif ~isempty(strfind(code_ctp_underlier,'SR')) || ~isempty(strfind(code_ctp_underlier,'CF'))
         for i = 1:numstrikes
             code_c{i} = [code_ctp_underlier,'C',num2str(strikes(i))];
             calls{i} = cOption(code_c{i});
@@ -73,7 +79,7 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
             puts{i} = cOption(code_p{i});
             puts{i}.loadinfo([code_p{i},'_info.txt']);
         end
-    elseif ~isempty(strfind(code_ctp_underlier,'cu'))
+    elseif ~isempty(strfind(code_ctp_underlier,'cu')) || ~isempty(strfind(code_ctp_underlier,'ru'))
         for i = 1:numstrikes
             code_c{i} = [code_ctp_underlier,'C',num2str(strikes(i))];
             calls{i} = code2instrument(code_c{i});

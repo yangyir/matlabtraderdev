@@ -26,13 +26,22 @@ function [] = registerinstrument(obj,instrument)
         obj.vegacarry_ = [obj.vegacarry_;0];
         obj.thetacarry_ = [obj.thetacarry_;0];
         %
-        pnlriskoutput = pnlriskbreakdown1(instrument,getlastbusinessdate);
-        obj.deltacarryyesterday_ = [obj.deltacarryyesterday_;pnlriskoutput.deltacarry];
-        obj.gammacarryyesterday_ = [obj.gammacarryyesterday_;pnlriskoutput.gammacarry];
-        obj.vegacarryyesterday_ = [obj.vegacarryyesterday_;pnlriskoutput.vegacarry];
-        obj.thetacarryyesterday_ = [obj.thetacarryyesterday_;pnlriskoutput.thetacarry];
-        obj.impvolcarryyesterday_ = [obj.impvolcarryyesterday_;pnlriskoutput.iv2];
-        obj.pvcarryyesterday_ = [obj.pvcarryyesterday_;pnlriskoutput.premium2];
+        try
+            pnlriskoutput = pnlriskbreakdown1(instrument,getlastbusinessdate);
+            obj.deltacarryyesterday_ = [obj.deltacarryyesterday_;pnlriskoutput.deltacarry];
+            obj.gammacarryyesterday_ = [obj.gammacarryyesterday_;pnlriskoutput.gammacarry];
+            obj.vegacarryyesterday_ = [obj.vegacarryyesterday_;pnlriskoutput.vegacarry];
+            obj.thetacarryyesterday_ = [obj.thetacarryyesterday_;pnlriskoutput.thetacarry];
+            obj.impvolcarryyesterday_ = [obj.impvolcarryyesterday_;pnlriskoutput.iv2];
+            obj.pvcarryyesterday_ = [obj.pvcarryyesterday_;pnlriskoutput.premium2];
+        catch
+            obj.deltacarryyesterday_ = [obj.deltacarryyesterday_;0];
+            obj.gammacarryyesterday_ = [obj.gammacarryyesterday_;0];
+            obj.vegacarryyesterday_ = [obj.vegacarryyesterday_;0];
+            obj.thetacarryyesterday_ = [obj.thetacarryyesterday_;0];
+            obj.impvolcarryyesterday_ = [obj.impvolcarryyesterday_;0];
+            obj.pvcarryyesterday_ = [obj.pvcarryyesterday_;0];
+        end
     end
     
     if isempty(obj.underliers_)
