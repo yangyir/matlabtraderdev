@@ -7,12 +7,12 @@ function [flag,opt_type,opt_strike,underlierstr,opt_expiry] = isoptchar(codestr)
 %shanghai stock exchange and other options
 
 %note:the format of comdty options traded in dalian is as of: future ctp
-%code-option type-option strike, e.g.m1801-C-2700
+%code-option type-option strike, e.g.m1801-C-2700, c1905-C-1900
 %however, the format of comdty option traded in zhengzhou is as of: future
 %ctp code option type option strike, e.g.SR801C6600
 %
 %the format of copper option traded in shanghai is as of:future ctop code
-%option type option strike, e.g.cu1901C50000
+%option type option strike, e.g.cu1901C50000, ru1905c11750
 
 
 flag = false;
@@ -83,19 +83,32 @@ for i = 1:size(codelist)
             underlierstr = [assetshortcode,tenor(1:3)];
             mmnum = str2double(tenor(2:3));
             yynum = 2010+str2double(tenor(1));
-            %zhengzhou:the expiry date of the option is the last 5th business date of
-            %the month which is two month before the underlier future's expiry
-            if mmnum == 2
+            if ~isempty(strfind(underlierstr,'SR'))
+                %zhengzhou:the expiry date of the sugar option is the last 5th business date of
+                %the month which is two month before the underlier future's expiry
+                if mmnum == 2
+                    mmnum_opt = 12;
+                    yynum_opt = yynum - 1;
+                elseif mmnum == 1
+                    mmnum_opt = 11;
+                    yynum_opt = yynum - 1;
+                else
+                    mmnum_opt = mmnum - 2;
+                    yynum_opt = yynum;
+                end
+                opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,5,-1);
+            elseif ~isempty(strfind(underlierstr,'CF'))
+                %zhengzhou:the expiry date of the cotton option is the 3rd business date of
+                %the pre-month of the underlier future's expiry
+                if mmnum == 1
                 mmnum_opt = 12;
                 yynum_opt = yynum - 1;
-            elseif mmnum == 1
-                mmnum_opt = 11;
-                yynum_opt = yynum - 1;
             else
-                mmnum_opt = mmnum - 2;
+                mmnum_opt = mmnum - 1;
                 yynum_opt = yynum;
             end
-            opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,5,-1);
+            opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,3,1);     
+            end
         end
         
         idx = idx+1;
