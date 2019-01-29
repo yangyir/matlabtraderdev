@@ -12,16 +12,7 @@ for i = 1:size(tbl,1)
     if strcmpi(tbl{i,5},ui_futcode),break;end
 end
 rolldtnum = tbl{i,1};
-
-if ui_freq == 1
-    nbshift = 1;
-elseif ui_freq == 3
-    nbshift = 3;
-elseif ui_freq == 5
-    nbshift = 5;
-elseif ui_freq == 15
-    nbshift = 10;
-end
+nbshift = wrfreq2busdayshift(ui_freq);
 dt1 = dateadd(rolldtnum,['-',num2str(nbshift),'b']);
 dt1 = datestr(dt1,'yyyy-mm-dd');
 if i ~= size(tbl,1)
