@@ -1,8 +1,8 @@
-underlier = 'cu1902';
+underlier = 'cu1903';
 cobdate = getlastbusinessdate;
 predate = businessdate(cobdate,-1);
 data = cDataFileIO.loadDataFromTxtFile([underlier,'_daily.txt']);
-pxclose = data(data(:,1)==datenum(cobdate),end);
+pxclose = data(data(:,1)==datenum(cobdate),5);
 if pxclose <= 40000
     bucketsize = 500;
 elseif pxclose > 40000 && pxclose < 80000

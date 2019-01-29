@@ -63,15 +63,15 @@ mult = sec.contract_size;
 data = cDataFileIO.loadDataFromTxtFile([underlier,'_daily.txt']);
 predate = businessdate(cobdate,-1);
 nextdate = businessdate(cobdate,1);
-price1_underlier = data(data(:,1)==datenum(predate),end);
-price2_underlier = data(data(:,1)==datenum(cobdate),end);
+price1_underlier = data(data(:,1)==datenum(predate),5);
+price2_underlier = data(data(:,1)==datenum(cobdate),5);
 if isempty(price1_underlier) || isempty(price2_underlier)
     error(['underlier ',underlier,' historical price not saved!'])
 end
 
 data = cDataFileIO.loadDataFromTxtFile([sec.code_ctp,'_daily.txt']);
-pv1_sec = data(data(:,1)==datenum(predate),end);
-pv2_sec = data(data(:,1)==datenum(cobdate),end);
+pv1_sec = data(data(:,1)==datenum(predate),5);
+pv2_sec = data(data(:,1)==datenum(cobdate),5);
 if isempty(pv1_sec) || isempty(pv2_sec)
     error(['option ',sec.code_ctp,' historical price not saved!'])
 end
