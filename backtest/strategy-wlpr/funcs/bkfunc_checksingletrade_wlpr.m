@@ -31,8 +31,8 @@ function [] = bkfunc_checksingletrade_wlpr(assetName,assetList_wlpr,dataIntraday
     candle(candle_db_freq(idx_open-idx_shift:idx_stop,3),candle_db_freq(idx_open-idx_shift:idx_stop,4),candle_db_freq(idx_open-idx_shift:idx_stop,5),candle_db_freq(idx_open-idx_shift:idx_stop,2),'b');
         
     plot(idx_shift+1:idx_shift+stop_period+1,tradeOpen.openprice_*ones(stop_period+1,1),'g:')
-    plot(idx_shift+1:idx_shift+stop_period+1,candle_db_freq(idx_open,3)*ones(stop_period+1,1),'r:')
-    plot(idx_shift+1:idx_shift+stop_period+1,candle_db_freq(idx_open,4)*ones(stop_period+1,1),'r:')
+%     plot(idx_shift+1:idx_shift+stop_period+1,candle_db_freq(idx_open,3)*ones(stop_period+1,1),'r:')
+%     plot(idx_shift+1:idx_shift+stop_period+1,candle_db_freq(idx_open,4)*ones(stop_period+1,1),'r:')
     if tradeOpen.opendirection_ == 1
         dirstr = 'long';
     else
