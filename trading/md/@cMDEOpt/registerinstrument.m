@@ -72,7 +72,7 @@ function [] = registerinstrument(obj,instrument)
             nu_ = size(obj.candles_,1);
             candles = cell(nu_+1,1);
             for i = 1:nu_, candles{i} = obj.candles_{i};end
-            candles{i}{i+1} = candle;
+            candles{i+1} = candle;
             obj.candles_ = candles;
         end
         %
