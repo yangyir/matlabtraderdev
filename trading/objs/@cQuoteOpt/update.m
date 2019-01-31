@@ -49,7 +49,7 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
         warning('off')
         obj.impvol = bjsimpv(mid,obj.opt_strike,r,cob_date,...
             obj.opt_expiry_date1,midopt,[],r,[],opttype);
-        if isnan(obj.impvol )
+        if isnan(obj.impvol ) || obj.impvol == 0
             obj.impvol = 0.01;
         end
     else
@@ -64,7 +64,7 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
         warning('off')
 %         obj.impvol = blkimpv(mid,obj.opt_strike,r,obj.opt_business_tau,midopt,[],[],{opttype});
         obj.impvol = blkimpv(mid,obj.opt_strike,r,obj.opt_calendar_tau,midopt,[],[],{opttype});
-        if isnan(obj.impvol )
+        if isnan(obj.impvol ) || obj.impvol == 0
             obj.impvol = 0.01;
         end
         

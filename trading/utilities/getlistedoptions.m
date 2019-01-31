@@ -38,9 +38,9 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
         end
     elseif ~isempty(strfind(code_ctp_underlier,'ru'))
         bucketsize = 250;
-    elseif ~isempty(strfind(code_ctp_underlier,'c'))
+    elseif ~isempty(strfind(code_ctp_underlier,'c')) && isempty(strfind(code_ctp_underlier,'cu'))
         bucketsize = 20;
-    elseif ~isempty(strfind(code_ctp,'underlier','CF'))
+    elseif ~isempty(strfind(code_ctp_underlier,'CF'))
         bucketsize = 200;
     else
         error('getlistedoptions:unknown underlier')
@@ -58,7 +58,7 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
     calls = cell(numstrikes,1);
     puts = cell(numstrikes,1);
     
-    if ~isempty(strfind(code_ctp_underlier,'m')) || ~isempty(strfind(code_ctp_underlier,'c'))
+    if ~isempty(strfind(code_ctp_underlier,'m')) || (~isempty(strfind(code_ctp_underlier,'c')) && isempty(strfind(code_ctp_underlier,'cu')))
         for i = 1:numstrikes
             code_c{i} = [code_ctp_underlier,'-C-',num2str(strikes(i))];
             calls{i} = cOption(code_c{i});
