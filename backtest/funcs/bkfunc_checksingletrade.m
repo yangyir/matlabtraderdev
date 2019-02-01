@@ -131,7 +131,7 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
                 else
                     tradeout.closeprice_ = pstoploss;
                     freq = str2double(tradeout.opensignal_.frequency_(1:end-1));
-                    closetime = candles(i,1)+freq/1440;%make close on the candle close
+                    closetime = candles(i+1,1);%make close on the candle close
                 end
                 tradeout.closepnl_ = (tradeout.closeprice_-tradeout.openprice_)*tradeout.opendirection_/instrument.tick_size*instrument.tick_value;
                 tradeout.closedatetime1_ = closetime;
@@ -201,7 +201,8 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
 %                             criticalvalue1 = criticalvalue2;
                             criticalvalue2 = wrcheck;
                             if doprint, fprintf('reset critical line at:%2.0f\n',criticalvalue2);end
-                            criticalvalue1 = (criticalvalue2+50)/2-50;
+%                             criticalvalue1 = (criticalvalue2+50)/2-50;
+                              criticalvalue1 =  -75 + 0.5*(criticalvalue2+75);
                         end
                     end
                 elseif tradeout.opendirection_ == -1
@@ -238,7 +239,7 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
                 %close with the next candle's open price
                 try
                     tradeout.closeprice_ = candles(i+1,2);
-                    closetime = candles(i+1,1)+freq/1440;
+                    closetime = candles(i+1,1);
                 catch
                     tradeout.closeprice_ = candles(i,5);
                     closetime = candles(i,1)+freq/1440;

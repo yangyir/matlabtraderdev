@@ -1,9 +1,9 @@
-function [] = bkfunc_checktrades(trades,candles)
+function [] = bkfunc_checktrades(trades,candles,figidx)
     trade = trades.node_(1);
     nperiod = trade.opensignal_.lengthofperiod_;
     wlpr = willpctr(candles(:,3),candles(:,4),candles(:,5),nperiod);
     
-    figure(1)
+    figure(figidx)
     subplot(211)
     candle(candles(:,3),candles(:,4),candles(:,5),candles(:,2),'b');
     grid on;hold on;
