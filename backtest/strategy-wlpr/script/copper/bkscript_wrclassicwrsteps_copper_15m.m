@@ -1,11 +1,12 @@
 %%
 % load all intraday candles from onedrive
 % the intraday data is stored in 5min interval
-ui_freq = 5;
+ui_freq = 15;
 dir_ = [getenv('BACKTEST'),'copper\'];
-fn = 'copper_intraday_5m';
+fn = ['copper_intraday_',num2str(ui_freq),'m'];
 data = load([dir_,fn]);
-candles = data.candles_5m;
+fldn = ['candles_',num2str(ui_freq),'m'];
+candles = data.(fldn);
 dt1 = floor(candles{1,2}(1,1));
 dt2 = floor(candles{end,2}(end,1));
 bds = gendates('fromdate',dt1,'todate',dt2);
@@ -15,9 +16,9 @@ nbds = size(bds,1);
 %%
 pnls = cell(size(candles,1),1);
 ui_wrmode = 'classic';
-ui_nperiod = 100;
-ui_overbought = 0;
-ui_oversold = -100;
+ui_nperiod = 200;
+ui_overbought = -0.6;
+ui_oversold = -99.4;
 ui_stoplossratio = 0.3;
 
 for ifut = 1:size(candles,1)
@@ -33,7 +34,7 @@ for ifut = 1:size(candles,1)
      pnl2 = zeros(ntrades,1);%wrstrp pnl
      for itrade = 1:ntrades
         tradein2 = trades.node_(itrade).copy;
-        [tradeout] = bkfunc_checksingletrade(tradein2,candlek,'WRWidth',10,'Print',0,...
+        [tradeout] = bkfunc_checksingletrade(tradein2,candlek,'WRWidth',5,'Print',0,...
             'OptionPremiumRatio',ui_stoplossratio,'DoPlot',0,'buffer',1);
         pnl2(itrade) = tradeout.closepnl_;
      end
