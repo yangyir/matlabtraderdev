@@ -5,7 +5,7 @@ ui_assetname = 'copper';
 %%
 % choose a particular futures contract and download its intraday prices
 % -------------------------- user inputs ---------------------------------%
-ui_futcode = 'cu1804';
+ui_futcode = 'cu1901';
 ui_freq = 5;
 % ------------------------------------------------------------------------%
 for i = 1:size(tbl,1)
@@ -81,7 +81,7 @@ plot(cumsum(pnl2),'r-');legend('batman','wrstep');
 hold off;
 %%
 fprintf('\n');
-itrade = 13;
+itrade = 5;
 tradein2 = trades.node_(itrade).copy;
 tradeout = bkfunc_checksingletrade(tradein2,candlek,'doplot',1,...
             'riskmanagement','OptionPlusWR',...

@@ -116,6 +116,17 @@ function [] = setriskmanager(obj,varargin)
         catch
             riskmanager.pxstoploss_ = -9.99;
         end
+        try
+            riskmanager.stepvalue_ = info.stepvalue_;
+        catch
+            riskmanager.stepvalue_ = 10;
+        end
+        try
+            riskmanager.buffer_ = info.buffer_;
+        catch
+            riskmanager.buffer_ = 1;
+        end
+        
         obj.riskmanager_ = riskmanager;
     else
         error('cTradeOpen:setriskmanager:%s not supported',name);

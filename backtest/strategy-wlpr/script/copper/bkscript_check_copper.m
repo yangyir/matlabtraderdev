@@ -1,6 +1,6 @@
 
 %%
-ui_freq = 15;
+ui_freq = 5;
 dir_ = [getenv('BACKTEST'),'copper\'];
 fn = ['copper_intraday_',num2str(ui_freq),'m'];
 data = load([dir_,fn]);
@@ -14,7 +14,7 @@ nbds = size(bds,1);
 %%
 % choose a particular futures contract and download its intraday prices
 % -------------------------- user inputs ---------------------------------%
-ui_futcode = 'cu1808';
+ui_futcode = 'cu1903';
 % ------------------------------------------------------------------------%
 for i = 1:size(candles,1)
     if strcmpi(candles{i,1},ui_futcode),break;end
@@ -24,9 +24,9 @@ candlek = candles{i,2};
 % generate trades with user inputs of wrmode and other inputs as required
 % -------------------------- user inputs ---------------------------------%
 ui_wrmode = 'classic';
-ui_nperiod = 200;
-ui_overbought = -0.6;
-ui_oversold = -99.4;
+ui_nperiod = 100;
+ui_overbought = -0;
+ui_oversold = -100;
 % ------------------------------------------------------------------------%
 [trades,~] = bkfunc_gentrades_wlpr(ui_futcode,candlek,...
         'wrmode',ui_wrmode,...
@@ -79,7 +79,7 @@ fprintf('%5s\t%5s\n',num2str(sum(pnl)),num2str(sum(pnl2)));
 %
 bkfunc_checktrades(trades,candlek,3);
 %%
-itrade = 5;
+itrade = 28;
 [tradeout] = bkfunc_checksingletrade(trades.node_(itrade),candlek,'WRWidth',10,'Print',1,...
     'OptionPremiumRatio',0.3,'StopRatio',0,'buffer',1);
 fprintf('%s\n',num2str(tradeout.closepnl_));

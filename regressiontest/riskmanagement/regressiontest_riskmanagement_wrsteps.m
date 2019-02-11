@@ -2,7 +2,7 @@
 % load all intraday candles from onedrive
 % the intraday data is stored in 5min interval
 ui_freq = 5;
-dir_ = 'C:\Users\yiran\OneDrive\backtest\copper\';
+dir_ = [getenv('BACKTEST'),'copper\'];
 fn = 'copper_intraday';
 data = load([dir_,fn]);
 candles = data.candles;
@@ -44,7 +44,7 @@ wlpr = willpctr(candlek(:,3),candlek(:,4),candlek(:,5),ui_nperiod);
 pnl2 = zeros(ntrades,1);
 for itrade = 1:ntrades
     tradein2 = trades.node_(itrade).copy;
-    extrainfo = struct('pxstoploss_',pxstoploss(itrade));
+    extrainfo = struct('pxstoploss_',pxstoploss(itrade),'stepvalue_',10);
     tradein2.setriskmanager('name',ui_riskmanagername,'extrainfo',extrainfo);
     openbucket = gettradeopenbucket(tradein2,tradein2.opensignal_.frequency_);
     idxopen = find(candlek(:,1) == openbucket);

@@ -3,14 +3,14 @@
 % the intraday data is stored in 5min interval
 ui_freq = 5;
 dir_ = [getenv('BACKTEST'),'copper\'];
-fn = 'copper_intraday_5m';
+fn = ['copper_intraday_',num2str(ui_freq),'m'];
+fldn = ['candles_',num2str(ui_freq),'m'];
 data = load([dir_,fn]);
-candles = data.candles_5m;
+candles = data.(fldn);
 dt1 = floor(candles{1,2}(1,1));
 dt2 = floor(candles{end,2}(end,1));
 bds = gendates('fromdate',dt1,'todate',dt2);
 nbds = size(bds,1);
-
 
 %%
 pnls = cell(size(candles,1),1);

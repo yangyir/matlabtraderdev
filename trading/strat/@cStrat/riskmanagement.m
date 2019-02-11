@@ -40,6 +40,8 @@ function [] = riskmanagement(obj,dtnum)
                     'bandtarget_',-9.99,...
                     'bandwidthmin_',bandwidthmin,...
                     'bandwidthmax_',bandwidthmax);
+            elseif strcmpi(trade_i.opensignal_.riskmanagername_,'wrstep')
+                error('ERROR:%s:riskmanagement:invalid riskmangername for manual trading',class(obj))
             end
             trade_i.setriskmanager('name',trade_i.opensignal_.riskmanagername_,'extrainfo',extrainfo);
             %
@@ -55,6 +57,8 @@ function [] = riskmanagement(obj,dtnum)
                     pxstoploss = trade_i.openprice_ * (1+trade_i.opendirection_*stopamount);
                 elseif strcmpi(stoptype,'abs')
                     pxstoploss = trade_i.openprice_ + trade_i.opendirection_*stopamount/(instrument.tick_value*trade_i.openvolume_)*instrument.tick_size;
+                elseif strcmpi(stoptype,'opt')
+                    error('ERROR:%s:riskmanagement:stoptypepertrade opt to be implemented',class(obj))
                 else
                     error('ERROR:%s:riskmanagement:invalid stoptypepertrade',class(obj))
                 end
@@ -76,6 +80,18 @@ function [] = riskmanagement(obj,dtnum)
             %
             if strcmpi(riskmanagername,'standard')
                 extrainfo = struct('pxtarget_',pxtarget,'pxstoploss_',pxstoploss);
+            elseif strcmpi(riskmanagername,'wrstep')
+                try
+                    stepvalue = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','stepvalue');
+                catch
+                    stepvalue = 10;
+                end
+                try
+                    buffer = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','buffer');
+                catch
+                    buffer = 1;
+                end
+                extrainfo = struct('pxstoploss_',pxstoploss,'stepvalue_',stepvalue,'buffer_',buffer);
             elseif strcmpi(riskmanagername,'batman')
                 try
                     bandtype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bandtype');
