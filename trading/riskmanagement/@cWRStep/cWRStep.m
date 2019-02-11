@@ -7,6 +7,12 @@ classdef cWRStep < cTradeRiskManager
         criticalvalue1_@double
         criticalvalue2_@double
         stepvalue_@double = 10
+        buffer_@double = 1
+    end
+    
+    properties (GetAccess = public, SetAccess = private)
+        breachmidline_@double = 0
+        breachlimitline_@double = 0
     end
     
     methods

@@ -23,25 +23,42 @@ function [] = printmarket(obj)
             bid = quotes{i}.bid1;
             if bid > 1e6
                 bid = NaN;
+            elseif bid == 0
+                bid = obj.lastclose_(i);
             end
             ask = quotes{i}.ask1;
             if ask > 1e6
                 ask = NaN;
+            elseif ask == 0
+                ask = obj.lastclose_(i);
+            end
+            lasttrade = quotes{i}.last_trade;
+            if lasttrade > 1e6
+                lasttrade = NaN;
+            elseif lasttrade == 0
+                lasttrade = obj.lastclose_(i);
             end
             timet = datestr(quotes{i}.update_time1,'HH:MM:SS');
-            delta = ((quotes{i}.last_trade/obj.lastclose_(i))-1)*100;
+            delta = ((lasttrade/obj.lastclose_(i))-1)*100;
             wrinfo = obj.calc_technical_indicators(code);
             dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11.1f%11s%11s\n';
             
-            if ~isempty(wrinfo{1})
-                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
-                    delta,timet,...
-                    wrinfo{1}(1),num2str(wrinfo{1}(2)),num2str(wrinfo{1}(3)));
-            else
+            if isempty(wrinfo)
                 dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11s%11s%11s\n';
-                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
-                    delta,timet,...
-                    'nan','nan','nan');
+                    fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
+                        delta,timet,...
+                        'nan','nan','nan');
+            else
+                if ~isempty(wrinfo{1})
+                    fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
+                        delta,timet,...
+                        wrinfo{1}(1),num2str(wrinfo{1}(2)),num2str(wrinfo{1}(3)));
+                else
+                    dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11s%11s%11s\n';
+                    fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
+                        delta,timet,...
+                        'nan','nan','nan');
+                end
             end
         end
     else

@@ -1,4 +1,4 @@
-function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
+function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('DoPlot',1,@isnumeric);
@@ -151,7 +151,7 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
             
             if breachmidline == 0
                 if tradeout.opendirection_ == 1
-                    if wr > criticalvalue2                       
+                    if wr > criticalvalue2 + buffer                       
                         
                         if wr > -50 && ~breachmidline
                             breachmidline = 1;
@@ -169,7 +169,7 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
                         end
                     end
                 elseif tradeout.opendirection_ == -1
-                    if wr < criticalvalue2
+                    if wr < criticalvalue2 - buffer
                         
                         if wr < -50 && ~breachmidline
                             breachmidline = 1;
@@ -191,7 +191,7 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
             else
                 %we have breach the critical 50 line already
                 if tradeout.opendirection_ == 1
-                    if wr > criticalvalue2
+                    if wr > criticalvalue2 + buffer
                         
 %                         breachcriticalline = 1;
 %                         wr_idx = find(wrsteps > criticalvalue2,1,'first');
@@ -206,7 +206,7 @@ function [tradeout] = bkfunc_checksingletrade(trade,candles,varargin)
                         end
                     end
                 elseif tradeout.opendirection_ == -1
-                    if wr < criticalvalue2
+                    if wr < criticalvalue2 - buffer
                         
 %                         breachcriticalline = 1;
 %                         wr_idx = find(wrsteps < criticalvalue2,1,'last');

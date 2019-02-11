@@ -30,7 +30,11 @@ for ifut = 1:nfut
 end
 %%
 dir_ = 'C:\Users\Administrator\OneDrive\backtest\copper\';
-fn = [ui_assetname,'_intraday'];
+if ui_freq == 5
+    fn = [ui_assetname,'_intraday'];
+elseif ui_freq == 15
+    fn = [ui_assetname,'_15m_intraday'];
+end
 save([dir_,fn],'candles');
 
 %%
