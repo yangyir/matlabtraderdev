@@ -11,10 +11,10 @@ candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\config_wlprclassic_wrstep_regressiontest.txt'];
 genconfigfile('wlpr',configfile,'instruments',{code});
 
-propnames = {'overbought';'oversold';'wrmode';'samplefreq';'riskmanagername';...
+propnames = {'numofperiod';'overbought';'oversold';'wrmode';'samplefreq';'riskmanagername';...
     'stoptypepertrade';'stopamountpertrade';...
     'baseunits';'maxunits'};
-propvalues = {-0;-100;'classic';'5m';'wrstep';...
+propvalues = {100;-0;-100;'classic';'5m';'wrstep';...
     'opt';-0.3;...
     1;1};
 modconfigfile(configfile,'code',code,...
@@ -51,21 +51,21 @@ for i = 1:trades.latest_
                 num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2018-06-19 14:15:01,direction: 1,price:113260
-% id: 2,openbucket:2018-06-19 14:20:01,direction: 1,price:113060
-% id: 3,openbucket:2018-06-19 14:30:01,direction: 1,price:112900
+% id: 1,openbucket:2019-02-01 10:10:01,direction: 1,price:47990
+% id: 2,openbucket:2019-02-01 10:40:01,direction: 1,price:47980
+% id: 3,openbucket:2019-02-01 11:05:01,direction: 1,price:47980
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
 %user inputs:
 clc;delete(timerfindall);
-bookname = 'replay_wlprclassicbatman';
+bookname = 'replay_wlprclassicwrstep';
 strategyname = 'wlpr';
 availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
     'initialfundlevel',availablefund,'usehistoricaldata',false);
 % replay
-fprintf('nruning regressiontest_wlpr_singleday_nickel...\n');
+fprintf('nruning regressiontest_wlprclassic_wrstep_sd_copper...\n');
 fprintf('switch mode to replay...\n');
 if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
 if ~isempty(combos.mdeopt), combos.mdeopt.mode_ = 'replay';end
@@ -80,8 +80,8 @@ if ~isempty(combos.ops),combos.ops.settimerinterval(1/replayspeed);end
 if ~isempty(combos.strategy),combos.strategy.settimerinterval(1/replayspeed);end
 %
 fprintf('load replay tick data....\n');
-replaydt1 = '2018-06-19';
-replaydt2 = '2018-06-19';
+replaydt1 = enddt;
+replaydt2 = enddt;
 replaydts = gendates('fromdate',replaydt1,'todate',replaydt2);
 try
     instruments = combos.strategy.getinstruments;
@@ -90,7 +90,7 @@ try
         code = instruments{i}.code_ctp;
         filenames = cell(size(replaydts,1),1);
         for j = 1:size(replaydts,1)
-            filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.mat'];
+            filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
         end
         combos.mdefut.initreplayer('code',code,'filenames',filenames);
     end
