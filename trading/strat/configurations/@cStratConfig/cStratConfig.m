@@ -65,14 +65,18 @@ classdef cStratConfig < handle
         end
         
         function [] = set.stoptypepertrade_(obj,typein)
-            if ~(strcmpi(typein,'abs') || strcmpi(typein,'rel'))
+            if ~(strcmpi(typein,'abs') ||...
+                    strcmpi(typein,'rel') ||...
+                    strcmpi(typein,'opt'))
                 error([class(obj),':invalid stoptypepertrade_'])
             end
             obj.stoptypepertrade_ = typein;
         end
         
         function [] = set.limittypepertrade_(obj,typein)
-            if ~(strcmpi(typein,'abs') || strcmpi(typein,'rel'))
+            if ~(strcmpi(typein,'abs') ||...
+                    strcmpi(typein,'rel')||...
+                    strcmpi(typein,'opt'))
                 error([class(obj),':invalid limitamountpertrade_'])
             end
             obj.limittypepertrade_ = typein;
@@ -92,7 +96,9 @@ classdef cStratConfig < handle
         end
         
         function [] = set.riskmanagername_(obj,val)
-            if ~(strcmpi(val,'standard') || strcmpi(val,'batman'))
+            if ~(strcmpi(val,'standard') ||...
+                    strcmpi(val,'batman') ||...
+                    strcmpi(val,'wrstep'))
                 error([class(obj),':invalid riskmanagername_'])
             end
             obj.riskmanagername_ = val;
