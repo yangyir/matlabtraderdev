@@ -40,7 +40,14 @@ function [] = registerinstrument(strategy,instrument)
     catch
         np = 144;
     end
-    param = struct('name','WilliamR','values',{{'numofperiods',np}});
+    
+    try
+        includelastcandle = strategy.riskcontrols_.getconfigvalue('code',ctpcode,...
+                'propname','includelastcandle');
+    catch
+        includelastcandle = 0;
+    end
+    param = struct('name','WilliamR','values',{{'numofperiods',np,'includelastcandle',includelastcandle}});
     strategy.mde_fut_.settechnicalindicator(instrument,param);
 
 end

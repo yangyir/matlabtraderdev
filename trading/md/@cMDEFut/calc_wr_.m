@@ -4,9 +4,11 @@ function indicators = calc_wr_(mdefut,instrument,varargin)
     p.addRequired('Instrument', @(x) validateattributes(x,{'cInstrument'},{},'','Instrument'));
     p.addParameter('NumOfPeriods',144,...
         @(x) validateattributes(x,{'numeric'},{},'','NumOfPeriods'));
+    p.addParameter('IncludeLastCandle',0,@isnumeric);
     p.parse(instrument,varargin{:});
     instrument = p.Results.Instrument;
     nperiods = p.Results.NumOfPeriods;
+    includeLastCandle = p.Results.IncludeLastCandle;
 
     histcandles = mdefut.gethistcandles(instrument);
     candlesticks = mdefut.getcandles(instrument);
@@ -21,6 +23,9 @@ function indicators = calc_wr_(mdefut,instrument,varargin)
         candlesticks = [];
     else
         candlesticks = candlesticks{1};
+        if ~includeLastCandle
+            candlesticks = candlesticks(1:end-1,:);
+        end
     end
     
     if isempty(histcandles) && isempty(candlesticks)

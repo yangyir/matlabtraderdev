@@ -10,7 +10,6 @@ candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %% generate config file
 configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\config_wlprclassic_wrstep_regressiontest.txt'];
 genconfigfile('wlpr',configfile,'instruments',{code});
-
 propnames = {'numofperiod';'overbought';'oversold';'wrmode';'samplefreq';'riskmanagername';...
     'stoptypepertrade';'stopamountpertrade';...
     'baseunits';'maxunits'};
