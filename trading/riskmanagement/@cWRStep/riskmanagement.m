@@ -1,6 +1,6 @@
 function [unwindtrade] = riskmanagement(obj,varargin)
 %cWRStep
-unwindtrade = {};
+    unwindtrade = {};
     if strcmpi(obj.status_,'closed'), return; end
 
     p = inputParser;
@@ -72,8 +72,9 @@ unwindtrade = {};
         %trade open
         openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
         candleTime = candleK(end,1);
-        if openBucket <= candleTime
+        if openBucket < candleTime
             trade.status_ = 'set';
+            obj.status_ = 'set';
         end
     end
     
@@ -84,35 +85,49 @@ unwindtrade = {};
     
     %first we need to check whether it is right time to update batman
     %properties
-    equalorNot = (round(buckets(2:end) *10e+07) == round(ticktime*10e+07));
-    if sum(sum(equalorNot)) == 0
-        idx = buckets(1:end-1) < ticktime & buckets(2:end) >= ticktime;
-    else
-        idx = buckets(1:end-1) <ticktime & equalorNot;
+%     equalorNot = (round(buckets(2:end) *10e+07) == round(ticktime*10e+07));
+%     if sum(sum(equalorNot)) == 0
+%         idx = buckets(1:end-1) < ticktime & buckets(2:end) >= ticktime;
+%     else
+%         idx = buckets(1:end-1) <ticktime & equalorNot;
+%     end
+%     this_bucket = buckets(idx);
+%     if ~isempty(this_bucket)
+%         this_count = find(buckets == this_bucket);
+%     else
+%         if ticktime > buckets(end)
+%             this_count = size(buckets,1);
+%         else
+%             this_count = 0;
+%         end
+%     end
+    if ticktime < buckets(end)
+        error('cWRStep:riskmanagement:last tick time shall beyond last candle record time')
     end
-    this_bucket = buckets(idx);
-    if ~isempty(this_bucket)
-        this_count = find(buckets == this_bucket);
-    else
-        if ticktime > buckets(end)
-            this_count = size(buckets,1);
-        else
-            this_count = 0;
-        end
-    end
+    
+    this_count = size(buckets,1)-1;
+
     
     if this_count ~= obj.bucket_count_
         %this shall be the time we update wrstep info
-        if this_count == 0
-            fprintf('todo\n')
-            %here we shall use the last historical data for updating wrstep
-            %info:TODO
-            return
+%         if this_count == 0
+%             fprintf('todo\n')
+%             %here we shall use the last historical data for updating wrstep
+%             %info:TODO
+%             return
+%         end
+        if this_count < 1
+            histcandleCell = mdefut.gethistcandles(instrument);
+            if isempty(histcandleCell), return; end
+            candlepoped = histcandleCell{1}(end,:);
+        else
+            candlepoped = candleK(this_count,:);
         end
         
-        candlepoped = candleK(this_count,:);
+        ti = mdefut.calc_technical_indicators(instrument);
+        wr = ti{1}(1);
         
-        unwindtrade = obj.riskmanagementwithcandle(candlepoped,...
+        unwindtrade = obj.riskmanagementwithcandle(candlepoped,wr,...
             'debug',debug,...
             'usecandlelastonly',true,...
             'updatepnlforclosedtrade',updatepnlforclosedtrade);

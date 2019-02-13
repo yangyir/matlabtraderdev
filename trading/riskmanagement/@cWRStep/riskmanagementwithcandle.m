@@ -73,6 +73,23 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,wr,varargin)
         end
     end
     
+    if isempty(obj.criticalvalue1_)
+        if obj.trade_.opendirection_ == 1
+            obj.criticalvalue1_ = -100;
+        else
+            obj.criticalvalue1_ = 0;
+        end
+    end
+    if isempty(obj.criticalvalue2_)
+        if obj.trade_.opendirection_ == 1
+            obj.criticalvalue2_ = wrsteps(2);
+        else
+            obj.criticalvalue2_ = wrsteps(end-1);
+        end
+        if doprint, fprintf('reset critical line at:%2.0f\n',obj.criticalvalue2_);end
+    end
+    
+    
     if strcmpi(obj.trade_.status_,'closed'), return; end
     
     %1.check with time stop if it is necessary

@@ -105,6 +105,7 @@ classdef cMDEFut < cMyTimerObj
         [] = settechnicalindicator(obj,instrument,indicators)
         [] = settechnicalindicatorautocalc(obj,instrument,calcflag)
         indicators = calc_technical_indicators(obj,instrument)
+        vol = calc_hv(obj,instrument,varargin)
     end
     
     methods

@@ -58,9 +58,21 @@ function [] = riskmanagement(obj,dtnum)
                 elseif strcmpi(stoptype,'abs')
                     pxstoploss = trade_i.openprice_ + trade_i.opendirection_*stopamount/(instrument.tick_value*trade_i.openvolume_)*instrument.tick_size;
                 elseif strcmpi(stoptype,'opt')
-                    error('ERROR:%s:riskmanagement:stoptypepertrade opt to be implemented',class(obj))
+                    nperiod = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','numofperiod');
+                    includelastcandle = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','includelastcandle');
+                    %
+                    vol = obj.mde_fut_.calc_hv(instrument,'numofperiods',nperiod,'includelastcandle',includelastcandle,'method','linear');
+                    retstoploss = blkprice(1,1,0,1,vol)*abs(stopamount);
+                    pxstoploss = trade_i.openprice_ - trade_i.opendirection_*retstoploss*trade_i.openprice_;
+%                     error('ERROR:%s:riskmanagement:stoptypepertrade opt to be implemented',class(obj))
                 else
                     error('ERROR:%s:riskmanagement:invalid stoptypepertrade',class(obj))
+                end
+                %
+                if trade_i.opendirection_ == 1
+                    pxstoploss = ceil(pxstoploss/instrument.tick_size)*instrument.tick_size;
+                else
+                    pxstoploss = floor(pxstoploss/instrument.tick_size)*instrument.tick_size;
                 end
             end
             %

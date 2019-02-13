@@ -15,6 +15,10 @@ classdef cWRStep < cTradeRiskManager
         breachlimitline_@double = 0
     end
     
+    properties (Access = private)
+        bucket_count_@double = 0
+    end
+    
     methods
         function obj = cWRStep
             obj.name_ = 'wrstep';

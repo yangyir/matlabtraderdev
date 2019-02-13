@@ -165,7 +165,9 @@ function [] = updateentrustsandbook2(obj)
                 if e.offsetFlag == 1
                     %open long or open short
                     try
-                        tradestopdatetime = gettradestoptime(e.instrumentCode,e.complete_time_,e.signalinfo_.frequency,floor(e.signalinfo_.lengthofperiod/2));
+%                         tradestopdatetime = gettradestoptime(e.instrumentCode,e.complete_time_,e.signalinfo_.frequency,floor(e.signalinfo_.lengthofperiod/2));
+                        %todo:stop time shall be implemented in config file
+                        tradestopdatetime = [];
                     catch
                         tradestopdatetime = [];
                     end
