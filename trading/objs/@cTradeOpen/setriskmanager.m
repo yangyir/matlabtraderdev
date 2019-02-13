@@ -117,6 +117,16 @@ function [] = setriskmanager(obj,varargin)
             riskmanager.pxstoploss_ = -9.99;
         end
         try
+            riskmanager.criticalvalue1_ = info.criticalvalue1_;
+        catch
+            riskmanager.criticalvalue1_ = [];
+        end
+        try
+            riskmanager.criticalvalue2_ = info.criticalvalue2_;
+        catch
+            riskmanager.criticalvalue2_ = [];
+        end
+        try
             riskmanager.stepvalue_ = info.stepvalue_;
         catch
             riskmanager.stepvalue_ = 10;
@@ -125,6 +135,16 @@ function [] = setriskmanager(obj,varargin)
             riskmanager.buffer_ = info.buffer_;
         catch
             riskmanager.buffer_ = 1;
+        end
+        try
+            riskmanager.breachmidline_ = info.breachmidline_;
+        catch
+            riskmanager.breachmidline_ = 0;
+        end
+        try
+            riskmanager.breachlimitline_ = info.breachlimitline_;
+        catch
+            riskmanager.breachlimitline_ = 0;
         end
         
         obj.riskmanager_ = riskmanager;

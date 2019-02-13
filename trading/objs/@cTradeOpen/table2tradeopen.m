@@ -54,7 +54,9 @@ function [obj] = table2tradeopen(obj,headers,data)
                 end
             end
             if isempty(riskmanager_name), continue; end
-            if ~(strcmpi(riskmanager_name,'standard') || strcmpi(riskmanager_name,'batman'))
+            if ~(strcmpi(riskmanager_name,'standard') || ...
+                    strcmpi(riskmanager_name,'batman') || ...
+                    strcmpi(riskmanager_name,'wrstep'))
                 error('cTradeOpen:table2tradeopen:%s risk manager type not implemented',riskmanager_name);
             end
             

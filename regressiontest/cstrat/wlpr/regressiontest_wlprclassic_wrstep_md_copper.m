@@ -3,7 +3,7 @@ clc;
 clear;delete(timerfindall);close all;
 code = 'cu1903';
 startdt = '2019-01-30';
-enddt = '2019-02-01';
+enddt = '2019-02-11';
 db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
@@ -21,6 +21,7 @@ modconfigfile(configfile,'code',code,...
     'propvalues',propvalues);
 
 %%
+checkdt = '2019-02-01';
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
 [trades,candle_used] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
@@ -34,7 +35,7 @@ config.loadfromfile('code',code,'filename',configfile);
 wr = willpctr(candle_used(:,3),candle_used(:,4),candle_used(:,5),config.numofperiod_);
 figure(1)
 subplot(211);
-idx = find(candle_used(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
+idx = find(candle_used(:,1) >=  datenum([checkdt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
 candle(candle_used(idx:end,3),candle_used(idx:end,4),candle_used(idx:end,5),candle_used(idx:end,2));
 grid on;
 subplot(212);
@@ -43,7 +44,7 @@ plot(wr(idx:end));grid on;
 count = 0;
 clc;
 for i = 1:trades.latest_
-    if trades.node_(i).opendatetime1_ > datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS')
+    if trades.node_(i).opendatetime1_ > datenum([checkdt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS')
         count = count + 1;
         fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s\n',...
                 count,trades.node_(i).opendatetime2_,trades.node_(i).opendirection_,...
@@ -58,7 +59,7 @@ cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
 %user inputs:
 clc;delete(timerfindall);
-bookname = 'replay_wlprclassicwrstep';
+bookname = 'replay_wlprclassicwrstep2';
 strategyname = 'wlpr';
 availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
@@ -79,7 +80,7 @@ if ~isempty(combos.ops),combos.ops.settimerinterval(1/replayspeed);end
 if ~isempty(combos.strategy),combos.strategy.settimerinterval(1/replayspeed);end
 %
 fprintf('load replay tick data....\n');
-replaydt1 = enddt;
+replaydt1 = checkdt;
 replaydt2 = enddt;
 replaydts = gendates('fromdate',replaydt1,'todate',replaydt2);
 try
