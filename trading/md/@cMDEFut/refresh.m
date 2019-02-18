@@ -16,7 +16,11 @@ function [] = refresh(mdefut,varargin)
     
     if ~isempty(mdefut.gui_)
         %update mde status
-        set(mdefut.gui_.tradingstats.time_edit,'string',datestr(now,'dd/mmm HH:MM:SS'));
+        if strcmpi(mdefut.mode_,'realtime')
+            set(mdefut.gui_.tradingstats.time_edit,'string',datestr(now,'dd/mmm HH:MM:SS'));
+        else
+            set(mdefut.gui_.tradingstats.time_edit,'string',mdefut.replay_time2_);
+        end
         set(mdefut.gui_.tradingstats.mdestatus_edit,'string',mdefut.status_);
         set(mdefut.gui_.tradingstats.mderunning_edit,'string',mdefut.timer_.running);
         %update mktdata table
@@ -35,6 +39,7 @@ function [] = refresh(mdefut,varargin)
                     data{i,7} = num2str(wrinfo{1}(2));
                     data{i,8} = num2str(wrinfo{1}(3));
                     data{i,5} = num2str(lastClose);
+                    data{i,9} = sprintf('%4.2f%',wrinfo{1}(1));
                 end
                 lasttick = mdefut.getlasttick(tblRowName{i});
                 
@@ -53,7 +58,7 @@ function [] = refresh(mdefut,varargin)
                         
                     data{i,4} = datestr(lasttick(1),'HH:MM:SS');
                     if ncols > 4
-                        data{i,6} = num2str(lasttick(4)-lastClose);
+                        data{i,6} = sprintf('%4.2f%%',100*(lasttick(4)/lastClose-1));
                     end
                 else
                     data{i,1} = num2str(lastClose);   %last trade

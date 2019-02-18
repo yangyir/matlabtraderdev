@@ -1,4 +1,4 @@
-function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
+function guicallback_mdefutinitbutton( hObject , eventdata , handles )
     variablenotused(hObject);
     variablenotused(eventdata);
 
@@ -41,7 +41,8 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
     %the strategy
     %get startup fund
     startupfund = get(handles.generalsetup.startupfund_edit,'string');
-    ret = STRAT_INSTANCE.setavailablefund(str2double(startupfund{1}),'firstset',true);
+    ret = STRAT_INSTANCE.setavailablefund(str2double(startupfund{1}),'firstset',true,...
+        'checkavailablefund',false);
     if ~ret
         statusstr = 'Error:startup fund set failed...';
         set(handles.statusbar.statustext,'string',statusstr);
@@ -54,6 +55,32 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
     instruments2trade = STRAT_INSTANCE.getinstruments;
     ninstruments = size(instruments2trade,1);
     ctpcodelist = cell(ninstruments,1);
+    
+    replaydt1str = get(handles.generalsetup.replaytimestart_edit,'string');
+    replaydt2str = get(handles.generalsetup.replaytimeend_edit,'string');
+    try
+        replaydts = gendates('fromdate',replaydt1str{1},'todate',replaydt2str{1});
+        isreplay = 1;
+    catch
+        isreplay = 0;
+    end
+    if isreplay
+        MDEFUT_INSTANCE.mode_ = 'replay';
+        OPS_INSTANCE.mode_ = 'replay';
+        STRAT_INSTANCE.mode_ = 'replay';
+        try
+            for i = 1:ninstruments
+                code = instruments2trade{i}.code_ctp;
+                filenames = cell(size(replaydts,1),1);
+                for j = 1:size(replaydts,1)
+                    filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
+                end
+                MDEFUT_INSTANCE.initreplayer('code',code,'filenames',filenames);
+            end
+        catch err
+            fprintf('Error:%s\n',err.message);
+        end
+    end
     
     %set check box
     list = handles.instruments.instrumentlist;
@@ -96,17 +123,38 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
     end
     data = cell(ninstruments,length(columnnames));
 
-    if ~MDEFUT_INSTANCE.qms_.isconnect
-        MDEFUT_INSTANCE.login('Connection','CTP','CounterName',countername);
+    if ~isreplay
+        if ~MDEFUT_INSTANCE.qms_.isconnect
+            MDEFUT_INSTANCE.login('Connection','CTP','CounterName',countername);
+        end
     end
     
-    %refresh twice
-    MDEFUT_INSTANCE.qms_.refresh;
-    MDEFUT_INSTANCE.qms_.refresh;
+    if ~isreplay
+        %refresh twice
+        MDEFUT_INSTANCE.qms_.refresh;
+        MDEFUT_INSTANCE.qms_.refresh;
+    end
+    
+    if ~isreplay
+        hh = hour(now);
+        if hh < 3
+            cobdate = today - 1;
+        else
+            cobdate = today;
+        end
+        if hh < 16 && hh > 2
+            lastbd = businessdate(cobdate,-1);
+        else
+            lastbd = cobdate;
+        end
+    else
+        cobdate = MDEFUT_INSTANCE.replay_date1_;
+        lastbd = businessdate(cobdate,-1);
+    end
     
     for i = 1:ninstruments
         dailydata = cDataFileIO.loadDataFromTxtFile([instruments2trade{i}.code_ctp,'_daily.txt']);
-        idx = dailydata(:,1) == getlastbusinessdate;
+        idx = dailydata(:,1) == lastbd;
         try
             lastcloseprice = dailydata(idx,5);
         catch
@@ -116,68 +164,32 @@ function guicallback_rt_ctp_mdefutinitbutton( hObject , eventdata , handles )
             continue;
         end
         ctpcodelist{i} = instruments2trade{i}.code_ctp;
-        quote = MDEFUT_INSTANCE.qms_.getquote(ctpcodelist{i});
+%         if ~isreplay
+%             quote = MDEFUT_INSTANCE.qms_.getquote(ctpcodelist{i});
+%         end
         if useflag
             %init data
             statusstr = ['load historical candles of ',ctpcodelist{i},'...'];
             set(handles.statusbar.statustext,'string',statusstr);
             pause(1);
-            samplefreqstr = STRAT_INSTANCE.riskcontrols_.getconfigvalue('code',ctpcodelist{i},'propname','samplefreq');
-            if strcmpi(samplefreqstr(end),'m')
-                samplefreqnum = str2double(samplefreqstr(1:end-1));
-            elseif strcmpi(samplefreqstr(end),'h')
-                samplefreqnum = 60*str2double(samplefreqstr(1:end-1));
-            else
-                error('mygui_replayer_callback_mdefutinitbutton:invalid sample freq')
-            end
 
-            if samplefreqnum == 1
-                nbdays = 1;
-            elseif samplefreqnum == 3
-                nbdays = 3;
-            elseif samplefreqnum == 5
-                nbdays = 5;
-            elseif samplefreqnum == 15
-                nbdays = 10;
-            else
-                error('mygui_replayer_callback_mdefutinitbutton:unsupported sample freq:%s',samplefreqstr)
-            end
-
-            MDEFUT_INSTANCE.initcandles(instruments2trade{i},'NumberofPeriods',nbdays);
-
-            try
-                numofperiod = STRAT_INSTANCE.riskcontrols_.getconfigvalue('code',ctpcodelist{i},'propname','numofperiod');
-            catch
-                numofperiod = 144;
-            end
-            wlprparams = struct('name','WilliamR','values',{{'numofperiods',numofperiod}});
-            MDEFUT_INSTANCE.settechnicalindicator(instruments2trade{i},wlprparams);
-
+            STRAT_INSTANCE.initdata;
             wrinfo = MDEFUT_INSTANCE.calc_technical_indicators(instruments2trade{i});
-            data{i,1} = num2str(quote.last_trade);
-            if quote.bid1 > 1e10
-                data{i,2} = '-';
-            else
-                data{i,2} = num2str(quote.bid1);
-            end
-            if quote.ask1 > 1e10
-                data{i,3} = '-';
-            else
-                data{i,3} = num2str(quote.ask1);
-            end
-                
-%             histcandles = MDEFUT_INSTANCE.gethistcandles(instruments2trade{i});
-            data{i,4} = datestr(quote.update_time1,'dd/mmm HH:MM');
+            data{i,1} = num2str(wrinfo{1}(4));
+            data{i,2} = '-';
+            data{i,3} = '-';
+            data{i,4} = '-';
             data{i,5} = num2str(lastcloseprice);
-            data{i,6} = 0;
+            data{i,6} = sprintf('%4.2f%%',100*(wrinfo{1}(4)/lastcloseprice-1));
             data{i,7} = num2str(wrinfo{1}(2));
             data{i,8} = num2str(wrinfo{1}(3));
+            data{i,9} = sprintf('%4.2f%',wrinfo{1}(1));
         else
-            data{i,1} = num2str(quote.last_trade);
-            data{i,2} = num2str(quote.bid1);
-            data{i,3} = num2str(quote.ask1);
-            data{i,4} = datestr(quote.update_time1,'dd/mmm HH:MM');
-            data{i,5} = num2str(lastcloseprice);
+%             data{i,1} = num2str(quote.last_trade);
+%             data{i,2} = num2str(quote.bid1);
+%             data{i,3} = num2str(quote.ask1);
+%             data{i,4} = datestr(quote.update_time1,'dd/mmm HH:MM');
+%             data{i,5} = num2str(lastcloseprice);
         end
     end
 

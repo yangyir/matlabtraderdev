@@ -5,9 +5,9 @@ function handles = gui_frame_entry(ui_frame)
     %
     %general setup
     generalsetup_propnames = {'CounterName';'UseHistData';'RiskConfigFile';...
-        'StartupFund';'TradesDirectory';'EntrustsDirectory'};
+        'StartupFund';'ReplayTimeStart';'ReplayTimeEnd'};
     generalsetup_propvalues = {{'citic_kim_fut','ccb_ly_fut','ccb_yy_fut'};...
-        {'yes','no'};{};{};{};{}};
+        {'yes','no'};{'.txt'};{'50000'};{'yyyy-mm-dd'};{'yyyy-mm-dd'}};
     handles = gui_frame_generalsetup(handles,ui_frame,generalsetup_propnames,generalsetup_propvalues);
     %
     %trading status

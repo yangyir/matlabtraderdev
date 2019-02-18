@@ -11,8 +11,10 @@ function guicallback_mdefutstartbutton( hObject , eventdata , handles )
     catch
     end
     
-    if ~MDEFUT_INSTANCE.qms_.isconnect
-        MDEFUT_INSTANCE.login('Connection','CTP','CounterName','citic_kim_fut');
+    if strcmpi(MDEFUT_INSTANCE.mode_,'realtime')
+        if ~MDEFUT_INSTANCE.qms_.isconnect
+            MDEFUT_INSTANCE.login('Connection','CTP','CounterName','citic_kim_fut');
+        end
     end
     
     MDEFUT_INSTANCE.start;
