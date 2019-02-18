@@ -33,6 +33,7 @@ function [data,headers] = tradeopen2table2(obj)
                 propnames = '';
                 propvalues = '';
                 for j = 1:size(flds_info,1)
+                    if strcmpi(flds_info{j},'trade_'),continue;end
                     val = propvalue.(flds_info{j});
                     if j < size(flds_info,1)
                         tmp = [propnames,flds_info{j},';'];

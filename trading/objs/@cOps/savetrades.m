@@ -31,7 +31,10 @@ function [] = savetrades(obj,varargin)
             mkdir(dir_data_);
         end
         fn_ = [dir_data_,bookname_,'_trades_',datestr(t,'yyyymmdd'),'.txt'];
-        obj.trades_.totxt(fn_);
+%         obj.trades_.totxt(fn_);
+        %note 20190218
+        %from 20190218 onwards, we will save/load trades in the new format
+        obj.trades_.totxt2(fn_);
         fprintf('cOps:savetrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
         obj.entrusts_ = EntrustArray;
         obj.condentrustspending_ = EntrustArray;

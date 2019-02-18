@@ -17,7 +17,7 @@ function [obj] = table2tradeopen2(obj,headers,data)
     end
     
     for i = 1:length(headers)
-        if strcmpi(headers{i},'riskmanagerpropnames')
+        if strcmpi(headers{i},'riskmanagerpropnames_')
             idxrisk = i;
             break
         end
