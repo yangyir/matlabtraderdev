@@ -47,46 +47,61 @@ function [] = riskmanagement(obj,dtnum)
             %
         else
             instrument = trade_i.instrument_;
-            riskmanagername = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmanagername');
-            stoptype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','stoptypepertrade');
-            stopamount = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','stopamountpertrade');
-            if stopamount == -9.99
-                pxstoploss = -trade_i.opendirection_*inf;
+            overrideriskmanagername = trade_i.opensignal_.overrideriskmanagername_;
+            if ~isempty(overrideriskmanagername)
+                riskmanagername = overrideriskmanagername;
             else
-                if strcmpi(stoptype,'rel')
-                    pxstoploss = trade_i.openprice_ * (1+trade_i.opendirection_*stopamount);
-                elseif strcmpi(stoptype,'abs')
-                    pxstoploss = trade_i.openprice_ + trade_i.opendirection_*stopamount/(instrument.tick_value*trade_i.openvolume_)*instrument.tick_size;
-                elseif strcmpi(stoptype,'opt')
-                    nperiod = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','numofperiod');
-                    includelastcandle = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','includelastcandle');
+                riskmanagername = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmanagername');
+            end
+            
+            overridepxstoploss = trade_i.opensignal_.overridepxstoploss_;
+            if abs(overridepxstoploss + 9.99) > 1e-6
+                pxstoploss = overridepxstoploss;
+            else
+                stoptype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','stoptypepertrade');
+                stopamount = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','stopamountpertrade');
+                if stopamount == -9.99
+                    pxstoploss = -trade_i.opendirection_*inf;
+                else
+                    if strcmpi(stoptype,'rel')
+                        pxstoploss = trade_i.openprice_ * (1+trade_i.opendirection_*stopamount);
+                    elseif strcmpi(stoptype,'abs')
+                        pxstoploss = trade_i.openprice_ + trade_i.opendirection_*stopamount/(instrument.tick_value*trade_i.openvolume_)*instrument.tick_size;
+                    elseif strcmpi(stoptype,'opt')
+                        nperiod = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','numofperiod');
+                        includelastcandle = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','includelastcandle');
+                        %
+                        vol = obj.mde_fut_.calc_hv(instrument,'numofperiods',nperiod,'includelastcandle',includelastcandle,'method','linear');
+                        retstoploss = blkprice(1,1,0,1,vol)*abs(stopamount);
+                        pxstoploss = trade_i.openprice_ - trade_i.opendirection_*retstoploss*trade_i.openprice_;
+                    else
+                        error('ERROR:%s:riskmanagement:invalid stoptypepertrade',class(obj))
+                    end
                     %
-                    vol = obj.mde_fut_.calc_hv(instrument,'numofperiods',nperiod,'includelastcandle',includelastcandle,'method','linear');
-                    retstoploss = blkprice(1,1,0,1,vol)*abs(stopamount);
-                    pxstoploss = trade_i.openprice_ - trade_i.opendirection_*retstoploss*trade_i.openprice_;
-%                     error('ERROR:%s:riskmanagement:stoptypepertrade opt to be implemented',class(obj))
-                else
-                    error('ERROR:%s:riskmanagement:invalid stoptypepertrade',class(obj))
-                end
-                %
-                if trade_i.opendirection_ == 1
-                    pxstoploss = ceil(pxstoploss/instrument.tick_size)*instrument.tick_size;
-                else
-                    pxstoploss = floor(pxstoploss/instrument.tick_size)*instrument.tick_size;
+                    if trade_i.opendirection_ == 1
+                        pxstoploss = ceil(pxstoploss/instrument.tick_size)*instrument.tick_size;
+                    else
+                        pxstoploss = floor(pxstoploss/instrument.tick_size)*instrument.tick_size;
+                    end
                 end
             end
             %
-            limittype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','limittypepertrade');
-            limitamount = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','limitamountpertrade');
-            if limitamount == -9.99
-                pxtarget = trade_i.opendirection_*inf;
+            overridepxtarget = trade_i.opensignal_.overridepxtarget_;
+            if abs(overridepxtarget + 9.99) > 1e-6
+                pxtarget = overridepxtarget;
             else
-                if strcmpi(limittype,'rel')
-                    pxtarget = trade_i.openprice_ * (1+trade_i.opendirection_*limitamount);
-                elseif strcmpi(limittype,'abs')
-                    pxtarget = trade_i.openprice_ + trade_i.opendirection_*limitamount/(instrument.tick_value*trade_i.openvolume_)*instrument.tick_size;
+                limittype = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','limittypepertrade');
+                limitamount = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','limitamountpertrade');
+                if limitamount == -9.99
+                    pxtarget = trade_i.opendirection_*inf;
                 else
-                    error('ERROR:%s:riskmanagement:invalid limittypepertrade',class(obj))
+                    if strcmpi(limittype,'rel')
+                        pxtarget = trade_i.openprice_ * (1+trade_i.opendirection_*limitamount);
+                    elseif strcmpi(limittype,'abs')
+                        pxtarget = trade_i.openprice_ + trade_i.opendirection_*limitamount/(instrument.tick_value*trade_i.openvolume_)*instrument.tick_size;
+                    else
+                        error('ERROR:%s:riskmanagement:invalid limittypepertrade',class(obj))
+                    end
                 end
             end
             %

@@ -5,6 +5,11 @@ classdef cWilliamsRInfo < cSignalInfo
         highesthigh_@double
         lowestlow_@double
         wrmode_@char
+        %
+        overrideriskmanagername_@char
+        overridepxtarget_@double = -9.99
+        overridepxstoploss_@double = -9.99
+        
     end
     
     methods

@@ -1,20 +1,42 @@
 function [ret,e,msg] = placeentrust(obj,instrument,varargin)
 %cStrat
+    if ischar(instrument), instrument = code2instrument(instrument); end
+    %note:a new code change that force 'placeentrust' to be used for
+    %particular strategy classes
+    classname = class(obj);
+    if ~(strcmpi(classname,'cStratFutMultiWR'))
+        ret = 0;
+        e = [];
+        msg = fprintf('%s:placeentrust:not support...',classname);
+        fprintf('%s\n',msg);
+        return
+    end
+    %aslo,we restrict auotrade flag switch off when to call 'placeentrust'
+    %function
+    autotrade = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','autotrade');
+    if autotrade
+        ret = 0;
+        e = [];
+        msg = fprintf('%s:placeentrust:% autotrade flag shall be switched off...',classname,instrument.code_ctp);
+        fprintf('%s\n',msg);
+        return
+    end
+
     if ~strcmpi(obj.status_,'working')
         ret = 0;
         e = [];
-        msg = sprintf('%s:placeentrust:it is not allowed when the strategy is not working....',class(obj));
+        msg = sprintf('%s:placeentrust:it is not allowed when the strategy is not working....',classname);
         fprintf('%s\n',msg);
         return
     end
     
-    if ischar(instrument), instrument = code2instrument(instrument); end
+    
     
     bool = obj.hasinstrument(instrument);
     if ~bool
         ret = 0;
         e = [];
-        msg = fprintf('%s:placeentrust:%s not registered in strategy...',class(obj),instrument.code_ctp);
+        msg = fprintf('%s:placeentrust:%s not registered in strategy...',classname,instrument.code_ctp);
         fprintf('%s\n',msg);
         return
     end
@@ -26,7 +48,9 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
     p.addParameter('Price',[],@isnumeric);
     p.addParameter('Volume',[],@isnumeric);
     p.addParameter('Limit',-9.99,@isnumeric);
+    p.addParameter('LimitType','abs',@ischar);
     p.addParameter('Stop',-9.99,@isnumeric);
+    p.addParameter('StopType','abs',@ischar);
     p.addParameter('RiskManagerName','standard',@ischar);
     p.parse(varargin{:});
     
@@ -35,7 +59,7 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
             strcmpi(directionstr,'sell') || strcmpi(directionstr,'s'))
         ret = 0;
         e = [];
-        msg = sprintf('%s:placeentrust:invalid buy/sell flag input...',class(obj));
+        msg = sprintf('%s:placeentrust:invalid buy/sell flag input...',classname);
         fprintf('%s\n',msg);
         return
     end
@@ -47,10 +71,10 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
     end
     
     offsetstr = p.Results.Offset;
-    if ~(strcmpi(offsetstr,'open') || strcmpi(offsetstr,'close'))
+    if ~(strcmpi(offsetstr,'open') || strcmpi(offsetstr,'close') || strcmpi(offsetstr,'closetoday'))
         ret = 0;
         e = [];
-        msg = sprintf('%s:placeentrust:invalid offset input...',class(obj));
+        msg = sprintf('%s:placeentrust:invalid offset input...',classname);
         fprintf('%s\n',msg);
         return
     end
@@ -61,22 +85,37 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
     pxstoploss = p.Results.Stop;
     riskmanagername = p.Results.RiskManagerName;
     
+    usepxtarget = abs(pxtarget + 9.99) > 1e-6;
+    usepxstoploss = abs(pxstoploss + 9.99) > 1e-6;
+    
+    limittype = p.Results.LimitType;
+    stoptype = p.Results.StopType;
+    if usepxtarget
+        
+    end
+    
+    if usepxstoploss
+    end
+    
+    
     %sanity check to make sure that price/target/stoploss are correctly 
     if directionnum == 1
         %pxstoploss < price < pxtarget
-        if ~(pxstoploss < price && price < pxtarget)
+        if (usepxstoploss && ~(pxstoploss < price)) ||...
+                (usepxtarget && ~(price < pxtarget))
             ret = 0;
             e = [];
-            msg = sprintf('%s:invalid target/stoploss input for long open trade...',class(obj));
+            msg = sprintf('%s:invalid target/stoploss input for long open trade...',classname);
             fprintf('%s\n',msg);
             return
         end
     elseif directionnum == -1
         %pxstoploss > price > pxtarget
-        if ~(pxstoploss > price && price > pxtarget)
+        if (usepxstoploss && ~(pxstoploss > price)) ||...
+                (usepxtarget && ~(price > pxtarget))
             ret = 0;
             e = [];
-            msg = sprintf('%s:invalid target/stoploss input for short open trade...',class(obj));
+            msg = sprintf('%s:invalid target/stoploss input for short open trade...',classname);
             fprintf('%s\n',msg);
             return
         end
@@ -95,12 +134,23 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
         return
     end
     
-    signalinfo = struct('name','manual',...
-        'riskmanagername',riskmanagername,...
+    wrmode = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','wrmode');
+    lengthofperiod = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','numofperiod');
+    includelastcandle = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','includelastcandle');
+    
+    maxpx_last = obj.getmaxnperiods(instrument,'IncludeLastCandle',includelastcandle);
+    minpx_last = obj.getminnperiods(instrument,'IncludeLastCandle',includelastcandle);
+    
+    signalinfo = struct('name','williamsr',...
         'instrument',instrument,...
-        'frequency',samplefreqstr,...
-        'pxtarget',pxtarget,...
-        'pxstoploss',pxstoploss);
+         'frequency',samplefreqstr,...
+         'lengthofperiod',lengthofperiod,...
+         'highesthigh',maxpx_last,...
+         'lowestlow',minpx_last,...
+         'wrmode',wrmode,...
+         'overrideriskmanagername',riskmanagername,...
+         'overridepxtarget',pxtarget,...
+         'overridepxstoploss',pxstoploss);
 
     if strcmpi(obj.mode_,'realtime')
         ordertime = now;
@@ -122,6 +172,11 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
             [ret,e] = obj.longopen(instrument.code_ctp,abs(lots),...
                 'overrideprice',price,'time',ordertime,'signalinfo',signalinfo);
         else
+            if strcmpi(offsetstr,'closetoday')
+                closetodayFlag = 1;
+            else
+                closetodayFlag = 0;
+            end
             [ret,e] = obj.longclose(instrument.code_ctp,abs(lots),closetodayFlag,...
                 'overrideprice',price,'time',ordertime);
         end
@@ -130,6 +185,11 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
             [ret,e] = obj.shortopen(instrument.code_ctp,abs(lots),...
                 'overrideprice',price,'time',ordertime,'signalinfo',signalinfo);
         else
+            if strcmpi(offsetstr,'closetoday')
+                closetodayFlag = 1;
+            else
+                closetodayFlag = 0;
+            end
             [ret,e] = obj.shortclose(instrument.code_ctp,abs(lots),closetodayFlag,...
                 'overrideprice',price,'time',ordertime);
         end 
