@@ -64,6 +64,25 @@ function [] = setsignalinfo(obj,varargin)
             signalinfo.wrmode_ = 'reverse';
         end
         obj.opensignal_ = signalinfo;
+        %
+        try
+            signalinfo.overrideriskmanagername_ = info.overrideriskmanagername;
+        catch
+            signalinfo.overrideriskmanagername_ = '';
+        end
+        %
+        try
+            signalinfo.overridepxtarget_ = info.overridepxtarget;
+        catch
+            signalinfo.overridepxtarget_ = -9.99;
+        end
+        %
+        try
+            signalinfo.overridepxstoploss_ = info.overridepxstoploss;
+        catch
+            signalinfo.overridepxstoploss_ = -9.99;
+        end
+        %
         return
     end
     

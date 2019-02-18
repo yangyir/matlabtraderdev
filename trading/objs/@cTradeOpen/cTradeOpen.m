@@ -104,6 +104,8 @@ classdef cTradeOpen < handle
         [data,headers] = tradeopen2table(obj)
         [obj] = table2tradeopen(obj,headers,data)
         [newtrade] = copy(obj)
+        [data,headers] = tradeopen2table2(obj)
+        [obj] = table2tradeopen2(obj,headers,data)
         
     end
     
