@@ -1,5 +1,14 @@
 function [ret,e] = placeentrust(obj,instrument,varargin)
-%cStrat
+%cStratFutMultiBatman
+    classname = class(obj);
+    if ~(strcmpi(classname,'cStratFutMultiBatman'))
+        ret = 0;
+        e = [];
+        msg = fprintf('%s:placeentrust:not support...',classname);
+        fprintf('%s\n',msg);
+        return
+    end
+
     if ~strcmpi(obj.status_,'working')
         ret = 0;
         e = [];

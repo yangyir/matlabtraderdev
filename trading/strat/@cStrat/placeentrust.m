@@ -29,9 +29,7 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
         fprintf('%s\n',msg);
         return
     end
-    
-    
-    
+
     bool = obj.hasinstrument(instrument);
     if ~bool
         ret = 0;
@@ -81,22 +79,77 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
     
     price = p.Results.Price;
     lots = p.Results.Volume;
-    pxtarget = p.Results.Limit;
-    pxstoploss = p.Results.Stop;
+    target = p.Results.Limit;
+    stoploss = p.Results.Stop;
     riskmanagername = p.Results.RiskManagerName;
     
-    usepxtarget = abs(pxtarget + 9.99) > 1e-6;
-    usepxstoploss = abs(pxstoploss + 9.99) > 1e-6;
+    usepxtarget = abs(target + 9.99) > 1e-6;
+    usepxstoploss = abs(stoploss + 9.99) > 1e-6;
+    
+    if price == -1 && (usepxtarget || usepxstoploss)
+        tick = obj.mde_fut_.getlasttick(instrument);
+        if directionnum == 1
+            price = tick(3);
+        elseif directionnum == -1
+            price = tick(2);
+        end
+    end
     
     limittype = p.Results.LimitType;
+    if ~(strcmpi(limittype,'abs') || strcmpi(limittype,'rel') || ...
+            strcmpi(limittype,'opt') || strcmpi(limittype,'exact'))
+        ret = 0;
+        e = [];
+        msg = sprintf('%s:placeentrust:invalid limittype input...',classname);
+        fprintf('%s\n',msg);
+        return
+    end
+    
     stoptype = p.Results.StopType;
+    if ~(strcmpi(stoptype,'abs') || strcmpi(stoptype,'rel') || ...
+            strcmpi(stoptype,'opt') || strcmpi(stoptype,'exact'))
+        ret = 0;
+        e = [];
+        msg = sprintf('%s:placeentrust:invalid stoptype input...',classname);
+        fprintf('%s\n',msg);
+        return
+    end
+    
+    if (usepxtarget && strcmpi(limittype,'opt')) ||...
+            (usepxstoploss && strcmpi(stoptype,'opt'))
+        nperiod = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','numofperiod');
+        includelastcandle = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','includelastcandle');
+        vol = obj.mde_fut_.calc_hv(instrument,'numofperiods',nperiod,'includelastcandle',includelastcandle,'method','linear');
+        optpremium = blkprice(1,1,0,1,vol);
+    end
+    
     if usepxtarget
-        
+        if strcmpi(limittype,'abs')
+            pxtarget = price + directionnum*target;
+        elseif strcmpi(limittype,'rel')
+            pxtarget = price *(1+ directionnum*target);
+        elseif strcmpi(limittype,'opt')
+            pxtarget = price *(1+ directionnum*optpremium*target);
+        elseif strcmpi(limittype,'exact')
+            pxtarget = target;
+        end
+    else
+        pxtarget = -9.99;
     end
     
     if usepxstoploss
+        if strcmpi(stoptype,'abs')
+            pxstoploss = price - directionnum*limit;
+        elseif strcmpi(stoptype,'rel')
+            pxstoploss = price * (1-directionnum*limit);
+        elseif strcmpi(stoptype,'opt')
+            pxstoploss = price * (1-directionnum*optpremium*limit);
+        elseif strcmpi(stoptype,'exact')
+            pxstoploss = stoploss;
+        end
+    else
+        pxstoploss = -9.99;
     end
-    
     
     %sanity check to make sure that price/target/stoploss are correctly 
     if directionnum == 1

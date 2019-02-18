@@ -84,7 +84,7 @@ volume_pending = 0;
 if npending == 0
     volume_pending = 0;
 else
-    for ipending = npending
+    for ipending = 1:npending
         e_i = obj.helper_.entrustspending_.node(ipending);
         if strcmpi(e_i.instrumentCode,code) && e_i.offsetFlag == 1
             volume_pending = volume_pending + e_i.volume * e_i.direction;
