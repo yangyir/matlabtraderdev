@@ -50,6 +50,18 @@ function [ret] = modconfigfile(filename,varargin)
         
     else
         %modify properties values for all instruments
+        for idx = 1:nconfigs
+            config2mod = configs.node_(idx);
+            for i = 1:size(propnames);
+                try
+                    config2mod.([lower(propnames{i}),'_']) = propvalues{i};
+                catch
+                    fprintf('WARNING:modconfigfile:%s is not a property of %s!!!\n',propnames{i},class(config2mod));
+                end
+            end
+        end
+        configs.totxt('filename',filename);
+        
     end
     
     ret = 1;
