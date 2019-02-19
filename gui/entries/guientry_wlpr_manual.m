@@ -1,4 +1,4 @@
-function [ handles,mdefut,strat,ops ] = guientry_rp_manual
+function [ handles,mdefut,strat,ops ] = guientry_wlpr_manual
  %
     global MDEFUT_INSTANCE;
     global STRAT_INSTANCE;
