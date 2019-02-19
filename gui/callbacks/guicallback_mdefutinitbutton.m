@@ -27,7 +27,7 @@ function guicallback_mdefutinitbutton( hObject , eventdata , handles )
         bookname = [counternameshort,'-wlpr'];
         tradername = 'trader-wlpr';
     else
-        error('%s is not a supportive strategy name')
+        error('%s is not a supportive strategy name',classname)
     end
     trader = cTrader;
     trader.init(tradername);
