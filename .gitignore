@@ -6,5 +6,3 @@
 *.txt
 *.txt
 *.txt
-backtest/funcs/bkfuns_loaddailydata.m
-trading/database/script_savetickdata.m
