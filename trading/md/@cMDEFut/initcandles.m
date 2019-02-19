@@ -51,7 +51,6 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                             try
                                 ds2 = cBloomberg;
                                 candles = ds2.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),mdefut.candle_freq_(i),'trade');
-                                ds2.close;
                             catch e
                                 fprintf('%s\n',e.message);
                                 return
@@ -125,7 +124,6 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                             try
                                 ds2 = cBloomberg;
                                 candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
-                                ds2.close
                             catch e
                                 fprintf('%s\n',e.message);
                                 return
