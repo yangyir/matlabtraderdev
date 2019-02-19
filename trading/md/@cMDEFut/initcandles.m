@@ -55,6 +55,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 fprintf('%s\n',e.message);
                                 return
                             end
+                            ds2.close;
                         end
                         %
                         if size(candles,1) < idx
@@ -128,6 +129,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 fprintf('%s\n',e.message);
                                 return
                             end
+                            ds2.close;
                         end
                         if size(candles,1) < idx
                             tmp = [candles;mdefut.candles_{i}(idx+1:end,:)];

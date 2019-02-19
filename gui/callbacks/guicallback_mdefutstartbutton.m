@@ -17,6 +17,9 @@ function guicallback_mdefutstartbutton( hObject , eventdata , handles )
         end
     end
     
+    MDEFUT_INSTANCE.printflag_ = false;
+    OPS_INSTANCE.printflag_ = false;
+    
     MDEFUT_INSTANCE.start;
     OPS_INSTANCE.start;
     STRAT_INSTANCE.start;
