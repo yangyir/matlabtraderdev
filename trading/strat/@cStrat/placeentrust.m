@@ -139,11 +139,11 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
     
     if usepxstoploss
         if strcmpi(stoptype,'abs')
-            pxstoploss = price - directionnum*limit;
+            pxstoploss = price - directionnum*stoploss;
         elseif strcmpi(stoptype,'rel')
-            pxstoploss = price * (1-directionnum*limit);
+            pxstoploss = price * (1-directionnum*stoploss);
         elseif strcmpi(stoptype,'opt')
-            pxstoploss = price * (1-directionnum*optpremium*limit);
+            pxstoploss = price * (1-directionnum*optpremium*stoploss);
         elseif strcmpi(stoptype,'exact')
             pxstoploss = stoploss;
         end
