@@ -86,7 +86,15 @@ function [] = loadtrades(obj,varargin)
     obj.entrusts_ = EntrustArray;
     obj.entrustspending_ = EntrustArray;
     obj.entrustsfinished_ = EntrustArray;
-    obj.condentrustspending_ = EntrustArray;
+    %note:20190220
+    %we shall load any pending conditional entrust from previous trade date
+    try
+        filename = [dir_data_,bookname,'_condentrustspending_',datestr(lastbd,'yyyymmdd')];
+        data = load(filename);
+        obj.condentrustspending_ = data.condentrustspending;
+    catch
+        obj.condentrustspending_ = EntrustArray;
+    end
     %
     if strcmpi(obj.mode_,'replay'), return; end
     %
