@@ -68,6 +68,11 @@ function guicallback_mdefutinitbutton( hObject , eventdata , handles )
         MDEFUT_INSTANCE.mode_ = 'replay';
         OPS_INSTANCE.mode_ = 'replay';
         STRAT_INSTANCE.mode_ = 'replay';
+        
+        MDEFUT_INSTANCE.settimerinterval(0.5/10);
+        OPS_INSTANCE.settimerinterval(1/10)
+        STRAT_INSTANCE.settimerinterval(1/10)
+        
         try
             for i = 1:ninstruments
                 code = instruments2trade{i}.code_ctp;
