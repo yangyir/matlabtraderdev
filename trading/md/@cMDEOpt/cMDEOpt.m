@@ -86,6 +86,9 @@ classdef cMDEOpt < cMyTimerObj
         tbl = displaypivottable(obj)
     end
     
+    methods (Static = true)
+        [] = pnlriskbreakdowneod(obj,underlier_code_ctp,numofstrikes)
+    end
     
     
 end
