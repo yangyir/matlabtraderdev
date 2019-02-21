@@ -39,7 +39,14 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
     %calculate implied vols
     if obj.opt_american
         mid = 0.5*(obj.bid_underlier + obj.ask_underlier);
-        midopt = 0.5*(obj.bid1 + obj.ask1);
+        %note:20190221
+        %bid-ask spread sometimes are very wild on market close, in such
+        %case we shall use last_trade instead
+        if (obj.ask1 - obj.bid1)/obj.last_trade < 0.05
+            midopt = 0.5*(obj.bid1 + obj.ask1);
+        else
+            midopt = obj.last_trade;
+        end
         r = obj.riskless_rate;
         if strcmpi(obj.opt_type,'C')
             opttype = 'call';
@@ -55,6 +62,14 @@ function [] = update(obj,codestr,date_,time_,trade_,bid_,ask_,bidsize_,asksize_,
     else
         mid = 0.5*(obj.bid_underlier + obj.ask_underlier);
         midopt = 0.5*(obj.bid1 + obj.ask1);
+        %note:20190221
+        %bid-ask spread sometimes are very wild on market close, in such
+        %case we shall use last_trade instead
+        if (obj.ask1 - obj.bid1)/obj.last_trade < 0.05
+            midopt = 0.5*(obj.bid1 + obj.ask1);
+        else
+            midopt = obj.last_trade;
+        end
         r = obj.riskless_rate;
         if strcmpi(obj.opt_type,'C')
             opttype = 'Calls';

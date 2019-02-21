@@ -36,19 +36,23 @@ data = cDataFileIO.loadDataFromTxtFile([underlier,'_daily.txt']);
 
 cobdate = q.update_date1;
 predate = businessdate(cobdate,-1);
-price1_underlier = data(data(:,1)==datenum(predate),end);
+price1_underlier = data(data(:,1)==datenum(predate),5);
 if isempty(price1_underlier)
     error(['underlier ',underlier,' historical price not saved!'])
 end
 price2_underlier = q.last_trade_underlier;
 
 data = cDataFileIO.loadDataFromTxtFile([opt.code_ctp,'_daily.txt']);
-pv1_opt = data(data(:,1)==datenum(predate),end);
+pv1_opt = data(data(:,1)==datenum(predate),5);
 if isempty(pv1_opt)
     error(['underlier ',underlier,' historical price not saved!'])
 end
-pv2_opt = q.last_trade;
-
+% pv2_opt = q.last_trade;
+if (q.ask1-q.bid1)/q.last_trade < 0.05
+    pv2_opt = 0.5*(q.bid1+q.ask1);
+else
+    pv2_opt = q.last_trade;
+end
 
 %%
 k = opt.opt_strike;
@@ -132,7 +136,8 @@ pnl = pv2_opt-pv1_opt;
 pnl_explained = pnl_theta+pnl_delta+pnl_gamma+pnl_vega;
 pnl_unexplained = pnl-pnl_explained;
 
-output = struct('pnltotal',pnl*volume*mult,...
+output = struct('code',opt.code_ctp,...
+    'pnltotal',pnl*volume*mult,...
     'pnltheta',pnl_theta*volume*mult,...
     'pnldelta',pnl_delta*volume*mult,...
     'pnlgamma',pnl_gamma*volume*mult,...
