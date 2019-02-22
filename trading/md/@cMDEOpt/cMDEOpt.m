@@ -61,6 +61,7 @@ classdef cMDEOpt < cMyTimerObj
         tbl = voltable(obj)
         res = getgreeks(obj,instrument)
         res = getatmgreeks(obj,code_ctp_underlier,varargin)
+        res = getportfoliogreeks(obj,instruments,weights)
     end
     
     
