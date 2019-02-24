@@ -42,7 +42,10 @@ function [ handles,mdefut,strat,ops ] = guientry_wlpr_manual
 %     STRAT_INSTANCE.registerhelper(OPS_INSTANCE);
     STRAT_INSTANCE.gui_ = handles;
     
-    
+     MDEFUT_INSTANCE.settimerinterval(0.5);
+     OPS_INSTANCE.settimerinterval(1);
+     STRAT_INSTANCE.settimerinterval(1);
+        
     set(handles.mktdataops.mdefutInitButton,'CallBack',{@guicallback_mdefutinitbutton, handles});
     set(handles.mktdataops.mdefutStartButton,'CallBack',{@guicallback_mdefutstartbutton, handles});
     set(handles.mktdataops.mdefutStopButton,'CallBack',{@guicallback_mdefutstopbutton, handles});

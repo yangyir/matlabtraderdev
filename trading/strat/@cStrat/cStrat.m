@@ -98,7 +98,7 @@ classdef cStrat < cMyTimerObj
         
         [] = unwindpositions(obj,instrument,varargin)
         [] = unwindall(obj,varargin)
-        [ret,e] = unwindtrade(obj,tradein)
+        [ret,e] = unwindtrade(obj,tradein,varargin)
         pnl = calcrunningpnl(obj,instrument)
         
         [] = refresh(obj,varargin)

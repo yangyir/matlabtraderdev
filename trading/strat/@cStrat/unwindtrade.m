@@ -1,4 +1,4 @@
-function [ret,e] = unwindtrade(obj,tradein)
+function [ret,e] = unwindtrade(obj,tradein,varargin)
 %cStrat
     if ~isa(tradein,'cTradeOpen')
         ret = 0;

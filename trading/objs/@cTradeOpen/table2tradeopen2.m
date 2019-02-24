@@ -79,6 +79,7 @@ function [obj] = table2tradeopen2(obj,headers,data)
             error('cTradeOpen:table2tradeopen2:mismatch between properties and values of risk manager info')
         end
         
+        riskmanager_name = '';
         for k = 1:length(proplist)
             if strcmpi(proplist{k},'name_')
                 riskmanager_name = vallist{k};

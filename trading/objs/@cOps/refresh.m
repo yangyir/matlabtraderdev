@@ -44,6 +44,20 @@ function [] = refresh(obj,varargin)
         set(obj.gui_.tradingstats.opsstatus_edit,'string',obj.status_);
         set(obj.gui_.tradingstats.opsrunning_edit,'string',obj.timer_.running);
         
+        [runningpnl,closedpnl] = obj.calcpnl('mdefut',obj.mdefut_);
+        val = sum(sum(runningpnl));
+        if val >= 0
+            set(obj.gui_.tradingstats.runningpnl_edit,'string',num2str(val),'foregroundcolor','b');
+        else
+            set(obj.gui_.tradingstats.runningpnl_edit,'string',num2str(val),'foregroundcolor','r');
+        end
+        val = sum(sum(closedpnl));
+        if val >= 0
+            set(obj.gui_.tradingstats.closedpnl_edit,'string',num2str(val),'foregroundcolor','b');
+        else
+            set(obj.gui_.tradingstats.closedpnl_edit,'string',num2str(val),'foregroundcolor','r');
+        end
+
         %positions
         positions = obj.trades_.convert2positions;
         npos = size(positions,1);

@@ -5,6 +5,11 @@ function calcflag = getcalcsignalflag(strategy,instrument)
         error('%s:getcalcsignalflag:instrument not found',class(strategy))
     end
     
+    autotrade = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','autotrade');
+    if ~autotrade
+        calcflag = 0;
+        return
+    end
 %     inst = obj.instruments_.getinstrument;
     inst = strategy.getinstruments;
     if strcmpi(strategy.status_,'working')
