@@ -59,7 +59,7 @@ else
 %             (curr_yy-1-init_yy)*12+...  %contracts between the 2nd and last year
 %             curr_mm+...                 %contracts for this year
 %             3;                          %now listed and activly traded
-        n = 4;
+        n = 5;
     else
         n = (curr_mm-init_mm+1)+11;
     end
@@ -80,6 +80,8 @@ while i<=n
             mm = 13;
         elseif i == 4
             mm = 15;
+        elseif i == 5
+            mm = 16;
         end
     end
     if mod(mm,12)==0
