@@ -2,12 +2,13 @@ classdef cSyntheticStraddle < handle
     
     properties
         id_
-        code_@char
+        code_@char             %underlier
         callleg_@cTradeOpen
         putleg_@cTradeOpen
         strike_@double
         notional_@double
-        stopdatetime1_@double   %the expiry datetime of the synthetic straddle
+        opendatetime1_@double
+        expirydatetime1_@double   %the expiry datetime of the synthetic straddle
         callcost_@double        %the premium of the synthetic call on open
         putcost_@double         %the premium of the synthetic put on open
         calldelta_@double
@@ -19,9 +20,8 @@ classdef cSyntheticStraddle < handle
         bookname_@char
         tradername_@char
         countername_@char
-        opendatetime1_@double
         opendatetime2_@double
-        stopdatetime2_@double
+        expirydatetime2_@double
         closedatetime1_@double
         closedatetime2_@double
         runningpnl_@double
@@ -60,27 +60,19 @@ classdef cSyntheticStraddle < handle
             end
         end
         %
-        function opendatetime1 = get.opendatetime1_(obj)
-            if ~isempty(obj.callleg_)
-                opendatetime1 = obj.callleg_.opendatetime1_;
-            else
-                opendatetime1 = [];
-            end
-        end
-        %
         function opendatetime2 = get.opendatetime2_(obj)
-            if ~isempty(obj.callleg_)
-                opendatetime2 = obj.callleg_.opendatetime2_;
+            if ~isempty(obj.opendatetime1_)
+                opendatetime2 = datestr(obj.opendatetime1_,'yyyy-mm-dd HH:MM:SS');
             else
                 opendatetime2 = '';
             end
         end
         %
-        function stopdatetime2 = get.stopdatetime2_(obj)
-            if ~isempty(obj.stopdatetime1_)
-                stopdatetime2 = datestr(obj.stopdatetime1_,'yyyy-mm-dd HH:MM:SS');
+        function expirydatetime2 = get.expirydatetime2_(obj)
+            if ~isempty(obj.expirydatetime1_)
+                expirydatetime2 = datestr(obj.expirydatetime1_,'yyyy-mm-dd HH:MM:SS');
             else
-                stopdatetime2 = '';
+                expirydatetime2 = '';
             end
         end
         %
@@ -120,7 +112,10 @@ classdef cSyntheticStraddle < handle
                 status = obj.callleg_.status_;
             end
         end
-
+    end
+    
+    methods
+        [res] = valuation(obj,varargin)
     end
     
     methods (Access = private)
