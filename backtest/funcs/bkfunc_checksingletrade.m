@@ -10,6 +10,8 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
     p.addParameter('Print',0,@isnumeric);%print intermediate results
     p.addParameter('StopRatio',0,@isnumeric);
     p.addParameter('Buffer',0,@isnumeric);
+    p.addParameter('Lead',[],@isnumeric);
+    p.addParameter('Lag',[],@isnumeric);
     p.parse(varargin{:});
     doplot = p.Results.DoPlot;
     riskmanagement = p.Results.RiskManagement;
@@ -25,27 +27,28 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
     buffer = p.Results.Buffer;
 %     risktolerance = p.Results.RiskTolerance;
     nperiod = trade.opensignal_.lengthofperiod_;
+    lead = p.Results.Lead;
+    lag = p.Results.Lag;
     wlpr = willpctr(candles(:,3),candles(:,4),candles(:,5),nperiod);
+    if ~isempty(lead) && ~isempty(lag)
+        [shortwr,longwr] = movavg(wlpr,lead,lag,'e');
+    else
+        shortwr = [];
+        longwr = [];
+    end
     
-    %% plot figure
     idx = trade.opendatetime1_ > candles(1:end-1,1) & trade.opendatetime1_ < candles(2:end,1);
     if isempty(candles(idx,1))
         idx_open = size(candles,1);
     else
         idx_open = find(candles(:,1) == candles(idx,1));
     end
-
-
-
     %
     tradeout = trade.copy;
     instrument = trade.instrument_;
-    highesthigh = trade.opensignal_.highesthigh_;
-    lowestlow = trade.opensignal_.lowestlow_;
-%     psteps = wrsteps*(highesthigh-lowestlow)/100+highesthigh;
-    wropen = -100*(highesthigh-tradeout.openprice_)/(highesthigh-lowestlow);
+    wropenref = wlpr(idx_open-1);
    
-    %% risk management
+    % risk management
     
     if strcmpi(riskmanagement,'OptionPlusWR')
         if strcmpi(tradeout.opensignal_.wrmode_,'flash') && usedefaultflashsl
@@ -69,38 +72,28 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
         end
         %
         if tradeout.opendirection_ == 1   
-            if strcmpi(tradeout.opensignal_.wrmode_,'flash')  || strcmpi(tradeout.opensignal_.wrmode_,'classic')
+            if strcmpi(tradeout.opensignal_.wrmode_,'flash')  ||...
+                    strcmpi(tradeout.opensignal_.wrmode_,'classic') ||...
+                    strcmpi(tradeout.opensignal_.wrmode_,'flashma')
                 %in case of flash, the open time is within any time of the
                 %candle, we take the previous max/min's associated wr
                 criticalvalue1 = -100;
-%                 criticalvalue2 = criticalvalue1 + ww;
                 criticalvalue2 = wrsteps(2);
                 if doprint, fprintf('reset critical line at:%2.0f\n',criticalvalue2);end
-%                 wr1 = -100;
-%                 wr2 = wropen;
-%                 pvalue1 = psteps(1);
-%                 pvalue2 = psteps(2);
             else
                 error('bkfunc_checksingletrade:not supported wrmode')
             end
         else
-            if strcmpi(tradeout.opensignal_.wrmode_,'flash')  || strcmpi(tradeout.opensignal_.wrmode_,'classic')
+            if strcmpi(tradeout.opensignal_.wrmode_,'flash')  ||...
+                    strcmpi(tradeout.opensignal_.wrmode_,'classic') ||...
+                    strcmpi(tradeout.opensignal_.wrmode_,'flashma')
                 criticalvalue1 = -0;
                 criticalvalue2 = wrsteps(end-1);
                 if doprint, fprintf('reset critical line at:%2.0f\n',criticalvalue2);end
-%                 criticalvalue2 = criticalvalue1 - ww;
-%                 pvalue1 = psteps(end);
-%                 pvalue2 = psteps(end-1);
-%                 wr1 = 0;
-%                 wr2 = wropen;
             else
                 error('bkfunc_checksingletrade:not supported wrmode')
             end
         end
-        
-        
-
-        
         
         breachmidline = 0;
         breachlimitline = 0;
@@ -110,7 +103,6 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             popen = candles(i,2);
 %             pclose = candles(i,5);
             wr = wlpr(i);
-%             if doprint, fprintf('%s:close:%s\twr:%s\n',datestr(candles(i,1)),num2str(pclose),num2str(wr));end
             %1.close out the trade once the stoploss is breached
             if (plow < pstoploss && tradeout.opendirection_ == 1) || ...
                (phigh > pstoploss && tradeout.opendirection_ == -1 )     
@@ -122,22 +114,16 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
                 if doprint, fprintf('stoploss breaches...\n');end
                 if tradeout.opendirection_ == 1 && popen < pstoploss
                     tradeout.closeprice_ = popen;
-%                     closetime = candles(i,1)+1/86400;%make close on the candle open
                     closetime = candles(i,1);%make close on the candle open
                 elseif tradeout.opendirection_ == -1  && popen > pstoploss
                     tradeout.closeprice_ = popen;
-%                     closetime = candles(i,1)+1/86400;%make close on the candle open
                     closetime = candles(i,1);
                 else
                     tradeout.closeprice_ = pstoploss;
-                    freq = str2double(tradeout.opensignal_.frequency_(1:end-1));
-                    closetime = candles(i+1,1);%make close on the candle close
+                    closetime = candles(i,1);%make close on the candle close
                 end
                 tradeout.closepnl_ = (tradeout.closeprice_-tradeout.openprice_)*tradeout.opendirection_/instrument.tick_size*instrument.tick_value;
                 tradeout.closedatetime1_ = closetime;
-                
-
-                
                 break
             end
             %
@@ -156,7 +142,6 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
                         if wr > -50 && ~breachmidline
                             breachmidline = 1;
                         end
-%                         wr_idx = find(wrsteps > criticalvalue2,1,'first');
                         wr_idx = find(wrsteps < wr,1,'last');
                         wrcheck = wrsteps(wr_idx);
                         if wrcheck > criticalvalue2
@@ -174,12 +159,10 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
                         if wr < -50 && ~breachmidline
                             breachmidline = 1;
                         end
-%                         wr_idx = find(wrsteps < wr,1,'last');
                         wr_idx = find(wrsteps > wr,1,'first');
                         wrcheck = wrsteps(wr_idx);
                         if wrcheck < criticalvalue2
                             criticalvalue1 = criticalvalue2;
-%                             criticalvalue2 = wrsteps(wr_idx);
                             criticalvalue2 = wrcheck;
                             if doprint, fprintf('reset critical line at:%2.0f\n',criticalvalue2);end
                         end
@@ -192,44 +175,34 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
                 %we have breach the critical 50 line already
                 if tradeout.opendirection_ == 1
                     if wr > criticalvalue2 + buffer
-                        
-%                         breachcriticalline = 1;
-%                         wr_idx = find(wrsteps > criticalvalue2,1,'first');
                         wr_idx = find(wrsteps < wr,1,'last');
                         wrcheck = wrsteps(wr_idx);
                         if wrcheck > criticalvalue2
-%                             criticalvalue1 = criticalvalue2;
                             criticalvalue2 = wrcheck;
                             if doprint, fprintf('reset critical line at:%2.0f\n',criticalvalue2);end
-%                             criticalvalue1 = (criticalvalue2+50)/2-50;
-                              criticalvalue1 =  -75 + 0.5*(criticalvalue2+75);
+%                               criticalvalue1 =  -75 + 0.5*(criticalvalue2+75);
+                              criticalvalue1 = -75 + (criticalvalue2+75)/2;
                         end
                     end
                 elseif tradeout.opendirection_ == -1
                     if wr < criticalvalue2 - buffer
-                        
-%                         breachcriticalline = 1;
-%                         wr_idx = find(wrsteps < criticalvalue2,1,'last');
                         wr_idx = find(wrsteps > wr,1,'first');
                         wrcheck = wrsteps(wr_idx);
                         if wrcheck < criticalvalue2
-%                             criticalvalue1 = criticalvalue2;                     
-%                             criticalvalue2 = wrsteps(wr_idx);
                             criticalvalue2 = wrcheck;
                             if doprint, fprintf('reset critical line at:%2.0f\n',criticalvalue2);end
-                            criticalvalue1 = -50 - (criticalvalue2+50)/2;
+%                             criticalvalue1 = -50 - (criticalvalue2+50)/2;
+                            criticalvalue1 = -25 + (criticalvalue2+25)/2;
                         end
-%                         criticalvalue1 = criticalvalue2;
-%                         criticalvalue2 = wrsteps(wr_idx);
                     end
                 end
 
             end
             %
-            if tradeout.opendirection_ == 1 && wr < criticalvalue1 - stopratio*(criticalvalue2-criticalvalue1)-buffer
+            if tradeout.opendirection_ == 1 && wr < max(criticalvalue1 - stopratio*(criticalvalue2-criticalvalue1)-buffer,-100)
                 closeflag = 1;
                 if doprint, fprintf('close wr:%2.1f\n',wr);end
-            elseif tradeout.opendirection_ == -1 && wr > criticalvalue1 + stopratio*(criticalvalue2-criticalvalue1)+buffer
+            elseif tradeout.opendirection_ == -1 && wr > min(criticalvalue1 + stopratio*(criticalvalue2-criticalvalue1)+buffer,0)
                 closeflag = 1;
                 if doprint, fprintf('close wr:%2.1f\n',wr);end
             end
@@ -275,8 +248,9 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             if closeflag
                 tradeout.closeprice_ = candles(i+1,2);
                 tradeout.closepnl_ = (tradeout.closeprice_-tradeout.openprice_)*tradeout.opendirection_/instrument.tick_size*instrument.tick_value;
-                freq = str2double(tradeout.opensignal_.frequency_(1:end-1));
-                closetime = candles(i+1,1)+freq/1440;
+%                 freq = str2double(tradeout.opensignal_.frequency_(1:end-1));
+%                 closetime = candles(i+1,1)+freq/1440;
+                closetime = candles(i+1,1);
                 tradeout.closedatetime1_ = closetime;
                 break
             end
@@ -329,31 +303,22 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             subplot(212)
             plot(wlpr(idx_open-idx_shift:idx_stop),'b');
             hold on;
+            if ~isempty(shortwr) && ~isempty(longwr)
+                plot(shortwr(idx_open-idx_shift:idx_stop),'r');
+                plot(longwr(idx_open-idx_shift:idx_stop),'g');
+            end
+            
             if trade.opendirection_ == 1
-                plot(idx_shift+1,wropen,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
+                plot(idx_shift,wropenref,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
                 plot(idx_close-idx_open+idx_shift,wr,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','g');
             else
-                plot(idx_shift+1,wropen,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
+                plot(idx_shift,wropenref,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
                 plot(idx_close-idx_open+idx_shift,wr,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
             end
             title('williams');
             grid on;hold off;
         end
-        
-        
-        
-        
-%         if doplot
-%             subplot(211);
-%             hold on;
-%             if trade.opendirection_ == 1
-%                 plot(i+1-idx_open+idx_shift,tradeout.closeprice_,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
-%             else
-%                 plot(i+1-idx_open+idx_shift,tradeout.closeprice_,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
-%             end
-%             hold off;
-%         end
-        
+                
         return
     end
     
