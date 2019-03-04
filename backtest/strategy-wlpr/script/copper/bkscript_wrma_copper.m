@@ -12,8 +12,8 @@ nbds = size(bds,1);
 nfuts = size(candles,1);
 %%
 nperiod = 100;
-lead = 2;
-lag = 8;
+lead = 6;
+lag = 24;
 
 pnl = cell(nfuts,1);
 for i = 1:nfuts
@@ -44,10 +44,11 @@ for i = 1:nfuts
 end
 %
 pnlmat = cell2mat(pnl);
-figure(4);
+figure(3);
 plot(cumsum(pnlmat));
 fprintf('total:%8s\n',num2str(sum(pnlmat)));
-
+sharpratio = sqrt(nbds)*mean(pnlmat)/std(pnlmat);
+fprintf('sharp rate:%4.2f\n',sharpratio);
 
 %%
 %check single instrument
