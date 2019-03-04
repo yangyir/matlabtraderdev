@@ -5,9 +5,18 @@ ui_assetname = 'copper';
 [ret,tbl] = bkfunc_loadrollinfotbl(ui_assetname);
 %%
 % list futures of interest 
-ui_futlist = {'cu1709';'cu1710';'cu1711';'cu1712';...
-    'cu1801';'cu1802';'cu1803';'cu1804';'cu1805';'cu1806';'cu1807';'cu1808';'cu1809';'cu1810';'cu1811';'cu1812';...
-    'cu1901';'cu1902';'cu1903'};
+firstfut = 'cu1709';
+for i = 1:size(tbl,1)
+    if strcmpi(tbl{i,5},firstfut)
+        istart = i;
+        break
+    end
+end
+ui_futlist = tbl(i:end,5);
+% %%
+% ui_futlist = {'cu1709';'cu1710';'cu1711';'cu1712';...
+%     'cu1801';'cu1802';'cu1803';'cu1804';'cu1805';'cu1806';'cu1807';'cu1808';'cu1809';'cu1810';'cu1811';'cu1812';...
+%     'cu1901';'cu1902';'cu1903';'cu1904'};
 % trading frequency of interest in minutes
 ui_freqs = [1;3;5;15];
 nfut = size(ui_futlist,1);
@@ -146,4 +155,5 @@ for ifreq = 1:4
         save([dir_,fn],'candles_15m');
     end
 end
-
+%%
+fprintf('done with downloading intraday prices of copper...\n');
