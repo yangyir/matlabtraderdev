@@ -46,17 +46,17 @@ function [] = updatecondentrusts(strategy)
                 if direction == 1 && lasttick(3) >= condpx
                     condentrusts2remove.push(condentrust);
                     if isempty(condentrust.signalinfo_)
-                        strategy.longopen(codestr,volume,'overrideprice',condpx);
+                        strategy.longopen(codestr,volume,'overrideprice',lasttick(3));
                     else
-                        strategy.longopen(codestr,volume,'overrideprice',condpx,...
+                        strategy.longopen(codestr,volume,'overrideprice',lasttick(3),...
                             'signalinfo',condentrust.signalinfo_);
                     end
                 elseif direction == -1 && lasttick(2) <= condpx
                     condentrusts2remove.push(condentrust);
                     if isempty(condentrust.signalinfo_)
-                        strategy.shortopen(codestr,volume,'overrideprice',condpx);
+                        strategy.shortopen(codestr,volume,'overrideprice',lasttick(2));
                     else
-                        strategy.shortopen(codestr,volume,'overrideprice',condpx,...
+                        strategy.shortopen(codestr,volume,'overrideprice',lasttick(2),...
                             'signalinfo',condentrust.signalinfo_);
                     end
                 end
