@@ -1,4 +1,4 @@
-function [pnlcell,pnlmat,sharpratio] = bkfunc_wrma_copper(varargin)
+function [pnlcell,pnlmat,sharpratio,maxdrawdown,maxdrawdownpct] = bkfunc_wrma_copper(varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('SampleFrequency','1m',@ischar);
@@ -46,6 +46,15 @@ function [pnlcell,pnlmat,sharpratio] = bkfunc_wrma_copper(varargin)
     %
     pnlmat = cell2mat(pnlcell);
     sharpratio = sqrt(nbds)*mean(pnlmat)/std(pnlmat);
+    cumpnlmat = cumsum(pnlmat);
+    maxcumpnlmat = zeros(size(cumpnlmat));
+    for i = 1:size(cumpnlmat,1)
+        maxcumpnlmat(i) = max(cumpnlmat(1:i));
+    end
+    drawdown = cumpnlmat - maxcumpnlmat;
+    maxdrawdown = min(drawdown);
+    idx = find(drawdown == maxdrawdown);
+    maxdrawdownpct = maxdrawdown/maxcumpnlmat(idx);
     
 end
 

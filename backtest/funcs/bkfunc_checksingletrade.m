@@ -180,8 +180,11 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
                         if wrcheck > criticalvalue2
                             criticalvalue2 = wrcheck;
                             if doprint, fprintf('reset critical line at:%2.0f\n',criticalvalue2);end
-%                               criticalvalue1 =  -75 + 0.5*(criticalvalue2+75);
-                              criticalvalue1 = -75 + (criticalvalue2+75)/2;
+%                             if wr < -25
+                                criticalvalue1 = -75 + (criticalvalue2+75)/2;
+%                             else
+%                                 criticalvalue1 = -50 + (criticalvalue2+50)/2;
+%                             end
                         end
                     end
                 elseif tradeout.opendirection_ == -1
@@ -191,8 +194,11 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
                         if wrcheck < criticalvalue2
                             criticalvalue2 = wrcheck;
                             if doprint, fprintf('reset critical line at:%2.0f\n',criticalvalue2);end
-%                             criticalvalue1 = -50 - (criticalvalue2+50)/2;
-                            criticalvalue1 = -25 + (criticalvalue2+25)/2;
+%                             if wr > -75
+                                criticalvalue1 = -25 + (criticalvalue2+25)/2;
+%                             else
+%                                 criticalvalue1 = -50 + (criticalvalue2+50)/2;
+%                             end
                         end
                     end
                 end
@@ -280,12 +286,10 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             hold on;
             if trade.opendirection_ == 1
                 plot(idx_shift+1,trade.openprice_,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
-%                 plot(i+1-idx_open+idx_shift,tradeout.closeprice_,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
-                plot(idx_close-idx_open+idx_shift,tradeout.closeprice_,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
+                plot(idx_close-idx_open+idx_shift+1,tradeout.closeprice_,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
             else
-                plot(idx_shift,trade.openprice_,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
-%                 plot(i+1-idx_open+idx_shift,tradeout.closeprice_,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
-                plot(idx_close-idx_open+idx_shift,tradeout.closeprice_,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
+                plot(idx_shift+1,trade.openprice_,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
+                plot(idx_close-idx_open+idx_shift+1,tradeout.closeprice_,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
             end
             plot(idx_shift+1:idx_shift+stop_period+1,trade.openprice_*ones(stop_period+1,1),'g:')
             plot(idx_shift+1:idx_shift+stop_period+1,pstoploss*ones(stop_period+1,1),'r:')
@@ -309,11 +313,12 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             end
             
             if trade.opendirection_ == 1
+                %use the previous close wr as the reference
                 plot(idx_shift,wropenref,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
-                plot(idx_close-idx_open+idx_shift,wr,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','g');
+                plot(idx_close-idx_open+idx_shift+1,wr,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','g');
             else
                 plot(idx_shift,wropenref,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
-                plot(idx_close-idx_open+idx_shift,wr,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
+                plot(idx_close-idx_open+idx_shift+1,wr,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
             end
             title('williams');
             grid on;hold off;
