@@ -111,6 +111,9 @@ classdef cTradeOpen < handle
     
     methods (Access = private)
         obj = init(obj,varargin)
+        [] = setriskmanager_standard(obj,varargin)
+        [] = setriskmanager_batman(obj,varargin)
+        [] = setriskmanager_wrstep(obj,varargin) 
     end
     
     methods (Static = true)

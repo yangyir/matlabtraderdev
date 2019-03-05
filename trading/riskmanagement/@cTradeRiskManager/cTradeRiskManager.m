@@ -5,8 +5,8 @@ classdef cTradeRiskManager < handle
         trade_@cTradeOpen
         status_@char = 'unset'
         %
-        pxtarget_@double
-        pxstoploss_@double
+        pxtarget_@double = -9.99
+        pxstoploss_@double = -9.99
     end
     
     methods (Abstract)
