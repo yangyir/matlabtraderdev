@@ -104,7 +104,7 @@ classdef cMDEFut < cMyTimerObj
     methods
         [] = settechnicalindicator(obj,instrument,indicators)
         [] = settechnicalindicatorautocalc(obj,instrument,calcflag)
-        indicators = calc_technical_indicators(obj,instrument)
+        indicators = calc_technical_indicators(obj,instrument,varargin)
         vol = calc_hv(obj,instrument,varargin)
     end
     
@@ -147,7 +147,7 @@ classdef cMDEFut < cMyTimerObj
         [newset_] = updatecandleinmem_sunq(obj) % sunq
         %technical indicator calculator
         % William %R
-        indicators = calc_wr_(obj,instrument,varargin)
+        [indicators,wrseries] = calc_wr_(obj,instrument,varargin)
         
     end
     

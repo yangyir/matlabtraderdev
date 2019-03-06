@@ -8,13 +8,13 @@ db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %% generate config file
-configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\config_wlprclassic_wrstep_regressiontest.txt'];
+configfile = [getenv('HOME'),'regressiontest\cstrat\wlpr\config_flashma_wrstep_regressiontest.txt'];
 genconfigfile('wlpr',configfile,'instruments',{code});
-propnames = {'numofperiod';'overbought';'oversold';'wrmode';'samplefreq';'riskmanagername';...
+propnames = {'numofperiod';'wrmalead';'wrmalag';'wrmode';'samplefreq';'riskmanagername';...
     'stoptypepertrade';'stopamountpertrade';...
     'baseunits';'maxunits'};
-propvalues = {100;-0;-100;'classic';'5m';'wrstep';...
-    'opt';-0.3;...
+propvalues = {97;6;24;'flashma';'5m';'wrstep';...
+    'opt';-1;...
     1;3};
 modconfigfile(configfile,'code',code,...
     'propnames',propnames,...
@@ -23,15 +23,15 @@ modconfigfile(configfile,'code',code,...
 %%
 config = cStratConfigWR;
 config.loadfromfile('code',code,'filename',configfile);
-[trades,candle_used] = bkfunc_gentrades_wlpr(code,candle_db_1m,...
+
+[trades,candle_used] = bkfunc_gentrades_wlprma(code,candle_db_1m,...
     'SampleFrequency',config.samplefreq_,...
     'NPeriod',config.numofperiod_,...
-    'AskOpenSpread',config.askopenspread_,...
-    'BidOpenSpread',config.bidopenspread_,...
-    'WRMode',config.wrmode_,...
-    'OverBought',config.overbought_,...
-    'OverSold',config.oversold_);
+    'Lead',config.wrmalead_,...
+    'Lag',config.wrmalag_);
+%
 wr = willpctr(candle_used(:,3),candle_used(:,4),candle_used(:,5),config.numofperiod_);
+[short,long] = movavg(wr,config.wrmalead_,config.wrmalag_);
 figure(1)
 subplot(211);
 idx = find(candle_used(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
@@ -39,6 +39,10 @@ candle(candle_used(idx:end,3),candle_used(idx:end,4),candle_used(idx:end,5),cand
 grid on;
 subplot(212);
 plot(wr(idx:end));grid on;
+hold on;
+plot(short(idx:end),'g');
+plot(long(idx:end),'r');
+hold off;
 %
 count = 0;
 clc;
@@ -50,15 +54,13 @@ for i = 1:trades.latest_
                 num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2019-02-01 10:10:01,direction: 1,price:47990
-% id: 2,openbucket:2019-02-01 10:40:01,direction: 1,price:47980
-% id: 3,openbucket:2019-02-01 11:05:01,direction: 1,price:47980
+% id: 1,openbucket:2019-02-01 14:00:01,direction: 1,price:48080
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
 %user inputs:
 clc;delete(timerfindall);
-bookname = 'replay_wlprclassicwrstep';
+bookname = 'replay_wlprflashmawrstep';
 strategyname = 'wlpr';
 availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...

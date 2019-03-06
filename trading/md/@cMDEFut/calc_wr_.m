@@ -1,4 +1,4 @@
-function indicators = calc_wr_(mdefut,instrument,varargin)
+function [indicators,wrseries] = calc_wr_(mdefut,instrument,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addRequired('Instrument', @(x) validateattributes(x,{'cInstrument'},{},'','Instrument'));
@@ -56,8 +56,10 @@ function indicators = calc_wr_(mdefut,instrument,varargin)
     if size(closep,1) >= nperiods
         wrs = willpctr(highp,lowp,closep,nperiods);
         indicators = [wrs(end),max(highp(end-nperiods+1:end)),min(lowp(end-nperiods+1:end)),closep(end)];
+        wrseries = wrs;
     else
         indicators = [];
+        wrseries = [];
     end
 
 end

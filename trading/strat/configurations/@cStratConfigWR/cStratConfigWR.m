@@ -9,6 +9,8 @@ classdef cStratConfigWR < cStratConfig
         executiontype_@char = 'fixed'
         wrmode_@char = 'classic'
         includelastcandle_@double = 0
+        wrmalead_@double = -9.99
+        wrmalag_@double = -9.99       
     end
     
     methods
@@ -42,6 +44,7 @@ classdef cStratConfigWR < cStratConfig
             if ~(strcmpi(val,'classic') || ...
                     strcmpi(val,'reverse') || ...
                     strcmpi(val,'flash') || ...
+                    strcmpi(val,'flashma') || ...
                     strcmpi(val,'follow') || ...
                     strcmpi(val,'all'))
                 error([class(obj),':invalid wrmode_'])

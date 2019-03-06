@@ -44,10 +44,10 @@ function signals = gensignals_futmultiwr(strategy)
                         datestr(tick(1),'yyyy-mm-dd HH:MM:SS'),instruments{i}.code_ctp,num2str(tick(4)),strategy.wr_(i),...
                         num2str(maxpx_last),num2str(minpx_last),num2str(ti{1}(4)));
                 end
-            elseif strcmpi(wrmode,'flash')
+            elseif (strcmpi(wrmode,'flash') || strcmpi(wrmode,'flashma'))
                 [maxpx_last,maxpx_before,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
                 [minpx_last,minpx_before,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
-            else
+            elseif (strcmpi(wrmode,'reverse') || strcmpi(wrmode,'follow'))
                 [maxpx_last,~,~,maxcandle] = strategy.getmaxnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
                 [minpx_last,~,~,mincandle] = strategy.getminnperiods(instruments{i},'IncludeLastCandle',includelastcandle);
                 %
@@ -58,6 +58,10 @@ function signals = gensignals_futmultiwr(strategy)
                 minpx_before = strategy.minnperiods_(i);
                 if minpx_last < minpx_before || minpx_before <= 0, strategy.minnperiods_(i) = minpx_last;end
                 %
+            elseif strcmpi(wrmode,'all')
+                error('ERROR:%s:gensignals_futmultiwr:all mode not supported!!!',class(strategy))
+            else
+                error('ERROR:%s:gensignals_futmultiwr:unknown wr mode!!!',class(strategy))
             end
             
             %
@@ -161,7 +165,9 @@ function signals = gensignals_futmultiwr(strategy)
                 signals{i,1} = {};
                 %
             elseif strcmpi(wrmode,'all')
-                error('ERROR:%s:gensignals_futmultiwr:all mode not supported')
+                error('ERROR:%s:gensignals_futmultiwr:all mode not supported!!!',class(strategy))
+            else
+                error('ERROR:%s:gensignals_futmultiwr:unknown wr mode!!!',class(strategy))
             end
                         
             

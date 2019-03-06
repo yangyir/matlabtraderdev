@@ -28,48 +28,18 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     lasttick = mdefut.getlasttick(instrument);
     if isempty(lasttick), return; end
     ticktime = lasttick(1);
-    tickbid = lasttick(2);
-    tickask = lasttick(3);
-    ticktrade = lasttick(4);
     
-    isstoplossbreached = ((trade.opendirection_ == 1 && ticktrade < obj.pxstoploss_) || ...
-                (trade.opendirection_ == -1 && ticktrade > obj.pxstoploss_));
+    unwindtrade = obj.riskmanagementwithtick(lasttick,varargin{:});
     
-    if isstoplossbreached    
-        obj.status_ = 'closed';
-        trade.status_ = 'closed';
-        unwindtrade = trade;
-        if debug
-            fprintf('%s:wrstep closed as tick price breaches stoploss price at %s...\n',...
-                datestr(ticktime,'yyyy-mm-dd HH:MM'),...
-                num2str(obj.pxstoploss_));
-        end
-        
-        if updatepnlforclosedtrade
-            trade.runningpnl_ = 0;
-            if trade.opendirection_ == 1
-                trade.closepnl_ = trade.openvolume_*(tickbid-trade.openprice_)/ instrument.tick_size * instrument.tick_value;
-                trade.closeprice_ = tickbid;
-            elseif trade.opendirection_ == -1
-                trade.closepnl_ = -trade.openvolume_*(tickask-trade.openprice_)/ instrument.tick_size * instrument.tick_value;
-                trade.closeprice_ = tickask;
-            end
-            trade.closedatetime1_ = ticktime;
-        end
-        
-        return
-    else
-        %mandatory stop loss is not breached and the trade is still alive
-        if trade.opendirection_ == 1
-            trade.runningpnl_ = trade.openvolume_*(tickbid-trade.openprice_)/ instrument.tick_size * instrument.tick_value;
-        else
-            trade.runningpnl_ = -trade.openvolume_*(tickask-trade.openprice_)/ instrument.tick_size * instrument.tick_value;
-        end
+    if ~isempty(unwindtrade)
+        return; 
     end
     
     if strcmpi(trade.status_,'unset')
         %set the trade when the candle moves to the next candle after the
         %trade open
+        %as we will use the Williams%R calculated with the close price of
+        %the open bucket for risk management purposes
         openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
         candleTime = candleK(end,1);
         if openBucket < candleTime
@@ -84,23 +54,7 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     %candle to determine whether we need to update the wrstep properties
     
     %first we need to check whether it is right time to update batman
-    %properties
-%     equalorNot = (round(buckets(2:end) *10e+07) == round(ticktime*10e+07));
-%     if sum(sum(equalorNot)) == 0
-%         idx = buckets(1:end-1) < ticktime & buckets(2:end) >= ticktime;
-%     else
-%         idx = buckets(1:end-1) <ticktime & equalorNot;
-%     end
-%     this_bucket = buckets(idx);
-%     if ~isempty(this_bucket)
-%         this_count = find(buckets == this_bucket);
-%     else
-%         if ticktime > buckets(end)
-%             this_count = size(buckets,1);
-%         else
-%             this_count = 0;
-%         end
-%     end
+
     if ticktime < buckets(end)
         error('cWRStep:riskmanagement:last tick time shall beyond last candle record time')
     end
@@ -110,12 +64,6 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     
     if this_count ~= obj.bucket_count_
         %this shall be the time we update wrstep info
-%         if this_count == 0
-%             fprintf('todo\n')
-%             %here we shall use the last historical data for updating wrstep
-%             %info:TODO
-%             return
-%         end
         if this_count < 1
             histcandleCell = mdefut.gethistcandles(instrument);
             if isempty(histcandleCell), return; end

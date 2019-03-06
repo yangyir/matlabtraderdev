@@ -35,5 +35,9 @@ classdef cTradeRiskManager < handle
         end
     end
     
+    methods
+        [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
+    end
+    
 end
 
