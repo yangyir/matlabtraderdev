@@ -70,8 +70,10 @@ function [maxp,maxp_before,maxt,maxcandle] = getmaxnperiods(obj,instrument,varar
     highpx = highpx(idx);
     timevec = timevec(idx);
     
-    maxp = max(highpx(end-nperiods-1:end));
-    maxp_before = max(highpx(end-nperiods-1-1:end-1));
+%     maxp = max(highpx(end-nperiods-1:end));
+%     maxp_before = max(highpx(end-nperiods-1-1:end-1));
+    maxp = max(highpx(end-nperiods+1:end));
+    maxp_before = max(highpx(end-nperiods:end-1));
     idx = highpx == maxp;
     maxt = timevec(idx);
     maxcandle = candlesall(idx,:);

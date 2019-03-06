@@ -70,8 +70,10 @@ function [minp,minp_before,mint,mincandle] = getminnperiods(obj,instrument,varar
     lowpx = lowpx(idx);
     timevec = timevec(idx);
     
-    minp = min(lowpx(end-nperiods-1:end));
-    minp_before = min(lowpx(end-nperiods-1-1:end-1));
+%     minp = min(lowpx(end-nperiods-1:end));
+%     minp_before = min(lowpx(end-nperiods-1-1:end-1));
+    minp = min(lowpx(end-nperiods+1:end));
+    minp_before = min(lowpx(end-nperiods:end-1));
     idx = lowpx == minp;
     mint = timevec(idx);
     mincandle = candlesall(idx,:);

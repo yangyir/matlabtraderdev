@@ -147,7 +147,7 @@ classdef cMDEFut < cMyTimerObj
         [newset_] = updatecandleinmem_sunq(obj) % sunq
         %technical indicator calculator
         % William %R
-        [indicators,wrseries] = calc_wr_(obj,instrument,varargin)
+        [indicators,wrseries,maxcandle,mincandle] = calc_wr_(obj,instrument,varargin)
         
     end
     

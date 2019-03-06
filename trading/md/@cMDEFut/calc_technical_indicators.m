@@ -22,7 +22,7 @@ function indicators = calc_technical_indicators(mdefut,instrument,varargin)
             if ~includeextraresults
                 indicators = cell(size(tbl,1),1);
             else
-                indicators = cell(size(tbl,1),2);
+                indicators = cell(size(tbl,1),4);
             end
             for j = 1:size(tbl,1)
                 name = tbl{j}.name;
@@ -32,7 +32,7 @@ function indicators = calc_technical_indicators(mdefut,instrument,varargin)
                         if ~includeextraresults
                             indicators{j,1} = calc_wr_(mdefut,instrument,val{:});
                         else
-                            [indicators{j,1},indicators{j,2}] = calc_wr_(mdefut,instrument,val{:});
+                            [indicators{j,1},indicators{j,2},indicators{j,3},indicators{j,4}] = calc_wr_(mdefut,instrument,val{:});
                         end
                     otherwise
                 end
