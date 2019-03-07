@@ -385,31 +385,18 @@ function [] = autoplacenewentrusts_futmultiwr(strategy,signals)
             %we try to open 1)long once the short wrma breaches above the
             %long wrma or 2)short once the short wrma breaches below the
             %long wrma
-            
+            checkflag = signal.checkflag;
             %rule:1)no new high is achieved with the tick
             %2)short ma moves lower than long ma
             %3)open a conditional entrust with short position at the
             %candle's low price
-            checkflag = signal.checkflag;
             if lasttrade <= highestprice && checkflag == 1
-                wrlead = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','wrlead');
-                wrlag = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','wrlag');
-                wrseries = signal.wrseries;
-                [short,long] = movavg(wrseries,wrlead,wrlag,'e');
-                if short < long
-                end
             end
             %
             %rule:1)no new low is achieved with the tick
             %2)short ma moves higher than long ma
             %3)place a entrust with long position at the market price
             if lasttrade >= lowestprice && checkflag == -1
-                wrlead = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','wrlead');
-                wrlag = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','wrlag');
-                wrseries = signal.wrseries;
-                [short,long] = movavg(wrseries,wrlead,wrlag,'e');
-                if short > long
-                end
             end
             %
         elseif strcmpi(wrmode,'follow')
