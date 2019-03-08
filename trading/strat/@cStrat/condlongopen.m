@@ -79,7 +79,7 @@ function [ret,e,msg] = condlongopen(strategy,code_ctp,condpx,lots,varargin)
    end
    
    %note:condition long open holds in case the condpx > askpx
-   if condpx < askpx
+   if condpx < askpx && abs(condpx+9.99) > 1e-5 
        ret = 0;
        e = [];
        msg = sprintf('%s:condlongopen:conditional price is lower than the market price...\n',class(strategy));

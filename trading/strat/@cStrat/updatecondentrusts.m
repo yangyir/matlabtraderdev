@@ -43,7 +43,21 @@ function [] = updatecondentrusts(strategy)
                     end
                 end
                 %
-                if direction == 1 && lasttick(3) >= condpx
+                if ~isempty(signalinfo)
+                    if isa(signalinfo,'cWilliamsRInfo')
+                        isflashma = strcmpi(signalinfo.wrmode_,'flashma') && abs(condpx+9.99)<=1e-5;
+                    else
+                        isflashma = false;
+                    end    
+                else
+                    isflashma = false;
+                end
+                
+                if isflashma
+                    
+                end
+                %
+                if direction == 1 && lasttick(3) >= condpx && abs(condpx+9.99) > 1e-5
                     condentrusts2remove.push(condentrust);
                     if isempty(condentrust.signalinfo_)
                         strategy.longopen(codestr,volume,'overrideprice',lasttick(3));
@@ -51,7 +65,7 @@ function [] = updatecondentrusts(strategy)
                         strategy.longopen(codestr,volume,'overrideprice',lasttick(3),...
                             'signalinfo',condentrust.signalinfo_);
                     end
-                elseif direction == -1 && lasttick(2) <= condpx
+                elseif direction == -1 && lasttick(2) <= condpx && abs(condpx+9.99) > 1e-5
                     condentrusts2remove.push(condentrust);
                     if isempty(condentrust.signalinfo_)
                         strategy.shortopen(codestr,volume,'overrideprice',lasttick(2));
@@ -63,22 +77,7 @@ function [] = updatecondentrusts(strategy)
             end
         end
         %
-        n2remove = condentrusts2remove.latest;
-        for k = 1:n2remove
-            e2remove = condentrusts2remove.node(k);
-            ncondpending = strategy.helper_.condentrustspending_.latest;
-            for kk = ncondpending:-1:1
-                econd = strategy.helper_.condentrustspending_.node(kk);
-                if strcmpi(e2remove.instrumentCode,econd.instrumentCode) && ...
-                        e2remove.direction ==  econd.direction && ...
-                        e2remove.volume == econd.volume && ...
-                        e2remove.price == econd.price
-                    rmidx = kk;
-                    strategy.helper_.condentrustspending_.removeByIndex(rmidx);
-                    break
-                end
-            end
-        end
+        strategy.removecondentrusts(condentrusts2remove);
         %
     catch e
         msg = ['error:',class(strategy),':updatecondentrusts:',e.message,'\n'];
