@@ -26,7 +26,11 @@ function [unwindtrade] = riskmanagement(obj,varargin)
      
     instrument = trade.instrument_;
     candleCell = mdefut.getcandles(instrument);
-    if isempty(candleCell), error('cBatman:riskmanagement:internal error');end
+    if isempty(candleCell)
+        fprintf('WARNING:cStandard:riskmanagement:empty candle returned!!!');
+        unwindtrade = [];
+        return
+    end
     candleK = candleCell{1};
     
     if strcmpi(trade.status_,'unset')
