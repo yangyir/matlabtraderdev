@@ -1,9 +1,9 @@
 %%
 clc;
 clear;delete(timerfindall);close all;
-code = 'cu1903';
-startdt = '2019-01-30';
-enddt = '2019-02-01';
+code = 'cu1904';
+startdt = '2019-02-28';
+enddt = '2019-03-09';
 db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
@@ -34,7 +34,7 @@ wr = willpctr(candle_used(:,3),candle_used(:,4),candle_used(:,5),config.numofper
 [short,long] = movavg(wr,config.wrmalead_,config.wrmalag_);
 figure(1)
 subplot(211);
-idx = find(candle_used(:,1) >=  datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
+idx = find(candle_used(:,1) >=  datenum([startdt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS'),1,'first');
 candle(candle_used(idx:end,3),candle_used(idx:end,4),candle_used(idx:end,5),candle_used(idx:end,2));
 grid on;
 subplot(212);
@@ -47,14 +47,22 @@ hold off;
 count = 0;
 clc;
 for i = 1:trades.latest_
-    if trades.node_(i).opendatetime1_ > datenum([enddt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS')
+    if trades.node_(i).opendatetime1_ > datenum([startdt,' 09:00:00'],'yyyy-mm-dd HH:MM:SS')
         count = count + 1;
         fprintf('id:%2d,openbucket:%s,direction:%2d,price:%s\n',...
                 count,trades.node_(i).opendatetime2_,trades.node_(i).opendirection_,...
                 num2str(trades.node_(i).openprice_));
     end
 end
-% id: 1,openbucket:2019-02-01 14:00:01,direction: 1,price:48080
+% id: 1,openbucket:2019-03-01 14:00:01,direction: 1,price:50210
+% id: 2,openbucket:2019-03-01 23:30:01,direction:-1,price:50550
+% id: 3,openbucket:2019-03-04 21:15:01,direction: 1,price:49800
+% id: 4,openbucket:2019-03-06 21:20:01,direction: 1,price:49870
+% id: 5,openbucket:2019-03-07 09:25:01,direction: 1,price:49790
+% id: 6,openbucket:2019-03-07 14:20:01,direction: 1,price:49530
+% id: 7,openbucket:2019-03-07 21:10:01,direction: 1,price:49490
+% id: 8,openbucket:2019-03-08 00:35:01,direction: 1,price:49450
+% id: 9,openbucket:2019-03-08 21:35:01,direction: 1,price:49350
 %%
 cd([getenv('HOME'),'regressiontest\cstrat\wlpr']);
 %
@@ -81,7 +89,7 @@ if ~isempty(combos.ops),combos.ops.settimerinterval(0.5/replayspeed);end
 if ~isempty(combos.strategy),combos.strategy.settimerinterval(0.5/replayspeed);end
 %
 fprintf('load replay tick data....\n');
-replaydt1 = enddt;
+replaydt1 = '2019-03-01';
 replaydt2 = enddt;
 replaydts = gendates('fromdate',replaydt1,'todate',replaydt2);
 try

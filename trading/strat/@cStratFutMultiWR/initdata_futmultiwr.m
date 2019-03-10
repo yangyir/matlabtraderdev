@@ -25,9 +25,20 @@ function [] = initdata_futmultiwr(obj)
         
         obj.mde_fut_.initcandles(instruments{i},'NumberofPeriods',nbdays);
         
-        ti = obj.mde_fut_.calc_technical_indicators(instruments{i});
+        ti = obj.mde_fut_.calc_technical_indicators(instruments{i},'includeextraresults',true);
         if ~isempty(ti)
             obj.wr_(i) = ti{1}(1);
+            wrmode = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrmode');
+            if strcmpi(wrmode,'flashma')
+                lead = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrmalead');
+                lag = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrmalag');
+                if abs(lead+9.99) > 1e-5 && abs(lag+9.99) > 1e-5
+                    wrseries = ti{2};
+                    [short,long] = movavg(wrseries,lead,lag,'e');
+                    obj.wrmashort_(i) = short(end);
+                    obj.wrmalong_(i) = long(end);
+                end
+            end
         end
         %
         obj.maxnperiods_(i) = obj.getmaxnperiods(instruments{i});

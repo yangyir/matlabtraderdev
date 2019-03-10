@@ -19,9 +19,9 @@ function [] = updatecondentrusts(strategy)
                 direction = condentrust.direction;
                 
                 if ~isempty(signalinfo)
-                    if isa(signalinfo,'cWilliamsRInfo')
-                        isflash = strcmpi(signalinfo.wrmode_,'flash');
-                    else
+                    try
+                        isflash = strcmpi(signalinfo.wrmode,'flash');
+                    catch
                         isflash = false;
                     end    
                 else
@@ -32,21 +32,21 @@ function [] = updatecondentrusts(strategy)
                     %need to make sure either the max or min prices are
                     %updated or not. if it is updated, then the existing
                     %conditional entrust shall be removed
-                    if direction == 1 && lasttick(4) < signalinfo.lowestlow_
+                    if direction == 1 && lasttick(4) < signalinfo.lowestlow
                         condentrusts2remove.push(condentrust);
                         continue;
                     end
                     %
-                    if direction == -1 && lasttick(4) > signalinfo.highesthigh_
+                    if direction == -1 && lasttick(4) > signalinfo.highesthigh
                         condentrusts2remove.push(condentrust);
                         continue;
                     end
                 end
                 %
                 if ~isempty(signalinfo)
-                    if isa(signalinfo,'cWilliamsRInfo')
-                        isflashma = strcmpi(signalinfo.wrmode_,'flashma') && abs(condpx+9.99)<=1e-5;
-                    else
+                    try
+                        isflashma = strcmpi(signalinfo.wrmode,'flashma') && abs(condpx+9.99)<=1e-5;
+                    catch
                         isflashma = false;
                     end    
                 else
@@ -54,7 +54,30 @@ function [] = updatecondentrusts(strategy)
                 end
                 
                 if isflashma
-                    
+                    %we need to check the short ma of wr breaches
+                    %above(below) the long ma of wr
+%                     lead = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','wrmalead');
+%                     lag = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','wrmalag');
+%                     if abs(lead+9.99) < 1e-5 || abs(lag+9.99) < 1e-5
+%                         return
+%                     end
+%                     ti = strategy.mde_fut_.calc_technical_indicators(codestr,'includeextraresults',true);
+%                     try
+%                         wrseries = ti{2};
+%                     catch
+%                         fprintf('%s:updatecondentrusts:time series of Williams%R not returned on %s\n',class(strategy),instrument.code_ctp);
+%                     end
+%                     [short,long] = movavg(wrseries,lead,lag,'e');
+                    [~,idx] = strategy.hasinstrument(codestr);
+                    short = strategy.wrmashort_(idx);
+                    long = strategy.wrmalong_(idx);
+                    if direction == 1 && short > long
+                        condpx = lasttick(3);
+                        condentrust.price = condpx;
+                    elseif direction == -1 && short < long
+                        condpx = lasttick(2);
+                        condentrust.price = condpx;
+                    end
                 end
                 %
                 if direction == 1 && lasttick(3) >= condpx && abs(condpx+9.99) > 1e-5

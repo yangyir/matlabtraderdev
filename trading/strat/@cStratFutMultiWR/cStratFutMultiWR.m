@@ -2,6 +2,8 @@ classdef cStratFutMultiWR < cStrat
     
     properties
         wr_@double                  %william%R
+        wrmashort_@double           %short moving average of williams%R
+        wrmalong_@double            %long moving average of williams%R
         maxnperiods_@double         %maximum price as of the previous candles exclude the latest one
         minnperiods_@double         %minimum price as of the previous candles exclude the latest one
     end

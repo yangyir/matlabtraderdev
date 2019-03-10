@@ -5,9 +5,13 @@ function [] = registerinstrument(strategy,instrument)
     %william %r
     if isempty(strategy.wr_)
         strategy.wr_ = NaN(strategy.count,1);
+        strategy.wrmashort_ = NaN(strategy.count,1);
+        strategy.wrmalong_ = NaN(strategy.count,1);
     else
         if size(strategy.wr_,1) < strategy.count
             strategy.wr_ = [strategy.wr_;NaN];
+            strategy.wrmashort_ = [strategy.wrmashort_;NaN];
+            strategy.wrmalong_ = [strategy.wrmalong_;NaN];
         end
     end
     %

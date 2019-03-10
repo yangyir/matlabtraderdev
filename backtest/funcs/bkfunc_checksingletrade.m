@@ -315,7 +315,7 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             if trade.opendirection_ == 1
                 %use the previous close wr as the reference
                 plot(idx_shift,wropenref,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');
-                plot(idx_close-idx_open+idx_shift+1,wr,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','g');
+                plot(idx_close-idx_open+idx_shift+1,wr,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
             else
                 plot(idx_shift,wropenref,'marker','o','color','g','markersize',3,'linewidth',3,'markerfacecolor','g');
                 plot(idx_close-idx_open+idx_shift+1,wr,'marker','o','color','r','markersize',3,'linewidth',3,'markerfacecolor','r');

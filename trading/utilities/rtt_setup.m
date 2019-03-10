@@ -122,9 +122,9 @@ function [rtt_output] = rtt_setup(varargin)
         rtt_strategy.loadriskcontrolconfigfromfile('filename',configfn);
     end
     
+    rtt_mdefut.settimerinterval(0.5);
+    rtt_helper.settimerinterval(0.5);
     rtt_strategy.settimerinterval(0.5);
-    rtt_helper.settimerinterval(1);
-    rtt_strategy.settimerinterval(1);
     
     stratfund = p.Results.InitialFundLevel;
     if ~isempty(stratfund)

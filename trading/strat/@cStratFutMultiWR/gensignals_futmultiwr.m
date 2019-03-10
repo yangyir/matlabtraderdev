@@ -38,6 +38,21 @@ function signals = gensignals_futmultiwr(strategy)
             end
             
             ti = strategy.mde_fut_.calc_technical_indicators(instruments{i},'includeextraresults',true);
+            if isempty(ti)
+                signals{i,1} = {};
+                continue;
+            else
+                strategy.wr_(i) = ti{1}(1);
+                if strcmpi(wrmode,'flashma')
+                    lead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrmalead');
+                    lag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrmalag');
+                    if abs(lead+9.99) < 1e-5 || abs(lag+9.99) < 1e-5, continue; end
+                    wrseries = ti{2};
+                    [short,long] = movavg(wrseries,lead,lag,'e');
+                    strategy.wrmashort_(i) = short(end);
+                    strategy.wrmalong_(i) = long(end);
+                end
+            end
             if strcmpi(wrmode,'classic')
                 maxpx_last = ti{1}(2);
                 minpx_last = ti{1}(3);
@@ -80,7 +95,7 @@ function signals = gensignals_futmultiwr(strategy)
                     'propname','overbought');
                 oversold = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,...
                     'propname','oversold');
-                if ~isempty(ti), strategy.wr_(i) = ti{1}(1); end
+%                 if ~isempty(ti), strategy.wr_(i) = ti{1}(1); end
                 %
                 if strategy.wr_(i) <= oversold
                     signals{i,1} = struct('name','williamsr',...
