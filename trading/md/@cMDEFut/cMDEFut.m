@@ -104,8 +104,12 @@ classdef cMDEFut < cMyTimerObj
     methods
         [] = settechnicalindicator(obj,instrument,indicators)
         [] = settechnicalindicatorautocalc(obj,instrument,calcflag)
-        indicators = calc_technical_indicators(obj,instrument,varargin)
         vol = calc_hv(obj,instrument,varargin)
+        indicators = calc_technical_indicators(obj,instrument,varargin)
+        %technical indicator calculator
+        % William %R
+        [indicators,wrseries,maxcandle,mincandle] = calc_wr_(obj,instrument,varargin)
+        
     end
     
     methods
@@ -145,9 +149,7 @@ classdef cMDEFut < cMyTimerObj
         [] = saveticks2mem(obj)
         [] = updatecandleinmem(obj)
         [newset_] = updatecandleinmem_sunq(obj) % sunq
-        %technical indicator calculator
-        % William %R
-        [indicators,wrseries,maxcandle,mincandle] = calc_wr_(obj,instrument,varargin)
+        
         
     end
     
