@@ -89,8 +89,9 @@ if ~isempty(combos.ops),combos.ops.settimerinterval(0.5/replayspeed);end
 if ~isempty(combos.strategy),combos.strategy.settimerinterval(0.5/replayspeed);end
 %
 fprintf('load replay tick data....\n');
-replaydt1 = '2019-03-01';
-replaydt2 = enddt;
+replaydt1 = '2019-03-06';
+% replaydt2 = enddt;
+replaydt2 = '2019-03-06';
 replaydts = gendates('fromdate',replaydt1,'todate',replaydt2);
 try
     instruments = combos.strategy.getinstruments;

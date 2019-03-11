@@ -38,7 +38,9 @@ classdef cMyTimerObj < handle
         mm_02_40_@double = 160   % timer sleeps during the night
         mm_08_50_@double = 530   % timer wakes up in the morning
         mm_09_00_@double = 540   % derivatives start trading a.m 
-        mm_11_30_@double = 690   % derivatives stop trading a.m 
+        mm_11_30_@double = 690   % derivatives stop trading a.m
+        mm_11_31_@double = 691   % timer sleeps during the lunch break
+        mm_12_59_@double = 779   % timer wakes up after the lunch break
         mm_13_00_@double = 780   % derivatives start trading p.m    
         mm_15_15_@double = 915   % derivatives stop trading p.m
         mm_15_25_@double = 925   % timer sleeps again and wait for the evening session if there is any
