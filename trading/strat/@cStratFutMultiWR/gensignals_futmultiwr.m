@@ -2,6 +2,34 @@ function signals = gensignals_futmultiwr(strategy)
 %cStratFutMultiWR
     signals = cell(size(strategy.count,1),1);
     instruments = strategy.getinstruments;
+    
+    if strcmpi(strategy.mode_,'replay')
+        runningt = strategy.replay_time1_;
+    else
+        runningt = now;
+    end
+    runningmm = hour(runningt)*60+minute(runningt);
+    if (runningmm >= 539 && runningmm < 540) || ...
+            (runningmm >= 779 && runningmm < 780) || ...
+            (runningmm >= 1259 && runningmm < 1260)
+            %one minute before market open in the morning, afternoon and
+            %evening respectively
+       for i = 1:strategy.count
+           lengthofperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','numofperiod');
+           [indicators,wrseries] = strategy.mde_fut_.calc_wr_(instruments{i},'numofperiods',lengthofperiod,'IncludeLastCandle',1);
+           wrmode = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrmode');
+           strategy.wr_(i) = indicators(1);
+           if strcmpi(wrmode,'flashma')
+               lead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrmalead');
+               lag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrmalag');
+               if abs(lead+9.99) < 1e-5 || abs(lag+9.99) < 1e-5, continue; end
+               [short,long] = movavg(wrseries,lead,lag,'e');
+               strategy.wrmashort_(i) = short(end);
+               strategy.wrmalong_(i) = long(end);
+           end
+       end
+       return    
+    end
 
     for i = 1:strategy.count
         try
