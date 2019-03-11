@@ -7,9 +7,18 @@ function [] = updatecondentrusts(strategy)
         condentrusts2remove = EntrustArray;
         if ncondpending > 0
             for i = 1:ncondpending
-                condentrust = strategy.helper_.condentrustspending_.node(i);
-                signalinfo = condentrust.signalinfo_;
+                condentrust = strategy.helper_.condentrustspending_.node(i);               
                 codestr = condentrust.instrumentCode;
+                instrument = code2instrument(codestr);
+                if strcmpi(strategy.mode_,'realtime')
+                    ordertime = now;
+                else
+                    ordertime = strategy.getreplaytime;
+                end
+                
+                if ~instrument.isable2trade(ordertime), continue; end
+                
+                signalinfo = condentrust.signalinfo_;
                 condpx = condentrust.price;
                 volume = condentrust.volume;
                 lasttick = strategy.mde_fut_.getlasttick(codestr);
@@ -56,18 +65,6 @@ function [] = updatecondentrusts(strategy)
                 if isflashma
                     %we need to check the short ma of wr breaches
                     %above(below) the long ma of wr
-%                     lead = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','wrmalead');
-%                     lag = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','wrmalag');
-%                     if abs(lead+9.99) < 1e-5 || abs(lag+9.99) < 1e-5
-%                         return
-%                     end
-%                     ti = strategy.mde_fut_.calc_technical_indicators(codestr,'includeextraresults',true);
-%                     try
-%                         wrseries = ti{2};
-%                     catch
-%                         fprintf('%s:updatecondentrusts:time series of Williams%R not returned on %s\n',class(strategy),instrument.code_ctp);
-%                     end
-%                     [short,long] = movavg(wrseries,lead,lag,'e');
                     [~,idx] = strategy.hasinstrument(codestr);
                     short = strategy.wrmashort_(idx);
                     long = strategy.wrmalong_(idx);
@@ -82,20 +79,13 @@ function [] = updatecondentrusts(strategy)
                 %
                 if direction == 1 && lasttick(3) >= condpx && abs(condpx+9.99) > 1e-5
                     condentrusts2remove.push(condentrust);
-                    if isempty(condentrust.signalinfo_)
-                        strategy.longopen(codestr,volume,'overrideprice',lasttick(3));
-                    else
-                        strategy.longopen(codestr,volume,'overrideprice',lasttick(3),...
-                            'signalinfo',condentrust.signalinfo_);
-                    end
+                    strategy.longopen(codestr,volume,'overrideprice',lasttick(3),...
+                        'signalinfo',condentrust.signalinfo_);
                 elseif direction == -1 && lasttick(2) <= condpx && abs(condpx+9.99) > 1e-5
                     condentrusts2remove.push(condentrust);
-                    if isempty(condentrust.signalinfo_)
-                        strategy.shortopen(codestr,volume,'overrideprice',lasttick(2));
-                    else
-                        strategy.shortopen(codestr,volume,'overrideprice',lasttick(2),...
-                            'signalinfo',condentrust.signalinfo_);
-                    end
+                    strategy.shortopen(codestr,volume,'overrideprice',lasttick(2),...
+                        'signalinfo',condentrust.signalinfo_);
+
                 end
             end
         end
