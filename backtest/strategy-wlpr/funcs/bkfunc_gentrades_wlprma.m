@@ -52,7 +52,7 @@ function [trades,px_used] = bkfunc_gentrades_wlprma(code,px_input,varargin)
             pxMax = pxHigh;
             opendirection = -1;
             idx_newmax = i;
-            for j = idx_newmax+1:idx_end-1
+            for j = idx_newmax:idx_end-1
                 %we start from the next candle after the new high
                 %and we stop in case a new max is reached
                 pxHigh = pxhigh(j);
@@ -94,7 +94,7 @@ function [trades,px_used] = bkfunc_gentrades_wlprma(code,px_input,varargin)
             pxMin = pxLow;
             opendirection = 1;
             idx_newmin = i;
-            for j = idx_newmin+1:idx_end-1
+            for j = idx_newmin:idx_end-1
                 pxHigh = pxhigh(j);
                 pxLow = pxlow(j);
                 
