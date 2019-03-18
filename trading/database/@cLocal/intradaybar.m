@@ -42,11 +42,14 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
                 if weekday(bds(i)) ~= 6
                     fn_ = [code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_1m.txt'];
                     fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
-                    data_intermediate_{i} = cDataFileIO.loadDataFromTxtFile(fullfn_);
+                    data1_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+                    if ~isnumeric(data1_), continue; end
+                    data_intermediate_{i} = data1_;
                 else
                     fn_ = [code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_1m.txt'];
                     fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
                     data1_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+                    if ~isnumeric(data1_), continue; end
                     try
                         fn2_ = [code_ctp,'_',datestr(bds(i)+1,'yyyymmdd'),'_1m.txt'];
                         fullfn2_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn2_];

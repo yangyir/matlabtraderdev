@@ -74,8 +74,8 @@ end
 if strcmpi(assetName,'nickel')
     if init_yy < curr_yy
         n = 2+...                       %contracts for the first year
-            (curr_yy-1-init_yy)*6+...   %contracts between the 2nd and last year
-            ceil(curr_mm/2)+...         %contracts (expired) for this year
+            (curr_yy-1-init_yy)*3+...   %contracts between the 2nd and last year
+            ceil(curr_mm/4)+...         %contracts (expired) for this year
             3;                          %now listed
     else
         n = ceil((curr_mm-init_mm+1)/4)+3;
@@ -94,7 +94,7 @@ contracts = cell(n,1);
 i=1;
 while i<=n
     if strcmpi(assetName,'nickel')
-        mm = (i-1)*2+init_mm;
+        mm = (i-1)*4+init_mm;
     else
         mm = i+init_mm-1;
     end
