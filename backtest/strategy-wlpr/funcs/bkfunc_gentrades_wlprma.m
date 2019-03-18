@@ -1,4 +1,4 @@
-function [trades,px_used] = bkfunc_gentrades_wlprma(code,px_input,varargin)
+function [trades,px_used,wrshort,wrlong] = bkfunc_gentrades_wlprma(code,px_input,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('SampleFrequency','1m',@ischar);
@@ -28,6 +28,8 @@ function [trades,px_used] = bkfunc_gentrades_wlprma(code,px_input,varargin)
     pxclose = px_used(:,5);
     
     wr = willpctr(pxhigh,pxlow,pxclose,nperiod);
+    wrshort = 0*wr;
+    wrlong  = 0*wr;
     [short,long] = movavg(wr,lead,lag,'e');
    
     %rule:1)once a new high is achieved, open a short once the lead is break
@@ -84,6 +86,9 @@ function [trades,px_used] = bkfunc_gentrades_wlprma(code,px_input,varargin)
                         'openprice',pxOpen);
                     trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
                     trades.push(trade_i);
+                    ntrade = trades.latest_;
+                    wrshort(ntrade) = wrmalead;
+                    wrlong(ntrade) = wrmalag;
                     break
                 end
                 
@@ -120,12 +125,19 @@ function [trades,px_used] = bkfunc_gentrades_wlprma(code,px_input,varargin)
                         'openprice',pxOpen);
                     trade_i.setsignalinfo('name','williamsr','extrainfo',extrainfo);
                     trades.push(trade_i);
+                    ntrade = trades.latest_;
+                    wrshort(ntrade) = wrmalead;
+                    wrlong(ntrade) = wrmalag;
                     break
                 end
                 
             end
         end
     end
+    
+    ntrade = trades.latest_;
+    wrshort = wrshort(1:ntrade);
+    wrlong = wrlong(1:ntrade);
         
     
 end

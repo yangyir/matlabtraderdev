@@ -1,4 +1,4 @@
-function [pnlcell,pnlmat,sharpratio,maxdrawdown,maxdrawdownpct] = bkfunc_wrma_copper(varargin)
+function [pnlcell,pnlmat,sharpratio,maxdrawdown,maxdrawdownpct,alltrades,wrshortcell,wrlongcell] = bkfunc_wrma_copper(varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('SampleFrequency','1m',@ischar);
@@ -21,16 +21,21 @@ function [pnlcell,pnlmat,sharpratio,maxdrawdown,maxdrawdownpct] = bkfunc_wrma_co
     bds = gendates('fromdate',dt1,'todate',dt2);
     nbds = size(bds,1);
     nfuts = size(candles,1);
+    alltrades = cTradeOpenArray;
     
     pnlcell = cell(nfuts,1);
+    wrshortcell = cell(nfuts,1);
+    wrlongcell = cell(nfuts,1);
     for i = 1:nfuts
         futcode = candles{i,1};
         candlek = candles{i,2};
-        [trades,~] = bkfunc_gentrades_wlprma(futcode,candlek,...
+        [trades,~,wrshort_i,wrlong_i] = bkfunc_gentrades_wlprma(futcode,candlek,...
             'SampleFrequency',ui_freq,...
             'NPeriod',nperiod,...
             'Lead',lead,...
             'Lag',lag);
+        wrshortcell{i} = wrshort_i;
+        wrlongcell{i} = wrlong_i;
         ntrades = trades.latest_;
         pnl_i = zeros(ntrades,1);
         for itrade = 1:ntrades
@@ -40,6 +45,7 @@ function [pnlcell,pnlmat,sharpratio,maxdrawdown,maxdrawdownpct] = bkfunc_wrma_co
                 'DoPlot',0,'buffer',1,'lead',lead,'lag',lag,...
                 'UseDefaultFlashStopLoss',0);
             pnl_i(itrade) = tradeout.closepnl_;
+            alltrades.push(tradeout);
         end
         pnlcell{i} = pnl_i;
     end
