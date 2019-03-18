@@ -56,7 +56,11 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     %first we need to check whether it is right time to update batman
 
     if ticktime < buckets(end)
-        error('cWRStep:riskmanagement:last tick time shall beyond last candle record time')
+        fprintf('cWRStep:riskmanagement:last tick time shall beyond last candle record time\n')
+        fprintf('\tnow:%s\n',datestr(now));
+        fprintf('\tticktime:%s\n',datestr(ticktime));
+        fprintf('\tbuckettime:%s\n',datestr(buckets(end)));
+        return
     end
     
     this_count = size(buckets,1)-1;
