@@ -24,6 +24,8 @@ function [] = updatecondentrusts(strategy)
                 lasttick = strategy.mde_fut_.getlasttick(codestr);
                 
                 if isempty(lasttick), continue; end
+                ticktime = lasttick(1);
+                if ordertime - ticktime > 1/1440, continue;end
                 
                 direction = condentrust.direction;
                 
@@ -78,13 +80,17 @@ function [] = updatecondentrusts(strategy)
                 end
                 %
                 if direction == 1 && lasttick(3) >= condpx && abs(condpx+9.99) > 1e-5
-                    condentrusts2remove.push(condentrust);
-                    strategy.longopen(codestr,volume,'overrideprice',lasttick(3),...
+                    ret = strategy.longopen(codestr,volume,'overrideprice',lasttick(3),...
                         'signalinfo',condentrust.signalinfo_);
-                elseif direction == -1 && lasttick(2) <= condpx && abs(condpx+9.99) > 1e-5
-                    condentrusts2remove.push(condentrust);
-                    strategy.shortopen(codestr,volume,'overrideprice',lasttick(2),...
+                    if ret
+                        condentrusts2remove.push(condentrust);
+                    end
+                elseif direction == -1 && lasttick(2) <= condpx && abs(condpx+9.99) > 1e-5                    
+                    ret = strategy.shortopen(codestr,volume,'overrideprice',lasttick(2),...
                         'signalinfo',condentrust.signalinfo_);
+                    if ret
+                        condentrusts2remove.push(condentrust);
+                    end
 
                 end
             end
