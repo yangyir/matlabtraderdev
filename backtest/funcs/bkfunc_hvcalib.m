@@ -4,35 +4,37 @@ function [res] = bkfunc_hvcalib(ret,varargin)
     p.addParameter('ForecastPeriod',144,@isnumeric);
     p.addParameter('PrintResults',false,@islogical);
     p.addParameter('PlotConditonalVariance',false,@islogical);
+    p.addParameter('ScaleFactor',1,@isnumeric);
     p.parse(varargin{:});
     printResults = p.Results.PrintResults;
     nForecastPeriod = p.Results.ForecastPeriod;
     plotConditionalVariance = p.Results.PlotConditonalVariance;
+    scaleFactor = p.Results.ScaleFactor;
     
     model = arima('ARLags',1,'Variance',garch(1,1));
-    modelEstimate = estimate(model,ret(:,2),'print',printResults);
+    modelEstimate = estimate(model,ret(:,end),'print',printResults);
     paramGarch = modelEstimate.Variance.GARCH{1};
     paramArch = modelEstimate.Variance.ARCH{1};
     paramConst = modelEstimate.Variance.Constant;
     lv = sqrt(paramConst/(1-paramGarch-paramArch));
-    [E0,V0,~] = infer(modelEstimate,ret(:,2));
-    [Y,YMSE,V] = forecast(modelEstimate,nForecastPeriod,'Y0',ret(:,2),'E0',E0,'V0',V0);
+    [E0,V0,~] = infer(modelEstimate,ret(:,end));
+    [Y,YMSE,V] = forecast(modelEstimate,nForecastPeriod,'Y0',ret(:,end),'E0',E0,'V0',V0);
     upper = Y + 1.96*sqrt(YMSE);
     lower = Y - 1.96*sqrt(YMSE);
     fv = sqrt(sum(V)/nForecastPeriod);
     
-    hv = std(ret(end-nForecastPeriod+1:end,2));
+    hv = std(ret(end-nForecastPeriod+1:end,end));
     lambda = modelEstimate.Variance.GARCH{1};
-    ewmav = abs(ret(end-nForecastPeriod+1,2));
+    ewmav = abs(ret(end-nForecastPeriod+1,end));
     for i = 2:nForecastPeriod
-        ewmav = ewmav^2*lambda+ret(end-nForecastPeriod+i,2)^2*(1-lambda);
+        ewmav = ewmav^2*lambda+ret(end-nForecastPeriod+i,end)^2*(1-lambda);
         ewmav = sqrt(ewmav);
     end
     
-    res = struct('LongTermVol',lv,...
-        'HistoricalVol',hv,...
-        'EWMAVol',ewmav,...
-        'ForecastedVol',fv,...
+    res = struct('LongTermVol',lv*scaleFactor,...
+        'HistoricalVol',hv*scaleFactor,...
+        'EWMAVol',ewmav*scaleFactor,...
+        'ForecastedVol',fv*scaleFactor,...
         'ForecastedVariance',V,...
         'ForecastedReturn',Y,...
         'ForecastedReturnError',YMSE);
