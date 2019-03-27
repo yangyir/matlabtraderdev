@@ -61,7 +61,7 @@ function [continuousfutures,continuousret,continuousindex] = bkfunc_buildcontinu
         log(continuousfutures(2:end,3)./continuousfutures(1:end-1,5)),...
         log(continuousfutures(2:end,4)./continuousfutures(1:end-1,5)),...
         log(continuousfutures(2:end,5)./continuousfutures(1:end-1,5))];
-    for i = 1:size(rollinfo,1)
+    for i = rollFirstIdx:size(rollinfo,1)
         if ~isempty(rollinfo{i,1})
             tRoll = rollinfo{i,1};
             idx1 = rollinfo{i,2};

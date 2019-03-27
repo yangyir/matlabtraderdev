@@ -114,6 +114,4 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     end
     %
     %
-    res = rollinfo;
-    
 end
