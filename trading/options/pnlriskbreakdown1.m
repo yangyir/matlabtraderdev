@@ -32,8 +32,8 @@ if isa(sec,'cFutures')
         mult = mult/100;
     end
     data = cDataFileIO.loadDataFromTxtFile([sec.code_ctp,'_daily.txt']);
-    pv1_sec = data(data(:,1)==datenum(predate),end);
-    pv2_sec = data(data(:,1)==datenum(cobdate),end);
+    pv1_sec = data(data(:,1)==datenum(predate),5);
+    pv2_sec = data(data(:,1)==datenum(cobdate),5);
     pnl = pv2_sec-pv1_sec;
     output = struct('pnltotal',pnl*volume*mult,...
     'pnltheta',0,...
