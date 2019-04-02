@@ -1,5 +1,7 @@
 function [ret] = bkfunc_saverollinfotbl(assetname)
- 
+    if strcmpi(assetname,'crude')
+        assetname = 'crude oil';
+    end
     assets = getassetmaptable;
     nassets = size(assets,1);
     flag = false;

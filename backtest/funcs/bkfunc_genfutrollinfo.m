@@ -98,7 +98,18 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
             end
             tRoll = find(oidiff(:,end)>0);
             if isempty(tRoll)
-                continue
+                if strcmpi(assetname,'eqindex_500')
+                    tRoll = oidiff(end-1,1);
+                    rollinfo{i,1} = tRoll;
+                    rollinfo{i,2} = find(data1(:,1) == tRoll);
+                    rollinfo{i,3} = find(data2(:,1) == tRoll);
+                    rollinfo{i,4} = bbg2ctp(futures{i});
+                    rollinfo{i,5} = bbg2ctp(futures{i+1});
+                    rollinfo{i,6} = datestr(tRoll);
+                    continue
+                else
+                    continue
+                end
             end
             if tRoll(end) == size(oidiff,1)
                 continue

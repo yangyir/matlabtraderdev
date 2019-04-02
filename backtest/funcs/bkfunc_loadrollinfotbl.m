@@ -1,5 +1,8 @@
 function [ret,tbl] = bkfunc_loadrollinfotbl(assetname)
     dir_ = getenv('DATAPATH');
+    if strcmpi(assetname,'crude')
+        assetname = 'crude oil';
+    end
     info = getassetinfo(assetname);
     xlsxfn = [info.AssetNameMap,'_RollInfo.xlsx'];
     try
