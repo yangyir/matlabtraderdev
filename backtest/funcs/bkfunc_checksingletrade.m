@@ -299,8 +299,9 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             else
                 dirstr = 'short';
             end
-            titlestr = sprintf('%s:%s trade open at %s on %s...\n',trade.code_,dirstr,num2str(trade.openprice_),...
-                trade.opendatetime2_);
+            titlestr = sprintf('%s:%s trade open at %s on %s and close on %s...\n',tradeout.code_,dirstr,num2str(tradeout.openprice_),...
+                tradeout.opendatetime2_,...
+                tradeout.closedatetime2_);
             title(titlestr);
             hold off;
             %

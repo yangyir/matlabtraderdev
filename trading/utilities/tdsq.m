@@ -17,10 +17,10 @@ function [tdBuySetup,tdSellSetup] = tdsq(data,varargin)
     %the close nLag earlier
     bullishTDPriceFlip = zeros(n,1);
     for i = nLag+2:n
-        if data(i-1,end) >= data(i-1-nLag,end) && data(i,end) < data(i-nLag,end)
+        if data(i-1,end) >= data(i-1-nLag,end) && data(i,end) <= data(i-nLag,end)
             bearishTDPriceFlip(i,1) = 1;
         end
-        if data(i-1,end) <= data(i-1-nLag,end) && data(i,end) > data(i-nLag,end)
+        if data(i-1,end) <= data(i-1-nLag,end) && data(i,end) >= data(i-nLag,end)
             bullishTDPriceFlip(i,1) = 1;
         end
     end
@@ -38,7 +38,7 @@ function [tdBuySetup,tdSellSetup] = tdsq(data,varargin)
         if bearishTDPriceFlip(i,1) == 1
             tdBuySetup(i,1) = 1;
             for j = i+1:n
-                if data(j,end) < data(j-nLag,end)
+                if data(j,end) <= data(j-nLag,end)
                     tdBuySetup(j,1) = tdBuySetup(j-1,1)+1;
                     if tdBuySetup(j,1) == nConsecutive
                         break
@@ -52,7 +52,7 @@ function [tdBuySetup,tdSellSetup] = tdsq(data,varargin)
         if bullishTDPriceFlip(i,1) == 1
             tdSellSetup(i,1) = 1;
             for j = i+1:n
-                if data(j,end) > data(j-nLag,end)
+                if data(j,end) >= data(j-nLag,end)
                     tdSellSetup(j,1) = tdSellSetup(j-1,1)+1;
                     if tdSellSetup(j,1) == nConsecutive
                         break
