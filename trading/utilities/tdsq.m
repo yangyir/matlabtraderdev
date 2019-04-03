@@ -1,4 +1,4 @@
-function [tdBuySetup,tdSellSetup] = tdsq(data,varargin)
+function [tdBuySetup,tdSellSetup,tdSTResistence,tdSTSupport] = tdsq(data,varargin)
 %TD Sequential
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
@@ -63,4 +63,22 @@ function [tdBuySetup,tdSellSetup] = tdsq(data,varargin)
             end
         end
     end
+    %
+    tdSTResistence = nan(n,1);
+    tdSTSupport = nan(n,1);
+    for i = 1:n
+        if tdBuySetup(i) == nConsecutive
+            tdSTResistence(i:n) = max(data(i-nConsecutive+1:i,3));
+        end
+    end
+    
+    for i = 1:n
+        if tdSellSetup(i) == nConsecutive
+            tdSTSupport(i:n) = min(data(i-nConsecutive+1:i,4));
+        end
+    end
+        
+        
+    
+    
 end
