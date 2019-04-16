@@ -109,6 +109,8 @@ function [rtt_output] = rtt_setup(varargin)
     elseif strcmpi(stratname,'manual')
         rtt_strategy = cStratManual;
         rtt_strategy.printflag_ = false;
+    elseif strcmpi(stratname,'pair')
+        rtt_strategy = cStratFutPairCointegration;
     else
     end
     
