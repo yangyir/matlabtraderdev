@@ -2,15 +2,15 @@
 clc;
 clear;delete(timerfindall);close all;
 code = 'cu1905';
-startdt = '2019-03-11';
-enddt = '2019-03-12';
+startdt = '2019-04-01';
+enddt = '2019-04-13';
 db = cLocal;
 instrument = code2instrument(code);
 candle_db_1m = db.intradaybar(instrument,startdt,enddt,1,'trade');
 %% generate config file
 numofperiod = 97;
-wrmalead = 4;
-wrmalag = 8;
+wrmalead = 6;
+wrmalag = 24;
 configfile = [getenv('HOME'),'demotrading\wlpr\config_demotrading_copper.txt'];
 genconfigfile('wlpr',configfile,'instruments',{code});
 propnames = {'numofperiod';'wrmalead';'wrmalag';'wrmode';'samplefreq';'riskmanagername';...
