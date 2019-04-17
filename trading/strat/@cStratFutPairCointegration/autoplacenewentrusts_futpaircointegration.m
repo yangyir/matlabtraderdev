@@ -27,6 +27,14 @@ function [] = autoplacenewentrusts_futpaircointegration(strategy,signals)
     
     if volume_exist(1) == 0 && volume_exist(2) == 0
         for i = 1:2
+            signal = signals{1};
+            instrument = signal.instrument;
+            tick = strategy.mde_fut_.getlasttick(instrument);
+            if isempty(tick), return; end
+            bid = tick(2);
+            ask = tick(3);
+            if abs(bid) > 1e10 || abs(ask) > 1e10, return; end
+            direction = signal.direction;
             
         end
         
