@@ -22,10 +22,11 @@ function res = getportfoliogreeks(obj,instruments,weights)
         
     for i = 1:ninstruments
         instrument = instruments{i};
+        if ischar(instrument), instrument = code2instrument(instrument);end
         greeks = obj.getgreeks(instrument);
         if isempty(greeks)
             res = {};
-            fprintf('cMDEOpt:getportfoliogreeks:%s not registered!!!\n',instrument,code_ctp);
+            fprintf('cMDEOpt:getportfoliogreeks:%s not registered!!!\n',instrument.code_ctp);
             return
         end
         
