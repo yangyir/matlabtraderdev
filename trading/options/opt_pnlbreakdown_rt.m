@@ -34,8 +34,9 @@ underlier = opt.code_ctp_underlier;
 mult = opt.contract_size; 
 data = cDataFileIO.loadDataFromTxtFile([underlier,'_daily.txt']);
 
-cobdate = q.update_date1;
-predate = businessdate(cobdate,-1);
+predate = getlastbusinessdate;
+cobdate = businessdate(predate,1);
+
 price1_underlier = data(data(:,1)==datenum(predate),5);
 if isempty(price1_underlier)
     error(['underlier ',underlier,' historical price not saved!'])
