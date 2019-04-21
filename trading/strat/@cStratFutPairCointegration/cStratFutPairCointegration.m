@@ -2,9 +2,17 @@ classdef cStratFutPairCointegration < cStrat
     properties
         data_@double
         lookbackperiod_@double = 270
-        rebalanceperiod_@double = 60
+        rebalanceperiod_@double = 180
         upperbound_@double = 1.96
         lowerbound_@double = -1.96
+        %
+        lastrebalancedatetime1_@double
+    end
+    
+    properties (Dependent = true)
+        lastrebalancedatetime2_@char
+        nextrebalancedatetime1_@double
+        nextrebalancedatetime2_@char
     end
     
     properties (Access = public)
@@ -18,7 +26,7 @@ classdef cStratFutPairCointegration < cStrat
             warning('off','econ:egcitest:LeftTailStatTooBig')
         end    
     end
-    
+        
     %derived (abstract) methods from superclass
     methods
         function signals = gensignals(obj)
@@ -44,129 +52,61 @@ classdef cStratFutPairCointegration < cStrat
     end
     
     methods
-       
-%         function signals = gensignal(obj,portfolio,quotes)
-%             
-%             list = obj.instruments_.getinstrument;
-%             instrument1 = list{1};
-%             instrument2 = list{2};
-%             [flag1,pidx1] = portfolio.hasinstrument(instrument1);
-%             [flag2,pidx2] = portfolio.hasinstrument(instrument2);
-%             if ~flag1 || ~flag2 
-%                 error('cStratFutPairCointegration:gensignal:invalid input portfolio')
-%             end
-%             volume1_ = portfolio.instrument_volume(pidx1);
-%             volume2_ = portfolio.instrument_volume(pidx2);
-%             
-%             [ret,qidx1,qidx2] = updatedata(obj,quotes);
-%             if ~ret
-%                 signals = {};
-%                 return
-%             end
-%             M = obj.lookbackperiod_;
-%             N = obj.rebalanceperiod_;
-%             count = size(obj.data_,1);
-%             doRebalance = mod(count-M,N) == 0;
-%             nRebalance =  floor((count - M)/N);
-%             if doRebalance
-%                 % rebalance the model parameters
-%                 fprintf('rebalancing cointegration params......\n');
-%                 idx = max(M,N)+N*nRebalance;
-%                 [h,~,~,~,reg1] = egcitest(obj.data_(max(idx-M+1,1):idx,2:3));
-%                 if h ~= 0
-%                     obj.cointegrationparams_ = reg1;
-%                 else
-%                     obj.cointegrationparams_ = {};
-%                 end
-%             end
-%             
-%             if ~isempty(obj.cointegrationparams_)
-%                 res = obj.data_(end,2) ...
-%                     - (obj.cointegrationparams_.coeff(1) ...
-%                     + obj.cointegrationparams_.coeff(2) *obj.data_(end,3));
-%                 indicate = res/obj.cointegrationparams_.RMSE;
-%                 fprintf('indicate:%4.2f\n',indicate);
-%     
-%                 % If the residuals are large and positive, then the first series
-%                 % is likely to decline vs. the seond series. Short the first series
-%                 % by a scaled number of shares and long the second series by 1
-%                 % share. If the residuals are large and negative, do the opposite
-%                 if indicate > obj.upperbound_
-%                     volume1 = round(-obj.cointegrationparams_.coeff(2)*10);
-%                     volume2 = 10;
-%                     fprintf('%s overbought\n',instrument1.code_ctp);
-%                 elseif indicate < obj.lowerbound_
-%                     volume1 = round(obj.cointegrationparams_.coeff(2)*10);
-%                     volume2 = -10;
-%                     fprintf('%s oversold\n',instrument1.code_ctp);
-%                 else
-%                     volume1 = 0;
-%                     volume2 = 0;
-%                 end
-%             else
-%                 %no cointegration between pairs are found
-%                 fprintf('no cointegration\n');
-%                 volume1 = 0;
-%                 volume2 = 0;
-%             end
-%             volume1 = volume1 - volume1_;
-%             volume2 = volume2 - volume2_;
-%             signals = cell(2,1);
-%             signals{1} = struct('time',quotes{qidx1}.update_time2,...
-%                 'instrument',instrument1,...
-%                 'volume',volume1);
-%             signals{2} = struct('time',quotes{qidx2}.update_time2,...
-%                 'instrument',instrument2,...
-%                 'volume',volume2);
-%         end
-%         %end of gensignal
+        function lastrebalancedatetime2 = get.lastrebalancedatetime2_(obj)
+            if ~isempty(obj.lastrebalancedatetime1_)
+                lastrebalancedatetime2 = datestr(obj.lastrebalancedatetime1_,'yyyy-mm-dd HH:MM:SS');
+            else
+                lastrebalancedatetime2 = '';
+            end
+        end
+        
+        function nextrebalancedatetime1 = get.nextrebalancedatetime1_(obj)
+            if ~isempty(obj.lastrebalancedatetime1_)
+                datelast = floor(obj.lastrebalancedatetime1_);
+                instruments = obj.getinstruments;
+                if isempty(instruments)
+                    nextrebalancedatetime1 = [];
+                    return
+                end
+                try
+                    samplefreqstr = obj.riskcontrols_.getconfigvalue('code',instruments{1}.code_ctp,'propname','SampleFreq');
+                catch
+                    samplefreqstr = '1m';
+                end
+                buckets = getintradaybuckets2('date',datelast,'frequency',samplefreqstr,'tradinghours',instruments{1}.trading_hours,'tradingbreak',instruments{1}.trading_break);
+                lastindex = find(buckets == obj.lastrebalancedatetime1_);
+                if isempty(lastindex), error('invalid last rebalance date/time specified');end
+                nextindex = lastindex + obj.rebalanceperiod_;
+                date1 = datelast;
+                if nextindex > size(buckets,1)
+                    indexshortfall = nextindex;
+                    while indexshortfall > size(buckets,1)
+                        indexshortfall = indexshortfall - size(buckets,1);
+                        date2 = businessdate(date1,1);
+                        date1 = date2;
+                    end
+                    nextrebalancedatetime1 = buckets(indexshortfall,1) + date1-datelast;
+                else
+                    nextrebalancedatetime1 = buckets(nextindex,1);
+                end
+            else
+                nextrebalancedatetime1 = [];
+            end
+        end
+        
+        function nextrebalancedatetime2 = get.nextrebalancedatetime2_(obj)
+            if ~isempty(obj.nextrebalancedatetime1_)
+                nextrebalancedatetime2 = datestr(obj.nextrebalancedatetime1_,'yyyy-mm-dd HH:MM:SS');
+            else
+                nextrebalancedatetime2 = '';
+            end
+        end
+        
         
     end
     
     methods (Access = private)
-%         function [ret,qidx1,qidx2] = updatedata(obj,quotes)
-%             try
-%             list = obj.instruments_.getinstrument;
-%             %this is a dual underlier strategy
-%             instrument1 = list{1};
-%             instrument2 = list{2};
-%             
-%             qidx1 = 0;
-%             for i = 1:size(quotes)
-%                 if strcmpi(instrument1.code_ctp,quotes{i}.code_ctp)
-%                     qidx1 = i;
-%                     break
-%                 end
-%             end
-%             if qidx1 == 0, error('cStratFutPairCointegration:gensignal:invalid quotes');end
-%             
-%             qidx2 = 0;
-%             for i = 1:size(quotes)
-%                 if strcmpi(instrument2.code_ctp,quotes{i}.code_ctp)
-%                     qidx2 = i;
-%                     break
-%                 end
-%             end
-%             if qidx2 == 0, error('cStratFutPairCointegration:gensignal:invalid quotes');end
-%             
-%             last_trade1 = quotes{qidx1}.last_trade;
-%             last_trade2 = quotes{qidx2}.last_trade;
-%             
-%             n = size(obj.data_,1);
-%             data = zeros(n+1,3);
-%             data(n+1,1) = max(quotes{qidx1}.update_time1,quotes{qidx2}.update_time1);
-%             data(n+1,2) = last_trade1;
-%             data(n+1,3) = last_trade2;
-%             data(1:n,:) = obj.data_;
-%             obj.data_ = data;
-%             
-%             ret = 1;
-%             catch
-%                 ret = 0;
-%             end
-%             
-%         end
-%         %end of updatedata
+
         [] = updategreeks_futpaircointegration(obj)
         signals = gensignals_futpaircointegration(obj)
         [] = autoplacenewentrusts_futpaircointegration(obj,signals)

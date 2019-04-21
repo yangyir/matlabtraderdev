@@ -58,19 +58,29 @@ function [] = initdata_futpaircointegration(obj)
     
     [t,idx1,idx2] = intersect(timevec{1,1},timevec{2,1});
     obj.data_ = [t,closep{1,1}(idx1,1),closep{2,1}(idx2,1)];
-                
-    count = size(obj.data_,1);
-    M = obj.lookbackperiod_;
-%     N = obj.rebalanceperiod_;
-    idx = count;
-    if count < M
-        obj.cointegrationparams_ = {};
-        return
-    end
-    [h,~,~,~,reg1] = egcitest(obj.data_(max(idx-M+1,1):idx,2:3));
-    if h ~= 0
-        obj.cointegrationparams_ = reg1;
+    
+    if isempty(obj.lastrebalancedatetime1_)        
+        count = size(obj.data_,1);
+        M = obj.lookbackperiod_;
+        idx = count;
+        if count < M
+            obj.cointegrationparams_ = {};
+            return
+        end
+        [h,~,~,~,reg1] = egcitest(obj.data_(max(idx-M+1,1):idx,2:3));
+        if h ~= 0
+            obj.cointegrationparams_ = reg1;
+        else
+            obj.cointegrationparams_ = {};
+        end
+        obj.lastrebalancedatetime1_ = obj.data_(idx,1);
     else
-        obj.cointegrationparams_ = {};
+        M = obj.lookbackperiod_;
+        idx = find(t == obj.lastrebalancedatetime1_);
+        [h,~,~,~,reg1] = egcitest(obj.data_(max(idx-M+1,1):idx,2:3));
+        if h ~= 0
+            obj.cointegrationparams_ = reg1;
+        else
+            obj.cointegrationparams_ = {};
+        end
     end
-end
