@@ -7,6 +7,7 @@ classdef cStratFutPairCointegration < cStrat
         lowerbound_@double = -1.96
         %
         lastrebalancedatetime1_@double
+        referencelegindex_@double = 1
     end
     
     properties (Dependent = true)
@@ -74,8 +75,10 @@ classdef cStratFutPairCointegration < cStrat
                     samplefreqstr = '1m';
                 end
                 buckets = getintradaybuckets2('date',datelast,'frequency',samplefreqstr,'tradinghours',instruments{1}.trading_hours,'tradingbreak',instruments{1}.trading_break);
-                lastindex = find(buckets == obj.lastrebalancedatetime1_);
-                if isempty(lastindex), error('invalid last rebalance date/time specified');end
+                idx = buckets <= obj.lastrebalancedatetime1_;
+                temp = buckets(idx);
+                lastindex = length(temp);
+                if lastindex <= 0, error('invalid last rebalance date/time specified');end
                 nextindex = lastindex + obj.rebalanceperiod_;
                 date1 = datelast;
                 if nextindex > size(buckets,1)
@@ -112,6 +115,7 @@ classdef cStratFutPairCointegration < cStrat
         [] = autoplacenewentrusts_futpaircointegration(obj,signals)
         [] = initdata_futpaircointegration(obj)
         [] = updatapairdata(obj)
+        [] = rebalance(obj)
     end
     
     

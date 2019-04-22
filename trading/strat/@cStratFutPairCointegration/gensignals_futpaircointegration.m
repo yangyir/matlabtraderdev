@@ -2,25 +2,10 @@ function [signals] = gensignals_futpaircointegration(strategy)
 %cStratFutPairCointegration
     instruments = strategy.getinstruments;
     
-    try
-        calcsignalflag1 = strategy.getcalcsignalflag(instruments{1});
-    catch e
-        calcsignalflag1 = 0;
-        msg = ['ERROR:%s:getcalcsignalflag:',class(strategy),e.message,'\n'];
-        fprintf(msg);
-        if strcmpi(strategy.onerror_,'stop'), strategy.stop; end
-    end
-    %
-    try
-        calcsignalflag2 = strategy.getcalcsignalflag(instruments{2});
-    catch e
-        calcsignalflag2 = 0;
-        msg = ['ERROR:%s:getcalcsignalflag:',class(strategy),e.message,'\n'];
-        fprintf(msg);
-        if strcmpi(strategy.onerror_,'stop'), strategy.stop; end
-    end
+    refindex = strategy.referencelegindex_;
     
-    calcsignalflag = calcsignalflag1 || calcsignalflag2;
+    calcsignalflag = strategy.getcalcsignalflag(instruments{refindex});
+
     if ~calcsignalflag
         signals = {};
         return
@@ -29,19 +14,7 @@ function [signals] = gensignals_futpaircointegration(strategy)
     %update obj data
     strategy.updatapairdata;
     % check whether rebalancing is required
-    M = strategy.lookbackperiod_;
-    N = strategy.rebalanceperiod_;
-    count = size(strategy.data_,1);
-    doRebalance = mod(count-M,N) == 0;
-    if doRebalance
-%         fprintf('rebalancing...\n');
-        [h,~,~,~,reg1] = egcitest(strategy.data_(end-M+1:end,2:3));
-        if h ~= 0
-            strategy.cointegrationparams_ = reg1;
-        else
-            strategy.cointegrationparams_ = {};
-        end
-    end
+    strategy.rebalance;
     
     if isempty(strategy.cointegrationparams_)
         signals = {};
@@ -57,14 +30,14 @@ function [signals] = gensignals_futpaircointegration(strategy)
     end
     
     params = strategy.cointegrationparams_;
-    check = lasttick1(4) - (params.coeff(1) + params.coeff(2) * lasttick2(4));
-    check = check / params.RMSE;
+    indicator = lasttick1(4) - (params.coeff(1) + params.coeff(2) * lasttick2(4));
+    indicator = indicator / params.RMSE;
     
     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{1}.code_ctp,'propname','samplefreq');
     
-    if check > strategy.upperbound_
+    if indicator > strategy.upperbound_
         signals = cell(2,1);
-        fprintf('5y overbought:sell 5y at %s and buy 10y at %s\n',num2str(lasttick1(4)),num2str(lasttick2(4)))
+        fprintf('%s:indicator value:%4.1f:leg1 overbought:(-)leg1 at %s and (+)leg2 at %s\n',datestr(lasttick1(1),'HH:MM'),indicator,num2str(lasttick1(4)),num2str(lasttick2(4)))
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
                         'frequency',samplefreqstr,...
@@ -76,9 +49,9 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'direction',1,...
                         'volume',1);
         return
-    elseif check < strategy.lowerbound_
+    elseif indicator < strategy.lowerbound_
         signals = cell(2,1);
-        fprintf('5y oversold:buy 5y at %s and sell 10y at %s\n',num2str(lasttick1(4)),num2str(lasttick2(4)))
+        fprintf('%s:indicator value:%4.1f:leg1 oversold:(+)leg1 at %s and (-)leg2 at %s\n',datestr(lasttick1(1),'HH:MM'),indicator,num2str(lasttick1(4)),num2str(lasttick2(4)))
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
                         'frequency',samplefreqstr,...
@@ -91,7 +64,7 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'volume',1);
         return
     else
-        fprintf('%4.1f\n',check);
+        fprintf('%s:indicator value:%4.1f\n',datestr(lasttick1(1),'HH:MM'),indicator);
         signals = {};
         return
     end

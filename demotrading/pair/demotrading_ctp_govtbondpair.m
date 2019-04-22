@@ -16,8 +16,8 @@ availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
     'initialfundlevel',availablefund,'usehistoricaldata',false);
 %%
-replaydt1 = '2019-04-16';
-replaydt2 = '2019-04-16';
+replaydt1 = '2019-04-19';
+replaydt2 = '2019-04-19';
 % replay
 fprintf('nruning demotrading for govtbond pair in replay mode...\n');
 if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
@@ -47,6 +47,7 @@ catch err
     fprintf('Error:%s\n',err.message);
 end
 fprintf('load historical candle data...\n');
+combos.strategy.lastrebalancedatetime1_ = datenum('2019-04-18 13:04','yyyy-mm-dd HH:MM');
 combos.strategy.initdata;
 combos.mdefut.printflag_ = false;
 combos.ops.printflag_ = false;
@@ -58,5 +59,7 @@ combos.ops.start;
 combos.strategy.start;
 %%
 combos.mdefut.stop
+%%
 delete(timerfindall);
+
 clear
