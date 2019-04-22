@@ -2,6 +2,7 @@ function [] = rebalance(obj)
 %cStratFutPairCointegration
     instruments = obj.getinstruments;
     flag = false;
+    
     for i = 1:obj.count
         tick = obj.mde_fut_.getlasttick(instruments{i});
         if isempty(tick)
@@ -12,7 +13,7 @@ function [] = rebalance(obj)
             flag = true;
             break
         end
-    end
+    end    
     
     if flag
         obj.lastrebalancedatetime1_ = obj.nextrebalancedatetime1_;
@@ -24,6 +25,6 @@ function [] = rebalance(obj)
             obj.cointegrationparams_ = {};
         end
         fprintf('rebalanced at %s\n',obj.lastrebalancedatetime2_);
-    `    end
+    end
     
 end

@@ -24,9 +24,35 @@ function [] = initdata_futpaircointegration(obj)
         obj.mde_fut_.initcandles(instruments{i},'NumberofPeriods',nbdays);
     end
     
-    timevec = cell(2,1);
-    closep = cell(2,1);
-    for i = 1:2
+    for i = 1:n
+        %NOTE: a new method for populating historical data for pairs trading
+        histcandles = obj.mde_fut_.gethistcandles(instruments{i});
+        if isempty(histcandles), continue;end
+        histcandles = histcandles{1};
+        bds = unique(floor(histcandles(:,1)));
+        nbds = length(bds);
+        datacell = cell(nbds,1);
+        for j = 1:nbds
+            buckets = getintradaybuckets2('date',bds(j),'frequency',samplefreqstr,'tradinghours',instruments{i}.trading_hours,'tradingbreak',instruments{i}.trading_break);
+            idx = floor(histcandles(:,1)) == bds(j);
+            A = table(buckets,'variablenames',{'datetime'});
+            B = table(histcandles(idx,1),histcandles(idx,2),histcandles(idx,3),histcandles(idx,4),histcandles(idx,5),'variablenames',{'datetime','open','high','low','close'});
+            mytable = outerjoin(A,B,'mergekeys',true);
+            mymat = [mytable.datetime,mytable.open,mytable.high,mytable.low,mytable.close];
+            for k = 2:size(mymat,1)
+                if isnan(mymat(k,2))
+                    mymat(k,2:5) = mymat(k-1,5);
+                end
+            end
+            datacell{j} = mymat;
+        end
+        datamat = cell2mat(datacell);
+        obj.mde_fut_.hist_candles_{i} = datamat;
+    end
+
+    timevec = cell(n,1);
+    closep = cell(n,1);
+    for i = 1:n
         histcandles = obj.mde_fut_.gethistcandles(instruments{i});
         candlesticks = obj.mde_fut_.getcandles(instruments{i});
         if isempty(histcandles)
@@ -56,8 +82,10 @@ function [] = initdata_futpaircointegration(obj)
         end
     end
     
-    [t,idx1,idx2] = intersect(timevec{1,1},timevec{2,1});
-    obj.data_ = [t,closep{1,1}(idx1,1),closep{2,1}(idx2,1)];
+%     [t,idx1,idx2] = intersect(timevec{1,1},timevec{2,1});
+%     obj.data_ = [t,closep{1,1}(idx1,1),closep{2,1}(idx2,1)];
+    t = timevec{1,1}(:,1);
+    obj.data_ = [t,closep{1,1}(:,1),closep{2,1}(:,1)];
     
     if isempty(obj.lastrebalancedatetime1_)        
         count = size(obj.data_,1);
@@ -76,7 +104,10 @@ function [] = initdata_futpaircointegration(obj)
         obj.lastrebalancedatetime1_ = obj.data_(idx,1);
     else
         M = obj.lookbackperiod_;
-        idx = find(t == obj.lastrebalancedatetime1_);
+        idx = t <= obj.lastrebalancedatetime1_;
+        temp = t(idx);
+        idx = length(temp);
+        if idx <= 0, error('invalid last rebalance date/time specified');end
         [h,~,~,~,reg1] = egcitest(obj.data_(max(idx-M+1,1):idx,2:3));
         if h ~= 0
             obj.cointegrationparams_ = reg1;

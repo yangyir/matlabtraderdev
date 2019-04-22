@@ -35,9 +35,15 @@ function [signals] = gensignals_futpaircointegration(strategy)
     
     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{1}.code_ctp,'propname','samplefreq');
     
+    if refindex == 1
+        reftimestr = datestr(lasttick1(1),'HH:MM:SS');
+    else
+        reftimestr = datestr(lasttick2(1),'HH:MM:SS');
+    end
+    
     if indicator > strategy.upperbound_
         signals = cell(2,1);
-        fprintf('%s:indicator value:%4.1f:leg1 overbought:(-)leg1 at %s and (+)leg2 at %s\n',datestr(lasttick1(1),'HH:MM'),indicator,num2str(lasttick1(4)),num2str(lasttick2(4)))
+        fprintf('%s:indicator value:%4.2f:(-)leg1 at %s and (+)leg2 at %s\n',reftimestr,indicator,num2str(lasttick1(4)),num2str(lasttick2(4)))
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
                         'frequency',samplefreqstr,...
@@ -51,7 +57,7 @@ function [signals] = gensignals_futpaircointegration(strategy)
         return
     elseif indicator < strategy.lowerbound_
         signals = cell(2,1);
-        fprintf('%s:indicator value:%4.1f:leg1 oversold:(+)leg1 at %s and (-)leg2 at %s\n',datestr(lasttick1(1),'HH:MM'),indicator,num2str(lasttick1(4)),num2str(lasttick2(4)))
+        fprintf('%s:indicator value:%4.2f:(+)leg1 at %s and (-)leg2 at %s\n',reftimestr,indicator,num2str(lasttick1(4)),num2str(lasttick2(4)))
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
                         'frequency',samplefreqstr,...
@@ -64,7 +70,7 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'volume',1);
         return
     else
-        fprintf('%s:indicator value:%4.1f\n',datestr(lasttick1(1),'HH:MM'),indicator);
+        fprintf('%s:indicator value:%4.2f\n',reftimestr,indicator);
         signals = {};
         return
     end

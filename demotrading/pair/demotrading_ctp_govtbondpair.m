@@ -5,7 +5,7 @@ propnames = {'samplefreq';'autotrade'};
 propvalues = {'1m';1};
 modconfigfile(configfile,'code',code{1},'propnames',propnames,'propvalues',propvalues);
 modconfigfile(configfile,'code',code{2},'propnames',propnames,'propvalues',propvalues);
-%%
+%
 cd([getenv('HOME'),'demotrading\pair']);
 %
 %user inputs:
@@ -47,7 +47,10 @@ catch err
     fprintf('Error:%s\n',err.message);
 end
 fprintf('load historical candle data...\n');
-combos.strategy.lastrebalancedatetime1_ = datenum('2019-04-18 13:04','yyyy-mm-dd HH:MM');
+combos.strategy.lookbackperiod_ = 240;
+combos.strategy.rebalanceperiod_ = 180;
+combos.strategy.referencelegindex_ = 2;
+combos.strategy.lastrebalancedatetime1_ = datenum('2019-04-18 14:44','yyyy-mm-dd HH:MM');
 combos.strategy.initdata;
 combos.mdefut.printflag_ = false;
 combos.ops.printflag_ = false;

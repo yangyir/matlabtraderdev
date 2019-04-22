@@ -86,6 +86,20 @@ function [] = updatecandleinmem(mdefut)
                 mdefut.candles_{i}(this_count,2) = px_trade;   %px_open
                 mdefut.candles_{i}(this_count,3) = px_trade;   %px_high
                 mdefut.candles_{i}(this_count,4) = px_trade;   %px_low
+                %NOTE:20190422
+                %SOMETIMES we miss ticks for a certain bucket for illiquid
+                %and the candle bucket will thus have zero entries; we need
+                %to fix this by replacing zero entries with the last price
+                %as of the previous candles
+                if this_count > 1 && sum(mdefut.candles_{i}(this_count-1,2:5)) == 0
+                    try
+                        lastclose = mdefut.candles_{i}(this_count-2,5);
+                    catch
+                        lastclose = px_trade;
+                    end
+                    mdefut.candles_{i}(this_count-1,2:5) = lastclose;
+                end
+                
             else
                 high = mdefut.candles_{i}(this_count,3);
                 low = mdefut.candles_{i}(this_count,4);
@@ -116,6 +130,19 @@ function [] = updatecandleinmem(mdefut)
                 mdefut.candles4save_{i}(this_count_save,2) = px_trade;   %px_open
                 mdefut.candles4save_{i}(this_count_save,3) = px_trade;   %px_high
                 mdefut.candles4save_{i}(this_count_save,4) = px_trade;   %px_low
+                %NOTE:20190422
+                %SOMETIMES we miss ticks for a certain bucket for illiquid
+                %and the candle bucket will thus have zero entries; we need
+                %to fix this by replacing zero entries with the last price
+                %as of the previous candles
+                if this_count_save > 1 && sum(mdefut.candles4save_{i}(this_count_save-1,2:5)) == 0
+                    try
+                        lastclose = mdefut.candles4save_{i}(this_count_save-2,5);
+                    catch
+                        lastclose = px_trade;
+                    end
+                    mdefut.candles4save_{i}(this_count_save-1,2:5) = lastclose;
+                end
             else
                 high = mdefut.candles4save_{i}(this_count_save,3);
                 low = mdefut.candles4save_{i}(this_count_save,4);

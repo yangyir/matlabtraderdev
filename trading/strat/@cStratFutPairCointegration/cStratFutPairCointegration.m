@@ -1,7 +1,7 @@
 classdef cStratFutPairCointegration < cStrat
     properties
         data_@double
-        lookbackperiod_@double = 270
+        lookbackperiod_@double = 240
         rebalanceperiod_@double = 180
         upperbound_@double = 1.96
         lowerbound_@double = -1.96
