@@ -19,7 +19,7 @@ combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfi
 replaydt1 = '2019-04-19';
 replaydt2 = '2019-04-19';
 % replay
-fprintf('nruning demotrading for govtbond pair in replay mode...\n');
+fprintf('runing demotrading for govtbond pair in replay mode...\n');
 if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
 if ~isempty(combos.ops), combos.ops.mode_ = 'replay';end
 if ~isempty(combos.strategy), combos.strategy.mode_ = 'replay';end

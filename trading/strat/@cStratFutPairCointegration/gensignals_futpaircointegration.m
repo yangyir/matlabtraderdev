@@ -21,29 +21,19 @@ function [signals] = gensignals_futpaircointegration(strategy)
         return
     end
     
-    lasttick1 = strategy.mde_fut_.getlasttick(instruments{1});
-    lasttick2 = strategy.mde_fut_.getlasttick(instruments{2});
-    
-    if isempty(lasttick1) || isempty(lasttick2)
-        signals = {};
-        return
-    end
-    
+    d_ = strategy.data_(end,:);
     params = strategy.cointegrationparams_;
-    indicator = lasttick1(4) - (params.coeff(1) + params.coeff(2) * lasttick2(4));
+    indicator = d_(2) - (params.coeff(1) + params.coeff(2) * d_(3));
     indicator = indicator / params.RMSE;
     
+    reftimestr = datestr(d_(1),'HH:MM');
+       
     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{1}.code_ctp,'propname','samplefreq');
-    
-    if refindex == 1
-        reftimestr = datestr(lasttick1(1),'HH:MM:SS');
-    else
-        reftimestr = datestr(lasttick2(1),'HH:MM:SS');
-    end
+        
     
     if indicator > strategy.upperbound_
         signals = cell(2,1);
-        fprintf('%s:indicator value:%4.2f:(-)leg1 at %s and (+)leg2 at %s\n',reftimestr,indicator,num2str(lasttick1(4)),num2str(lasttick2(4)))
+        fprintf('%s:indicator value:%4.2f:(-)leg1 and (+)leg2\n',reftimestr,indicator)
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
                         'frequency',samplefreqstr,...
@@ -57,7 +47,7 @@ function [signals] = gensignals_futpaircointegration(strategy)
         return
     elseif indicator < strategy.lowerbound_
         signals = cell(2,1);
-        fprintf('%s:indicator value:%4.2f:(+)leg1 at %s and (-)leg2 at %s\n',reftimestr,indicator,num2str(lasttick1(4)),num2str(lasttick2(4)))
+        fprintf('%s:indicator value:%4.2f:(+)leg1 and (-)leg2\n',reftimestr,indicator)
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
                         'frequency',samplefreqstr,...

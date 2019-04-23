@@ -4,19 +4,24 @@ function [] = updatapairdata(obj)
     timevec = cell(2,1);
     closep = cell(2,1);
     
+    if isempty(obj.data_)
+        error('cStratFutPairCointegration:updatapairdata:internal error')
+    end
+    
     for i = 1:2
         histcandles = obj.mde_fut_.gethistcandles(instruments{i});
-        candlesticks = obj.mde_fut_.getcandles(instruments{i});
         if isempty(histcandles)
             histcandles = [];
         else
             histcandles = histcandles{1};
         end
-    
+          
+        candlesticks = obj.mde_fut_.getcandles(instruments{i});
+
         if isempty(candlesticks)
             candlesticks = [];
         else
-            candlesticks = candlesticks{1};
+            candlesticks = candlesticks{1}(1:end-1,:);
         end
     
         if isempty(histcandles) && isempty(candlesticks)
