@@ -122,7 +122,12 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
         price = askpx - spread2use*instrument.tick_size;
     end
     
-    [flag,errmsg] = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
+    if ~isempty(signalinfo) && strcmpi(signalinfo.name,'paircointegration')
+        %walk off the riskcontrol for now
+        flag = 1;
+    else
+        [flag,errmsg] = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
+    end
     if flag
         if isempty(signalinfo) && strcmpi(class(strategy),'cStratManual')
             freq = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','samplefreq');

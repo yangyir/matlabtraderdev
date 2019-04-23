@@ -41,7 +41,7 @@ classdef cStrat < cMyTimerObj
     methods
         %
         [] = setcalcsignalbucket(obj,instrument,val)
-        calcsignalbucket = getcalcsignalbucket(obj)
+        calcsignalbucket = getcalcsignalbucket(obj,instrument)
         %
         [] = setcalcsignal(obj,instrument,val)
         calcsignal = getcalcsignal(obj)

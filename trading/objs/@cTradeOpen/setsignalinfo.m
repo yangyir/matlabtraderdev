@@ -109,6 +109,10 @@ function [] = setsignalinfo(obj,varargin)
         return
     end
     
+    if strcmpi(name,'paircointegration')
+        return
+    end
+    
     error('cTradeOpen:setsignalinfo:%s not implemented',name);
     
 end

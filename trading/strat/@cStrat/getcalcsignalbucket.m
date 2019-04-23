@@ -1,4 +1,4 @@
-function calcsignalbucket = getcalcsignalbucket(strategy)
+function calcsignalbucket = getcalcsignalbucket(strategy,instrument)
 %cStrat
     [flag,idx] = strategy.instruments_.hasinstrument(instrument);
     if ~flag, error('cStrat:getcalcsignalbucket:instrument not found');end

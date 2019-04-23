@@ -8,6 +8,7 @@ classdef cStratFutPairCointegration < cStrat
         %
         lastrebalancedatetime1_@double
         referencelegindex_@double = 1
+        volumescalefactor_@double = 10
     end
     
     properties (Dependent = true)

@@ -15,6 +15,7 @@ function [] = riskmanagement(obj,dtnum)
         trade_i = obj.helper_.trades_.node_(i);
         if strcmpi(trade_i.status_,'closed'), continue; end
         if ~isempty(trade_i.riskmanager_), continue;end
+        if isempty(trade_i.opensignal_) && isa(obj,'cStratFutPairCointegration'), continue;end
         
         if isa(trade_i.opensignal_,'cManualInfo')
             pxtarget = trade_i.opensignal_.pxtarget_;
@@ -182,45 +183,34 @@ function [] = riskmanagement(obj,dtnum)
     %
     %
     %set status of trade with risk management in place
-    for i = 1:ntrades
-        trade_i = obj.helper_.trades_.node_(i);
-        if strcmpi(trade_i.status_,'closed'), continue; end
+    if ~isa(obj,'cStratFutPairCointegration')
+        for i = 1:ntrades
+            trade_i = obj.helper_.trades_.node_(i);
+            if strcmpi(trade_i.status_,'closed'), continue; end
         
-        unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
-            'UpdatePnLForClosedTrade',false);
+            unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
+                'UpdatePnLForClosedTrade',false);
         
-        if ~isempty(unwindtrade)
-            obj.unwindtrade(unwindtrade);
-%             instrument = unwindtrade.instrument_;
-%             direction = unwindtrade.opendirection_;
-%             code = instrument.code_ctp;
-%             volume = unwindtrade.openvolume_;
-%             bidclosespread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
-%             askclosespread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
-%             lasttick = obj.mde_fut_.getlasttick(instrument);
-%             if isempty(lasttick), continue;end
-%             tradeid = unwindtrade.id_;
-%                         
-%             %we need to unwind the trade
-%             if strcmpi(obj.mode_,'replay')
-%                 closetodayFlag = 0;
-%             else
-%                 closetodayFlag = isclosetoday(unwindtrade.opendatetime1_,lasttick(1));
-%             end
-%             if direction == 1
-%                 overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
-%                 obj.shortclose(code,volume,closetodayFlag,...
-%                     'time',lasttick(1),...
-%                     'overrideprice',overridepx,...
-%                     'tradeid',tradeid);
-%             elseif direction == -1
-%                 overridepx = lasttick(3) - askclosespread*instrument.tick_size;
-%                 obj.longclose(code,volume,closetodayFlag,...
-%                     'time',lasttick(1),...
-%                     'overrideprice',overridepx,...
-%                     'tradeid',tradeid);
-%             end
+            if ~isempty(unwindtrade)
+                obj.unwindtrade(unwindtrade);
+
+            end
         end
+    else
+        %cStratFutPairCointegration
+%         instruments = obj.getinstruments;
+%         leg1 = instruments{1};
+%         leg2 = instruments{2};
+%         
+%         
+%         for i = 1:ntrades
+%             trade_i = obj.helper_.trades_.node_(i);
+%             if strcmpi(trade_i.status_,'closed'), continue; end
+%             if strcmpi(trade_i.code,leg1.code_ctp),trade1 = trade_i; continue;end
+%             if strcmpi(trade_i.code,leg2.code_ctp),trade2 = trade_i; continue;end
+%         end
+        
+        
                 
     end
 
