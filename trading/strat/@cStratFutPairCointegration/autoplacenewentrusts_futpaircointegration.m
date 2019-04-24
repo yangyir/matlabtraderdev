@@ -1,5 +1,6 @@
 function [] = autoplacenewentrusts_futpaircointegration(strategy,signals)
 %cStratFutPairCointegration
+    return
     if isempty(strategy.helper_), error('%s::autoplacenewentrusts::missing helper!!!',class(strategy));end
     
     if isempty(signals), return; end

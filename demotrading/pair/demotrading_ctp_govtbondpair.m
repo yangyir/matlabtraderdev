@@ -16,15 +16,15 @@ availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
     'initialfundlevel',availablefund,'usehistoricaldata',false);
 %
-replaydt1 = '2019-04-23';
-replaydt2 = '2019-04-23';
+replaydt1 = datestr(getlastbusinessdate,'yyyy-mm-dd');
+replaydt2 = datestr(getlastbusinessdate,'yyyy-mm-dd');
 % replay
 fprintf('runing demotrading for govtbond pair in replay mode...\n');
 if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
 if ~isempty(combos.ops), combos.ops.mode_ = 'replay';end
 if ~isempty(combos.strategy), combos.strategy.mode_ = 'replay';end
 %
-replayspeed = 10;
+replayspeed = 50;
 fprintf('set replay speed to %s...\n',num2str(replayspeed));
 if ~isempty(combos.mdefut),combos.mdefut.settimerinterval(0.5/replayspeed);end
 if ~isempty(combos.ops),combos.ops.settimerinterval(0.5/replayspeed);end
@@ -50,12 +50,16 @@ fprintf('load historical candle data...\n');
 combos.strategy.lookbackperiod_ = 240;
 combos.strategy.rebalanceperiod_ = 180;
 combos.strategy.referencelegindex_ = 2;
-combos.strategy.lastrebalancedatetime1_ = datenum('2019-04-22 14:44','yyyy-mm-dd HH:MM');
+combos.strategy.lastrebalancedatetime1_ = datenum('2019-04-23 13:14','yyyy-mm-dd HH:MM');
 combos.strategy.initdata;
 combos.mdefut.printflag_ = false;
-combos.ops.printflag_ = true;
+combos.ops.printflag_ = false;
 combos.strategy.printflag_ = false;
 fprintf('demo trading ready...\n');
+fprintf('last prarms:\n');
+disp(combos.strategy.cointegrationparams_.coeff);
+fprintf('last:%s\n',combos.strategy.lastrebalancedatetime2_);
+fprintf('next:%s\n',combos.strategy.nextrebalancedatetime2_);
 %%
 combos.mdefut.start;
 combos.ops.start;

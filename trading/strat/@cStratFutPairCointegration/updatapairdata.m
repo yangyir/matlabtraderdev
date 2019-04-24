@@ -4,6 +4,12 @@ function [] = updatapairdata(obj)
     timevec = cell(2,1);
     closep = cell(2,1);
     
+    calcsignalbucket = obj.getcalcsignalbucket(instruments{obj.referencelegindex_});
+    
+    if calcsignalbucket == 1
+        return
+    end
+      
     if isempty(obj.data_)
         error('cStratFutPairCointegration:updatapairdata:internal error')
     end
@@ -21,7 +27,12 @@ function [] = updatapairdata(obj)
         if isempty(candlesticks)
             candlesticks = [];
         else
-            candlesticks = candlesticks{1}(1:end-1,:);
+            candlesticks = candlesticks{1};
+            try
+                candlesticks = candlesticks(1:calcsignalbucket-1,:);
+            catch
+                candlesticks = candlesticks(1:end,:);
+            end
         end
     
         if isempty(histcandles) && isempty(candlesticks)
@@ -39,6 +50,8 @@ function [] = updatapairdata(obj)
         end
     end
     
-    [t,idx1,idx2] = intersect(timevec{1,1},timevec{2,1});
-    obj.data_ = [t,closep{1,1}(idx1,1),closep{2,1}(idx2,1)];
+%     [t,idx1,idx2] = intersect(timevec{1,1},timevec{2,1});
+%     obj.data_ = [t,closep{1,1}(idx1,1),closep{2,1}(idx2,1)];
+
+     obj.data_ = [timevec{1,1},closep{1,1},closep{2,1}];
 end
