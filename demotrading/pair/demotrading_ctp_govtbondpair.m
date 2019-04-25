@@ -1,4 +1,10 @@
-code = {'TF1906';'T1906'};
+code1 = 'TF1906';
+code2 = 'T1906';
+firstdate = '18-Feb-2019';
+lookbackperiod = 240;
+reblanceperiod = 180;
+%
+code = {code1;code2};
 configfile = [getenv('HOME'),'demotrading\pair\config_demotrading_govtbondpair.txt'];
 genconfigfile('manual',configfile,'instruments',code);
 propnames = {'samplefreq';'autotrade'};
@@ -16,7 +22,7 @@ availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
     'initialfundlevel',availablefund,'usehistoricaldata',false);
 %
-replaydt1 = datestr(getlastbusinessdate,'yyyy-mm-dd');
+replaydt1 = datestr(getlastbusinessdate-1,'yyyy-mm-dd');
 replaydt2 = datestr(getlastbusinessdate,'yyyy-mm-dd');
 % replay
 fprintf('runing demotrading for govtbond pair in replay mode...\n');
@@ -47,11 +53,11 @@ catch err
     fprintf('Error:%s\n',err.message);
 end
 fprintf('load historical candle data...\n');
-combos.strategy.lookbackperiod_ = 240;
-combos.strategy.rebalanceperiod_ = 180;
+combos.strategy.lookbackperiod_ = lookbackperiod;
+combos.strategy.rebalanceperiod_ = reblanceperiod;
 combos.strategy.referencelegindex_ = 2;
-combos.strategy.lastrebalancedatetime1_ = datenum('2019-04-24 14:44','yyyy-mm-dd HH:MM');
-combos.strategy.initdata;
+combos.strategy.lastrebalancedatetime1_ = getlastrebalance(replaydt1,code2,firstdate,lookbackperiod,reblanceperiod);
+% combos.strategy.initdata;
 combos.mdefut.printflag_ = false;
 combos.ops.printflag_ = false;
 combos.strategy.printflag_ = false;
@@ -66,6 +72,7 @@ combos.ops.start;
 combos.strategy.start;
 %%
 combos.mdefut.stop
+
 %%
 delete(timerfindall);
 clear

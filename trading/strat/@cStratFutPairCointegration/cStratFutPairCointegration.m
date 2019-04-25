@@ -7,6 +7,7 @@ classdef cStratFutPairCointegration < cStrat
         lowerbound_@double = -1.96
         %
         lastrebalancedatetime1_@double
+        lastrebalanceindex_@double
         referencelegindex_@double = 1
         volumescalefactor_@double = 10
     end
@@ -51,6 +52,10 @@ classdef cStratFutPairCointegration < cStrat
         end
         %end of initdata
                 
+    end
+    
+    methods
+        [] = loadmktdata(obj,varargin)        
     end
     
     methods

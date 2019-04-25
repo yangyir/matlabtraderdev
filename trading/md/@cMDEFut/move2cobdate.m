@@ -135,10 +135,19 @@ function [] = move2cobdate(obj,cobdate)
     lastbd = businessdate(datenuminput,-1);
     for i = 1:ns
         filename = [instruments{i}.code_ctp,'_daily.txt'];
-        dailypx = cDataFileIO.loadDataFromTxtFile(filename);
-        idx = dailypx(:,1) == lastbd;
-        lastpx = dailypx(idx,5);
-        if ~isempty(lastpx), obj.lastclose_(i) = lastpx;end
+        try
+            dailypx = cDataFileIO.loadDataFromTxtFile(filename);
+            idx = dailypx(:,1) == lastbd;
+            lastpx = dailypx(idx,5);
+            if ~isempty(lastpx)
+                obj.lastclose_(i) = lastpx;
+            else
+                obj.lastclose_(i) = obj.hist_candles_{i}(end,5);
+            end
+        catch
+            %in case the filename is not on directory
+            obj.lastclose_(i) = obj.hist_candles_{i}(end,5);
+        end
     end
 
 end

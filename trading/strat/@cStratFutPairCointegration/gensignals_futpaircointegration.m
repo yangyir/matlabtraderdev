@@ -27,7 +27,7 @@ function [signals] = gensignals_futpaircointegration(strategy)
     indicator = indicator / params.RMSE;
     
     reftimestr = datestr(d_(1),'HH:MM');
-    fprintf('%s:indicator value:%4.2f\n',reftimestr,indicator);
+    fprintf('%s:indicator value:%5.2f\n',reftimestr,indicator);
     
     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{1}.code_ctp,'propname','samplefreq');
         

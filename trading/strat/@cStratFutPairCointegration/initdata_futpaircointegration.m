@@ -102,6 +102,7 @@ function [] = initdata_futpaircointegration(obj)
             obj.cointegrationparams_ = {};
         end
         obj.lastrebalancedatetime1_ = obj.data_(idx,1);
+        obj.lastrebalanceindex_ = idx;
     else
         M = obj.lookbackperiod_;
         idx = t <= obj.lastrebalancedatetime1_;
@@ -114,4 +115,5 @@ function [] = initdata_futpaircointegration(obj)
         else
             obj.cointegrationparams_ = {};
         end
+        obj.lastrebalanceindex_ = idx;
     end
