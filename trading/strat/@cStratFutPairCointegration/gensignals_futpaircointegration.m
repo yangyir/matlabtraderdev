@@ -27,12 +27,12 @@ function [signals] = gensignals_futpaircointegration(strategy)
     indicator = indicator / params.RMSE;
     
     reftimestr = datestr(d_(1),'HH:MM');
-       
+    fprintf('%s:indicator value:%4.2f\n',reftimestr,indicator);
+    
     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{1}.code_ctp,'propname','samplefreq');
         
     if indicator > strategy.upperbound_
         signals = cell(2,1);
-        fprintf('%s:indicator value:%4.2f:(-)leg1 and (+)leg2\n',reftimestr,indicator)
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
                         'frequency',samplefreqstr,...
@@ -48,7 +48,6 @@ function [signals] = gensignals_futpaircointegration(strategy)
         return
     elseif indicator < strategy.lowerbound_
         signals = cell(2,1);
-        fprintf('%s:indicator value:%4.2f:(+)leg1 and (-)leg2\n',reftimestr,indicator)
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
                         'frequency',samplefreqstr,...
@@ -63,7 +62,6 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'rmse',params.RMSE);
         return
     else
-        fprintf('%s:indicator value:%4.2f\n',reftimestr,indicator);
         signals = {};
         return
     end

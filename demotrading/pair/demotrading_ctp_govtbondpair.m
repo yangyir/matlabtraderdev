@@ -50,7 +50,7 @@ fprintf('load historical candle data...\n');
 combos.strategy.lookbackperiod_ = 240;
 combos.strategy.rebalanceperiod_ = 180;
 combos.strategy.referencelegindex_ = 2;
-combos.strategy.lastrebalancedatetime1_ = datenum('2019-04-23 13:14','yyyy-mm-dd HH:MM');
+combos.strategy.lastrebalancedatetime1_ = datenum('2019-04-24 14:44','yyyy-mm-dd HH:MM');
 combos.strategy.initdata;
 combos.mdefut.printflag_ = false;
 combos.ops.printflag_ = false;

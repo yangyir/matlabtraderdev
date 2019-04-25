@@ -13,9 +13,15 @@ function [] = rebalance(obj)
     ndata = size(obj.data_,1);
     M = obj.lookbackperiod_;
     N = obj.rebalanceperiod_;
-    if ticktime > obj.nextrebalancedatetime1_ && mod(ndata-M,N) == 0
+%     if ticktime > obj.nextrebalancedatetime1_ && mod(ndata-M,N) == 0
+%         flag = true;
+%     end
+    
+    if mod(ndata-M,N) == 0
         flag = true;
-    end
+        fprintf('%s\n',obj.nextrebalancedatetime2_);
+        fprintf('%s\n',datestr(ticktime,'yyyy-mm-dd HH:MM:SS'));
+    end    
     
     if flag
         obj.lastrebalancedatetime1_ = obj.nextrebalancedatetime1_;

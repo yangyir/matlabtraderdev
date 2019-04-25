@@ -28,10 +28,19 @@ function [] = updatapairdata(obj)
             candlesticks = [];
         else
             candlesticks = candlesticks{1};
-            try
+            ncandles = size(candlesticks,1);
+            if calcsignalbucket - 1 > ncandles
+                %the ref leg is more liquid and with more tick pops in,
+                %however, the non-ref leg might not updated yet, we thus
+                %add one row the same as the last row of the candlestick
+                temp = zeros(calcsignalbucket - 1,size(candlesticks,2));
+                temp(1:ncandles,:) = candlesticks;
+                for k = ncandles + 1:size(temp,1)
+                    temp(k,:) = candlesticks(end,:);
+                end
+                candlesticks = temp;
+            else
                 candlesticks = candlesticks(1:calcsignalbucket-1,:);
-            catch
-                candlesticks = candlesticks(1:end,:);
             end
         end
     
@@ -53,5 +62,9 @@ function [] = updatapairdata(obj)
 %     [t,idx1,idx2] = intersect(timevec{1,1},timevec{2,1});
 %     obj.data_ = [t,closep{1,1}(idx1,1),closep{2,1}(idx2,1)];
 
-     obj.data_ = [timevec{1,1},closep{1,1},closep{2,1}];
+    temp = [timevec{1,1},closep{1,1},closep{2,1}];
+    nold = size(obj.data_,1);
+    obj.data_ = [obj.data_;temp(nold+1:end,:)];
+
+     
 end
