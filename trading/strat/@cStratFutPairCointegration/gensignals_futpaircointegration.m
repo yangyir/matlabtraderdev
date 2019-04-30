@@ -16,18 +16,20 @@ function [signals] = gensignals_futpaircointegration(strategy)
     % check whether rebalancing is required
     strategy.rebalance;
     
-    if isempty(strategy.cointegrationparams_)
+    d_ = strategy.data_(end,:);
+    reftimestr = datestr(d_(1),'HH:MM');
+    params = strategy.cointegrationparams_;
+    
+    if isempty(params)
         signals = {};
+        fprintf('%s:no cointegration\n',reftimestr);
         return
     end
     
-    d_ = strategy.data_(end,:);
-    params = strategy.cointegrationparams_;
     indicator = d_(2) - (params.coeff(1) + params.coeff(2) * d_(3));
     indicator = indicator / params.RMSE;
     
-    reftimestr = datestr(d_(1),'HH:MM');
-    fprintf('%s:indicator value:%5.2f\n',reftimestr,indicator);
+    fprintf('%s:indicator:%5.2f; coeff:%4.1f\n',reftimestr,indicator,params.coeff(2));
     
     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{1}.code_ctp,'propname','samplefreq');
         
