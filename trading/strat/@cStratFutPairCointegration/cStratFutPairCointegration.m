@@ -55,7 +55,8 @@ classdef cStratFutPairCointegration < cStrat
     end
     
     methods
-        [] = loadmktdata(obj,varargin)        
+        [] = loadmktdata(obj,varargin)
+        [] = riskmanagement(obj,dtnum)
     end
     
     methods

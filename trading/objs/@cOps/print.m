@@ -22,7 +22,7 @@ function [] = print(obj,varargin)
         %
         try
             if ismarketopen
-                obj.printallentrusts;
+                obj.printpendingentrusts;
             end
         catch e
             fprintf('error:cOps:printpendingentrusts:%s\n',e.message);

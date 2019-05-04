@@ -6,27 +6,26 @@ lookbackperiod = 240;
 reblanceperiod = 180;
 %
 code = {code1;code2};
-configfile = [getenv('HOME'),'demotrading\pair\config_demotrading_govtbondpair.txt'];
+configfile = [getenv('HOME'),'regressiontest\cstrat\pair\regressiontest_cstrat_paircoint_govtbond.txt'];
 genconfigfile('manual',configfile,'instruments',code);
 propnames = {'samplefreq';'autotrade'};
 propvalues = {'1m';1};
 modconfigfile(configfile,'code',code{1},'propnames',propnames,'propvalues',propvalues);
 modconfigfile(configfile,'code',code{2},'propnames',propnames,'propvalues',propvalues);
 %
-cd([getenv('HOME'),'demotrading\pair']);
+cd([getenv('HOME'),'regressiontest\cstrat\pair']);
 %
 %user inputs:
 clc;delete(timerfindall);
-bookname = 'demotrading_govtbondpair';
+bookname = 'regressiontest_govtbondpair';
 strategyname = 'pair';
 availablefund = 1e6;
 combos = rtt_setup('bookname',bookname,'strategyname',strategyname,'riskconfigfilename',configfile,...
     'initialfundlevel',availablefund,'usehistoricaldata',false);
 %
-replaydt1 = '2019-04-29';
+replaydt1 = '2019-04-24';
 replaydt2 = '2019-04-29';
 % replay
-fprintf('runing demotrading for govtbond pair in replay mode...\n');
 if ~isempty(combos.mdefut), combos.mdefut.mode_ = 'replay';end
 if ~isempty(combos.ops), combos.ops.mode_ = 'replay';end
 if ~isempty(combos.strategy), combos.strategy.mode_ = 'replay';end
@@ -60,9 +59,9 @@ combos.strategy.referencelegindex_ = 2;
 combos.strategy.lastrebalancedatetime1_ = getlastrebalance(replaydt1,code2,firstdate,lookbackperiod,reblanceperiod);
 combos.strategy.initdata;
 combos.mdefut.printflag_ = false;
-combos.ops.printflag_ = false;
+combos.ops.printflag_ = true;
 combos.strategy.printflag_ = false;
-fprintf('demo trading ready...\n');
+fprintf('regression test ready...\n');
 fprintf('last prarms:\n');
 disp(combos.strategy.cointegrationparams_.coeff);
 fprintf('last:%s\n',combos.strategy.lastrebalancedatetime2_);
@@ -77,3 +76,23 @@ combos.mdefut.stop
 %%
 delete(timerfindall);
 clear
+%%
+dir_ = [combos.ops.savedir_,combos.ops.book_.bookname_];
+fns = dir(dir_);
+for i = 1:length(fns)
+    fn = fns(i).name;
+    pnl = 0;
+    if ~isempty(strfind(fn,'regressiontest'))
+        trades = cTradeOpenArray;
+        trades.fromtxt(fn);
+        for j = 1:trades.latest_
+            if strcmpi(trades.node_(j).status_,'closed')
+                pnl = pnl + trades.node_(j).closepnl_;
+            end
+        end
+        fprintf('pnl:%5f\n',pnl);
+        
+        
+    end
+end
+

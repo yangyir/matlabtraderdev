@@ -52,8 +52,8 @@ for i = 1:trades.latest_
     end
 end
 %%
-replaydt1 = '2019-03-12';
-replaydt2 = '2019-03-12';
+replaydt1 = '2019-04-12';
+replaydt2 = '2019-04-12';
 cd([getenv('HOME'),'demotrading\wlpr']);
 %
 %user inputs:

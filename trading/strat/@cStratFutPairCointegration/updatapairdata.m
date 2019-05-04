@@ -65,6 +65,15 @@ function [] = updatapairdata(obj)
     temp = [timevec{1,1},closep{1,1},closep{2,1}];
     nold = size(obj.data_,1);
     obj.data_ = [obj.data_;temp(nold+1:end,:)];
+    %
+    if obj.data_(end,2) == 0
+        obj.data_(end,2) = obj.data_(end-1,2);
+    end
+    
+    if obj.data_(end,3) == 0
+        obj.data_(end,3) = obj.data_(end-1,3);
+    end
+    
 
      
 end

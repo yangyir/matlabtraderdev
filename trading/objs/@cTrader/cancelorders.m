@@ -75,4 +75,27 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
     end
     if entrusts.latest > 0, ret = 1;end
     
+    nc = entrusts.latest;
+    for i = 1:nc
+        npending = ops.entrustspending_.latest;
+        for j = npending:-1:1
+            if ops.entrustspending_.node(j).entrustNo == entrusts.node(i).entrustNo
+                rmidx = j;
+                ops.entrustspending_.removeByIndex(rmidx);
+                break
+            end
+        end
+        nfinished = ops.entrustsfinished_.latest;
+        flag = false;
+        for j = 1:nfinished
+            if ops.entrustsfinished_.node(j).entrustNo == entrusts.node(i).entrustNo
+                flag = true;
+                break
+            end
+        end
+        if ~flag
+            ops.entrustsfinished_.push(e);
+        end
+    end
+    
 end
