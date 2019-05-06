@@ -214,9 +214,15 @@ if strcmpi(interval_str,'m') && ~isequal(interval_num,1)
                         % in case bar interval data is given, compress with
                         % the bar interval data itself
                         d_open = d(1,2);        %the 2nd column is the open price
-                        d_high = max(d(:,3));   %the 3rd column is the high price
-                        d_low = min(d(:,4));    %the 4th column is the low price
-                        d_last = d(end,5);      %the 5th column is the last price
+                        if size(d,2) == 5
+                            d_high = max(d(:,3));   %the 3rd column is the high price
+                            d_low = min(d(:,4));    %the 4th column is the low price
+                            d_last = d(end,5);      %the 5th column is the last price
+                        else
+                            d_high = max(d(:,2));
+                            d_low = min(d(:,2));
+                            d_last = d(end,2);
+                        end
                         t = t_start;
                         temp(j,:) = [t,d_open,d_high,d_low,d_last];
                     else
