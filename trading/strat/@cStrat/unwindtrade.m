@@ -24,7 +24,11 @@ function [ret,e] = unwindtrade(obj,tradein,varargin)
     if strcmpi(obj.mode_,'replay')
         closetodayFlag = 0;
     else
-        closetodayFlag = isclosetoday(tradein.opendatetime1_,lasttick(1));
+        if strcmpi(instrument.exchange,'.SHF')
+            closetodayFlag = isclosetoday(tradein.opendatetime1_,lasttick(1));
+        else
+            closetodayFlag = 0;
+        end
     end
     if direction == 1
         bidclosespread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
