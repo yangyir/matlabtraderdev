@@ -40,12 +40,15 @@ function [] = riskmanagement(obj,dtnum)
     %in case only 1 leg is unwind and the other remains, we shall unwind
     %the remaining leg with the latest tick price A.S.A.P
     if (volume_exist(1) == 0 && volume_exist(2) ~= 0)
-        obj.unwindpositions(instruments{2});
+        %scenario 1:leg2 is newly open but leg1's open entrust is pending
+%         obj.withdrawentrusts(instruments{1});
+%         obj.unwindpositions(instruments{2});
         return
     end
     
     if (volume_exist(1) ~= 0 && volume_exist(2) == 0)
-        obj.unwindpositions(instruments{1});
+%         obj.withdrawentrusts(instruments{2});
+%         obj.unwindpositions(instruments{1});
         return
     end
     
