@@ -80,12 +80,23 @@ function [signals] = gensignals_futpaircointegration(strategy)
         return
     end
     
+    %lines of code below guarantee the indicator calculation are inline
+    %with the backtest in which the last candle close is used
     indicator = d_(2) - (params.coeff(1) + params.coeff(2) * d_(3));
     indicator = indicator / params.RMSE;
+%     fprintf('%s:indicator:%5.2f; coeff:%4.1f\n',reftimestr,indicator,params.coeff(2));
     
-    fprintf('%s:indicator:%5.2f; coeff:%4.1f\n',reftimestr,indicator,params.coeff(2));
+    %note:I guess we would prefer to use the tick price rather than the
+    %last candle close to compute the indicator again in real-trading
+    tick1 = strategy.mde_fut_.getlasttick(instruments{1});bid1 = tick1(2);ask1 = tick1(3);
+    tick2 = strategy.mde_fut_.getlasttick(instruments{2});bid2 = tick2(2);ask2 = tick2(3);
     
-    if indicator > strategy.upperbound_
+    indicatorup = (bid1 - (params.coeff(1) + params.coeff(2) * ask2))/params.RMSE;
+    indicatordn = (ask1 - (params.coeff(1) + params.coeff(2) * bid2))/params.RMSE;
+    
+    fprintf('%s:indicator:%5.2f; coeff:%4.1f; indicatorup:%5.2f; indicatordn:%5.2f\n',reftimestr,indicator,params.coeff(2),indicatorup,indicatordn);
+%     if indicator > strategy.upperbound_
+    if indicatorup > strategy.upperbound_
         signals = cell(2,1);
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
@@ -100,7 +111,8 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'coeff',params.coeff,...
                         'rmse',params.RMSE);
         return
-    elseif indicator < strategy.lowerbound_
+%     elseif indicator < strategy.lowerbound_
+    elseif indicatordn < strategy.lowerbound_
         signals = cell(2,1);
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...

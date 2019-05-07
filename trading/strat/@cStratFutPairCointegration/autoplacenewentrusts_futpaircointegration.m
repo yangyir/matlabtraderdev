@@ -8,6 +8,8 @@ function [] = autoplacenewentrusts_futpaircointegration(strategy,signals)
     n = strategy.count;
     volume_exist = zeros(n,1);
     instruments = strategy.getinstruments;
+%     params = strategy.cointegrationparams_;
+    
     %step 1:check whether there are any existing positions
     for i = 1:n
         try
@@ -53,6 +55,25 @@ function [] = autoplacenewentrusts_futpaircointegration(strategy,signals)
         end
         
         if ~isempty(trade1) && ~isempty(trade2)
+%             d1 = trade1.opendirection_;
+%             d2 = trade2.opendirection_;
+%             tick1 = strategy.mde_fut_.getlasttick(instruments{1});bid1 = tick1(2);ask1 = tick1(3);
+%             tick2 = strategy.mde_fut_.getlasttick(instruments{2});bid2 = tick2(2);ask2 = tick2(3);
+%             if d1 > 0 && d2 < 0
+%                 %need to sell close leg1 and buy close leg2
+%                 indicator = (bid1 - (params.coeff(1) + params.coeff(2) * ask2))/params.RMSE;
+%                 if indicator > strategy.lowerbound_
+%                     strategy.unwindtrade(trade1);
+%                     strategy.unwindtrade(trade2);
+%                 end
+%             elseif d1 < 0 && d2 > 0
+%                 %need to buy close leg1 and sell close leg2
+%                 indicator = (ask1 - (params.coeff(1) + params.coeff(2) * bid2))/params.RMSE;
+%                 if indicator < strategy.upperbound_
+%                     strategy.unwindtrade(trade1);
+%                     strategy.unwindtrade(trade2);
+%                 end 
+%             end
             strategy.unwindtrade(trade1);
             strategy.unwindtrade(trade2);
         end
@@ -96,8 +117,11 @@ function [] = autoplacenewentrusts_futpaircointegration(strategy,signals)
             volume2trade(i) = strategy.volumescalefactor_ * coeffs(i);
             volume2trade(i) = ceil(volume2trade(i)); 
         end
+        
+%         indicatorup = (bid(1) - (params.coeff(1) + params.coeff(2) * ask(2)))/params.RMSE;
+%         indicatordn = (ask(1) - (params.coeff(1) + params.coeff(2) * bid(2)))/params.RMSE;
                  
-        if directions(1) < 0 && directions(2) > 0            
+        if directions(1) < 0 && directions(2) > 0        
             strategy.shortopen(signals{1}.instrument.code_ctp,volume2trade(1),...
                 'overrideprice',bid(1),'time',ticktime(1),'signalinfo',signals{1});
             strategy.longopen(signals{2}.instrument.code_ctp,volume2trade(2),...
