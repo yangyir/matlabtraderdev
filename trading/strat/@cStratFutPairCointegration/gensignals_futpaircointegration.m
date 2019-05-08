@@ -91,12 +91,12 @@ function [signals] = gensignals_futpaircointegration(strategy)
     tick1 = strategy.mde_fut_.getlasttick(instruments{1});bid1 = tick1(2);ask1 = tick1(3);
     tick2 = strategy.mde_fut_.getlasttick(instruments{2});bid2 = tick2(2);ask2 = tick2(3);
     
-    indicatorup = (bid1 - (params.coeff(1) + params.coeff(2) * ask2))/params.RMSE;
-    indicatordn = (ask1 - (params.coeff(1) + params.coeff(2) * bid2))/params.RMSE;
+    indicator1 = (bid1 - (params.coeff(1) + params.coeff(2) * ask2))/params.RMSE;
+    indicator2 = (ask1 - (params.coeff(1) + params.coeff(2) * bid2))/params.RMSE;
     
-    fprintf('%s:indicator:%5.2f; coeff:%4.1f; indicatorup:%5.2f; indicatordn:%5.2f\n',reftimestr,indicator,params.coeff(2),indicatorup,indicatordn);
+    fprintf('%s:indicator:%5.2f; coeff:%4.1f; indicator1:%5.2f; indicator2:%5.2f\n',reftimestr,indicator,params.coeff(2),indicator1,indicator2);
 %     if indicator > strategy.upperbound_
-    if indicatorup > strategy.upperbound_
+    if indicator1 > strategy.upperbound_
         signals = cell(2,1);
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
@@ -112,7 +112,7 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'rmse',params.RMSE);
         return
 %     elseif indicator < strategy.lowerbound_
-    elseif indicatordn < strategy.lowerbound_
+    elseif indicator2 < strategy.lowerbound_
         signals = cell(2,1);
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
@@ -127,7 +127,7 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'coeff',params.coeff,...
                         'rmse',params.RMSE);
         return
-    else
+    elseif indicator2 < strategy.upperbound_ && indicator1 > strategy.lowerbound_ 
         signals = cell(2,1);
         signals{1,1} = struct('name','paircointegration',...
                         'instrument',instruments{1},...
@@ -141,6 +141,9 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'direction',0,...
                         'coeff',params.coeff,...
                         'rmse',params.RMSE);
+        return
+    else
+        signals = {};
         return
     end
         
