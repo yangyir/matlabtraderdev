@@ -52,6 +52,14 @@ function [] = riskmanagement(obj,dtnum)
         return
     end
     
+    if volume_exist(1) ~= 0 && volume_exist(2) ~= 0
+        runningpnlmat = obj.helper_.calcpnl('mdefut',obj.mde_fut_);
+        runningpnlscalar = sum(sum(runningpnlmat));
+        if runningpnlscalar >= 300
+            obj.unwindpositions(instruments{1});
+            obj.unwindpositions(instruments{2});
+        end
+    end
     
     
     
