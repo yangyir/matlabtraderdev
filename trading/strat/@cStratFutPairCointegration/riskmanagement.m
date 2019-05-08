@@ -37,6 +37,41 @@ function [] = riskmanagement(obj,dtnum)
     
     if emptybook, return; end
     
+    npending = obj.helper_.entrustspending_.latest;
+    if npending > 0
+        for i = 1:npending
+            try
+                e = obj.helper_.entrustspending_.node(i);
+                t = e.time;
+                %check whether there are any pending close entrusts
+                if e.offsetFlag == -1
+                    if (dtnum - t)*86400 >= 10
+                        obj.withdrawentrusts(e.instrumentCode);
+                        obj.unwindpositions(e.instrumentCode);
+                    end
+                end
+                %
+                %check whether there are any pending open entrusts
+                if e.offsetFlag == 1
+                    if (dtnum - t)*86400 >= 50
+                        [~,idx] = obj.hasinstrument(e.instrumentCode);
+                        if idx == 1
+                            obj.withdrawentrusts(e.instrumentCode);
+                            obj.unwindpositions(instruments{2});
+                        else
+                            obj.withdrawentrusts(e.instrumentCode);
+                            obj.unwindpositions(instruments{1});
+                        end
+                    end
+                    
+                end
+            catch
+            end
+            
+        end
+    end
+    
+    
     %in case only 1 leg is unwind and the other remains, we shall unwind
     %the remaining leg with the latest tick price A.S.A.P
     if (volume_exist(1) == 0 && volume_exist(2) ~= 0)
