@@ -1,7 +1,9 @@
 function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
-    bbg = cBloomberg;
-    ldb = cLocal;
+%     bbg = cBloomberg;
+%     ldb = cLocal;
     lbd = getlastbusinessdate;
+    datadir = [getenv('DATAPATH'),'dailybar\'];
+    fnlist = dir(datadir);
     
     if strcmpi(assetname,'nickel')
         list = {'ni1509';...
@@ -33,11 +35,25 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
         else
             ltd = instrument.last_trade_date1;
             expiries(i) = ltd;
-            if ltd > lbd
-                savedailybarfrombloomberg(bbg,code,true);
-            else
-                savedailybarfrombloomberg(bbg,code,true);
+            filename = [code,'_daily.txt'];
+            flag = false;
+            for j = 1:size(fnlist)
+                if strcmpi(fnlist(j).name,filename)
+                    flag = true;
+                    break
+                end
             end
+            if ~flag
+                if ~exist('bbg','var')
+                    bbg = cBloomberg;
+                end
+                savedailybarfrombloomberg(bbg,code);
+            end
+%             if ltd > lbd
+%                 savedailybarfrombloomberg(bbg,code,true);
+%             else
+%                 savedailybarfrombloomberg(bbg,code,true);
+%             end
         end
     end
     
@@ -47,13 +63,18 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     ois = zeros(ncheck,2);
     for i = 1:ncheck
         code = bbg2ctp(futlist{i+lastFutIdx-1});
-        instrument = code2instrument(code);
-        data = bbg.history(instrument,'open_int',lbd,lbd);
-        if isempty(data)
-            data = bbg.ds_.getdata(instrument.code_bbg,'open_int');
-            data = [lbd,data.open_int];
-        end
-        ois(i,:) = data;
+%         instrument = code2instrument(code);
+        %here we switch to get data from local drive rather than from the
+        %terminal
+        filename = [code,'_daily.txt'];
+        data = cDataFileIO.loadDataFromTxtFile(filename);
+        ois(i,:) = [data(end,1),data(end,7)];        
+%         data = bbg.history(instrument,'open_int',lbd,lbd);
+%         if isempty(data)
+%             data = bbg.ds_.getdata(instrument.code_bbg,'open_int');
+%             data = [lbd,data.open_int];
+%         end
+%         ois(i,:) = data;
     end
     maxoi = max(ois(:,end));
     lastFutIdx = find(ois(:,end) == maxoi) + lastFutIdx-1;
@@ -64,14 +85,23 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     pxoidata = cell(length(futures),1);
     for i = 1:length(futures)
         expiry = expiries(i);
-        fromDate = expiry - 365;
-        toDate = min(expiry,lbd);
+%         fromDate = expiry - 365;
+%         toDate = min(expiry,lbd);
         code = bbg2ctp(futures{i});
+        filename = [code,'_daily.txt'];
+        if strcmpi(code,'SR1801')
+            fprintf('haha\n');
+        end
         try
-            pxoidata{i} = ldb.history(code,'all',fromDate,toDate);
+            pxoidata{i} = cDataFileIO.loadDataFromTxtFile(filename);
         catch
             pxoidata{i} = [];
         end
+%         try
+%             pxoidata{i} = ldb.history(code,'all',fromDate,toDate);
+%         catch
+%             pxoidata{i} = [];
+%         end
         %--- some data analysis here to remove the NaNs
         if ~isempty(pxoidata{i})    
             idx = ~isnan(pxoidata{i}(:,2)) & ~isnan(pxoidata{i}(:,3)) & ...
