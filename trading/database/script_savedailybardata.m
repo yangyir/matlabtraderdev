@@ -195,7 +195,7 @@ px2 = check_i(2);
 futcode2 = bbg2ctp(livefutlist_i{idx2});
 %
 bucketsize = 20;
-nopt = 10;
+nopt = 20;
 strikes1_corn = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
 strikes2_corn = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
 
@@ -281,7 +281,7 @@ px2 = check_i(2);
 futcode2 = bbg2ctp(livefutlist_i{idx2});
 %
 bucketsize = 200;
-nopt = 10;
+nopt = 30;
 strikes1_cotton = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
 strikes2_cotton = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
 
