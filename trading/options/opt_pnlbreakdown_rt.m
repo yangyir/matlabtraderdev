@@ -46,7 +46,7 @@ price2_underlier = q.last_trade_underlier;
 data = cDataFileIO.loadDataFromTxtFile([opt.code_ctp,'_daily.txt']);
 pv1_opt = data(data(:,1)==datenum(predate),5);
 if isempty(pv1_opt)
-    error(['underlier ',underlier,' historical price not saved!'])
+    error(['underlier ',opt.code_ctp,' historical price not saved!'])
 end
 % pv2_opt = q.last_trade;
 if (q.ask1-q.bid1)/q.last_trade < 0.05
