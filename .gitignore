@@ -1,2 +1,5 @@
 
 .gitconfig
+*.txt
+*.con
+*.log
