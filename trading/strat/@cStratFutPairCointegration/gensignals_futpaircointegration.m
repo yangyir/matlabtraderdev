@@ -14,10 +14,10 @@ function [signals] = gensignals_futpaircointegration(strategy)
         nbuckets = length(strategy.mde_fut_.candles_{refindex});
         calcsignalbucket = strategy.getcalcsignalbucket(instruments{refindex});
         if calcsignalbucket < nbuckets
-            if strcmpi(strategy.mode_,'realtime')
+            if strcmpi(strategy.mode_,'replay')
                 signals = {};
                 return
-            elseif strcmpi(strategy.mode_,'replay')
+            elseif strcmpi(strategy.mode_,'realtime')
                 params = strategy.cointegrationparams_;
                 if isempty(params)
                     signals = {};
@@ -83,6 +83,9 @@ function [signals] = gensignals_futpaircointegration(strategy)
                         'direction',0,...
                         'coeff',params.coeff,...
                         'rmse',params.RMSE);
+                    return
+                else
+                    signals = {};
                     return
                 end               
             end
