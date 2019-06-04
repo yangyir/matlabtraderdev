@@ -57,10 +57,10 @@ end
 % id: 1,openbucket:2019-03-01 14:00:01,direction: 1,price:50210
 % id: 2,openbucket:2019-03-01 23:30:01,direction:-1,price:50550
 % id: 3,openbucket:2019-03-04 21:15:01,direction: 1,price:49800
-% id: 4,openbucket:2019-03-06 21:20:01,direction: 1,price:49870
+% id: 4,openbucket:2019-03-06 21:05:01,direction: 1,price:49820
 % id: 5,openbucket:2019-03-07 09:25:01,direction: 1,price:49790
 % id: 6,openbucket:2019-03-07 14:20:01,direction: 1,price:49530
-% id: 7,openbucket:2019-03-07 21:10:01,direction: 1,price:49490
+% id: 7,openbucket:2019-03-07 21:05:01,direction: 1,price:49500
 % id: 8,openbucket:2019-03-08 00:35:01,direction: 1,price:49450
 % id: 9,openbucket:2019-03-08 21:35:01,direction: 1,price:49350
 %%
@@ -90,8 +90,8 @@ if ~isempty(combos.strategy),combos.strategy.settimerinterval(0.5/replayspeed);e
 %
 fprintf('load replay tick data....\n');
 replaydt1 = '2019-03-06';
-% replaydt2 = enddt;
-replaydt2 = '2019-03-06';
+replaydt2 = enddt;
+% replaydt2 = '2019-03-06';
 replaydts = gendates('fromdate',replaydt1,'todate',replaydt2);
 try
     instruments = combos.strategy.getinstruments;
@@ -111,7 +111,7 @@ fprintf('load historical candle data...\n');
 combos.strategy.initdata;
 combos.strategy.printinfo;
 combos.mdefut.printflag_ = false;
-combos.ops.printflag_ = true;
+combos.ops.printflag_ = false;
 % combos.ops.print_timeinterval_ = 60*15;
 disp(combos.strategy.riskcontrols_.node_(1));
 fprintf('replay ready...\n');
