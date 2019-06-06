@@ -4,6 +4,7 @@ fn = ['copper_intraday_',num2str(ui_freq),'m'];
 data = load([dir_,fn]);
 candles = data.(['candles_',num2str(ui_freq),'m']);
 nfut = size(candles,1);
+
 %%
 clc;
 ifut = 23;
@@ -13,6 +14,10 @@ p = candles{ifut,2};
 np = size(p,1);
 ret = zeros(np,1);
 [tdbuysetup,tdsellsetup,tdstresistence,tdstsupport,tdbuycountdown,tdsellcountdown] = tdsq(p);
+[lead,lag] = movavg(p(:,5),12,26,'e');
+macdvec = lead - lag;
+[~,nineperma] = movavg(macdvec,1,9,'e');
+
 for i = 1:np
     ret(i) = tdsq_isvalidbreach(i,p,tdbuysetup,tdsellsetup,tdstresistence,tdstsupport);
     if i > 1 && ret(i) == ret(i-1)
@@ -27,45 +32,33 @@ for i = 1:np
     end
 end
 
+%   88: 1	tdsellsetup:5
+%  103:-1	dbuysetup:2
+%  111:-1	dbuysetup:3
+%  248:-1	dbuysetup:2
+%  279:-1	dbuysetup:6
+%  325: 1	tdsellsetup:8
+%  332:-1	dbuysetup:3
+%  377:-1	dbuysetup:9
+%  390: 1	tdsellsetup:3
+%  400:-1	dbuysetup:4
+%  405: 1	tdsellsetup:3
+%  408:-1	dbuysetup:3
+%  420: 1	tdsellsetup:3
+%  427: 1	tdsellsetup:2
+%  436:-1	dbuysetup:3
+%  440: 1	tdsellsetup:3
+%  483:-1	dbuysetup:2
+%  562:-1	dbuysetup:9
+%  719:-1	dbuysetup:3
+%  853: 1	tdsellsetup:2
+%  872: 1	tdsellsetup:2
+%  875: 1	tdsellsetup:5
+%  899:-1	dbuysetup:3
 
 
 %%
-idxstart = 400;
-tdsq_plot(p,idxstart,min(idxstart+200,np),instrument);
-    
-
-
-
+idxstart = 875;
+tdsq_plot2(p,max(idxstart-1,1),min(idxstart+200,np),instrument);
 %%
-for i = nperiodwr+1:np
-    pmax = max(p(i-nperiodwr:i-1,3));
-    pmin = min(p(i-nperiodwr:i-1,4));
-    phigh = p(i,3);
-    plow = p(i,4);
-    newmax = phigh > pmax;
-    newmin = plow < pmin;
-    if newmax
-        for j = i+1:np
-            if p(j,3) > phigh,break;end
-            if macd(j) < nineperma(j)
-                ntrade = ntrade + 1;
-                trades(ntrade,1) = -1;
-                trades(ntrade,2) = j;
-                break
-            end
-        end
-    end
-    
-    if newmin
-        for j = i+1:np
-            if p(j,4) < plow,break;end
-            if macd(j) > nineperma(j)
-                ntrade = ntrade + 1;
-                trades(ntrade,1) = 1;
-                trades(ntrade,2) = j;
-                break
-            end
-        end
-    end
-end
-trades = trades(1:ntrade,:);
+tdsq_isvalidbreach(874,p,tdbuysetup,tdsellsetup,tdstresistence,tdstsupport)
