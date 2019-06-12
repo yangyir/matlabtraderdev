@@ -109,6 +109,10 @@ classdef cMDEFut < cMyTimerObj
         %technical indicator calculator
         % William %R
         [indicators,wrseries,maxcandle,mincandle] = calc_wr_(obj,instrument,varargin)
+        % MACD
+        [macdvec,sig,diffbar] = calc_macd_(obj,instrument,varargin)
+        % TDSQ
+        [buysetup,sellsetup,levelup,leveldn,buycountdown,sellcountdown] = calc_tdsq_(obj,instrument,varargin)
         
     end
     
