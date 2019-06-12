@@ -1,7 +1,7 @@
 function [rtt_output] = rtt_setup(varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
-    p.addParameter('CounterName','citic_kim_fut',@ischar);
+    p.addParameter('CounterName','ccb_ly_fut',@ischar);
     p.addParameter('BookName','book1',@ischar);
     p.addParameter('MarketType','futures',@ischar);
     p.addParameter('StrategyName','manual',@ischar);
@@ -111,6 +111,8 @@ function [rtt_output] = rtt_setup(varargin)
         rtt_strategy.printflag_ = false;
     elseif strcmpi(stratname,'pair')
         rtt_strategy = cStratFutPairCointegration;
+    elseif strcmpi(stratname,'tdsq')
+        rtt_strategy = cStratFutMultiTDSQ;
     else
     end
     
