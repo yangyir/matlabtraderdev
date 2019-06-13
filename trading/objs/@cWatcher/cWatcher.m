@@ -60,7 +60,7 @@ classdef cWatcher < handle
             elseif strcmpi(obj.conn,'ctp')
                 if ~isa(obj.ds,'cCTP')
                     %default values
-                    ds_ = cCTP.citic_kim_fut;
+                    ds_ = cCTP.ccb_ly_fut;
                     %note:20180904we are doing login here anymore
 %                     if ~ds_.isconnect
 %                         ds_.login;
