@@ -17,7 +17,9 @@ function [] = printmarket(obj)
         %enrich printed information with last close and change
         
         fprintf('\nlatest market quotes:\n');
-        fprintf('%11s%11s%11s%11s%12s%12s%11s%11s%11s\n','contract','bid','ask','close','change','time','wr','max','min');
+%         fprintf('%11s%11s%11s%11s%12s%12s%11s%11s%11s\n','contract','bid','ask','close','change','time','wr','max','min');
+        fprintf('%11s%11s%11s%11s%12s%12s%11s%11s%11s%11s%11s%11s%11s%11s%11s\n',...
+            'contract','bid','ask','close','change','time','wr','max','min','bs','ss','levelup','leveldn','macd','sig');
         for i = 1:n
             code = quotes{i}.code_ctp;
             bid = quotes{i}.bid1;
@@ -41,27 +43,38 @@ function [] = printmarket(obj)
             timet = datestr(quotes{i}.update_time1,'HH:MM:SS');
             delta = ((lasttrade/obj.lastclose_(i))-1)*100;
             wrinfo = obj.calc_technical_indicators(code);
-            dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11.1f%11s%11s\n';
+            instr = code2instrument(code);
+            [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr);
+            [macdvec,sig] = obj.calc_macd_(instr);
+%             dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11.1f%11s%11s\n';
+            dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11.1f%11s%11s%11s%11s%11s%11s%11.1f%11.1f\n';
             
             if isempty(wrinfo)
-                dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11s%11s%11s\n';
-                    fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
-                        delta,timet,...
-                        'nan','nan','nan');
+                dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11s%11s%11s%11s%11s%11s%11s%11.1f%11.1f\n';
+                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
+                    delta,timet,...
+                    'nan','nan','nan',...
+                    num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
+                    macdvec,sig);
             else
                 if ~isempty(wrinfo{1})
                     fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
                         delta,timet,...
-                        wrinfo{1}(1),num2str(wrinfo{1}(2)),num2str(wrinfo{1}(3)));
+                        wrinfo{1}(1),num2str(wrinfo{1}(2)),num2str(wrinfo{1}(3)),...
+                        num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
+                        macdvec,sig);
                 else
-                    dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11s%11s%11s\n';
+                    dataformat = '%11s%11s%11s%11s%11.1f%%%12s%11s%11s%11s%11s%11s%11s%11s%11.1f%11.1f\n';
                     fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
                         delta,timet,...
-                        'nan','nan','nan');
+                        'nan','nan','nan',...
+                        num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
+                        macdvec,sig);
                 end
             end
         end
     else
+        %replay mode
         instruments = obj.qms_.instruments_.getinstrument;
         n = size(instruments,1);
         if n == 0
@@ -69,9 +82,6 @@ function [] = printmarket(obj)
             return;
         end
         
-%         if isempty(obj.ticks_)
-%             return
-%         end
         if isempty(obj.ticksquick_)
             return
         end
@@ -79,7 +89,6 @@ function [] = printmarket(obj)
         rowcount = 0;
         for i = 1:n
             code = instruments{i}.code_ctp;
-%             lasttick = obj.getlasttick(instruments{i});
             count = obj.ticks_count_(i);
             if count > 0
                 lasttick = obj.ticksquick_(i,:);
@@ -90,14 +99,23 @@ function [] = printmarket(obj)
             rowcount = rowcount + 1;
             if rowcount == 1
                 fprintf('\nlatest market quotes (replay):\n');
-                fprintf('%11s%11s%11s%12s\n','contract','bid','ask','time');
+                fprintf('%11s%11s%11s%12s%12s%11s%11s%11s%11s%11s%11s%11s%11s%11s\n',...
+                    'contract','trade','close','change','time','wr','max','min','bs','ss','levelup','leveldn','macd','sig');
             end
-            bid = lasttick(2);
-            ask = lasttick(3);
+            lasttrade = lasttick(4);
             timet = datestr(lasttick(1),'HH:MM:SS');
-            dataformat = '%11s%11s%11s%12s\n';
+            dataformat = '%11s%11s%11s%11.1f%%%12s%11.1f%11s%11s%11s%11s%11s%11s%11.1f%11.1f\n';
+            delta = ((lasttrade/obj.lastclose_(i))-1)*100;
             
-            fprintf(dataformat,code,num2str(bid),num2str(ask),timet);
+            wrinfo = obj.calc_wr_(instruments{i});
+            [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instruments{i});
+            [macdvec,sig] = obj.calc_macd_(instruments{i});
+            
+            fprintf(dataformat,code,num2str(lasttrade),num2str(obj.lastclose_(i)),...
+                delta,timet,...
+                wrinfo(1),num2str(wrinfo(2)),num2str(wrinfo(3)),...
+                num2str(buysetup(end)),num2str(sellsetup(end)),num2str(levelup(end)),num2str(leveldn(end)),...
+                macdvec(end),sig(end));
         end
         
     end

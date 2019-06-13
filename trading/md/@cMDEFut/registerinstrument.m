@@ -42,7 +42,28 @@ function [] = registerinstrument(mdefut,instrument)
             mdefut.technical_indicator_autocalc_ = autocalc;
         end
     end
-
+    
+    %init of wrnperiod_, macdlead_,macdlag_,macdavg_,tdsqlag_,tdsqconsecutive_
+    if isempty(mdefut.wrnperiod_)
+        mdefut.wrnperiod_ = 144*ones(ns,1);
+        %MACD
+        mdefut.macdlead_ = 6*ones(ns,1);
+        mdefut.macdlag_ = 12*ones(ns,1);
+        mdefut.macdavg_ = 9*ones(ns,1);
+        %TDSQ
+        mdefut.tdsqlag_ = 4*ones(ns,1);
+        mdefut.tdsqconsecutive_ = 9*ones(ns,1);
+    else
+        ns_ = size(mdefut.wrnperiod_,1);
+        if ns_ ~= ns
+            mdefut.wrnperiod_ =  [mdefut.wrnperiod_;144*ones(ns-ns_,1)];
+            mdefut.macdlead_ = [mdefut.macdlead_;6*ones(ns-ns_,1)];
+            mdefut.macdlag_ = [mdefut.macdlag_;12*ones(ns-ns_,1)];
+            mdefut.macdavg_ = [mdefut.macdavg_;9*ones(ns-ns_,1)];
+            mdefut.tdsqlag_ = [mdefut.tdsqlag_;4*ones(ns-ns_,1)];
+            mdefut.tdsqconsecutive_ = [mdefut.tdsqconsecutive_;9*ones(ns-ns_,1)];
+        end
+    end          
     % init of candle freq
     if isempty(mdefut.candle_freq_)
         %default value of candle frequency is one minute

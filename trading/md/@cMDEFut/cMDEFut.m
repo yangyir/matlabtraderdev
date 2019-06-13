@@ -20,6 +20,15 @@ classdef cMDEFut < cMyTimerObj
         
         technical_indicator_autocalc_@double
         technical_indicator_table_@cell
+        %William %R number of period
+        wrnperiod_@double
+        %MACD
+        macdlead_@double
+        macdlag_@double
+        macdavg_@double
+        %TDSQ
+        tdsqlag_@double
+        tdsqconsecutive_@double
         %
         %
         replayer_@cReplayer
@@ -95,6 +104,7 @@ classdef cMDEFut < cMyTimerObj
         candlesticks = getlastcandle(obj,instrument)
         [] = loadhistcandles(obj,instrument,histcandles)
         histcandles = gethistcandles(obj,instrument)
+        candlesticks = getallcandles(obj,instrument)
         tick = getlasttick(obj,instrument)
         %init data
         [ret] = initcandles(obj,instrument,varargin)
