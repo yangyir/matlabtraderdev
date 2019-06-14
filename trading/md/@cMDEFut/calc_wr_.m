@@ -7,60 +7,24 @@ function [indicators,wrseries,maxcandle,mincandle] = calc_wr_(mdefut,instrument,
     p.addParameter('IncludeLastCandle',0,@isnumeric);
     p.parse(instrument,varargin{:});
     instrument = p.Results.Instrument;
-    nperiods = p.Results.NumOfPeriods;
     includeLastCandle = p.Results.IncludeLastCandle;
-
-    histcandles = mdefut.gethistcandles(instrument);
-    candlesticks = mdefut.getcandles(instrument);
     
-    if isempty(histcandles)
-        histcandles = [];
-    else
-        histcandles = histcandles{1};
+    candlesticks = mdefut.getallcandles(instrument);
+    candlesall = candlesticks{1};
+    if ~includeLastCandle && ~isempty(candlesall)
+        candlesall = candlesall(1:end-1,:);
     end
+    timevec = candlesall(:,1);
+    highp = candlesall(:,3);
+    lowp = candlesall(:,4);
+    closep = candlesall(:,5);
     
-    if isempty(candlesticks)
-        candlesticks = [];
-    else
-        candlesticks = candlesticks{1};
-        if ~includeLastCandle
-            candlesticks = candlesticks(1:end-1,:);
-        end
+    [~,idx] = mdefut.qms_.instruments_.hasinstrument(instrument);
+    try
+        nperiods = mdefut.wrnperiod_(idx);
+    catch
+        nperiods = p.Results.NumOfPeriods;
     end
-    
-    if isempty(histcandles) && isempty(candlesticks)
-        timevec = [];
-        highp = [];
-        lowp = [];
-        closep = [];
-        candlesall = [];
-    elseif isempty(histcandles) && ~isempty(candlesticks)
-        timevec = candlesticks(:,1);
-        highp = candlesticks(:,3);
-        lowp = candlesticks(:,4);
-        closep = candlesticks(:,5);
-        candlesall = candlesticks;
-    elseif ~isempty(histcandles) && isempty(candlesticks)
-        timevec = histcandles(:,1);
-        highp = histcandles(:,3);
-        lowp = histcandles(:,4);
-        closep = histcandles(:,5);
-        candlesall = histcandles;
-    elseif ~isempty(histcandles) && ~isempty(candlesticks)
-        timevec = [histcandles(:,1);candlesticks(:,1)];
-        highp = [histcandles(:,3);candlesticks(:,3)];
-        lowp = [histcandles(:,4);candlesticks(:,4)];
-        closep = [histcandles(:,5);candlesticks(:,5)];
-        candlesall = [histcandles;candlesticks];
-    end
-    
-    %remove possible zeros
-    checks = highp.*lowp.*closep;
-    idx = checks ~= 0;
-    timevec = timevec(idx);
-    highp = highp(idx);
-    lowp = lowp(idx);
-    closep = closep(idx);
 
     if size(closep,1) >= nperiods
         wrs = willpctr(highp,lowp,closep,nperiods);

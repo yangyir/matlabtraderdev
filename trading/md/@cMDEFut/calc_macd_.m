@@ -7,41 +7,35 @@ function [macdvec,sig,diffbar] = calc_macd_(mdefut,instrument,varargin)
     p.addParameter('Average',9,@isnumeric);
     p.addParameter('IncludeLastCandle',0,@isnumeric);
     p.parse(instrument,varargin{:});
-    lead = p.Results.Lead;
-    lag = p.Results.Lag;
-    naverage = p.Results.Average;
+    
     includeLastCandle = p.Results.IncludeLastCandle;
     
-    histcandles = mdefut.gethistcandles(instrument);
-    candlesticks = mdefut.getcandles(instrument);
-    
-    if isempty(histcandles)
-        histcandles = [];
-    else
-        histcandles = histcandles{1};
+    candlesticks = mdefut.getallcandles(instrument);
+    data = candlesticks{1};
+    if ~includeLastCandle && ~isempty(data)
+        data = data(1:end-1,:);
     end
     
-    if isempty(candlesticks)
-        candlesticks = [];
-    else
-        candlesticks = candlesticks{1};
-        if ~includeLastCandle
-            candlesticks = candlesticks(1:end-1,:);
-        end
+    closep = data(:,5);
+    
+    [~,idx] = mdefut.qms_.instruments_.hasinstrument(instrument);
+    try
+        lead = mdefut.macdlead_(idx);
+    catch
+        lead = p.Results.Lead;
     end
     
-    if isempty(histcandles) && isempty(candlesticks)
-        closep = [];
-    elseif isempty(histcandles) && ~isempty(candlesticks)
-        closep = candlesticks(:,5);
-    elseif ~isempty(histcandles) && isempty(candlesticks)
-        closep = histcandles(:,5);
-    elseif ~isempty(histcandles) && ~isempty(candlesticks)
-        closep = [histcandles(:,5);candlesticks(:,5)];
+    try
+        lag = mdefut.macdlag_(idx);
+    catch
+        lag = p.Results.Lag;
     end
     
-    idx = closep ~= 0;
-    closep = closep(idx);
+    try
+        naverage = mdefut.macdavg_(idx);
+    catch
+        naverage = p.Results.Average;
+    end
     
     [leadvec,lagvec] = movavg(closep,lead,lag,'e');
     

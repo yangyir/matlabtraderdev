@@ -21,5 +21,6 @@ fprintf('leveldn:%6d\n',leveldn(end));
 [macdvec,sig,diffbar] = mdefut.calc_macd_(instr,'includelastcandle',1);
 fprintf('macdvec:%6.2f\n',macdvec(end));
 fprintf('sig:%6.2f\n',sig(end));
-
+%%
+mdefut.start;
 
