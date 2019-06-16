@@ -46,13 +46,13 @@ frame = handles.frame;
 %%
 %the TOP LEFT block
 %'generalsetup'
-ui_topPanelH = ui.topPanelH;
+ui_topPanelH1 = ui.topPanelH1;
 % ui_leftPanel2H = ui.leftPanel2H;
 %given the heights and 1st and 2nd pannel the 3rd pannel height is thus:
 % leftPanel3H = 1-ui_topPanelH-ui_leftPanel2H-ui_panel2TopFrame-ui_panel2BottomFrame-...
 %     2*ui_panel2panelH;
 %the general setup
-generalsetupPanelH = ui_topPanelH;
+generalsetupPanelH = ui_topPanelH1;
 generalsetupPanelW = ui_topLeftBlockW;
 generalsetupPanelX = upperLeftBlockX;
 generalsetupPanelY = 1 - ui_panel2TopFrame - generalsetupPanelH;
@@ -64,11 +64,24 @@ handles.generalsetup.panelbox = uipanel('Parent', frame, ...
     'FontSize', ui_panelFontSize, ...
     'FontWeight', 'bold',...
     'TitlePosition', 'lefttop');
+%'operations
+mktdataopsH = ui.topPanelH2;
+mktdataopsW = ui_topLeftBlockW;
+mktdataopsX = upperLeftBlockX;
+mktdataopsY = generalsetupPanelY-ui_panel2panelV-mktdataopsH;
+mktdataopsPosition = [mktdataopsX mktdataopsY mktdataopsW mktdataopsH];
+handles.mktdataops.panelbox = uipanel('Parent',frame,...
+    'Title', 'Operations', ...
+    'Units', 'Normalized',...
+    'Position', mktdataopsPosition,...
+    'FontSize', ui_panelFontSize, ...
+    'FontWeight', 'bold',...
+    'TitlePosition', 'lefttop');
 
 %%
 %the TOP RIGHT block
 %'mktdatatbl'
-ui_topRightPanelH = ui.topPanelH;
+ui_topRightPanelH = ui.topPanelH1 + ui.topPanelH2 + ui_panel2panelV;
 %market data table
 mktdataTblPanelH = ui_topRightPanelH;
 mktdataTblPanelW = upperRightBlockW;
@@ -83,7 +96,7 @@ handles.mktdatatbl.panelbox = uipanel('Parent', frame, 'Title', 'Market Data', .
 %%
 %the BOTTOM block
 %'mktdataplot'
-ui_bottomPanelH = 1-ui.topPanelH-ui_panel2panelV-ui_panel2TopFrame-ui_panel2BottomFrame;
+ui_bottomPanelH = 1-ui.topPanelH1-ui.topPanelH2-2*ui_panel2panelV-ui_panel2TopFrame-ui_panel2BottomFrame;
 %market data plot
 mktdataPlotPanelH = ui_bottomPanelH;
 mktdataPlotPanelW = 1-ui_panel2LeftFrame-ui_panel2RightFrame;

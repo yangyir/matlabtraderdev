@@ -10,6 +10,9 @@ function guicallback_mdefutstopbutton( hObject , eventdata , handles )
     catch
     end
     
-    statusstr = 'market data engine stopped...';
-    set(handles.statusbar.statustext,'string',statusstr);
+    try
+        statusstr = 'market data engine stopped...';
+        set(handles.statusbar.statustext,'string',statusstr);
+    catch
+    end
 end
