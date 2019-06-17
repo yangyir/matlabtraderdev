@@ -2,10 +2,10 @@
 % load all intraday candles from onedrive
 % the intraday data is stored in 5min interval
 ui_freq = 5;
-dir_ = 'C:\Users\yiran\OneDrive\backtest\copper\';
-fn = 'copper_intraday';
+dir_ = [getenv('OneDrive'),'\backtest\copper\'];
+fn = 'copper_intraday_5m';
 data = load([dir_,fn]);
-candles = data.candles;
+candles = data.candles_5m;
 dt1 = floor(candles{1,2}(1,1));
 dt2 = floor(candles{end,2}(end,1));
 bds = gendates('fromdate',dt1,'todate',dt2);

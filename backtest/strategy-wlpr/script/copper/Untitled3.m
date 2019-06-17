@@ -17,6 +17,7 @@ ret = zeros(np,1);
 [lead,lag] = movavg(p(:,5),12,26,'e');
 macdvec = lead - lag;
 [~,nineperma] = movavg(macdvec,1,9,'e');
+tbl = [p,tdbuysetup,tdsellsetup,tdstresistence,tdstsupport,tdbuycountdown,tdsellcountdown,macdvec,nineperma];
 
 for i = 1:np
     ret(i) = tdsq_isvalidbreach(i,p,tdbuysetup,tdsellsetup,tdstresistence,tdstsupport);
@@ -58,7 +59,41 @@ end
 
 
 %%
-idxstart = 875;
+idxstart = 800;
 tdsq_plot2(p,max(idxstart-1,1),min(idxstart+200,np),instrument);
 %%
 tdsq_isvalidbreach(874,p,tdbuysetup,tdsellsetup,tdstresistence,tdstsupport)
+%%
+ids = [88;103;111;248;279;325;332;377;390;400;405;408;420;427;436;440;483;562;719;853;872;875;899];
+directs = [1;-1;-1;-1;-1;1;-1;-1;1;-1;1;-1;1;1;-1;1;-1;-1;-1;1;1;1;-1];
+pnl = zeros(size(ids));
+for k = 1:size(ids,1);
+    output = tdsq_riskmanagement(ids(k),directs(k),p,tdbuysetup,tdsellsetup,tdstresistence,tdstsupport,macdvec,nineperma);
+    pnl(k) = output.pnl;
+end
+sum(pnl)
+%     30
+%    280
+%    -40
+%     20
+%    -30
+%     30
+%     90
+%     70
+%    -80
+%      0
+%    -50
+%     10
+%    -30
+%   -110
+%   -180
+%    -50
+%    130
+%    680
+%    450
+%   -140
+%    220
+%    220
+%    440
+
+

@@ -4,7 +4,7 @@ classdef cGUIFut < cMyTimerObj
     
     properties
         mdefut_@cMDEFut
-        handles_
+        handles_@struct
     end
     
     methods

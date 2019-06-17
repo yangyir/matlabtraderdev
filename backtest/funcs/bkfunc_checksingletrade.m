@@ -281,7 +281,7 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             stop_period = idx_stop-idx_open;
         
             figure(1)
-            subplot(211)
+            h(1) = subplot(211);
             candle(candles(idx_open-idx_shift:idx_stop,3),candles(idx_open-idx_shift:idx_stop,4),candles(idx_open-idx_shift:idx_stop,5),candles(idx_open-idx_shift:idx_stop,2),'b');
             hold on;
             if trade.opendirection_ == 1
@@ -306,7 +306,7 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             hold off;
             %
             subplot(212)
-            plot(wlpr(idx_open-idx_shift:idx_stop),'b');
+            h(2) = plot(wlpr(idx_open-idx_shift:idx_stop),'b');
             hold on;
             if ~isempty(shortwr) && ~isempty(longwr)
                 plot(shortwr(idx_open-idx_shift:idx_stop),'r');
@@ -323,6 +323,7 @@ function [tradeout,pstoploss] = bkfunc_checksingletrade(trade,candles,varargin)
             end
             title('williams');
             grid on;hold off;
+%             linkaxes(h,'x')
         end
                 
         return
