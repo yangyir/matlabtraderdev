@@ -1,16 +1,26 @@
-function [handles] = gui_frame_mktdatatbl(handles,ui_frame)
+function [handles] = gui_frame_mktdatatbl(handles,ui_frame,varargin)
     variablenotused(ui_frame);
-
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('code',{},@iscell);
+    p.parse(varargin{:});
+    code = p.Results.code;
+    
     panelbox = handles.mktdatatbl.panelbox;
     refdate = getlastbusinessdate;
-    try
-        activefuts = cDataFileIO.loadDataFromTxtFile([getenv('DATAPATH'),'activefutures\activefutures_',datestr(refdate,'yyyymmdd'),'.txt']);
-    catch
-        refdate = businessdate(refdate,-1);
-        activefuts = cDataFileIO.loadDataFromTxtFile([getenv('DATAPATH'),'activefutures\activefutures_',datestr(refdate,'yyyymmdd'),'.txt']);
+    
+    if isempty(code)
+        try
+            futs = cDataFileIO.loadDataFromTxtFile([getenv('DATAPATH'),'activefutures\activefutures_',datestr(refdate,'yyyymmdd'),'.txt']);
+        catch
+            refdate = businessdate(refdate,-1);
+            futs = cDataFileIO.loadDataFromTxtFile([getenv('DATAPATH'),'activefutures\activefutures_',datestr(refdate,'yyyymmdd'),'.txt']);
+        end
+    else
+        futs = code;
     end
     
-    nfuts = size(activefuts,1);
+    nfuts = size(futs,1);
     %table will centred with 1.5% distance 2 each side of the panel
     positionTblX = 0.015;
     mktdataTblW = 1-2*positionTblX;
@@ -22,7 +32,7 @@ function [handles] = gui_frame_mktdatatbl(handles,ui_frame)
     handles.mktdatatbl.table  = uitable('Parent', panelbox, 'Units', 'Normalized', ...
         'Position', [positionTblX mktdataTblY mktdataTblW mktdataTblH], 'FontSize' , 8 , 'FontWeight' ,'bold', ...
         'Data', num2cell(ones(nfuts, length(columnnames))*NaN), 'ColumnWidth', {80 80 80 100 80 80 80 80 80 80 80 80 80 80 80}, 'BackgroundColor', [1 1 0.8;1 1 1],...
-        'RowName',activefuts,...
+        'RowName',futs,...
         'ColumnName',columnnames);
-    handles.instruments2trade = activefuts;
+    handles.instruments2trade = futs;
 end

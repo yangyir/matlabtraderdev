@@ -5,13 +5,20 @@ function [] = refresh(obj,varargin)
         nrows = size(tblRowName,1);
         ncols = length(tblColName);
         data = cell(nrows,ncols);
+        wrinfocell = cell(nrows,1);
+        macdcell = cell(nrows,1);
+        sigcell = cell(nrows,1);
+        bscell = cell(nrows,1);
+        sscell = cell(nrows,1);
+        levelupcell = cell(nrows,1);
+        leveldncell = cell(nrows,1);
         for i = 1:nrows
             instr = code2instrument(tblRowName{i});
             lasttick = obj.mdefut_.getlasttick(tblRowName{i});
             lastClose = obj.mdefut_.lastclose_(i);
-            wrinfo = obj.mdefut_.calc_wr_(instr,'IncludeLastCandle',1);
-            [macdvec,sigvec] = obj.mdefut_.calc_macd_(instr,'IncludeLastCandle',1);
-            [bs,ss,levelup,leveldn] = obj.mdefut_.calc_tdsq_(instr,'IncludeLastCandle',1);
+            wrinfocell{i} = obj.mdefut_.calc_wr_(instr,'IncludeLastCandle',1);
+            [macdcell{i},sigcell{i}] = obj.mdefut_.calc_macd_(instr,'IncludeLastCandle',1);
+            [bscell{i},sscell{i},levelupcell{i},leveldncell{i}] = obj.mdefut_.calc_tdsq_(instr,'IncludeLastCandle',1);
 
             if ~isempty(lasttick)
                 data{i,1} = num2str(lasttick(4));   %last trade
@@ -29,15 +36,15 @@ function [] = refresh(obj,varargin)
                 data{i,4} = datestr(lasttick(1),'dd/mmm HH:MM:SS');
                 data{i,5} = num2str(lastClose);
                 data{i,6} = sprintf('%3.1f%%',100*(lasttick(4)/lastClose-1));
-                data{i,7} = sprintf('%3.1f',wrinfo(1));
-                data{i,8} = num2str(wrinfo(2));
-                data{i,9} = num2str(wrinfo(3));
-                data{i,10} = num2str(bs(end));
-                data{i,11} = num2str(ss(end));
-                data{i,12} = num2str(levelup(end));
-                data{i,13} = num2str(leveldn(end));
-                data{i,14} = sprintf('%3.3f',macdvec(end));
-                data{i,15} = sprintf('%3.3f',sigvec(end));
+                data{i,7} = sprintf('%3.1f',wrinfocell{i}(1));
+                data{i,8} = num2str(wrinfocell{i}(2));
+                data{i,9} = num2str(wrinfocell{i}(3));
+                data{i,10} = num2str(bscell{i}(end));
+                data{i,11} = num2str(sscell{i}(end));
+                data{i,12} = num2str(levelupcell{i}(end));
+                data{i,13} = num2str(leveldncell{i}(end));
+                data{i,14} = sprintf('%3.3f',macdcell{i}(end));
+                data{i,15} = sprintf('%3.3f',sigcell{i}(end));
             end
         end
         set(obj.handles_.mktdatatbl.table,'Data',data);
@@ -52,7 +59,7 @@ function [] = refresh(obj,varargin)
         code2plot = codelist{codeidx};
         instr2plot = code2instrument(code2plot);
         shift = 2*instr2plot.tick_size;
-        candles2plot = obj.handles_.getallcandles(code2plot);
+        candles2plot = obj.mdefut_.getallcandles(code2plot);
         candles2plot = candles2plot{1};
         ltotal = size(candles2plot,1);
         if ltotal > 0
@@ -67,10 +74,12 @@ function [] = refresh(obj,varargin)
             pxhigh2plot = candles2plot(idxstart:end,3);
             pxlow2plot = candles2plot(idxstart:end,4);
             pxclose2plot = candles2plot(idxstart:end,5);
-            macdvec2plot = macdvec(idxstart:end);
-            sigvec2plot = sigvec(idxstart:end);
-            levelup2plot = levelup(idxstart:end);
-            leveldn2plot = leveldn(idxstart:end);
+            macdvec2plot = macdcell{codeidx}(idxstart:end);
+            sigvec2plot = sigcell{codeidx}(idxstart:end);
+            levelup2plot = levelupcell{codeidx}(idxstart:end);
+            leveldn2plot = leveldncell{codeidx}(idxstart:end);
+            bs = bscell{codeidx};
+            ss = sscell{codeidx};
             ax(1) = subplot(2,1,1);
             plot(levelup2plot,'r:','LineWidth',2);hold on;
             plot(leveldn2plot,'g:','LineWidth',2);

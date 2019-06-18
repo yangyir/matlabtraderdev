@@ -3,6 +3,7 @@ classdef cGUIFut < cMyTimerObj
     %   Detailed explanation goes here
     
     properties
+        countername_@char
         mdefut_@cMDEFut
         handles_@struct
     end
@@ -21,6 +22,8 @@ classdef cGUIFut < cMyTimerObj
         [] = loadmktdata(obj,varargin)
         [] = loadtrades(obj,varargin)
         [t] = getreplaytime(obj,varargin)
+        [ret] = login(obj,varargin)
+        [ret] = logoff(obj)
     end
     
     methods (Access = private)

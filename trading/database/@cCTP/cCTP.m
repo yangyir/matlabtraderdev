@@ -6,6 +6,7 @@ classdef cCTP < cDataSource
     
     properties( SetAccess = private, Hidden = true, GetAccess = private )
         isconnected_ = 0
+        loginid_
     end
     
     properties( SetAccess = private, Hidden = false , GetAccess = public ) 
@@ -36,8 +37,9 @@ classdef cCTP < cDataSource
         
         function [ret] = login(obj)
             if ~obj.isconnected_
-                [ret] = mdlogin(obj.addr_,obj.broker_,obj.investor_,obj.pwd_);
+                [ret,id] = mdlogin(obj.addr_,obj.broker_,obj.investor_,obj.pwd_);
                 obj.isconnected_ = ret;
+                obj.loginid_ = id;
             else
                 ret = obj.isconnected_;
             end
@@ -47,7 +49,7 @@ classdef cCTP < cDataSource
         function [] = logoff(obj)
             if obj.isconnected_
                 try
-                    mdlogout;
+                    mdlogout(obj.loginid_);
                     obj.isconnected_ = 0;
                 catch
                 end
