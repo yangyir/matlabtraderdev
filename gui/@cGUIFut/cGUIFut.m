@@ -8,6 +8,10 @@ classdef cGUIFut < cMyTimerObj
         handles_@struct
     end
     
+    properties (Hidden = true)
+        code2plot_@char
+    end
+    
     methods
         function obj = cGUIFut(varargin)
             obj = init(obj,varargin{:});
@@ -28,6 +32,8 @@ classdef cGUIFut < cMyTimerObj
     
     methods (Access = private)
         obj = init(obj,varargin)
+        [output] = refreshtbl(obj,varargin)
+        [] = refreshplot(obj,varargin)
     end
         
 end

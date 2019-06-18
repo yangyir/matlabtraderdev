@@ -193,6 +193,9 @@ function obj = init(obj,varargin)
    %    
    obj.mdefut_ = mdefut;
    obj.handles_ = handles;
+   obj.code2plot_ = code{1};
+   %
+   obj.refreshplot;
    
    
 end
