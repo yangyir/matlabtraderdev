@@ -124,7 +124,7 @@ function [] = refreshplot(obj,varargin)
             end
             set(ax(2),'XTickLabel',xticklabel,'fontsize',8);grid on;
             hold off;
-            legend('macd','nineperma');
+%             legend('macd','nineperma');
             linkaxes(ax,'x')
         end
     catch err
