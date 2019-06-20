@@ -36,8 +36,13 @@ function [output] = refreshtbl(obj,varargin)
                 data{i,4} = datestr(lasttick(1),'dd/mmm HH:MM:SS');
                 data{i,6} = sprintf('%3.1f%%',100*(lasttick(4)/lastClose-1));
             else
-                
-                
+                k = obj.mdefut_.getallcandles(instr);
+                k = k{1};
+                lastClose = k(end,5);
+                data{i,1} = num2str(lastClose);
+                data{i,2} = num2str(lastClose);
+                data{i,3} = num2str(lastClose);
+                data{i,4} = datestr(k(end,1)+k(end,1)-k(end-1,1),'dd/mmm HH:MM:SS');
             end
                 data{i,5} = num2str(lastClose);
                 data{i,7} = sprintf('%3.1f',wrinfocell{i}(1));

@@ -5,7 +5,7 @@ mygui = cGUIFut('filename','config_gui_mdefut_config2.txt');
 % k = k{1};
 % datestr(k(end,1))
 %%
-mygui.login
+% mygui.login
 % %%
 % mygui.mdefut_.refresh
 %%
