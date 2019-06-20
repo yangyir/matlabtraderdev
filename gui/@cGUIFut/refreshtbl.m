@@ -33,10 +33,13 @@ function [output] = refreshtbl(obj,varargin)
                 else
                     data{i,3} = num2str(lasttick(3));   %ask
                 end
-
                 data{i,4} = datestr(lasttick(1),'dd/mmm HH:MM:SS');
-                data{i,5} = num2str(lastClose);
                 data{i,6} = sprintf('%3.1f%%',100*(lasttick(4)/lastClose-1));
+            else
+                
+                
+            end
+                data{i,5} = num2str(lastClose);
                 data{i,7} = sprintf('%3.1f',wrinfocell{i}(1));
                 data{i,8} = num2str(wrinfocell{i}(2));
                 data{i,9} = num2str(wrinfocell{i}(3));
@@ -46,7 +49,6 @@ function [output] = refreshtbl(obj,varargin)
                 data{i,13} = num2str(leveldncell{i}(end));
                 data{i,14} = sprintf('%3.3f',macdcell{i}(end));
                 data{i,15} = sprintf('%3.3f',sigcell{i}(end));
-            end
         end
         set(obj.handles_.mktdatatbl.table,'Data',data);
         output = struct('wrinfocell',{wrinfocell},...

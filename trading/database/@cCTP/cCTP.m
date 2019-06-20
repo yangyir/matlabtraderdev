@@ -52,6 +52,7 @@ classdef cCTP < cDataSource
                     mdlogout(obj.loginid_);
                     obj.isconnected_ = 0;
                 catch
+                    fprintf('cCTP:logoff failed!!!\n');
                 end
                 
             end

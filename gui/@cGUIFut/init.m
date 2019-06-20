@@ -98,6 +98,9 @@ function obj = init(obj,varargin)
         mdefut.tdsqlag_(i) = tdsqlag(i);
         mdefut.tdsqconsecutive_(i) = tdsqconsecutive(i);
     end
+    mdefut.qms_.watcher_.conn = 'ctp';
+    mdefut.qms_.watcher_.ds = cCTP.(countername);
+    
     %init historical data
     instruments2trade = mdefut.qms_.instruments_.getinstrument;
     for i = 1:n
@@ -164,16 +167,15 @@ function obj = init(obj,varargin)
         wrinfo = mdefut.calc_wr_(instruments2trade{i},'IncludeLastCandle',1);
         [macdvec,sigvec] = mdefut.calc_macd_(instruments2trade{i},'IncludeLastCandle',1);
         [bs,ss,levelup,leveldn] = mdefut.calc_tdsq_(instruments2trade{i},'IncludeLastCandle',1);
+        k = mdefut.getallcandles(instruments2trade{i});
+        k = k{1};
         
-        data{i,1} = num2str(lastcloseprice);
-        data{i,2} = num2str(lastcloseprice);
-        data{i,3} = num2str(lastcloseprice);
+        data{i,1} = num2str(k(end,5));
+        data{i,2} = num2str(k(end,5));
+        data{i,3} = num2str(k(end,5));
         
-        if size(instruments2trade{i}.break_interval,1) > 2
-            data{i,4} = datestr([datestr(lastbd,'yyyy-mm-dd'),' ',instruments2trade{i}.break_interval{3,end}],'dd/mmm HH:MM:SS');
-        else
-            data{i,4} = datestr([datestr(lastbd,'yyyy-mm-dd'),' ',instruments2trade{i}.break_interval{2,end}],'dd/mmm HH:MM:SS');
-        end
+        data{i,4} = datestr(2*k(end,1)-k(end-1,1),'dd/mmm HH:MM:SS');
+        
         data{i,5} = num2str(lastcloseprice);
         data{i,6} = sprintf('%3.1f%%',0);
         data{i,7} = sprintf('%3.1f',wrinfo(1));

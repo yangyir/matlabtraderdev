@@ -62,7 +62,7 @@ function [] = loadmktdata(obj,varargin)
             if isa(obj.qms_.watcher_.ds,'cCTP')
                 countername = obj.qms_.watcher_.ds.char;
                 obj.login('Connection','CTP','CounterName',countername);
-                fprintf('cMDEFut:login to MD server on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
+                fprintf('cMDEFut:login to MD server on %s......\n',datestr(dtnum,'yyyy-mm-dd HH:MM:SS'));
             else
                 error('cMDEFut:data source not supported');
             end
