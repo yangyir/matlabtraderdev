@@ -4,5 +4,7 @@ function [] = refresh(obj,varargin)
     plotinput = obj.refreshtbl;
     %
     % update plot
-    refreshplot(obj,'input',plotinput);
+    if ~isempty(plotinput)
+        refreshplot(obj,'input',plotinput);
+    end
 end
