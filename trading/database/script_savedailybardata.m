@@ -8,15 +8,7 @@ end
 lastbd = getlastbusinessdate;
 
 %%
-% saveactivefuturesfrombloomberg(conn);
-% activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
-% filename = ['activefutures_',datestr(lastbd,'yyyymmdd'),'.txt'];
-% activefutures = cDataFileIO.loadDataFromTxtFile([activefuturesdir,filename]);
-% assetlist = getassetmaptable;
-% nasset = length(assetlist);
-
-%%
-%base metals
+% base metals
 list = {'copper';'aluminum';'zinc';'lead';'nickel'};
 for i = 1:size(list,1)
     futlist_i = listcontracts(list{i},'connection','bloomberg');

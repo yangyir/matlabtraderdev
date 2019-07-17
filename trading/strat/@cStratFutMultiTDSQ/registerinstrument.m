@@ -66,7 +66,7 @@ function [] = registerinstrument(strategy,instrument)
     end
     
     if isempty(strategy.tdstleveldn_)
-        strategy.tdstleveldn_ = NaN(n,1);
+        strategy.tdstleveldn_ = cell(n,1);
     else
         if size(strategy.tdstleveldn_,1) < n
             temp = cell(n,1);
@@ -119,19 +119,61 @@ function [] = registerinstrument(strategy,instrument)
         ctpcode = instrument.code_ctp;
     end
     
-    try
-        np = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','numofperiod');
-    catch
-        np = 144;
+    [~,idx] = strategy.mde_fut_.qms_.instruments_.hasinstrument(ctpcode);
+    if idx < 0
+        error('unknown error')
     end
     
     try
-        includelastcandle = strategy.riskcontrols_.getconfigvalue('code',ctpcode,...
-                'propname','includelastcandle');
+        wrnp = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','wrnperiod');
+        strategy.mde_fut_.wrnperiod_(idx) = wrnp;
     catch
-        includelastcandle = 0;
+        strategy.mde_fut_.wrnperiod_(idx) = 144;
     end
-    param = struct('name','WilliamR','values',{{'numofperiods',np,'includelastcandle',includelastcandle}});
-    strategy.mde_fut_.settechnicalindicator(instrument,param);
+    
+%     try
+%         includelastcandle = strategy.riskcontrols_.getconfigvalue('code',ctpcode,...
+%                 'propname','includelastcandle');
+%     catch
+%         includelastcandle = 0;
+%     end
+%     param = struct('name','WilliamR','values',{{'numofperiods',np,'includelastcandle',includelastcandle}});
+%     strategy.mde_fut_.settechnicalindicator(instrument,param);
+    
+    try
+        macdlead = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','macdlead');
+        strategy.mde_fut_.macdlead_(idx) = macdlead;
+    catch
+        strategy.mde_fut_.macdlead_(idx) = 6;
+    end
+    
+    try
+        macdlag = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','macdlag');
+        strategy.mde_fut_.macdlag_(idx) = macdlag;
+    catch
+        strategy.mde_fut_.macdlag_(idx) = 12;
+    end
+    
+    try
+        macdnavg = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','macdnavg');
+        strategy.mde_fut_.macdavg_(idx) = macdnavg;
+    catch
+        strategy.mde_fut_.macdavg_(idx) = 9;
+    end
+    
+    try
+        tdsqlag = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','tdsqlag');
+        strategy.mde_fut_.tdsqlag_(idx) = tdsqlag;
+    catch
+        strategy.mde_fut_.tdsqlag_(idx) = 4;
+    end
+    
+    try
+        tdsqconsecutive = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','tdsqconsecutive');
+        strategy.mde_fut_.tdsqconsecutive_(idx) = tdsqconsecutive;
+    catch
+        strategy.mde_fut_.tdsqconsecutive_(idx) = 9;
+    end
+    
 
 end

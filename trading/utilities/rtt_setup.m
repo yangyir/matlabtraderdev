@@ -149,6 +149,7 @@ function [rtt_output] = rtt_setup(varargin)
         'mdefut',rtt_mdefut,...
         'mdeopt',rtt_mdeopt,...
         'strategy',rtt_strategy);
-
+    
+    backhome;
     
 end
