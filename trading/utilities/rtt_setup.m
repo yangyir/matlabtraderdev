@@ -5,19 +5,38 @@ function [rtt_output] = rtt_setup(varargin)
     p.addParameter('BookName','book1',@ischar);
     p.addParameter('MarketType','futures',@ischar);
     p.addParameter('StrategyName','manual',@ischar);
-    p.addParameter('Instruments',{},@iscell);
+    %note:20190718 from this date onwards, instruments are not given as
+    %function direct input but are given in riskconfigfile instead
+%     p.addParameter('Instruments',{},@iscell);
     p.addParameter('TradesFileName','',@ischar);
     p.addParameter('RiskConfigFileName','',@ischar);
     p.addParameter('InitialFundLevel',[],@isnumeric);
     p.addParameter('UseHistoricalData',true,@islogical);
-    
+    p.addParameter('Mode','realtime',@ischar);
+    p.addParameter('ReplayFromDate','',@ischar);
+    p.addParameter('ReplayToDate','',@ischar);
+    p.addParameter('ReplaySpeed',50,@isnumeric);
+        
     p.parse(varargin{:});
     
     configfn = p.Results.RiskConfigFileName;
     if isempty(configfn)
         error('rtt_setup:missing input of RiskConfigFile');
     end
-        
+    
+    mode = p.Results.Mode;
+    if ~(strcmpi(mode,'realtime') || strcmpi(mode,'replay'))
+        error('rtt_setup:invalid mode input,must be realtime or replay')
+    end
+    
+    if strcmpi(mode,'replay')
+        replayfromdate = p.Results.ReplayFromDate;
+        replaytodate = p.Results.ReplayToDate;
+        if isempty(replayfromdate) || isempty(replaytodate)
+            error('rtt_setup:missing replay fromdate and todate in replay mode')
+        end
+    end
+            
     countername = p.Results.CounterName;
     %note:20180905:currently we only work with CTP counter
     %note:20180918:we can now have RH counter
@@ -39,7 +58,7 @@ function [rtt_output] = rtt_setup(varargin)
         error('rtt_setup:invalid input of strategy name')
     end
     
-    instruments = p.Results.Instruments;
+%     instruments = p.Results.Instruments;
     tfn = p.Results.TradesFileName;
     
     usemdeopt = false;
@@ -52,7 +71,6 @@ function [rtt_output] = rtt_setup(varargin)
         error('rtt_setup:invalid market type input, must either be futures or options')
     end
     
-%     bookname = [countername,'-',bookname];
     helpername = [bookname,'-ops'];
     
     %first setup a book
@@ -75,9 +93,9 @@ function [rtt_output] = rtt_setup(varargin)
     if usemdefut && usemdeopt
         rtt_mdefut = cMDEFut;
         rtt_mdeopt = cMDEOpt;
-        if ~isempty(instruments)
-            error('rtt_setup:not implemented for option market type yet')
-        end
+%         if ~isempty(instruments)
+%             error('rtt_setup:not implemented for option market type yet')
+%         end
     end
     
     rtt_helper.registerbook(rtt_book);
@@ -120,15 +138,36 @@ function [rtt_output] = rtt_setup(varargin)
     rtt_strategy.registermdefut(rtt_mdefut);
     if isa(rtt_mdeopt,'cMDEOpt'), rtt_strategy.registermdeopt(rtt_mdeopt);end
     
-    if ~isempty(instruments)
-        rtt_strategy.loadriskcontrolconfigfromfile('filename',configfn,'codelist',instruments);
-    else
-        rtt_strategy.loadriskcontrolconfigfromfile('filename',configfn);
-    end
+    rtt_strategy.loadriskcontrolconfigfromfile('filename',configfn);
     
-    rtt_mdefut.settimerinterval(0.5);
-    rtt_helper.settimerinterval(0.5);
-    rtt_strategy.settimerinterval(0.5);
+    speedadj = 1;
+    if strcmpi(mode,'replay')
+        replaydts = gendates('fromdate',replayfromdate,'todate',replaytodate);
+        try
+            instruments = rtt_strategy.getinstruments;
+            ninstruments = size(instruments,1);
+            for i = 1:ninstruments
+                code = instruments{i}.code_ctp;
+                filenames = cell(size(replaydts,1),1);
+                for j = 1:size(replaydts,1)
+                    filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
+                end
+                fprintf('load tick data of %s in replay mode...\n',code);
+                rtt_mdefut.initreplayer('code',code,'filenames',filenames);
+            end
+        catch err
+            error('rtt_setup:%s\n',err.message)
+        end
+        speedadj = p.Results.ReplaySpeed;
+        fprintf('set replay speed to %s...\n',num2str(speedadj));
+        rtt_mdefut.mode_ = 'replay';
+        rtt_helper.mode_ = 'replay';
+        rtt_strategy.mode_ = 'replay';
+    end
+
+    rtt_mdefut.settimerinterval(0.5/speedadj);
+    rtt_helper.settimerinterval(0.5/speedadj);
+    rtt_strategy.settimerinterval(1/speedadj);
     
     stratfund = p.Results.InitialFundLevel;
     if ~isempty(stratfund)
@@ -143,6 +182,11 @@ function [rtt_output] = rtt_setup(varargin)
         if strcmpi(stratname,'manual'), rtt_strategy.usehistoricaldata_ = false;end
     end
     
+    if strcmpi(mode,'realtime')
+        rtt_mdefut.qms_.watcher_.conn = 'ctp';
+        rtt_mdefut.qms_.watcher_.ds = cCTP.ccb_ly_fut;
+    end
+    
     rtt_output = struct('counter',rtt_counter,...
         'book',rtt_book,...
         'ops',rtt_helper,...
@@ -151,5 +195,7 @@ function [rtt_output] = rtt_setup(varargin)
         'strategy',rtt_strategy);
     
     backhome;
+    
+    fprintf('%s trading ready...\n',mode);
     
 end

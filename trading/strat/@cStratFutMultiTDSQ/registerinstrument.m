@@ -131,27 +131,19 @@ function [] = registerinstrument(strategy,instrument)
         strategy.mde_fut_.wrnperiod_(idx) = 144;
     end
     
-%     try
-%         includelastcandle = strategy.riskcontrols_.getconfigvalue('code',ctpcode,...
-%                 'propname','includelastcandle');
-%     catch
-%         includelastcandle = 0;
-%     end
-%     param = struct('name','WilliamR','values',{{'numofperiods',np,'includelastcandle',includelastcandle}});
-%     strategy.mde_fut_.settechnicalindicator(instrument,param);
     
     try
         macdlead = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','macdlead');
         strategy.mde_fut_.macdlead_(idx) = macdlead;
     catch
-        strategy.mde_fut_.macdlead_(idx) = 6;
+        strategy.mde_fut_.macdlead_(idx) = 12;
     end
     
     try
         macdlag = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','macdlag');
         strategy.mde_fut_.macdlag_(idx) = macdlag;
     catch
-        strategy.mde_fut_.macdlag_(idx) = 12;
+        strategy.mde_fut_.macdlag_(idx) = 26;
     end
     
     try

@@ -7,8 +7,8 @@ classdef cStratConfigTDSQ < cStratConfig
         wrnperiod_@double = 144
         wroverbought_@double = 0
         wroversold_@double = -100
-        macdlead_@double = 6
-        macdlag_@double = 12
+        macdlead_@double = 12
+        macdlag_@double = 26
         macdnavg_@double = 9
         tdsqlag_@double = 4
         tdsqconsecutive_@double = 9

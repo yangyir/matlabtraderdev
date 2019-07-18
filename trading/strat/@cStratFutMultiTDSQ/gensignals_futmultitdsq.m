@@ -1,0 +1,176 @@
+function signals = gensignals_futmultitdsq(strategy)
+%cStratFutMultiTDSQ
+    signals = cell(size(strategy.count,1),1);
+    instruments = strategy.getinstruments;
+    
+    if strcmpi(strategy.mode_,'replay')
+        runningt = strategy.replay_time1_;
+    else
+        runningt = now;
+    end
+    
+    runningmm = hour(runningt)*60+minute(runningt);
+    if (runningmm >= 539 && runningmm < 540) || ...
+            (runningmm >= 779 && runningmm < 780) || ...
+            (runningmm >= 1259 && runningmm < 1260)
+            %one minute before market open in the morning, afternoon and
+            %evening respectively
+       for i = 1:strategy.count
+           wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
+           wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',1);
+           %
+           macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
+           macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
+           macdnavg = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
+           [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',1);
+           %
+           tdsqlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
+           tdsqconsecutive = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
+           [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',1);
+           %
+           strategy.tdbuysetup_{i} = bs;
+           strategy.tdsellsetup_{i} = ss;
+           strategy.tdbuycountdown_{i} = bc;
+           strategy.tdsellcoundown_{i} = sc;
+           strategy.tdstlevelup_{i} = levelup;
+           strategy.tdstleveldn_{i} = leveldn;
+           strategy.wr_{i} = wrinfo;
+           strategy.macdvec_{i} = macdvec;
+           strategy.nineperma_{i} = sigvec;
+       end
+       
+       return
+    end
+    
+    for i = 1:strategy.count
+        try
+            calcsignalflag = strategy.getcalcsignalflag(instruments{i});
+        catch e
+            calcsignalflag = 0;
+            msg = ['ERROR:%s:getcalcsignalflag:',class(strategy),e.message,'\n'];
+            fprintf(msg);
+            if strcmpi(strategy.onerror_,'stop'), strategy.stop; end
+        end
+        
+        if ~calcsignalflag
+            signals{i,1} = {};
+        else
+            if i == 1 && strategy.printflag_
+                fprintf('%10s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s\n',...
+                    'contract','time','wr','max','min','bs','ss','levelup','leveldn','macd','sig');
+            end
+            
+            tick = strategy.mde_fut_.getlasttick(instruments{i});
+            timet = datestr(tick(1),'HH:MM:SS');
+            wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
+            macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
+            macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
+            macdnavg = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
+            tdsqlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
+            tdsqconsecutive = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
+            includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
+            
+            wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',includelastcandle);
+            [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',includelastcandle);
+            [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',includelastcandle);
+            
+            strategy.tdbuysetup_{i} = bs;
+            strategy.tdsellsetup_{i} = ss;
+            strategy.tdbuycountdown_{i} = bc;
+            strategy.tdsellcoundown_{i} = sc;
+            strategy.tdstlevelup_{i} = levelup;
+            strategy.tdstleveldn_{i} = leveldn;
+            strategy.wr_{i} = wrinfo;
+            strategy.macdvec_{i} = macdvec;
+            strategy.nineperma_{i} = sigvec;
+            
+            if strategy.printflag_
+                dataformat = '%10s%11s%10.1f%10s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
+                fprintf(dataformat,instruments{i}.code_ctp,...
+                    timet,...
+                    wrinfo(1),num2str(wrinfo(2)),num2str(wrinfo(3)),...
+                    num2str(bs(end)),num2str(ss(end)),num2str(levelup(end)),num2str(leveldn(end)),...
+                    macdvec(end),sigvec(end));
+            end
+            %
+%             k = strategy.mde_fut_.getallcandles(instruments{i});
+%             if isempty(k), continue;end
+%             k = k{1};
+%             if ~includelastcandle && ~isempty(k), k = k(1:end-1,:);end
+%             if isempty(k), continue;end
+%                         
+%             
+% 
+%             
+%             if lastlvdn < lastlvup
+%                 %the recent TD Sell Setup starts with the minimum price
+%                 %less than the maxium price of the recent TD Buy Setup
+%                 
+%             else
+%                 %the recent TD Sell Setup starts with the minimum price greater
+%                 %than the maximum price of the recent TD Buy Setup
+%             end
+%             
+%             
+%             
+%             currentidx = length(bs);
+%             lastclose = wrinfo(4);
+%             
+%             %NOTE:TODO:
+%             %WE NEED TO TEST THE OPEN OF THE MARKET DUE TO DISCRETE TRADING 
+%             if lastssidx > lastbsidx
+%                 %we recently have a TD Sell Setup
+%                 %and the lvldn shall be recently updated
+%                 %we only check sell signals here
+%                 
+%                 
+%                 if lvldn_this < lvlup_this
+%                     
+%                 else
+%                 end
+%                 
+%                 
+%                 
+%                 
+%                 if lastclose >= lvldn_this
+%                     
+%                 else
+%                 end
+%                 
+%                 if bs(end) >= 3 && macdvec(end)<sigvec(end)
+%                     %scenario 1:
+%                     %a.the last close is below the latest level down with
+%                     %b.lastest TD Buy Setup greater or equal to 3 and
+%                     %c.MACD signals bearish
+%                     direction = -1;
+%                 end
+%                 
+%                 
+%                 
+%                 
+% %                 lvldn_prev = leveldn(lastssidx-1);
+%                 
+%                 
+% 
+%                 %
+%             elseif lastssidx < lastbsidx
+%                 %we recently have a TD Buy Setup
+%                 
+%             end
+%             
+%             %check whehther there are any existing positions
+%             vtotal = strategy.helper_.book_.getpositions('code',instruments{i}.code_ctp);
+%             if vtotal == 0
+%             elseif vtotal < 0
+%             elseif vtotal > 0
+%             end
+% 
+%             
+%         end
+    end
+    
+    
+    
+    
+
+end
