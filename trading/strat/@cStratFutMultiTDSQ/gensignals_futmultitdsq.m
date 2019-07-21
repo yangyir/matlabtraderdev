@@ -92,83 +92,8 @@ function signals = gensignals_futmultitdsq(strategy)
                     num2str(bs(end)),num2str(ss(end)),num2str(levelup(end)),num2str(leveldn(end)),...
                     macdvec(end),sigvec(end));
             end
-            %
-%             k = strategy.mde_fut_.getallcandles(instruments{i});
-%             if isempty(k), continue;end
-%             k = k{1};
-%             if ~includelastcandle && ~isempty(k), k = k(1:end-1,:);end
-%             if isempty(k), continue;end
-%                         
-%             
-% 
-%             
-%             if lastlvdn < lastlvup
-%                 %the recent TD Sell Setup starts with the minimum price
-%                 %less than the maxium price of the recent TD Buy Setup
-%                 
-%             else
-%                 %the recent TD Sell Setup starts with the minimum price greater
-%                 %than the maximum price of the recent TD Buy Setup
-%             end
-%             
-%             
-%             
-%             currentidx = length(bs);
-%             lastclose = wrinfo(4);
-%             
-%             %NOTE:TODO:
-%             %WE NEED TO TEST THE OPEN OF THE MARKET DUE TO DISCRETE TRADING 
-%             if lastssidx > lastbsidx
-%                 %we recently have a TD Sell Setup
-%                 %and the lvldn shall be recently updated
-%                 %we only check sell signals here
-%                 
-%                 
-%                 if lvldn_this < lvlup_this
-%                     
-%                 else
-%                 end
-%                 
-%                 
-%                 
-%                 
-%                 if lastclose >= lvldn_this
-%                     
-%                 else
-%                 end
-%                 
-%                 if bs(end) >= 3 && macdvec(end)<sigvec(end)
-%                     %scenario 1:
-%                     %a.the last close is below the latest level down with
-%                     %b.lastest TD Buy Setup greater or equal to 3 and
-%                     %c.MACD signals bearish
-%                     direction = -1;
-%                 end
-%                 
-%                 
-%                 
-%                 
-% %                 lvldn_prev = leveldn(lastssidx-1);
-%                 
-%                 
-% 
-%                 %
-%             elseif lastssidx < lastbsidx
-%                 %we recently have a TD Buy Setup
-%                 
-%             end
-%             
-%             %check whehther there are any existing positions
-%             vtotal = strategy.helper_.book_.getpositions('code',instruments{i}.code_ctp);
-%             if vtotal == 0
-%             elseif vtotal < 0
-%             elseif vtotal > 0
-%             end
-% 
-%             
-%         end
+        end
     end
-    
     
     
     
