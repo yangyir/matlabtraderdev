@@ -45,6 +45,7 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end] = tdsq_lastbs(bs
         lastidxbs_end = i;
     end
     
+    tag = [tag,num2str(bs(lastidxbs_end))];
     rangehigh = max(p(lastidxbs_start:lastidxbs_end,3));
     rangelow = min(p(lastidxbs_start:lastidxbs_end,4));
     
