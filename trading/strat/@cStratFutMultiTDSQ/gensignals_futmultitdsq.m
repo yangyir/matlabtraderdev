@@ -37,6 +37,12 @@ function signals = gensignals_futmultitdsq(strategy)
            strategy.wr_{i} = wrinfo;
            strategy.macdvec_{i} = macdvec;
            strategy.nineperma_{i} = sigvec;
+           candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
+           p = candlesticks{1};
+           
+           scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
+           fprintf('%s\n',scenarioname);
+    
        end
        
        return
@@ -74,6 +80,10 @@ function signals = gensignals_futmultitdsq(strategy)
             [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',includelastcandle);
             [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',includelastcandle);
             
+            candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
+            p = candlesticks{1};
+            if ~includelastcandle, p = p(1:end-1,:);end
+            
             strategy.tdbuysetup_{i} = bs;
             strategy.tdsellsetup_{i} = ss;
             strategy.tdbuycountdown_{i} = bc;
@@ -83,6 +93,9 @@ function signals = gensignals_futmultitdsq(strategy)
             strategy.wr_{i} = wrinfo;
             strategy.macdvec_{i} = macdvec;
             strategy.nineperma_{i} = sigvec;
+            
+            scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
+            fprintf('%s\n',scenarioname);
             
             if strategy.printflag_
                 dataformat = '%10s%11s%10.1f%10s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
