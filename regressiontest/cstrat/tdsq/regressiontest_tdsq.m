@@ -13,8 +13,9 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'replayfromdate','2019-07-17','replaytodate','2019-07-17');
 %%
 combo.mdefut.printflag_ = false;
-combo.ops.printflag_ = false;
-combo.strategy.printflag_ = true;
+combo.ops.printflag_ = true;
+combo.ops.print_timeinterval_ = 5*60;
+combo.strategy.printflag_ = false;
 %%
 combo.mdefut.start;
 combo.ops.start;

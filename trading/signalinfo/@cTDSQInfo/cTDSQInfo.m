@@ -5,7 +5,7 @@ classdef cTDSQInfo < cSignalInfo
     
     methods
         function obj = cTDSQInfo
-            obj.name_ = 'TDSQ';
+            obj.name_ = 'tdsq';
         end
         
         function [] = set.scenario_(obj,val)

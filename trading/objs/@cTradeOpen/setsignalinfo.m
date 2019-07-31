@@ -113,6 +113,24 @@ function [] = setsignalinfo(obj,varargin)
         return
     end
     
+    if strcmpi(name,'tdsq')
+        signalinfo = cTDSQInfo;
+        try
+            signalinfo.frequency_ = info.frequency;
+        catch
+            signalinfo.frequency_ = '';
+        end
+        %
+        try
+            signalinfo.scenario_ = info.scenarioname;
+        catch
+            signalinfo.scenario_ = '';
+        end
+        obj.opensignal_ = signalinfo;
+        return
+    end
+    
+    
     error('cTradeOpen:setsignalinfo:%s not implemented',name);
     
 end

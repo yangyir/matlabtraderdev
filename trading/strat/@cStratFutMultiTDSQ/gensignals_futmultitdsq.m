@@ -16,6 +16,7 @@ function signals = gensignals_futmultitdsq(strategy)
             %one minute before market open in the morning, afternoon and
             %evening respectively
        for i = 1:strategy.count
+           samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
            wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
            wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',1);
            %
@@ -42,6 +43,15 @@ function signals = gensignals_futmultitdsq(strategy)
            
            scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
            fprintf('%s\n',scenarioname);
+           
+           if strcmpi(scenarioname,'blank')
+               signals{i,1} = {};
+           else
+               signals{i,1} = struct('name','tdsq',...
+                        'instrument',instruments{i},...
+                        'frequency',samplefreqstr,...
+                        'scenarioname',scenarioname);
+           end
     
        end
        
@@ -68,6 +78,7 @@ function signals = gensignals_futmultitdsq(strategy)
             
             tick = strategy.mde_fut_.getlasttick(instruments{i});
             timet = datestr(tick(1),'HH:MM:SS');
+            samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
             wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
             macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
             macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
@@ -96,6 +107,15 @@ function signals = gensignals_futmultitdsq(strategy)
             
             scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
             fprintf('%s\n',scenarioname);
+            
+            if strcmpi(scenarioname,'blank')
+               signals{i,1} = {};
+           else
+               signals{i,1} = struct('name','tdsq',...
+                        'instrument',instruments{i},...
+                        'frequency',samplefreqstr,...
+                        'scenarioname',scenarioname);
+           end
             
             if strategy.printflag_
                 dataformat = '%10s%11s%10.1f%10s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
