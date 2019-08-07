@@ -126,6 +126,12 @@ function [] = setsignalinfo(obj,varargin)
         catch
             signalinfo.scenario_ = '';
         end
+        %
+        try 
+            signalinfo.mode_ = info.mode;
+        catch
+            signalinfo.mode_ = 'reverse';
+        end
         obj.opensignal_ = signalinfo;
         return
     end
