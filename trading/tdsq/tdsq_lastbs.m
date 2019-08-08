@@ -16,13 +16,14 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end] = tdsq_lastbs(bs
     %has closed below TDST Leveldn
     closedbelow = false;
     for i = lastidxbs-8:lastidxbs
+        if isnan(lvldn(i)), continue;end
         if p(i,5) < lvldn(i)
             closedbelow = true;
             break
         end
     end
     
-    if low8 < min(low6,low7) || low9 < min(low6,low7) && ~closedbelow
+    if (low8 < min(low6,low7) || low9 < min(low6,low7)) && ~closedbelow
         if close9 < close8
             tag = 'perfectbs';
         else

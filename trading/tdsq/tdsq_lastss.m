@@ -16,6 +16,7 @@ function [tag,rangelow,rangehigh,lastidxss_start,lastidxss_end] = tdsq_lastss(bs
     %has closed above TDST Levelup
     closedabove = false;
     for i = lastidxss-8:lastidxss
+        if isnan(lvlup(i)), continue;end
         if p(i,5) > lvlup(i)
             closedabove = true;
             break
