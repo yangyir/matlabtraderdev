@@ -5,14 +5,22 @@ function [buysetup,sellsetup,levelup,leveldn,buycountdown,sellcountdown] = calc_
     p.addParameter('Lag',4,@isnumeric);
     p.addParameter('Consecutive',9,@isnumeric);
     p.addParameter('IncludeLastCandle',0,@isnumeric);
+    p.addParameter('RemoveLimitPrice',0,@isnumeric);
     p.parse(instrument,varargin{:});
     instrument = p.Results.Instrument;
     includeLastCandle = p.Results.IncludeLastCandle;
-    candlesticks = mdefut.getallcandles(instrument);
+    removeLimitPrice = p.Results.RemoveLimitPrice;
     
+    candlesticks = mdefut.getallcandles(instrument);
     data = candlesticks{1};
     if ~includeLastCandle && ~isempty(data)
         data = data(1:end-1,:);
+    end
+    
+    if removeLimitPrice
+        idxremove = data(:,2)==data(:,3)&data(:,2)==data(:,4)&data(:,2)==data(:,5);
+        idxkeep = ~idxremove;
+        data = data(idxkeep,:);
     end
     
     %%

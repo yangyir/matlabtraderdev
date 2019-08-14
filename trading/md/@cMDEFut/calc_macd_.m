@@ -6,14 +6,22 @@ function [macdvec,sig,diffbar] = calc_macd_(mdefut,instrument,varargin)
     p.addParameter('Lag',26,@isnumeric);
     p.addParameter('Average',9,@isnumeric);
     p.addParameter('IncludeLastCandle',0,@isnumeric);
+    p.addParameter('RemoveLimitPrice',0,@isnumeric);
     p.parse(instrument,varargin{:});
     
     includeLastCandle = p.Results.IncludeLastCandle;
+    removeLimitPrice = p.Results.RemoveLimitPrice;
     
     candlesticks = mdefut.getallcandles(instrument);
     data = candlesticks{1};
     if ~includeLastCandle && ~isempty(data)
         data = data(1:end-1,:);
+    end
+    
+    if removeLimitPrice
+        idxremove = data(:,2)==data(:,3)&data(:,2)==data(:,4)&data(:,2)==data(:,5);
+        idxkeep = ~idxremove;
+        data = data(idxkeep,:);
     end
     
     closep = data(:,5);

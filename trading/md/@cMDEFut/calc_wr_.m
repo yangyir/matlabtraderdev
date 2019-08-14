@@ -5,15 +5,24 @@ function [indicators,wrseries,maxcandle,mincandle] = calc_wr_(mdefut,instrument,
     p.addParameter('NumOfPeriods',144,...
         @(x) validateattributes(x,{'numeric'},{},'','NumOfPeriods'));
     p.addParameter('IncludeLastCandle',0,@isnumeric);
+    p.addParameter('RemoveLimitPrice',0,@isnumeric);
     p.parse(instrument,varargin{:});
     instrument = p.Results.Instrument;
     includeLastCandle = p.Results.IncludeLastCandle;
+    removeLimitPrice = p.Results.RemoveLimitPrice;
     
     candlesticks = mdefut.getallcandles(instrument);
     candlesall = candlesticks{1};
     if ~includeLastCandle && ~isempty(candlesall)
         candlesall = candlesall(1:end-1,:);
     end
+    
+    if removeLimitPrice
+        idxremove = candlesall(:,2)==candlesall(:,3)&candlesall(:,2)==candlesall(:,4)&candlesall(:,2)==candlesall(:,5);
+        idxkeep = ~idxremove;
+        candlesall = candlesall(idxkeep,:);
+    end
+    
     timevec = candlesall(:,1);
     highp = candlesall(:,3);
     lowp = candlesall(:,4);
