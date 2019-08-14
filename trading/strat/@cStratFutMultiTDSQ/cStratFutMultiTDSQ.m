@@ -29,12 +29,12 @@ classdef cStratFutMultiTDSQ < cStrat
     %derived (abstract) methods from superclass
     methods
         function signals = gensignals(obj)
-            signals = obj.gensignals_futmultitdsq;
+            signals = obj.gensignals_futmultitdsq2;
         end
         %end of gensignals
         
         function [] = autoplacenewentrusts(obj,signals)
-            obj.autoplacenewentrusts_futmultitdsq(signals)
+            obj.autoplacenewentrusts_futmultitdsq2(signals)
         end
         %end of autoplacenewentrusts
         
@@ -55,10 +55,17 @@ classdef cStratFutMultiTDSQ < cStrat
     
     methods (Access = private)
         [] = riskmanagement_futmultitdsq(obj,dtnum)
+        [] = riskmanagement_futmultitdsq2(obj,varargin)
         [] = updategreeks_futmultitdsq(obj)
         signals = gensignals_futmultitdsq(obj)
+        signals = gensignals_futmultitdsq2(obj)
         [] = autoplacenewentrusts_futmultitdsq(obj,signals)
+        [] = autoplacenewentrusts_futmultitdsq2(obj,signals)
         [] = initdata_futmultiwr(obj)
+    end
+    
+    methods (Access = private)
+       [volume] = getlivetradevolume(obj,code,modename,modetype)
     end
 
     

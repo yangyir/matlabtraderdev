@@ -1,4 +1,4 @@
-function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end] = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p)
+function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelowbarsize] = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p)
     variablenotused(ss);
     variablenotused(lvlup);
     variablenotused(bc);
@@ -49,5 +49,9 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end] = tdsq_lastbs(bs
     tag = [tag,num2str(bs(lastidxbs_end))];
     rangehigh = max(p(lastidxbs_start:lastidxbs_end,3));
     rangelow = min(p(lastidxbs_start:lastidxbs_end,4));
+    
+    ptemp = p(lastidxbs_start:lastidxbs_end,4);
+    idxtruelow = find(ptemp == rangelow) + lastidxbs_start-1;
+    truelowbarsize = p(idxtruelow,3) - p(idxtruelow,4);
     
 end
