@@ -65,7 +65,15 @@ classdef cStratFutMultiTDSQ < cStrat
     end
     
     methods (Access = private)
-       [volume] = getlivetradevolume(obj,code,modename,modetype)
+       [trade] = getlivetrade_tdsq(obj,code,modename,typename)
+       %
+       [] = riskmanagement_perfectbs(obj,tradein,varargin)
+       [] = riskmanagement_semiperfectbs(obj,tradein,varargin)
+       [] = riskmanagement_imperfectbs(obj,tradein,varargin)
+       %
+       [] = riskmanagement_perfectss(obj,tradein,varargin)
+       [] = riskmanagement_semiperfectss(obj,tradein,varargin)
+       [] = riskmanagement_imperfectss(obj,tradein,varargin)
     end
 
     

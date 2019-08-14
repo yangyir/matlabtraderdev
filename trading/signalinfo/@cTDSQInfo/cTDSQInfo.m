@@ -2,8 +2,10 @@ classdef cTDSQInfo < cSignalInfo
     properties
         scenario_@char
         mode_@char = 'unset'
-        reversetype_@char = 'unset'
-        trendtype_@char = 'unset'
+        type_@char = 'unset'
+        lvlup_@double
+        lvldn_@double
+        risklvl_@double
     end
     
     methods
@@ -24,31 +26,24 @@ classdef cTDSQInfo < cSignalInfo
             end
         end
         
-        function [] = set.reversetype_(obj,val)
+        function [] = set.type_(obj,val)
             if strcmpi(val,'perfectbs') || ...
                     strcmpi(val,'semiperfectbs') || ...
                     strcmpi(val,'imperfectbs') || ...
                     strcmpi(val,'perfectss') || ...
                     strcmpi(val,'semiperfectss') || ...
                     strcmpi(val,'imperfectss') || ...
-                    strcmpi(val,'unset')
-                obj.reversetype_ = val;
-            else
-               error('cTDSQInfo:invalid reversetype input') 
-            end
-        end
-        
-        function [] = set.trendtype_(obj,val)
-            if strcmpi(val,'single-lvldn') || ...
+                    strcmpi(val,'single-lvldn') || ...
                     strcmpi(val,'single-lvlup') || ...
                     strcmpi(val,'double-range') || ...
                     strcmpi(val,'double-bullish') || ...
                     strcmpi(val,'twoway-bearish') || ...
                     strcmpi(val,'unset')
-                obj.trendtype_ = val;
+                obj.type_ = val;
             else
-                error('cTDSQInfo:invalid trendtype input')
+               error('cTDSQInfo:invalid type input') 
             end
         end
+        
     end
 end

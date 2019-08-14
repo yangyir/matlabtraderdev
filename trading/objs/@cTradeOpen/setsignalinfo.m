@@ -134,16 +134,29 @@ function [] = setsignalinfo(obj,varargin)
         end
         %
         try
-            signalinfo.reversetype_ = info.reversetype;
+            signalinfo.type_ = info.type;
         catch
-            signalinfo.reversetype_ = 'unset';
+            signalinfo.type_ = 'unset';
         end
         %
         try
-            signalinfo.trendtype_ = info.trendtype;
+            signalinfo.lvlup_ = info.lvlup;
         catch
-            signalinfo.trendtype_ = 'unset';
+            signalinfo.lvlup_ = [];
         end
+        %
+        try
+            signalinfo.lvldn_ = info.lvldn;
+        catch
+            signalinfo.lvldn_ = [];
+        end
+        %
+        try
+            signalinfo.risklvl_ = info.risklvl;
+        catch
+            signalinfo.risklvl_ = [];
+        end
+        %
         obj.opensignal_ = signalinfo;
         return
     end
