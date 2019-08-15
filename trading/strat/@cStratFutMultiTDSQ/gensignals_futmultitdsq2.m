@@ -32,7 +32,7 @@ function signals = gensignals_futmultitdsq2(strategy)
            strategy.tdbuysetup_{i} = bs;
            strategy.tdsellsetup_{i} = ss;
            strategy.tdbuycountdown_{i} = bc;
-           strategy.tdsellcoundown_{i} = sc;
+           strategy.tdsellcountdown_{i} = sc;
            strategy.tdstlevelup_{i} = levelup;
            strategy.tdstleveldn_{i} = leveldn;
            strategy.wr_{i} = wrinfo;
@@ -104,7 +104,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         strategy.tdbuysetup_{i} = bs;
         strategy.tdsellsetup_{i} = ss;
         strategy.tdbuycountdown_{i} = bc;
-        strategy.tdsellcoundown_{i} = sc;
+        strategy.tdsellcountdown_{i} = sc;
         strategy.tdstlevelup_{i} = levelup;
         strategy.tdstleveldn_{i} = leveldn;
         strategy.wr_{i} = wrinfo;
@@ -138,6 +138,14 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'mode','reverse','type','perfectbs',...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',risklvl);
                end
+           elseif strcmpi(tag,'semiperfectbs') || strcmpi(tag,'imperfectbs')
+               if macdvec(end) > sigvec(end) && ~(bs(end) >= 4 && bs(end) <= 9)
+                   signals{i,1} = struct('name','tdsq',...
+                       'instrument',instruments{i},'frequency',samplefreqstr,...
+                       'scenarioname',scenarioname,...
+                       'mode','reverse','type',tag,...
+                       'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
+               end
            elseif strcmpi(tag,'perfectss')
                [~,~,~,~,~,idxtruehigh,truehighbarsize] = tdsq_lastss(bs,ss,levelup,leveldn,bc,sc,p);
                truehigh = p(idxtruehigh,3);
@@ -154,6 +162,14 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'scenarioname',scenarioname,'mode','reverse',...
                        'type','perfectss',...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',risklvl);
+               end
+           elseif strcmpi(tag,'semiperfectss') || strcmpi(tag,'imperfectss')
+               if macdvec(end) < sigvec(end) && ~(ss(end) >= 4 && ss(end) <= 9)
+                   signals{i,1} = struct('name','tdsq',...
+                       'instrument',instruments{i},'frequency',samplefreqstr,...
+                       'scenarioname',scenarioname,...
+                       'mode','reverse','type',tag,...
+                       'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
                end
            else
                %TODO

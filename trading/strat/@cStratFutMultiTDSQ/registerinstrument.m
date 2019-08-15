@@ -41,15 +41,15 @@ function [] = registerinstrument(strategy,instrument)
         end
     end
     
-    if isempty(strategy.tdsellcoundown_)
-        strategy.tdsellcoundown_ = cell(n,1);
+    if isempty(strategy.tdsellcountdown_)
+        strategy.tdsellcountdown_ = cell(n,1);
     else
-        if size(strategy.tdsellcoundown_,1) < n
+        if size(strategy.tdsellcountdown_,1) < n
             temp = cell(n,1);
-            for i = 1:size(strategy.tdsellcoundown_,1)
-                temp{i,1} = strategy.tdsellcoundown_{i};
+            for i = 1:size(strategy.tdsellcountdown_,1)
+                temp{i,1} = strategy.tdsellcountdown_{i};
             end
-            strategy.tdsellcoundown_ = temp;
+            strategy.tdsellcountdown_ = temp;
         end
     end
     

@@ -46,14 +46,14 @@ if isempty(strategy.helper_), error('%s::autoplacenewentrusts::missing helper!!!
             strategy.helper_.getcounter.withdrawEntrust(e);
         end
         
-        if strcmpi(signaltype,'perfectbs')
+        if strcmpi(signaltype,'perfectbs') || ...
+                strcmpi(signaltype,'semiperfectbs') || ...
+                strcmpi(signaltype,'imperfectbs') 
             strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
-        elseif strcmpi(signaltype,'semiperfectbs')
-        elseif strcmpi(signaltype,'imperfectbs')
-        elseif strcmpi(signaltype,'perfectss')
+        elseif strcmpi(signaltype,'perfectss') || ...
+                strcmpi(signaltype,'semiperfectss') || ...
+                strcmpi(signaltype,'imperfectss')
             strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
-        elseif strcmpi(signaltype,'semiperfectss')
-        elseif strcmpi(signaltype,'imperfectss')
         else
             error('not implemented')
         end

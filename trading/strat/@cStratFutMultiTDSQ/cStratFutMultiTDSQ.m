@@ -5,7 +5,7 @@ classdef cStratFutMultiTDSQ < cStrat
         tdbuysetup_@cell
         tdsellsetup_@cell
         tdbuycountdown_@cell
-        tdsellcoundown_@cell
+        tdsellcountdown_@cell
         tdstlevelup_@cell
         tdstleveldn_@cell
         wr_@cell

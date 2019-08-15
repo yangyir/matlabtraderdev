@@ -13,24 +13,28 @@ function [] = riskmanagement_futmultitdsq2(strategy,varargin)
     trade_semiperfectss = strategy.getlivetrade_tdsq(code,'reverse','semiperfectss');
     trade_imperfectss = strategy.getlivetrade_tdsq(code,'reverse','imperfectss');
 
-    if ~isempty(trade_perfectbs), strategy.riskmanagement_perfectbs(trade_perfectbs);end
+    if ~isempty(trade_perfectbs)
+        strategy.riskmanagement_perfectbs(trade_perfectbs);
+    end
         
     if ~isempty(trade_semiperfectbs)
-        error('not implemented')
+        strategy.riskmanagement_semiperfectbs(trade_semiperfectbs);
     end
 
     if ~isempty(trade_imperfectbs)
-        error('not implemented')
+        strategy.riskmanagement_imperfectbs(trade_imperfectbs);
     end
 
-    if ~isempty(trade_perfectss), strategy.riskmanagement_perfectss(trade_perfectss);end
+    if ~isempty(trade_perfectss)
+        strategy.riskmanagement_perfectss(trade_perfectss);
+    end
 
     if ~isempty(trade_semiperfectss)
-        error('not implemented')
+        strategy.riskmanagement_semiperfectss(trade_semiperfectss);
     end
 
     if ~isempty(trade_imperfectss)
-        error('not implemented')
+        strategy.riskmanagement_imperfectss(trade_imperfectss);
     end
     
 end
