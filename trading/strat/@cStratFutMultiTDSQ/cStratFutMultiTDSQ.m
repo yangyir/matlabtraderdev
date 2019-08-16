@@ -74,6 +74,12 @@ classdef cStratFutMultiTDSQ < cStrat
        [] = riskmanagement_perfectss(obj,tradein,varargin)
        [] = riskmanagement_semiperfectss(obj,tradein,varargin)
        [] = riskmanagement_imperfectss(obj,tradein,varargin)
+       %
+       [] = riskmanagement_singlelvldn(obj,tradein,varargin)
+       [] = riskmanagement_singlelvlup(obj,tradein,varargin)
+       [] = riskmanagement_doublerange(obj,tradein,varargin)
+       [] = riskmanagement_doublebullish(obj,tradein,varargin)
+       [] = riskmanagement_doublebearish(obj,tradein,varargin)
     end
 
     

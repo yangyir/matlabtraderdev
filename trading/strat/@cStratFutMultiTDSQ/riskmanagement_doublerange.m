@@ -1,4 +1,4 @@
-function [] = riskmanagement_imperfectbs(strategy,tradein,varargin)
+function [] = riskmanagement_doublerange(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
@@ -21,17 +21,27 @@ function [] = riskmanagement_imperfectbs(strategy,tradein,varargin)
     macdvec = strategy.macdvec_{idx};
     sigvec = strategy.nineperma_{idx};
     
-    tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
-    
-    if strcmpi(tag,'perfectss9')
-        strategy.unwindtrade(tradein);
-        return
-    end
-    
-    if (macdvec(end) < sigvec(end) || bs(end) >= 4)
-        strategy.unwindtrade(tradein);
-        return
-    end
-    
-
+    if tradein.opendirection_ == 1
+        tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
+        if strcmpi(tag,'perfectss9')
+            strategy.unwindtrade(tradein);
+            return
+        end
+        %
+        if (macdvec(end) < sigvec(end) || bs(end) >= 4) || sc(end) == 13
+            strategy.unwindtrade(tradein);
+            return
+        end   
+    elseif tradein.opendirection_ == -1
+        tag = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p);
+        if strcmpi(tag,'perfectbs')
+            strategy.unwindtrade(tradein);
+            return
+        end
+        %
+        if (macdvec(end) > sigvec(end) || ss(end) >= 4) || bc(end) == 13
+            strategy.unwindtrade(tradein);
+            return
+        end
+    end        
 end

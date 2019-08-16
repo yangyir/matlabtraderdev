@@ -1,5 +1,4 @@
-function [] = riskmanagement_imperfectbs(strategy,tradein,varargin)
-%cStratFutMultiTDSQ
+function [] = riskmanagement_singlelvldn(strategy,tradein,varargin)
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
     if idx < 0, return;end
@@ -14,24 +13,23 @@ function [] = riskmanagement_imperfectbs(strategy,tradein,varargin)
     %case 2 any ss scenario afterwards when macd turns bearish
     bs = strategy.tdbuysetup_{idx};
     ss = strategy.tdsellsetup_{idx};
-    bc = strategy.tdbuycountdown_{idx};
-    sc = strategy.tdsellcountdown_{idx};
     lvlup = strategy.tdstlevelup_{idx};
     lvldn = strategy.tdstleveldn_{idx};
+    bc = strategy.tdbuycountdown_{idx};
+    sc = strategy.tdsellcountdown_{idx};
     macdvec = strategy.macdvec_{idx};
     sigvec = strategy.nineperma_{idx};
     
-    tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
+    tag = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p);
     
-    if strcmpi(tag,'perfectss9')
+    if strcmpi(tag,'perfectbs9')
         strategy.unwindtrade(tradein);
         return
     end
     
-    if (macdvec(end) < sigvec(end) || bs(end) >= 4)
+    if (macdvec(end) > sigvec(end) || ss(end) >= 4) || bc(end) == 13
         strategy.unwindtrade(tradein);
         return
     end
     
-
 end

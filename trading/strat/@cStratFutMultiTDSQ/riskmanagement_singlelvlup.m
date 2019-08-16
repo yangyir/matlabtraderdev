@@ -1,4 +1,4 @@
-function [] = riskmanagement_imperfectbs(strategy,tradein,varargin)
+function [] = riskmanagement_singlelvlup(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
@@ -28,10 +28,9 @@ function [] = riskmanagement_imperfectbs(strategy,tradein,varargin)
         return
     end
     
-    if (macdvec(end) < sigvec(end) || bs(end) >= 4)
+    if (macdvec(end) < sigvec(end) || bs(end) >= 4) || sc(end) == 13
         strategy.unwindtrade(tradein);
         return
     end
     
-
 end

@@ -1,6 +1,9 @@
 function signals = gensignals_futmultitdsq2(strategy)
 %cStratFutMultiTDSQ
-    signals = cell(size(strategy.count,1),1);
+    %note:column 1 is for reverse-type signal
+    %column 2 is for trend-type signal
+    signals = cell(size(strategy.count,1),2);
+    
     instruments = strategy.getinstruments;
     
     if strcmpi(strategy.mode_,'replay')
@@ -16,7 +19,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             %one minute before market open in the morning, afternoon and
             %evening respectively
        for i = 1:strategy.count
-           samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
+%            samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
            wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
            wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',1,'RemoveLimitPrice',1);
            %
@@ -37,33 +40,7 @@ function signals = gensignals_futmultitdsq2(strategy)
            strategy.tdstleveldn_{i} = leveldn;
            strategy.wr_{i} = wrinfo;
            strategy.macdvec_{i} = macdvec;
-           strategy.nineperma_{i} = sigvec;
-           
-           candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
-           p = candlesticks{1};
-           idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
-           p = p(idxkeep,:);
-           
-%            scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
-%            fprintf('%s\n',scenarioname);
-%            tag = tdsq_snbd(scenarioname);
-%            
-%            if isempty(tag)
-%                signals{i,1} = {};
-%            else
-%                if strcmpi(tag,'perfectbs')
-%                    signals{i,1} = struct('name','tdsq',...
-%                        'instrument',instruments{i},...
-%                        'frequency',samplefreqstr,...
-%                        'scenarioname',scenarioname,...
-%                        'mode','reverse',...
-%                        'type','perfectbs');
-%                else
-%                    %TODO
-%                    signals{i,1} = {};
-%                end
-%            end
-    
+           strategy.nineperma_{i} = sigvec;    
        end
        
        return
@@ -79,7 +56,11 @@ function signals = gensignals_futmultitdsq2(strategy)
             if strcmpi(strategy.onerror_,'stop'), strategy.stop; end
         end
         
-        if ~calcsignalflag, signals{i,1} = {};continue;end
+        if ~calcsignalflag
+            signals{i,1} = {};
+            signals{i,2} = {};
+            continue;
+        end
         
         samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
         wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
@@ -97,6 +78,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
         p = candlesticks{1};
         if ~includelastcandle, p = p(1:end-1,:);end
+        %remove intraday 
         idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
         p = p(idxkeep,:);
         
@@ -117,7 +99,9 @@ function signals = gensignals_futmultitdsq2(strategy)
             
         %call a risk management before processing signal if there is any
         strategy.riskmanagement_futmultitdsq2('code',instruments{i}.code_ctp);
-            
+        
+        % ------------------ reverse-type signals --------------------%
+       %%
         if isempty(tag)
            signals{i,1} = {};
         else
@@ -172,28 +156,172 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
                end
            else
-               %TODO
-               signals{i,1} = {};
+               error('%s:invalid tag name:%s\n',class(strategy),tag)
            end
         end
-           
+        %
+       %%
+        % ---- trend-type signals ------------------------------ %
+        if isnan(leveldn(end)) && isnan(levelup(end))
+            %NEITHER LVLUP NOR LVLDN IS AVAILABLE
+            signals{i,2} = {};
+        elseif ~isnan(leveldn(end)) && isnan(levelup(end))
+            %SINGLE-LVLDN
+            if p(end,5) < leveldn(end)
+                wasabovelvldn = false;
+                n = size(p,1);
+                for j = max(1,n-8):max(1,n-1)
+                    if p(j,5) > leveldn(end)
+                        wasabovelvldn = true;break
+                    end
+                end
+                wasmacdbullish = false;
+                for j = max(1,n-8):max(1,n-1)
+                    if macdvec(j) > sigvec(j)
+                        wasmacdbullish = true;break
+                    end
+                end
+                if (wasabovelvldn || wasmacdbullish) && macdvec(end) < sigvec(end) && bs(end) > 0 && bc(end) ~= 13
+                    signals{i,2} = struct('name','tdsq',...
+                       'instrument',instruments{i},'frequency',samplefreqstr,...
+                       'scenarioname',scenarioname,...
+                       'mode','trend','type','single-lvldn',...
+                       'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
+                else
+                    signals{i,2} = {};
+                end
+            else
+                signals{i,2} = {};
+            end
+        elseif isnan(leveldn(end)) && ~isnan(levelup(end))
+            %SINGLE-LVLUP
+            if p(end,5) > levelup(end)
+                wasbelowlvlup = false;
+                n = size(p,1);
+                for j = max(1,n-8):max(1,n-1)
+                    if p(j,5) < levelup(end)
+                        wasbelowlvlup = true;break
+                    end
+                end
+                wasmacdbearish = false;
+                for j = max(1,n-8):max(1,n-1)
+                    if macdvec(j) < sigvec(j)
+                        wasmacdbearish = true;break
+                    end
+                end
+                if(wasbelowlvlup || wasmacdbearish) && macdvec(end) < sigvec(end) && ss(end) > 0 && sc(end) ~= 13
+                    signals{i,2} = struct('name','tdsq',...
+                       'instrument',instruments{i},'frequency',samplefreqstr,...
+                       'scenarioname',scenarioname,...
+                       'mode','trend','type','single-lvlup',...
+                       'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
+                else
+                    signals{i,2} = {};
+                end
+            else
+                signals{i,2} = {};
+            end
+        else
+            %BOTH LVLUP AND LVLDN ARE AVAILABLE
+            isperfectbs = strcmpi(tag,'perfectbs');
+            isperfectss = strcmpi(tag,'perfectss');
+            if levelup(end) > leveldn(end)
+                isabove = p(end,5) > levelup(end);
+                isbelow = p(end,5) < leveldn(end);
+                isbetween = p(end,5) <= levelup(end) && p(end,5) >= leveldn(end);
+                if isbetween
+                    %check whether it was above the lvlup
+                    idxlastabove = find(p(max(end-8,1):max(end-1,1),5)>levelup(end),1,'last');
+                    wasabovelvlup = ~isempty(idxlastabove);
+                    %and check whether it was below the lvldn
+                    idxlastbelow = find(p(max(end-8,1):max(end-1,1),5)<leveldn(end),1,'last');
+                    wasbelowlvldn = ~isempty(idxlastbelow);
+                    if wasabovelvlup && wasbelowlvldn
+                        %interesting case
+                        if idxlastabove > idxlastbelow
+                            wasbelowlvldn = false;
+                        else
+                            wasabovelvlup = false;
+                        end
+                    end
+                    hassc13inrange = ~isempty(find(sc(end-11:end)==13, 1));
+                    hasbc13inrange = ~isempty(find(bc(end-11:end)==13, 1));
+                    %
+                    if wasabovelvlup && macdvec(end)<sigvec(end) && bs(end)>0 && ~isperfectbs && ~hasbc13inrange
+                        signals{i,2} = struct('name','tdsq',...
+                            'instrument',instruments{i},'frequency',samplefreqstr,...
+                            'scenarioname',scenarioname,...
+                            'mode','trend','type','double-range',...
+                            'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+                            'direction',-1);
+                    elseif wasbelowlvldn && macdvec(end)>sigvec(end) && ss(end)>0 && ~isperfectss && ~hassc13inrange
+                        signals{i,2} = struct('name','tdsq',...
+                            'instrument',instruments{i},'frequency',samplefreqstr,...
+                            'scenarioname',scenarioname,...
+                            'mode','trend','type','double-range',...
+                            'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+                            'direction',1);
+                    else
+                        signals{i,2} = {};
+                    end
+                    %
+                elseif isabove
+                    idxlastbelow = find(p(max(end-8,1):max(end-1,1),5)<levelup(end),1,'last');
+                    wasbelowlvlup = ~isempty(idxlastbelow);
+                    diffvec = macdvec - sigvec;
+                    idxlastmacdbearish = find(diffvec(max(end-8,1):max(end-1,1),1)<0,1,'last');
+                    wasmacdbearish = ~isempty(idxlastmacdbearish);
+                    hassc13inrange = ~isempty(find(sc(end-11:end)==13, 1));
+                    if (wasbelowlvlup || wasmacdbearish ) && macdvec(end)>sigvec(end) && ss(end)>0 && ~isperfectss && ~hassc13inrange
+                        signals{i,2} = struct('name','tdsq',...
+                            'instrument',instruments{i},'frequency',samplefreqstr,...
+                            'scenarioname',scenarioname,...
+                            'mode','trend','type','double-range',...
+                            'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+                            'direction',1);
+                    else
+                        signals{i,2} = {};
+                    end
+                    %
+                elseif isbelow
+                    idxlastabove = find(p(max(end-8,1):max(end-1,1),5)>leveldn(end),1,'last');
+                    wasabovelvldn = ~isempty(idxlastabove);
+                    diffvec = macdvec - sigvec;
+                    idxlastmacdbullish = find(diffvec(max(end-8,1):max(end-1,1),1)>0,1,'last');
+                    wasmacdbullish = ~isempty(idxlastmacdbullish);
+                    hasbc13inrange = ~isempty(find(bc(end-11:end)==13, 1));
+                    if (wasabovelvldn || wasmacdbullish) && macdvec(end)<sigvec(end) && bs(end) > 0 && ~isperfectbs && ~hasbc13inrange
+                        signals{i,2} = struct('name','tdsq',...
+                            'instrument',instruments{i},'frequency',samplefreqstr,...
+                            'scenarioname',scenarioname,...
+                            'mode','trend','type','double-range',...
+                            'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+                            'direction',-1);
+                    else
+                        signals{i,2} = {};
+                    end
+                end
+            elseif levelup(end) < leveldn(end)
+                signals{i,2} = {};
+            end
+        end
+                   
+       %%  
+        if strategy.printflag_
+            if i == 1
+                fprintf('%10s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s\n',...
+                    'contract','time','wr','max','min','bs','ss','levelup','leveldn','macd','sig');
+            end
             tick = strategy.mde_fut_.getlasttick(instruments{i});
             timet = datestr(tick(1),'HH:MM:SS');
             
-           if strategy.printflag_
-               if i == 1
-                   fprintf('%10s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s\n',...
-                       'contract','time','wr','max','min','bs','ss','levelup','leveldn','macd','sig');
-               end
-               
-               
-                dataformat = '%10s%11s%10.1f%10s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
-                fprintf(dataformat,instruments{i}.code_ctp,...
-                    timet,...
-                    wrinfo(1),num2str(wrinfo(2)),num2str(wrinfo(3)),...
-                    num2str(bs(end)),num2str(ss(end)),num2str(levelup(end)),num2str(leveldn(end)),...
-                    macdvec(end),sigvec(end));
-            end
+            dataformat = '%10s%11s%10.1f%10s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
+            fprintf(dataformat,instruments{i}.code_ctp,...
+                timet,...
+                wrinfo(1),num2str(wrinfo(2)),num2str(wrinfo(3)),...
+                num2str(bs(end)),num2str(ss(end)),num2str(levelup(end)),num2str(leveldn(end)),...
+                macdvec(end),sigvec(end));
+        end
         
     end
     

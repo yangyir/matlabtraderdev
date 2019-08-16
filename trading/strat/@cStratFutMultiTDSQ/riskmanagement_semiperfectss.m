@@ -23,7 +23,7 @@ function [] = riskmanagement_semiperfectss(strategy,tradein,varargin)
     
     tag = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p);
     
-    if strcmpi(tag,'perfectbs')
+    if strcmpi(tag,'perfectbs9')
         strategy.unwindtrade(tradein);
         return
     end
