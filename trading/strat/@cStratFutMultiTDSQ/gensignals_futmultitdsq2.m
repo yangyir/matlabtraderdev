@@ -20,8 +20,8 @@ function signals = gensignals_futmultitdsq2(strategy)
             %evening respectively
        for i = 1:strategy.count
 %            samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
-           wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
-           wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+%            wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
+%            wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',1,'RemoveLimitPrice',1);
            %
            macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
            macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
@@ -38,7 +38,7 @@ function signals = gensignals_futmultitdsq2(strategy)
            strategy.tdsellcountdown_{i} = sc;
            strategy.tdstlevelup_{i} = levelup;
            strategy.tdstleveldn_{i} = leveldn;
-           strategy.wr_{i} = wrinfo;
+%            strategy.wr_{i} = wrinfo;
            strategy.macdvec_{i} = macdvec;
            strategy.nineperma_{i} = sigvec;    
        end
@@ -63,7 +63,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         end
         
         samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
-        wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
+%         wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
         macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
         macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
         macdnavg = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
@@ -71,7 +71,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         tdsqconsecutive = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
         includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
             
-        wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+%         wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
         [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
         [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
             
@@ -89,7 +89,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         strategy.tdsellcountdown_{i} = sc;
         strategy.tdstlevelup_{i} = levelup;
         strategy.tdstleveldn_{i} = leveldn;
-        strategy.wr_{i} = wrinfo;
+%         strategy.wr_{i} = wrinfo;
         strategy.macdvec_{i} = macdvec;
         strategy.nineperma_{i} = sigvec;
             
@@ -309,16 +309,16 @@ function signals = gensignals_futmultitdsq2(strategy)
        %%  
         if strategy.printflag_
             if i == 1
-                fprintf('%10s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s\n',...
-                    'contract','time','wr','max','min','bs','ss','levelup','leveldn','macd','sig');
+                fprintf('%10s%11s%10s%8s%8s%10s%10s%10s%10s\n',...
+                    'contract','time','px','bs','ss','levelup','leveldn','macd','sig');
             end
             tick = strategy.mde_fut_.getlasttick(instruments{i});
             timet = datestr(tick(1),'HH:MM:SS');
             
-            dataformat = '%10s%11s%10.1f%10s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
+            dataformat = '%10s%11s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
             fprintf(dataformat,instruments{i}.code_ctp,...
                 timet,...
-                wrinfo(1),num2str(wrinfo(2)),num2str(wrinfo(3)),...
+                num2str(p(end,5)),...
                 num2str(bs(end)),num2str(ss(end)),num2str(levelup(end)),num2str(leveldn(end)),...
                 macdvec(end),sigvec(end));
         end
