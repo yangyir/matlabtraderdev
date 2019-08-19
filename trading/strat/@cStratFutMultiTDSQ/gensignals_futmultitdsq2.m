@@ -225,6 +225,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             %BOTH LVLUP AND LVLDN ARE AVAILABLE
             isperfectbs = strcmpi(tag,'perfectbs');
             isperfectss = strcmpi(tag,'perfectss');
+            %IN RANGE
             if levelup(end) > leveldn(end)
                 isabove = p(end,5) > levelup(end);
                 isbelow = p(end,5) < leveldn(end);
@@ -302,7 +303,91 @@ function signals = gensignals_futmultitdsq2(strategy)
                     end
                 end
             elseif levelup(end) < leveldn(end)
-                signals{i,2} = {};
+                idxbslatest = find(bs == 9,1,'last');
+                idxsslatest = find(ss == 9,1,'last');
+                if idxbslatest < idxsslatest
+                    %bullish
+                    %LONG ONLY IN BULLISH MOMENTUM
+                    if p(end,5) > leveldn(end)
+                        sc13idx = -1;
+                        hassc13inrange = false;
+                        n = size(p,1);
+                        for j = max(1,n-11):n
+                            if sc(j) == 13
+                                hassc13inrange = true;
+                                sc13idx = j;
+                                break
+                            end
+                        end
+                        wasmacdbearish = false;
+                        if hassc13inrange
+                            for j = sc13idx:n-1
+                                if macdvec(j) < sigvec(j)
+                                    wasmacdbearish = true;break
+                                end
+                            end
+                        else
+                            for j = max(1,n-8):n-1
+                                if macdvec(j) < sigvec(j)
+                                    wasmacdbearish = true;break
+                                end
+                            end
+                        end
+                        if (wasmacdbearish || (hassc13inrange && ~wasmacdbearish )) && macdvec(end) > sigvec(end) && ss(end) > 0 && sc(end) ~=13
+                            signals{i,2} = struct('name','tdsq',...
+                                'instrument',instruments{i},'frequency',samplefreqstr,...
+                                'scenarioname',scenarioname,...
+                                'mode','trend','type','double-bullish',...
+                                'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+                                'direction',1);
+                        else
+                            signals{i,2} = {};
+                        end
+                    else
+                        signals{i,2} = {};
+                    end
+                else
+                    %bearish
+                    %SHORT ONLY IN BEARISH MOMENTUM
+                    if p(end,5) < levelup(end)
+                        bc13idx = -1;
+                        hasbc13inrange = false;
+                        n = size(p,1);
+                        for j = max(1,n-11):n
+                            if bc(j) == 13
+                                hasbc13inrange = true;
+                                bc13idx = j;
+                                break
+                            end
+                        end
+                        wasmacdbullish = false;
+                        if hasbc13inrange
+                            for j = bc13idx:n-1
+                                if macdvec(j) > sigvec(j)
+                                    wasmacdbullish = true;break
+                                end
+                            end
+                        else
+                            for j = max(1,n-8):n-1
+                                if macdvec(j) > sigvec(j)
+                                    wasmacdbullish = true;break
+                                end
+                            end
+                        end
+                        if (wasmacdbullish || (hasbc13inrange && ~wasmacdbullish)) && macdvec(end) < sigvec(end) && bs(end) > 0 && bc(end) ~= 13
+                            signals{i,2} = struct('name','tdsq',...
+                                'instrument',instruments{i},'frequency',samplefreqstr,...
+                                'scenarioname',scenarioname,...
+                                'mode','trend','type','double-bearish',...
+                                'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+                                'direction',-1);
+                        else
+                            signals{i,2} = {};
+                        end
+                    else
+                        signals{i,2} = {};
+                    end
+                end                
             end
         end
                    
