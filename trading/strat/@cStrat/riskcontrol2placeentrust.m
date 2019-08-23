@@ -99,7 +99,7 @@ try
 catch
     maxvolume = 0;
 end
-if volume2check > maxvolume
+if abs(volume2check) > maxvolume
     ret = 0;
     errmsg = sprintf('%s:failed to place entrust as max allowance of %d lots on %s breached...',class(obj),maxvolume,code);
     fprintf('%s\n',errmsg);
