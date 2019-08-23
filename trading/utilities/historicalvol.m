@@ -20,8 +20,10 @@ parameters = p.Results.Parameters;
 [npx,ncols] = size(price);
 if ncols == 1
     ret = price(2:end)./price(1:end-1)-1;
-else
-    ret = [price(2:end,1),price(2:end,2)./price(1:end-1,2)-1];
+elseif ncols == 2
+    ret = [price(2:end,2),price(2:end,2)./price(1:end-1,2)-1];
+elseif ncols == 5
+    ret = [price(2:end,5),price(2:end,5)./price(1:end-1,5)-1];
 end
 
 if strcmpi(mode,'classical')
@@ -52,7 +54,7 @@ elseif strcmpi(mode,'ewma')
         hv(:,1) = px(:,1);
     end
 elseif strcmpi(mode,'garch')
-    
+    hv = [];
 end
 
 
