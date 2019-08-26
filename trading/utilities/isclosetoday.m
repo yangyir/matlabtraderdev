@@ -26,7 +26,7 @@ function flag = isclosetoday(timeopen,dtnum)
         end
     elseif dd1 < dd2
         nextbd = businessdate(dd1,1);
-        if nextbd == dd2 && hh1 >= 21 && hh2 < 15
+        if nextbd == dd2 && (hh1 >= 21 || hh1 < 3) && hh2 < 15
             flag = 1;
         else
             flag = 0;
