@@ -101,7 +101,8 @@ function [tdBuySetup,tdSellSetup,tdSTResistence,tdSTSupport,tdBuyCountdown,tdSel
                 %2.or the market trades higher and posts a true low above
                 %the true high of the prior TD Buy Setup - that is TDST
                 %resisitence
-                if ~isnan(tdSTResistence(j)) && tdSTResistence(j) < data(j,4), break;end
+%                 if ~isnan(tdSTResistence(j)) && tdSTResistence(j) < data(j,4), break;end
+                if ~isnan(tdSTResistence(i)) && tdSTResistence(i) < data(j,4), break;end
                 
                 if data(j,5) <= data(j-2,4)
                    if ~isnan(tdBuyCountdown(j)) && tdBuyCountdown(j) <= 13
@@ -176,7 +177,8 @@ function [tdBuySetup,tdSellSetup,tdSTResistence,tdSTSupport,tdBuyCountdown,tdSel
                 %2.or the market trades lower and posts a true high below
                 %the true low of the prior TD Sell Setup - that is TDST
                 %support
-                if ~isnan(tdSTSupport(j)) && tdSTSupport(j) > data(j,3)
+%                 if ~isnan(tdSTSupport(j)) && tdSTSupport(j) > data(j,3)
+                if ~isnan(tdSTSupport(i)) && tdSTSupport(i) > data(j,3)    
                     break;
                 end
    
