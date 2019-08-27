@@ -1,9 +1,9 @@
-function [ret,e] = unwindtrade(obj,tradein,varargin)
+function [ret,e] = unwindtrade(strategy,tradein,varargin)
 %cStrat
     if ~isa(tradein,'cTradeOpen')
         ret = 0;
         e = [];
-        fprintf('%s:unwindtrade:invalid trade input...\n',class(obj));
+        fprintf('%s:unwindtrade:invalid trade input...\n',class(strategy));
         return
     end
     
@@ -11,17 +11,17 @@ function [ret,e] = unwindtrade(obj,tradein,varargin)
     direction = tradein.opendirection_;
     code = instrument.code_ctp;
     volume = tradein.openvolume_;
-    lasttick = obj.mde_fut_.getlasttick(instrument);
+    lasttick = strategy.mde_fut_.getlasttick(instrument);
     if isempty(lasttick)
         ret = 0;
         e = [];
-        fprintf('%s:unwindtrade:no tick returns...\n',class(obj));
+        fprintf('%s:unwindtrade:no tick returns...\n',class(strategy));
         return
     end
     tradeid = tradein.id_;
     
     %we need to unwind the trade
-    if strcmpi(obj.mode_,'replay')
+    if strcmpi(strategy.mode_,'replay')
         closetodayFlag = 0;
     else
         if strcmpi(instrument.exchange,'.SHF')
@@ -30,23 +30,55 @@ function [ret,e] = unwindtrade(obj,tradein,varargin)
             closetodayFlag = 0;
         end
     end
+    e = [];
     if direction == 1
-        bidclosespread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
-        overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
-        [ret,e] = obj.shortclose(code,...
-            volume,...
-            closetodayFlag,...
-            'time',lasttick(1),...
-            'overrideprice',overridepx,...
-            'tradeid',tradeid);
+        while ~strcmpi(tradein.status_,'closed')
+            if ~isempty(e)
+                strategy.helper_.refresh
+                strategy.withdrawentrusts(tradein.code_,'direction',-direction,'offset',-1,'price',e.price);
+            end
+            bidclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
+            overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
+            if strcmpi(tradein.status_,'closed'),break;end
+            [ret,e] = strategy.shortclose(code,...
+                volume,...
+                closetodayFlag,...
+                'time',lasttick(1),...
+                'overrideprice',overridepx,...
+                'tradeid',tradeid);
+            if ~ret
+                fprintf('WARNING:unwindtrade:unwind entrust not placed!!!\n')
+                break
+            else
+                for iloop = 1:3
+                    if ~strcmpi(tradein.status_,'closed'), strategy.helper_.refresh;end
+                end
+            end
+        end            
     elseif direction == -1
-        askclosespread = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
-        overridepx = lasttick(3) - askclosespread*instrument.tick_size;
-        [ret,e] = obj.longclose(code,...
-            volume,...
-            closetodayFlag,...
-            'time',lasttick(1),...
-            'overrideprice',overridepx,...
-            'tradeid',tradeid);
-    end
+        while ~strcmpi(tradein.status_,'closed')
+            if ~isempty(e)
+                strategy.helper_.refresh
+                strategy.withdrawentrusts(tradein.code_,'direction',-direction,'offset',-1,'price',e.price);
+            end
+            askclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
+            overridepx = lasttick(3) - askclosespread*instrument.tick_size;
+            if strcmpi(tradein.status_,'closed'),break;end
+            [ret,e] = strategy.longclose(code,...
+                volume,...
+                closetodayFlag,...
+                'time',lasttick(1),...
+                'overrideprice',overridepx,...
+                'tradeid',tradeid);
+            if ~ret
+                fprintf('WARNING:unwindtrade:unwind entrust not placed!!!\n')
+                break
+            else
+                for iloop = 1:3
+                    if ~strcmpi(tradein.status_,'closed'), strategy.helper_.refresh;end
+                end
+            end
+        end
+    end    
+    
 end
