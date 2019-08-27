@@ -1,6 +1,6 @@
 clc;
-% for k = 300:-1:1
-for k = 300
+for k = 1600:-1:1
+% for k = 377
     bsin = bs(1:end-k);
     ssin = ss(1:end-k);
     lvlupin = lvlup(1:end-k);

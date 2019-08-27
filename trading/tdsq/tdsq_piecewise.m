@@ -59,120 +59,237 @@ function [bsout,ssout,lvlupout,lvldnout,bcout,scout] = tdsq_piecewise(data,bsin,
         lvldnout = [lvldnin;lvldnin(end)];
     end
     
-    try
-        %
-        bcout = [bcin;NaN];
-        scout = [scin;NaN];
-        idxbs_latest = find(bsout == 9,1,'last');
-        idxss_latest = find(ssout == 9,1,'last');
-        
-        buycount = 0;
-        for j = idxbs_latest:np
-            %after TD Buy Setup is in place, look for the initiation of
-            %a TD Buy Countdown if the current bar has a close less
-            %than, or equal to the low two bars earlier
-            
-            %first to introduce filters that cancel a developing TD Buy
-            %Countdown
-            %1.if the price action rallies and generates a TD Sell
-            %Setup
-            if ssout(j) == nConsecutive, break; end
-            
-            %2.or the market trades higher and posts a true low above
-            %the true high of the prior TD Buy Setup - that is TDST
-            %resisitence
-            if ~isnan(lvlupout(j)) && lvlupout(j) < data(j,4), break;end
-            
-            if data(j,5) <= data(j-2,4)
-                if ~isnan(bcout(j)) && bcout(j) <= 13
-                    %note;here we keep counting in seperate sequence
-                    %NEED TO CHECK with paper again
-                    buycount = buycount + 1;
-                    continue;
-                end
+    n = size(bsout,1);
+    bcout = nan(n,1);
+    scout = nan(n,1);
+    idxbs = find(bsout == nConsecutive,2,'last');
+    for i = idxbs(1):n
+        if bsout(i) == nConsecutive
+            buycount = 0;
+            for j = i:n
+                %after TD Buy Setup is in place, look for the initiation of
+                %a TD Buy Countdown if the current bar has a close less
+                %than, or equal to the low two bars earlier
                 
-                if buycount < 12
-                    buycount = buycount + 1;
-                    bcout(j) = buycount;
-                else
-                    %to complete a TD buy countdown the low of TD Buy
-                    %Countdown bar thirteen must be less than, or equal
-                    %to, the close of TD Buy Countdown bar eight
-                    idx8 = find(bcout(idxbs_latest:j) == 8);
-                    idx8 = idx8 + idxbs_latest-1;
-                    close8 = data(idx8,5);
-                    if data(j,4) <= close8
+                %first to introduce filters that cancel a developing TD Buy
+                %Countdown
+                %1.if the price action rallies and generates a TD Sell
+                %Setup
+                if ssout(j) == nConsecutive, break; end
+                
+                %2.or the market trades higher and posts a true low above
+                %the true high of the prior TD Buy Setup - that is TDST
+                %resisitence
+                if ~isnan(lvlupout(j)) && lvlupout(j) < data(j,4), break;end
+                
+                if data(j,5) <= data(j-2,4)
+                   if ~isnan(bcout(j)) && bcout(j) <= 13
+                       %note;here we keep counting in seperate sequence
+                       %NEED TO CHECK with paper again
+                       buycount = buycount + 1;
+                       continue;
+                    end
+                    
+                    if buycount < 12
                         buycount = buycount + 1;
                         bcout(j) = buycount;
-                        break
                     else
-                        continue;
+                        %to complete a TD buy countdown the low of TD Buy
+                        %Countdown bar thirteen must be less than, or equal
+                        %to, the close of TD Buy Countdown bar eight
+                        idx8 = find(bcout(i:j) == 8);
+                        idx8 = idx8 + i-1;
+                        close8 = data(idx8,5);
+                        if data(j,4) <= close8
+                            buycount = buycount + 1;
+                            bcout(j) = buycount;
+                            break
+                        else
+                            continue;
+                        end
                     end
-                end
-                
-                if bcout(j) == 13
-                    break
+                    
+                    if bcout(j) == 13
+                        break
+                    end
                 end
             end
         end
-        %
-        %
-        sellcount = 0;
-        for j = idxss_latest:np
-            %after TD Sell Setup is in place, look for the initiation
-            %of a TD Sell Countdown if the current bar has a close
-            %greater than or equal to the high two bars earlier
-            
-            %first to introduce filters that cancel a developing TD
-            %Sell Countdown
-            %1.if the price action rallies and generates a TD Buy
-            %Setup
-            
-            if bsout(j) == nConsecutive, break; end
-            
-            %2.or the market trades lower and posts a true high below
-            %the true low of the prior TD Sell Setup - that is TDST
-            %support
-            if ~isnan(lvldnout(j)) && lvldnout(j) > data(j,3)
-                break;
-            end
-            
-            if data(j,5) >= data(j-2,3)
-                if ~isnan(scout(j)) && scout(j) <= 13
-                    %note;here we keep counting in seperate sequence
-                    %NEED TO CHECK with paper again
-                    sellcount = sellcount + 1;
-                    continue;
-                end
+    end
+    %
+    %
+    idxss = find(ssout == nConsecutive,2,'last');
+    for i = idxss(1):n
+        if ssout(i) == nConsecutive
+            sellcount = 0;
+            for j = i:n
+                %after TD Sell Setup is in place, look for the initiation
+                %of a TD Sell Countdown if the current bar has a close
+                %greater than or equal to the high two bars earlier
                 
-                if sellcount < 12
-                    sellcount = sellcount + 1;
-                    scout(j) = sellcount;
-                else
-                    %to complete a TD Sell countdown the high of TD
-                    %Sell Countdown bar thirteen must be greater than, or equal
-                    %to, the close of TD Sell Countdown bar eight
-                    idx8 = find(scout(idxbs_latest:j) == 8);
-                    idx8 = idx8 + idxbs_latest-1;
-                    close8 = data(idx8,5);
-                    if data(j,3) >= close8
+                %first to introduce filters that cancel a developing TD
+                %Sell Countdown
+                %1.if the price action rallies and generates a TD Buy
+                %Setup
+                
+                if bsout(j) == nConsecutive, break; end
+                
+                %2.or the market trades lower and posts a true high below
+                %the true low of the prior TD Sell Setup - that is TDST
+                %support
+                if ~isnan(lvldnout(j)) && lvldnout(j) > data(j,3)
+                    break;
+                end
+   
+                if data(j,5) >= data(j-2,3)
+                    if ~isnan(scout(j)) && scout(j) <= 13
+                       %note;here we keep counting in seperate sequence
+                       %NEED TO CHECK with paper again
+                       sellcount = sellcount + 1;
+                       continue;
+                    end
+                    
+                    if sellcount < 12
                         sellcount = sellcount + 1;
                         scout(j) = sellcount;
-                        break
                     else
-                        continue;
+                        %to complete a TD Sell countdown the high of TD
+                        %Sell Countdown bar thirteen must be greater than, or equal
+                        %to, the close of TD Sell Countdown bar eight
+                        idx8 = find(scout(i:j) == 8);
+                        idx8 = idx8 + i-1;
+                        close8 = data(idx8,5);
+                        if data(j,3) >= close8
+                            sellcount = sellcount + 1;
+                            scout(j) = sellcount;
+                            break
+                        else
+                            continue;
+                        end
                     end
-                end
-                if scout(j) == 13
-                    break
+                    if scout(j) == 13
+                        break
+                    end
                 end
             end
         end
-    catch e
-        disp(e.message);
-        bcout = [bcin;NaN];
-        scout = [scin;NaN];
     end
+    
+    
+%     try
+%         %
+%         bcout = [bcin;NaN];
+%         scout = [scin;NaN];
+%         idxbs_latest = find(bsout == 9,1,'last');
+%         idxss_latest = find(ssout == 9,1,'last');
+%         
+%         buycount = 0;
+%         for j = idxbs_latest:np
+%             %after TD Buy Setup is in place, look for the initiation of
+%             %a TD Buy Countdown if the current bar has a close less
+%             %than, or equal to the low two bars earlier
+%             
+%             %first to introduce filters that cancel a developing TD Buy
+%             %Countdown
+%             %1.if the price action rallies and generates a TD Sell
+%             %Setup
+%             if ssout(j) == nConsecutive, break; end
+%             
+%             %2.or the market trades higher and posts a true low above
+%             %the true high of the prior TD Buy Setup - that is TDST
+%             %resisitence
+%             if ~isnan(lvlupout(j)) && lvlupout(j) < data(j,4), break;end
+%             
+%             if data(j,5) <= data(j-2,4)
+%                 if ~isnan(bcout(j)) && bcout(j) <= 13
+%                     %note;here we keep counting in seperate sequence
+%                     %NEED TO CHECK with paper again
+%                     buycount = buycount + 1;
+%                     continue;
+%                 end
+%                 
+%                 if buycount < 12
+%                     buycount = buycount + 1;
+%                     bcout(j) = buycount;
+%                 else
+%                     %to complete a TD buy countdown the low of TD Buy
+%                     %Countdown bar thirteen must be less than, or equal
+%                     %to, the close of TD Buy Countdown bar eight
+%                     idx8 = find(bcout(idxbs_latest:j) == 8);
+%                     idx8 = idx8 + idxbs_latest-1;
+%                     close8 = data(idx8,5);
+%                     if data(j,4) <= close8
+%                         buycount = buycount + 1;
+%                         bcout(j) = buycount;
+%                         break
+%                     else
+%                         continue;
+%                     end
+%                 end
+%                 
+%                 if bcout(j) == 13
+%                     break
+%                 end
+%             end
+%         end
+%         %
+%         %
+%         sellcount = 0;
+%         for j = idxss_latest:np
+%             %after TD Sell Setup is in place, look for the initiation
+%             %of a TD Sell Countdown if the current bar has a close
+%             %greater than or equal to the high two bars earlier
+%             
+%             %first to introduce filters that cancel a developing TD
+%             %Sell Countdown
+%             %1.if the price action rallies and generates a TD Buy
+%             %Setup
+%             
+%             if bsout(j) == nConsecutive, break; end
+%             
+%             %2.or the market trades lower and posts a true high below
+%             %the true low of the prior TD Sell Setup - that is TDST
+%             %support
+%             if ~isnan(lvldnout(j)) && lvldnout(j) > data(j,3)
+%                 break;
+%             end
+%             
+%             if data(j,5) >= data(j-2,3)
+%                 if ~isnan(scout(j)) && scout(j) <= 13
+%                     %note;here we keep counting in seperate sequence
+%                     %NEED TO CHECK with paper again
+%                     sellcount = sellcount + 1;
+%                     continue;
+%                 end
+%                 
+%                 if sellcount < 12
+%                     sellcount = sellcount + 1;
+%                     scout(j) = sellcount;
+%                 else
+%                     %to complete a TD Sell countdown the high of TD
+%                     %Sell Countdown bar thirteen must be greater than, or equal
+%                     %to, the close of TD Sell Countdown bar eight
+%                     idx8 = find(scout(idxbs_latest:j) == 8);
+%                     idx8 = idx8 + idxbs_latest-1;
+%                     close8 = data(idx8,5);
+%                     if data(j,3) >= close8
+%                         sellcount = sellcount + 1;
+%                         scout(j) = sellcount;
+%                         break
+%                     else
+%                         continue;
+%                     end
+%                 end
+%                 if scout(j) == 13
+%                     break
+%                 end
+%             end
+%         end
+%     catch e
+%         disp(e.message);
+%         bcout = [bcin;NaN];
+%         scout = [scin;NaN];
+%     end
         
 
 end
