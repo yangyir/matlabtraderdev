@@ -64,16 +64,18 @@ function signals = gensignals_futmultitdsq2(strategy)
         
         samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
 %         wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
-        macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
-        macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
-        macdnavg = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
-        tdsqlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
-        tdsqconsecutive = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
+%         macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
+%         macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
+%         macdnavg = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
+%         tdsqlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
+%         tdsqconsecutive = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
         includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
             
 %         wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-        [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-        [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+%         [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+%         [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+        [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+%         [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
             
         candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
         p = candlesticks{1};
@@ -82,13 +84,24 @@ function signals = gensignals_futmultitdsq2(strategy)
         idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
         p = p(idxkeep,:);
         
-        %update strategy-related variables
-        strategy.tdbuysetup_{i} = bs;
-        strategy.tdsellsetup_{i} = ss;
-        strategy.tdbuycountdown_{i} = bc;
-        strategy.tdsellcountdown_{i} = sc;
-        strategy.tdstlevelup_{i} = levelup;
-        strategy.tdstleveldn_{i} = leveldn;
+        bs = strategy.tdbuysetup_{i};
+        ss = strategy.tdsellsetup_{i};
+        bc = strategy.tdbuycountdown_{i};
+        sc = strategy.tdsellcountdown_{i};
+        levelup = strategy.tdstlevelup_{i};
+        leveldn = strategy.tdstleveldn_{i};
+        
+        if size(p,1) - size(bs,1) == 1
+            fprintf('%s:update tdsq variables of %s...\n',strategy.name_,instruments{i}.code_ctp);
+            [bs,ss,levelup,leveldn,bc,sc] = tdsq_piecewise(p,bs,ss,levelup,leveldn,bc,sc);
+            %update strategy-related variables
+            strategy.tdbuysetup_{i} = bs;
+            strategy.tdsellsetup_{i} = ss;
+            strategy.tdbuycountdown_{i} = bc;
+            strategy.tdsellcountdown_{i} = sc;
+            strategy.tdstlevelup_{i} = levelup;
+            strategy.tdstleveldn_{i} = leveldn;
+        end
 %         strategy.wr_{i} = wrinfo;
         strategy.macdvec_{i} = macdvec;
         strategy.nineperma_{i} = sigvec;
