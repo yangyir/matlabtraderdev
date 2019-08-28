@@ -7,7 +7,7 @@ function [countinfo,breaktype,extrainfo] = tdsq_single_bc(idxstart,p,ss,lvlup)
     
     buycount = 0;
     breaktype = 'unfinished';
-    extrainfo = [];
+    extrainfo = 0;
     for i = idxstart:n
         %first to introduce filters that cancel a developing TD Buy
         %Countdown
