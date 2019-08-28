@@ -76,7 +76,7 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                 end
                 %
                 if stillvalid
-                    ibreach = find(p(ibs:i,5) < lvlup(ibs),1,'first');
+                    ibreach = find(p(ibs:i,5) > lvlup(ibs),1,'first');
                     if ~isempty(ibreach)
                         %lvlup has been breached
                         ibreach = ibreach + ibs-1;
