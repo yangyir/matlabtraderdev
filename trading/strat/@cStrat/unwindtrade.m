@@ -35,7 +35,8 @@ function [ret,e] = unwindtrade(strategy,tradein,varargin)
         while ~strcmpi(tradein.status_,'closed')
             if ~isempty(e)
                 strategy.helper_.refresh
-                strategy.withdrawentrusts(tradein.code_,'direction',-direction,'offset',-1,'price',e.price);
+                ret = strategy.withdrawentrusts(tradein.code_,'tradeid',tradeid);
+                if ret == -1; break;end
             end
             bidclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
             overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
@@ -59,7 +60,8 @@ function [ret,e] = unwindtrade(strategy,tradein,varargin)
         while ~strcmpi(tradein.status_,'closed')
             if ~isempty(e)
                 strategy.helper_.refresh
-                strategy.withdrawentrusts(tradein.code_,'direction',-direction,'offset',-1,'price',e.price);
+                strategy.withdrawentrusts(tradein.code_,'tradeid',tradeid);
+                if ret == -1; break;end
             end
             askclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
             overridepx = lasttick(3) - askclosespread*instrument.tick_size;

@@ -81,7 +81,7 @@ classdef cStrat < cMyTimerObj
         %process portfolio with entrusts
         [] = updatecondentrusts(obj)
         [] = removecondentrusts(obj,condentrusts2remove,varargin)
-        [] = withdrawentrusts(obj,instrument,varargin)
+        [ret] = withdrawentrusts(obj,instrument,varargin)
         [ret,e,msg] = placeentrust(obj,instrument,varargin)
         [ret,e,msg] = placecondentrust(obj,instrument,varargin)
         

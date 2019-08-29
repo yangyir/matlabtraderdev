@@ -1,4 +1,4 @@
-function [] = withdrawentrusts(strategy,instrument,varargin)
+function [ret] = withdrawentrusts(strategy,instrument,varargin)
     if nargin < 2
         %note:withdraw all pending entrusts, i.e.entrusts not associated
         %with any particular instrument
@@ -14,7 +14,7 @@ function [] = withdrawentrusts(strategy,instrument,varargin)
 
     end
     
-    strategy.trader_.cancelorders(code_ctp,strategy.helper_,varargin{:});
+    ret = strategy.trader_.cancelorders(code_ctp,strategy.helper_,varargin{:});
     
 end
 %end of withdrawentrusts
