@@ -26,7 +26,7 @@ function [] = riskmanagement_perfectbs(strategy,tradein,varargin)
     
     bsidxlatest = find(bs == 9,1,'last');
     ssidxlatest = find(ss == 9,1,'last');
-    if ssidxlatest > bsidxlatest && (macdvec(end) < sigvec(end) || bs(end) >= 4)
+    if ssidxlatest > bsidxlatest && (macdvec(end) < sigvec(end) || (false && bs(end) >= 4))
         strategy.unwindtrade(tradein);
         return
     end
@@ -52,7 +52,7 @@ function [] = riskmanagement_perfectbs(strategy,tradein,varargin)
                 break
             end
         end
-        if wasmacdbullish && (macdvec(end) < sigvec(end) || bs(end) >= 4)
+        if wasmacdbullish && (macdvec(end) < sigvec(end) || (false && bs(end) >= 4))
             strategy.unwindtrade(tradein);
             return
         end

@@ -119,9 +119,6 @@ function signals = gensignals_futmultitdsq2(strategy)
            signals{i,1} = {};
         else
            if strcmpi(tag,'perfectbs') && strategy.useperfect_(i)
-%                [~,~,~,~,~,idxtruelow,truelowbarsize] = tdsq_lastbs(bs,ss,levelup,leveldn,bc,sc,p);
-%                truelow = p(idxtruelow,4);
-%                risklvl = truelow - truelowbarsize;
                ibs = find(bs == 9,1,'last');
                %note:the stoploss shall be calculated using the perfect 9
                %bars
@@ -155,7 +152,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                
                haslvlupbreachedwithmacdbearishafterwards = false;
                if stillvalid
-                   ibreach = find(p(ibs:end,5) < levelup(ibs),1,'first');
+                   ibreach = find(p(ibs:end,5) > levelup(ibs),1,'first');
                    if ~isempty(ibreach)
                        %lvlup has been breached
                        ibreach = ibreach + ibs-1;
@@ -164,15 +161,8 @@ function signals = gensignals_futmultitdsq2(strategy)
                    end
                end
                
-%                if p(end,5) < risklvl
-%                    signals{i,1} = {};
-%                elseif p(end,5) < leveldn(end)
-%                    signals{i,1} = {};
-%                elseif bs(end) >= 4 && bs(end) < 9
-%                    signals{i,1} = {};
                if ~stillvalid
                    signals{i,1} = {};
-                   
                else
                    if haslvlupbreachedwithmacdbearishafterwards
                        risklvl = p(end,5) - (p(ibs,5) - stoploss);
@@ -185,8 +175,9 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'mode','reverse','type','perfectbs',...
                        'lvlup',levelup(ibs),'lvldn',leveldn(ibs),'risklvl',risklvl);
                end
-           elseif (strcmpi(tag,'semiperfectbs') && usesemiperfectbs_(i)) || ...
-                   (strcmpi(tag,'imperfectbs') && useimperfectbs_(i))
+               %
+           elseif (strcmpi(tag,'semiperfectbs') && strategy.usesemiperfectbs_(i)) || ...
+                   (strcmpi(tag,'imperfectbs') && strategy.useimperfectbs_(i))
                if macdvec(end) > sigvec(end) && ~(bs(end) >= 4 && bs(end) <= 9)
                    signals{i,1} = struct('name','tdsq',...
                        'instrument',instruments{i},'frequency',samplefreqstr,...
@@ -194,6 +185,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'mode','reverse','type',tag,...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
                end
+               %
            elseif strcmpi(tag,'perfectss') && strategy.useperfect_(i)
                [~,~,~,~,~,idxtruehigh,truehighbarsize] = tdsq_lastss(bs,ss,levelup,leveldn,bc,sc,p);
                truehigh = p(idxtruehigh,3);
@@ -221,16 +213,14 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
                end
            else
-               error('%s:invalid tag name:%s\n',class(strategy),tag)
+               signals{i,1} = {};
            end
         end
         %
        %%
         % ---- trend-type signals ------------------------------ %
-        if isnan(leveldn(end)) && isnan(levelup(end))
-            %NEITHER LVLUP NOR LVLDN IS AVAILABLE
-            signals{i,2} = {};
-        elseif ~isnan(leveldn(end)) && isnan(levelup(end)) && strategy.usesinglelvldn_(i)
+        signals{i,2} = {};
+        if ~isnan(leveldn(end)) && isnan(levelup(end)) && strategy.usesinglelvldn_(i)
             %SINGLE-LVLDN
             if p(end,5) < leveldn(end)
                 wasabovelvldn = false;
@@ -252,11 +242,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'scenarioname',scenarioname,...
                        'mode','trend','type','single-lvldn',...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
-                else
-                    signals{i,2} = {};
                 end
-            else
-                signals{i,2} = {};
             end
         elseif isnan(leveldn(end)) && ~isnan(levelup(end)) && strategy.usesinglelvlup_(i)
             %SINGLE-LVLUP
@@ -280,21 +266,19 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'scenarioname',scenarioname,...
                        'mode','trend','type','single-lvlup',...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
-                else
-                    signals{i,2} = {};
                 end
-            else
-                signals{i,2} = {};
             end
-        else
+        elseif ~isnan(leveldn(end)) && ~isnan(levelup(end))
             %BOTH LVLUP AND LVLDN ARE AVAILABLE
-            isperfectbs = strcmpi(tag,'perfectbs');
-            isperfectss = strcmpi(tag,'perfectss');
             %IN RANGE
             if levelup(end) > leveldn(end) && strategy.usedoublerange_(i)
+                isperfectbs = strcmpi(tag,'perfectbs');
+                isperfectss = strcmpi(tag,'perfectss');
+                
                 isabove = p(end,5) > levelup(end);
                 isbelow = p(end,5) < leveldn(end);
                 isbetween = p(end,5) <= levelup(end) && p(end,5) >= leveldn(end);
+                
                 if isbetween
                     %check whether it was above the lvlup
                     idxlastabove = find(p(max(end-8,1):max(end-1,1),5)>levelup(end),1,'last');
@@ -327,8 +311,6 @@ function signals = gensignals_futmultitdsq2(strategy)
                             'mode','trend','type','double-range',...
                             'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
                             'direction',1);
-                    else
-                        signals{i,2} = {};
                     end
                     %
                 elseif isabove
@@ -345,8 +327,6 @@ function signals = gensignals_futmultitdsq2(strategy)
                             'mode','trend','type','double-range',...
                             'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
                             'direction',1);
-                    else
-                        signals{i,2} = {};
                     end
                     %
                 elseif isbelow
@@ -363,11 +343,9 @@ function signals = gensignals_futmultitdsq2(strategy)
                             'mode','trend','type','double-range',...
                             'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
                             'direction',-1);
-                    else
-                        signals{i,2} = {};
                     end
                 end
-            elseif levelup(end) < leveldn(end)
+            elseif levelup(end) < leveldn(end) && (strategy.usedoublebullish_(i) || strategy.usedoublebearish_(i))
                 idxbslatest = find(bs == 9,1,'last');
                 idxsslatest = find(ss == 9,1,'last');
                 if idxbslatest < idxsslatest && strategy.usedoublebullish_(i)
@@ -405,11 +383,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                                 'mode','trend','type','double-bullish',...
                                 'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
                                 'direction',1);
-                        else
-                            signals{i,2} = {};
                         end
-                    else
-                        signals{i,2} = {};
                     end
                 elseif idxbslatest > idxsslatest && strategy.usedoublebearish_(i)
                     %bearish
@@ -446,11 +420,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                                 'mode','trend','type','double-bearish',...
                                 'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
                                 'direction',-1);
-                        else
-                            signals{i,2} = {};
                         end
-                    else
-                        signals{i,2} = {};
                     end
                 end                
             end
