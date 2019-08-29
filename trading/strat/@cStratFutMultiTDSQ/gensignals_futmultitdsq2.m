@@ -118,7 +118,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         if isempty(tag)
            signals{i,1} = {};
         else
-           if strcmpi(tag,'perfectbs')
+           if strcmpi(tag,'perfectbs') && strategy.useperfect_(i)
 %                [~,~,~,~,~,idxtruelow,truelowbarsize] = tdsq_lastbs(bs,ss,levelup,leveldn,bc,sc,p);
 %                truelow = p(idxtruelow,4);
 %                risklvl = truelow - truelowbarsize;
@@ -185,7 +185,8 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'mode','reverse','type','perfectbs',...
                        'lvlup',levelup(ibs),'lvldn',leveldn(ibs),'risklvl',risklvl);
                end
-           elseif strcmpi(tag,'semiperfectbs') || strcmpi(tag,'imperfectbs')
+           elseif (strcmpi(tag,'semiperfectbs') && usesemiperfectbs_(i)) || ...
+                   (strcmpi(tag,'imperfectbs') && useimperfectbs_(i))
                if macdvec(end) > sigvec(end) && ~(bs(end) >= 4 && bs(end) <= 9)
                    signals{i,1} = struct('name','tdsq',...
                        'instrument',instruments{i},'frequency',samplefreqstr,...
@@ -193,7 +194,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'mode','reverse','type',tag,...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
                end
-           elseif strcmpi(tag,'perfectss')
+           elseif strcmpi(tag,'perfectss') && strategy.useperfect_(i)
                [~,~,~,~,~,idxtruehigh,truehighbarsize] = tdsq_lastss(bs,ss,levelup,leveldn,bc,sc,p);
                truehigh = p(idxtruehigh,3);
                risklvl = truehigh + truehighbarsize;
@@ -210,7 +211,8 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'type','perfectss',...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',risklvl);
                end
-           elseif strcmpi(tag,'semiperfectss') || strcmpi(tag,'imperfectss')
+           elseif (strcmpi(tag,'semiperfectss') && strategy.usesemiperfect_(i)) || ...
+                   (strcmpi(tag,'imperfectss') && strategy.useimperfect_(i))
                if macdvec(end) < sigvec(end) && ~(ss(end) >= 4 && ss(end) <= 9)
                    signals{i,1} = struct('name','tdsq',...
                        'instrument',instruments{i},'frequency',samplefreqstr,...
@@ -228,7 +230,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         if isnan(leveldn(end)) && isnan(levelup(end))
             %NEITHER LVLUP NOR LVLDN IS AVAILABLE
             signals{i,2} = {};
-        elseif ~isnan(leveldn(end)) && isnan(levelup(end))
+        elseif ~isnan(leveldn(end)) && isnan(levelup(end)) && strategy.usesinglelvldn_(i)
             %SINGLE-LVLDN
             if p(end,5) < leveldn(end)
                 wasabovelvldn = false;
@@ -256,7 +258,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             else
                 signals{i,2} = {};
             end
-        elseif isnan(leveldn(end)) && ~isnan(levelup(end))
+        elseif isnan(leveldn(end)) && ~isnan(levelup(end)) && strategy.usesinglelvlup_(i)
             %SINGLE-LVLUP
             if p(end,5) > levelup(end)
                 wasbelowlvlup = false;
@@ -289,7 +291,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             isperfectbs = strcmpi(tag,'perfectbs');
             isperfectss = strcmpi(tag,'perfectss');
             %IN RANGE
-            if levelup(end) > leveldn(end)
+            if levelup(end) > leveldn(end) && strategy.usedoublerange_(i)
                 isabove = p(end,5) > levelup(end);
                 isbelow = p(end,5) < leveldn(end);
                 isbetween = p(end,5) <= levelup(end) && p(end,5) >= leveldn(end);
@@ -368,7 +370,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             elseif levelup(end) < leveldn(end)
                 idxbslatest = find(bs == 9,1,'last');
                 idxsslatest = find(ss == 9,1,'last');
-                if idxbslatest < idxsslatest
+                if idxbslatest < idxsslatest && strategy.usedoublebullish_(i)
                     %bullish
                     %LONG ONLY IN BULLISH MOMENTUM
                     if p(end,5) > leveldn(end)
@@ -409,7 +411,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                     else
                         signals{i,2} = {};
                     end
-                else
+                elseif idxbslatest > idxsslatest && strategy.usedoublebearish_(i)
                     %bearish
                     %SHORT ONLY IN BEARISH MOMENTUM
                     if p(end,5) < levelup(end)

@@ -11,6 +11,16 @@ classdef cStratFutMultiTDSQ < cStrat
         wr_@cell
         macdvec_@cell
         nineperma_@cell
+        %
+        useperfect_@double
+        usesemiperfect_@double
+        useimperfect_@double
+        usesinglelvlup_@double
+        usesinglelvldn_@double
+        usedoublerange_@double
+        usedoublebullish_@double
+        usedoublebearish_@double
+        usesimpletrend_@double
     end
     
     methods

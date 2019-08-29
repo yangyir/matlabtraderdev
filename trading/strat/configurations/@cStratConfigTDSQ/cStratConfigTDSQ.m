@@ -13,6 +13,15 @@ classdef cStratConfigTDSQ < cStratConfig
         tdsqlag_@double = 4
         tdsqconsecutive_@double = 9
         includelastcandle_@double = 0
+        useperfect_@double = 1
+        usesemiperfect_@double = 1
+        useimperfect_@double = 1
+        usesinglelvlup_@double = 1
+        usesinglelvldn_@double = 1
+        usedoublerange_@double = 1
+        usedoublebullish_@double = 1
+        usedoublebearish_@double = 1
+        usesimpletrend_@double = 1
     end
     
     methods

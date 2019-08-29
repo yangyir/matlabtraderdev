@@ -16,7 +16,7 @@ combo = rtt_setup('countername','ccb_ly_fut',...
 combo.mdefut.printflag_ = false;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 15*60;
-combo.strategy.printflag_ = false;
+combo.strategy.printflag_ = true;
 %%
 combo.mdefut.start;
 combo.ops.start;

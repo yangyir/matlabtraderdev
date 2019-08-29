@@ -27,8 +27,8 @@ function [] = initdata_futmultitdsq(obj)
         fprintf('init historical data of %s...\n',instruments{i}.code_ctp);
         obj.mde_fut_.initcandles(instruments{i},'NumberofPeriods',nbdays);
         %
-        wrnperiod = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
-        wrinfo = obj.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',1);
+%         wrnperiod = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
+%         wrinfo = obj.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',1);
         %
         macdlead = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
         macdlag = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
@@ -45,7 +45,7 @@ function [] = initdata_futmultitdsq(obj)
         obj.tdsellcountdown_{i} = sc;
         obj.tdstlevelup_{i} = levelup;
         obj.tdstleveldn_{i} = leveldn;
-        obj.wr_{i} = wrinfo;
+%         obj.wr_{i} = wrinfo;
         obj.macdvec_{i} = macdvec;
         obj.nineperma_{i} = sigvec;     
         

@@ -113,7 +113,7 @@ function [] = registerinstrument(strategy,instrument)
         end
     end
     
-        if ischar(instrument)
+    if ischar(instrument)
         ctpcode = instrument;
     else
         ctpcode = instrument.code_ctp;
@@ -166,6 +166,74 @@ function [] = registerinstrument(strategy,instrument)
     catch
         strategy.mde_fut_.tdsqconsecutive_(idx) = 9;
     end
+    
+    try
+        useperfect = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','useperfect');
+        strategy.useperfect_(idx) = useperfect;
+    catch
+        strategy.useperfect_(idx) = 1;
+    end
+    
+    try
+        usesemiperfect = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','usesemiperfect');
+        strategy.usesemiperfect_(idx) = usesemiperfect;
+    catch
+        strategy.usesemiperfect_(idx) = 1;
+    end
+    
+    try
+        useimperfect = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','useimperfect');
+        strategy.useimperfect_(idx) = useimperfect;
+    catch
+        strategy.useimperfect_(idx) = 1;
+    end
+    
+    try
+        usesinglelvlup = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','usesinglelvlup');
+        strategy.usesinglelvlup_(idx) = usesinglelvlup;
+    catch
+        strategy.usesinglelvlup_(idx) = 1;
+    end
+    
+    try
+        usesinglelvldn = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','usesinglelvldn');
+        strategy.usesinglelvldn_(idx) = usesinglelvldn;
+    catch
+        strategy.usesinglelvldn_(idx) = 1;
+    end
+    
+    try
+        usedoublerange = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','usedoublerange');
+        strategy.usedoublerange_(idx) = usedoublerange;
+    catch
+        strategy.usedoublerange_(idx) = 1;
+    end
+    
+    try
+        usedoublebullish = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','usedoublebullish');
+        strategy.usedoublebullish_(idx) = usedoublebullish;
+    catch
+        strategy.usedoublebullish_(idx) = 1;
+    end
+    
+    try
+        usedoublebearish = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','usedoublebearish');
+        strategy.usedoublebearish_(idx) = usedoublebearish;
+    catch
+        strategy.usedoublebearish_(idx) = 1;
+    end
+    
+    try
+        usesimpletrend = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','usesimpletrend');
+        strategy.usesimpletrend_(idx) = usesimpletrend;
+    catch
+        strategy.usesimpletrend_(idx) = 1;
+    end
+    
+    
+    
+    
+    
     
 
 end
