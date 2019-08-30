@@ -113,6 +113,19 @@ function [] = registerinstrument(strategy,instrument)
         end
     end
     
+    if isempty(strategy.signals_)
+        strategy.signals_ = cell(n,2);
+    else
+        if size(strategy.signals_,1) < n
+            temp = cell(n,2);
+            for i = 1:size(strategy.signals_,1)
+                temp{i,1} = strategy.signals_{i,1};
+                temp{i,2} = strategy.signals_{i,2};
+            end
+            strategy.signals_ = temp;
+        end
+    end
+    
     if ischar(instrument)
         ctpcode = instrument;
     else

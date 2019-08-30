@@ -89,7 +89,9 @@ function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,va
         ops.entrusts_.push(entrust);
         ops.entrustspending_.push(entrust);
     else
-        msg = sprintf('%s','entrust not placed');
+        msg = sprintf('%s fail to placed entrust with code:%8s,direct:%2d,offset:%d, price:%6s, amount:%3d',...
+            datestr(ordertime,'yyyymmdd HH:MM:SS'),...
+            entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
         fprintf('%s\n',msg);
     end
     
