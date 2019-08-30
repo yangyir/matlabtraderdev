@@ -21,6 +21,9 @@ classdef cStratFutMultiTDSQ < cStrat
         usedoublebullish_@double
         usedoublebearish_@double
         usesimpletrend_@double
+        %
+        %
+        signals_@cell
     end
     
     methods
