@@ -120,6 +120,8 @@ function signals = gensignals_futmultitdsq2(strategy)
            signals{i,1} = {};
         else
            trade_signalreverse = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag);
+           %NOTE:we only generate signal in case there is no such live
+           %trade
            gensignalreverse = isempty(trade_signalreverse);
            
            if gensignalreverse && ~closeperfecttradeatm && strcmpi(tag,'perfectbs') 
