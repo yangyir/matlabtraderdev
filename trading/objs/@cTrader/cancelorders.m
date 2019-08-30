@@ -79,6 +79,7 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
                         end
                     end
                 elseif strcmpi(ops.mode_,'replay')
+                    ret = 1;
                     e.cancelTime = t;
                     e.cancelVolume = e.volume;
                     entrusts.push(e);
@@ -89,7 +90,6 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
                 break
             end
         end
-    
     else
         for i = 1:pe.latest
             e = ops.entrustspending_.node(i);

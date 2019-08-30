@@ -35,8 +35,11 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 if e.offsetFlag ~= 1, continue; end
                 if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end
                 if isempty(e.signalinfo_), continue; end
-                if ~isa(e.signalinfo_,'cTDSQInfo'),continue;end
-                if ~strcmpi(e.signalinfo_.type_,signaltype),continue;end
+                try
+                    if ~strcmpi(e.signalinfo_.type_,signaltype),continue;end
+                catch
+                    continue;
+                end
                 %if the code reaches here, the existing entrust shall be canceled
                 strategy.helper_.getcounter.withdrawEntrust(e);
             end

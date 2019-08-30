@@ -32,15 +32,15 @@ function [ret,e] = unwindtrade(strategy,tradein,varargin)
     end
     e = [];
     if direction == 1
-        while ~strcmpi(tradein.status_,'closed')
-            if ~isempty(e)
-                strategy.helper_.refresh
-                ret = strategy.withdrawentrusts(tradein.code_,'tradeid',tradeid);
-                if ret == -1; break;end
-            end
+%         while ~strcmpi(tradein.status_,'closed')
+%             if ~isempty(e)
+%                 strategy.helper_.refresh
+%                 ret = strategy.withdrawentrusts(tradein.code_,'tradeid',tradeid);
+%                 if ret == -1; break;end
+%             end
             bidclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
             overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
-            if strcmpi(tradein.status_,'closed'),break;end
+%             if strcmpi(tradein.status_,'closed'),break;end
             [ret,e] = strategy.shortclose(code,...
                 volume,...
                 closetodayFlag,...
@@ -48,24 +48,24 @@ function [ret,e] = unwindtrade(strategy,tradein,varargin)
                 'overrideprice',overridepx,...
                 'tradeid',tradeid);
             if ~ret
-                fprintf('WARNING:unwindtrade:unwind entrust not placed!!!\n')
-                break
+                fprintf('WARNING:UNWIND ENTRUST FAILED TO BE PLACED!!!\n')
+%                 break
             else
-                for iloop = 1:3
-                    if ~strcmpi(tradein.status_,'closed'), strategy.helper_.refresh;end
-                end
+%                 for iloop = 1:3
+%                     if ~strcmpi(tradein.status_,'closed'), strategy.helper_.refresh;end
+%                 end
             end
-        end            
+%         end            
     elseif direction == -1
-        while ~strcmpi(tradein.status_,'closed')
-            if ~isempty(e)
-                strategy.helper_.refresh
-                strategy.withdrawentrusts(tradein.code_,'tradeid',tradeid);
-                if ret == -1; break;end
-            end
+%         while ~strcmpi(tradein.status_,'closed')
+%             if ~isempty(e)
+%                 strategy.helper_.refresh
+%                 strategy.withdrawentrusts(tradein.code_,'tradeid',tradeid);
+%                 if ret == -1; break;end
+%             end
             askclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
             overridepx = lasttick(3) - askclosespread*instrument.tick_size;
-            if strcmpi(tradein.status_,'closed'),break;end
+%             if strcmpi(tradein.status_,'closed'),break;end
             [ret,e] = strategy.longclose(code,...
                 volume,...
                 closetodayFlag,...
@@ -73,14 +73,14 @@ function [ret,e] = unwindtrade(strategy,tradein,varargin)
                 'overrideprice',overridepx,...
                 'tradeid',tradeid);
             if ~ret
-                fprintf('WARNING:unwindtrade:unwind entrust not placed!!!\n')
-                break
+                fprintf('WARNING:UNWIND ENTRUST FAILED TO BE PLACED!!!\n')
+%                 break
             else
-                for iloop = 1:3
-                    if ~strcmpi(tradein.status_,'closed'), strategy.helper_.refresh;end
-                end
+%                 for iloop = 1:3
+%                     if ~strcmpi(tradein.status_,'closed'), strategy.helper_.refresh;end
+%                 end
             end
-        end
+%         end
     end    
     
 end
