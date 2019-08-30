@@ -3,7 +3,6 @@ function signals = gensignals_futmultitdsq2(strategy)
     %note:column 1 is for reverse-type signal
     %column 2 is for trend-type signal
     signals = cell(size(strategy.count,1),2);
-    
     instruments = strategy.getinstruments;
     
     if strcmpi(strategy.mode_,'replay')
@@ -57,6 +56,8 @@ function signals = gensignals_futmultitdsq2(strategy)
         end
         
         if ~calcsignalflag
+            %NOTE:class variable _signals not updated if signals are not
+            %calculated...^_^
             signals{i,1} = {};
             signals{i,2} = {};
             continue;
@@ -97,7 +98,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         strategy.nineperma_{i} = sigvec;
             
         scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
-        fprintf('%s\n',scenarioname);
+        fprintf('%s:%s\n',strategy.name_,scenarioname);
         tag = tdsq_snbd(scenarioname);
         
         %special treatment for perfectbs and perfectss
@@ -447,8 +448,10 @@ function signals = gensignals_futmultitdsq2(strategy)
                 macdvec(end),sigvec(end));
         end
         
+        %%
+        strategy.signals_{i,1} = signals{i,1};
+        strategy.signals_{i,2} = signals{i,2};
     end
-    
     
     
 
