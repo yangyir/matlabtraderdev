@@ -63,24 +63,14 @@ function signals = gensignals_futmultitdsq2(strategy)
         end
         
         samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
-%         wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
-%         macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
-%         macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
-%         macdnavg = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
-%         tdsqlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
-%         tdsqconsecutive = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
         includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
-            
-%         wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-%         [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-%         [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+        
         [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-%         [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
             
         candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
         p = candlesticks{1};
         if ~includelastcandle, p = p(1:end-1,:);end
-        %remove intraday 
+        %remove intraday limits
         idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
         p = p(idxkeep,:);
         
@@ -109,16 +99,30 @@ function signals = gensignals_futmultitdsq2(strategy)
         scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
         fprintf('%s\n',scenarioname);
         tag = tdsq_snbd(scenarioname);
-            
+        
+        %special treatment for perfectbs and perfectss
+        if strcmpi(tag,'perfectbs') || strcmpi(tag,'perfectss') && strategy.useperfect_(i)
+            hasperfectlivetrade = ~isempty(strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag));
+        else
+            hasperfectlivetrade = false;
+        end
+             
         %call a risk management before processing signal if there is any
         strategy.riskmanagement_futmultitdsq2('code',instruments{i}.code_ctp);
+        
+        %special treatment for perfectbs and perfectss
+        closeperfecttradeatm = hasperfectlivetrade && isempty(strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag));
         
         % ------------------ reverse-type signals --------------------%
        %%
         if isempty(tag)
            signals{i,1} = {};
         else
-           if strcmpi(tag,'perfectbs') && strategy.useperfect_(i)
+           trade_signalreverse = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag);
+           gensignalreverse = isempty(trade_signalreverse);
+           
+           if gensignalreverse && ~closeperfecttradeatm && strcmpi(tag,'perfectbs') 
+               
                ibs = find(bs == 9,1,'last');
                %note:the stoploss shall be calculated using the perfect 9
                %bars
@@ -176,8 +180,8 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'lvlup',levelup(ibs),'lvldn',leveldn(ibs),'risklvl',risklvl);
                end
                %
-           elseif (strcmpi(tag,'semiperfectbs') && strategy.usesemiperfectbs_(i)) || ...
-                   (strcmpi(tag,'imperfectbs') && strategy.useimperfectbs_(i))
+           elseif gensignalreverse && ((strcmpi(tag,'semiperfectbs') && strategy.usesemiperfectbs_(i)) || ...
+                   (strcmpi(tag,'imperfectbs') && strategy.useimperfectbs_(i)))
                if macdvec(end) > sigvec(end) && ~(bs(end) >= 4 && bs(end) <= 9)
                    signals{i,1} = struct('name','tdsq',...
                        'instrument',instruments{i},'frequency',samplefreqstr,...
@@ -186,7 +190,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
                end
                %
-           elseif strcmpi(tag,'perfectss') && strategy.useperfect_(i)
+           elseif gensignalreverse && ~closeperfecttradeatm && strcmpi(tag,'perfectss')
                [~,~,~,~,~,idxtruehigh,truehighbarsize] = tdsq_lastss(bs,ss,levelup,leveldn,bc,sc,p);
                truehigh = p(idxtruehigh,3);
                risklvl = truehigh + truehighbarsize;
@@ -203,8 +207,8 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'type','perfectss',...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',risklvl);
                end
-           elseif (strcmpi(tag,'semiperfectss') && strategy.usesemiperfect_(i)) || ...
-                   (strcmpi(tag,'imperfectss') && strategy.useimperfect_(i))
+           elseif gensignalreverse && ((strcmpi(tag,'semiperfectss') && strategy.usesemiperfect_(i)) || ...
+                   (strcmpi(tag,'imperfectss') && strategy.useimperfect_(i)))
                if macdvec(end) < sigvec(end) && ~(ss(end) >= 4 && ss(end) <= 9)
                    signals{i,1} = struct('name','tdsq',...
                        'instrument',instruments{i},'frequency',samplefreqstr,...
