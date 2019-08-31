@@ -13,6 +13,7 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
     p.addParameter('tradeid','',@ischar);
     p.parse(varargin{:});
     t = p.Results.time;
+        
     direction = p.Results.direction;
     offset = p.Results.offset;
     price = p.Results.price;
@@ -43,51 +44,71 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
     
     if use_tradeid
         for i = 1:pe.latest
-            e = ops.entrustspending_.node(i);
-            if strcmpi(e.tradeid_,tradeid)
-                if strcmpi(ops.mode_,'realtime')
-                    c = ops.getcounter;
-                    ret = c.withdrawEntrust(e);
-                    if ret
-                        c.queryEntrust(e);
-                        entrusts.push(e);
-                        fprintf('%s cancel entrust:%d....\n',...
-                            datestr(e.cancelTime,'yyyymmdd HH:MM:SS'),...
-                            e.entrustNo);
-                    else
-                        c.queryEntrust(e);
-                        if e.is_entrust_filled
-                            %the entrust is actually filled special return with
-                            %-1
-                            ret = -1;
-                            fprintf('entrust: %d not canceled but executed......\n',e.entrustNo);
-                            ntrades = ops.trades_.latest_;
-                            for itrade = 1:ntrades
-                                trade_i = ops.trades_.node_(itrade);
-                                if strcmpi(trade_i.id_,tradeid)
-                                    instrument = trade_i.instrument_;
-                                    trade_i.status_ = 'closed';
-                                    trade_i.closedatetime1_ = t;
-                                    trade_i.closeprice_ = e.price;
-                                    trade_i.runningpnl_ = 0;
-                                    trade_i.closepnl_ = trade_i.opendirection_*trade_i.openvolume_*(e.price-trade_i.openprice_)/ instrument.tick_size * instrument.tick_value;
-                                    break
-                                end
-                            end
+            try
+                e = ops.entrustspending_.node(i);
+                if strcmpi(e.tradeid_,tradeid)
+                    if strcmpi(ops.mode_,'realtime')
+                        c = ops.getcounter;
+                        ret = c.withdrawEntrust(e);
+                        if ret
+                            %entrust is successfully cancelled
+                            %call queryEntrust to update cancelVolume and dealVolume
+                            c.queryEntrust(e);
+                            e.cancelTime = t;
+                            entrusts.push(e);
+                            msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d cancelled',...
+                                datestr(t,'yyyymmdd HH:MM:SS'),...
+                                e.entrustNo,e.instrumentCode,e.direction,...
+                                e.offsetFlag,num2str(e.price),e.volume);    
+                            fprintf('%s\n',msg);
                         else
-                            fprintf('WARNING:FURTHER CHECK ON ENTRUST:%d!!!\n',e.entrustNo);
+                            %entrust is placed before cancelling
+                            %this happens because of matlab timer
+                            %solution, first double check whether it is
+                            %actually filled 
+                            c.queryEntrust(e);
+                            if e.is_entrust_filled
+                                %the entrust is actually filled special return with
+                                %-1
+                                e.time = now;
+                                ret = -1;
+                                fprintf('%s entrust:%2d failed to be canceled as it has been executed......\n',...
+                                    datestr(e.time,'yyyymmdd HH:MM:SS'),...
+                                    e.entrustNo);
+                                ntrades = ops.trades_.latest_;
+                                for itrade = 1:ntrades
+                                    trade_i = ops.trades_.node_(itrade);
+                                    if strcmpi(trade_i.id_,tradeid)
+                                        instrument = trade_i.instrument_;
+                                        trade_i.status_ = 'closed';
+                                        trade_i.closedatetime1_ = t;
+                                        trade_i.closeprice_ = e.price;
+                                        trade_i.runningpnl_ = 0;
+                                        trade_i.closepnl_ = trade_i.opendirection_*trade_i.openvolume_*(e.price-trade_i.openprice_)/ instrument.tick_size * instrument.tick_value;
+                                        break
+                                    end
+                                end
+                            else
+                                warning('on')
+                                warning('WARNING:FURTHER CHECK ON ENTRUST:%d!!!\n',e.entrustNo);
+                                warning('off')
+                            end
                         end
+                    elseif strcmpi(ops.mode_,'replay')
+                        ret = 1;
+                        e.cancelTime = t;
+                        e.cancelVolume = e.volume;
+                        entrusts.push(e);
+                        msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d cancelled',...
+                                datestr(t,'yyyymmdd HH:MM:SS'),...
+                                e.entrustNo,e.instrumentCode,e.direction,...
+                                e.offsetFlag,num2str(e.price),e.volume);
+                        fprintf('%s\n',msg);
                     end
-                elseif strcmpi(ops.mode_,'replay')
-                    ret = 1;
-                    e.cancelTime = t;
-                    e.cancelVolume = e.volume;
-                    entrusts.push(e);
-                    fprintf('%s cancel entrust:%d....\n',...
-                        datestr(e.cancelTime,'yyyymmdd HH:MM:SS'),...
-                        e.entrustNo);
+                    break
                 end
-                break
+            catch
+                continue;
             end
         end
     else
@@ -117,31 +138,43 @@ function [ret,entrusts] = cancelorders(obj,codestr,ops,varargin)
                         %the entrust is sucessfully canceled and query the
                         %entrust again to update cancel information
                         c.queryEntrust(e);
+                        e.cancelTime = t;
                         entrusts.push(e);
-                        fprintf('%s cancel entrust:%d....\n',...
-                            datestr(e.cancelTime,'yyyymmdd HH:MM:SS'),...
-                            e.entrustNo);
+                        msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d cancelled',...
+                                datestr(t,'yyyymmdd HH:MM:SS'),...
+                                e.entrustNo,e.instrumentCode,e.direction,...
+                                e.offsetFlag,num2str(e.price),e.volume);    
+                        fprintf('%s\n',msg);
                     else
-                        %the entrust is not canceled, reasons:
-                        %1.the exchange time is passed
-                        %2.the entrust is filled
+                        %entrust is placed before cancelling
+                        %this happens because of matlab timer
+                        %solution, first double check whether it is
+                        %actually filled 
                         c.queryEntrust(e);
                         if e.is_entrust_filled
                             %the entrust is actually filled special return with
                             %-1
+                            e.time = now;
                             ret = -1;
-                            fprintf('entrust: %d not canceled but executed......\n',e.entrustNo);
+                            fprintf('%s entrust: %d failed to be canceled as it has been executed......\n',...
+                                    datestr(e.time,'yyyymmdd HH:MM:SS'),...
+                                    e.entrustNo);
                         else
-                            fprintf('WARNING:FURTHER CHECK ON ENTRUST:%d!!!\n',e.entrustNo);
+                            warning('on')
+                            warning('WARNING:FURTHER CHECK ON ENTRUST:%d!!!\n',e.entrustNo);
+                            warning('off')
                         end
                     end
                 elseif strcmpi(ops.mode_,'replay')
+                    ret = 1;
                     e.cancelTime = t;
                     e.cancelVolume = e.volume;
                     entrusts.push(e);
-                    fprintf('%s cancel entrust:%d....\n',...
-                        datestr(e.cancelTime,'yyyymmdd HH:MM:SS'),...
-                        e.entrustNo);
+                    msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d cancelled',...
+                                datestr(t,'yyyymmdd HH:MM:SS'),...
+                                e.entrustNo,e.instrumentCode,e.direction,...
+                                e.offsetFlag,num2str(e.price),e.volume);
+                    fprintf('%s\n',msg);
                 end
             end
         end

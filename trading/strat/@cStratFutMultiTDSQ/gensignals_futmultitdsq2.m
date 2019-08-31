@@ -18,18 +18,9 @@ function signals = gensignals_futmultitdsq2(strategy)
             %one minute before market open in the morning, afternoon and
             %evening respectively
        for i = 1:strategy.count
-%            samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
-%            wrnperiod = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','wrnperiod');
-%            wrinfo = strategy.mde_fut_.calc_wr_(instruments{i},'NumOfPeriods',wrnperiod,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+           [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
            %
-           macdlead = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
-           macdlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
-           macdnavg = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
-           [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-           %
-           tdsqlag = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
-           tdsqconsecutive = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
-           [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+           [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
            %
            strategy.tdbuysetup_{i} = bs;
            strategy.tdsellsetup_{i} = ss;
@@ -37,7 +28,6 @@ function signals = gensignals_futmultitdsq2(strategy)
            strategy.tdsellcountdown_{i} = sc;
            strategy.tdstlevelup_{i} = levelup;
            strategy.tdstleveldn_{i} = leveldn;
-%            strategy.wr_{i} = wrinfo;
            strategy.macdvec_{i} = macdvec;
            strategy.nineperma_{i} = sigvec;    
        end
@@ -83,7 +73,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         leveldn = strategy.tdstleveldn_{i};
         
         if size(p,1) - size(bs,1) == 1
-            fprintf('%s:update tdsq variables of %s...\n',strategy.name_,instruments{i}.code_ctp);
+            if strategy.printflag_, fprintf('%s:update tdsq variables of %s...\n',strategy.name_,instruments{i}.code_ctp);end
             [bs,ss,levelup,leveldn,bc,sc] = tdsq_piecewise(p,bs,ss,levelup,leveldn,bc,sc);
             %update strategy-related variables
             strategy.tdbuysetup_{i} = bs;
@@ -98,7 +88,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         strategy.nineperma_{i} = sigvec;
             
         scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
-        fprintf('%s:%s\n',strategy.name_,scenarioname);
+        if strategy.printflag_, fprintf('%s:%s\n',strategy.name_,scenarioname);end
         tag = tdsq_snbd(scenarioname);
         
         %special treatment for perfectbs and perfectss
@@ -109,23 +99,42 @@ function signals = gensignals_futmultitdsq2(strategy)
         end
              
         %call a risk management before processing signal if there is any
+        %NOTE:we can only guarantee that an entrust with offset flag -1 is
+        %placed (in most cases unless there is some network issue and etc)
+        %HOWEVER,we cannot guarantee the entrust is sucessfully executed
+        %That explained why we would require 'is2closetrade' to indicate
+        %whether at this time point, the trade shall be closed or not
+  
         strategy.riskmanagement_futmultitdsq2('code',instruments{i}.code_ctp);
-        
+                
         %special treatment for perfectbs and perfectss
-        closeperfecttradeatm = hasperfectlivetrade && isempty(strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag));
+        %we would not execute any open signal for the perfect bs/ss
+        %scenario in case it is the time point on which the existing trade
+        %is to be closed
+        if hasperfectlivetrade
+            tradeperfect = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag);
+            is2closetrade = isempty(tradeperfect);
+            if ~is2closetrade
+                switch tag
+                    case 'perfectbs' 
+                        is2closetrade = strategy.riskmanagement_perfectbs('code',tradeperfect);
+                    case 'perfectss' 
+                        is2closetrade = strategy.riskmanagement_perfectss('code',tradeperfect);
+                    otherwise
+                        is2closetrade = false;
+                end
+            end
+        end
+        closeperfecttradeatm = hasperfectlivetrade && is2closetrade;
         
-        % ------------------ reverse-type signals --------------------%
+        % ---------------------------- reverse-type signals ---------------------------------------------%
        %%
         if isempty(tag)
            signals{i,1} = {};
         else
-           trade_signalreverse = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag);
-           %NOTE:we only generate signal in case there is no such live
-           %trade
-           gensignalreverse = isempty(trade_signalreverse);
+           gensignalreverse = isempty(strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag));
            
-           if gensignalreverse && ~closeperfecttradeatm && strcmpi(tag,'perfectbs') 
-               
+           if gensignalreverse && ~closeperfecttradeatm && strcmpi(tag,'perfectbs')     
                ibs = find(bs == 9,1,'last');
                %note:the stoploss shall be calculated using the perfect 9
                %bars
@@ -433,22 +442,21 @@ function signals = gensignals_futmultitdsq2(strategy)
             end
         end
                    
-       %%  
-        if strategy.printflag_
-            if i == 1
-                fprintf('%10s%11s%10s%8s%8s%10s%10s%10s%10s\n',...
-                    'contract','time','px','bs','ss','levelup','leveldn','macd','sig');
-            end
-            tick = strategy.mde_fut_.getlasttick(instruments{i});
-            timet = datestr(tick(1),'HH:MM:SS');
-            
-            dataformat = '%10s%11s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
-            fprintf(dataformat,instruments{i}.code_ctp,...
-                timet,...
-                num2str(p(end,5)),...
-                num2str(bs(end)),num2str(ss(end)),num2str(levelup(end)),num2str(leveldn(end)),...
-                macdvec(end),sigvec(end));
+       %%
+        fprintf('\n%s->tdsq info:\n',strategy.name_);
+        if i == 1
+            fprintf('%10s%11s%10s%8s%8s%10s%10s%10s%10s\n',...
+                'contract','time','px','bs','ss','levelup','leveldn','macd','sig');
         end
+        tick = strategy.mde_fut_.getlasttick(instruments{i});
+        timet = datestr(tick(1),'HH:MM:SS');
+
+        dataformat = '%10s%11s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
+        fprintf(dataformat,instruments{i}.code_ctp,...
+            timet,...
+            num2str(p(end,5)),...
+            num2str(bs(end)),num2str(ss(end)),num2str(levelup(end)),num2str(leveldn(end)),...
+            macdvec(end),sigvec(end));
         
         %%
         strategy.signals_{i,1} = signals{i,1};

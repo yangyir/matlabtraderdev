@@ -15,7 +15,7 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
         
             trade_signaltype = strategy.getlivetrade_tdsq(e.instrumentCode,signalmode,signaltype);
             if isempty(trade_signaltype)
-                ret = strategy.withdrawentrusts(e.instrumentCode,'direction',e.direction,'offset',1,'price',e.price,'volume',e.volume);
+                ret = strategy.withdrawentrusts(e.instrumentCode,'time',dtnum,'direction',e.direction,'offset',1,'price',e.price,'volume',e.volume);
                 if ret
                     %the entrust has not been executed but canceled
                     %then we need to replace an order
@@ -42,7 +42,7 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
             e = strategy.helper_.entrustspending_.node(jj);
             if e.offsetFlag ~= -1, continue; end
             if isempty(e.tradeid_), continue;end
-            ret = strategy.withdrawentrusts(e.instrumentCode,'tradeid',e.tradeid_);
+            ret = strategy.withdrawentrusts(e.instrumentCode,'time',dtnum,'tradeid',e.tradeid_);
             if ret == 1
                 %the entrust has not been executed but canceled
                 %then we need to replace an order

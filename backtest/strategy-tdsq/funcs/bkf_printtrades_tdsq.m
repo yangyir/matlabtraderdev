@@ -10,10 +10,14 @@ function [] = bkf_printtrades_tdsq( tradesin )
             if isempty(pnl_i), pnl_i = 0;end
         end
     
-        fprintf('%2d\t%2d\t%s\t%5d\n',tradesin.node_(i).id_,...
+        if i == 1
+            fprintf('%s\t%s\t%s\t%s\t%s\n','idx','direction','opentime','pnl','closetime');
+        end
+        fprintf('%d\t%d\t%s\t%d\t%s\n',tradesin.node_(i).id_,...
             tradesin.node_(i).opendirection_*tradesin.node_(i).openvolume_,...
             datestr(tradesin.node_(i).opendatetime2_,'yy-mm-dd HH:MM'),...
-            pnl_i);
+            pnl_i,...
+            datestr(tradesin.node_(i).closedatetime2_,'yy-mm-dd HH:MM'));
         totalpnl = totalpnl + pnl_i;
     end
     

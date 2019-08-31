@@ -7,7 +7,7 @@ function [] = printpendingentrusts(obj)
     end
     
     if n == 0
-        fprintf(['\n',obj.book_.bookname_,'->unsettled entrusts:none!\n'])
+%         fprintf(['\n',obj.book_.bookname_,'->unsettled entrusts:none!\n'])
         return
     end
     
@@ -35,5 +35,6 @@ function [] = printpendingentrusts(obj)
 
         fprintf('\n');
     end
+    fprintf('\n');
 
 end

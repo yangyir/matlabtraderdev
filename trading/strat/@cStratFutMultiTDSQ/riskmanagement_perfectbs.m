@@ -1,5 +1,9 @@
-function [] = riskmanagement_perfectbs(strategy,tradein,varargin)
+function [is2closetrade] = riskmanagement_perfectbs(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
+    is2closetrade = false;
+    
+    if isempty(tradein), return;end
+    
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
     if idx < 0, return;end
@@ -14,6 +18,7 @@ function [] = riskmanagement_perfectbs(strategy,tradein,varargin)
     %case 1 stop
     risklvl = tradein.opensignal_.risklvl_;
     if p(end,5) < risklvl
+        is2closetrade = true;
         strategy.unwindtrade(tradein);
         return
     end
@@ -27,6 +32,7 @@ function [] = riskmanagement_perfectbs(strategy,tradein,varargin)
     bsidxlatest = find(bs == 9,1,'last');
     ssidxlatest = find(ss == 9,1,'last');
     if ssidxlatest > bsidxlatest && (macdvec(end) < sigvec(end) || (false && bs(end) >= 4))
+        is2closetrade = true;
         strategy.unwindtrade(tradein);
         return
     end
@@ -53,6 +59,7 @@ function [] = riskmanagement_perfectbs(strategy,tradein,varargin)
             end
         end
         if wasmacdbullish && (macdvec(end) < sigvec(end) || (false && bs(end) >= 4))
+            is2closetrade = true;
             strategy.unwindtrade(tradein);
             return
         end

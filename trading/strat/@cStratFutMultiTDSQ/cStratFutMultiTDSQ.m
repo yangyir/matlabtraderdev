@@ -69,6 +69,21 @@ classdef cStratFutMultiTDSQ < cStrat
     methods (Access = private)
         [] = riskmanagement_futmultitdsq(obj,dtnum)
         [] = riskmanagement_futmultitdsq2(obj,varargin)
+        %
+        [is2closetrade] = riskmanagement_perfectbs(obj,tradein,varargin)
+        [is2closetrade] = riskmanagement_semiperfectbs(obj,tradein,varargin)
+        [is2closetrade] = riskmanagement_imperfectbs(obj,tradein,varargin)
+        %
+        [is2closetrade] = riskmanagement_perfectss(obj,tradein,varargin)
+        [is2closetrade] = riskmanagement_semiperfectss(obj,tradein,varargin)
+        [is2closetrade] = riskmanagement_imperfectss(obj,tradein,varargin)
+        %
+        [is2closetrade] = riskmanagement_singlelvldn(obj,tradein,varargin)
+        [is2closetrade] = riskmanagement_singlelvlup(obj,tradein,varargin)
+        [is2closetrade] = riskmanagement_doublerange(obj,tradein,varargin)
+        [is2closetrade] = riskmanagement_doublebullish(obj,tradein,varargin)
+        [is2closetrade] = riskmanagement_doublebearish(obj,tradein,varargin)
+        %
         [] = updategreeks_futmultitdsq(obj)
         signals = gensignals_futmultitdsq(obj)
         signals = gensignals_futmultitdsq2(obj)
@@ -80,19 +95,15 @@ classdef cStratFutMultiTDSQ < cStrat
     methods (Access = private)
        [trade] = getlivetrade_tdsq(obj,code,modename,typename)
        %
-       [] = riskmanagement_perfectbs(obj,tradein,varargin)
-       [] = riskmanagement_semiperfectbs(obj,tradein,varargin)
-       [] = riskmanagement_imperfectbs(obj,tradein,varargin)
-       %
-       [] = riskmanagement_perfectss(obj,tradein,varargin)
-       [] = riskmanagement_semiperfectss(obj,tradein,varargin)
-       [] = riskmanagement_imperfectss(obj,tradein,varargin)
-       %
-       [] = riskmanagement_singlelvldn(obj,tradein,varargin)
-       [] = riskmanagement_singlelvlup(obj,tradein,varargin)
-       [] = riskmanagement_doublerange(obj,tradein,varargin)
-       [] = riskmanagement_doublebullish(obj,tradein,varargin)
-       [] = riskmanagement_doublebearish(obj,tradein,varargin)
+
+       %TODO
+       %in realtime trading with bigger volume per trade, we might be
+       %unable to execute the total required volume, e.g. 50 lots in one
+       %trade. Alternatively, we would split the total required volume into
+       %several small pieces, e.g. 5 per trade. As a result, more than one
+       %trades are associated with the same mode/type, e.g.
+       %reverse/perfectbs. A workround shall be implemented at a later
+       %stage.
     end
 
     

@@ -82,17 +82,28 @@ function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,va
             entrust.tradeid_ = tradeid;
         end
                 
-        msg = sprintf('%s placed entrust:%2d,code:%8s,direct:%2d,offset:%d, price:%6s, amount:%3d',...
+        msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d placed',...
             datestr(entrust.time,'yyyymmdd HH:MM:SS'),...
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
         fprintf('%s\n',msg);
         ops.entrusts_.push(entrust);
-        ops.entrustspending_.push(entrust);
+        if strcmpi(modestr,'realtime')
+            counter.queryEntrust(entrust);
+            if ~entrust.is_entrust_closed
+                ops.entrustspending_.push(entrust);
+            end
+        else
+            ops.entrustspending_.push(entrust);
+        end
     else
-        msg = sprintf('%s fail to placed entrust with code:%8s,direct:%2d,offset:%d, price:%6s, amount:%3d',...
-            datestr(ordertime,'yyyymmdd HH:MM:SS'),...
-            entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
-        fprintf('%s\n',msg);
+        %NOTE:ONLY HAPPENS IN REALTIME MODE
+        ret = counter.queryEntrust(entrust);
+        if ~ret
+            msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d failed to place',...
+                datestr(ordertime,'yyyymmdd HH:MM:SS'),...
+                entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
+            fprintf('%s\n',msg);
+        end
     end
     
 end

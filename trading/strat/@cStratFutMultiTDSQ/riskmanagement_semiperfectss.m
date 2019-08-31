@@ -1,5 +1,9 @@
-function [] = riskmanagement_semiperfectss(strategy,tradein,varargin)
+function [is2closetrade] = riskmanagement_semiperfectss(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
+    is2closetrade = false;
+    
+    if isempty(tradein), return;end
+    
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
     if idx < 0, return;end
