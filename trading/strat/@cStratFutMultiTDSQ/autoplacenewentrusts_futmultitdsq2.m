@@ -26,7 +26,12 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
             signaltype = signal.type;
             if strcmpi(signalmode,'unset') || strcmpi(signaltype,'unset'), continue;end
             trade_signaltype = strategy.getlivetrade_tdsq(instrument.code_ctp,signalmode,signaltype);
-            if ~isempty(trade_signaltype), continue;end
+            %Note:20190901
+            %add a control with a target portfolio
+            typeidx = cTDSQInfo.gettypeidx(signaltype);
+            targetholding = strategy.targetportfolio_(i,typeidx);
+            
+            if ~isempty(trade_signaltype) || targetholding ~= 0, continue;end
             %
             %cancel any pending entrust with open offsetflag
             n = strategy.helper_.entrustspending_.latest;
@@ -48,11 +53,13 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                     strcmpi(signaltype,'semiperfectbs') || ...
                     strcmpi(signaltype,'imperfectbs')
                 strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                strategy.targetportfolio_(i,typeidx) = volume;
                 %
             elseif strcmpi(signaltype,'perfectss') || ...
                     strcmpi(signaltype,'semiperfectss') || ...
                     strcmpi(signaltype,'imperfectss')
                 strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                strategy.targetportfolio_(i,typeidx) = -volume;
                 %
             elseif strcmpi(signaltype,'single-lvldn')
                 strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);

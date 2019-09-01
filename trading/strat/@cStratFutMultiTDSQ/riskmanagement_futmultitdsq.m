@@ -2,7 +2,37 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
 %cStratFutMultiTDSQ   
     % check whether there are any pending open orders every 3 seconds
     runpendingordercheck = mod(floor(second(dtnum)),3) == 0;
-    if ~runpendingordercheck, return;end
+    % check target portfolio every minute
+    runtargetportfoliocheck = floor(second(dtnum)) == 59;
+    
+    if ~runpendingordercheck && ~runtargetportfoliocheck, return;end
+    
+    if runtargetportfoliocheck
+        instruments = strategy.getinstruments;
+        for i = 1:strategy.count
+            for j = 1:cTDSQInfo.numoftype
+                volume_target = strategy.targetportfolio_(i,j);
+                type = cTDSQInfo.idx2type(j);
+                switch type
+                    case {'perfectbs','semiperfectbs','imperfectbs'}
+                        trade_signaltype = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',type);
+                    case {'perfectss','semiperfectss','imperfectss'}
+                        trade_signaltype = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',type);
+                    otherwise
+                        trade_signaltype = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'trend',type);
+                end
+                if isempty(trade_signaltype)
+                    volume_traded = 0;
+                else
+                    volume_traded = trade_signaltype.openvolume_*trade_signaltype.opendirection_;
+                end
+                if volume_target ~= volume_traded
+                    %TODO
+                    fprintf('inconsistence between target and traded portfolio...\n');
+                end
+            end
+        end
+    end
     
     n = strategy.helper_.entrustspending_.latest;
     for jj = 1:n

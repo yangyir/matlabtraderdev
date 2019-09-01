@@ -52,5 +52,8 @@ function [] = initdata_futmultitdsq(obj)
         
     end
     
+    ntypes = cTDSQInfo.numoftype;
+    obj.targetportfolio_ = zeros(obj.count,ntypes);
+    
     
 end

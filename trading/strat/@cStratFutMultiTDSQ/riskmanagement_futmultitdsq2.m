@@ -20,32 +20,50 @@ function [] = riskmanagement_futmultitdsq2(strategy,varargin)
 
     if ~isempty(trade_perfectbs)
         if strcmpi(trade_perfectbs.status_,'unset'), trade_perfectbs.status_ = 'set';end
-        strategy.riskmanagement_perfectbs(trade_perfectbs);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_perfectbs(trade_perfectbs);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:perfectbs!!!\n',strategy.name_)
+        end
     end
         
     if ~isempty(trade_semiperfectbs)
         if strcmpi(trade_semiperfectbs.status_,'unset'), trade_semiperfectbs.status_ = 'set';end
-        strategy.riskmanagement_semiperfectbs(trade_semiperfectbs);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_semiperfectbs(trade_semiperfectbs);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:semiperfectbs!!!\n',strategy.name_)
+        end
     end
 
     if ~isempty(trade_imperfectbs)
         if strcmpi(trade_imperfectbs.status_,'unset'), trade_imperfectbs.status_ = 'set';end
-        strategy.riskmanagement_imperfectbs(trade_imperfectbs);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_imperfectbs(trade_imperfectbs);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:imperfectbs!!!\n',strategy.name_)
+        end
     end
 
     if ~isempty(trade_perfectss)
         if strcmpi(trade_perfectss.status_,'unset'), trade_perfectss.status_ = 'set';end
-        strategy.riskmanagement_perfectss(trade_perfectss);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_perfectss(trade_perfectss);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:perfectss!!!\n',strategy.name_)
+        end
     end
 
     if ~isempty(trade_semiperfectss)
         if strcmpi(trade_semiperfectss.status_,'unset'), trade_semiperfectss.status_ = 'set';end
-        strategy.riskmanagement_semiperfectss(trade_semiperfectss);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_semiperfectss(trade_semiperfectss);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:semiperfectss!!!\n',strategy.name_)
+        end
     end
 
     if ~isempty(trade_imperfectss)
         if strcmpi(trade_imperfectss.status_,'unset'), trade_imperfectss.status_ = 'set';end
-        strategy.riskmanagement_imperfectss(trade_imperfectss);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_imperfectss(trade_imperfectss);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:imperfectss!!!\n',strategy.name_)
+        end
     end
     
     if ~isempty(trade_singlelvldn)

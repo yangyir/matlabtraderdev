@@ -26,6 +26,10 @@ classdef cStratFutMultiTDSQ < cStrat
         signals_@cell
     end
     
+    properties
+        targetportfolio_@double
+    end
+    
     methods
         function obj = cStratFutMultiTDSQ
             obj.name_ = 'multipletdsq';
@@ -70,19 +74,19 @@ classdef cStratFutMultiTDSQ < cStrat
         [] = riskmanagement_futmultitdsq(obj,dtnum)
         [] = riskmanagement_futmultitdsq2(obj,varargin)
         %
-        [is2closetrade] = riskmanagement_perfectbs(obj,tradein,varargin)
-        [is2closetrade] = riskmanagement_semiperfectbs(obj,tradein,varargin)
-        [is2closetrade] = riskmanagement_imperfectbs(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_perfectbs(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_semiperfectbs(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(obj,tradein,varargin)
         %
-        [is2closetrade] = riskmanagement_perfectss(obj,tradein,varargin)
-        [is2closetrade] = riskmanagement_semiperfectss(obj,tradein,varargin)
-        [is2closetrade] = riskmanagement_imperfectss(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_perfectss(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_semiperfectss(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_imperfectss(obj,tradein,varargin)
         %
-        [is2closetrade] = riskmanagement_singlelvldn(obj,tradein,varargin)
-        [is2closetrade] = riskmanagement_singlelvlup(obj,tradein,varargin)
-        [is2closetrade] = riskmanagement_doublerange(obj,tradein,varargin)
-        [is2closetrade] = riskmanagement_doublebullish(obj,tradein,varargin)
-        [is2closetrade] = riskmanagement_doublebearish(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_singlelvldn(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_singlelvlup(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_doublerange(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_doublebullish(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_doublebearish(obj,tradein,varargin)
         %
         [] = updategreeks_futmultitdsq(obj)
         signals = gensignals_futmultitdsq(obj)

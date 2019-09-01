@@ -117,9 +117,9 @@ function signals = gensignals_futmultitdsq2(strategy)
             if ~is2closetrade
                 switch tag
                     case 'perfectbs' 
-                        is2closetrade = strategy.riskmanagement_perfectbs('code',tradeperfect);
+                        is2closetrade = strategy.riskmanagement_perfectbs(tradeperfect);
                     case 'perfectss' 
-                        is2closetrade = strategy.riskmanagement_perfectss('code',tradeperfect);
+                        is2closetrade = strategy.riskmanagement_perfectss(tradeperfect);
                     otherwise
                         is2closetrade = false;
                 end
@@ -132,9 +132,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         if isempty(tag)
            signals{i,1} = {};
         else
-           gensignalreverse = isempty(strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag));
-           
-           if gensignalreverse && ~closeperfecttradeatm && strcmpi(tag,'perfectbs')     
+           if ~closeperfecttradeatm && strcmpi(tag,'perfectbs')     
                ibs = find(bs == 9,1,'last');
                %note:the stoploss shall be calculated using the perfect 9
                %bars
@@ -192,7 +190,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'lvlup',levelup(ibs),'lvldn',leveldn(ibs),'risklvl',risklvl);
                end
                %
-           elseif gensignalreverse && ((strcmpi(tag,'semiperfectbs') && strategy.usesemiperfectbs_(i)) || ...
+           elseif ((strcmpi(tag,'semiperfectbs') && strategy.usesemiperfectbs_(i)) || ...
                    (strcmpi(tag,'imperfectbs') && strategy.useimperfectbs_(i)))
                if macdvec(end) > sigvec(end) && ~(bs(end) >= 4 && bs(end) <= 9)
                    signals{i,1} = struct('name','tdsq',...
@@ -202,7 +200,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
                end
                %
-           elseif gensignalreverse && ~closeperfecttradeatm && strcmpi(tag,'perfectss')
+           elseif ~closeperfecttradeatm && strcmpi(tag,'perfectss')
                [~,~,~,~,~,idxtruehigh,truehighbarsize] = tdsq_lastss(bs,ss,levelup,leveldn,bc,sc,p);
                truehigh = p(idxtruehigh,3);
                risklvl = truehigh + truehighbarsize;
@@ -219,7 +217,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'type','perfectss',...
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',risklvl);
                end
-           elseif gensignalreverse && ((strcmpi(tag,'semiperfectss') && strategy.usesemiperfect_(i)) || ...
+           elseif ((strcmpi(tag,'semiperfectss') && strategy.usesemiperfect_(i)) || ...
                    (strcmpi(tag,'imperfectss') && strategy.useimperfect_(i)))
                if macdvec(end) < sigvec(end) && ~(ss(end) >= 4 && ss(end) <= 9)
                    signals{i,1} = struct('name','tdsq',...
@@ -234,7 +232,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         end
         %
        %%
-        % ---- trend-type signals ------------------------------ %
+        % --------------------------------- trend-type signals ------------------------------ %
         signals{i,2} = {};
         if ~isnan(leveldn(end)) && isnan(levelup(end)) && strategy.usesinglelvldn_(i)
             %SINGLE-LVLDN

@@ -47,4 +47,78 @@ classdef cTDSQInfo < cSignalInfo
         end
         
     end
+    
+    methods (Static = true)
+        function n = numofmode(~)
+            n = 2;
+        end
+        
+        function n = numoftype(~)
+            n = 12;
+        end
+        
+        function idx = gettypeidx(typein)
+            switch typein
+                case 'perfectbs'
+                    idx = 1;
+                case 'semiperfectbs'
+                    idx = 2;
+                case 'imperfectbs'
+                    idx = 3;
+                case 'perfectss'
+                    idx = 4;
+                case 'semiperfectss'
+                    idx = 5;
+                case 'imperfectss'
+                    idx = 6;
+                case 'single-lvldn'
+                    idx = 7;
+                case 'single-lvlup'
+                    idx = 8;
+                case 'double-range'
+                    idx = 9;
+                case 'double-bullish'
+                    idx = 10;
+                case 'double-bearish'
+                    idx = 11;
+                case 'simpletrend'
+                    idx = 12;
+                otherwise
+                    idx = -1;
+            end
+        end
+        
+        function typestr = idx2type(idxin)
+            switch idxin
+                case 1
+                    typestr = 'perfectbs';
+                case 2
+                    typestr = 'semiperfectbs';
+                case 3
+                    typestr = 'imperfectbs';
+                case 4
+                    typestr = 'perfectss';
+                case 5
+                    typestr = 'semiperfectss';
+                case 6
+                    typestr = 'imperfectss';
+                case 7
+                    typestr = 'single-lvldn';
+                case 8
+                    typestr = 'single-lvlup';
+                case 9
+                    typestr = 'double-range';
+                case 10
+                    typestr = 'double-bullish';
+                case 11
+                    typestr = 'double-bearish';
+                case 12
+                    typestr = 'simpletrend';
+                otherwise
+                    typestr = 'unset';
+            end
+        end
+        
+    end
+    
 end

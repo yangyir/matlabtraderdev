@@ -1,6 +1,7 @@
-function [is2closetrade] = riskmanagement_imperfectbs(strategy,tradein,varargin)
+function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
     is2closetrade = false;
+    entrustplaced = false;
     
     if isempty(tradein), return;end
 
@@ -29,14 +30,21 @@ function [is2closetrade] = riskmanagement_imperfectbs(strategy,tradein,varargin)
     tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
     
     if strcmpi(tag,'perfectss9')
-        strategy.unwindtrade(tradein);
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('imperfectbs');
+        strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
     
     if (macdvec(end) < sigvec(end) || (bs(end) >= 4 && false))
-        strategy.unwindtrade(tradein);
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('imperfectbs');
+        strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
-    
+
+         
 
 end

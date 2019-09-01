@@ -1,6 +1,7 @@
-function [is2closetrade] = riskmanagement_perfectbs(strategy,tradein,varargin)
+function [is2closetrade,entrustplaced] = riskmanagement_perfectbs(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
     is2closetrade = false;
+    entrustplaced = false;
     
     if isempty(tradein), return;end
     
@@ -15,11 +16,15 @@ function [is2closetrade] = riskmanagement_perfectbs(strategy,tradein,varargin)
     idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
     p = p(idxkeep,:);
     
+    
+    
     %case 1 stop
     risklvl = tradein.opensignal_.risklvl_;
     if p(end,5) < risklvl
         is2closetrade = true;
-        strategy.unwindtrade(tradein);
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('perfectbs');
+        strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
 
@@ -33,7 +38,9 @@ function [is2closetrade] = riskmanagement_perfectbs(strategy,tradein,varargin)
     ssidxlatest = find(ss == 9,1,'last');
     if ssidxlatest > bsidxlatest && (macdvec(end) < sigvec(end) || (false && bs(end) >= 4))
         is2closetrade = true;
-        strategy.unwindtrade(tradein);
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('perfectbs');
+        strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
     
@@ -60,7 +67,9 @@ function [is2closetrade] = riskmanagement_perfectbs(strategy,tradein,varargin)
         end
         if wasmacdbullish && (macdvec(end) < sigvec(end) || (false && bs(end) >= 4))
             is2closetrade = true;
-            strategy.unwindtrade(tradein);
+            entrustplaced = strategy.unwindtrade(tradein);
+            typeidx = cTDSQInfo.gettypeidx('perfectbs');
+            strategy.targetportfolio_(idx,typeidx) = 0;
             return
         end
     end 
