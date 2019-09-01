@@ -1,4 +1,4 @@
-function [ret,e] = unwindtrade(strategy,tradein,varargin)
+function [ret,e,msg] = unwindtrade(strategy,tradein,varargin)
 %cStrat
     if ~isa(tradein,'cTradeOpen')
         ret = 0;
@@ -41,14 +41,16 @@ function [ret,e] = unwindtrade(strategy,tradein,varargin)
             bidclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
             overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
 %             if strcmpi(tradein.status_,'closed'),break;end
-            [ret,e] = strategy.shortclose(code,...
+            [ret,e,msg] = strategy.shortclose(code,...
                 volume,...
                 closetodayFlag,...
                 'time',lasttick(1),...
                 'overrideprice',overridepx,...
                 'tradeid',tradeid);
             if ~ret
-                fprintf('WARNING:UNWIND ENTRUST FAILED TO BE PLACED!!!\n')
+                warning('on');
+                warning('WARNING:unwind entrust failed to be placed:%s !!!\n',msg);
+                warning('off');
 %                 break
             else
 %                 for iloop = 1:3
@@ -66,14 +68,16 @@ function [ret,e] = unwindtrade(strategy,tradein,varargin)
             askclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
             overridepx = lasttick(3) - askclosespread*instrument.tick_size;
 %             if strcmpi(tradein.status_,'closed'),break;end
-            [ret,e] = strategy.longclose(code,...
+            [ret,e,msg] = strategy.longclose(code,...
                 volume,...
                 closetodayFlag,...
                 'time',lasttick(1),...
                 'overrideprice',overridepx,...
                 'tradeid',tradeid);
             if ~ret
-                fprintf('WARNING:UNWIND ENTRUST FAILED TO BE PLACED!!!\n')
+                warning('on');
+                warning('WARNING:unwind entrust failed to be placed:%s !!!\n',msg);
+                warning('off');
 %                 break
             else
 %                 for iloop = 1:3

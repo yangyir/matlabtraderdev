@@ -112,18 +112,8 @@ function signals = gensignals_futmultitdsq2(strategy)
         %scenario in case it is the time point on which the existing trade
         %is to be closed
         if hasperfectlivetrade
-            tradeperfect = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',tag);
-            is2closetrade = isempty(tradeperfect);
-            if ~is2closetrade
-                switch tag
-                    case 'perfectbs' 
-                        is2closetrade = strategy.riskmanagement_perfectbs(tradeperfect);
-                    case 'perfectss' 
-                        is2closetrade = strategy.riskmanagement_perfectss(tradeperfect);
-                    otherwise
-                        is2closetrade = false;
-                end
-            end
+            typeidx = cTDSQInfo.gettypeidx(tag);
+            is2closetrade = strategy.targetportfolio_(i,typeidx) == 0;
         end
         closeperfecttradeatm = hasperfectlivetrade && is2closetrade;
         
@@ -438,6 +428,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                     end
                 end                
             end
+            %
         end
                    
        %%
