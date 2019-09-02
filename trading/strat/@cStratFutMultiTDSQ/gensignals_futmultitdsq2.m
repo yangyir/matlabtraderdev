@@ -2,7 +2,7 @@ function signals = gensignals_futmultitdsq2(strategy)
 %cStratFutMultiTDSQ
     %note:column 1 is for reverse-type signal
     %column 2 is for trend-type signal
-    signals = cell(size(strategy.count,1),2);
+    signals = cell(size(strategy.count,1),3);
     instruments = strategy.getinstruments;
     
     if strcmpi(strategy.mode_,'replay')
@@ -57,6 +57,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             %calculated...^_^
             signals{i,1} = {};
             signals{i,2} = {};
+            signals{i,3} = {};
             continue;
         end
         
@@ -327,8 +328,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                 end
             end
         elseif ~isnan(leveldn(end)) && ~isnan(levelup(end))
-            %BOTH LVLUP AND LVLDN ARE AVAILABLE
-            %IN RANGE
+            %BOTH LVLUP AND LVLDN ARE AVAILABLE IN RANGE
             if levelup(end) > leveldn(end) && strategy.usedoublerange_(i)
                 isperfectbs = strcmpi(tag,'perfectbs');
                 isperfectss = strcmpi(tag,'perfectss');
@@ -370,7 +370,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                             'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
                             'direction',1);
                     end
-                    %
+                    % end of isbetween
                 elseif isabove
                     idxlastbelow = find(p(max(end-8,1):max(end-1,1),5)<levelup(end),1,'last');
                     wasbelowlvlup = ~isempty(idxlastbelow);
@@ -386,7 +386,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                             'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
                             'direction',1);
                     end
-                    %
+                    % end of isabove
                 elseif isbelow
                     idxlastabove = find(p(max(end-8,1):max(end-1,1),5)>leveldn(end),1,'last');
                     wasabovelvldn = ~isempty(idxlastabove);
@@ -402,7 +402,9 @@ function signals = gensignals_futmultitdsq2(strategy)
                             'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
                             'direction',-1);
                     end
+                    % end of isbelow
                 end
+                %end of double-range
             elseif levelup(end) < leveldn(end) && (strategy.usedoublebullish_(i) || strategy.usedoublebearish_(i))
                 idxbslatest = find(bs == 9,1,'last');
                 idxsslatest = find(ss == 9,1,'last');
@@ -443,6 +445,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                                 'direction',1);
                         end
                     end
+                    %end of double-bullish
                 elseif idxbslatest > idxsslatest && strategy.usedoublebearish_(i)
                     %bearish
                     %SHORT ONLY IN BEARISH MOMENTUM
@@ -480,11 +483,43 @@ function signals = gensignals_futmultitdsq2(strategy)
                                 'direction',-1);
                         end
                     end
-                end                
+                end
+                %end of double-bearish 
             end
             %
         end
-                   
+       %%
+        signals{i,3} = {};
+        if strategy.usesimpletrend_(i)
+            macdbs = strategy.macdbs_{i};
+            macdss = strategy.macdss_{i};
+            f1 = ss(end) > 0;
+            f2 = diffvec(end) > 0 && diffvec(end-1) < 0;
+            f3 = p(end,5) >= p(end,2);
+            f4 = macdss(end) > 0;
+            if f1 && f2 && f3 && f4
+                signals{i,3} = struct('name','tdsq',...
+                    'instrument',instruments{i},'frequency',samplefreqstr,...
+                    'scenarioname',scenarioname,...
+                    'mode','trend','type','simpletrend',...
+                    'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+                    'direction',1);
+            else
+                f1 = bs(end) > 0;
+                f2 = diffvec(end) < 0 && diffvec(end-1) > 0;
+                f3 = p(end,5) <= p(end,2);
+                f4 = macdbs(end) > 0;
+                if f1 && f2 && f3 && f4
+                    signals{i,3} = struct('name','tdsq',...
+                        'instrument',instruments{i},'frequency',samplefreqstr,...
+                        'scenarioname',scenarioname,...
+                        'mode','trend','type','simpletrend',...
+                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+                        'direction',-1);
+                end
+            end
+            %  
+        end
        %%
         fprintf('\n%s->tdsq info:\n',strategy.name_);
         if i == 1

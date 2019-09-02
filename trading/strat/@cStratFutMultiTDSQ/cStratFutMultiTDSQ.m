@@ -90,6 +90,7 @@ classdef cStratFutMultiTDSQ < cStrat
         [is2closetrade,entrustplaced] = riskmanagement_doublerange(obj,tradein,varargin)
         [is2closetrade,entrustplaced] = riskmanagement_doublebullish(obj,tradein,varargin)
         [is2closetrade,entrustplaced] = riskmanagement_doublebearish(obj,tradein,varargin)
+        [is2closetrade,entrustplaced] = riskmanagement_simpletrend(obj,tradein,varargin)
         %
         [] = updategreeks_futmultitdsq(obj)
         signals = gensignals_futmultitdsq(obj)

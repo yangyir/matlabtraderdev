@@ -17,6 +17,7 @@ function [] = riskmanagement_futmultitdsq2(strategy,varargin)
     trade_doublerange = strategy.getlivetrade_tdsq(code,'trend','double-range');
     trade_doublebullish = strategy.getlivetrade_tdsq(code,'trend','double-bullish');
     trade_doublebearish = strategy.getlivetrade_tdsq(code,'trend','double-bearish');
+    trade_simpletrend = strategy.getlivetrade_tdsq(code,'trend','simpletrend');
 
     if ~isempty(trade_perfectbs)
         if strcmpi(trade_perfectbs.status_,'unset'), trade_perfectbs.status_ = 'set';end
@@ -89,6 +90,11 @@ function [] = riskmanagement_futmultitdsq2(strategy,varargin)
     if ~isempty(trade_doublebearish)
         if strcmpi(trade_doublebearish.status_,'unset'), trade_doublebearish.status_ = 'set';end
         strategy.riskmanagement_doublebearish(trade_doublebearish);
+    end
+    
+    if ~isempty(trade_simpletrend)
+        if strcmpi(trade_simpletrend.status_,'unset'), trade_simpletrend.status_ = 'set';end
+        strategy.riskmanagement_simpletrend(trade_simpletrend);
     end
     
 end
