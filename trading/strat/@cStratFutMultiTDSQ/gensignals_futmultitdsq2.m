@@ -122,7 +122,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         if isempty(tag)
            signals{i,1} = {};
         else
-           if ~closeperfecttradeatm && strcmpi(tag,'perfectbs')     
+           if ~closeperfecttradeatm && strcmpi(tag,'perfectbs') && strategy.useperfect_(i)    
                ibs = find(bs == 9,1,'last');
                %note:the stoploss shall be calculated using the perfect 9
                %bars
@@ -180,8 +180,8 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'lvlup',levelup(ibs),'lvldn',leveldn(ibs),'risklvl',risklvl);
                end
                %
-           elseif ((strcmpi(tag,'semiperfectbs') && strategy.usesemiperfectbs_(i)) || ...
-                   (strcmpi(tag,'imperfectbs') && strategy.useimperfectbs_(i)))
+           elseif ((strcmpi(tag,'semiperfectbs') && strategy.usesemiperfect_(i)) || ...
+                   (strcmpi(tag,'imperfectbs') && strategy.useimperfect_(i)))
                if macdvec(end) > sigvec(end) && ~(bs(end) >= 4 && bs(end) <= 9)
                    signals{i,1} = struct('name','tdsq',...
                        'instrument',instruments{i},'frequency',samplefreqstr,...
@@ -190,23 +190,65 @@ function signals = gensignals_futmultitdsq2(strategy)
                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
                end
                %
-           elseif ~closeperfecttradeatm && strcmpi(tag,'perfectss')
-               [~,~,~,~,~,idxtruehigh,truehighbarsize] = tdsq_lastss(bs,ss,levelup,leveldn,bc,sc,p);
-               truehigh = p(idxtruehigh,3);
-               risklvl = truehigh + truehighbarsize;
-               if p(end,5) > risklvl
-                   signals{i,1} = {};
-               elseif p(end,5) > levelup(end)
-                   signals{i,1} = {};
-               elseif ss(end) >= 4 && ss(end) < 9
+           elseif ~closeperfecttradeatm && strcmpi(tag,'perfectss') && strategy.useperfect_(i)
+               iss = find(ss == 9,1,'last');
+               %note:the stoploss shall be calculated using the perfect 9
+               %bars
+               truehigh = max(p(iss-8:iss,3));
+               idxtruehigh = find(p(iss-8:iss,3) == truehigh,1,'first');
+               idxtruehigh = idxtruehigh + iss - 9;
+               truehighbarsize = truehigh - p(idxtruehigh,4);
+               stoploss = truehigh + truehighbarsize;
+               
+               %note:hard-coded here:
+               %todo:implement in cStratConfigTDSQ
+               usesetups = false;
+               
+               np = size(p,1);
+               if np > iss    
+                   stillvalid = isempty(find(p(iss:end,5)>stoploss,1,'first'));
+                   if stillvalid
+                       if p(end,5) > levelup(iss), stillvalid = false;end
+                   end
+                   %
+                   if stillvalid
+                       if p(end,5) > truehigh, stillvalid = false;end
+                   end
+                   %
+                   if stillvalid && usesetups
+                       if ss(end) >= 4 && ss(end) < 9, stillvalid = false;end
+                   end
+                   %
+               else
+                   stillvalid = true;
+               end
+               
+               haslvldnbreachedwithmacdbullishafterwards = false;
+               if stillvalid
+                   ibreach = find(p(iss:end,5) < leveldn(iss),1,'first');
+                   if ~isempty(ibreach)
+                       %lvldn has been breached
+                       ibreach = ibreach + iss-1;
+                       diffvec = macdvec(ibreach:end-1)-sigvec(ibreach:end-1);
+                       haslvldnbreachedwithmacdbullishafterwards = ~isempty(find(diffvec>0,1,'first'));
+                   end
+               end
+               
+               if ~stillvalid
                    signals{i,1} = {};
                else
+                   if haslvldnbreachedwithmacdbullishafterwards
+                       risklvl = p(end,5) + (stoploss-p(iss,5));
+                   else
+                       risklvl = stoploss;
+                   end
                    signals{i,1} = struct('name','tdsq',...
                        'instrument',instruments{i},'frequency',samplefreqstr,...
-                       'scenarioname',scenarioname,'mode','reverse',...
-                       'type','perfectss',...
-                       'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',risklvl);
+                       'scenarioname',scenarioname,...
+                       'mode','reverse','type','perfectss',...
+                       'lvlup',levelup(iss),'lvldn',leveldn(iss),'risklvl',risklvl);
                end
+               %
            elseif ((strcmpi(tag,'semiperfectss') && strategy.usesemiperfect_(i)) || ...
                    (strcmpi(tag,'imperfectss') && strategy.useimperfect_(i)))
                if macdvec(end) < sigvec(end) && ~(ss(end) >= 4 && ss(end) <= 9)

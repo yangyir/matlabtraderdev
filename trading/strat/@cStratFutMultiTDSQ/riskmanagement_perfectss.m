@@ -34,7 +34,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_perfectss(strategy,trade
     
     bsidxlatest = find(bs == 9,1,'last');
     ssidxlatest = find(ss == 9,1,'last');
-    if bsidxlatest > ssidxlatest && (macdvec(end) > sigvec(end) || ss(end) >= 4)
+    if bsidxlatest > ssidxlatest && (macdvec(end) > sigvec(end) || (false && ss(end) >= 4))
         is2closetrade = true;
         entrustplaced = strategy.unwindtrade(tradein);
         typeidx = cTDSQInfo.gettypeidx('perfectss');
@@ -63,7 +63,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_perfectss(strategy,trade
                 break
             end
         end
-        if wasmacdbearish && (macdvec(end) > sigvec(end) || ss(end) >= 4)
+        if wasmacdbearish && (macdvec(end) > sigvec(end) || (false && ss(end) >= 4))
             is2closetrade = true;
             entrustplaced = strategy.unwindtrade(tradein);
             typeidx = cTDSQInfo.gettypeidx('perfectss');
