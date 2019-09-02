@@ -18,7 +18,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             %one minute before market open in the morning, afternoon and
             %evening respectively
        for i = 1:strategy.count
-           [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
+           [macdvec,sigvec,diffvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
            %
            [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
            %
@@ -29,7 +29,14 @@ function signals = gensignals_futmultitdsq2(strategy)
            strategy.tdstlevelup_{i} = levelup;
            strategy.tdstleveldn_{i} = leveldn;
            strategy.macdvec_{i} = macdvec;
-           strategy.nineperma_{i} = sigvec;    
+           strategy.nineperma_{i} = sigvec;
+           
+           %
+           if strategy.usesimpletrend_(i)
+               [macdbs,macdss] = tdsq_setup(diffvec);
+               strategy.macdbs_{i} = macdbs;
+               strategy.macdss_{i} = macdss;
+           end
        end
        
        return
@@ -56,7 +63,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
         includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
         
-        [macdvec,sigvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+        [macdvec,sigvec,diffvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
             
         candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
         p = candlesticks{1};
@@ -82,6 +89,11 @@ function signals = gensignals_futmultitdsq2(strategy)
             strategy.tdsellcountdown_{i} = sc;
             strategy.tdstlevelup_{i} = levelup;
             strategy.tdstleveldn_{i} = leveldn;
+            if strategy.usesimpletrend_(i)
+                [macdbs,macdss] = tdsq_piecewise_setup(diffvec,strategy.macdbs_{i},strategy.macdss_{i},[],[]);
+                strategy.macdbs_{i} = macdbs;
+                strategy.macdss_{i} = macdss;
+            end
         end
 %         strategy.wr_{i} = wrinfo;
         strategy.macdvec_{i} = macdvec;

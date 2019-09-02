@@ -126,6 +126,22 @@ function [] = registerinstrument(strategy,instrument)
         end
     end
     
+    if isempty(strategy.macdbs_)
+        strategy.macdbs_ = cell(n,1);
+        strategy.macdss_ = cell(n,1);
+    else
+        if size(strategy.macdbs_,1) < n
+            temp1 = cell(n,1);
+            temp2 = cell(n,1);
+            for i = 1:size(strategy.macdbs_,1)
+                temp1{i,1} = strategy.macdbs_{i,1};
+                temp2{i,1} = strategy.macdss_{i,1};
+            end
+            strategy.macdbs_ = temp1;
+            strategy.macdss_ = temp2;
+        end
+    end
+    
     if ischar(instrument)
         ctpcode = instrument;
     else

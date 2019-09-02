@@ -24,6 +24,9 @@ classdef cStratFutMultiTDSQ < cStrat
         %
         %
         signals_@cell
+        %
+        macdbs_@cell
+        macdss_@cell
     end
     
     properties

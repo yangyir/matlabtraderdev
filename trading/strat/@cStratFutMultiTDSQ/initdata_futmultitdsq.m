@@ -33,7 +33,7 @@ function [] = initdata_futmultitdsq(obj)
         macdlead = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
         macdlag = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
         macdnavg = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
-        [macdvec,sigvec] = obj.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',1);
+        [macdvec,sigvec,diffvec] = obj.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',1);
         %
         tdsqlag = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
         tdsqconsecutive = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
@@ -47,8 +47,13 @@ function [] = initdata_futmultitdsq(obj)
         obj.tdstleveldn_{i} = leveldn;
 %         obj.wr_{i} = wrinfo;
         obj.macdvec_{i} = macdvec;
-        obj.nineperma_{i} = sigvec;     
+        obj.nineperma_{i} = sigvec;
         
+        if obj.usesimpletrend_(i)
+            [macdbs,macdss] = tdsq_setup(diffvec);
+            obj.macdbs_{i} = macdbs;
+            obj.macdss_{i} = macdss;
+        end
         
     end
     

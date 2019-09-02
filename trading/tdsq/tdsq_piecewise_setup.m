@@ -38,18 +38,26 @@ function [ bsout,ssout,lvlupout,lvldnout ] = tdsq_piecewise_setup( data,bsin,ssi
             end
         end
         %
-        if bsout(end) == nConsecutive
-            newlvlup = max(data(np-nConsecutive+1:np,3));
-            lvlupout = [lvlupin;newlvlup];
+        if ~isempty(lvlupin)
+            if bsout(end) == nConsecutive
+                newlvlup = max(data(np-nConsecutive+1:np,3));
+                lvlupout = [lvlupin;newlvlup];
+            else
+                lvlupout = [lvlupin;lvlupin(end)];
+            end
         else
-            lvlupout = [lvlupin;lvlupin(end)];
+            lvlupout = [];
         end
         %
-        if ssout(end) == nConsecutive
-            newlvldn = min(data(np-nConsecutive+1:np,4));
-            lvldnout = [lvldnin;newlvldn];
+        if ~isempty(lvldnin)
+            if ssout(end) == nConsecutive
+                newlvldn = min(data(np-nConsecutive+1:np,4));
+                lvldnout = [lvldnin;newlvldn];
+            else
+                lvldnout = [lvldnin;lvldnin(end)];
+            end
         else
-            lvldnout = [lvldnin;lvldnin(end)];
+            lvldnout = [];
         end
     catch
         bsout = [bsin;0];
