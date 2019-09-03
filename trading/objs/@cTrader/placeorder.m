@@ -88,10 +88,13 @@ function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,va
         fprintf('%s\n',msg);
         ops.entrusts_.push(entrust);
         if strcmpi(modestr,'realtime')
-            counter.queryEntrust(entrust);
-            if ~entrust.is_entrust_closed
+            ret2 = counter.queryEntrust(entrust);
+            if ret2
                 ops.entrustspending_.push(entrust);
             end
+%             if ~entrust.is_entrust_closed
+%                 ops.entrustspending_.push(entrust);
+%             end
         else
             ops.entrustspending_.push(entrust);
         end
