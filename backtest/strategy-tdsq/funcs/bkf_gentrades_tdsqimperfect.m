@@ -77,6 +77,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 elseif j == n
                     trade_new.runningpnl_ = (p(j,5)-trade_new.openprice_)*contractsize;
                     trade_new.status_ = 'set';
+                    j = j + 1;
                 end
                 i = j;
             else
@@ -118,6 +119,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 elseif j == n
                     trade_new.runningpnl_ =(-p(j,5)+trade_new.openprice_)*contractsize;
                     trade_new.status_ = 'set';
+                    j = j + 1;
                 end
                 i = j;
             else
