@@ -57,67 +57,67 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
                     strategy.unwindtrade(trade_signaltype);
                     %
                 elseif volume_target ~= 0 && volume_traded == 0
-                    %place trade is required
-                    %1.to check whether there is any pending open
-                    %entrust
-                    npending = strategy.helper_.entrustspending_.latest;
-                    isopenpending = false;
-                    for jj = 1:npending
-                        try
-                            e = strategy.helper_.entrustspending_.node(jj);
-                            if e.offsetFlag ~= 1, continue; end
-                            if isempty(e.signalinfo_), continue; end
-                            if strcmpi(e.signalinfo_.type,type)
-                                isopenpending = true;
-                                break
-                            end
-                        catch
-                        end
-                    end
-                    %do nothing if there is a open entrust pending
-                    if isopenpending, continue;end
-                    %2.open the trade if there is no open entrust
-                    %pending
-                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
-                    bs = strategy.tdbuysetup_{i};
-                    ss = strategy.tdsellsetup_{i};
-                    bc = strategy.tdbuycountdown_{i};
-                    sc = strategy.tdsellcountdown_{i};
-                    levelup = strategy.tdstlevelup_{i};
-                    leveldn = strategy.tdstleveldn_{i};
-                    scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
-                    signal = struct('name','tdsq',...
-                        'instrument',instruments{i},'frequency',samplefreqstr,...
-                        'scenarioname',scenarioname,...
-                        'mode',mode,'type',type,...
-                        'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
-                        'direction',sign(volume_target));
-                    if strcmpi(type,'perfectbs')
-                        ibs = find(bs == 9,1,'last');
-                        truelow = min(p(ibs-8:ibs,4));
-                        idxtruelow = find(p(ibs-8:ibs,4) == truelow,1,'first');
-                        idxtruelow = idxtruelow + ibs - 9;
-                        truelowbarsize = p(idxtruelow,3) - truelow;
-                        risklvl = truelow - truelowbarsize;
-                        %TODO:consistent with the gensignalcode
-                        signal.risklvl = risklvl;                        
-                    elseif strcmpi(type,'perfectss')
-                        iss = find(ss == 9,1,'last');
-                        truehigh = min(p(iss-8:iss,3));
-                        idxtruehigh = find(p(iss-8:iss,3) == truehigh,1,'first');
-                        idxtruehigh = idxtruehigh + iss - 9;
-                        truehighbarsize = truehigh - p(idxtruehigh,4);
-                        risklvl = truehigh + truehighbarsize;
-                        %TODO:consistent with the gensignalcode
-                        signal.risklvl = risklvl;
-                    end
-                    %
-                    if volume_target > 0
-                        strategy.longopen(instruments{i}.code_ctp,volume_target,'spread',0,'signalinfo',signal);
-                    else
-                        strategy.shortopen(instruments{i}.code_ctp,volume_target,'spread',0,'signalinfo',signal);
-                    end
-                    %
+%                     %place trade is required
+%                     %1.to check whether there is any pending open
+%                     %entrust
+%                     npending = strategy.helper_.entrustspending_.latest;
+%                     isopenpending = false;
+%                     for jj = 1:npending
+%                         try
+%                             e = strategy.helper_.entrustspending_.node(jj);
+%                             if e.offsetFlag ~= 1, continue; end
+%                             if isempty(e.signalinfo_), continue; end
+%                             if strcmpi(e.signalinfo_.type,type)
+%                                 isopenpending = true;
+%                                 break
+%                             end
+%                         catch
+%                         end
+%                     end
+%                     %do nothing if there is a open entrust pending
+%                     if isopenpending, continue;end
+%                     %2.open the trade if there is no open entrust
+%                     %pending
+%                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
+%                     bs = strategy.tdbuysetup_{i};
+%                     ss = strategy.tdsellsetup_{i};
+%                     bc = strategy.tdbuycountdown_{i};
+%                     sc = strategy.tdsellcountdown_{i};
+%                     levelup = strategy.tdstlevelup_{i};
+%                     leveldn = strategy.tdstleveldn_{i};
+%                     scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
+%                     signal = struct('name','tdsq',...
+%                         'instrument',instruments{i},'frequency',samplefreqstr,...
+%                         'scenarioname',scenarioname,...
+%                         'mode',mode,'type',type,...
+%                         'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
+%                         'direction',sign(volume_target));
+%                     if strcmpi(type,'perfectbs')
+%                         ibs = find(bs == 9,1,'last');
+%                         truelow = min(p(ibs-8:ibs,4));
+%                         idxtruelow = find(p(ibs-8:ibs,4) == truelow,1,'first');
+%                         idxtruelow = idxtruelow + ibs - 9;
+%                         truelowbarsize = p(idxtruelow,3) - truelow;
+%                         risklvl = truelow - truelowbarsize;
+%                         %TODO:consistent with the gensignalcode
+%                         signal.risklvl = risklvl;                        
+%                     elseif strcmpi(type,'perfectss')
+%                         iss = find(ss == 9,1,'last');
+%                         truehigh = min(p(iss-8:iss,3));
+%                         idxtruehigh = find(p(iss-8:iss,3) == truehigh,1,'first');
+%                         idxtruehigh = idxtruehigh + iss - 9;
+%                         truehighbarsize = truehigh - p(idxtruehigh,4);
+%                         risklvl = truehigh + truehighbarsize;
+%                         %TODO:consistent with the gensignalcode
+%                         signal.risklvl = risklvl;
+%                     end
+%                     %
+%                     if volume_target > 0
+%                         strategy.longopen(instruments{i}.code_ctp,volume_target,'spread',0,'signalinfo',signal);
+%                     else
+%                         strategy.shortopen(instruments{i}.code_ctp,volume_target,'spread',0,'signalinfo',signal);
+%                     end
+%                     %
                 elseif volume_target ~= 0 && volume_traded ~= 0
                     %TODO
                     fprintf('NOT IMPLEMENTED!!!\n')
