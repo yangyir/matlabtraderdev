@@ -98,6 +98,7 @@ classdef cStratFutMultiTDSQ < cStrat
         [] = autoplacenewentrusts_futmultitdsq(obj,signals)
         [] = autoplacenewentrusts_futmultitdsq2(obj,signals)
         [] = initdata_futmultiwr(obj)
+        %
     end
     
     methods (Access = private)
@@ -112,6 +113,18 @@ classdef cStratFutMultiTDSQ < cStrat
        %trades are associated with the same mode/type, e.g.
        %reverse/perfectbs. A workround shall be implemented at a later
        %stage.
+    end
+    
+    methods (Access = private)
+        [signal] = gensignal_perfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,tag)
+        [signal] = gensignal_semiperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,tag)
+        [signal] = gensignal_imperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,tag)
+        [signal] = gensignal_singlelvdn(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
+        [signal] = gensignal_signlelvup(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
+        [signal] = gensignal_doublerange(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
+        [signal] = gensignal_doublebullish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
+        [signal] = gensignal_doublebearish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
+        [signal] = gensignal_simpletrend(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
     end
 
     
