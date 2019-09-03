@@ -10,12 +10,12 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename','config_tdsq_standard_regressiontest.txt',...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2019-08-26','replaytodate','2019-08-27');
+    'replayfromdate','2019-08-30','replaytodate','2019-09-03');
 %%
 combo.mdefut.printflag_ = false;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 15*60;
-combo.strategy.printflag_ = true;
+combo.strategy.printflag_ = false;
 %%
 combo.mdefut.start;
 combo.ops.start;

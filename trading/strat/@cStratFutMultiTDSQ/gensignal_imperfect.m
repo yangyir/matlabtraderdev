@@ -1,9 +1,11 @@
-function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,tag)
+function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
 %cStratFutMultiTDSQ
     signal = {};
     variablenotused(p);
     variablenotused(lvlup);
     variablenotused(lvldn);
+    variablenotused(bc);
+    variablenotused(sc);
     if strcmpi(tag,'imperfectbs')
         if macdvec(end) > sigvec(end) || bs(end) >= 24
             samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');

@@ -1,5 +1,10 @@
-function [] = riskmanagement_doublebullish(strategy,tradein,varargin)
+function [is2closetrade,entrustplaced] = riskmanagement_doublebullish(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
+    is2closetrade = false;
+    entrustplaced = false;
+    
+    if isempty(tradein), return;end
+    
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
     if idx < 0, return;end
@@ -23,12 +28,18 @@ function [] = riskmanagement_doublebullish(strategy,tradein,varargin)
     
     tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
     if strcmpi(tag,'perfectss9')
-        strategy.unwindtrade(tradein);
+        entrustplaced = strategy.unwindtrade(tradein);
+        is2closetrade = true;
+        typeidx = cTDSQInfo.gettypeidx('double-bullish');
+        strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
     %
     if (macdvec(end) < sigvec(end) || bs(end) >= 4) || ss(end) >= 24
-        strategy.unwindtrade(tradein);
+        entrustplaced = strategy.unwindtrade(tradein);
+        is2closetrade = true;
+        typeidx = cTDSQInfo.gettypeidx('double-bullish');
+        strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
   

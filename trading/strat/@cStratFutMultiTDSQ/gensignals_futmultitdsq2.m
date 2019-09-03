@@ -137,22 +137,22 @@ function signals = gensignals_futmultitdsq2(strategy)
         else
            signals{i,1} = {};
            if ~closeperfecttradeatm && strcmpi(tag,'perfectbs') && strategy.useperfect_(i)
-               signals{i,1} = strategy.gensignal_perfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,'perfectbs');
+               signals{i,1} = strategy.gensignal_perfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'perfectbs');
                %
            elseif strcmpi(tag,'semiperfectbs') && strategy.usesemiperfect_(i)
-               signals{i,1} = strategy.gensignal_semiperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,'semiperfectbs');
+               signals{i,1} = strategy.gensignal_semiperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'semiperfectbs');
                %
            elseif strcmpi(tag,'imperfectbs') && strategy.useimperfect_(i)
-               signals{i,1} = strategy.gensignal_imperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,'imperfectbs');
+               signals{i,1} = strategy.gensignal_imperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'imperfectbs');
                %
            elseif ~closeperfecttradeatm && strcmpi(tag,'perfectss') && strategy.useperfect_(i)
-               signals{i,1} = strategy.gensignal_perfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,'perfectss');
+               signals{i,1} = strategy.gensignal_perfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'perfectss');
                %
            elseif strcmpi(tag,'semiperfectss') && strategy.usesemiperfect_(i)
-               signals{i,1} = strategy.gensignal_semiperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,'semiperfectss');
+               signals{i,1} = strategy.gensignal_semiperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'semiperfectss');
                %
            elseif strcmpi(tag,'imperfectss') && strategy.useimperfect_(i)
-               signals{i,1} = strategy.gensignal_imperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,'imperfectss');
+               signals{i,1} = strategy.gensignal_imperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'imperfectss');
                %
            else
                signals{i,1} = {};
@@ -164,210 +164,26 @@ function signals = gensignals_futmultitdsq2(strategy)
         signals{i,2} = {};
         if ~isnan(leveldn(end)) && isnan(levelup(end)) && strategy.usesinglelvldn_(i)
             %SINGLE-LVLDN
-            if p(end,5) < leveldn(end)
-                wasabovelvldn = false;
-                n = size(p,1);
-                for j = max(1,n-8):max(1,n-1)
-                    if p(j,5) > leveldn(end)
-                        wasabovelvldn = true;break
-                    end
-                end
-                wasmacdbullish = false;
-                for j = max(1,n-8):max(1,n-1)
-                    if macdvec(j) > sigvec(j)
-                        wasmacdbullish = true;break
-                    end
-                end
-                if (wasabovelvldn || wasmacdbullish) && macdvec(end) < sigvec(end) && bs(end) > 0 && bc(end) ~= 13
-                    signals{i,2} = struct('name','tdsq',...
-                       'instrument',instruments{i},'frequency',samplefreqstr,...
-                       'scenarioname',scenarioname,...
-                       'mode','trend','type','single-lvldn',...
-                       'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
-                end
-            end
+            signals{i,2} = strategy.gensignal_singlelvldn(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+            %
         elseif isnan(leveldn(end)) && ~isnan(levelup(end)) && strategy.usesinglelvlup_(i)
             %SINGLE-LVLUP
-            if p(end,5) > levelup(end)
-                wasbelowlvlup = false;
-                n = size(p,1);
-                for j = max(1,n-8):max(1,n-1)
-                    if p(j,5) < levelup(end)
-                        wasbelowlvlup = true;break
-                    end
-                end
-                wasmacdbearish = false;
-                for j = max(1,n-8):max(1,n-1)
-                    if macdvec(j) < sigvec(j)
-                        wasmacdbearish = true;break
-                    end
-                end
-                if(wasbelowlvlup || wasmacdbearish) && macdvec(end) < sigvec(end) && ss(end) > 0 && sc(end) ~= 13
-                    signals{i,2} = struct('name','tdsq',...
-                       'instrument',instruments{i},'frequency',samplefreqstr,...
-                       'scenarioname',scenarioname,...
-                       'mode','trend','type','single-lvlup',...
-                       'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99);
-                end
-            end
+            signals{i,2} = strategy.gensignal_singlelvlup(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+            %
         elseif ~isnan(leveldn(end)) && ~isnan(levelup(end))
             %BOTH LVLUP AND LVLDN ARE AVAILABLE IN RANGE
             if levelup(end) > leveldn(end) && strategy.usedoublerange_(i)
-                isperfectbs = strcmpi(tag,'perfectbs');
-                isperfectss = strcmpi(tag,'perfectss');
-                
-                isabove = p(end,5) > levelup(end);
-                isbelow = p(end,5) < leveldn(end);
-                isbetween = p(end,5) <= levelup(end) && p(end,5) >= leveldn(end);
-                
-                if isbetween
-                    %check whether it was above the lvlup
-                    idxlastabove = find(p(max(end-8,1):max(end-1,1),5)>levelup(end),1,'last');
-                    wasabovelvlup = ~isempty(idxlastabove);
-                    %and check whether it was below the lvldn
-                    idxlastbelow = find(p(max(end-8,1):max(end-1,1),5)<leveldn(end),1,'last');
-                    wasbelowlvldn = ~isempty(idxlastbelow);
-                    if wasabovelvlup && wasbelowlvldn
-                        %interesting case
-                        if idxlastabove > idxlastbelow
-                            wasbelowlvldn = false;
-                        else
-                            wasabovelvlup = false;
-                        end
-                    end
-                    hassc13inrange = ~isempty(find(sc(end-11:end)==13, 1));
-                    hasbc13inrange = ~isempty(find(bc(end-11:end)==13, 1));
-                    %
-                    if wasabovelvlup && macdvec(end)<sigvec(end) && bs(end)>0 && ~isperfectbs && ~hasbc13inrange
-                        signals{i,2} = struct('name','tdsq',...
-                            'instrument',instruments{i},'frequency',samplefreqstr,...
-                            'scenarioname',scenarioname,...
-                            'mode','trend','type','double-range',...
-                            'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
-                            'direction',-1);
-                    elseif wasbelowlvldn && macdvec(end)>sigvec(end) && ss(end)>0 && ~isperfectss && ~hassc13inrange
-                        signals{i,2} = struct('name','tdsq',...
-                            'instrument',instruments{i},'frequency',samplefreqstr,...
-                            'scenarioname',scenarioname,...
-                            'mode','trend','type','double-range',...
-                            'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
-                            'direction',1);
-                    end
-                    % end of isbetween
-                elseif isabove
-                    idxlastbelow = find(p(max(end-8,1):max(end-1,1),5)<levelup(end),1,'last');
-                    wasbelowlvlup = ~isempty(idxlastbelow);
-                    diffvec = macdvec - sigvec;
-                    idxlastmacdbearish = find(diffvec(max(end-8,1):max(end-1,1),1)<0,1,'last');
-                    wasmacdbearish = ~isempty(idxlastmacdbearish);
-                    hassc13inrange = ~isempty(find(sc(end-11:end)==13, 1));
-                    if (wasbelowlvlup || wasmacdbearish ) && macdvec(end)>sigvec(end) && ss(end)>0 && ~isperfectss && ~hassc13inrange
-                        signals{i,2} = struct('name','tdsq',...
-                            'instrument',instruments{i},'frequency',samplefreqstr,...
-                            'scenarioname',scenarioname,...
-                            'mode','trend','type','double-range',...
-                            'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
-                            'direction',1);
-                    end
-                    % end of isabove
-                elseif isbelow
-                    idxlastabove = find(p(max(end-8,1):max(end-1,1),5)>leveldn(end),1,'last');
-                    wasabovelvldn = ~isempty(idxlastabove);
-                    diffvec = macdvec - sigvec;
-                    idxlastmacdbullish = find(diffvec(max(end-8,1):max(end-1,1),1)>0,1,'last');
-                    wasmacdbullish = ~isempty(idxlastmacdbullish);
-                    hasbc13inrange = ~isempty(find(bc(end-11:end)==13, 1));
-                    if (wasabovelvldn || wasmacdbullish) && macdvec(end)<sigvec(end) && bs(end) > 0 && ~isperfectbs && ~hasbc13inrange
-                        signals{i,2} = struct('name','tdsq',...
-                            'instrument',instruments{i},'frequency',samplefreqstr,...
-                            'scenarioname',scenarioname,...
-                            'mode','trend','type','double-range',...
-                            'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
-                            'direction',-1);
-                    end
-                    % end of isbelow
-                end
-                %end of double-range
+                signals{i,2} = strategy.gensignal_doublerange(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+                %
             elseif levelup(end) < leveldn(end) && (strategy.usedoublebullish_(i) || strategy.usedoublebearish_(i))
                 idxbslatest = find(bs == 9,1,'last');
                 idxsslatest = find(ss == 9,1,'last');
                 if idxbslatest < idxsslatest && strategy.usedoublebullish_(i)
-                    %bullish
-                    %LONG ONLY IN BULLISH MOMENTUM
-                    if p(end,5) > leveldn(end)
-                        sc13idx = -1;
-                        hassc13inrange = false;
-                        n = size(p,1);
-                        for j = max(1,n-11):n
-                            if sc(j) == 13
-                                hassc13inrange = true;
-                                sc13idx = j;
-                                break
-                            end
-                        end
-                        wasmacdbearish = false;
-                        if hassc13inrange
-                            for j = sc13idx:n-1
-                                if macdvec(j) < sigvec(j)
-                                    wasmacdbearish = true;break
-                                end
-                            end
-                        else
-                            for j = max(1,n-8):n-1
-                                if macdvec(j) < sigvec(j)
-                                    wasmacdbearish = true;break
-                                end
-                            end
-                        end
-                        if (wasmacdbearish || (hassc13inrange && ~wasmacdbearish )) && macdvec(end) > sigvec(end) && ss(end) > 0 && sc(end) ~=13
-                            signals{i,2} = struct('name','tdsq',...
-                                'instrument',instruments{i},'frequency',samplefreqstr,...
-                                'scenarioname',scenarioname,...
-                                'mode','trend','type','double-bullish',...
-                                'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
-                                'direction',1);
-                        end
-                    end
-                    %end of double-bullish
+                    signals{i,2} = strategy.gensignal_doublebullish(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
                 elseif idxbslatest > idxsslatest && strategy.usedoublebearish_(i)
-                    %bearish
-                    %SHORT ONLY IN BEARISH MOMENTUM
-                    if p(end,5) < levelup(end)
-                        bc13idx = -1;
-                        hasbc13inrange = false;
-                        n = size(p,1);
-                        for j = max(1,n-11):n
-                            if bc(j) == 13
-                                hasbc13inrange = true;
-                                bc13idx = j;
-                                break
-                            end
-                        end
-                        wasmacdbullish = false;
-                        if hasbc13inrange
-                            for j = bc13idx:n-1
-                                if macdvec(j) > sigvec(j)
-                                    wasmacdbullish = true;break
-                                end
-                            end
-                        else
-                            for j = max(1,n-8):n-1
-                                if macdvec(j) > sigvec(j)
-                                    wasmacdbullish = true;break
-                                end
-                            end
-                        end
-                        if (wasmacdbullish || (hasbc13inrange && ~wasmacdbullish)) && macdvec(end) < sigvec(end) && bs(end) > 0 && bc(end) ~= 13
-                            signals{i,2} = struct('name','tdsq',...
-                                'instrument',instruments{i},'frequency',samplefreqstr,...
-                                'scenarioname',scenarioname,...
-                                'mode','trend','type','double-bearish',...
-                                'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
-                                'direction',-1);
-                        end
-                    end
+                    signals{i,2} = strategy.gensignal_doublebearish(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+                    %
                 end
-                %end of double-bearish 
             end
             %
         end

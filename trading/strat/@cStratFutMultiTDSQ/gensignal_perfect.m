@@ -1,5 +1,7 @@
-function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,tag)
+function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
 %cStratFutMultiTDSQ
+    variablenotused(bc);
+    variablenotused(sc);
     signal = {};
     if strcmpi(tag,'perfectbs')
         ibs = find(bs == 9,1,'last');

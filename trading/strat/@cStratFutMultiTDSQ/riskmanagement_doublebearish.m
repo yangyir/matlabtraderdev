@@ -1,5 +1,10 @@
-function [] = riskmanagement_doublebearish(strategy,tradein,varargin)
+function [is2closetrade,entrustplaced] = riskmanagement_doublebearish(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
+    is2closetrade = false;
+    entrustplaced = false;
+    
+    if isempty(tradein), return;end
+    
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
     if idx < 0, return;end
@@ -23,12 +28,18 @@ function [] = riskmanagement_doublebearish(strategy,tradein,varargin)
     
     tag = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p);
     if strcmpi(tag,'perfectbs9')
-        strategy.unwindtrade(tradein);
+        entrustplaced = strategy.unwindtrade(tradein);
+        is2closetrade = true;
+        typeidx = cTDSQInfo.gettypeidx('double-bearish');
+        strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
     %
-    if (macdvec(end) > sigvec(end) || ss(end) >= 4) || bs(end) >= 24
-        strategy.unwindtrade(tradein);
+    if macdvec(end) > sigvec(end) || (false && ss(end) >= 4) || bs(end) >= 24
+        entrustplaced = strategy.unwindtrade(tradein);
+        is2closetrade = true;
+        typeidx = cTDSQInfo.gettypeidx('double-bearish');
+        strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
 end

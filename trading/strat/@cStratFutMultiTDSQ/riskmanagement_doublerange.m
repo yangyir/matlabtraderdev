@@ -1,5 +1,10 @@
-function [] = riskmanagement_doublerange(strategy,tradein,varargin)
+function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
+    is2closetrade = false;
+    entrustplaced = false;
+    
+    if isempty(tradein), return;end
+    
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
     if idx < 0, return;end
@@ -24,23 +29,35 @@ function [] = riskmanagement_doublerange(strategy,tradein,varargin)
     if tradein.opendirection_ == 1
         tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
         if strcmpi(tag,'perfectss9')
-            strategy.unwindtrade(tradein);
+            entrustplaced = strategy.unwindtrade(tradein);
+            is2closetrade = true;
+            typeidx = cTDSQInfo.gettypeidx('double-range');
+            strategy.targetportfolio_(idx,typeidx) = 0;
             return
         end
         %
-        if (macdvec(end) < sigvec(end) || bs(end) >= 4) || sc(end) == 13
-            strategy.unwindtrade(tradein);
+        if (macdvec(end) < sigvec(end) || (false && bs(end) >= 4)) || sc(end) == 13
+            entrustplaced = strategy.unwindtrade(tradein);
+            is2closetrade = true;
+            typeidx = cTDSQInfo.gettypeidx('double-range');
+            strategy.targetportfolio_(idx,typeidx) = 0;
             return
         end   
     elseif tradein.opendirection_ == -1
         tag = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p);
         if strcmpi(tag,'perfectbs')
-            strategy.unwindtrade(tradein);
+            entrustplaced = strategy.unwindtrade(tradein);
+            is2closetrade = true;
+            typeidx = cTDSQInfo.gettypeidx('double-range');
+            strategy.targetportfolio_(idx,typeidx) = 0;
             return
         end
         %
-        if (macdvec(end) > sigvec(end) || ss(end) >= 4) || bc(end) == 13
-            strategy.unwindtrade(tradein);
+        if (macdvec(end) > sigvec(end) || (false && ss(end) >= 4)) || bc(end) == 13
+            entrustplaced = strategy.unwindtrade(tradein);
+            is2closetrade = true;
+            typeidx = cTDSQInfo.gettypeidx('double-range');
+            strategy.targetportfolio_(idx,typeidx) = 0;
             return
         end
     end        

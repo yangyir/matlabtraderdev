@@ -63,22 +63,28 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 %
             elseif strcmpi(signaltype,'single-lvldn')
                 strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                strategy.targetportfolio_(i,typeidx) = -volume;
                 %
             elseif strcmpi(signaltype,'single-lvlup')
                 strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                strategy.targetportfolio_(i,typeidx) = volume;
                 %
             elseif strcmpi(signaltype,'double-range')
                 if signal.direction == 1
                     strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    strategy.targetportfolio_(i,typeidx) = volume;
                 else
                     strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    strategy.targetportfolio_(i,typeidx) = -volume;
                 end
                 %
             elseif strcmpi(signaltype,'double-bullish')
                 strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                strategy.targetportfolio_(i,typeidx) = volume;
                 %
             elseif strcmpi(signaltype,'double-bearish')
                 strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                strategy.targetportfolio_(i,typeidx) = -volume;
                 %
             elseif strcmpi(signaltype,'simpletrend')
                 if signal.direction == 1

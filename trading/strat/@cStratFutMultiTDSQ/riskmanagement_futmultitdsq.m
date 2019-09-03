@@ -1,5 +1,20 @@
 function [] = riskmanagement_futmultitdsq(strategy,dtnum)
-%cStratFutMultiTDSQ   
+%cStratFutMultiTDSQ
+    runningmm = hour(dtnum)*60+minute(dtnum);
+    if (runningmm >= 539 && runningmm < 540) || ...
+            (runningmm >= 779 && runningmm < 780) || ...
+            (runningmm >= 1259 && runningmm < 1260)
+        trades = strategy.helper_.trades_;
+        for itrade = 1:trades.latest_
+            trade_i = trades.node_(itrade);
+            if strcmpi(trade_i.status_,'unset') || strcmpi(trade_i.status_,'closed'), continue;end
+            if isa(trade_i.opensignal_,'cTDSQInfo')
+                [~,idxrow] = strategy.hasinstrument(trade_i.instrument_);
+                idxcol = cTDSQInfo.gettypeidx(trade_i.opensignal_.type_);
+                strategy.targetportfolio_(idxrow,idxcol) = trade_i.opendirection_*trade_i.openvolume_;
+            end
+        end
+    end
     % check whether there are any pending open orders every 3 seconds
     runpendingordercheck = mod(floor(second(dtnum)),3) == 0;
     % check target portfolio every minute
@@ -10,6 +25,10 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
     if runtargetportfoliocheck
         instruments = strategy.getinstruments;
         for i = 1:strategy.count
+            instrument = instruments{i};
+            ismarketopen = istrading(dtnum,instrument.trading_hours,'tradingbreak',instrument.trading_break);
+            if ~ismarketopen, continue;end
+
             for j = 1:cTDSQInfo.numoftype
                 volume_target = strategy.targetportfolio_(i,j);
                 type = cTDSQInfo.idx2type(j);

@@ -116,15 +116,15 @@ classdef cStratFutMultiTDSQ < cStrat
     end
     
     methods (Access = private)
-        [signal] = gensignal_perfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,tag)
-        [signal] = gensignal_semiperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,tag)
-        [signal] = gensignal_imperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,tag)
-        [signal] = gensignal_singlelvdn(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
-        [signal] = gensignal_signlelvup(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
-        [signal] = gensignal_doublerange(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
-        [signal] = gensignal_doublebullish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
-        [signal] = gensignal_doublebearish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
-        [signal] = gensignal_simpletrend(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec)
+        [signal] = gensignal_perfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_semiperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_imperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_singlelvldn(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_signlelvlup(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_doublerange(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_doublebullish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_doublebearish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_simpletrend(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
     end
 
     
