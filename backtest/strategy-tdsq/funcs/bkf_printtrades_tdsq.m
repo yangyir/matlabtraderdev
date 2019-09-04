@@ -12,7 +12,7 @@ function [] = bkf_printtrades_tdsq( tradesin )
     
         if i == 1
 %             fprintf('%s\t%s\t%s\t%s\t%s\n','idx','direction','opentime','pnl','closetime');
-            fprintf('%s\t%s\t%s\t%s\t%s\n','idx','direction','opentime','pnl');
+            fprintf('%s\t%s\t%s\t%s\n','idx','direction','opentime','pnl');
         end
         fprintf('%d\t%d\t%s\t%d\n',tradesin.node_(i).id_,...
             tradesin.node_(i).opendirection_*tradesin.node_(i).openvolume_,...
