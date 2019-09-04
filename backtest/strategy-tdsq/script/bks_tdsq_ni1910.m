@@ -18,3 +18,11 @@ bkf_printtrades_tdsq(tradessinglelvldn);
 tradesdoublerange = bkf_gentrades_tdsqdoublerange('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
 fprintf('double range trades:\n');
 bkf_printtrades_tdsq(tradesdoublerange);
+%%
+tradesdoublebullish = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
+fprintf('double bullish trades:\n');
+bkf_printtrades_tdsq(tradesdoublebullish);
+%%
+tradesdoublebearish = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
+fprintf('double bearish trades:\n');
+bkf_printtrades_tdsq(tradesdoublebearish);
