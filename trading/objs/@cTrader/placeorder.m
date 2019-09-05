@@ -72,6 +72,7 @@ function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,va
         entrust.entrustNo = n+1;
     end
     if ret
+        %entrust has been successfully placed
         entrust.date = floor(ordertime);
         entrust.time = ordertime;
         
@@ -87,24 +88,43 @@ function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,va
             entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
         fprintf('%s\n',msg);
         ops.entrusts_.push(entrust);
+        ops.entrustspending_.push(entrust);
         if strcmpi(modestr,'realtime')
-            ret2 = counter.queryEntrust(entrust);
-            if ret2
-                ops.entrustspending_.push(entrust);
-            end
-%             if ~entrust.is_entrust_closed
-%                 ops.entrustspending_.push(entrust);
-%             end
-        else
-            ops.entrustspending_.push(entrust);
+            counter.queryEntrust(entrust);
         end
     else
         %NOTE:ONLY HAPPENS IN REALTIME MODE
-        ret = counter.queryEntrust(entrust);
-        if ~ret
+        %note:sometimes the entrust is placed but placeEntrust doesn't
+        %return the right information, as a result, we need to double check
+        %whether the entrust is filled or canceled
+        counter.queryEntrust(entrust);
+        if entrust.is_entrust_filled
+            %volume > 0 && volume == dealVolume
+            ret = true;
+            entrust.date = floor(ordertime);
+            entrust.time = ordertime;
+            
+            %tradeid_ convention bookname_ctpcode_datestr_num
+            if offset == 1
+                n = ops.entrusts_.latest;
+                tradeid = [ops.book_.bookname_,'_',codestr,'_',datestr(ordertime,'yyyymmddHHMMSS'),'_',num2str(n)];
+                entrust.tradeid_ = tradeid;
+            end
+            msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d placed',...
+                datestr(entrust.time,'yyyymmdd HH:MM:SS'),...
+                entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
+            fprintf('%s\n',msg);
+            ops.entrusts_.push(entrust);
+            ops.entrustspending_.push(entrust);
+        elseif entrust.is_entrust_canceled
+            ret = false;
             msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d failed to place',...
                 datestr(ordertime,'yyyymmdd HH:MM:SS'),...
                 entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
+            fprintf('%s\n',msg);
+        else
+            ret = false;
+            msg = 'unknown error!!!';
             fprintf('%s\n',msg);
         end
     end
