@@ -5,6 +5,17 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelo
     variablenotused(sc);
 
     lastidxbs = find(bs == 9, 1,'last');
+    if isempty(lastidxbs)
+        tag = 'blank';
+        rangelow = [];
+        rangehigh = [];
+        lastidxbs_start = [];
+        lastidxbs_end = [];
+        idxtruelow = [];
+        truelowbarsize = [];
+        return
+    end
+    
     low6 = p(lastidxbs-3,4);
     low7 = p(lastidxbs-2,4);
     low8 = p(lastidxbs-1,4);
