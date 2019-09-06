@@ -3,7 +3,7 @@ tradesperfect = bkf_gentrades_tdsqperfect('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns
 fprintf('perfect trades:\n');
 bkf_printtrades_tdsq(tradesperfect);
 %% imperfect
-tradesimperfect = bkf_gentrades_tdsqimperfect('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
+tradesimperfect = bkf_gentrades_tdsqimperfect('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd','openapproach','new');
 fprintf('imperfect trades:\n');
 bkf_printtrades_tdsq(tradesimperfect);
 %% single lvlup
