@@ -208,7 +208,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     f0 = macdvec(j) < sigvec(j) && ~(usesetups && ss(j) >= 4 && ss(j) <= 9);
                     %for now just implement a case for double range
                     if isdoublerange
-                        if waspxabovelvlup;
+                        if waspxabovelvlup
                             %the price has breached lvlup but the new lvldn is
                             %still below lvlup
                             f1 = p(j,5) < oldlvlup && ~isempty(find(p(j-8:j-1,5) > oldlvlup,1,'first'));
