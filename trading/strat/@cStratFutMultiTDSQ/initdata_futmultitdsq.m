@@ -33,11 +33,11 @@ function [] = initdata_futmultitdsq(obj)
         macdlead = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
         macdlag = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
         macdnavg = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
-        [macdvec,sigvec,diffvec] = obj.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',1);
+        [macdvec,sigvec,diffvec] = obj.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',1,'RemoveLimitPrice',1);
         %
         tdsqlag = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
         tdsqconsecutive = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
-        [bs,ss,levelup,leveldn,bc,sc] = obj.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',1);       
+        [bs,ss,levelup,leveldn,bc,sc] = obj.mde_fut_.calc_tdsq_(instruments{i},'Lag',tdsqlag,'Consecutive',tdsqconsecutive,'IncludeLastCandle',1,'RemoveLimitPrice',1);       
         
         obj.tdbuysetup_{i} = bs;
         obj.tdsellsetup_{i} = ss;
@@ -55,6 +55,70 @@ function [] = initdata_futmultitdsq(obj)
             obj.macdss_{i} = macdss;
         end
         
+        candlesticks = obj.mde_fut_.getallcandles(instruments{i});
+        p = candlesticks{1};
+        %remove intraday limits
+        idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
+        p = p(idxkeep,:);       
+        
+        lastidxbs = find(bs==9,1,'last');
+        lastidxss = find(ss==9,1,'last');
+        if isempty(lastidxbs) && isempty(lastidxss)
+            obj.tags_{i} = 'blank';
+        elseif (~isempty(lastidxbs) && isempty(lastidxss)) || ...
+            ((~isempty(lastidxbs) && ~isempty(lastidxss)) && lastidxbs > lastidxss)
+            low6 = p(lastidxbs-3,4);
+            low7 = p(lastidxbs-2,4);
+            low8 = p(lastidxbs-1,4);
+            low9 = p(lastidxbs,4);
+            close8 = p(lastidxbs-1,5);
+            close9 = p(lastidxbs,5);
+            closedbelow = false;
+            for j = lastidxbs-8:lastidxbs
+                if isnan(leveldn(j)), continue;end
+                if p(j,5) < leveldn(j)
+                    closedbelow = true;
+                    break
+                end
+            end
+            if (low8 < min(low6,low7) || low9 < min(low6,low7)) && ~closedbelow
+                if close9 < close8
+                    tag = 'perfectbs';
+                else
+                    tag = 'semiperfectbs';
+                end
+            else
+                tag = 'imperfectbs';
+            end
+            obj.tags_{i} = tag;
+        elseif (isempty(lastidxbs) && ~isempty(lastidxss)) || ...
+                ((~isempty(lastidxbs) && ~isempty(lastidxss)) && lastidxbs < lastidxss)
+            high6 = p(lastidxss-3,3);
+            high7 = p(lastidxss-2,3);
+            high8 = p(lastidxss-1,3);
+            high9 = p(lastidxss,3);
+            close8 = p(lastidxss-1,5);
+            close9 = p(lastidxss,5);
+            closedabove = false;
+            for j = lastidxss-8:lastidxss
+                if isnan(levelup(j)), continue;end
+                if p(j,5) > levelup(j)
+                    closedabove = true;
+                    break
+                end
+            end
+            
+            if (high8 > max(high6,high7) || high9 > max(high6,high7)) && ~closedabove
+                if close9 > close8
+                    tag = 'perfectss';
+                else
+                    tag = 'semiperfectss';
+                end
+            else
+                tag = 'imperfectss';
+            end
+            obj.tags_{i} = tag;            
+        end        
     end
     
     ntypes = cTDSQInfo.numoftype;

@@ -117,13 +117,25 @@ function [] = registerinstrument(strategy,instrument)
         strategy.signals_ = cell(n,3);
     else
         if size(strategy.signals_,1) < n
-            temp = cell(n,2);
+            temp = cell(n,3);
             for i = 1:size(strategy.signals_,1)
                 temp{i,1} = strategy.signals_{i,1};
                 temp{i,2} = strategy.signals_{i,2};
                 temp{i,3} = strategy.signals_{i,3};
             end
             strategy.signals_ = temp;
+        end
+    end
+    
+    if isempty(strategy.tags_)
+        strategy.tags_ = cell(n,1);
+    else
+        if size(strategy.tags_,1) < n
+            temp = cell(n,1);
+            for i = 1:size(strategy.tags_,1)
+                temp{i,1} = strategy.tags_{i};
+            end
+            strategy.tags_ = temp;
         end
     end
     

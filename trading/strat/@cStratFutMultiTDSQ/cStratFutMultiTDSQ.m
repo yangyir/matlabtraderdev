@@ -27,6 +27,8 @@ classdef cStratFutMultiTDSQ < cStrat
         %
         macdbs_@cell
         macdss_@cell
+        %
+        tags_@cell
     end
     
     properties
@@ -97,12 +99,13 @@ classdef cStratFutMultiTDSQ < cStrat
         signals = gensignals_futmultitdsq2(obj)
         [] = autoplacenewentrusts_futmultitdsq(obj,signals)
         [] = autoplacenewentrusts_futmultitdsq2(obj,signals)
-        [] = initdata_futmultiwr(obj)
+        [] = initdata_futmultitdsq(obj)
         %
     end
     
     methods (Access = private)
        [trade] = getlivetrade_tdsq(obj,code,modename,typename)
+       [ret,tag] = updatetag(obj,instrument,p,bs,ss,lvlup,lvldn,varargin)
        %
 
        %TODO

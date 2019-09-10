@@ -31,6 +31,12 @@ function signals = gensignals_futmultitdsq2(strategy)
            strategy.macdvec_{i} = macdvec;
            strategy.nineperma_{i} = sigvec;
            
+           candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
+           p = candlesticks{1};
+           %remove intraday limits
+           idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
+           p = p(idxkeep,:);
+           strategy.updatetag(instruments{i},p,bs,ss,levelup,leveldn);
            %
            if strategy.usesimpletrend_(i)
                [macdbs,macdss] = tdsq_setup(diffvec);
@@ -100,9 +106,10 @@ function signals = gensignals_futmultitdsq2(strategy)
         strategy.macdvec_{i} = macdvec;
         strategy.nineperma_{i} = sigvec;
             
-        scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
-        if strategy.printflag_, fprintf('%s:%s\n',strategy.name_,scenarioname);end
-        tag = tdsq_snbd(scenarioname);
+%         scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
+%         if strategy.printflag_, fprintf('%s:%s\n',strategy.name_,scenarioname);end
+%         tag = tdsq_snbd(scenarioname);
+        [~,tag] = strategy.updatetag(instruments{i},p,bs,ss,levelup,leveldn);
         
         %special treatment for perfectbs and perfectss
         if strcmpi(tag,'perfectbs') || strcmpi(tag,'perfectss') && strategy.useperfect_(i)
