@@ -1,4 +1,4 @@
-function [macdvec,sig,diffbar] = calc_macd_(mdefut,instrument,varargin)
+function [macdvec,sig,data] = calc_macd_(mdefut,instrument,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addRequired('Instrument', @(x) validateattributes(x,{'cInstrument'},{},'','Instrument'));
@@ -51,6 +51,6 @@ function [macdvec,sig,diffbar] = calc_macd_(mdefut,instrument,varargin)
     
     [~,sig] = movavg(macdvec,1,naverage,'e');
     
-    diffbar = macdvec - sig;
+%     diffbar = macdvec - sig;
         
 end

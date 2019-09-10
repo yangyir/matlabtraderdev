@@ -33,7 +33,7 @@ function [] = initdata_futmultitdsq(obj)
         macdlead = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlead');
         macdlag = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdlag');
         macdnavg = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','macdnavg');
-        [macdvec,sigvec,diffvec] = obj.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+        [macdvec,sigvec,p] = obj.mde_fut_.calc_macd_(instruments{i},'Lead',macdlead,'Lag',macdlag,'Average',macdnavg,'IncludeLastCandle',1,'RemoveLimitPrice',1);
         %
         tdsqlag = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqlag');
         tdsqconsecutive = obj.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','tdsqconsecutive');
@@ -50,16 +50,17 @@ function [] = initdata_futmultitdsq(obj)
         obj.nineperma_{i} = sigvec;
         
         if obj.usesimpletrend_(i)
+            diffvec = macdvec - sigvec;
             [macdbs,macdss] = tdsq_setup(diffvec);
             obj.macdbs_{i} = macdbs;
             obj.macdss_{i} = macdss;
         end
         
-        candlesticks = obj.mde_fut_.getallcandles(instruments{i});
-        p = candlesticks{1};
-        %remove intraday limits
-        idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
-        p = p(idxkeep,:);       
+%         candlesticks = obj.mde_fut_.getallcandles(instruments{i});
+%         p = candlesticks{1};
+%         %remove intraday limits
+%         idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
+%         p = p(idxkeep,:);       
         
         lastidxbs = find(bs==9,1,'last');
         lastidxss = find(ss==9,1,'last');

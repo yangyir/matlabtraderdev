@@ -29,9 +29,9 @@ function [ret,tag] = updatetag(strategy,instrument,p,bs,ss,lvlup,lvldn,varargin)
         %TODO:need to study in case all the prices are below lvldn, i.e. in
         %double/single bearish case
         closedbelow = false;
-        for i = np-8:np
-            if isnan(lvldn(i)), continue;end
-            if p(i,5) < lvldn(i)
+        for k = np-8:np
+            if isnan(lvldn(k)), continue;end
+            if p(k,5) < lvldn(k)
                 closedbelow = true;
                 break
             end
@@ -54,9 +54,9 @@ function [ret,tag] = updatetag(strategy,instrument,p,bs,ss,lvlup,lvldn,varargin)
         %TODO:need to study in case all the prices are above lvlup, i.e. in
         %double/single bullish case
         closedabove = false;
-        for i = np-8:np
-            if isnan(lvlup(i)), continue;end
-            if p(i,5) > lvlup(i)
+        for k = np-8:np
+            if isnan(lvlup(k)), continue;end
+            if p(k,5) > lvlup(k)
                 closedabove = true;
                 break
             end

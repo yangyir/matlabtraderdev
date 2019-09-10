@@ -18,7 +18,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             %one minute before market open in the morning, afternoon and
             %evening respectively
        for i = 1:strategy.count
-           [macdvec,sigvec,diffvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
+           [macdvec,sigvec,p] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
            %
            [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
            %
@@ -30,15 +30,11 @@ function signals = gensignals_futmultitdsq2(strategy)
            strategy.tdstleveldn_{i} = leveldn;
            strategy.macdvec_{i} = macdvec;
            strategy.nineperma_{i} = sigvec;
-           
-           candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
-           p = candlesticks{1};
-           %remove intraday limits
-           idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
-           p = p(idxkeep,:);
+           %
            strategy.updatetag(instruments{i},p,bs,ss,levelup,leveldn);
            %
            if strategy.usesimpletrend_(i)
+               diffvec = macdvec - sigvec;
                [macdbs,macdss] = tdsq_setup(diffvec);
                strategy.macdbs_{i} = macdbs;
                strategy.macdss_{i} = macdss;
@@ -70,15 +66,9 @@ function signals = gensignals_futmultitdsq2(strategy)
         samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
         includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
         
-        [macdvec,sigvec,diffvec] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-            
-        candlesticks = strategy.mde_fut_.getallcandles(instruments{i});
-        p = candlesticks{1};
-        if ~includelastcandle, p = p(1:end-1,:);end
-        %remove intraday limits
-        idxkeep = ~(p(:,2)==p(:,3)&p(:,2)==p(:,4)&p(:,2)==p(:,5));
-        p = p(idxkeep,:);
+        [macdvec,sigvec,p] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
         
+    
         bs = strategy.tdbuysetup_{i};
         ss = strategy.tdsellsetup_{i};
         bc = strategy.tdbuycountdown_{i};
@@ -89,18 +79,25 @@ function signals = gensignals_futmultitdsq2(strategy)
         if size(p,1) - size(bs,1) == 1
             if strategy.printflag_, fprintf('%s:update tdsq variables of %s...\n',strategy.name_,instruments{i}.code_ctp);end
             [bs,ss,levelup,leveldn,bc,sc] = tdsq_piecewise(p,bs,ss,levelup,leveldn,bc,sc);
-            %update strategy-related variables
-            strategy.tdbuysetup_{i} = bs;
-            strategy.tdsellsetup_{i} = ss;
-            strategy.tdbuycountdown_{i} = bc;
-            strategy.tdsellcountdown_{i} = sc;
-            strategy.tdstlevelup_{i} = levelup;
-            strategy.tdstleveldn_{i} = leveldn;
-            if strategy.usesimpletrend_(i)
-                [macdbs,macdss] = tdsq_piecewise_setup(diffvec,strategy.macdbs_{i},strategy.macdss_{i},[],[]);
-                strategy.macdbs_{i} = macdbs;
-                strategy.macdss_{i} = macdss;
-            end
+
+        elseif size(p,1) < size(bs,1)
+            [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+        elseif size(p,1) - size(bs,1) > 1
+            error('unknown error and check is required')
+        end
+        
+        %update strategy-related variables
+        strategy.tdbuysetup_{i} = bs;
+        strategy.tdsellsetup_{i} = ss;
+        strategy.tdbuycountdown_{i} = bc;
+        strategy.tdsellcountdown_{i} = sc;
+        strategy.tdstlevelup_{i} = levelup;
+        strategy.tdstleveldn_{i} = leveldn;
+        if strategy.usesimpletrend_(i)
+            diffvec = macdvec - sigvec;
+            [macdbs,macdss] = tdsq_piecewise_setup(diffvec,strategy.macdbs_{i},strategy.macdss_{i},[],[]);
+            strategy.macdbs_{i} = macdbs;
+            strategy.macdss_{i} = macdss;
         end
 %         strategy.wr_{i} = wrinfo;
         strategy.macdvec_{i} = macdvec;
