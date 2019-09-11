@@ -150,10 +150,10 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     %improvements in riskmanagement
                     if newlvlup > oldlvldn
                         hasbreachedlvlup = ~isempty(find(p(openidx:j,5) > newlvlup,1,'first'));
-                        if hasbreachedlvlup && ~isdoublebearish && p(j,5) < newlvlup, break;end
+                        if hasbreachedlvlup && ~isdoublebearish && p(j,5) - newlvlup <= -4*instrument.tick_size, break;end
                     else
                         hasbreachedlvldn = ~isempty(find(p(openidx:j,5) > oldlvldn,1,'first'));
-                        if hasbreachedlvldn && isdoublebearish && p(j,5) < oldlvldn, break;end
+                        if hasbreachedlvldn && isdoublebearish && p(j,5) - oldlvldn <= -4*instrument.tick_size, break;end
                     end
                 end
                 if j < n
@@ -281,10 +281,10 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     %improvements in risk management
                     if newlvldn < oldlvlup
                         hasbreachedlvldn = ~isempty(find(p(openidx:j,5) < newlvldn,1,'first'));
-                        if hasbreachedlvldn && ~isdoublebullish && p(j,5) > newlvldn, break;end
+                        if hasbreachedlvldn && ~isdoublebullish && p(j,5) - newlvldn >= 4*instrument.tick_size, break;end
                     else
                         hasbreachedlvlup = ~isempty(find(p(openidx:j,5) < oldlvlup,1,'first'));
-                        if hasbreachedlvlup && isdoublebullish && p(j,5) > oldlvlup, break;end
+                        if hasbreachedlvlup && isdoublebullish && p(j,5) - oldlvlup >= 4*instrument.tick_size, break;end
                     end
                 end
                 if j < n
