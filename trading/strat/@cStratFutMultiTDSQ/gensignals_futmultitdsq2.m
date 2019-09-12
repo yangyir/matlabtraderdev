@@ -33,12 +33,10 @@ function signals = gensignals_futmultitdsq2(strategy)
            %
            strategy.updatetag(instruments{i},p,bs,ss,levelup,leveldn);
            %
-           if strategy.usesimpletrend_(i)
-               diffvec = macdvec - sigvec;
-               [macdbs,macdss] = tdsq_setup(diffvec);
-               strategy.macdbs_{i} = macdbs;
-               strategy.macdss_{i} = macdss;
-           end
+           diffvec = macdvec - sigvec;
+           [macdbs,macdss] = tdsq_setup(diffvec);
+           strategy.macdbs_{i} = macdbs;
+           strategy.macdss_{i} = macdss;
        end
        
        return
@@ -93,12 +91,12 @@ function signals = gensignals_futmultitdsq2(strategy)
         strategy.tdsellcountdown_{i} = sc;
         strategy.tdstlevelup_{i} = levelup;
         strategy.tdstleveldn_{i} = leveldn;
-        if strategy.usesimpletrend_(i)
-            diffvec = macdvec - sigvec;
-            [macdbs,macdss] = tdsq_piecewise_setup(diffvec,strategy.macdbs_{i},strategy.macdss_{i},[],[]);
-            strategy.macdbs_{i} = macdbs;
-            strategy.macdss_{i} = macdss;
-        end
+        
+        diffvec = macdvec - sigvec;
+        [macdbs,macdss] = tdsq_setup(diffvec);
+        strategy.macdbs_{i} = macdbs;
+        strategy.macdss_{i} = macdss;
+            
 %         strategy.wr_{i} = wrinfo;
         strategy.macdvec_{i} = macdvec;
         strategy.nineperma_{i} = sigvec;
@@ -177,7 +175,7 @@ function signals = gensignals_futmultitdsq2(strategy)
         elseif ~isnan(leveldn(end)) && ~isnan(levelup(end))
             %BOTH LVLUP AND LVLDN ARE AVAILABLE IN RANGE
             if levelup(end) > leveldn(end) && strategy.usedoublerange_(i)
-                signals{i,2} = strategy.gensignal_doublerange(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+                signals{i,2} = strategy.gensignal_doublerange(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss);
                 %
             elseif levelup(end) < leveldn(end) && (strategy.usedoublebullish_(i) || strategy.usedoublebearish_(i))
                 idxbslatest = find(bs == 9,1,'last');

@@ -49,12 +49,10 @@ function [] = initdata_futmultitdsq(obj)
         obj.macdvec_{i} = macdvec;
         obj.nineperma_{i} = sigvec;
         
-        if obj.usesimpletrend_(i)
-            diffvec = macdvec - sigvec;
-            [macdbs,macdss] = tdsq_setup(diffvec);
-            obj.macdbs_{i} = macdbs;
-            obj.macdss_{i} = macdss;
-        end
+        diffvec = macdvec - sigvec;
+        [macdbs,macdss] = tdsq_setup(diffvec);
+        obj.macdbs_{i} = macdbs;
+        obj.macdss_{i} = macdss;
         
 %         candlesticks = obj.mde_fut_.getallcandles(instruments{i});
 %         p = candlesticks{1};
