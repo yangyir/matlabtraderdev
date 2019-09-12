@@ -50,7 +50,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
         openidx = find(p(:,1) >= tradein.opendatetime1_,1,'first');
         lvlup = tradein.opensignal_.lvlup_;
         hasbreachedlvlup = ~isempty(find(p(openidx:end,5) > lvlup,1,'first'));
-        if hasbreachedlvlup && p(end,5) - lvlup < -4*tradein.instrument_.tick_size
+        if hasbreachedlvlup && p(end,5) - lvlup <= -4*tradein.instrument_.tick_size
             is2closetrade = true;
             entrustplaced = strategy.unwindtrade(tradein);
             typeidx = cTDSQInfo.gettypeidx('imperfectbs');
@@ -62,9 +62,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
     if strcmpi(tradein.opensignal_.scenario_,'doublebearish') || ...
             strcmpi(tradein.opensignal_.scenario_,'singlebearish')
         openidx = find(p(:,1) >= tradein.opendatetime1_,1,'first');
-        lvldn = tradein.opensignal_.lvlup_;
+        lvldn = tradein.opensignal_.lvldn_;
         hasbreachedlvldn = ~isempty(find(p(openidx:end,5) > lvldn,1,'first'));
-        if hasbreachedlvldn && p(end,5) - lvldn < -4*tradein.instrument_.tick_size
+        if hasbreachedlvldn && p(end,5) - lvldn <= -4*tradein.instrument_.tick_size
             is2closetrade = true;
             entrustplaced = strategy.unwindtrade(tradein);
             typeidx = cTDSQInfo.gettypeidx('imperfectbs');

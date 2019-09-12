@@ -19,14 +19,13 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectss(strategy,tra
     %case 2 any ss scenario afterwards when macd turns bearish
     bs = strategy.tdbuysetup_{idx};
     ss = strategy.tdsellsetup_{idx};
-    lvlup = strategy.tdstlevelup_{idx};
     lvldn = strategy.tdstleveldn_{idx};
     bc = strategy.tdbuycountdown_{idx};
     sc = strategy.tdsellcountdown_{idx};
     macdvec = strategy.macdvec_{idx};
     sigvec = strategy.nineperma_{idx};
     
-    tag = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p);
+    tag = tdsq_lastbs(bs,ss,lvldn,lvldn,bc,sc,p);
     
     if strcmpi(tag,'perfectbs9')
         is2closetrade = true;
@@ -44,5 +43,32 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectss(strategy,tra
         return
     end
     
+    %additional risk management for imperfectbs/semi-perfectbs trade
+    if strcmpi(tradein.opensignal_.scenario_,'doublerange')
+        openidx = find(p(:,1) >= tradein.opendatetime1_,1,'first');
+        lvldn = tradein.opensignal_.lvldn_;
+        hasbreachedlvldn = ~isempty(find(p(openidx:end,5) < lvldn,1,'first'));
+        if hasbreachedlvldn && p(end,5) - lvldn >= 4*tradein.instrument_.tick_size
+            is2closetrade = true;
+            entrustplaced = strategy.unwindtrade(tradein);
+            typeidx = cTDSQInfo.gettypeidx('imperfectss');
+            strategy.targetportfolio_(idx,typeidx) = 0;
+        end
+        return
+    end
+    %
+    if strcmpi(tradein.opensignal_.scenario_,'doublebearish') || ...
+            strcmpi(tradein.opensignal_.scenario_,'singlebearish')
+        openidx = find(p(:,1) >= tradein.opendatetime1_,1,'first');
+        lvlup = tradein.opensignal_.lvlup_;
+        hasbreachedlvlup = ~isempty(find(p(openidx:end,5) < lvlup,1,'first'));
+        if hasbreachedlvlup && p(end,5) - lvlup >= 4*tradein.instrument_.tick_size
+            is2closetrade = true;
+            entrustplaced = strategy.unwindtrade(tradein);
+            typeidx = cTDSQInfo.gettypeidx('imperfectss');
+            strategy.targetportfolio_(idx,typeidx) = 0;
+        end
+        return
+    end
 
 end
