@@ -27,6 +27,9 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
     instrument = code2instrument(code);
     contractsize = instrument.contract_size;
     
+    diffvec = macdvec - sigvec;
+    [macdbs,macdss] = tdsq_setup(diffvec);
+    
     tradesout = cTradeOpenArray;
     n = size(p,1);
     i = 1;
@@ -108,7 +111,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                         fprintf('interesting case here and further check pls')
                     end
                     %
-                    if wasabovelvlup && macdvec(i)<sigvec(i) && bs(i)>0 && ~isperfectbs && ~hasbc13inrange
+                    if wasabovelvlup && macdvec(i)<sigvec(i) && bs(i)>0 && ~isperfectbs && ~hasbc13inrange && macdbs(i)>0
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
@@ -134,10 +137,11 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                                 end
                             end
                             %use the close price to determine the momentum
-                            hasbreachlvldn = ~isempty(find(p(i+1:j,5) < lvldn(i),1,'first'));
+                            hasbreachlvldn = ~isempty(find(p(i:j,5) < lvldn(i),1,'first'));
                             %if the price has breached lvldn from the top
                             %and then bounce high back with low above lvldn
-                            if macdvec(j)>sigvec(j) || (usesetups && ss(j)>=4) || bc(j)==13 || isperfectbs_j || (hasbreachlvldn && p(j,4)>lvldn(i))
+                            if macdvec(j)>sigvec(j) || (usesetups && ss(j)>=4) || bc(j)==13 || isperfectbs_j || ...
+                                    (hasbreachlvldn && p(j,4)>lvldn(i)) 
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -155,7 +159,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     end
                     %
                     %
-                    if wasbelowlvldn && macdvec(i)>sigvec(i) && ss(i)>0 && ~isperfectss && ~hassc13inrange
+                    if wasbelowlvldn && macdvec(i)>sigvec(i) && ss(i)>0 && ~isperfectss && ~hassc13inrange && macdss(i)>0
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -181,10 +185,11 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                                 end
                             end
                             %use the close price to determine the momentum
-                            hasbreachlvlup = ~isempty(find(p(i+1:j,5) > lvlup(i),1,'first'));
+                            hasbreachlvlup = ~isempty(find(p(i:j,5) > lvlup(i),1,'first'));
                             %if the price has breached lvlup from the top
                             %and then bounce low back with high below lvlup
-                            if macdvec(j)<sigvec(j) || (usesetups && bs(j)>=4) || sc(j)==13 || isperfectss_j || (hasbreachlvlup && p(j,3)<lvlup(i))
+                            if macdvec(j)<sigvec(j) || (usesetups && bs(j)>=4) || sc(j)==13 || isperfectss_j || ...
+                                    (hasbreachlvlup && p(j,3)<lvlup(i))
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -207,9 +212,9 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     %the most recent bar to determine whether the market
                     %was traded below the lvlup
                     wasbelowlvlup = ~isempty(find(p(i-8:i,4) < lvlup(i),1,'first'));
-                    diffvec = macdvec - sigvec;
+
                     wasmacdbearish = ~isempty(find(diffvec(i-8:i-1) < 0,1,'first'));
-                    if (wasbelowlvlup || wasmacdbearish ) && diffvec(i)>0 && (ss(i)>0 && ss(i)<9) && ~isperfectss && ~hassc13inrange
+                    if (wasbelowlvlup || wasmacdbearish ) && diffvec(i)>0 && (ss(i)>0 ) && ~isperfectss && ~hassc13inrange && macdss(i)>0
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -235,7 +240,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                                 end
                             end
                             
-                            if diffvec(j)<0 || (usesetups && bs(j) >= 4) || sc(j) == 13 || isperfectss_j
+                            if diffvec(j)<0 || (usesetups && bs(j) >= 4) || sc(j) == 13 || isperfectss_j || p(j,3)<lvlup(i)
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -258,10 +263,9 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     %the most recent bar to determine whether the market
                     %was traded above the lvldn
                     wasabovelvldn = ~isempty(find(p(i-8:i,3) > lvldn(i),1,'first'));
-                    diffvec = macdvec - sigvec;
                     wasmacdbullish = ~isempty(find(diffvec(i-8:i-1) > 0,1,'first'));
                     
-                    if (wasabovelvldn || wasmacdbullish) && diffvec(i)<0 && (bs(i) > 0 && bs(i) < 9)&& ~isperfectbs && ~hasbc13inrange
+                    if (wasabovelvldn || wasmacdbullish) && diffvec(i)<0 && (bs(i) > 0)&& ~isperfectbs && ~hasbc13inrange && macdbs(i)>0
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
@@ -286,7 +290,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                                 end
                             end
                             
-                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bc(j) == 13 || isperfectbs_j
+                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bc(j) == 13 || isperfectbs_j || p(j,4) > lvldn(i)
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
