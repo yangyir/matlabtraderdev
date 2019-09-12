@@ -46,6 +46,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectss(strategy,tra
     %additional risk management for imperfectbs/semi-perfectbs trade
     if strcmpi(tradein.opensignal_.scenario_,'doublerange')
         openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
+        if isempty(openidx),openidx = 1;end
+        if openidx == 0, openidx = 1;end
         lvldn = tradein.opensignal_.lvldn_;
         hasbreachedlvldn = ~isempty(find(p(openidx:end,5) < lvldn,1,'first'));
         if hasbreachedlvldn && p(end,5) - lvldn >= 4*tradein.instrument_.tick_size
@@ -60,6 +62,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectss(strategy,tra
     if strcmpi(tradein.opensignal_.scenario_,'doublebearish') || ...
             strcmpi(tradein.opensignal_.scenario_,'singlebearish')
         openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
+        if openidx == 0, openidx = 1;end
+        if isempty(openidx),openidx = 1;end
         lvlup = tradein.opensignal_.lvlup_;
         hasbreachedlvlup = ~isempty(find(p(openidx:end,5) < lvlup,1,'first'));
         if hasbreachedlvlup && p(end,5) - lvlup >= 4*tradein.instrument_.tick_size
