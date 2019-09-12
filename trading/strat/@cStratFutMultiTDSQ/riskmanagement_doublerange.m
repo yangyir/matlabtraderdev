@@ -61,6 +61,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tra
         sn = tradein.opensignal_.scenario_;
         if strcmpi(sn,'isbetween')
             openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
+            if isempty(openidx),openidx = 1;end
+            if openidx == 0, openidx = 1;end
             hasbreachlvlup = ~isempty(find(p(openidx:end,5) > tradein.opensignal_.lvlup_,1,'first'));
             if hasbreachlvlup && p(end,3)<tradein.opensignal_.lvlup_
                 entrustplaced = strategy.unwindtrade(tradein);
@@ -119,6 +121,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tra
         sn = tradein.opensignal_.scenario_;
         if strcmpi(sn,'isbetween')
             openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
+            if isempty(openidx),openidx = 1;end
+            if openidx == 0, openidx = 1;end
             hasbreachlvldn = ~isempty(find(p(openidx:end,5) < tradein.opensignal_.lvldn_,1,'first'));
             if hasbreachlvldn && p(end,4)>tradein.opensignal_.lvldn_
                 entrustplaced = strategy.unwindtrade(tradein);
