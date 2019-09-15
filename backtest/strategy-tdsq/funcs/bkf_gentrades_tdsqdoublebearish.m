@@ -1,4 +1,4 @@
-function [ tradesout ] = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,varargin)
+function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,varargin)
 %inputs: ctp code
 %candle prices, i.e. time,open,high,low,close
 %buy setups
@@ -31,6 +31,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvld
     i = 1;
     count = 0;
     diffvec = macdvec - sigvec;
+    [macdbs,macdss] = tdsq_setup(diffvec);
     
     while i <= n
         %DO NOTHING IF BOTH LVLUP AND LVLDN ARE NOT AVAILABLE
@@ -45,17 +46,33 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvld
         if isnan(lvldn(i)) && ~isnan(lvlup(i)), i = i + 1;end
         
         %IN CASE BOTH LVLUP AND LVLDN ARE AVAILABLE
-        if ~isnan(lvldn(i)) && ~isnan(lvlup(i))
-            if lvlup(i) < lvldn(i)
-                idxlastbs = find(bs(1:i) == 9,1,'last');
-                idxlastss = find(ss(1:i) == 9,1,'last');
-                if idxlastbs > idxlastss
-                    %bearish momentum
-                    isbelowlvlup = p(i,5) < lvlup(i);
-                    wasabovelvlup = ~isempty(find(p(i-8:i,3) > lvlup(i),1,'first'));
-                    wasmacdbullish = ~isempty(find(diffvec(i-8:i-1) > 0,1,'first'));
-%                     hassc13inrange = ~isempty(find(sc(i-11:i) == 13,1,'first'));
-                    if isbelowlvlup && (wasabovelvlup||wasmacdbullish ) && diffvec(i)<0 && bs(i)>0 && bc(i) ~= 13
+        if ~isnan(lvldn(i)) && ~isnan(lvlup(i)) && lvlup(i) < lvldn(i)
+            idxlastbs = find(bs(1:i) == 9,1,'last');
+            idxlastss = find(ss(1:i) == 9,1,'last');
+            if idxlastbs < idxlastss, i = i+1;continue;end
+            
+            %bearish momentum
+            if p(i,5) < lvlup(i);
+                wasabovelvlup = ~isempty(find(p(i-8:i,3) > lvlup(i),1,'first'));
+                wasmacdbullish = ~isempty(find(diffvec(i-8:i-1) > 0,1,'first'));
+                if (wasabovelvlup||wasmacdbullish ) && diffvec(i)<0 && bs(i)>0 && bc(i) ~= 13 && macdbs(i)>0
+                    %special treatment if bs(i) is greater or equal to 9
+                    f1 = false;
+                    if bs(i) >= 9
+                        lastbsidx = find(bs(1:i) == 9,1,'last');
+                        low6 = p(lastbsidx-3,4);
+                        low7 = p(lastbsidx-2,4);
+                        low8 = p(lastbsidx-1,4);
+                        low9 = p(lastbsidx,4);
+                        close8 = p(lastbsidx-1,5);
+                        close9 = p(lastbsidx,5);
+                        %check whether buy sequential itself is perfect???
+                        %if it is perfect, we'd better not open up a trade
+                        %with short position
+                        f1 = (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8;
+                    end
+                    
+                    if ~f1
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
@@ -66,7 +83,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvld
                         for j = i+1:n
                             sn_j = sns{j};
                             tag_j = tdsq_snbd(sn_j);
-                            
+
                             isperfectbs_j = strcmpi(tag_j,'perfectbs');
                             if isperfectbs_j
                                 %check whether perfectss is still valid
@@ -80,8 +97,8 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvld
                                     isperfectbs_j = false;
                                 end
                             end
-                            
-                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24 || isperfectbs_j
+
+                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24 || isperfectbs_j || bc(j) == 13
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -96,18 +113,73 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvld
                             end
                         end
                         tradesout.push(trade_new);
+                    else
+                        %f1 condition not satisfied
+                        i = i + 1;
                     end
-                    i = i + 1;
-                else
-                    %bullish momentum do nothing
-                    i = i + 1;
                 end
+                i = i + 1;
+            elseif p(i,5) > lvlup(i)
+                %we use the low prices of the previous 9 bars including
+                %the most recent bar to determine whether the market
+                %was traded below the lvlup
+                wasabovelvlup = ~isempty(find(p(i-8:i,4) < lvlup(i),1,'first'));
+                if wasabovelvlup && diffvec(i)>0 && ss(i)>0 && sc(i) ~= 13 && macdss(i)>0
+                    count = count + 1;
+                    trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
+                        'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
+                    info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
+                        'scenarioname','','mode','follow','lvlup',lvlup(i),'lvldn',lvldn(i));
+                    trade_new.setsignalinfo('name','tdsq','extrainfo',info);
+                    %riskmanagement below
+                    for j = i+1:n
+                        if ss(j) == 9
+                            high6 = p(j-3,3);
+                            high7 = p(j-2,3);
+                            high8 = p(j-1,3);
+                            high9 = p(j,3);
+                            close8 = p(j-1,5);
+                            close9 = p(j,5);
+                            %unwind the trade if the sellsetup sequential
+                            %itself is perfect
+                            if (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8)
+                                trade_new.closedatetime1_ = p(j,1);
+                                trade_new.closeprice_ = p(j,5);
+                                trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
+                                trade_new.status_ = 'closed';
+                                i = j;
+                                break
+                            end
+                        end
+                        %
+                        %if the price has breached lvldn from the below and
+                        %then bounce back low with high price below the
+                        %lvldn
+                        hasbreachlvldn = ~isempty(find(p(i:j,5) > lvldn(i),1,'first'));
+                        if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) >= 24|| sc(j) == 13 || (hasbreachlvldn && p(j,3)<lvldn(i))
+                            trade_new.closedatetime1_ = p(j,1);
+                            trade_new.closeprice_ = p(j,5);
+                            trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
+                            trade_new.status_ = 'closed';
+                            i = j;
+                            break
+                        end
+                        if j == n
+                            trade_new.runningpnl_ = trade_new.opendirection_*(p(j,5)-trade_new.openprice_)*contractsize;
+                            trade_new.status_ = 'set';
+                            i = n;
+                        end
+                    end
+                    tradesout.push(trade_new);
+                end
+                i = i + 1;
             else
+                %equal
                 i = i + 1;
             end
+        else
+            i = i + 1;
         end
-        
-    end
-    
+    end  
     
 end
