@@ -1,5 +1,10 @@
-function [] = riskmanagement_singlelvlup(strategy,tradein,varargin)
+function [is2closetrade,entrustplaced] = riskmanagement_singlelvlup(strategy,tradein,varargin)
 %cStratFutMultiTDSQ
+    is2closetrade = false;
+    entrustplaced = false;
+    
+    if isempty(tradein), return;end
+    
     instrument = tradein.instrument_;
     [~,idx] = strategy.hasinstrument(instrument);
     if idx < 0, return;end
@@ -16,21 +21,69 @@ function [] = riskmanagement_singlelvlup(strategy,tradein,varargin)
     ss = strategy.tdsellsetup_{idx};
     bc = strategy.tdbuycountdown_{idx};
     sc = strategy.tdsellcountdown_{idx};
-    lvlup = strategy.tdstlevelup_{idx};
-    lvldn = strategy.tdstleveldn_{idx};
+%     lvlup = strategy.tdstlevelup_{idx};
+%     lvldn = strategy.tdstleveldn_{idx};
     macdvec = strategy.macdvec_{idx};
     sigvec = strategy.nineperma_{idx};
+    tag = strategy.tags_{idx};
     
-    tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
+%     tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
     
-    if strcmpi(tag,'perfectss9')
-        strategy.unwindtrade(tradein);
-        return
-    end
-    
-    if (macdvec(end) < sigvec(end) || bs(end) >= 4) || sc(end) == 13
-        strategy.unwindtrade(tradein);
-        return
-    end
-    
+
+    if tradein.opendirection_ == -1
+        if strcmpi(tag,'perfectbs')
+            ibs = find(bs == 9,1,'last');
+            truelow= min(p(ibs-8:ibs,4));
+            idxtruelow = find(p(ibs-8:ibs,4) == truelow,1,'first');
+            idxtruelow = idxtruelow + ibs - 9;
+            truelowbarsize_j = p(idxtruelow,3) - truelow;
+            stoploss_j = truelow - truelowbarsize_j;
+            if ~isempty(find(p(ibs+1:end,5) < stoploss_j,1,'first'))
+                stillvalid = false;
+            else
+                stillvalid = true;
+            end
+            if stillvalid
+                entrustplaced = strategy.unwindtrade(tradein);
+                is2closetrade = true;
+                typeidx = cTDSQInfo.gettypeidx('single-lvlup');
+                strategy.targetportfolio_(idx,typeidx) = 0;
+                return
+            end
+        end
+        %
+        if macdvec(end) > sigvec(end) || (false && ss(end) >= 4) || bs(end) >= 24 || bc(end) == 13
+            entrustplaced = strategy.unwindtrade(tradein);
+            is2closetrade = true;
+            typeidx = cTDSQInfo.gettypeidx('single-lvlup');
+            strategy.targetportfolio_(idx,typeidx) = 0;
+            return
+        end
+        %
+    elseif tradein.opendirection_ == 1
+        if ss(end) == 9
+            high6 = p(end-3,3);
+            high7 = p(end-2,3);
+            high8 = p(end-1,3);
+            high9 = p(end,3);
+            close8 = p(end-1,5);
+            close9 = p(end,5);
+            %unwind the trade if the sellsetup sequential itself is perfect
+            if (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8)
+                entrustplaced = strategy.unwindtrade(tradein);
+                is2closetrade = true;
+                typeidx = cTDSQInfo.gettypeidx('single-lvlup');
+                strategy.targetportfolio_(idx,typeidx) = 0;
+                return
+            end
+        end
+        %
+        if macdvec(end) < sigvec(end) || (false && ss(end) >= 4) || ss(end) >= 24|| sc(end) == 13
+            entrustplaced = strategy.unwindtrade(tradein);
+            is2closetrade = true;
+            typeidx = cTDSQInfo.gettypeidx('single-lvlup');
+            strategy.targetportfolio_(idx,typeidx) = 0;
+            return
+        end
+        %
 end

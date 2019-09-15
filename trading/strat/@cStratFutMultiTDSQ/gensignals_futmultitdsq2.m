@@ -166,11 +166,11 @@ function signals = gensignals_futmultitdsq2(strategy)
         signals{i,2} = {};
         if ~isnan(leveldn(end)) && isnan(levelup(end)) && strategy.usesinglelvldn_(i)
             %SINGLE-LVLDN
-            signals{i,2} = strategy.gensignal_singlelvldn(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+            signals{i,2} = strategy.gensignal_singlelvldn(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss);
             %
         elseif isnan(leveldn(end)) && ~isnan(levelup(end)) && strategy.usesinglelvlup_(i)
             %SINGLE-LVLUP
-            signals{i,2} = strategy.gensignal_singlelvlup(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+            signals{i,2} = strategy.gensignal_singlelvlup(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss);
             %
         elseif ~isnan(leveldn(end)) && ~isnan(levelup(end))
             %BOTH LVLUP AND LVLDN ARE AVAILABLE IN RANGE

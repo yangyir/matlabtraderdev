@@ -19,10 +19,10 @@ tradesdoublerange = bkf_gentrades_tdsqdoublerange('ni1910',p,bs,ss,lvlup,lvldn,b
 fprintf('double range trades:\n');
 bkf_printtrades_tdsq(tradesdoublerange);
 %%
-tradesdoublebullish = bkf_gentrades_tdsqdoublebullish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
+tradesdoublebullish = bkf_gentrades_tdsqdoublebullish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
 fprintf('double bullish trades:\n');
 bkf_printtrades_tdsq(tradesdoublebullish);
 %%
-tradesdoublebearish = bkf_gentrades_tdsqdoublebearish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
+tradesdoublebearish = bkf_gentrades_tdsqdoublebearish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
 fprintf('double bearish trades:\n');
 bkf_printtrades_tdsq(tradesdoublebearish);
