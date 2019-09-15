@@ -22,6 +22,17 @@ classdef cStratConfigTDSQ < cStratConfig
         usedoublebullish_@double = 1
         usedoublebearish_@double = 1
         usesimpletrend_@double = 1
+        %
+        volumeperfect_@double = 1
+        volumesemiperfect_@double = 1
+        volumeimperfect_@double = 1
+        volumesinglelvlup_@double = 1
+        volumesinglelvldn_@double = 1
+        volumedoublerange_@double = 1
+        volumedoublebullish_@double = 1
+        volumedoublebearish_@double = 1
+        volumesimpletrend_@double = 1
+        
     end
     
     methods
