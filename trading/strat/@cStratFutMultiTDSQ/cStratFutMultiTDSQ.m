@@ -125,8 +125,8 @@ classdef cStratFutMultiTDSQ < cStrat
         [signal] = gensignal_singlelvldn(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
         [signal] = gensignal_signlelvlup(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
         [signal] = gensignal_doublerange(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss)
-        [signal] = gensignal_doublebullish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
-        [signal] = gensignal_doublebearish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+        [signal] = gensignal_doublebullish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss)
+        [signal] = gensignal_doublebearish(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss)
         [signal] = gensignal_simpletrend(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
     end
 

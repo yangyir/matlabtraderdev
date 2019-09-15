@@ -181,9 +181,9 @@ function signals = gensignals_futmultitdsq2(strategy)
                 idxbslatest = find(bs == 9,1,'last');
                 idxsslatest = find(ss == 9,1,'last');
                 if idxbslatest < idxsslatest && strategy.usedoublebullish_(i)
-                    signals{i,2} = strategy.gensignal_doublebullish(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+                    signals{i,2} = strategy.gensignal_doublebullish(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss);
                 elseif idxbslatest > idxsslatest && strategy.usedoublebearish_(i)
-                    signals{i,2} = strategy.gensignal_doublebearish(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag);
+                    signals{i,2} = strategy.gensignal_doublebearish(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss);
                     %
                 end
             end
