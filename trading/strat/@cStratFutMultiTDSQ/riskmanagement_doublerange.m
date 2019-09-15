@@ -88,7 +88,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tra
         end
         %
     elseif tradein.opendirection_ == -1
-        if strcmpi(tag,'perfectbs9')
+        if strcmpi(tag,'perfectbs')
             %check whether perfectbs is still valid
             ibs = find(bs == 9,1,'last');
             truelow= min(p(ibs-8:ibs,4));
