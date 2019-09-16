@@ -49,15 +49,37 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 strategy.helper_.getcounter.withdrawEntrust(e);
             end
             %
-            if strcmpi(signaltype,'perfectbs') || ...
-                    strcmpi(signaltype,'semiperfectbs') || ...
-                    strcmpi(signaltype,'imperfectbs')
+            if strcmpi(signaltype,'perfectbs')
+                %20190916
+                %further control:as we use the previous candle close to
+                %pop-up the signal, we'd suggest to check whether the next
+                %open still above the risklvl especially after some market
+                %long break, e.g. long weekend
+                tick = strategy.mde_fut_.getlasttick(instrument.ctp_code);
+                lasttrade = tick(4);
+                if lasttrade > signal.risklvl
+                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    strategy.targetportfolio_(i,typeidx) = volume;
+                end
+                %
+            elseif strcmpi(signaltype,'semiperfectbs') || strcmpi(signaltype,'imperfectbs')
                 strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
                 strategy.targetportfolio_(i,typeidx) = volume;
                 %
-            elseif strcmpi(signaltype,'perfectss') || ...
-                    strcmpi(signaltype,'semiperfectss') || ...
-                    strcmpi(signaltype,'imperfectss')
+            elseif strcmpi(signaltype,'perfectss')
+                 %20190916
+                %further control:as we use the previous candle close to
+                %pop-up the signal, we'd suggest to check whether the next
+                %open still below the risklvl especially after some market
+                %long break, e.g. long weekend
+                tick = strategy.mde_fut_.getlasttick(instrument.ctp_code);
+                lasttrade = tick(4);
+                if lasttrade < signal.risklvl
+                    strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    strategy.targetportfolio_(i,typeidx) = volume;
+                end
+                %
+            elseif strcmpi(signaltype,'semiperfectss') || strcmpi(signaltype,'imperfectss')
                 strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
                 strategy.targetportfolio_(i,typeidx) = -volume;
                 %
