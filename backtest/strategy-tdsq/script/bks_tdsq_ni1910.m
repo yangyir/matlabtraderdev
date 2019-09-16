@@ -26,3 +26,7 @@ bkf_printtrades_tdsq(tradesdoublebullish);
 tradesdoublebearish = bkf_gentrades_tdsqdoublebearish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
 fprintf('double bearish trades:\n');
 bkf_printtrades_tdsq(tradesdoublebearish);
+%%
+tradessimpletrend = bkf_gentrades_simpletrend('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
+fprintf('simple trades:\n');
+bkf_printtrades_tdsq(tradessimpletrend);
