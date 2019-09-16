@@ -50,8 +50,8 @@ function [signal] = gensignal_singlelvldn(strategy,instrument,p,bs,ss,lvlup,lvld
         %the most recent bar to determine whether the market
         %was traded above the lvldn
         wasabovelvldn = ~isempty(find(p(end-8:end,3) > lvldn(end),1,'first'));
-        wasmacdbullish = ~isempty(find(diffvec(end-8:end-1) > 0,1,'first'));
-        if (wasabovelvldn || wasmacdbullish) && diffvec(end)<0 && bs(end)>0 && bc(end) ~= 13 && macdbs(end)>0
+%         wasmacdbullish = ~isempty(find(diffvec(end-8:end-1) > 0,1,'first'));
+        if wasabovelvldn && diffvec(end)<0 && bs(end)>0 && bc(end) ~= 13 && macdbs(end)>0
             samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
             signal = struct('name','tdsq',...
             'instrument',instrument,'frequency',samplefreqstr,...

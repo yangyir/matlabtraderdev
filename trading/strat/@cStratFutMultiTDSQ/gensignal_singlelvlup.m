@@ -49,8 +49,8 @@ function [signal] = gensignal_singlelvlup(strategy,instrument,p,bs,ss,lvlup,lvld
         %the most recent bar to determine whether the market
         %was traded below the lvlup
         wasbelowlvlup = ~isempty(find(p(end-8:end,4) < lvlup(end),1,'first'));
-        wasmacdbearish = ~isempty(find(diffvec(end-8:end-1) < 0,1,'first'));
-        if  (wasbelowlvlup || wasmacdbearish) && diffvec(end)>0 && ss(end)>0 && sc(end) ~= 13 && macdss(end)>0
+%         wasmacdbearish = ~isempty(find(diffvec(end-8:end-1) < 0,1,'first'));
+        if wasbelowlvlup && diffvec(end)>0 && ss(end)>0 && sc(end) ~= 13 && macdss(end)>0
             samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
             signal = struct('name','tdsq',...
                 'instrument',instrument,'frequency',samplefreqstr,...
