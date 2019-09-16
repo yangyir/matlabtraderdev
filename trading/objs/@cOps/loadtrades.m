@@ -78,7 +78,9 @@ function [] = loadtrades(obj,varargin)
         if ~isempty(positions), newBook.setpositions(positions);end
 
         obj.trades_ = livetrades;
-        fprintf('cOps:loadtrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
+        if obj.trades_.latest_ > 0
+            fprintf('cOps:loadtrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
+        end
     catch
         %in case the filename doens't exist    
     end
