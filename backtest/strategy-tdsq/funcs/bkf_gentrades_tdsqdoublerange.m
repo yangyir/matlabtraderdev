@@ -29,6 +29,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
     
     diffvec = macdvec - sigvec;
     [macdbs,macdss] = tdsq_setup(diffvec);
+    buffer = 2*instrument.tick_size;
     
     tradesout = cTradeOpenArray;
     n = size(p,1);
@@ -85,8 +86,9 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                 %note:yangyiran:20190904
                 %we use the close price of the bar to determine the
                 %momentum
-                isabove = p(i,5) > lvlup(i);
-                isbelow = p(i,5) < lvldn(i);
+                
+                isabove = p(i,5) > lvlup(i)+buffer;
+                isbelow = p(i,5) < lvldn(i)-buffer;
                 isbetween = p(i,5) <= lvlup(i) && p(i,5) >= lvldn(i);
                 
                 hassc13inrange = ~isempty(find(sc(i-11:i) == 13,1,'first'));
@@ -108,10 +110,10 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     wasbelowlvldn = ~isempty(find(p(i-8:i,4) < lvldn(i),1,'first'));
                                         
                     if wasabovelvlup && wasbelowlvldn
-                        fprintf('interesting case here and further check pls')
+%                         fprintf('interesting case here and further check pls')
                     end
                     %
-                    if wasabovelvlup && macdvec(i)<sigvec(i) && bs(i)>0 && ~isperfectbs && ~hasbc13inrange && macdbs(i)>0
+                    if wasabovelvlup && diffvec(i)<0 && bs(i)>0 && ~isperfectbs && ~hasbc13inrange && macdbs(i)>0
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
@@ -140,8 +142,21 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             hasbreachlvldn = ~isempty(find(p(i:j,5) < lvldn(i),1,'first'));
                             %if the price has breached lvldn from the top
                             %and then bounce high back with low above lvldn
-                            if macdvec(j)>sigvec(j) || (usesetups && ss(j)>=4) || bc(j)==13 || isperfectbs_j || ...
-                                    (hasbreachlvldn && p(j,4)>lvldn(i)) 
+                            %add:special treatment before holiday
+                            %unwind before holiday as the market is not
+                            %continous anymore
+                            unwindbeforeholiday = false;
+                            cobd = floor(p(j,1));
+                            nextbd = businessdate(cobd);
+                            if nextbd - cobd > 3
+                                hh = hour(p(j,1));
+                                mm = minute(p(j,1));
+                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                                    unwindbeforeholiday = true;
+                                end
+                            end
+                            if diffvec(j)>0 || (usesetups && ss(j)>=4) || bs(j) >= 24 || bc(j)==13 || isperfectbs_j || ...
+                                    (hasbreachlvldn && p(j,4)>lvldn(i)) || unwindbeforeholiday || p(j,4) > lvlup(i)
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -159,7 +174,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     end
                     %
                     %
-                    if wasbelowlvldn && macdvec(i)>sigvec(i) && ss(i)>0 && ~isperfectss && ~hassc13inrange && macdss(i)>0
+                    if wasbelowlvldn && diffvec(i)>0 && ss(i)>0 && ~isperfectss && ~hassc13inrange && macdss(i)>0
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -188,8 +203,21 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             hasbreachlvlup = ~isempty(find(p(i:j,5) > lvlup(i),1,'first'));
                             %if the price has breached lvlup from the top
                             %and then bounce low back with high below lvlup
-                            if macdvec(j)<sigvec(j) || (usesetups && bs(j)>=4) || sc(j)==13 || isperfectss_j || ...
-                                    (hasbreachlvlup && p(j,3)<lvlup(i))
+                            %add:special treatment before holiday
+                            %unwind before holiday as the market is not
+                            %continous anymore
+                            unwindbeforeholiday = false;
+                            cobd = floor(p(j,1));
+                            nextbd = businessdate(cobd);
+                            if nextbd - cobd > 3
+                                hh = hour(p(j,1));
+                                mm = minute(p(j,1));
+                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                                    unwindbeforeholiday = true;
+                                end
+                            end
+                            if diffvec(j) < 0 || (usesetups && bs(j)>=4) || ss(j) >= 24 || sc(j)==13 || isperfectss_j || ...
+                                    (hasbreachlvlup && p(j,3)<lvlup(i)) || unwindbeforeholiday || p(j,3) < lvldn(i)
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -212,7 +240,6 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     %the most recent bar to determine whether the market
                     %was traded below the lvlup
                     wasbelowlvlup = ~isempty(find(p(i-8:i,4) < lvlup(i),1,'first'));
-
                     wasmacdbearish = ~isempty(find(diffvec(i-8:i-1) < 0,1,'first'));
                     if (wasbelowlvlup || wasmacdbearish ) && diffvec(i)>0 && (ss(i)>0 ) && ~isperfectss && ~hassc13inrange && macdss(i)>0
                         count = count + 1;
@@ -239,8 +266,21 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                                     isperfectss_j = false;
                                 end
                             end
-                            
-                            if diffvec(j)<0 || (usesetups && bs(j) >= 4) || sc(j) == 13 || isperfectss_j || p(j,3)<lvlup(i)
+                            %add:special treatment before holiday
+                            %unwind before holiday as the market is not
+                            %continous anymore
+                            unwindbeforeholiday = false;
+                            cobd = floor(p(j,1));
+                            nextbd = businessdate(cobd);
+                            if nextbd - cobd > 3
+                                hh = hour(p(j,1));
+                                mm = minute(p(j,1));
+                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                                    unwindbeforeholiday = true;
+                                end
+                            end
+                            if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) == 24 || sc(j) == 13 || isperfectss_j || ...
+                                    p(j,3)<lvlup(i) || unwindbeforeholiday
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -289,8 +329,21 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                                     isperfectbs_j = false;
                                 end
                             end
-                            
-                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bc(j) == 13 || isperfectbs_j || p(j,4) > lvldn(i)
+                            %add:special treatment before holiday
+                            %unwind before holiday as the market is not
+                            %continous anymore
+                            unwindbeforeholiday = false;
+                            cobd = floor(p(j,1));
+                            nextbd = businessdate(cobd);
+                            if nextbd - cobd > 3
+                                hh = hour(p(j,1));
+                                mm = minute(p(j,1));
+                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                                    unwindbeforeholiday = true;
+                                end
+                            end
+                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24 || bc(j) == 13 || isperfectbs_j || ...
+                                    p(j,4) > lvldn(i) || unwindbeforeholiday
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -304,11 +357,13 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             end
                         end
                         tradesout.push(trade_new);
-                    end        
+                    end
+                else
+                    i = i +1;
                 end
                 %
                 %
-            elseif lvlup(i) < lvldn(i)
+            elseif lvlup(i) <= lvldn(i)
                 i = i + 1;
             end
             i = i + 1;
