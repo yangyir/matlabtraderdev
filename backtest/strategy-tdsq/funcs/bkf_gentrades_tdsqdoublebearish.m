@@ -32,7 +32,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
     count = 0;
     diffvec = macdvec - sigvec;
     [macdbs,macdss] = tdsq_setup(diffvec);
-    
+    buffer = 2*instrument.tick_size;
     while i <= n
         %DO NOTHING IF BOTH LVLUP AND LVLDN ARE NOT AVAILABLE
         if isnan(lvldn(i)) && isnan(lvlup(i)), i = i + 1;end
@@ -52,27 +52,23 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
             if idxlastbs < idxlastss, i = i+1;continue;end
             
             %bearish momentum
-            if p(i,5) < lvlup(i);
+            if p(i,5) < lvlup(i)-buffer;
                 wasabovelvlup = ~isempty(find(p(i-8:i,3) > lvlup(i),1,'first'));
                 wasmacdbullish = ~isempty(find(diffvec(i-8:i-1) > 0,1,'first'));
                 if (wasabovelvlup||wasmacdbullish ) && diffvec(i)<0 && bs(i)>0 && bc(i) ~= 13 && macdbs(i)>0
                     %special treatment if bs(i) is greater or equal to 9
-                    f1 = false;
-                    if bs(i) >= 9
-                        lastbsidx = find(bs(1:i) == 9,1,'last');
-                        low6 = p(lastbsidx-3,4);
-                        low7 = p(lastbsidx-2,4);
-                        low8 = p(lastbsidx-1,4);
-                        low9 = p(lastbsidx,4);
-                        close8 = p(lastbsidx-1,5);
-                        close9 = p(lastbsidx,5);
+                        low6 = p(idxlastbs-3,4);
+                        low7 = p(idxlastbs-2,4);
+                        low8 = p(idxlastbs-1,4);
+                        low9 = p(idxlastbs,4);
+                        close8 = p(idxlastbs-1,5);
+                        close9 = p(idxlastbs,5);
                         %check whether buy sequential itself is perfect???
                         %if it is perfect, we'd better not open up a trade
                         %with short position
                         f1 = (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8;
-                    end
                     
-                    if ~f1
+                    if ~f1 && (f1&&i-idxlastbs>24)
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
@@ -97,8 +93,21 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
                                     isperfectbs_j = false;
                                 end
                             end
-
-                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24 || isperfectbs_j || bc(j) == 13
+                            %add:special treatment before holiday
+                            %unwind before holiday as the market is not
+                            %continous anymore
+                            unwindbeforeholiday = false;
+                            cobd = floor(p(j,1));
+                            nextbd = businessdate(cobd);
+                            if nextbd - cobd > 3
+                                hh = hour(p(j,1));
+                                mm = minute(p(j,1));
+                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                                    unwindbeforeholiday = true;
+                                end
+                            end
+                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24 || isperfectbs_j || bc(j) == 13 || ...
+                                    unwindbeforeholiday || p(j,4) > lvlup(i)
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
@@ -119,12 +128,12 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
                     end
                 end
                 i = i + 1;
-            elseif p(i,5) > lvlup(i)
+            elseif p(i,5) > lvlup(i)+buffer
                 %we use the low prices of the previous 9 bars including
                 %the most recent bar to determine whether the market
                 %was traded below the lvlup
-                wasabovelvlup = ~isempty(find(p(i-8:i,4) < lvlup(i),1,'first'));
-                if wasabovelvlup && diffvec(i)>0 && ss(i)>0 && sc(i) ~= 13 && macdss(i)>0
+                wasbelowlvlup = ~isempty(find(p(i-8:i,4) < lvlup(i),1,'first'));
+                if wasbelowlvlup && diffvec(i)>0 && ss(i)>0 && sc(i) ~= 13 && macdss(i)>0
                     count = count + 1;
                     trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                         'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -132,6 +141,8 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
                         'scenarioname','','mode','follow','lvlup',lvlup(i),'lvldn',lvldn(i));
                     trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                     %riskmanagement below
+                    
+                    hasperfectss = false;
                     for j = i+1:n
                         if ss(j) == 9
                             high6 = p(j-3,3);
@@ -143,12 +154,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
                             %unwind the trade if the sellsetup sequential
                             %itself is perfect
                             if (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8)
-                                trade_new.closedatetime1_ = p(j,1);
-                                trade_new.closeprice_ = p(j,5);
-                                trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
-                                trade_new.status_ = 'closed';
-                                i = j;
-                                break
+                                hasperfectss = true;
                             end
                         end
                         %
@@ -156,7 +162,24 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
                         %then bounce back low with high price below the
                         %lvldn
                         hasbreachlvldn = ~isempty(find(p(i:j,5) > lvldn(i),1,'first'));
-                        if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) >= 24|| sc(j) == 13 || (hasbreachlvldn && p(j,3)<lvldn(i))
+                        %add:special treatment before holiday
+                        %unwind before holiday as the market is not
+                        %continous anymore
+                        unwindbeforeholiday = false;
+                        cobd = floor(p(j,1));
+                        nextbd = businessdate(cobd);
+                        if nextbd - cobd > 3
+                            hh = hour(p(j,1));
+                            mm = minute(p(j,1));
+                            if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                                unwindbeforeholiday = true;
+                            end
+                        end
+                        if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) >= 24|| sc(j) == 13 || ...
+                                (hasbreachlvldn && p(j,3)<lvldn(i)) || ...
+                                unwindbeforeholiday || ...
+                                (hasperfectss && p(j,4) < lvlup(i)) ||...
+                                (~hasbreachlvldn && p(j,3)<lvlup(i))
                             trade_new.closedatetime1_ = p(j,1);
                             trade_new.closeprice_ = p(j,5);
                             trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
