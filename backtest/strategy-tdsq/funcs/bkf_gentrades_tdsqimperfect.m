@@ -148,12 +148,25 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectss'), break;end
                     %improvements in riskmanagement
-                    if newlvlup > oldlvldn
+                    if isdoublerange || issinglebearish
                         hasbreachedlvlup = ~isempty(find(p(openidx:j,5) > newlvlup,1,'first'));
-                        if hasbreachedlvlup && ~isdoublebearish && p(j,5) - newlvlup <= -4*instrument.tick_size, break;end
-                    else
+                        if hasbreachedlvlup && p(j,5) - newlvlup < -4*instrument.tick_size, break;end
+                    elseif isdoublebearish
                         hasbreachedlvldn = ~isempty(find(p(openidx:j,5) > oldlvldn,1,'first'));
-                        if hasbreachedlvldn && isdoublebearish && p(j,5) - oldlvldn <= -4*instrument.tick_size, break;end
+                        if hasbreachedlvldn && p(j,5) - oldlvldn < -4*instrument.tick_size, break;end
+                    end
+                    %special treatment before holiday
+                    %unwind before holiday as the market is not continous
+                    %anymore
+                    cobd = floor(p(j,1));
+                    nextbd = businessdate(cobd);
+                    if nextbd - cobd > 3
+                        hh = hour(p(j,1));
+                        mm = minute(p(j,1));
+                        %hard code below
+                        if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                            break;
+                        end
                     end
                 end
                 if j < n
@@ -279,12 +292,25 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectbs'), break;end
                     %improvements in risk management
-                    if newlvldn < oldlvlup
+                    if isdoublerange || issinglebullish
                         hasbreachedlvldn = ~isempty(find(p(openidx:j,5) < newlvldn,1,'first'));
-                        if hasbreachedlvldn && ~isdoublebullish && p(j,5) - newlvldn >= 4*instrument.tick_size, break;end
-                    else
+                        if hasbreachedlvldn && p(j,5) - newlvldn >= 4*instrument.tick_size, break;end
+                    elseif isdoublebullish
                         hasbreachedlvlup = ~isempty(find(p(openidx:j,5) < oldlvlup,1,'first'));
-                        if hasbreachedlvlup && isdoublebullish && p(j,5) - oldlvlup >= 4*instrument.tick_size, break;end
+                        if hasbreachedlvlup && p(j,5) - oldlvlup >= 4*instrument.tick_size, break;end
+                    end
+                    %special treatment before holiday
+                    %unwind before holiday as the market is not continous
+                    %anymore
+                    cobd = floor(p(j,1));
+                    nextbd = businessdate(cobd);
+                    if nextbd - cobd > 3
+                        hh = hour(p(j,1));
+                        mm = minute(p(j,1));
+                        %hard code below
+                        if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                            break;
+                        end
                     end
                 end
                 if j < n
