@@ -36,6 +36,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
     count = 0;
     diffvec = macdvec - sigvec;
     [macdbs,macdss] = tdsq_setup(diffvec);
+    buffer = 2*instrument.tick_size;
     while i <= n
         %DO NOTHING IF BOTH LVLUP AND LVLDN ARE NOT AVAILABLE
         if isnan(lvldn(i)) && isnan(lvlup(i)), i = i + 1;end
@@ -50,7 +51,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
             %open condition1: if price > lvlup
             %open condition2: if macdvec > sigvec
             %open condition3: if ss > 0
-            if p(i,5) > lvlup(i)
+            if p(i,5) > lvlup(i)+buffer
                 %we use the low prices of the previous 9 bars including
                 %the most recent bar to determine whether the market
                 %was traded below the lvlup
@@ -122,7 +123,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                     i = i + 1;
                 end
                 %
-            elseif p(i,5) < lvlup(i)
+            elseif p(i,5) < lvlup(i)-buffer
                 %we use the high prices of the previous 9 bars including
                 %the most recent bar to determine whether the market
                 %was traded above the lvlup
@@ -183,7 +184,8 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                                     unwindbeforeholiday = true;
                                 end
                             end
-                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24 || isperfectbs_j || bc(j) == 13 || unwindbeforeholiday
+                            if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24 || isperfectbs_j || bc(j) == 13 || ...
+                                    unwindbeforeholiday || p(j,4) > lvlup(i)
                                 trade_new.closedatetime1_ = p(j,1);
                                 trade_new.closeprice_ = p(j,5);
                                 trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
