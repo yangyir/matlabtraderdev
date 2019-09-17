@@ -56,12 +56,9 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
             truelowbarsize = p(idxtruelow,3) - truelow;
             stoploss = truelow - truelowbarsize;
         
-            stillvalid = true;
             haslvlupbreachedwithmacdbearishafterwards = false;
             if i > ibs
-                if stillvalid
-                    stillvalid = isempty(find(p(ibs:i,5) < stoploss,1,'first'));   
-                end
+                stillvalid = isempty(find(p(ibs:i,5) < stoploss,1,'first'));
                 %
                 if stillvalid
                     if p(i,5) < lvldn(ibs), stillvalid = false;end
@@ -80,7 +77,7 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                     if ~isempty(ibreach)
                         %lvlup has been breached
                         ibreach = ibreach + ibs-1;
-                        diffvec = macdvec(ibreach:i-1)-sigvec(ibreach:i-1);
+                        diffvec = macdvec(ibreach:i)-sigvec(ibreach:i);
                         if ~isempty(find(diffvec < 0,1,'first'))
                             %macd has turned negative
                             haslvlupbreachedwithmacdbearishafterwards = true;
@@ -88,6 +85,8 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                     end
                     %
                 end
+            else
+                stillvalid = true;
             end
         
             if ~stillvalid
@@ -122,7 +121,8 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                     sn_j = sns{j};
                     tag_j = tdsq_snbd(sn_j);
                     %case 2
-                    if ~isempty(strfind(tag_j,'ss')) && (macdvec(j) < sigvec(j) || (usesetups && bs(j) >= 4));break;end
+                    if strcmpi(tag_j,'perfectss'), break;end
+                    if ~isempty(strfind(tag_j,'ss')) && (macdvec(j) < sigvec(j) || (usesetups && bs(j) >= 4)),break;end
                     %case 3
                     if ~breachlvlup && p(j,5) > lvlup(i), breachlvlup = true;breachidx = j;end
                     if breachlvlup
@@ -137,6 +137,19 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                     end
                     %case 4
                     if bs(j) == 0 && ss(j) == 0 && p(j,2) == p(j,3) && p(j,2) == p(j,4) && p(j,2) == p(j,5);break;end
+                    %case 5
+                    %unwind before holiday as the market is not continous
+                    %anymore
+                    cobd = floor(p(j,1));
+                    nextbd = businessdate(cobd);
+                    if nextbd - cobd > 3
+                        hh = hour(p(j,1));
+                        mm = minute(p(j,1));
+                        %hard code below
+                        if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                            break;
+                        end
+                    end
                 end
                 %
                 if j < n
@@ -161,12 +174,9 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
             %further check whether perfectss is still valid
             %1. whether lvldn is breached and was macd turned bullish after
             %breaching lvldn
-            stillvalid = true;
             haslvldnbreachedwithmacdbullishhafterwards = false;
             if i > iss
-                if stillvalid
-                    stillvalid = isempty(find(p(iss:i,5) > stoploss,1,'first'));   
-                end
+                stillvalid = isempty(find(p(iss:i,5) > stoploss,1,'first'));   
                 %
                 if stillvalid
                     if p(i,5) > lvlup(iss), stillvalid = false;end
@@ -185,7 +195,7 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                     if ~isempty(ibreach)
                         %lvlup has been breached
                         ibreach = ibreach + iss-1;
-                        diffvec = macdvec(ibreach:i-1)-sigvec(ibreach:i-1);
+                        diffvec = macdvec(ibreach:i)-sigvec(ibreach:i);
                         if ~isempty(find(diffvec > 0,1,'first'))
                             %macd has turned bullish
                             haslvldnbreachedwithmacdbullishhafterwards = true;
@@ -193,6 +203,8 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                     end
                     %
                 end
+            else
+                stillvalid = true;
             end
         
             if ~stillvalid
@@ -229,6 +241,7 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                     sn_j = sns{j};
                     tag_j = tdsq_snbd(sn_j);
                     %case 2
+                    if strcmpi(tag_j,'perfectbs'),break;end
                     if ~isempty(strfind(tag_j,'bs')) && (macdvec(j) > sigvec(j) || (usesetups && ss(j) >= 4)),break;end
                     %case 3
                     if ~breachlvldn && p(j,5) < lvldn(j), breachlvldn = true;breachidx = j;end
@@ -244,6 +257,19 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                     end
                     %case 4
                     if bs(j) == 0 && ss(j) == 0 && p(j,2) == p(j,3) && p(j,2) == p(j,4) && p(j,2) == p(j,5);break;end
+                    %case 5
+                    %unwind before holiday as the market is not continous
+                    %anymore
+                    cobd = floor(p(j,1));
+                    nextbd = businessdate(cobd);
+                    if nextbd - cobd > 3
+                        hh = hour(p(j,1));
+                        mm = minute(p(j,1));
+                        %hard code below
+                        if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+                            break;
+                        end
+                    end
                 end
                 if j < n
                     trade_new.closedatetime1_ = p(j,1);
