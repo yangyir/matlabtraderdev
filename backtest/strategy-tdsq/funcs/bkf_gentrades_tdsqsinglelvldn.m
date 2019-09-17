@@ -71,7 +71,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                         f1 = (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8);
 %                     end
                     
-                    if ~f1 || (f1&&p(i,5)>close9)
+                    if ~f1 || (f1&&i-lastssidx>24)
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                         'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
