@@ -123,6 +123,9 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                 end
                 %
             elseif p(i,5) < lvlup(i)
+                %we use the high prices of the previous 9 bars including
+                %the most recent bar to determine whether the market
+                %was traded above the lvlup
                 wasabovelvlup = ~isempty(find(p(i-8:i,3) > lvlup(i),1,'first'));
                 wasmacdbullish = ~isempty(find(diffvec(i-8:i-1) > 0,1,'first'));
                 if (wasabovelvlup||wasmacdbullish ) && diffvec(i)<0 && bs(i)>0 && bc(i) ~= 13 && macdbs(i)>0
