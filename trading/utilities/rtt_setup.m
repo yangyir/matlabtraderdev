@@ -103,7 +103,11 @@ function [rtt_output] = rtt_setup(varargin)
     rtt_helper.registermdefut(rtt_mdefut);
     if isa(rtt_mdeopt,'cMDEOpt'), rtt_helper.registermdeopt(rtt_mdeopt);end
     if ~isempty(tfn), rtt_helper.registerpasttrades(livetrades);end
-    dir_ = [getenv('DATAPATH'),'realtimetrading\'];
+    if strcmpi(mode,'realtime')
+        dir_ = [getenv('DATAPATH'),'realtimetrading\'];
+    else
+        dir_ = [getenv('DATAPATH'),'replay\'];
+    end
     if strcmpi(countername,'citic_kim_fut')
         dir_ = [dir_,'citickim\'];
     elseif strcmpi(countername,'ccb_ly_fut')
