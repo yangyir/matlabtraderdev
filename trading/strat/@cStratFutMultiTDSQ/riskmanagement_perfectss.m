@@ -27,14 +27,23 @@ function [is2closetrade,entrustplaced] = riskmanagement_perfectss(strategy,trade
     end
 
     %case 2 any bs scenario afterwards when macd turns bullish
-    bs = strategy.tdbuysetup_{idx};
-    ss = strategy.tdsellsetup_{idx};
+    
+    
+    tag = strategy.tags_{idx};
+    if strcmpi(tag,'perfectbs')
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('perfectss');
+        strategy.targetportfolio_(idx,typeidx) = 0;
+        return
+    end
+    
     macdvec = strategy.macdvec_{idx};
     sigvec = strategy.nineperma_{idx};
-    
-    bsidxlatest = find(bs == 9,1,'last');
-    ssidxlatest = find(ss == 9,1,'last');
-    if bsidxlatest > ssidxlatest && (macdvec(end) > sigvec(end) || (false && ss(end) >= 4))
+    ss = strategy.tdsellsetup_{idx};
+    riskmode = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmode');
+    usesetups = strcmpi(riskmode,'macd-setup');
+    if ~isempty(strfind(tag,'bs')) && (macdvec(end) > sigvec(end) || (usesetups && ss(end) >= 4))
         is2closetrade = true;
         entrustplaced = strategy.unwindtrade(tradein);
         typeidx = cTDSQInfo.gettypeidx('perfectss');
@@ -63,7 +72,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_perfectss(strategy,trade
                 break
             end
         end
-        if wasmacdbearish && (macdvec(end) > sigvec(end) || (false && ss(end) >= 4))
+        if wasmacdbearish && (macdvec(end) > sigvec(end) || (usesetups && ss(end) >= 4))
             is2closetrade = true;
             entrustplaced = strategy.unwindtrade(tradein);
             typeidx = cTDSQInfo.gettypeidx('perfectss');

@@ -3,6 +3,9 @@ function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,ma
     variablenotused(bc);
     variablenotused(sc);
     signal = {};
+    riskmode = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmode');
+    usesetups = strcmpi(riskmode,'macd-setup');
+    
     if strcmpi(tag,'perfectbs')
         ibs = find(bs == 9,1,'last');
         %note:the stoploss shall be calculated using the perfect 9 bars
@@ -11,14 +14,11 @@ function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,ma
         idxtruelow = idxtruelow + ibs - 9;
         truelowbarsize = p(idxtruelow,3) - truelow;
         stoploss = truelow - truelowbarsize;
-
-        %note:hard-coded here:
-        %todo:implement in cStratConfigTDSQ
-        usesetups = false;
-
+        
         np = size(p,1);
         if np > ibs
             stillvalid = isempty(find(p(ibs:end,5)<stoploss,1,'first'));
+            %
             if stillvalid
                 if p(end,5) < lvldn(ibs), stillvalid = false;end
             end
@@ -40,7 +40,7 @@ function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,ma
             if ~isempty(ibreach)
                 %lvlup has been breached
                 ibreach = ibreach + ibs-1;
-                diffvec = macdvec(ibreach:end-1)-sigvec(ibreach:end-1);
+                diffvec = macdvec(ibreach:end)-sigvec(ibreach:end);
                 haslvlupbreachedwithmacdbearishafterwards = ~isempty(find(diffvec<0,1,'first'));
             end
         end
@@ -72,10 +72,6 @@ function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,ma
         truehighbarsize = truehigh - p(idxtruehigh,4);
         stoploss = truehigh + truehighbarsize;
         
-        %note:hard-coded here:
-        %todo:implement in cStratConfigTDSQ
-        usesetups = false;
-        
         np = size(p,1);
         if np > iss
             stillvalid = isempty(find(p(iss:end,5)>stoploss,1,'first'));
@@ -101,7 +97,7 @@ function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,ma
             if ~isempty(ibreach)
                 %lvldn has been breached
                 ibreach = ibreach + iss-1;
-                diffvec = macdvec(ibreach:end-1)-sigvec(ibreach:end-1);
+                diffvec = macdvec(ibreach:end)-sigvec(ibreach:end);
                 haslvldnbreachedwithmacdbullishafterwards = ~isempty(find(diffvec>0,1,'first'));
             end
         end
