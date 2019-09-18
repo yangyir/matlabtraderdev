@@ -10,9 +10,9 @@ function [signal] = gensignal_doublebearish(strategy,instrument,p,bs,ss,lvlup,lv
     variablenotused(tag);
     
     diffvec = macdvec - sigvec;
-    
+    buffer = 2*instrument.tick_size;
     %bearish momentum
-    if p(end,5) < lvlup(end)
+    if p(end,5) < lvlup(end) - buffer
         %we use the high prices of the previous 9 bars including
         %the most recent bar to determine whether the market
         %was traded above the lvlup
@@ -21,22 +21,19 @@ function [signal] = gensignal_doublebearish(strategy,instrument,p,bs,ss,lvlup,lv
         
         if (wasbelowlvlup||wasmacdbullish ) && diffvec(end)<0 && bs(end)>0 && bc(end) ~= 13 && macdbs(end)>0
             %special treatement if bs(end) is greater than or equal to 9
-            f1 = false;
-            if bs(end) >= 9
-                lastbsidx = find(bs == 9,1,'last');
-                low6 = p(lastbsidx-3,4);
-                low7 = p(lastbsidx-2,4);
-                low8 = p(lastbsidx-1,4);
-                low9 = p(lastbsidx,4);
-                close8 = p(lastbsidx-1,5);
-                close9 = p(lastbsidx,5);
-                %check whether buy sequential itself is perfect???
-                %if it is perfect, we'd better not open up a trade
-                %with short position
-                f1 = (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8;
-            end
+            low6 = p(idxbslatest-3,4);
+            low7 = p(idxbslatest-2,4);
+            low8 = p(idxbslatest-1,4);
+            low9 = p(idxbslatest,4);
+            close8 = p(idxbslatest-1,5);
+            close9 = p(idxbslatest,5);
+            %check whether buy sequential itself is perfect???
+            %if it is perfect, we'd better not open up a trade
+            %with short position
+            f1 = (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8;
             
-            if ~f1
+            np = size(p,1);
+            if ~f1 && (np-idxbslatest>24)
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
@@ -46,7 +43,7 @@ function [signal] = gensignal_doublebearish(strategy,instrument,p,bs,ss,lvlup,lv
                     'direction',-1);
             end
         end
-    elseif p(end,5) > lvlup(end)
+    elseif p(end,5) > lvlup(end) + buffer
         %we use the low prices of the previous 9 bars including
         %the most recent bar to determine whether the market
         %was traded below the lvlup
