@@ -28,7 +28,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvlup(strategy,tra
     tag = strategy.tags_{idx};
     
 %     tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
-    
+    riskmode = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmode');
+    usesetups = strcmpi(riskmode,'macd-setup');
 
     if tradein.opendirection_ == -1
         if strcmpi(tag,'perfectbs')
@@ -52,7 +53,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvlup(strategy,tra
             end
         end
         %
-        if macdvec(end) > sigvec(end) || (false && ss(end) >= 4) || bs(end) >= 24 || bc(end) == 13
+        if macdvec(end) > sigvec(end) || (usesetups && ss(end) >= 4) || ...
+                bs(end) >= 24 || bc(end) == 13 || ...
+                p(end,4) > tradein.opensignal_.lvlup_
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('single-lvlup');
@@ -69,7 +72,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvlup(strategy,tra
             close8 = p(end-1,5);
             close9 = p(end,5);
             %unwind the trade if the sellsetup sequential itself is perfect
-            if (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8)
+            hasperfectss = (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8);
+            if hasperfectss && (p(end,4)<tradein.opensignal_.lvlup_)
                 entrustplaced = strategy.unwindtrade(tradein);
                 is2closetrade = true;
                 typeidx = cTDSQInfo.gettypeidx('single-lvlup');
@@ -78,7 +82,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvlup(strategy,tra
             end
         end
         %
-        if macdvec(end) < sigvec(end) || (false && ss(end) >= 4) || ss(end) >= 24|| sc(end) == 13
+        if macdvec(end) < sigvec(end) || (usesetups && ss(end) >= 4) || ...
+                ss(end) >= 24 || sc(end) == 13 || ...
+                p(end,3) < tradein.opensignal_.lvlup_
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('single-lvlup');
@@ -86,4 +92,5 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvlup(strategy,tra
             return
         end
         %
+    end
 end

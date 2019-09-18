@@ -7,8 +7,8 @@ function [signal] = gensignal_singlelvldn(strategy,instrument,p,bs,ss,lvlup,lvld
     if ~(~isnan(lvldn(end)) && isnan(lvlup(end))), return;end
     
     diffvec = macdvec - sigvec;
-    
-    if p(end,5) > lvldn(end)
+    buffer = 2*instrument.tick_size;
+    if p(end,5) > lvldn(end)+buffer
         %bullish
         %we use the low prices of the previous 9 bars including
         %the most recent bar to determine whether the market
@@ -18,8 +18,8 @@ function [signal] = gensignal_singlelvldn(strategy,instrument,p,bs,ss,lvlup,lvld
         
         if (wasbelowlvldn||wasmacdbearish ) && diffvec(end)>0 && ss(end)>0 && sc(end) ~= 13 && macdss(end)>0
             %special treatment if ss(i) is greater or equal to 9
-            f1 = false;
-            if ss(end) >= 9
+%             f1 = false;
+%             if ss(end) >= 9
                 lastssidx = find(ss == 9,1,'last');
                 high6 = p(lastssidx-3,3);
                 high7 = p(lastssidx-2,3);
@@ -31,9 +31,9 @@ function [signal] = gensignal_singlelvldn(strategy,instrument,p,bs,ss,lvlup,lvld
                 %if it is perfect, we'd better not open up a trade
                 %with long position
                 f1 = (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8);
-            end
-            
-            if ~f1
+%             end
+            np = size(p,1);
+            if ~f1 || (f1&&np-lastssidx>24)
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
@@ -44,7 +44,7 @@ function [signal] = gensignal_singlelvldn(strategy,instrument,p,bs,ss,lvlup,lvld
             end
         end
         %
-    elseif p(end,5) < lvldn(end)
+    elseif p(end,5) < lvldn(end)-buffer
         %bearish
         %we use the high prices of the previous 9 bars including
         %the most recent bar to determine whether the market

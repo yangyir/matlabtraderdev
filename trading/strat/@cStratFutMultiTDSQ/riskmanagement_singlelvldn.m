@@ -28,6 +28,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvldn(strategy,tra
     tag = strategy.tags_{idx};
 %     tag = tdsq_lastbs(bs,ss,lvlup,lvldn,bc,sc,p);
     
+    riskmode = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmode');
+    usesetups = strcmpi(riskmode,'macd-setup');
+    
     if tradein.opendirection_ == 1
         if strcmpi(tag,'perfectss')
             %check whether perfectss is still valid
@@ -51,7 +54,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvldn(strategy,tra
             end
         end
         %
-        if macdvec(end) < sigvec(end) || (false && bs(end) >= 4) || ss(end) >= 24 || sc(end) == 13
+        if macdvec(end) < sigvec(end) || (usesetups && bs(end) >= 4) || ...
+                ss(end) >= 24 || sc(end) == 13 || ...
+                p(end,3) < tradein.opensignal_.lvldn_
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('single-lvldn');
@@ -68,7 +73,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvldn(strategy,tra
             close8 = p(end-1,5);
             close9 = p(end,5);
             %unwind the trade if the buysetup sequentia itself is perfect
-            if (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8
+            hasperfectbs = (low8 < min(low6,low7) || low9 < min(low6,low7)) && (close9<close8);
+            if hasperfectbs && (p(end,3)>tradein.opensignal_.lvldn_)
                 entrustplaced = strategy.unwindtrade(tradein);
                 is2closetrade = true;
                 typeidx = cTDSQInfo.gettypeidx('single-lvldn');
@@ -77,7 +83,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_singlelvldn(strategy,tra
             end
         end
         %
-        if macdvec(end) > sigvec(end) || (false && ss(end) >= 4) || bs(end) >= 24|| bc(end) == 13
+        if macdvec(end) > sigvec(end) || (usesetups && ss(end) >= 4) || ...
+                bs(end) >= 24 || bc(end) == 13 || ...
+                p(end,4) > tradein.opensignal_.lvldn_
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('single-lvldn');
