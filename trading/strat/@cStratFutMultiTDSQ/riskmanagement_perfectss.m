@@ -27,8 +27,6 @@ function [is2closetrade,entrustplaced] = riskmanagement_perfectss(strategy,trade
     end
 
     %case 2 any bs scenario afterwards when macd turns bullish
-    
-    
     tag = strategy.tags_{idx};
     if strcmpi(tag,'perfectbs')
         is2closetrade = true;
