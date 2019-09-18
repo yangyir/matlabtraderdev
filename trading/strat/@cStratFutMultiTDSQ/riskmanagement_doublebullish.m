@@ -26,6 +26,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublebullish(strategy,t
     macdvec = strategy.macdvec_{idx};
     sigvec = strategy.nineperma_{idx};
     tag = strategy.tags_{idx};
+    
+    riskmode = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmode');
+    usesetups = strcmpi(riskmode,'macd-setup');
 
     if tradein.opendirection_ == 1
         if strcmpi(tag,'perfectss')
@@ -50,7 +53,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublebullish(strategy,t
             end
         end
         %
-        if macdvec(end) < sigvec(end) || (false && bs(end) >= 4) || ss(end) >= 24 || sc(end) == 13
+        if macdvec(end) < sigvec(end) || (usesetups && bs(end) >= 4) || ...
+                ss(end) >= 24 || sc(end) == 13 || ...
+                p(end,3) < tradein.opensignal_.lvldn_
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('double-bullish');
@@ -67,7 +72,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublebullish(strategy,t
             close8 = p(end-1,5);
             close9 = p(end,5);
             %unwind the trade if the buysetup sequentia itself is perfect
-            if (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8
+            hasperfectbs = (low8 < min(low6,low7) || low9 < min(low6,low7)) && (close9<close8);
+            if hasperfectbs && p(end,3)>tradein.opensignal_.lvldn_
                 entrustplaced = strategy.unwindtrade(tradein);
                 is2closetrade = true;
                 typeidx = cTDSQInfo.gettypeidx('double-bullish');
@@ -76,7 +82,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublebullish(strategy,t
             end
         end
         %
-        if macdvec(end) > sigvec(end) || (false && ss(end) >= 4) || bs(end) >= 24|| bc(end) == 13
+        if macdvec(end) > sigvec(end) || (usesetups && ss(end) >= 4) || ...
+                bs(end) >= 24|| bc(end) == 13
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('double-bullish');
@@ -89,7 +96,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublebullish(strategy,t
         if isempty(openidx),openidx = 1;end
         if openidx == 0, openidx = 1;end
         hasbreachlvlup = ~isempty(find(p(openidx:end,5) < tradein.opensignal_.lvlup_,1,'first'));
-        if hasbreachlvlup && p(end,4)>tradein.opensignal_.lvlup_
+        if (hasbreachlvlup && p(end,4)>tradein.opensignal_.lvlup_) || ...
+                (~hasbreachlvlup && p(end,4)>tradein.opensignal_.lvldn_)
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('double-bullish');
