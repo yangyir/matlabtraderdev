@@ -32,6 +32,8 @@ classdef cStratConfigTDSQ < cStratConfig
         volumedoublebullish_@double = 1
         volumedoublebearish_@double = 1
         volumesimpletrend_@double = 1
+        %
+        riskmode_@char = 'macd'
         
     end
     
@@ -53,6 +55,14 @@ classdef cStratConfigTDSQ < cStratConfig
                 error([class(obj),':invalid wroversold_'])
             end
             obj.wroversold_ = val;
+        end
+        
+        function [] = set.riskmode_(obj,val)
+            if strcmpi(val,'macd') || strcmpi(val,'macd-setup')
+                obj.riskmode_ = val;
+            else
+                error([class(obj),':invalid riskmode_'])
+            end
         end
 
         function [] = loadfromfile(obj,varargin)
