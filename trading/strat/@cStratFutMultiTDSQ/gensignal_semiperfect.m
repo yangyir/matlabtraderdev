@@ -27,12 +27,25 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                 f1 = p(end,5) > oldlvldn && ~isempty(find(p(end-8:end-1,5) < oldlvldn,1,'first'));
                 hasbc13inrange = ~isempty(find(bc(end-11:end) == 13,1,'last'));
                 if hasbc13inrange
-                    %make sure the 13 is the correct one associated with
-                    %the latest sequential
-                    bctemp = bc(lastidxbs:end);
-                    bcavailable = bctemp(~isnan(bctemp));
-                    if length(bcavailable) < 13, hasbc13inrange = false;end
+                    lastidxbc13 = find(bc == 13,1,'last');
+                    if lastidxbc13 < lastidxbs, hasbc13inrange = false;end
                 end
+                %when a bs that began before,on,or after
+                %the developing buycountdown, but prior to
+                %a bullish price flip, extends to 18 bars,
+                %the buycountdown shall be recycled
+                if hasbc13inrange
+                    lastidxbs18 = find(bs == 18,1,'last');
+                    if ~isempty(lastidxbs18)
+                        if  lastidxbc13 <= lastidxbs18
+                            hasbc13inrange = false;
+                        elseif lastidxbc13 > lastidxbs18
+                            %make sure there is no bullish price between
+                            hasbc13inrange = ~isempty(find(ss(lastidxbs18+1:lastidxbc13)==1,1,'first'));
+                        end
+                    end
+                end
+                
                 if f0 && (f1 || (~f1 && hasbc13inrange ))
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
@@ -46,10 +59,25 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                 %the price failed to breach lvldn
                 hasbc13inrange = ~isempty(find(bc(end-11:end) == 13,1,'last'));
                 if hasbc13inrange
-                    bctemp = bc(lastidxbs:end);
-                    bcavailable = bctemp(~isnan(bctemp));
-                    if length(bcavailable) < 13, hasbc13inrange = false;end
+                    lastidxbc13 = find(bc == 13,1,'last');
+                    if lastidxbc13 < lastidxbs, hasbc13inrange = false;end
                 end
+                %when a bs that began before,on,or after
+                %the developing buycountdown, but prior to
+                %a bullish price flip, extends to 18 bars,
+                %the buycountdown shall be recycled
+                if hasbc13inrange
+                    lastidxbs18 = find(bs == 18,1,'last');
+                    if ~isempty(lastidxbs18)
+                        if  lastidxbc13 <= lastidxbs18
+                            hasbc13inrange = false;
+                        elseif lastidxbc13 > lastidxbs18
+                            %make sure there is no bullish price between
+                            hasbc13inrange = ~isempty(find(ss(lastidxbs18+1:lastidxbc13)==1,1,'first'));
+                        end
+                    end
+                end
+                
                 if hasbc13inrange && f0
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
@@ -101,14 +129,6 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
             end
         end
         %
-%         if macdvec(end) > sigvec(end) || bs(end) >= 24
-%             samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-%             signal = struct('name','tdsq',...
-%                 'instrument',instrument,'frequency',samplefreqstr,...
-%                 'scenarioname',tag,...
-%                 'mode','reverse','type',tag,...
-%                 'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99);
-%         end
         return
     end
     %
@@ -137,12 +157,25 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                 f1 = p(end,5) < oldlvlup && ~isempty(find(p(end-8:end-1,5) > oldlvlup,1,'first'));
                 hassc13inrange = ~isempty(find(sc(end-11:end) == 13,1,'last'));
                 if hassc13inrange
-                    %make sure the 13 is the correct one associated with
-                    %the latest sequential
-                    sctemp = sc(lastidxss:end);
-                    scavailable = sctemp(~isnan(sctemp));
-                    if length(scavailable) < 13, hassc13inrange = false;end
+                    lastidxsc13 = find(sc == 13,1,'last');
+                    if lastidxsc13 < lastidxss, hassc13inrange = false;end
                 end
+                %when a ss that began before,on,or after
+                %the developing sellcountdown, but prior to
+                %a bearish price flip, extends to 18 bars,
+                %the sellcountdown shall be recycled
+                if hassc13inrange
+                    lastidxss18 = find(ss == 18,1,'last');
+                    if ~isempty(lastidxss18)
+                        if  lastidxsc13 <= lastidxss18
+                            hassc13inrange = false;
+                        elseif lastidxsc13 > lastidxss18
+                            %make sure there is no bearish price between
+                            hassc13inrange = ~isempty(find(bs(lastidxss18+1:lastidxsc13)==1,1,'first'));
+                        end
+                    end
+                end
+                
                 if f0 && (f1 || (~f1 && hassc13inrange ))
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
@@ -156,12 +189,25 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                 %the price failed to breach lvlup
                 hassc13inrange = ~isempty(find(sc(end-11:end) == 13,1,'last'));
                 if hassc13inrange
-                    %make sure the 13 is the correct one associated with
-                    %the latest sequential
-                    sctemp = sc(lastidxss:end);
-                    scavailable = sctemp(~isnan(sctemp));
-                    if length(scavailable) < 13, hassc13inrange = false;end
+                    lastidxsc13 = find(sc == 13,1,'last');
+                    if lastidxsc13 < lastidxss, hassc13inrange = false;end
                 end
+                %when a ss that began before,on,or after
+                %the developing sellcountdown, but prior to
+                %a bearish price flip, extends to 18 bars,
+                %the sellcountdown shall be recycled
+                if hassc13inrange
+                    lastidxss18 = find(ss == 18,1,'last');
+                    if ~isempty(lastidxss18)
+                        if  lastidxsc13 <= lastidxss18
+                            hassc13inrange = false;
+                        elseif lastidxsc13 > lastidxss18
+                            %make sure there is no bearish price between
+                            hassc13inrange = ~isempty(find(bs(lastidxss18+1:lastidxsc13)==1,1,'first'));
+                        end
+                    end
+                end
+                
                 if hassc13inrange && f0
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
@@ -214,14 +260,6 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
             end
         end
         %
-%         if macdvec(end) < sigvec(end) || ss(end) >= 24
-%             samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-%             signal = struct('name','tdsq',...
-%                 'instrument',instrument,'frequency',samplefreqstr,...
-%                 'scenarioname',tag,...
-%                 'mode','reverse','type',tag,...
-%                 'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99);
-%         end
         return
     end
 end
