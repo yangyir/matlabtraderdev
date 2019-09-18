@@ -19,15 +19,14 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
     
     %case 2 any ss scenario afterwards when macd turns bearish
     bs = strategy.tdbuysetup_{idx};
-    ss = strategy.tdsellsetup_{idx};
-    bc = strategy.tdbuycountdown_{idx};
-    sc = strategy.tdsellcountdown_{idx};
-    lvlup = strategy.tdstlevelup_{idx};
-    lvldn = strategy.tdstleveldn_{idx};
+%     ss = strategy.tdsellsetup_{idx};
+%     bc = strategy.tdbuycountdown_{idx};
+%     sc = strategy.tdsellcountdown_{idx};
+%     lvlup = strategy.tdstlevelup_{idx};
+%     lvldn = strategy.tdstleveldn_{idx};
     macdvec = strategy.macdvec_{idx};
     sigvec = strategy.nineperma_{idx};
-    
-    tag = tdsq_lastss(bs,ss,lvlup,lvldn,bc,sc,p);
+    tag = strategy.tags_{idx};
     
     if strcmpi(tag,'perfectss9')
         is2closetrade = true;
@@ -37,7 +36,10 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
         return
     end
     
-    if (macdvec(end) < sigvec(end) || (bs(end) >= 4 && false))
+    riskmode = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmode');
+    usesetups = strcmpi(riskmode,'macd-setup');
+    
+    if (macdvec(end) < sigvec(end) || (bs(end) >= 4 && usesetups))
         is2closetrade = true;
         entrustplaced = strategy.unwindtrade(tradein);
         typeidx = cTDSQInfo.gettypeidx('imperfectbs');
@@ -46,7 +48,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
     end
     
     %additional risk management for imperfectbs/semi-perfectbs trade
-    if strcmpi(tradein.opensignal_.scenario_,'doublerange')
+    if strcmpi(tradein.opensignal_.scenario_,'doublerange') || ...
+            strcmpi(tradein.opensignal_.scenario_,'singlebearish')
         openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
         if isempty(openidx),openidx = 1;end
         if openidx == 0, openidx = 1;end
@@ -61,8 +64,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
         return
     end
     %
-    if strcmpi(tradein.opensignal_.scenario_,'doublebearish') || ...
-            strcmpi(tradein.opensignal_.scenario_,'singlebearish')
+    if strcmpi(tradein.opensignal_.scenario_,'doublebearish')
         openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
         if isempty(openidx),openidx = 1;end
         if openidx == 0, openidx = 1;end

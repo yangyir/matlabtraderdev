@@ -176,10 +176,10 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     %improvements in riskmanagement
                     if isdoublerange || issinglebearish
                         hasbreachedlvlup = ~isempty(find(p(openidx:j,5) > newlvlup,1,'first'));
-                        if hasbreachedlvlup && p(j,5) - newlvlup < -4*instrument.tick_size, break;end
+                        if hasbreachedlvlup && p(j,5) - newlvlup <= -4*instrument.tick_size, break;end
                     elseif isdoublebearish
                         hasbreachedlvldn = ~isempty(find(p(openidx:j,5) > oldlvldn,1,'first'));
-                        if hasbreachedlvldn && p(j,5) - oldlvldn < -4*instrument.tick_size, break;end
+                        if hasbreachedlvldn && p(j,5) - oldlvldn <= -4*instrument.tick_size, break;end
                     end
                     %special treatment before holiday
                     %unwind before holiday as the market is not continous
