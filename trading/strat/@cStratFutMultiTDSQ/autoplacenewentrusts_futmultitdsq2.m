@@ -55,7 +55,7 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 %pop-up the signal, we'd suggest to check whether the next
                 %open still above the risklvl especially after some market
                 %long break, e.g. long weekend
-                tick = strategy.mde_fut_.getlasttick(instrument.ctp_code);
+                tick = strategy.mde_fut_.getlasttick(instrument.code_ctp);
                 lasttrade = tick(4);
                 if lasttrade > signal.risklvl
                     strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
@@ -72,7 +72,7 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 %pop-up the signal, we'd suggest to check whether the next
                 %open still below the risklvl especially after some market
                 %long break, e.g. long weekend
-                tick = strategy.mde_fut_.getlasttick(instrument.ctp_code);
+                tick = strategy.mde_fut_.getlasttick(instrument.code_ctp);
                 lasttrade = tick(4);
                 if lasttrade < signal.risklvl
                     strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);

@@ -1,5 +1,7 @@
 function [] = riskmanagement_futmultitdsq(strategy,dtnum)
 %cStratFutMultiTDSQ
+    % one minute before market open to refresh targetportfolio_ with loaded
+    % trades information
     runningmm = hour(dtnum)*60+minute(dtnum);
     if (runningmm >= 539 && runningmm < 540) || ...
             (runningmm >= 779 && runningmm < 780) || ...
@@ -7,14 +9,44 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
         trades = strategy.helper_.trades_;
         for itrade = 1:trades.latest_
             trade_i = trades.node_(itrade);
-            if strcmpi(trade_i.status_,'unset') || strcmpi(trade_i.status_,'closed'), continue;end
+            if strcmpi(trade_i.status_,'closed'), continue;end
             if isa(trade_i.opensignal_,'cTDSQInfo')
                 [~,idxrow] = strategy.hasinstrument(trade_i.instrument_);
                 idxcol = cTDSQInfo.gettypeidx(trade_i.opensignal_.type_);
-                strategy.targetportfolio_(idxrow,idxcol) = trade_i.opendirection_*trade_i.openvolume_;
+                volume_traded = trade_i.opendirection_*trade_i.openvolume_;
+                volume_target = strategy.targetportfolio_(idxrow,idxcol);
+                if volume_target == 0
+                    strategy.targetportfolio_(idxrow,idxcol) = volume_traded;
+                else
+                    if volume_target ~= volume_traded
+                        fprintf('%s:inconsistent traded and target volume found of %6s in %s\n',...
+                            strategy.name_,trade_i.instrument_.code_ctp,trade_i.opensignal_.type_);
+                    end
+                end
             end
         end
     end
+    %
+    %
+    % unwind all positions before public holidays
+    if (runningmm >= 899 && runningmm < 900 || runningmm >= 914 && runningmm < 915) && second(dtnum) >= 55
+        cobd = floor(dtnum);
+        nextbd = businessdate(cobd);
+        if nextbd - cobd > 3
+            trades = strategy.helper_.trades_;
+            for itrade = 1:trades.latest_
+                trade_i = trades.node_(itrade);
+                if strcmpi(trade_i.status_,'closed'), continue;end
+                if isa(trade_i.opensignal_,'cTDSQInfo')
+                    [~,idxrow] = strategy.hasinstrument(trade_i.instrument_);
+                    idxcol = cTDSQInfo.gettypeidx(trade_i.opensignal_.type_);
+                    strategy.unwindtrade(trade_i);
+                    strategy.targetportfolio_(idxrow,idxcol) = 0;
+                end
+            end
+        end 
+    end
+
     % check whether there are any pending open orders every 3 seconds
     runpendingordercheck = mod(floor(second(dtnum)),3) == 0;
     % check target portfolio every minute
@@ -35,13 +67,10 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
                 switch type
                     case {'perfectbs','semiperfectbs','imperfectbs'}
                         trade_signaltype = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',type);
-                        mode = 'reverse';
                     case {'perfectss','semiperfectss','imperfectss'}
                         trade_signaltype = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'reverse',type);
-                        mode = 'reverse';
                     otherwise
                         trade_signaltype = strategy.getlivetrade_tdsq(instruments{i}.code_ctp,'trend',type);
-                        mode = 'trend';
                 end
                 if isempty(trade_signaltype)
                     volume_traded = 0;
