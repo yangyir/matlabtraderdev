@@ -27,6 +27,9 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tra
     sigvec = strategy.nineperma_{idx};
     tag = strategy.tags_{idx};
     
+    riskmode = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmode');
+    usesetups = strcmpi(riskmode,'macd-setup');
+    
     if tradein.opendirection_ == 1
         if strcmpi(tag,'perfectss')
             %check whether perfectss is still valid
@@ -50,7 +53,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tra
             end
         end
         %
-        if (macdvec(end) < sigvec(end) || (false && bs(end) >= 4)) || sc(end) == 13
+        if (macdvec(end) < sigvec(end) || (usesetups && bs(end) >= 4)) || ...
+                sc(end) == 13 || ss(end) >= 24
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('double-range');
@@ -64,7 +68,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tra
             if isempty(openidx),openidx = 1;end
             if openidx == 0, openidx = 1;end
             hasbreachlvlup = ~isempty(find(p(openidx:end,5) > tradein.opensignal_.lvlup_,1,'first'));
-            if hasbreachlvlup && p(end,3)<tradein.opensignal_.lvlup_
+            if hasbreachlvlup && p(end,3)<tradein.opensignal_.lvlup_ || ...
+                    p(end,3) < tradein.opensignal_.lvldn_
                 entrustplaced = strategy.unwindtrade(tradein);
                 is2closetrade = true;
                 typeidx = cTDSQInfo.gettypeidx('double-range');
@@ -110,7 +115,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tra
             end
         end
         %
-        if (macdvec(end) > sigvec(end) || (false && ss(end) >= 4)) || bc(end) == 13
+        if (macdvec(end) > sigvec(end) || (usesetups && ss(end) >= 4)) || ...
+                bc(end) == 13 || bs(end) >= 24
             entrustplaced = strategy.unwindtrade(tradein);
             is2closetrade = true;
             typeidx = cTDSQInfo.gettypeidx('double-range');
@@ -124,7 +130,8 @@ function [is2closetrade,entrustplaced] = riskmanagement_doublerange(strategy,tra
             if isempty(openidx),openidx = 1;end
             if openidx == 0, openidx = 1;end
             hasbreachlvldn = ~isempty(find(p(openidx:end,5) < tradein.opensignal_.lvldn_,1,'first'));
-            if hasbreachlvldn && p(end,4)>tradein.opensignal_.lvldn_
+            if hasbreachlvldn && p(end,4)>tradein.opensignal_.lvldn_ || ...
+                    p(end,4) > tradein.opensignal_.lvlup_
                 entrustplaced = strategy.unwindtrade(tradein);
                 is2closetrade = true;
                 typeidx = cTDSQInfo.gettypeidx('double-range');

@@ -6,6 +6,8 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
     
     isperfectbs = strcmpi(tag,'perfectbs');
     isperfectss = strcmpi(tag,'perfectss');
+    buffer = 2*instrument.tick_size;
+    diffvec = macdvec - sigvec;
     
     %IDENTIFY WHETHER PEFECT IS STILL VALID,I.E.STOPLOSS IS BREACHED OR
     if isperfectbs
@@ -33,8 +35,8 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
     end
     
     %we use the close price of the bar to determine the momentum
-    isabove = p(end,5) > lvlup(end);
-    isbelow = p(end,5) < lvldn(end);
+    isabove = p(end,5) > lvlup(end)+buffer;
+    isbelow = p(end,5) < lvldn(end)-buffer;
     isbetween = p(end,5) <= lvlup(end) && p(end,5) >= lvldn(end);
     
     hassc13inrange = ~isempty(find(sc(end-11:end)==13, 1));
@@ -73,14 +75,14 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
             end
         end
         %
-        if wasabovelvlup && macdvec(end)<sigvec(end) && bs(end)>0 && ~isperfectbs && ~hasbc13inrange && macdbs(end)>0
+        if wasabovelvlup && diffvec(end)<0 && bs(end)>0 && ~isperfectbs && ~hasbc13inrange && macdbs(end)>0
             signal = struct('name','tdsq',...
                 'instrument',instrument,'frequency',samplefreqstr,...
                 'scenarioname','isbetween',...
                 'mode','trend','type','double-range',...
                 'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
                 'direction',-1);
-        elseif wasbelowlvldn && macdvec(end)>sigvec(end) && ss(end)>0 && ~isperfectss && ~hassc13inrange && macdss(end)>0
+        elseif wasbelowlvldn && diffvec(end)>0 && ss(end)>0 && ~isperfectss && ~hassc13inrange && macdss(end)>0
             signal = struct('name','tdsq',...
                 'instrument',instrument,'frequency',samplefreqstr,...
                 'scenarioname','isbetween',...
@@ -93,12 +95,9 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
         %we use the low prices of the previous 9 bars including
         %the most recent bar to determine whether the market
         %was traded below the lvlup
-        idxlastbelow = find(p(end-8:end,4)<lvlup(end),1,'last');
-        wasbelowlvlup = ~isempty(idxlastbelow);
-        diffvec = macdvec - sigvec;
-        idxlastmacdbearish = find(diffvec(end-8:end-1)<0,1,'last');
-        wasmacdbearish = ~isempty(idxlastmacdbearish);
-        if (wasbelowlvlup || wasmacdbearish ) && macdvec(end)>sigvec(end) && ss(end)>0 && ~isperfectss && ~hassc13inrange && macdss(end)>0
+        wasbelowlvlup = ~isempty(find(p(end-8:end,4)<lvlup(end),1,'first'));
+        wasmacdbearish = ~isempty(find(diffvec(end-8:end-1)<0,1,'first'));
+        if (wasbelowlvlup || wasmacdbearish ) && diffvec(end)>0 && ss(end)>0 && ~isperfectss && ~hassc13inrange && macdss(end)>0
             signal = struct('name','tdsq',...
                 'instrument',instrument,'frequency',samplefreqstr,...
                 'scenarioname','isabove',...
@@ -111,13 +110,9 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
         %we use the high prices of the previous 9 bars including
         %the most recent bar to determine whether the market
         %was traded above the lvldn
-        idxlastabove = find(p(end-8:end,3)>lvldn(end),1,'last');
-        wasabovelvldn = ~isempty(idxlastabove);
-        diffvec = macdvec - sigvec;
-        idxlastmacdbullish = find(diffvec(end-8:end-1)>0,1,'last');
-        wasmacdbullish = ~isempty(idxlastmacdbullish);
-        hasbc13inrange = ~isempty(find(bc(end-11:end)==13, 1));
-        if (wasabovelvldn || wasmacdbullish) && macdvec(end)<sigvec(end) && bs(end) > 0 && ~isperfectbs && ~hasbc13inrange && macdbs(end)>0
+        wasabovelvldn = ~isempty(find(p(end-8:end,3)>lvldn(end),1,'first'));
+        wasmacdbullish = ~isempty(find(diffvec(end-8:end-1)>0,1,'first'));
+        if (wasabovelvldn || wasmacdbullish) && diffvec(end)<0 && bs(end) > 0 && ~isperfectbs && ~hasbc13inrange && macdbs(end)>0
             signal = struct('name','tdsq',...
                 'instrument',instrument,'frequency',samplefreqstr,...
                 'scenarioname','isbelow',...
