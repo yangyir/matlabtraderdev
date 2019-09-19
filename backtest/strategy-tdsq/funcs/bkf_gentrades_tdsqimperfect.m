@@ -134,7 +134,13 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                             if hasbc13inrange && f0
                                 openidx = j;
                                 break
-                            end                   
+                            end
+                            
+                            breachlvlup = ~isempty(find(p(j-8:j-1,5) < newlvlup,1,'first')) && p(j,5) > newlvlup;
+                            if f0 && breachlvlup
+                                openidx = j;
+                                break
+                            end
                         end
                         %
                     elseif isdoublebearish || issinglebearish
@@ -174,6 +180,15 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectss'), break;end
                     %improvements in riskmanagement
+                    if isdoublerange && waspxbelowlvldn && f1
+                        if p(j,3) < oldlvldn,break;end
+                    end
+                    if isdoublerange && ~waspxbelowlvldn && breachlvlup
+                        if p(j,3) < newlvlup,break;end
+                    end
+                    if (issinglebearish || isdoublebearish) && breachlvlup
+                        if p(j,3) < newlvlup,break;end
+                    end
                     if isdoublerange || issinglebearish
                         hasbreachedlvlup = ~isempty(find(p(openidx:j,5) > newlvlup,1,'first'));
                         if hasbreachedlvlup && p(j,5) - newlvlup <= -4*instrument.tick_size, break;end
@@ -305,6 +320,12 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                                 openidx = j;
                                 break
                             end
+                            
+                            breachlvldn = ~isempty(find(p(j-8:j-1,5) > newlvldn,1,'first')) && p(j,5) < newlvldn;
+                            if f0 && breachlvldn
+                                openidx = j;
+                                break
+                            end  
                         end
                     elseif isdoublebullish || issinglebullish
                         %double-bullish
@@ -343,6 +364,15 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectbs'), break;end
                     %improvements in risk management
+                    if isdoublerange && waspxabovelvlup && f1
+                        if p(j,4) > oldlvlup,break;end
+                    end
+                    if isdoublerange && ~waspxabovelvlup && breachlvldn
+                        if p(j,4) > newlvldn,break;end
+                    end
+                    if (issinglebullish || isdoublebullish) && breachlvldn
+                        if p(j,4) > newlvldn,break;end
+                    end
                     if isdoublerange || issinglebullish
                         hasbreachedlvldn = ~isempty(find(p(openidx:j,5) < newlvldn,1,'first'));
                         if hasbreachedlvldn && p(j,5) - newlvldn >= 4*instrument.tick_size, break;end

@@ -20,7 +20,7 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
         %to 9 has breached oldlvldn in case of double range
         waspxbelowlvldn = ~isempty(find(p(lastidxbs-8:lastidxbs,5) < oldlvldn,1,'first')) && isdoublerange;
         f0 = macdvec(end) > sigvec(end);
-        if isdoublerange
+        if isdoublerange && f0
             if waspxbelowlvldn
                 %the price has breached lvldn but the new lvlup
                 %is still above lvldn
@@ -46,11 +46,16 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                     end
                 end
                 
-                if f0 && (f1 || (~f1 && hasbc13inrange ))
+                if (f1 || (~f1 && hasbc13inrange ))
+                    if f1
+                        sn = 'doublerange-breachuplvldn';
+                    elseif ~f1 && hasbc13inrange
+                        sn = 'doublerange';
+                    end
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
-                        'scenarioname','doublerange',...
+                        'scenarioname',sn,...
                         'mode','reverse','type',tag,...
                         'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
                     return
@@ -78,17 +83,30 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                     end
                 end
                 
-                if hasbc13inrange && f0
+                if hasbc13inrange
+                    sn = 'doublerange';
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
-                        'scenarioname','doublerange',...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
+                    return
+                end
+                
+                breachlvlup = ~isempty(find(p(end-8:end-1,5) < newlvlup,1,'first')) && p(end,5) > newlvlup;
+                if breachlvlup
+                    sn = 'doublerange-breachuplvlup';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                    signal = struct('name','tdsq',...
+                        'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
                         'mode','reverse','type',tag,...
                         'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
                     return
                 end
             end
-        elseif isdoublebearish || issinglebearish            
+        elseif (isdoublebearish || issinglebearish) && f0
             if isdoublebearish
                 sn = 'doublebearish';
             elseif issinglebearish
@@ -96,7 +114,7 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
             end
             %
             %bs >= 9 with bullish macd
-            if f0 && bs(end) >= 9
+            if bs(end) >= 9
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');                
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
@@ -122,7 +140,7 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
-                    'scenarioname',sn,...
+                    'scenarioname',[sn,'-breachuplvlup'],...
                     'mode','reverse','type',tag,...
                     'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
                 return
@@ -150,7 +168,7 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
         %to 9 has breached oldlvlup
         waspxabovelvlup = ~isempty(find(p(lastidxss-8:lastidxss,5) > oldlvlup,1,'first')) && isdoublerange;
         f0 = macdvec(end) < sigvec(end);
-        if isdoublerange
+        if isdoublerange && f0
             if waspxabovelvlup
                 %the price has breached lvlup but the new lvldn is
                 %still below lvlup
@@ -176,11 +194,16 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                     end
                 end
                 
-                if f0 && (f1 || (~f1 && hassc13inrange ))
+                if (f1 || (~f1 && hassc13inrange ))
+                    if f1
+                        sn = 'doublerange-breachdnlvlup';
+                    elseif ~f1 && hassc13inrange
+                        sn = 'doublerange';
+                    end
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
-                        'scenarioname','doublerange',...
+                        'scenarioname',sn,...
                         'mode','reverse','type',tag,...
                         'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
                     return
@@ -208,7 +231,7 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                     end
                 end
                 
-                if hassc13inrange && f0
+                if hassc13inrange
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
@@ -217,9 +240,21 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                         'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
                     return
                 end
+                
+                breachlvldn = ~isempty(find(p(end-8:end-1,5) > newlvldn,1,'first')) && p(end,5) < newlvldn;
+                if breachlvldn
+                    sn = 'doublerange-breachdnlvldn';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                    signal = struct('name','tdsq',...
+                        'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
+                    return
+                end
             end
             %
-        elseif isdoublebullish || issinglebullish
+        elseif (isdoublebullish || issinglebullish) && f0
             if isdoublebullish
                 sn = 'doublebullish';
             elseif issinglebullish
@@ -227,7 +262,7 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
             end
             %
             %bs >= 9 with bearish macd
-            if f0 && ss(end) >= 9
+            if ss(end) >= 9
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                 signal = struct('name','tdsq',...
                      'instrument',instrument,'frequency',samplefreqstr,...
@@ -238,7 +273,7 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
             end
             %check whether it is 9-13-9 within 12 bars
             is9139sc = tdsq_is9139sellcount(bs,ss,bc,sc);
-            if f0 && is9139sc && length(ss) - lastidxss <= 12
+            if is9139sc && length(ss) - lastidxss <= 12
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
@@ -253,7 +288,7 @@ function [signal] = gensignal_semiperfect(strategy,instrument,p,bs,ss,lvlup,lvld
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
-                    'scenarioname',sn,...
+                    'scenarioname',[sn,'-breachdnlvldn'],...
                     'mode','reverse','type',tag,...
                     'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
                 return

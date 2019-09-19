@@ -19,13 +19,15 @@ tradesdoublerange = bkf_gentrades_tdsqdoublerange('ni1910',p,bs,ss,lvlup,lvldn,b
 fprintf('double range trades:\n');
 bkf_printtrades_tdsq(tradesdoublerange);
 %%
-tradesdoublebullish = bkf_gentrades_tdsqdoublebullish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
+tradesdoublebullish = bkf_gentrades_tdsqdoublebullish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
 fprintf('double bullish trades:\n');
 bkf_printtrades_tdsq(tradesdoublebullish);
+[kellyRatio,W] = kellyratio(tradesdoublebullish)
 %%
 tradesdoublebearish = bkf_gentrades_tdsqdoublebearish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
 fprintf('double bearish trades:\n');
 bkf_printtrades_tdsq(tradesdoublebearish);
+[kellyRatio,W] = kellyratio(tradesdoublebearish)
 %%
 tradessimpletrend = bkf_gentrades_simpletrend('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
 fprintf('simple trades:\n');

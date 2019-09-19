@@ -26,7 +26,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectss(strategy,tra
     sigvec = strategy.nineperma_{idx};
     tag = strategy.tags_{idx};
     
-    if strcmpi(tag,'perfectbs9')
+    if strcmpi(tag,'perfectbs')
         is2closetrade = true;
         entrustplaced = strategy.unwindtrade(tradein);
         typeidx = cTDSQInfo.gettypeidx('imperfectss');
@@ -46,8 +46,29 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectss(strategy,tra
     end
     
     %additional risk management for imperfectbs/semi-perfectbs trade
-    if strcmpi(tradein.opensignal_.scenario_,'doublerange') || ...
-        strcmpi(tradein.opensignal_.scenario_,'singlebullish')
+    if strcmpi(tradein.opensignal_.scenario_,'doublerange-breachdnlvlup') && ...
+            p(end,4) > tradein.opensignal_.lvlup_
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('imperfectss');
+        strategy.targetportfolio_(idx,typeidx) = 0;
+        return
+    end
+    %
+    if ~isempty(strfind(tradein.opensignal_.scenario_,'breachdnlvldn')) && ...
+            p(end,4) > tradein.opensignal_.lvldn_
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('imperfectss');
+        strategy.targetportfolio_(idx,typeidx) = 0;
+        return
+    end
+    
+    isdoublerange = ~isempty(strfind(tradein.opensignal_.scenario_,'doublerange'));
+    issinglebullish = ~isempty(strfind(tradein.opensignal_.scenario_,'singlebullish'));
+    isdoublebullish = ~isempty(strfind(tradein.opensignal_.scenario_,'doublebullish'));
+    
+    if isdoublerange || issinglebullish
         openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
         if isempty(openidx),openidx = 1;end
         if openidx == 0, openidx = 1;end
@@ -62,7 +83,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectss(strategy,tra
         return
     end
     %
-    if strcmpi(tradein.opensignal_.scenario_,'doublebullish')
+    if isdoublebullish
         openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
         if openidx == 0, openidx = 1;end
         if isempty(openidx),openidx = 1;end
