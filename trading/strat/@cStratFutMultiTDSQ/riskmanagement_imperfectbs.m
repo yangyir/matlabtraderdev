@@ -28,7 +28,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
     sigvec = strategy.nineperma_{idx};
     tag = strategy.tags_{idx};
     
-    if strcmpi(tag,'perfectss9')
+    if strcmpi(tag,'perfectss')
         is2closetrade = true;
         entrustplaced = strategy.unwindtrade(tradein);
         typeidx = cTDSQInfo.gettypeidx('imperfectbs');
@@ -48,8 +48,29 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
     end
     
     %additional risk management for imperfectbs/semi-perfectbs trade
-    if strcmpi(tradein.opensignal_.scenario_,'doublerange') || ...
-            strcmpi(tradein.opensignal_.scenario_,'singlebearish')
+    if strcmpi(tradein.opensignal_.scenario_,'doublerange-breachuplvldn') && ...
+            p(end,3) < tradein.opensignal_.lvldn_
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('imperfectbs');
+        strategy.targetportfolio_(idx,typeidx) = 0;
+        return
+    end
+    %
+    if ~isempty(strfind(tradein.opensignal_.scenario_,'breachuplvlup')) && ...
+            p(end,3) < tradein.opensignal_.lvlup_
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx('imperfectbs');
+        strategy.targetportfolio_(idx,typeidx) = 0;
+        return
+    end
+    
+    isdoublerange = ~isempty(strfind(tradein.opensignal_.scenario_,'doublerange'));
+    issinglebearish = ~isempty(strfind(tradein.opensignal_.scenario_,'singlebearish'));
+    isdoublebearish = ~isempty(strfind(tradein.opensignal_.scenario_,'doublebearish'));
+    
+    if isdoublerange || issinglebearish
         openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
         if isempty(openidx),openidx = 1;end
         if openidx == 0, openidx = 1;end
@@ -64,7 +85,7 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(strategy,tra
         return
     end
     %
-    if strcmpi(tradein.opensignal_.scenario_,'doublebearish')
+    if isdoublebearish
         openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
         if isempty(openidx),openidx = 1;end
         if openidx == 0, openidx = 1;end

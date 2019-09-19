@@ -29,7 +29,7 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
     %
     %
     % unwind all positions before public holidays
-    if (runningmm >= 899 && runningmm < 900 || runningmm >= 914 && runningmm < 915) && second(dtnum) >= 55
+    if (runningmm >= 899 && runningmm < 900 || runningmm >= 914 && runningmm < 915) && second(dtnum) > 55
         cobd = floor(dtnum);
         nextbd = businessdate(cobd);
         if nextbd - cobd > 3
@@ -40,17 +40,23 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
                 if isa(trade_i.opensignal_,'cTDSQInfo')
                     [~,idxrow] = strategy.hasinstrument(trade_i.instrument_);
                     idxcol = cTDSQInfo.gettypeidx(trade_i.opensignal_.type_);
-                    strategy.unwindtrade(trade_i);
-                    strategy.targetportfolio_(idxrow,idxcol) = 0;
+                    if strategy.targetportfolio_(idxrow,idxcol) ~= 0
+                        %avoid unwindtrade to be called several time as
+                        %this function itself cannot guarantee that the
+                        %placed entrust is filled and thus whether the real
+                        %position is unwinded
+                        strategy.unwindtrade(trade_i);
+                        strategy.targetportfolio_(idxrow,idxcol) = 0;
+                    end
                 end
             end
         end 
     end
 
-    % check whether there are any pending open orders every 3 seconds
+    % check whether there are any pending open orders every x seconds
     runpendingordercheck = mod(floor(second(dtnum)),3) == 0;
     % check target portfolio every minute
-    runtargetportfoliocheck = floor(second(dtnum)) == 59;
+    runtargetportfoliocheck = second(dtnum) > 59;
     
     if ~runpendingordercheck && ~runtargetportfoliocheck, return;end
     
@@ -77,95 +83,87 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
                 else
                     volume_traded = trade_signaltype.openvolume_*trade_signaltype.opendirection_;
                 end
+                
                 if volume_target == volume_traded, continue;end
                 
                 if volume_target == 0 && volume_traded ~= 0
                     %unwind trade is required
-                    %1.to check whether there is any pending unwind
-                    %entrust associated with the trade which shall be
-                    %unwinded
-                    npending = strategy.helper_.entrustspending_.latest;
+                    %1.to check whether there is any unwind entrust(s)
+                    %associated with the trade itself
+                    ne = strategy.helper_.entrusts_.latest;
+                    isunwindfinished = false;
                     isunwindpending = false;
-                    for jj = 1:npending
-                        try
-                            e = strategy.helper_.entrustspending_.node(jj);
-                            if e.offsetFlag ~= -1, continue;end
-                            if isempty(e.tradeid_), continue;end
-                            if strcmpi(e.tradeid_, trade_signaltype.tradeid_)
-                                isunwindpending = true;
-                                break
-                            end
-                        catch
+                    for jj = 1:ne
+                        e = strategy.helper_.entrusts_.node(jj);
+                        if e.offsetFlag ~= -1, continue;end
+                        if isempty(e.tradeid_), continue;end
+                        if ~strcmpi(e.tradeid_, trade_signaltype.tradeid_), continue;end
+                        if e.is_entrust_filled && ~strcmpi(trade_signaltype.status,'closed')
+                            %in case the entrust is filled but trade info
+                            %failed to be updated
+                            trade_signaltype.status_ = 'closed';
+                            trade_signaltype.closedatetime1_ = e.complete_time_;
+                            trade_signaltype.closeprice_ = e.price;
+                            trade_signaltype.runningpnl_ = 0;
+                            trade_signaltype.closepnl_ = trade_signaltype.opendirection_*trade_signaltype.openvolume_*(e.price-trade_signaltype.openprice_)/ instrument.tick_size * instrument.tick_value; 
+                            isunwindfinished = true;
+                            break
+                        end
+%                         if e.is_entrust_canceled && strcmpi(trade_signaltype.status,'closed')
+%                             break
+%                         end
+                        if ~e.is_entrust_canceled && e.dealVolume < e.volume
+                            isunwindpending = true;
+                            break
                         end
                     end
-                    %do nothing if there is a unwind entrust pending
-                    if isunwindpending, continue;end
+                    %do nothing if there is a unwind entrust pending or
+                    %finished
+                    if isunwindpending || isunwindfinished, continue;end
                     %2.unwind the trade if there is no unwind entrust
                     %pending
                     strategy.unwindtrade(trade_signaltype);
                     %
                 elseif volume_target ~= 0 && volume_traded == 0
-%                     %place trade is required
-%                     %1.to check whether there is any pending open
-%                     %entrust
-%                     npending = strategy.helper_.entrustspending_.latest;
-%                     isopenpending = false;
-%                     for jj = 1:npending
-%                         try
-%                             e = strategy.helper_.entrustspending_.node(jj);
-%                             if e.offsetFlag ~= 1, continue; end
-%                             if isempty(e.signalinfo_), continue; end
-%                             if strcmpi(e.signalinfo_.type,type)
-%                                 isopenpending = true;
-%                                 break
-%                             end
-%                         catch
-%                         end
-%                     end
-%                     %do nothing if there is a open entrust pending
-%                     if isopenpending, continue;end
-%                     %2.open the trade if there is no open entrust
-%                     %pending
-%                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
-%                     bs = strategy.tdbuysetup_{i};
-%                     ss = strategy.tdsellsetup_{i};
-%                     bc = strategy.tdbuycountdown_{i};
-%                     sc = strategy.tdsellcountdown_{i};
-%                     levelup = strategy.tdstlevelup_{i};
-%                     leveldn = strategy.tdstleveldn_{i};
-%                     scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
-%                     signal = struct('name','tdsq',...
-%                         'instrument',instruments{i},'frequency',samplefreqstr,...
-%                         'scenarioname',scenarioname,...
-%                         'mode',mode,'type',type,...
-%                         'lvlup',levelup(end),'lvldn',leveldn(end),'risklvl',-9.99,...
-%                         'direction',sign(volume_target));
-%                     if strcmpi(type,'perfectbs')
-%                         ibs = find(bs == 9,1,'last');
-%                         truelow = min(p(ibs-8:ibs,4));
-%                         idxtruelow = find(p(ibs-8:ibs,4) == truelow,1,'first');
-%                         idxtruelow = idxtruelow + ibs - 9;
-%                         truelowbarsize = p(idxtruelow,3) - truelow;
-%                         risklvl = truelow - truelowbarsize;
-%                         %TODO:consistent with the gensignalcode
-%                         signal.risklvl = risklvl;                        
-%                     elseif strcmpi(type,'perfectss')
-%                         iss = find(ss == 9,1,'last');
-%                         truehigh = min(p(iss-8:iss,3));
-%                         idxtruehigh = find(p(iss-8:iss,3) == truehigh,1,'first');
-%                         idxtruehigh = idxtruehigh + iss - 9;
-%                         truehighbarsize = truehigh - p(idxtruehigh,4);
-%                         risklvl = truehigh + truehighbarsize;
-%                         %TODO:consistent with the gensignalcode
-%                         signal.risklvl = risklvl;
-%                     end
-%                     %
-%                     if volume_target > 0
-%                         strategy.longopen(instruments{i}.code_ctp,volume_target,'spread',0,'signalinfo',signal);
-%                     else
-%                         strategy.shortopen(instruments{i}.code_ctp,volume_target,'spread',0,'signalinfo',signal);
-%                     end
-%                     %
+                    ne = strategy.helper_.entrusts_.latest;
+                    isopenfinished = false;
+                    isopenpending = false;
+                    for jj = 1:ne
+                        e = strategy.helper_.entrusts_.node(jj);
+                        if e.offsetFlag ~= 1, continue;end
+                        if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end
+                        if isempty(e.signalinfo_), continue;end
+                        if ~strcmpi(e.signalinfo_.name,'tdsq'), continue;end
+                        if ~strcmpi(e.signalinfo_.type,type), continue;end
+                        if volume_target ~= e.volume, continue;end
+                        if e.is_entrust_filled
+                            trade = cTradeOpen('id',e.tradeid_,...
+                                'countername',strategy.helper_.book_.countername_,...
+                                'bookname',strategy.helper_.book_.bookname_,...
+                                'code',e.instrumentCode,...
+                                'opendatetime',e.complete_time_,...
+                                'openvolume',e.dealVolume,...
+                                'openprice',e.dealPrice,...
+                                'opendirection',e.direction);
+                            trade.setsignalinfo('name',e.signalinfo_.name,'extrainfo',e.signalinfo_);
+                            strategy.helper_.trades_.push(trade);
+                            isopenfinished = true;
+                            break
+                        end
+                        if e.is_entrust_canceled
+                            %we may cancle more than one entrust
+                        end
+                        if ~e.is_entrust_canceled && e.dealVolume < e.volume
+                            isopenpending = true;
+                            break
+                        end
+                    end
+                    %do nothing if there is a open entrust pending or
+                    %finished
+                    if isopenfinished || isopenpending, continue;end
+                    %todo;
+                    %place orders afterwards
+
                 elseif volume_target ~= 0 && volume_traded ~= 0
                     %TODO
                     fprintf('NOT IMPLEMENTED!!!\n')
@@ -176,21 +174,25 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
         end
     end
     
+    
+    % check whether there are any pending open orders
     n = strategy.helper_.entrustspending_.latest;
     for jj = 1:n
         try
             e = strategy.helper_.entrustspending_.node(jj);
             if e.offsetFlag ~= 1, continue; end
+            %signalinfo_ is a struct
             if isempty(e.signalinfo_), continue; end
             signalmode = e.signalinfo_.mode;
             signaltype = e.signalinfo_.type;
         
             trade_signaltype = strategy.getlivetrade_tdsq(e.instrumentCode,signalmode,signaltype);
             if isempty(trade_signaltype)
-                ret = strategy.withdrawentrusts(e.instrumentCode,'time',dtnum,'direction',e.direction,'offset',1,'price',e.price,'volume',e.volume);
+                ret = strategy.withdrawentrusts(e.instrumentCode,'time',dtnum,'tradeid',e.tradeid_);
                 if ret
                     %the entrust has not been executed but canceled
                     %then we need to replace an order
+                    strategy.helper_.updateentrustsandbook2;
                     if e.direction == 1
                         strategy.longopen(e.instrumentCode,e.volume,'spread',0,'signalinfo',e.signalinfo_);
                     elseif e.direction == -1
@@ -207,7 +209,7 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
 
     %
     %
-    % check whether there are any pending close orders every 3 seconds
+    % check whether there are any pending close orders
     n = strategy.helper_.entrustspending_.latest;
     for jj = 1:n
         try
@@ -218,6 +220,7 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
             if ret == 1
                 %the entrust has not been executed but canceled
                 %then we need to replace an order
+                strategy.helper_.updateentrustsandbook2;
                 if e.direction == 1
                     ret2 = strategy.longclose(e.instrumentCode,e.volume,e.closetodayFlag,'spread',0,'tradeid',e.tradeid_);
                     if ~ret2
