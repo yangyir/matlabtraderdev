@@ -187,16 +187,17 @@ classdef cOps < cMyTimerObj
         counter = getcounter(obj)
         %
         [n] = numberofentrusts(obj,varargin)
+        %note:yangyiran-20180810
+        %func 'updateentrustsandbook2' differs from 'updateentrustsandbook'
+        %as it update the book from trades directly
+        [] = updateentrustsandbook2(obj)
                 
     end
     
     methods (Access = private)
         [obj] = init(obj,varargin)
         [] = updateentrustsandbook(obj)
-        %note:yangyiran-20180810
-        %func 'updateentrustsandbook2' differs from 'updateentrustsandbook'
-        %as it update the book from trades directly
-        [] = updateentrustsandbook2(obj)
+        
         %
     end
 end

@@ -18,6 +18,7 @@ bkf_printtrades_tdsq(tradessinglelvldn);
 tradesdoublerange = bkf_gentrades_tdsqdoublerange('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
 fprintf('double range trades:\n');
 bkf_printtrades_tdsq(tradesdoublerange);
+[kellyRatio,W] = kellyratio(tradesdoublerange)
 %%
 tradesdoublebullish = bkf_gentrades_tdsqdoublebullish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
 fprintf('double bullish trades:\n');
