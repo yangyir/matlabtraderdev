@@ -55,23 +55,36 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                 wasbelowlvldn = ~isempty(find(p(i-8:i,4) < lvldn(i),1,'first'));
                 wasmacdbearish = ~isempty(find(diffvec(i-8:i-1) < 0,1,'first'));
                 if (wasbelowlvldn||wasmacdbearish ) && diffvec(i)>0 && ss(i)>0 && sc(i) ~= 13 && macdss(i)>0
-                    %special treatment if ss(i) is greater or equal to 9
-%                     f1 = false;
-%                     if ss(i) >= 9
-                        lastssidx = find(ss(1:i) == 9,1,'last');
-                        high6 = p(lastssidx-3,3);
-                        high7 = p(lastssidx-2,3);
-                        high8 = p(lastssidx-1,3);
-                        high9 = p(lastssidx,3);
-                        close8 = p(lastssidx-1,5);
-                        close9 = p(lastssidx,5);
-                        %check whether sell sequential itself is perfect???
-                        %if it is perfect, we'd better not open up a trade
-                        %with long position
-                        f1 = (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8);
-%                     end
+                    lastssidx = find(ss(1:i) == 9,1,'last');
+                    high6 = p(lastssidx-3,3);
+                    high7 = p(lastssidx-2,3);
+                    high8 = p(lastssidx-1,3);
+                    high9 = p(lastssidx,3);
+                    close8 = p(lastssidx-1,5);
+                    close9 = p(lastssidx,5);
+                    %check whether sell sequential itself is perfect???
+                    %if it is perfect, we'd better not open up a trade
+                    %with long position
+                    f1 = (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8);
                     
                     if ~f1 || (f1&&i-lastssidx>24)
+                        lastidxsc13 = find(sc(1:i) == 13,1,'last');
+                        if isempty(lastidxsc13)
+                            openflag = true;
+                        else
+                            if i - lastidxsc13 > 11
+                                openflag = true;
+                            else
+                                %has macd been negative
+                                openflag = ~isempty(find(diffvec(lastidxsc13:i) < 0,1,'last'));
+                            end
+                        end
+                    else
+                        openflag = false;
+                    end
+                    
+%                     if ~f1 || (f1&&i-lastssidx>24)
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                         'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -137,6 +150,21 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                 %was traded above the lvldn
                 wasabovelvldn = ~isempty(find(p(i-8:i,3) > lvldn(i),1,'first'));
                 if wasabovelvldn && diffvec(i)<0 && bs(i)>0 && bc(i) ~= 13 && macdbs(i)>0
+                    lastidxbc13 = find(bc(1:i) == 13,1,'last');
+                    if isempty(lastidxbc13)
+                        openflag = true;
+                    else
+                        if i - lastidxbc13 > 11
+                            openflag = true;
+                        else
+                            %has macd been positive
+                            openflag = ~isempty(find(diffvec(lastidxbc13:i) > 0,1,'last'));
+                        end
+                    end
+                else
+                    openflag = false;
+                end
+                if openflag
                     count = count + 1;
                     trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                         'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));

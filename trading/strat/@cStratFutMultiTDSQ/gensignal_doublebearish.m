@@ -34,6 +34,22 @@ function [signal] = gensignal_doublebearish(strategy,instrument,p,bs,ss,lvlup,lv
             
             np = size(p,1);
             if ~f1 && (np-idxbslatest>24)
+                lastidxbc13 = find(bc == 13,1,'last');
+                if isempty(lastidxbc13)
+                    openflag = true;
+                else
+                    if np - lastidxbc13 > 11
+                        openflag = true;
+                    else
+                        %has macd been positive
+                        openflag = ~isempty(find(diffvec(lastidxbc13:end) > 0,1,'last'));
+                    end
+                end
+            else
+                openflag = false;
+            end
+            
+            if openflag
                 samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
@@ -49,6 +65,23 @@ function [signal] = gensignal_doublebearish(strategy,instrument,p,bs,ss,lvlup,lv
         %was traded below the lvlup
         wasbelowlvlup = ~isempty(find(p(end-8:end,4) < lvlup(end),1,'first'));
         if wasbelowlvlup && diffvec(end)>0 && ss(end)>0 && sc(end) ~= 13 && macdss(end)>0
+            lastidxsc13 = find(sc == 13,1,'last');
+            if isempty(lastidxsc13)
+                openflag = true;
+            else
+                np = size(p,1);
+                if np - lastidxsc13 > 11
+                    openflag = true;
+                else
+                    %has macd been negative
+                    openflag = ~isempty(find(diffvec(lastidxsc13:end) < 0,1,'last'));
+                end
+            end
+        else
+            openflag = false;
+        end
+        
+        if openflag
             samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
             signal = struct('name','tdsq',...
                 'instrument',instrument,'frequency',samplefreqstr,...

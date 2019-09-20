@@ -57,6 +57,22 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                 %was traded below the lvlup
                 wasbelowlvlup = ~isempty(find(p(i-8:i,4) < lvlup(i),1,'first'));
                 if wasbelowlvlup && diffvec(i)>0 && ss(i) > 0 && sc(i) ~= 13 && macdss(i)>0
+                    lastidxsc13 = find(sc(1:i) == 13,1,'last');
+                    if isempty(lastidxsc13)
+                        openflag = true;
+                    else
+                        if i - lastidxsc13 > 11
+                            openflag = true;
+                        else
+                            %has macd been nagative
+                            openflag = ~isempty(find(diffvec(lastidxsc13:i) < 0,1,'last'));
+                        end
+                    end
+                else
+                    openflag = false;
+                end
+                
+                if openflag
                     count = count + 1;
                     scenname = sns{i};
                     trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
@@ -130,23 +146,34 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                 wasabovelvlup = ~isempty(find(p(i-8:i,3) > lvlup(i),1,'first'));
                 wasmacdbullish = ~isempty(find(diffvec(i-8:i-1) > 0,1,'first'));
                 if (wasabovelvlup||wasmacdbullish ) && diffvec(i)<0 && bs(i)>0 && bc(i) ~= 13 && macdbs(i)>0
-                    %special treatment if bs(i) is greater or equal to 9
-%                     f1 = false;
-%                     if bs(i) >= 9
-                        lastbsidx = find(bs(1:i) == 9,1,'last');
-                        low6 = p(lastbsidx-3,4);
-                        low7 = p(lastbsidx-2,4);
-                        low8 = p(lastbsidx-1,4);
-                        low9 = p(lastbsidx,4);
-                        close8 = p(lastbsidx-1,5);
-                        close9 = p(lastbsidx,5);
-                        %check whether buy sequential itself is perfect???
-                        %if it is perfect, we'd better not open up a trade
-                        %with short position
-                        f1 = (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8;
-%                     end
-                    
+                    lastbsidx = find(bs(1:i) == 9,1,'last');
+                    low6 = p(lastbsidx-3,4);
+                    low7 = p(lastbsidx-2,4);
+                    low8 = p(lastbsidx-1,4);
+                    low9 = p(lastbsidx,4);
+                    close8 = p(lastbsidx-1,5);
+                    close9 = p(lastbsidx,5);
+                    %check whether buy sequential itself is perfect???
+                    %if it is perfect, we'd better not open up a trade
+                    %with short position
+                    f1 = (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8;
                     if ~f1 || (f1&&i-lastbsidx>24)
+                        lastidxbc13 = find(bc(1:i) == 13,1,'last');
+                        if isempty(lastidxbc13)
+                            openflag = true;
+                        else
+                            if i - lastidxbc13 > 11
+                                openflag = true;
+                            else
+                                %has macd been positive
+                                openflag = ~isempty(find(diffvec(lastidxbc13:i) > 0,1,'last'));
+                            end
+                        end                            
+                    else
+                        openflag = false;
+                    end
+                    
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
