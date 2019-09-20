@@ -91,8 +91,8 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                 isbelow = p(i,5) < lvldn(i)-buffer;
                 isbetween = p(i,5) <= lvlup(i) && p(i,5) >= lvldn(i);
                 
-                hassc13inrange = ~isempty(find(sc(i-11:i) == 13,1,'first'));
-                hasbc13inrange = ~isempty(find(bc(i-11:i) == 13,1,'first'));
+%                 hassc13inrange = ~isempty(find(sc(i-11:i) == 13,1,'first'));
+%                 hasbc13inrange = ~isempty(find(bc(i-11:i) == 13,1,'first'));
             
                 if isbetween
                     %check whether it was above the lvlup
@@ -113,7 +113,23 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
 %                         fprintf('interesting case here and further check pls')
                     end
                     %
-                    if wasabovelvlup && diffvec(i)<0 && bs(i)>0 && ~isperfectbs && ~hasbc13inrange && macdbs(i)>0
+                    if wasabovelvlup && diffvec(i)<0 && bs(i)>0 && ~isperfectbs && bc(i) ~= 13 && macdbs(i)>0
+                        lastidxbc13 = find(bc(1:i) == 13,1,'last');
+                        if isempty(lastidxbc13)
+                            openflag = true;
+                        else
+                            if i - lastidxbc13 > 11
+                                openflag = true;
+                            else
+                                %has macd been positive
+                                openflag = ~isempty(find(diffvec(lastidxbc13:i) > 0,1,'last'));
+                            end
+                        end
+                    else
+                        openflag = false;
+                    end
+                    
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
@@ -174,7 +190,23 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     end
                     %
                     %
-                    if wasbelowlvldn && diffvec(i)>0 && ss(i)>0 && ~isperfectss && ~hassc13inrange && macdss(i)>0
+                    if wasbelowlvldn && diffvec(i)>0 && ss(i)>0 && ~isperfectss && sc(i) ~= 13 && macdss(i)>0
+                        lastidxsc13 = find(sc(1:i) == 13,1,'last');
+                        if isempty(lastidxsc13)
+                            openflag = true;
+                        else
+                            if i - lastidxsc13 > 11
+                                openflag = true;
+                            else
+                                %has macd been negative
+                                openflag = ~isempty(find(diffvec(lastidxsc13:i) < 0,1,'last'));
+                            end
+                        end
+                    else
+                        openflag = false;
+                    end
+                    
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -240,8 +272,24 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     %the most recent bar to determine whether the market
                     %was traded below the lvlup
                     wasbelowlvlup = ~isempty(find(p(i-8:i,4) < lvlup(i),1,'first'));
-                    wasmacdbearish = ~isempty(find(diffvec(i-8:i-1) < 0,1,'first'));
-                    if (wasbelowlvlup || wasmacdbearish ) && diffvec(i)>0 && (ss(i)>0 ) && ~isperfectss && ~hassc13inrange && macdss(i)>0
+%                     wasmacdbearish = ~isempty(find(diffvec(i-8:i-1) < 0,1,'first'));
+                    if (wasbelowlvlup ) && diffvec(i)>0 && (ss(i)>0 ) && ~isperfectss && sc(i) ~= 13 && macdss(i)>0
+                        lastidxsc13 = find(sc(1:i) == 13,1,'last');
+                        if isempty(lastidxsc13)
+                            openflag = true;
+                        else
+                            if i - lastidxsc13 > 11
+                                openflag = true;
+                            else
+                                %has macd been negative
+                                openflag = ~isempty(find(diffvec(lastidxsc13:i) < 0,1,'last'));
+                            end
+                        end
+                    else
+                        openflag = false;
+                    end
+                    
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -303,9 +351,24 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     %the most recent bar to determine whether the market
                     %was traded above the lvldn
                     wasabovelvldn = ~isempty(find(p(i-8:i,3) > lvldn(i),1,'first'));
-                    wasmacdbullish = ~isempty(find(diffvec(i-8:i-1) > 0,1,'first'));
+%                     wasmacdbullish = ~isempty(find(diffvec(i-8:i-1) > 0,1,'first'));
+                    if (wasabovelvldn) && diffvec(i)<0 && (bs(i) > 0)&& ~isperfectbs && bc(i) ~= 13 && macdbs(i)>0
+                        lastidxbc13 = find(bc(1:i) == 13,1,'last');
+                        if isempty(lastidxbc13)
+                            openflag = true;
+                        else
+                            if i - lastidxbc13 > 11
+                                openflag = true;
+                            else
+                                %has macd been positive
+                                openflag = ~isempty(find(diffvec(lastidxbc13:i) > 0,1,'last'));
+                            end
+                        end
+                    else
+                        openflag = false;
+                    end
                     
-                    if (wasabovelvldn || wasmacdbullish) && diffvec(i)<0 && (bs(i) > 0)&& ~isperfectbs && ~hasbc13inrange && macdbs(i)>0
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));

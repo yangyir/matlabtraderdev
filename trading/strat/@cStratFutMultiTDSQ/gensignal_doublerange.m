@@ -39,8 +39,8 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
     isbelow = p(end,5) < lvldn(end)-buffer;
     isbetween = p(end,5) <= lvlup(end) && p(end,5) >= lvldn(end);
     
-    hassc13inrange = ~isempty(find(sc(end-11:end)==13, 1));
-    hasbc13inrange = ~isempty(find(bc(end-11:end)==13, 1));
+%     hassc13inrange = ~isempty(find(sc(end-11:end)==13, 1));
+%     hasbc13inrange = ~isempty(find(bc(end-11:end)==13, 1));
     
     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
     
@@ -75,20 +75,48 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
             end
         end
         %
-        if wasabovelvlup && diffvec(end)<0 && bs(end)>0 && ~isperfectbs && ~hasbc13inrange && macdbs(end)>0
-            signal = struct('name','tdsq',...
-                'instrument',instrument,'frequency',samplefreqstr,...
-                'scenarioname','isbetween',...
-                'mode','trend','type','double-range',...
-                'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
-                'direction',-1);
-        elseif wasbelowlvldn && diffvec(end)>0 && ss(end)>0 && ~isperfectss && ~hassc13inrange && macdss(end)>0
-            signal = struct('name','tdsq',...
-                'instrument',instrument,'frequency',samplefreqstr,...
-                'scenarioname','isbetween',...
-                'mode','trend','type','double-range',...
-                'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
-                'direction',1);
+        if wasabovelvlup && diffvec(end)<0 && bs(end)>0 && ~isperfectbs && bc(end) ~= 13 && macdbs(end)>0
+            lastidxbc13 = find(bc == 13,1,'last');
+            if isempty(lastidxbc13)
+                openflag = true;
+            else
+                np = size(p,1);
+                if np - lastidxbc13 > 11
+                    openflag = true;
+                else
+                    %has macd been positive
+                    openflag = ~isempty(find(diffvec(lastidxbc13:end) > 0,1,'last'));
+                end
+            end
+            if openflag
+                signal = struct('name','tdsq',...
+                    'instrument',instrument,'frequency',samplefreqstr,...
+                    'scenarioname','isbetween',...
+                    'mode','trend','type','double-range',...
+                    'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
+                    'direction',-1);
+            end
+        elseif wasbelowlvldn && diffvec(end)>0 && ss(end)>0 && ~isperfectss && sc(end) ~= 13 && macdss(end)>0
+            lastidxsc13 = find(sc == 13,1,'last');
+            if isempty(lastidxsc13)
+                openflag = true;
+            else
+                np = size(p,1);
+                if np - lastidxsc13 > 11
+                    openflag = true;
+                else
+                    %has macd been negative
+                    openflag = ~isempty(find(diffvec(lastidxsc13:end) < 0,1,'last'));
+                end
+            end
+            if openflag
+                signal = struct('name','tdsq',...
+                    'instrument',instrument,'frequency',samplefreqstr,...
+                    'scenarioname','isbetween',...
+                    'mode','trend','type','double-range',...
+                    'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
+                    'direction',1);
+            end
         end
         % end of isbetween
     elseif isabove
@@ -96,14 +124,27 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
         %the most recent bar to determine whether the market
         %was traded below the lvlup
         wasbelowlvlup = ~isempty(find(p(end-8:end,4)<lvlup(end),1,'first'));
-        wasmacdbearish = ~isempty(find(diffvec(end-8:end-1)<0,1,'first'));
-        if (wasbelowlvlup || wasmacdbearish ) && diffvec(end)>0 && ss(end)>0 && ~isperfectss && ~hassc13inrange && macdss(end)>0
-            signal = struct('name','tdsq',...
-                'instrument',instrument,'frequency',samplefreqstr,...
-                'scenarioname','isabove',...
-                'mode','trend','type','double-range',...
-                'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
-                'direction',1);
+%         wasmacdbearish = ~isempty(find(diffvec(end-8:end-1)<0,1,'first'));
+        if wasbelowlvlup && diffvec(end)>0 && ss(end)>0 && ~isperfectss && sc(end) ~= 13 && macdss(end)>0
+            lastidxsc13 = find(sc == 13,1,'last');
+            if isempty(lastidxsc13)
+                openflag = true;
+            else
+                if np - lastidxsc13 > 11
+                    openflag = true;
+                else
+                    %has macd been negative
+                    openflag = ~isempty(find(diffvec(lastidxsc13:end) < 0,1,'last'));
+                end
+            end
+            if openflag
+                signal = struct('name','tdsq',...
+                    'instrument',instrument,'frequency',samplefreqstr,...
+                    'scenarioname','isabove',...
+                    'mode','trend','type','double-range',...
+                    'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
+                    'direction',1);
+            end
         end
         % end of isabove
     elseif isbelow
@@ -111,14 +152,28 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
         %the most recent bar to determine whether the market
         %was traded above the lvldn
         wasabovelvldn = ~isempty(find(p(end-8:end,3)>lvldn(end),1,'first'));
-        wasmacdbullish = ~isempty(find(diffvec(end-8:end-1)>0,1,'first'));
-        if (wasabovelvldn || wasmacdbullish) && diffvec(end)<0 && bs(end) > 0 && ~isperfectbs && ~hasbc13inrange && macdbs(end)>0
-            signal = struct('name','tdsq',...
-                'instrument',instrument,'frequency',samplefreqstr,...
-                'scenarioname','isbelow',...
-                'mode','trend','type','double-range',...
-                'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
-                'direction',-1);
+%         wasmacdbullish = ~isempty(find(diffvec(end-8:end-1)>0,1,'first'));
+        if wasabovelvldn && diffvec(end)<0 && bs(end) > 0 && ~isperfectbs && bc(end) ~= 13 && macdbs(end)>0
+            lastidxbc13 = find(bc == 13,1,'last');
+            if isempty(lastidxbc13)
+                openflag = true;
+            else
+                np = size(p,1);
+                if np - lastidxbc13 > 11
+                    openflag = true;
+                else
+                    %has macd been positive
+                    openflag = ~isempty(find(diffvec(lastidxbc13:end) > 0,1,'last'));
+                end
+            end
+            if openflag
+                signal = struct('name','tdsq',...
+                    'instrument',instrument,'frequency',samplefreqstr,...
+                    'scenarioname','isbelow',...
+                    'mode','trend','type','double-range',...
+                    'lvlup',lvlup(end),'lvldn',lvldn(end),'risklvl',-9.99,...
+                    'direction',-1);
+            end
         end
         % end of isbelow
     end
