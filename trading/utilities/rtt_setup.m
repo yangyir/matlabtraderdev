@@ -171,7 +171,7 @@ function [rtt_output] = rtt_setup(varargin)
 
     rtt_mdefut.settimerinterval(0.5/speedadj);
     rtt_helper.settimerinterval(0.1/speedadj);
-    rtt_strategy.settimerinterval(1/speedadj);
+    rtt_strategy.settimerinterval(0.5/speedadj);
     
     stratfund = p.Results.InitialFundLevel;
     if ~isempty(stratfund)

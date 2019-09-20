@@ -29,7 +29,7 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
     %
     %
     % unwind all positions before public holidays
-    if (runningmm >= 899 && runningmm < 900 || runningmm >= 914 && runningmm < 915) && second(dtnum) > 55
+    if (runningmm == 899 || runningmm == 914) && second(dtnum) >= 56
         cobd = floor(dtnum);
         nextbd = businessdate(cobd);
         if nextbd - cobd > 3

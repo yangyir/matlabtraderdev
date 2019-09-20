@@ -63,8 +63,20 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 end
                 %
             elseif strcmpi(signaltype,'semiperfectbs') || strcmpi(signaltype,'imperfectbs')
-                strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
-                strategy.targetportfolio_(i,typeidx) = volume;
+                sn = signal.scenarioname;
+                tick = strategy.mde_fut_.getlasttick(instrument.code_ctp);
+                lasttrade = tick(4);
+                if ~isempty(strfind(sn,'-breachuplvldn'))
+                    stillopen = lasttrade > signal.lvldn;
+                elseif ~isempty(strfind(sn,'-breachuplvlup'))
+                    stillopen = lasttrade > signal.lvlup;
+                else
+                    stillopen = true;
+                end
+                if stillopen
+                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    strategy.targetportfolio_(i,typeidx) = volume;
+                end
                 %
             elseif strcmpi(signaltype,'perfectss')
                  %20190916
@@ -76,12 +88,24 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 lasttrade = tick(4);
                 if lasttrade < signal.risklvl
                     strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
-                    strategy.targetportfolio_(i,typeidx) = volume;
+                    strategy.targetportfolio_(i,typeidx) = -volume;
                 end
                 %
             elseif strcmpi(signaltype,'semiperfectss') || strcmpi(signaltype,'imperfectss')
-                strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
-                strategy.targetportfolio_(i,typeidx) = -volume;
+                sn = signal.scenarioname;
+                tick = strategy.mde_fut_.getlasttick(instrument.code_ctp);
+                lasttrade = tick(4);
+                if ~isempty(strfind(sn,'-breachdnlvldn'))
+                    stillopen = lasttrade < signal.lvldn;
+                elseif ~isempty(strfind(sn,'-breachdnlvlup'))
+                    stillopen = lasttrade < signal.lvlup;
+                else
+                    stillopen = true;
+                end
+                if stillopen
+                    strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    strategy.targetportfolio_(i,typeidx) = -volume;
+                end
                 %
             elseif strcmpi(signaltype,'single-lvldn')
                 strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);

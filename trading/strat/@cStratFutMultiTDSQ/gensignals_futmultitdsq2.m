@@ -12,9 +12,21 @@ function signals = gensignals_futmultitdsq2(strategy)
     end
     
     runningmm = hour(runningt)*60+minute(runningt);
-    if (runningmm >= 538 && runningmm < 540) || ...
+    
+    is2minbeforemktopen = (runningmm >= 538 && runningmm < 540) || ...
             (runningmm >= 778 && runningmm < 780) || ...
-            (runningmm >= 1258 && runningmm < 1260)
+            (runningmm >= 1258 && runningmm < 1260);
+    
+    %NOTE:special treatment before market close on 15:00 or 15:15
+    %for govtbond futures
+    calcsignalbeforemktclose = false;
+    if (runningmm == 899 || runningmm == 914) && second(runningt) >= 56
+        cobd = floor(runningt);
+        nextbd = businessdate(cobd);
+        calcsignalbeforemktclose = nextbd - cobd <= 3;
+    end
+    
+    if is2minbeforemktopen || calcsignalbeforemktclose
             %one minute before market open in the morning, afternoon and
             %evening respectively
        for i = 1:strategy.count
@@ -39,7 +51,7 @@ function signals = gensignals_futmultitdsq2(strategy)
            strategy.macdss_{i} = macdss;
        end
        
-       return
+       if is2minbeforemktopen, return; end
     end
     
     for i = 1:strategy.count
@@ -52,7 +64,7 @@ function signals = gensignals_futmultitdsq2(strategy)
             if strcmpi(strategy.onerror_,'stop'), strategy.stop; end
         end
         
-        if ~calcsignalflag
+        if ~calcsignalflag && ~calcsignalbeforemktclose
             %NOTE:class variable _signals not updated if signals are not
             %calculated...^_^
             signals{i,1} = {};
@@ -62,49 +74,50 @@ function signals = gensignals_futmultitdsq2(strategy)
         end
         
         samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
-        includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
         
-        [macdvec,sigvec,p] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+        if ~calcsignalbeforemktclose
+            includelastcandle = strategy.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
+            [macdvec,sigvec,p] = strategy.mde_fut_.calc_macd_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
         
-    
-        bs = strategy.tdbuysetup_{i};
-        ss = strategy.tdsellsetup_{i};
-        bc = strategy.tdbuycountdown_{i};
-        sc = strategy.tdsellcountdown_{i};
-        levelup = strategy.tdstlevelup_{i};
-        leveldn = strategy.tdstleveldn_{i};
+            bs = strategy.tdbuysetup_{i};
+            ss = strategy.tdsellsetup_{i};
+            bc = strategy.tdbuycountdown_{i};
+            sc = strategy.tdsellcountdown_{i};
+            levelup = strategy.tdstlevelup_{i};
+            leveldn = strategy.tdstleveldn_{i};
         
-        if size(p,1) - size(bs,1) == 1
-            if strategy.printflag_, fprintf('%s:update tdsq variables of %s...\n',strategy.name_,instruments{i}.code_ctp);end
-            [bs,ss,levelup,leveldn,bc,sc] = tdsq_piecewise(p,bs,ss,levelup,leveldn,bc,sc);
+            if size(p,1) - size(bs,1) == 1
+                if strategy.printflag_, fprintf('%s:update tdsq variables of %s...\n',strategy.name_,instruments{i}.code_ctp);end
+                [bs,ss,levelup,leveldn,bc,sc] = tdsq_piecewise(p,bs,ss,levelup,leveldn,bc,sc);
+            elseif size(p,1) < size(bs,1)
+                [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+            elseif size(p,1) - size(bs,1) > 1
+                error('unknown error and check is required')
+            end
+        
+            %update strategy-related variables
+            strategy.tdbuysetup_{i} = bs;
+            strategy.tdsellsetup_{i} = ss;
+            strategy.tdbuycountdown_{i} = bc;
+            strategy.tdsellcountdown_{i} = sc;
+            strategy.tdstlevelup_{i} = levelup;
+            strategy.tdstleveldn_{i} = leveldn;
+        
+            diffvec = macdvec - sigvec;
+            [macdbs,macdss] = tdsq_setup(diffvec);
+            strategy.macdbs_{i} = macdbs;
+            strategy.macdss_{i} = macdss;
 
-        elseif size(p,1) < size(bs,1)
-            [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-        elseif size(p,1) - size(bs,1) > 1
-            error('unknown error and check is required')
-        end
-        
-        %update strategy-related variables
-        strategy.tdbuysetup_{i} = bs;
-        strategy.tdsellsetup_{i} = ss;
-        strategy.tdbuycountdown_{i} = bc;
-        strategy.tdsellcountdown_{i} = sc;
-        strategy.tdstlevelup_{i} = levelup;
-        strategy.tdstleveldn_{i} = leveldn;
-        
-        diffvec = macdvec - sigvec;
-        [macdbs,macdss] = tdsq_setup(diffvec);
-        strategy.macdbs_{i} = macdbs;
-        strategy.macdss_{i} = macdss;
-            
-%         strategy.wr_{i} = wrinfo;
-        strategy.macdvec_{i} = macdvec;
-        strategy.nineperma_{i} = sigvec;
+            strategy.macdvec_{i} = macdvec;
+            strategy.nineperma_{i} = sigvec;
             
 %         scenarioname = tdsq_getscenarioname(bs,ss,levelup,leveldn,bc,sc,p);
 %         if strategy.printflag_, fprintf('%s:%s\n',strategy.name_,scenarioname);end
 %         tag = tdsq_snbd(scenarioname);
-        [~,tag] = strategy.updatetag(instruments{i},p,bs,ss,levelup,leveldn);
+            [~,tag] = strategy.updatetag(instruments{i},p,bs,ss,levelup,leveldn);
+        else
+            tag = strategy.tags_{i};
+        end
         
         %special treatment for perfectbs and perfectss
         if strcmpi(tag,'perfectbs') || strcmpi(tag,'perfectss') && strategy.useperfect_(i)
