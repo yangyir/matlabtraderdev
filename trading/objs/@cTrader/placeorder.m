@@ -122,6 +122,8 @@ function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,va
                 datestr(ordertime,'yyyymmdd HH:MM:SS'),...
                 entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
             fprintf('%s\n',msg);
+            ops.entrusts_.push(entrust);
+            ops.entrustspending_.push(entrust);
         else
             ret = false;
             msg = 'unknown error!!!';
