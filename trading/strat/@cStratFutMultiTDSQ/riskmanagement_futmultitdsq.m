@@ -174,7 +174,7 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
         end
     end
     
-    
+    counter = strategy.helper_.getcounter;
     % check whether there are any pending open orders
     n = strategy.helper_.entrustspending_.latest;
     for jj = 1:n
@@ -183,6 +183,10 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
             if e.offsetFlag ~= 1, continue; end
             %signalinfo_ is a struct
             if isempty(e.signalinfo_), continue; end
+            if strcmpi(strategy.mode_,'realtime')
+                counter.queryEntrust(e);
+                if e.is_entrust_closed, continue;end
+            end
             signalmode = e.signalinfo_.mode;
             signaltype = e.signalinfo_.type;
         
@@ -216,6 +220,10 @@ function [] = riskmanagement_futmultitdsq(strategy,dtnum)
             e = strategy.helper_.entrustspending_.node(jj);
             if e.offsetFlag ~= -1, continue; end
             if isempty(e.tradeid_), continue;end
+            if strcmpi(strategy.mode_,'realtime')
+                counter.queryEntrust(e);
+                if e.is_entrust_closed, continue;end
+            end
             ret = strategy.withdrawentrusts(e.instrumentCode,'time',dtnum,'tradeid',e.tradeid_);
             if ret == 1
                 %the entrust has not been executed but canceled
