@@ -15,8 +15,10 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
     iparser = inputParser;
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('RiskMode','macd-setup',@ischar);
+    iparser.addParameter('UseBuffer',true,@islogical);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
+    usebuffer = iparser.Results.UseBuffer;
     
     if ~(strcmpi(riskmode,'macd-setup') || strcmpi(riskmode,'macd'))
         error('invalid risk mode input')
@@ -29,8 +31,11 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
     
     diffvec = macdvec - sigvec;
     [macdbs,macdss] = tdsq_setup(diffvec);
-    buffer = 2*instrument.tick_size;
-    
+    if usebuffer
+        buffer = 2*instrument.tick_size;
+    else
+        buffer = 0;
+    end
     tradesout = cTradeOpenArray;
     n = size(p,1);
     i = 1;

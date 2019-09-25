@@ -69,7 +69,7 @@ curr_mm = month(curr_dd);
 n = ceil((12-init_mm)/4)+...    %contracts first year
     (curr_yy-1-init_yy)*3+...   %contracts between next year and last year
     ceil(curr_mm/4)+...         %contracts traded so far this year
-    +3;                         %contracts listed from this month
+    +2;                         %contracts listed from this month
 
 contracts = cell(n,1);
 i=1;

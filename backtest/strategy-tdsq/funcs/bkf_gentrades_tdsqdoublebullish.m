@@ -14,15 +14,16 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvld
     iparser = inputParser;
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('RiskMode','macd-setup',@ischar);
+    iparser.addParameter('UseBuffer',true,@islogical);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
+    usebuffer = iparser.Results.UseBuffer;
     
     if ~(strcmpi(riskmode,'macd-setup') || strcmpi(riskmode,'macd'))
         error('invalid risk mode input')
     end
     
     usesetups = strcmpi(riskmode,'macd-setup');
-    
     instrument = code2instrument(code);
     contractsize = instrument.contract_size;
     
@@ -32,7 +33,12 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebullish(code,p,bs,ss,lvlup,lvld
     count = 0;
     diffvec = macdvec - sigvec;
     [macdbs,macdss] = tdsq_setup(diffvec);
-    buffer = 2*instrument.tick_size;
+   
+    if usebuffer
+        buffer = 2*instrument.tick_size;
+    else
+        buffer = 0;
+    end
     while i <= n
         %DO NOTHING IF BOTH LVLUP AND LVLDN ARE NOT AVAILABLE
         if isnan(lvldn(i)) && isnan(lvlup(i)), i = i + 1;end

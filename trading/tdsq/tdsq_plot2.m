@@ -2,7 +2,11 @@ function [output] = tdsq_plot2(p,idxstart,idxend,instr2)
 %tdsq_plot's enhancement:
 %with first graph as tdsq, i.e. TD Sequential and TD Countdown(going
 %forward)
-shift = 2*instr2.tick_size;
+if isa(instr2,'cInstrument')
+    shift = 2*instr2.tick_size;
+else
+    shift = instr2;
+end
 figure(4);
 % h1 = gca;
 

@@ -6,6 +6,7 @@ bkf_printtrades_tdsq(tradesperfect);
 tradesimperfect = bkf_gentrades_tdsqimperfect('ni1911',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd','openapproach','new');
 fprintf('imperfect trades:\n');
 bkf_printtrades_tdsq(tradesimperfect);
+[kelly,W] = kellyratio(tradesimperfect)
 %% single lvlup
 tradessinglelvlup = bkf_gentrades_tdsqsinglelvlup('ni1911',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
 fprintf('single lvlup trades:\n');
@@ -18,6 +19,7 @@ bkf_printtrades_tdsq(tradessinglelvldn);
 tradesdoublerange = bkf_gentrades_tdsqdoublerange('ni1911',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
 fprintf('double range trades:\n');
 bkf_printtrades_tdsq(tradesdoublerange);
+[kelly,W] = kellyratio(tradesdoublerange)
 %%
 tradesdoublebullish = bkf_gentrades_tdsqdoublebullish('ni1911',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
 fprintf('double bullish trades:\n');

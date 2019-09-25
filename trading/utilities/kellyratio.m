@@ -1,4 +1,4 @@
-function [ratio,W] = kellyratio(tradesin)
+function [ratio,W,winavgpnl,lossavgpnl] = kellyratio(tradesin)
 wincount = 0;
 losscount = 0;
 wintotalpnl = 0;
@@ -20,9 +20,12 @@ for itrade = 1:tradesin.latest_
     end
 end
 W = wincount / (wincount + losscount);
-R = abs((wintotalpnl/wincount)/(losstotalpnl/losscount));
+winavgpnl = wintotalpnl/wincount;
+lossavgpnl = losstotalpnl/losscount;
+R = abs(winavgpnl/lossavgpnl);
 if W == 1
     ratio = 1;
+    lossavgpnl = NaN;
 else
     ratio = W-(1-W)/R;
 end

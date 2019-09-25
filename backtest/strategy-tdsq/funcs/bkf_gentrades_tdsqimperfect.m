@@ -105,6 +105,13 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                             
                             if f0 && (f1 || (~f1 && hasbc13inrange))
                                 openidx = j;
+                                if f1
+                                    opensn = 'doublerange-reverseback';
+                                elseif ~f1 && hasbc13inrange
+                                    opensn = 'doublerange-belowlvldn-bc13';
+                                elseif f1 && hasbc13inrange
+                                    opensn = 'doublerange-reverseback-bc13';
+                                end
                                 break
                             end
                         else
@@ -133,14 +140,22 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                             
                             if hasbc13inrange && f0
                                 openidx = j;
+                                opensn = 'doublerange-bc13';
                                 break
                             end
                             
                             breachlvlup = ~isempty(find(p(j-8:j-1,5) < newlvlup,1,'first')) && p(j,5) > newlvlup;
                             if f0 && breachlvlup
                                 openidx = j;
+                                opensn = 'doublerange-breach';
                                 break
                             end
+                        end
+                        is9139bc = tdsq_is9139buycount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
+                        if f0 && is9139bc && j - lastidxbs <= 12
+                            openidx = j;
+                            opensn = 'doublerange-9139';
+                            break
                         end
                         %
                     elseif isdoublebearish || issinglebearish
@@ -148,17 +163,32 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         if f0 && bs(j) >= 9
                             %bs >= 9 but with bullish macd
                             openidx = j;
+                            if isdoublebearish
+                                opensn = 'doublebearish-bsbutmacdbullish';
+                            else
+                                opensn = 'singlebearish-bsbutmacdbullish';
+                            end
                             break
                         end
                         %check whether it is 9-13-9 within 12 bars
                         is9139bc = tdsq_is9139buycount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
                         if f0 && is9139bc && j - lastidxbs <= 12
                             openidx = j;
+                            if isdoublebearish
+                                opensn = 'doublebearish-9139';
+                            else
+                                opensn = 'singlebearish-9139';
+                            end
                             break
                         end
                         breachlvlup = ~isempty(find(p(j-8:j-1,5) < newlvlup,1,'first')) && p(j,5) > newlvlup;
                         if f0 && breachlvlup
                             openidx = j;
+                            if isdoublebearish
+                                opensn = 'doublebearish-breachlvlup';
+                            else
+                                opensn = 'singlebearish-breachlvlup';
+                            end
                             break
                         end
                     end
@@ -170,7 +200,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 trade_new = cTradeOpen('id',count,'code',code,...
                     'opendatetime',p(openidx,1),'opendirection',1,'openvolume',1,'openprice',p(openidx,5));
                 info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                    'scenarioname',sns{openidx},'mode','reverse','type',tag_i,...
+                    'scenarioname',opensn,'mode','reverse','type',tag_i,...
                     'lvlup',lvlup(openidx),'lvldn',lvldn(openidx));
                 trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                 tradesout.push(trade_new);
@@ -290,6 +320,13 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         
                             if f0 && (f1 || (~f1 && hassc13inrange))
                                 openidx = j;
+                                if f1
+                                    opensn = 'doublerange-reverseback';
+                                elseif ~f1 && hassc13inrange
+                                    opensn = 'doublerange-abovelvlup-sc13';
+                                elseif f1 && hassc13inrange
+                                    opensn = 'doublerange-reverseback-sc13';
+                                end
                                 break
                             end
                         else
@@ -318,31 +355,55 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                             
                             if hassc13inrange && f0
                                 openidx = j;
+                                opensn = 'doublerange-sc13';
                                 break
                             end
                             
                             breachlvldn = ~isempty(find(p(j-8:j-1,5) > newlvldn,1,'first')) && p(j,5) < newlvldn;
                             if f0 && breachlvldn
                                 openidx = j;
+                                opensn = 'doublerange-breach';
                                 break
                             end  
+                        end
+                        %check whether it is 9-13-9 within 12 bars
+                        is9139sc = tdsq_is9139sellcount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
+                        if f0 && is9139sc && j - lastidxss <= 12
+                            openidx = j;
+                            opensn = 'doublerange-9139';
+                            break
                         end
                     elseif isdoublebullish || issinglebullish
                         %double-bullish
                         if f0 && ss(j) >= 9
                             %ss >= 9 but with bearish macd
                             openidx = j;
+                            if isdoublebullish
+                                opensn = 'doublebullish-ssbutmacdbearish';
+                            else
+                                opensn = 'singlebullish-ssbutmacdbearish';
+                            end
                             break
                         end
                         %check whether it is 9-13-9 within 12 bars
                         is9139sc = tdsq_is9139sellcount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
                         if f0 && is9139sc && j - lastidxss <= 12
                             openidx = j;
+                            if isdoublebullish
+                                opensn = 'doublebullish-9139';
+                            else
+                                opensn = 'singlebullish-9139';
+                            end
                             break
                         end
                         breachlvldn = ~isempty(find(p(j-8:j-1,5) > newlvldn,1,'first')) && p(j,5) < newlvldn;
                         if f0 && breachlvldn
                             openidx = j;
+                            if isdoublebullish
+                                opensn = 'doublebullish-breachlvldn';
+                            else
+                                opensn = 'singlebullish-breachlvldn';
+                            end
                             break
                         end     
                     end
@@ -354,7 +415,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 trade_new = cTradeOpen('id',count,'code',code,...
                     'opendatetime',p(openidx,1),'opendirection',-1,'openvolume',1,'openprice',p(openidx,5));
                 info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                    'scenarioname',sns{openidx},'mode','reverse','type',tag_i,...
+                    'scenarioname',opensn,'mode','reverse','type',tag_i,...
                     'lvlup',lvlup(openidx),'lvldn',lvldn(openidx));
                 trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                 tradesout.push(trade_new);
