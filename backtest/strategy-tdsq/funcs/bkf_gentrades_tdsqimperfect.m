@@ -69,6 +69,27 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     break
                 end
                 %
+                hasbc13inrange = ~isempty(find(bc(j-11:j) == 13,1,'last'));
+                if hasbc13inrange
+                    lastidxbc13 = find(bc(1:j) == 13,1,'last');
+                    if lastidxbc13 < lastidxbs, hasbc13inrange = false;end
+                end
+                %when a bs that began before,on,or after
+                %the developing buycountdown, but prior to
+                %a bullish price flip, extends to 18 bars,
+                %the buycountdown shall be recycled
+                if hasbc13inrange
+                    lastidxbs18 = find(bs(1:j) == 18,1,'last');
+                    if ~isempty(lastidxbs18)
+                        if  lastidxbc13 <= lastidxbs18
+                            hasbc13inrange = false;
+                        elseif lastidxbc13 > lastidxbs18
+                            %make sure there is no bullish price
+                            %between
+                            hasbc13inrange = ~isempty(find(ss(lastidxbs18+1:lastidxbc13)==1,1,'first'));
+                        end
+                    end
+                end
                 if ~usenewopenapproach
                     if macdvec(j) > sigvec(j) && ~(usesetups && (bs(j) >= 4 && bs(j) <= 9))
                         openidx = j;
@@ -81,27 +102,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                             %the price has breached lvldn but the new lvlup
                             %is still above lvldn
                             f1 = p(j,5) > oldlvldn && ~isempty(find(p(j-8:j-1,5) < oldlvldn,1,'first'));
-                            hasbc13inrange = ~isempty(find(bc(j-11:j) == 13,1,'last'));
-                            if hasbc13inrange
-                                lastidxbc13 = find(bc(1:j) == 13,1,'last');
-                                if lastidxbc13 < lastidxbs, hasbc13inrange = false;end
-                            end
-                            %when a bs that began before,on,or after
-                            %the developing buycountdown, but prior to
-                            %a bullish price flip, extends to 18 bars,
-                            %the buycountdown shall be recycled
-                            if hasbc13inrange
-                                lastidxbs18 = find(bs(1:j) == 18,1,'last');
-                                if ~isempty(lastidxbs18)
-                                   if  lastidxbc13 <= lastidxbs18
-                                       hasbc13inrange = false;
-                                   elseif lastidxbc13 > lastidxbs18
-                                       %make sure there is no bullish price
-                                       %between
-                                       hasbc13inrange = ~isempty(find(ss(lastidxbs18+1:lastidxbc13)==1,1,'first'));
-                                   end
-                                end
-                            end
+                            
                             
                             if f0 && (f1 || (~f1 && hasbc13inrange))
                                 openidx = j;
@@ -116,28 +117,6 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                             end
                         else
                             %the price failed to breach lvldn
-                            hasbc13inrange = ~isempty(find(bc(j-11:j) == 13,1,'last'));
-                            if hasbc13inrange
-                                lastidxbc13 = find(bc(1:j) == 13,1,'last');
-                                if lastidxbc13 < lastidxbs, hasbc13inrange = false;end
-                            end
-                            %when a bs that began before,on,or after
-                            %the developing buycountdown, but prior to
-                            %a bullish price flip, extends to 18 bars,
-                            %the buycountdown shall be recycled
-                            if hasbc13inrange
-                                lastidxbs18 = find(bs(1:j) == 18,1,'last');
-                                if ~isempty(lastidxbs18)
-                                   if  lastidxbc13 <= lastidxbs18
-                                       hasbc13inrange = false;
-                                   elseif lastidxbc13 > lastidxbs18
-                                       %make sure there is no bullish price
-                                       %between
-                                       hasbc13inrange = ~isempty(find(ss(lastidxbs18+1:lastidxbc13)==1,1,'first'));
-                                   end
-                                end
-                            end
-                            
                             if hasbc13inrange && f0
                                 openidx = j;
                                 opensn = 'doublerange-bc13';
@@ -283,6 +262,27 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 if isempty(openidx) && ss(j) == 9 && j > i
                     break
                 end
+                hassc13inrange = ~isempty(find(sc(j-11:j) == 13,1,'last'));
+                if hassc13inrange
+                    lastidxsc13 = find(sc(1:j) == 13,1,'last');
+                    if lastidxsc13 < lastidxss, hassc13inrange = false;end
+                end
+                %when a ss that began before,on,or after
+                %the developing sellcountdown, but prior to
+                %a bearish price flip, extends to 18 bars,
+                %the sellcountdown shall be recycled
+                if hassc13inrange
+                    lastidxss18 = find(ss(1:j) == 18,1,'last');
+                    if ~isempty(lastidxss18)
+                        if  lastidxsc13 <= lastidxss18
+                            hassc13inrange = false;
+                        elseif lastidxsc13 > lastidxss18
+                            %make sure there is no bearish price
+                            %between
+                            hassc13inrange = ~isempty(find(bs(lastidxss18+1:lastidxsc13)==1,1,'first'));
+                        end
+                    end
+                end
                 if ~usenewopenapproach
                     if macdvec(j) < sigvec(j) && ~(usesetups && ss(j) >= 4 && ss(j) <= 9)
                         openidx = j;
@@ -296,28 +296,6 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                             %the price has breached lvlup but the new lvldn is
                             %still below lvlup
                             f1 = p(j,5) < oldlvlup && ~isempty(find(p(j-8:j-1,5) > oldlvlup,1,'first'));
-                            hassc13inrange = ~isempty(find(sc(j-11:j) == 13,1,'last'));
-                            if hassc13inrange
-                                lastidxsc13 = find(sc(1:j) == 13,1,'last');
-                                if lastidxsc13 < lastidxss, hassc13inrange = false;end
-                            end
-                            %when a ss that began before,on,or after
-                            %the developing sellcountdown, but prior to
-                            %a bearish price flip, extends to 18 bars,
-                            %the sellcountdown shall be recycled
-                            if hassc13inrange
-                                lastidxss18 = find(ss(1:j) == 18,1,'last');
-                                if ~isempty(lastidxss18)
-                                   if  lastidxsc13 <= lastidxss18
-                                       hassc13inrange = false;
-                                   elseif lastidxsc13 > lastidxss18
-                                       %make sure there is no bearish price
-                                       %between
-                                       hassc13inrange = ~isempty(find(bs(lastidxss18+1:lastidxsc13)==1,1,'first'));
-                                   end
-                                end
-                            end
-                        
                             if f0 && (f1 || (~f1 && hassc13inrange))
                                 openidx = j;
                                 if f1
@@ -330,29 +308,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                                 break
                             end
                         else
-                            %the price failed to breach lvlup
-                            hassc13inrange = ~isempty(find(sc(j-11:j) == 13,1,'last'));
-                            if hassc13inrange
-                                lastidxsc13 = find(sc(1:j) == 13,1,'last');
-                                if lastidxsc13 < lastidxss,hassc13inrange = false;end
-                            end
-                            %when a ss that began before,on,or after
-                            %the developing sellcountdown, but prior to
-                            %a bearish price flip, extends to 18 bars,
-                            %the sellcountdown shall be recycled
-                            if hassc13inrange
-                                lastidxss18 = find(ss(1:j) == 18,1,'last');
-                                if ~isempty(lastidxss18)
-                                   if  lastidxsc13 <= lastidxss18
-                                       hassc13inrange = false;
-                                   elseif lastidxsc13 > lastidxss18
-                                       %make sure there is no bearish price
-                                       %between
-                                       hassc13inrange = ~isempty(find(bs(lastidxss18+1:lastidxsc13)==1,1,'first'));
-                                   end
-                                end
-                            end
-                            
+                            %the price failed to breach lvlup 
                             if hassc13inrange && f0
                                 openidx = j;
                                 opensn = 'doublerange-sc13';
