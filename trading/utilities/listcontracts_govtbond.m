@@ -72,7 +72,7 @@ if init_yy < curr_yy
     n = ceil((12-init_mm+1)/3)+...  %contracts for the 1st year
         (curr_yy-1-init_yy)*4+...   %contracts between 2nd year and last year
         floor((curr_mm)/3)+...      %contracts before this month in this year
-        3;                          %listed contracts
+        2;                          %listed contracts
     if mod(curr_mm,3) == 0
         n = n - 1;
     end
