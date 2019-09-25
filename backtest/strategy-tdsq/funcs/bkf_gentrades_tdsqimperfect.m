@@ -16,13 +16,17 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('RiskMode','macd-setup',@ischar);
     iparser.addParameter('OpenApproach','old',@ischar);
+    iparser.addParameter('CloseOnPerfect','yes',@ischar);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
     openapproach = iparser.Results.OpenApproach;
+    closeonperfect = iparser.Results.CloseOnPerfect;
     
     if ~(strcmpi(riskmode,'macd-setup') || strcmpi(riskmode,'macd'))
         error('invalid risk mode input')
     end
+    
+    closeonperfect = strcmpi(closeonperfect,'yes');
     
     usesetups = strcmpi(riskmode,'macd-setup');
     usenewopenapproach = strcmpi(openapproach,'new');
@@ -201,7 +205,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     if macdvec(j) < sigvec(j) || (usesetups && bs(j) >= 4),break;end
                     sn_j = sns{j};
                     tag_j = tdsq_snbd(sn_j);
-                    if strcmpi(tag_j,'perfectss'), break;end
+                    if strcmpi(tag_j,'perfectss') && closeonperfect, break;end
                     %improvements in riskmanagement
                     if isdoublerange && waspxbelowlvldn && f1
                         if p(j,3) < oldlvldn,break;end
@@ -412,7 +416,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     if macdvec(j) > sigvec(j) || (usesetups && ss(j) >= 4),break;end
                     sn_j = sns{j};
                     tag_j = tdsq_snbd(sn_j);
-                    if strcmpi(tag_j,'perfectbs'), break;end
+                    if strcmpi(tag_j,'perfectbs') && closeonperfect, break;end
                     %improvements in risk management
                     if isdoublerange && waspxabovelvlup && f1
                         if p(j,4) > oldlvlup,break;end
