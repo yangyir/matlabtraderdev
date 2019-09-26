@@ -72,8 +72,17 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
             waspxbelowlvldn = ~isempty(find(p(lastidxbs-8:lastidxbs,5) < oldlvldn,1,'first')) && isdoublerange;
             
             for j = i:n
+                %note:beforehand we only use 9 bars to check whether the
+                %price has fallen below oldlvldn or not. however, the
+                %buysetup sequential doesn't necessary stop at 9, so we
+                %shall use the buysetup sequential developed so far to
+                %determine whether it has fallen below the oldlvldn or not
                 sn_j = sns{j};
-                tag_j = tdsq_snbd(sn_j);
+                [tag_j,count_j] = tdsq_snbd(sn_j);
+                if ~waspxbelowlvldn && count_j > 9
+                    waspxbelowlvldn = ~isempty(find(p(lastidxbs-8:lastidxbs+count_j-9,5) < oldlvldn,1,'first')) && isdoublerange;
+                end
+                
                 if isempty(openidx) && (strcmpi(tag_j,'perfectss') || strcmpi(tag_j,'semiperfectss') || strcmpi(tag_j,'imperfectss') || strcmpi(tag_j,'perfectbs'))
                     break;
                 end
@@ -193,7 +202,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                 tradesout.push(trade_new);
                 for j = openidx+1:n
-                    if macdvec(j) - sigvec(j) < -1e-4 || (usesetups && bs(j) >= 4),break;end
+                    if macdvec(j) - sigvec(j) < -5e-4 || (usesetups && bs(j) >= 4),break;end
                     sn_j = sns{j};
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectss') && closeonperfect, break;end
@@ -273,7 +282,10 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
             
             for j = i:n
                 sn_j = sns{j};
-                tag_j = tdsq_snbd(sn_j);
+                [tag_j,count_j] = tdsq_snbd(sn_j);
+                if ~waspxabovelvlup && count_j > 9
+                    waspxabovelvlup = ~isempty(find(p(lastidxss-8:lastidxss+count_j-9,5) > oldlvlup,1,'first')) && isdoublerange;
+                end
                 if isempty(openidx) && (strcmpi(tag_j,'perfectbs') || strcmpi(tag_j,'semiperfectbs') || strcmpi(tag_j,'imperfectbs') || strcmpi(tag_j,'perfectss'))
                     break;
                 end
@@ -392,7 +404,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                 tradesout.push(trade_new);
                 for j = openidx+1:n
-                    if macdvec(j) - sigvec(j) > 1e-4 || (usesetups && ss(j) >= 4),break;end
+                    if macdvec(j) - sigvec(j) > 5e-4 || (usesetups && ss(j) >= 4),break;end
                     sn_j = sns{j};
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectbs') && closeonperfect, break;end
