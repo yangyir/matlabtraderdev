@@ -101,11 +101,6 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 %
                 f0 = macdvec(j) > sigvec(j) && ~(usesetups && (bs(j) >= 4 && bs(j) <= 9));
                 if isdoublerange
-                    if f0 && bs(j) >= 9
-                        %bs >= 9 but with bullish macd
-                        openidx = j;
-                        opensn = 'doublerange-setup';
-                    end
                     if waspxbelowlvldn
                         %the price has breached lvldn but the new lvlup
                         %is still above lvldn
@@ -154,12 +149,6 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         else
                             opensn = 'singlebearish-setup';
                         end
-                        break
-                    end
-                    %
-                    if issinglebearish && hasbc13inrange && f0 && macdss(j) > 0
-                        openidx = j;
-                        opensn = 'singlebearish-countdown';
                         break
                     end
                     %
@@ -308,12 +297,6 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 f0 = macdvec(j) < sigvec(j) && ~(usesetups && ss(j) >= 4 && ss(j) <= 9);
                 %for now just implement a case for double range
                 if isdoublerange
-                    if f0 && ss(j) >= 9
-                        %ss >= 9 but with bearish macd
-                        openidx = j;
-                        opensn = 'doublerange-setup';
-                        break
-                    end
                     if waspxabovelvlup
                         %the price has breached lvlup but the new lvldn is
                         %still below lvlup
@@ -364,11 +347,6 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         break
                     end
                     %
-                    if issinglebullish && hassc13inrange && f0 && macdbs(j) > 0
-                        openidx = j;
-                        opensn = 'singlebullish-countdown';
-                        break
-                    end
                     %check whether it is 9-13-9 within 12 bars
                     is9139sc = tdsq_is9139sellcount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
                     if f0 && is9139sc && j - lastidxss <= 12 && macdbs(j) > 0
