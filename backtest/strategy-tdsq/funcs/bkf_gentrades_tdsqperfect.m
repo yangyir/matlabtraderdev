@@ -29,6 +29,9 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
     
     instrument = code2instrument(code);
     contractsize = instrument.contract_size;
+    if ~isempty(strfind(instrument.code_bbg,'TFT')) || ~isempty(strfind(instrument.code_bbg,'TFC'))
+        contractsize = contractsize/100;
+    end
 
     % mode1: tdsq-reverse-perfectbs/ss
     % using variables: bs,ss,macd,sig,p
