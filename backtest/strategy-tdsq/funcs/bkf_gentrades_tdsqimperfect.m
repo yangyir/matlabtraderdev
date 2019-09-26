@@ -15,18 +15,23 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
     iparser = inputParser;
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('RiskMode','macd-setup',@ischar);
-    iparser.addParameter('CloseOnPerfect','yes',@ischar);
+    iparser.addParameter('CloseOnPerfect',true,@islogical);
+    iparser.addParameter('RangeBreachLimit',-1,@isnumeric);
+    iparser.addParameter('RangeReverseLimit',-1,@isnumeric);
+    iparser.addParameter('UseTrendBreach',true,@islogical);
+    iparser.addParameter('UseSetupScenario',true,@islogical);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
     closeonperfect = iparser.Results.CloseOnPerfect;
-    
+    rangebreachlimit = iparser.Results.RangeBreachLimit;
+    rangereverselimit = iparser.Results.RangeReverseLimit;
+    usetrendbreach = iparser.Results.UseTrendBreach;
+    usesetupscenario = iparser.Results.UseSetupScenario;
     if ~(strcmpi(riskmode,'macd-setup') || strcmpi(riskmode,'macd'))
         error('invalid risk mode input')
     end
-    
-    closeonperfect = strcmpi(closeonperfect,'yes');
-    
     usesetups = strcmpi(riskmode,'macd-setup');
+        
     instrument = code2instrument(code);
     contractsize = instrument.contract_size;
     if ~isempty(strfind(instrument.code_bbg,'TFT')) || ~isempty(strfind(instrument.code_bbg,'TFC'))
@@ -105,7 +110,17 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         %the price has breached lvldn but the new lvlup
                         %is still above lvldn
                         f1 = p(j,5) > oldlvldn && ~isempty(find(p(j-8:j-1,5) < oldlvldn,1,'first'));
-                        
+                        if rangereverselimit < 0
+                            validrangereverse = true;
+                        else
+                            idx2check = find(bs(lastidxbs:j) == 0,1,'first')+lastidxbs-1;
+                            if j - idx2check  < rangereverselimit
+                                validrangereverse = true;
+                            else
+                                validrangereverse = false;
+                            end
+                        end
+                        f1 = f1 && validrangereverse;
                         if f0 && (f1 || hasbc13inrange) && macdss(j) > 0
                             openidx = j;
                             if f1 && ~hasbc13inrange
@@ -126,6 +141,17 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         end
                     end
                     breachlvlup = ~isempty(find(p(j-8:j-1,5) < newlvlup,1,'first')) && p(j,5) > newlvlup;
+                    if rangebreachlimit < 0
+                        validrangebreach = true;
+                    else
+                        idx2check = find(bs(lastidxbs:j) == 0,1,'first')+lastidxbs-1;
+                        if j - idx2check  < rangebreachlimit
+                            validrangebreach = true;
+                        else
+                            validrangebreach = false;
+                        end
+                    end
+                    breachlvlup = breachlvlup && validrangebreach;
                     if f0 && breachlvlup && macdss(j) > 0
                         openidx = j;
                         opensn = 'doublerange-breach';
@@ -141,7 +167,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     %
                 elseif isdoublebearish || issinglebearish
                     %double-bearish
-                    if f0 && bs(j) >= 9
+                    if f0 && bs(j) >= 9 && usesetupscenario
                         %bs >= 9 but with bullish macd
                         openidx = j;
                         if isdoublebearish
@@ -164,6 +190,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         break
                     end
                     breachlvlup = ~isempty(find(p(j-8:j-1,5) < newlvlup,1,'first')) && p(j,5) > newlvlup;
+                    breachlvlup = breachlvlup && usetrendbreach;
                     if f0 && breachlvlup && macdss(j) > 0
                         openidx = j;
                         if isdoublebearish
@@ -186,7 +213,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                 tradesout.push(trade_new);
                 for j = openidx+1:n
-                    if macdvec(j) < sigvec(j) || (usesetups && bs(j) >= 4),break;end
+                    if macdvec(j) - sigvec(j) < -1e-4 || (usesetups && bs(j) >= 4),break;end
                     sn_j = sns{j};
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectss') && closeonperfect, break;end
@@ -261,6 +288,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
             
             %use close price to determine whether any of the sequential up
             %to 9 has breached oldlvlup
+            breachlvldn = false;
             waspxabovelvlup = ~isempty(find(p(lastidxss-8:lastidxss,5) > oldlvlup,1,'first')) && isdoublerange;
             
             for j = i:n
@@ -301,6 +329,17 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         %the price has breached lvlup but the new lvldn is
                         %still below lvlup
                         f1 = p(j,5) < oldlvlup && ~isempty(find(p(j-8:j-1,5) > oldlvlup,1,'first'));
+                        if rangereverselimit < 0
+                            validrangereverse = true;
+                        else
+                            idx2check = find(ss(lastidxss:j) == 0,1,'first')+lastidxss-1;
+                            if j - idx2check  < rangereverselimit
+                                validrangereverse = true;
+                            else
+                                validrangereverse = false;
+                            end
+                        end
+                        f1 = f1 && validrangereverse;
                         if f0 && (f1 || hassc13inrange) && macdbs(j) > 0
                             openidx = j;
                             if f1 && ~hassc13inrange
@@ -322,6 +361,17 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     end
                     %
                     breachlvldn = ~isempty(find(p(j-8:j-1,5) > newlvldn,1,'first')) && p(j,5) < newlvldn;
+                    if rangebreachlimit < 0
+                        validrangebreach = true;
+                    else
+                        idx2check = find(ss(lastidxss:j) == 0,1,'first')+lastidxss-1;
+                        if j - idx2check  < rangebreachlimit
+                            validrangebreach = true;
+                        else
+                            validrangebreach = false;
+                        end
+                    end
+                    breachlvldn = breachlvldn && validrangebreach;
                     if f0 && breachlvldn && macdbs(j) > 0
                         openidx = j;
                         opensn = 'doublerange-breach';
@@ -336,7 +386,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     end
                 elseif isdoublebullish || issinglebullish
                     %double-bullish
-                    if f0 && ss(j) >= 9
+                    if f0 && ss(j) >= 9 && usesetupscenario
                         %ss >= 9 but with bearish macd
                         openidx = j;
                         if isdoublebullish
@@ -359,6 +409,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         break
                     end
                     breachlvldn = ~isempty(find(p(j-8:j-1,5) > newlvldn,1,'first')) && p(j,5) < newlvldn;
+                    breachlvldn = usetrendbreach && breachlvldn;
                     if f0 && breachlvldn && macdbs(j) > 0
                         openidx = j;
                         if isdoublebullish
@@ -381,7 +432,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                 tradesout.push(trade_new);
                 for j = openidx+1:n
-                    if macdvec(j) > sigvec(j) || (usesetups && ss(j) >= 4),break;end
+                    if macdvec(j) - sigvec(j) > 1e-4 || (usesetups && ss(j) >= 4),break;end
                     sn_j = sns{j};
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectbs') && closeonperfect, break;end
