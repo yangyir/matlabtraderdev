@@ -29,6 +29,9 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
     usesetups = strcmpi(riskmode,'macd-setup');
     instrument = code2instrument(code);
     contractsize = instrument.contract_size;
+    if ~isempty(strfind(instrument.code_bbg,'TFT')) || ~isempty(strfind(instrument.code_bbg,'TFC'))
+        contractsize = contractsize/100;
+    end
     
     diffvec = macdvec - sigvec;
     [macdbs,macdss] = tdsq_setup(diffvec);
@@ -45,6 +48,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
             i = i+1;
         elseif strcmpi(tag_i,'semiperfectbs') || strcmpi(tag_i,'imperfectbs')
             openidx = [];
+            opensn = '';
             lastidxbs = find(bs(1:i) == 9,1,'last');
             newlvlup = lvlup(lastidxbs);
             oldlvldn = lvldn(lastidxbs);
@@ -252,6 +256,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
             %
         elseif strcmpi(tag_i,'semiperfectss') || strcmpi(tag_i,'imperfectss')
             openidx = [];
+            opensn = '';
             lastidxss = find(ss(1:i) == 9,1,'last');
             newlvldn = lvldn(lastidxss);
             oldlvlup = lvlup(lastidxss);
