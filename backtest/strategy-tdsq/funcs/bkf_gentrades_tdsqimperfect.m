@@ -20,6 +20,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
     iparser.addParameter('RangeReverseLimit',-1,@isnumeric);
     iparser.addParameter('UseTrendBreach',true,@islogical);
     iparser.addParameter('UseSetupScenario',true,@islogical);
+    iparser.addParameter('Frequency','15m',@ischar);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
     closeonperfect = iparser.Results.CloseOnPerfect;
@@ -27,6 +28,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
     rangereverselimit = iparser.Results.RangeReverseLimit;
     usetrendbreach = iparser.Results.UseTrendBreach;
     usesetupscenario = iparser.Results.UseSetupScenario;
+    freq = iparser.Results.Frequency;
     if ~(strcmpi(riskmode,'macd-setup') || strcmpi(riskmode,'macd'))
         error('invalid risk mode input')
     end
@@ -102,7 +104,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         if rangereverselimit < 0
                             validrangereverse = true;
                         else
-                            idx2check = find(bs(lastidxbs:j) == 0,1,'first')+lastidxbs-1;
+                            idx2check = find(bs(lastidxbs+1:j) == 0,1,'first')+lastidxbs-1;
                             if j - idx2check  < rangereverselimit
                                 validrangereverse = true;
                             else
@@ -196,7 +198,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 count = count + 1;
                 trade_new = cTradeOpen('id',count,'code',code,...
                     'opendatetime',p(openidx,1),'opendirection',1,'openvolume',1,'openprice',p(openidx,5));
-                info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
+                info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
                     'scenarioname',opensn,'mode','reverse','type',tag_i,...
                     'lvlup',lvlup(openidx),'lvldn',lvldn(openidx));
                 trade_new.setsignalinfo('name','tdsq','extrainfo',info);
@@ -207,14 +209,14 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectss') && closeonperfect, break;end
                     %improvements in riskmanagement
-                    if isdoublerange && waspxbelowlvldn && f1
-                        if p(j,3) < oldlvldn,break;end
+                    if isdoublerange && waspxbelowlvldn && f1 && p(j,3) < oldlvldn                        
+                        break;
                     end
-                    if isdoublerange && ~waspxbelowlvldn && breachlvlup
-                        if p(j,3) < newlvlup,break;end
+                    if isdoublerange && ~waspxbelowlvldn && breachlvlup && p(j,3) < newlvlup
+                        break;
                     end
-                    if (issinglebearish || isdoublebearish) && breachlvlup
-                        if p(j,3) < newlvlup,break;end
+                    if (issinglebearish || isdoublebearish) && breachlvlup && p(j,3) < newlvlup
+                        break;
                     end
                     if ~isempty(strfind(opensn,'range-reverse')) && ...
                             ~isempty(find(macdss(openidx:j) == 20,1,'last')) && macdss(j) == 0
@@ -225,23 +227,21 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     end
                     if isdoublerange || issinglebearish
                         hasbreachedlvlup = ~isempty(find(p(openidx:j,5) > newlvlup,1,'first'));
-                        if hasbreachedlvlup && p(j,5) - newlvlup <= -4*instrument.tick_size, break;end
+                        if hasbreachedlvlup && p(j,5) - newlvlup <= -4*instrument.tick_size 
+                            break;
+                        end
                     elseif isdoublebearish
                         hasbreachedlvldn = ~isempty(find(p(openidx:j,5) > oldlvldn,1,'first'));
-                        if hasbreachedlvldn && p(j,5) - oldlvldn <= -4*instrument.tick_size, break;end
+                        if hasbreachedlvldn && p(j,5) - oldlvldn <= -4*instrument.tick_size 
+                            break;
+                        end
                     end
                     %special treatment before holiday
                     %unwind before holiday as the market is not continous
                     %anymore
-                    cobd = floor(p(j,1));
-                    nextbd = businessdate(cobd);
-                    if nextbd - cobd > 3
-                        hh = hour(p(j,1));
-                        mm = minute(p(j,1));
-                        %hard code below
-                        if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-                            break;
-                        end
+                    lastbar = islastbarbeforeholiday(instrument,freq,p(j,1));
+                    if lastbar
+                        break
                     end
                 end
                 if j < n
@@ -304,7 +304,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         if rangereverselimit < 0
                             validrangereverse = true;
                         else
-                            idx2check = find(ss(lastidxss:j) == 0,1,'first')+lastidxss-1;
+                            idx2check = find(ss(lastidxss+1:j) == 0,1,'first')+lastidxss-1;
                             if j - idx2check  < rangereverselimit
                                 validrangereverse = true;
                             else
@@ -398,7 +398,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 count = count + 1;
                 trade_new = cTradeOpen('id',count,'code',code,...
                     'opendatetime',p(openidx,1),'opendirection',-1,'openvolume',1,'openprice',p(openidx,5));
-                info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
+                info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
                     'scenarioname',opensn,'mode','reverse','type',tag_i,...
                     'lvlup',lvlup(openidx),'lvldn',lvldn(openidx));
                 trade_new.setsignalinfo('name','tdsq','extrainfo',info);
@@ -409,14 +409,14 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectbs') && closeonperfect, break;end
                     %improvements in risk management
-                    if isdoublerange && waspxabovelvlup && f1
-                        if p(j,4) > oldlvlup,break;end
+                    if isdoublerange && waspxabovelvlup && f1 && p(j,4) > oldlvlup
+                        break;
                     end
-                    if isdoublerange && ~waspxabovelvlup && breachlvldn
-                        if p(j,4) > newlvldn,break;end
+                    if isdoublerange && ~waspxabovelvlup && breachlvldn && p(j,4) > newlvldn
+                        break;
                     end
-                    if (issinglebullish || isdoublebullish) && breachlvldn
-                        if p(j,4) > newlvldn,break;end
+                    if (issinglebullish || isdoublebullish) && breachlvldn && p(j,4) > newlvldn
+                        break;
                     end
                     if ~isempty(strfind(opensn,'range-reverse')) && ...
                             ~isempty(find(macdbs(openidx:j) == 20,1,'last')) && macdbs(j) == 0
@@ -435,15 +435,9 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     %special treatment before holiday
                     %unwind before holiday as the market is not continous
                     %anymore
-                    cobd = floor(p(j,1));
-                    nextbd = businessdate(cobd);
-                    if nextbd - cobd > 3
-                        hh = hour(p(j,1));
-                        mm = minute(p(j,1));
-                        %hard code below
-                        if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-                            break;
-                        end
+                    lastbar = islastbarbeforeholiday(instrument,freq,p(j,1));
+                    if lastbar
+                        break
                     end
                 end
                 if j < n

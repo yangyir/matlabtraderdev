@@ -1,5 +1,7 @@
-function [ ret,closestr,tradeout ] = bkf_riskmanagement_tdsqimperfect( tradein,p,bs,ss,bc,sc,macdvec,sigvec,macdbs,macdss,sns,varargin )
+function [ ret,closestr,tradeout,closeidx ] = bkf_riskmanagement_tdsqimperfect( tradein,p,bs,ss,bc,sc,macdvec,sigvec,macdbs,macdss,sns,varargin )
+    %reverse mode 
     variablenotused(bc);
+    variablenotused(sc);
     try
         type = tradein.opensignal_.type_;
         if ~(strcmpi(type,'semiperfectbs') || strcmpi(type,'imperfectbs') ||...
@@ -7,12 +9,14 @@ function [ ret,closestr,tradeout ] = bkf_riskmanagement_tdsqimperfect( tradein,p
             ret = false;
             closestr = '';
             tradeout = {};
+            closeidx = -1;
             return
         end
     catch
         ret = false;
         closestr = '';
         tradeout = {};
+        closeidx = -1;
         return
     end
 
@@ -20,6 +24,7 @@ function [ ret,closestr,tradeout ] = bkf_riskmanagement_tdsqimperfect( tradein,p
     if isempty(openidx)
         ret = false;
         closestr = '';
+        closeidx = -1;
         return
     end
     
@@ -36,97 +41,186 @@ function [ ret,closestr,tradeout ] = bkf_riskmanagement_tdsqimperfect( tradein,p
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('usesetups',false,@islogical);
     iparser.addParameter('closeonperfect',false,@islogical);
+    iparser.addParameter('closeoncountdown13',false,@islogical);
     
     iparser.parse(varargin{:});
     usesetups = iparser.Results.usesetups;
     closeonperfect = iparser.Results.closeonperfect;
+    closeoncountdown13 = iparser.Results.closeoncountdown13;
+    
     
     diffvec = macdvec - sigvec;
     
-    isrange = ~isempty(strfind(tradein.opensignal_.scenario_,'range'));
-    israngereverse = strcmpi(tradein.opensignal_.scenario_,'range-reverse');
-    israngebreach = strcmpi(tradein.opensignal_.scenario_,'range-breach');
-    istrend = ~isempty(strfind(tradein.opensignal_.scenario_,'trend'));
+    freq = tradein.opensignal_.frequency_;
+    
+    israngereverse = ~isempty(strfind(tradein.opensignal_.scenario_,'range-reverse'));
+    isbreach = strcmpi(tradein.opensignal_.scenario_,'breach');
+    israngebreach = ~isempty(strfind(tradein.opensignal_.scenario_,'range-breach'));
     %long only
-    newlvlup = tradein.opensignal_.lvlup_;
-    oldlvldn = tradein.opensignal_.lvldn_;
-    breachlvlup = false;
-    for j = openidx+1:n
-        if diffvec(j) < -5e-4 || (usesetups && bs(j) >= 4)
-            closestr = 'macd';
-            break;
+    if tradein.opendirection_ == 1
+        newlvlup = tradein.opensignal_.lvlup_;
+        oldlvldn = tradein.opensignal_.lvldn_;
+        isdoublebearish = false;
+%         issinglebearish = false;
+        if isnan(oldlvldn)
+%             issinglebearish = true;
+        else
+            isdoublebearish = newlvlup < oldlvldn;
         end
-        %
-        if sc(j) == 13
-            closestr = 'countdown13';
-            break;
-        end
-        %
-        sn_j = sns{j};
-        tag_j = tdsq_snbd(sn_j);
-        if strcmpi(tag_j,'perfectss') && closeonperfect, 
-            closestr = 'perfectsetup';
-            break;
-        end
-        %
-        %improvements in riskmanagement for semiperfect/imperfect
-        if israngereverse && p(j,3) < oldlvldn
-            closestr = 'rangereversebounceback';
-            break;
-        end
-        %
-        if israngebreach && p(j,3) < newlvlup
-            closestr = 'rangebreachbounceback';
-            break
-        end
+%         isdoublerange = ~(isdoublebearish || issinglebearish);
         
-        if ~breachlvlup && p(j,5) > newlvlup, breachlvlup = true;end
-        if isrange && ~israngereverse && breachlvlup && p(j,3) < newlvlup
-            closestr = 'breachlvlupbounceback';
-            break;
+        for j = openidx+1:n
+            if diffvec(j) < -5e-4 || (usesetups && bs(j) >= 4)
+                closestr = 'macd';
+                break;
+            end
+            if ss(j) >= 24
+                closestr = 'setuplimit';
+                break;
+            end
+            %
+            if sc(j) == 13 && closeoncountdown13
+                closestr = 'countdown13';
+                break;
+            end
+            %
+            sn_j = sns{j};
+            tag_j = tdsq_snbd(sn_j);
+            if strcmpi(tag_j,'perfectss') && closeonperfect, 
+                closestr = 'perfectsetup';
+                break;
+            end
+            %
+            if israngereverse && p(j,3) < oldlvldn
+                closestr = 'reversebounceback';
+                break;
+            end
+            %
+            if isbreach && p(j,3) < newlvlup
+                closestr = 'breachbounceback1';
+                break
+            end
+            %
+            if israngereverse && ~isempty(find(macdss(openidx:j) == 20,1,'last')) && macdss(j) == 0
+                closestr = 'macdlimit';
+                break
+            end
+            %
+            if israngebreach && ss(j) == 9
+                closestr = 'rangebreachsetuplimit';
+                break
+            end
+            %
+            if ~isdoublebearish
+                hasbreachedlvlup = ~isempty(find(p(openidx:j,5) > newlvlup,1,'first'));
+                if hasbreachedlvlup && p(j,5) - newlvlup < -4*instrument.tick_size
+%                 if hasbreachedlvlup && p(j,3) <= newlvlup
+                    closestr = 'breachbounceback2';
+                    break;
+                end
+            else
+                hasbreachedlvldn = ~isempty(find(p(openidx:j,5) > oldlvldn,1,'first'));
+                if hasbreachedlvldn && p(j,5) - oldlvldn < -4*instrument.tick_size
+%                 if hasbreachedlvldn && p(j,3) <= oldlvldn
+                    closestr = 'breachbounceback3';
+                    break;
+                end
+            end
+            %
+            lastbar = islastbarbeforeholiday(instrument,freq,p(j,1));
+            if lastbar
+                closestr = 'holiday';
+                break;
+            end
         end
-        if istrend && breachlvlup && p(j,3) < newlvlup
-            closestr = 'breachlvlupbounceback';
-            break
+    else
+        oldlvlup = tradein.opensignal_.lvlup_;
+        newlvldn = tradein.opensignal_.lvldn_;
+        isdoublebullish = false;
+%         issinglebullish = false;
+        if isnan(oldlvlup)
+%             issinglebullish = true;
+        else
+            isdoublebullish = newlvldn > oldlvlup;
         end
-        if israngereverse && ~isempty(find(macdss(openidx:j) == 20,1,'last')) && macdss(j) == 0
-            closestr = 'macdtrendbreak';
-            break
-        end
-        if israngebreach && ss(j) == 9
-            closestr = '';
-            break
-        end
-%         if isrange || issinglebearish
-%             hasbreachedlvlup = ~isempty(find(p(openidx:j,5) > newlvlup,1,'first'));
-%             if hasbreachedlvlup && p(j,5) - newlvlup <= -4*instrument.tick_size, break;end
-%         elseif isdoublebearish
-%             hasbreachedlvldn = ~isempty(find(p(openidx:j,5) > oldlvldn,1,'first'));
-%             if hasbreachedlvldn && p(j,5) - oldlvldn <= -4*instrument.tick_size, break;end
-%         end
-%         %special treatment before holiday
-%         %unwind before holiday as the market is not continous
-%         %anymore
-%         cobd = floor(p(j,1));
-%         nextbd = businessdate(cobd);
-%         if nextbd - cobd > 3
-%             hh = hour(p(j,1));
-%             mm = minute(p(j,1));
-%             %hard code below
-%             if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-%                 break;
-%             end
-%         end
+%         isdoublerange = ~(isdoublebullish || issinglebullish);
+        
+        for j = openidx+1:n
+            if diffvec(j) > 5e-4 || (usesetups && ss(j) >= 4)
+                closestr = 'macd';
+                break;
+            end
+            if bs(j) >= 24
+                closestr = 'setuplimit';
+                break;
+            end
+            %
+            if bc(j) == 13 && closeoncountdown13
+                closestr = 'countdown13';
+                break;
+            end
+            %
+            sn_j = sns{j};
+            tag_j = tdsq_snbd(sn_j);
+            if strcmpi(tag_j,'perfectbs') && closeonperfect, 
+                closestr = 'perfectsetup';
+                break;
+            end
+            %
+            if israngereverse && p(j,4) > oldlvlup
+                closestr = 'reversebounceback';
+                break;
+            end
+            %
+            if isbreach && p(j,4) < newlvldn
+                closestr = 'breachbounceback1';
+                break
+            end
+            %
+            if israngereverse && ~isempty(find(macdbs(openidx:j) == 20,1,'last')) && macdbs(j) == 0
+                closestr = 'macdlimit';
+                break
+            end
+            %
+            if israngebreach && bs(j) == 9
+                closestr = 'rangebreachsetuplimit';
+                break
+            end
+            %
+            if ~isdoublebullish
+                hasbreachedlvldn = ~isempty(find(p(openidx:j,5) < newlvldn,1,'first'));
+                if hasbreachedlvldn && p(j,5) - newlvldn > 4*instrument.tick_size
+%                 if hasbreachedlvldn && p(j,4) >= newlvldn
+                    closestr = 'breachbounceback2';
+                    break;
+                end
+            else
+                hasbreachedlvlup = ~isempty(find(p(openidx:j,5) < oldlvlup,1,'first'));
+                if hasbreachedlvlup && p(j,5) - oldlvlup > 4*instrument.tick_size
+%                 if hasbreachedlvlup && p(j,4) >= oldlvlup
+                    closestr = 'breachbounceback3';
+                    break;
+                end
+            end
+            %
+            lastbar = islastbarbeforeholiday(instrument,freq,p(j,1));
+            if lastbar
+                closestr = 'holiday';
+                break;
+            end
+        end        
     end
     if j < n
         tradeout.closedatetime1_ = p(j,1);
         tradeout.closeprice_ = p(j,5);
-        tradeout.closepnl_ = (tradeout.closeprice_-tradeout.openprice_)*contractsize;
+        tradeout.closepnl_ = tradeout.opendirection_*(tradeout.closeprice_-tradeout.openprice_)*contractsize;
         tradeout.status_ = 'closed';
+        closeidx = j;
     elseif j == n
-        tradeout.runningpnl_ =(-p(j,5)+tradeout.openprice_)*contractsize;
+        closestr = '';
+        tradeout.runningpnl_ =tradeout.opendirection_*(p(j,5)-tradeout.openprice_)*contractsize;
         tradeout.status_ = 'set';
-        j = j + 1;
+        closeidx = j+1;
     end
     
     ret = true;
