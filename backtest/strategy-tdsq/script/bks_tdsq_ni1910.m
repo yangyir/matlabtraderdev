@@ -11,7 +11,7 @@ fprintf('avg win pnl:%4.1f\n',winavgpnl);
 fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
 
 %% imperfect
-tradesimperfect = bkf_gentrades_tdsqimperfect('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd','openapproach','new');
+tradesimperfect = bkf_gentrades_tdsqimperfect('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
 fprintf('imperfect trades:\n');
 bkf_printtrades_tdsq(tradesimperfect);
 [ratio,W,winavgpnl,lossavgpnl] = kellyratio(tradesimperfect);
