@@ -16,18 +16,22 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('RiskMode','macd-setup',@ischar);
     iparser.addParameter('UseBuffer',true,@islogical);
+    iparser.addParameter('Frequency','15m',@ischar);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
     usebuffer = iparser.Results.UseBuffer;
+    freq = iparser.Results.Frequency;
     
     if ~(strcmpi(riskmode,'macd-setup') || strcmpi(riskmode,'macd'))
         error('invalid risk mode input')
     end
-    
     usesetups = strcmpi(riskmode,'macd-setup');
     
     instrument = code2instrument(code);
     contractsize = instrument.contract_size;
+    if ~isempty(strfind(instrument.code_bbg,'TFT')) || ~isempty(strfind(instrument.code_bbg,'TFC'))
+        contractsize = contractsize/100;
+    end
     
     diffvec = macdvec - sigvec;
     [macdbs,macdss] = tdsq_setup(diffvec);
@@ -138,8 +142,8 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
-                        info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                            'scenarioname',sn_i,'mode','follow','lvlup',lvlup(i),'lvldn',lvldn(i));
+                        info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
+                            'scenarioname','isbetween','mode','trend','type','double-range','lvlup',lvlup(i),'lvldn',lvldn(i));
                         trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                         %risk management below
                         for j = i+1:n
@@ -166,16 +170,17 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             %add:special treatment before holiday
                             %unwind before holiday as the market is not
                             %continous anymore
-                            unwindbeforeholiday = false;
-                            cobd = floor(p(j,1));
-                            nextbd = businessdate(cobd);
-                            if nextbd - cobd > 3
-                                hh = hour(p(j,1));
-                                mm = minute(p(j,1));
-                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-                                    unwindbeforeholiday = true;
-                                end
-                            end
+%                             unwindbeforeholiday = false;
+%                             cobd = floor(p(j,1));
+%                             nextbd = businessdate(cobd);
+%                             if nextbd - cobd > 3
+%                                 hh = hour(p(j,1));
+%                                 mm = minute(p(j,1));
+%                                 if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+%                                     unwindbeforeholiday = true;
+%                                 end
+%                             end
+                            unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                             if diffvec(j)>0 || (usesetups && ss(j)>=4) || bs(j) >= 24 || bc(j)==13 || isperfectbs_j || ...
                                     (hasbreachlvldn && p(j,4)>lvldn(i)) || unwindbeforeholiday || p(j,4) > lvlup(i)
                                 trade_new.closedatetime1_ = p(j,1);
@@ -215,8 +220,8 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
-                        info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                            'scenarioname',sn_i,'mode','follow','lvlup',lvlup(i),'lvldn',lvldn(i));
+                        info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
+                            'scenarioname','isbetween','mode','trend','type','double-range','lvlup',lvlup(i),'lvldn',lvldn(i));
                         trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                         %risk management below
                         for j = i+1:n
@@ -243,16 +248,17 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             %add:special treatment before holiday
                             %unwind before holiday as the market is not
                             %continous anymore
-                            unwindbeforeholiday = false;
-                            cobd = floor(p(j,1));
-                            nextbd = businessdate(cobd);
-                            if nextbd - cobd > 3
-                                hh = hour(p(j,1));
-                                mm = minute(p(j,1));
-                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-                                    unwindbeforeholiday = true;
-                                end
-                            end
+%                             unwindbeforeholiday = false;
+%                             cobd = floor(p(j,1));
+%                             nextbd = businessdate(cobd);
+%                             if nextbd - cobd > 3
+%                                 hh = hour(p(j,1));
+%                                 mm = minute(p(j,1));
+%                                 if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+%                                     unwindbeforeholiday = true;
+%                                 end
+%                             end
+                            unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                             if diffvec(j) < 0 || (usesetups && bs(j)>=4) || ss(j) >= 24 || sc(j)==13 || isperfectss_j || ...
                                     (hasbreachlvlup && p(j,3)<lvlup(i)) || unwindbeforeholiday || p(j,3) < lvldn(i)
                                 trade_new.closedatetime1_ = p(j,1);
@@ -298,8 +304,8 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
-                        info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                            'scenarioname',sn_i,'mode','follow','lvlup',lvlup(i),'lvldn',lvldn(i));
+                        info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
+                            'scenarioname','isabove','mode','trend','type','double-range','lvlup',lvlup(i),'lvldn',lvldn(i));
                         trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                         %riskmanagement below
                         for j = i+1:n
@@ -322,16 +328,17 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             %add:special treatment before holiday
                             %unwind before holiday as the market is not
                             %continous anymore
-                            unwindbeforeholiday = false;
-                            cobd = floor(p(j,1));
-                            nextbd = businessdate(cobd);
-                            if nextbd - cobd > 3
-                                hh = hour(p(j,1));
-                                mm = minute(p(j,1));
-                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-                                    unwindbeforeholiday = true;
-                                end
-                            end
+%                             unwindbeforeholiday = false;
+%                             cobd = floor(p(j,1));
+%                             nextbd = businessdate(cobd);
+%                             if nextbd - cobd > 3
+%                                 hh = hour(p(j,1));
+%                                 mm = minute(p(j,1));
+%                                 if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
+%                                     unwindbeforeholiday = true;
+%                                 end
+%                             end
+                            unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                             if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) == 24 || sc(j) == 13 || isperfectss_j || ...
                                     p(j,3)<lvlup(i) || unwindbeforeholiday
                                 trade_new.closedatetime1_ = p(j,1);
@@ -377,8 +384,8 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
-                        info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                            'scenarioname',sn_i,'mode','follow','lvlup',lvlup(i),'lvldn',lvldn(i));
+                        info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
+                            'scenarioname','isbelow','mode','trend','type','double-range','lvlup',lvlup(i),'lvldn',lvldn(i));
                         trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                         %riskmanagement below
                         for j = i+1:n

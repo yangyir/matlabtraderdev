@@ -15,8 +15,10 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
     iparser = inputParser;
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('RiskMode','macd-setup',@ischar);
+    iparser.addParameter('Frequency','15m',@ischar);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
+    freq = iparser.Results.Frequency;
     
     if ~(strcmpi(riskmode,'macd-setup') || strcmpi(riskmode,'macd'))
         error('invalid risk mode input')
@@ -29,6 +31,9 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
     
     instrument = code2instrument(code);
     contractsize = instrument.contract_size;
+    if ~isempty(strfind(instrument.code_bbg,'TFT')) || ~isempty(strfind(instrument.code_bbg,'TFC'))
+        contractsize = contractsize/100;
+    end
     
     tradesout = cTradeOpenArray;
     
@@ -88,8 +93,8 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                         'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
-                        info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                            'scenarioname','','mode','follow','lvlup',lvlup(i),'lvldn',lvldn(i));
+                        info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
+                            'scenarioname','','mode','trend','type','single-lvldn','lvlup',lvlup(i),'lvldn',lvldn(i));
                         trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                         %riskmanagement below
                         for j = i+1:n
@@ -112,16 +117,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                             %add:special treatment before holiday
                             %unwind before holiday as the market is not
                             %continous anymore
-                            unwindbeforeholiday = false;
-                            cobd = floor(p(j,1));
-                            nextbd = businessdate(cobd);
-                            if nextbd - cobd > 3
-                                hh = hour(p(j,1));
-                                mm = minute(p(j,1));
-                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-                                    unwindbeforeholiday = true;
-                                end
-                            end
+                            unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                             if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) >= 24 || isperfectss_j || sc(j) == 13 || ...
                                     unwindbeforeholiday || p(j,3) < lvldn(i)
                                 trade_new.closedatetime1_ = p(j,1);
@@ -168,8 +164,8 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                     count = count + 1;
                     trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                         'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
-                    info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                        'scenarioname','','mode','follow','lvlup',lvlup(i),'lvldn',lvldn(i));
+                    info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
+                        'scenarioname','','mode','trend','type','single-lvldn','lvlup',lvlup(i),'lvldn',lvldn(i));
                     trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                     %riskmanagement below
                     hasperfectbs = false;
@@ -194,16 +190,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                         %add:special treatment before holiday
                         %unwind before holiday as the market is not
                         %continous anymore
-                        unwindbeforeholiday = false;
-                        cobd = floor(p(j,1));
-                        nextbd = businessdate(cobd);
-                        if nextbd - cobd > 3
-                            hh = hour(p(j,1));
-                            mm = minute(p(j,1));
-                            if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-                                unwindbeforeholiday = true;
-                            end
-                        end
+                        unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                         if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24|| bc(j) == 13 || ...
                                 p(j,4)>lvldn(i) || ...
                                 unwindbeforeholiday || ...
