@@ -43,7 +43,7 @@ elseif strcmpi(mode,'ewma')
     hv = NaN(npx,ncols);
     for i = nPeriod:npx
         if i == nPeriod
-            hv(i,ncols) = ret(i-nPeriod+1,ncols);
+            hv(i,ncols) = abs(ret(i-nPeriod+1,ncols));
         else
             hv(i,ncols) = hv(i-1,ncols)^2*lambda + ...
                 ret(i-nPeriod+1,ncols)^2*(1-lambda);
