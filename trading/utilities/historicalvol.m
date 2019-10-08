@@ -41,12 +41,12 @@ elseif strcmpi(mode,'ewma')
         lambda = parameters;
     end
     hv = NaN(npx,ncols);
-    for i = nPeriod:npx
-        if i == nPeriod
-            hv(i,ncols) = abs(ret(i-nPeriod+1,ncols));
+    for i = 2:npx
+        if i == 2
+            hv(i,ncols) = abs(ret(i-1,ncols));
         else
             hv(i,ncols) = hv(i-1,ncols)^2*lambda + ...
-                ret(i-nPeriod+1,ncols)^2*(1-lambda);
+                ret(i-1,ncols)^2*(1-lambda);
             hv(i,ncols) = sqrt(hv(i,ncols));
         end 
     end
