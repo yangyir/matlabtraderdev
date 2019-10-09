@@ -1,7 +1,11 @@
 sec = '510050 CH Equity';
+%% historical data from  bloomberg
 conn = bbgconnect;
-%% historical data
-hd = conn.history(sec,'px_last','2016-07-07','2019-10-08');
+% hd = conn.history(sec,'px_last','2016-07-07','2019-10-08');
+%% load historical data if bbg is not installed
+path = getenv('DATAPATH');
+fn = [path,'50etf_daily.txt'];
+hd = cDataFileIO.loadDataFromTxtFile(fn);
 %% 3m ewma vol
 nperiod = 63;
 classicalvol = historicalvol(hd,nperiod,'classical');classicalvol = [classicalvol(:,1),sqrt(252)*classicalvol(:,2)];
@@ -248,8 +252,29 @@ for i = istart:iend
     cash(i-istart+1) = fundavailable - fundused(i-istart+1) + proceeds(i-istart+1);
 end
 
-
-
+%%
+n = straddles.latest_;
+dts = hd(nperiod:end,1);
+notional0 = 1;
+deltacarry = zeros(n,1);
+for i = 1:n
+    dt_i = dts(i);
+    for j = 1:n
+        straddle_j = straddles.node_(j);
+        tradedts_j = straddle_j.tradedts_;
+        idx_ij = find(tradedts_j == dt_i,1,'first');
+        if isempty(idx_ij), continue;end
+        if ~straddle_j.status_(idx_ij),continue;end
+        deltacarry(i) = deltacarry(i) + straddle_j.deltas_(idx_ij)*notional0;        
+    end
+end
+sytheticpnl = zeros(n,1);
+spots = hd(nperiod:end,2);
+for i = 2:n
+    sytheticpnl(i) = deltacarry(i-1)*(spots(i)-spots(i-1))/spots(i-1);
+end
+figure(3);
+plot(cumsum(sytheticpnl));grid on;
 
 
 
