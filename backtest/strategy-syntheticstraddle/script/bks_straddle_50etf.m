@@ -1,6 +1,6 @@
 sec = '510050 CH Equity';
 %% historical data from  bloomberg
-conn = bbgconnect;
+% conn = bbgconnect;
 % hd = conn.history(sec,'px_last','2016-07-07','2019-10-08');
 %% load historical data if bbg is not installed
 path = getenv('DATAPATH');
@@ -28,7 +28,7 @@ for i = nperiod:N
     end
     straddle_i = bkcStraddle('id',id,'code',sec,...
         'strike',strike,'opendt',opendt,'expirydt',expirydt);
-    straddle_i.valuation('Spots',hd,'Vols',ewmavol,'VolMethod','static');
+    straddle_i.valuation('Spots',hd,'Vols',ewmavol,'VolMethod','dynamic');
     straddles.push(straddle_i);
     count = count + 1;
 end
@@ -253,28 +253,48 @@ for i = istart:iend
 end
 
 %%
+ret = log(hd(2:end,2)./hd(1:end-1,2));
+variance = ret.^2;
+sigmavar = sqrt(quantile(variance,0.95));
 n = straddles.latest_;
 dts = hd(nperiod:end,1);
-notional0 = 1;
+spots = hd(nperiod:end,2);
 deltacarry = zeros(n,1);
+marginused = zeros(n,1);
+marginrate = 0.1;
+initialmargin = dayscut*0.6*marginrate;
+pr = 1-sigmavar/marginrate;
+
+pvholding = zeros(n,1);
+pvholding(1) = initialmargin;
+
 for i = 1:n
     dt_i = dts(i);
+    %compute theoretical cash delta
     for j = 1:n
         straddle_j = straddles.node_(j);
         tradedts_j = straddle_j.tradedts_;
         idx_ij = find(tradedts_j == dt_i,1,'first');
         if isempty(idx_ij), continue;end
         if ~straddle_j.status_(idx_ij),continue;end
-        deltacarry(i) = deltacarry(i) + straddle_j.deltas_(idx_ij)*notional0;        
+        deltacarry(i) = deltacarry(i) + straddle_j.deltas_(idx_ij);
     end
+    %compute margin used
+    if i > 1
+        pvholding(i) = pvholding(i-1)+deltacarry(i-1)*(spots(i)-spots(i-1))/spots(i-1);
+    end
+    if marginrate*abs(deltacarry(i))/pr > pvholding(i)
+        deltacarry(i) = sign(deltacarry(i))*pvholding(i)*pr;
+        warning('margin breached on %s\n',datestr(dt_i,'yyyy-mm-dd'));
+    end
+    marginused(i) = marginrate*abs(deltacarry(i));
 end
-sytheticpnl = zeros(n,1);
-spots = hd(nperiod:end,2);
-for i = 2:n
-    sytheticpnl(i) = deltacarry(i-1)*(spots(i)-spots(i-1))/spots(i-1);
-end
+
+
 figure(3);
-plot(cumsum(sytheticpnl));grid on;
+plot(marginused,'r');grid on;title('margin over time');
+hold on;plot(pvholding,'b');hold off;legend('marginused','pvholding');
+
 
 
 
