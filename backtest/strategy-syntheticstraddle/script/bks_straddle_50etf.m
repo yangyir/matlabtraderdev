@@ -30,23 +30,34 @@ for i = nperiod:N
 end
 %% stats and plots without leverage
 n = straddles.latest_;
-finalrets = zeros(n,2);
+finalrets = zeros(n,3);
 limit = 1.5;
 stop = 0.9;
-dayscut = 42;
-criterial = 'pv';
+dayscut = 30;
+criterial = 'delta';
 for i = 1:n
     straddle_i = straddles.node_(i);
     unwindidx = straddle_i.unwindinfo('limit',limit,'stop',stop,'dayscut',dayscut,'criterial',criterial);
-    if strcmpi(criterial,'pv')
-        finalrets(i,1) = straddle_i.pvs_(unwindidx)/straddle_i.pvs_(1);
+    if unwindidx ~= -1
+        if strcmpi(criterial,'pv')
+            finalrets(i,1) = straddle_i.pvs_(unwindidx)/straddle_i.pvs_(1);
+        else
+            temp = cumsum(straddle_i.deltapnl_);
+            finalrets(i,1) = 1+temp(unwindidx)/straddle_i.pvs_(1);
+        end
     else
-        temp = cumsum(straddle_i.deltapnl_);
-        finalrets(i,1) = 1+temp(unwindidx)/straddle_i.pvs_(1);
+        idxlastrunning = find(isnan(straddle_i.pvs_),1,'first')-1;
+        if strcmpi(criterial,'pv')
+            finalrets(i,1) = straddle_i.pvs_(idxlastrunning)/straddle_i.pvs_(1);
+        else
+            temp = cumsum(straddle_i.deltapnl_);
+            finalrets(i,1) = 1+temp(idxlastrunning)/straddle_i.pvs_(1);
+        end
     end
     finalrets(i,2) = unwindidx;
+    finalrets(i,3) = straddle_i.pvs_(1);
 end
-%
+%%
 rate = 0.03;
 nbdaysperyear = 252;
 dailyfiret = rate/nbdaysperyear*ones(n,1);
