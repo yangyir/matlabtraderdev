@@ -1,6 +1,6 @@
-classdef bkcStraddle < bkcVanilla
+classdef bkcButterfly < bkcVanilla
     methods
-        function obj = bkcStraddle(varargin)
+        function obj = bkcButterfly(varargin)
             obj = init(obj,varargin{:});
         end
     end

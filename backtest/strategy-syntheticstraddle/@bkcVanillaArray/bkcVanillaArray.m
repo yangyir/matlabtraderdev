@@ -1,19 +1,18 @@
-classdef bkcStraddleArray < cArray
+classdef bkcVanillaArray < cArray
     properties(Abstract = false)
         %note:
-        %we cannot use node_@cSyntheticStraddle since the base class cArray has no
         %restriction in defining node_
         %all restrictions shall be implemented only in set methods
         %with the correct elemement class initialized
-        node_ = bkcStraddle;
+        node_ = bkcVanilla;
     end
     
     methods
         function set.node_(obj, node)
-            if isa(node, 'bkcStraddle')
+            if isa(node, 'bkcVanilla')
                 obj.node_ = node;
             else
-                error('bkcStraddleArray£ºinvalid node input');
+                error('bkcVanillaArray£ºinvalid node input');
             end
         end
     end

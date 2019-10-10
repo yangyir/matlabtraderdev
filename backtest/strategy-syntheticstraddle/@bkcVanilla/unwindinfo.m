@@ -1,5 +1,5 @@
 function [idxunwind,unwinddt] = unwindinfo(obj,varargin)
-%bkcStraddle
+%bkcVanilla
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('Limit',inf,@isnumeric);
