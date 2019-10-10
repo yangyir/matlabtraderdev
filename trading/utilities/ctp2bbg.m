@@ -83,7 +83,11 @@ bcode = '';
 for i = 1:size(codelist1)
     if strcmpi(assetshortcode,codelist2{i})
         if ~opt
-            bcode = [codelist1{i},fcode,byystr,' Comdty'];
+            if strcmpi(assetshortcode,'IF') || strcmpi(assetshortcode,'IC') || strcmpi(assetshortcode,'IH')
+                bcode = [codelist1{i},fcode,byystr,' Index'];
+            else
+                bcode = [codelist1{i},fcode,byystr,' Comdty'];
+            end
         else
             bcode = [codelist1{i},fcode,byystr,opt_type,' ',opt_strike,' Comdty'];
         end

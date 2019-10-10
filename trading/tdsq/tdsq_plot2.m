@@ -39,6 +39,9 @@ index2plot = index(idxstart:idxend);
 ax(1) = subplot(2,1,1);
 plot(tdSTResistence(idxstart:idxend),'r:','LineWidth',2);hold on;
 plot(tdSTSupport(idxstart:idxend),'g:','LineWidth',2);
+if isa(instr2,'cInstrument')
+    title(instr2.code_ctp);
+end
 legend('tdst-resistence','tdst-support');
 candle(pxhigh2plot,pxlow2plot,pxclose2plot,pxopen2plot);
 xtick = get(ax(1),'XTick');
