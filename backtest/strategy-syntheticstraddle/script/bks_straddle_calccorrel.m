@@ -24,5 +24,9 @@ nasset = length(asset_list);
 rollinfo = cell(nasset,1);
 pxoidata = cell(nasset,1);
 for i = 1:nasset
-[rollinfo{i},pxoidata{i}] = bkfunc_genfutrollinfo(asset_list{i});
+    [rollinfo{i},pxoidata{i}] = bkfunc_genfutrollinfo(asset_list{i});
 end
+%%
+i = 10;
+[x,y] = bkfunc_genfutrollinfo(asset_list{i});
+x

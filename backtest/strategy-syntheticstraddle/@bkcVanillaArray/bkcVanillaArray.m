@@ -24,6 +24,9 @@ classdef bkcVanillaArray < cArray
         premium = getproceeds(obj,datein,varargin)
         %
         n = countlivestraddle(obj,datein)
+        output = unwindinfo(obj,varargin)
+        [pv,margin,delta] = runningpvsynthetic(obj,varargin)
+        
     end
     
 end
