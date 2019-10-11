@@ -15,7 +15,7 @@ subplot(312);plot(classicalvol(:,2),'r');title('classicvol');grid on;
 subplot(313);plot(ewmavol(:,2),'r');title('ewmavol');grid on;
 %% create straddles
 N = size(hd,1);
-straddles = bkcStraddleArray;
+straddles = bkcVanillaArray;
 count = 1;
 for i = nperiod:N
     id = count;

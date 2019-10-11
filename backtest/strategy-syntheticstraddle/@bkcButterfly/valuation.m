@@ -1,5 +1,5 @@
 function [] = valuation(obj,varargin)
-%bkcStraddle
+%bkcButterfly
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('spots',[],@isnumeric);
@@ -25,15 +25,20 @@ function [] = valuation(obj,varargin)
             obj.S_(i) = NaN;
         end
         if ~isempty(idxSpot) && ~isempty(idxVol)
-            [cleg,pleg] = blkprice(obj.S_(i),obj.strike_,0,(length(obj.tradedts_)-i)/252,sigma(idxVol,2));
+            leg1 = blkprice(obj.S_(i),obj.strike_(1),0,(length(obj.tradedts_)-i)/252,sigma(idxVol,2));
+            leg2 = blkprice(obj.S_(i),obj.strike_(2),0,(length(obj.tradedts_)-i)/252,sigma(idxVol,2));
+            leg3 = blkprice(obj.S_(i),obj.strike_(3),0,(length(obj.tradedts_)-i)/252,sigma(idxVol,2));
             if i == length(obj.tradedts_)
-                clegdelta = 0;
-                plegdelta = 0;
+                leg1delta = 0;
+                leg2delta = 0;
+                leg3delta = 0;
             else
-                [clegdelta,plegdelta] = blsdelta(obj.S_(i),obj.strike_,0,(length(obj.tradedts_)-i)/252,sigma(idxVol,2),0);
+                leg1delta = blsdelta(obj.S_(i),obj.strike_(1),0,(length(obj.tradedts_)-i)/252,sigma(idxVol,2),0);
+                leg2delta = blsdelta(obj.S_(i),obj.strike_(2),0,(length(obj.tradedts_)-i)/252,sigma(idxVol,2),0);
+                leg3delta = blsdelta(obj.S_(i),obj.strike_(3),0,(length(obj.tradedts_)-i)/252,sigma(idxVol,2),0);
             end
-            obj.pvs_(i) = cleg+pleg;
-            obj.deltas_(i) = clegdelta + plegdelta;
+            obj.pvs_(i) = leg1-2*leg2*leg3;
+            obj.deltas_(i) = leg1delta -2*leg2delta+ leg3delta;
             if i == 1
                 obj.deltapnl_(i) = 0;
             else
@@ -44,8 +49,10 @@ function [] = valuation(obj,varargin)
             if i == length(obj.tradedts_)
                 obj.thetapnl_(i) = 0;
             else
-                [cleg,pleg] = blkprice(obj.S_(i),obj.strike_,0,(length(obj.tradedts_)-i-1)/252,sigma(idxVol,2));
-                obj.thetapnl_(i) = cleg+pleg-obj.pvs_(i);
+                leg1 = blkprice(obj.S_(i),obj.strike_(1),0,(length(obj.tradedts_)-i-1)/252,sigma(idxVol,2));
+                leg2 = blkprice(obj.S_(i),obj.strike_(2),0,(length(obj.tradedts_)-i-1)/252,sigma(idxVol,2));
+                leg3 = blkprice(obj.S_(i),obj.strike_(3),0,(length(obj.tradedts_)-i-1)/252,sigma(idxVol,2));
+                obj.thetapnl_(i) = leg1-2*leg2*leg3-obj.pvs_(i);
             end
         else
             obj.pvs_(i) = NaN;
