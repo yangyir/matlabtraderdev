@@ -5,10 +5,12 @@ function [] = valuation(obj,varargin)
     p.addParameter('spots',[],@isnumeric);
     p.addParameter('vols',[],@isnumeric);
     p.addParameter('volmethod','dynamic',@ischar);
+    p.addParameter('calctheta',false,@islogical);
     p.parse(varargin{:});
     S = p.Results.spots;
     sigma = p.Results.vols;
     volmethod = p.Results.volmethod;
+    calctheta = p.Results.calctheta;
     for i = 1:length(obj.tradedts_)
         dt_i = obj.tradedts_(i);
         idxSpot = find(S(:,1) == dt_i,1,'first');
@@ -40,12 +42,16 @@ function [] = valuation(obj,varargin)
                 obj.deltapnl_(i) = obj.deltas_(i-1)*(obj.S_(i)-obj.S_(i-1));
             end
             %
-            %theta pnl
-            if i == length(obj.tradedts_)
-                obj.thetapnl_(i) = 0;
+            if calctheta
+                %theta pnl
+                if i == length(obj.tradedts_)
+                    obj.thetapnl_(i) = 0;
+                else
+                    [cleg,pleg] = blkprice(obj.S_(i),obj.strike_,0,(length(obj.tradedts_)-i-1)/252,sigma(idxVol,2));
+                    obj.thetapnl_(i) = cleg+pleg-obj.pvs_(i);
+                end
             else
-                [cleg,pleg] = blkprice(obj.S_(i),obj.strike_,0,(length(obj.tradedts_)-i-1)/252,sigma(idxVol,2));
-                obj.thetapnl_(i) = cleg+pleg-obj.pvs_(i);
+                obj.thetapnl_(i) = NaN;
             end
         else
             obj.pvs_(i) = NaN;
