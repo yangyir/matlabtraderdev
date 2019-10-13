@@ -74,6 +74,9 @@ for i = 1:size(bds,1)
     if ~flag || (flag && override) || bds(i) == lbd || bds(i) == plbd
         %20180527:we will always update data for the last businessdate
         fn_ = [dir_data_,f.code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+        if flag && (bds(i) == lbd || bds(i) == plbd)
+            delete(fn_);
+        end
         data = bbg.intradaybar(f,bd,bd,1,'trade');
         if isempty(data), continue; end
         cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
