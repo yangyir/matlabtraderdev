@@ -71,16 +71,19 @@ yy_str = num2str(curr_yy);
 % end
 
 
-% if strcmpi(assetName,'nickel')
-%     if init_yy < curr_yy
-%         n = 2+...                       %contracts for the first year
-%             (curr_yy-1-init_yy)*3+...   %contracts between the 2nd and last year
-%             ceil(curr_mm/4)+...         %contracts (expired) for this year
-%             3;                          %now listed
-%     else
-%         n = ceil((curr_mm-init_mm+1)/4)+3;
-%     end
-% else
+if strcmpi(assetName,'nickel')
+    if init_yy < curr_yy
+        n = 1+...                       %contracts for the first year
+            6+...                       %contracts between 2016 and 2017
+            5+...                       %contracts in 2018
+            9;                          %contracts in 2019
+        if curr_yy > 2019
+            n = n + curr_mm + 3;
+        end
+    else
+        n = ceil((curr_mm-init_mm+1)/4)+3;
+    end
+else
     if init_yy < curr_yy
         n = (12-init_mm+1)+...          %contracts for the first year
             (curr_yy-1-init_yy)*12+...  %contracts between the 2nd and last year
@@ -89,15 +92,25 @@ yy_str = num2str(curr_yy);
     else
         n = (curr_mm-init_mm+1)+3;
     end
-% end
+end
 contracts = cell(n,1);
 i=1;
 while i<=n
-%     if strcmpi(assetName,'nickel')
-%         mm = (i-1)*4+init_mm;
-%     else
+    if strcmpi(assetName,'nickel')
+        if i <= 9
+            mm = (i-1)*4+init_mm;
+        elseif i == 10 || i == 11 || i == 12
+            mm = 32+init_mm+(i-9)*2;
+        elseif i == 13
+            mm = 32+init_mm+6+2;
+        elseif i == 14
+            mm = 32+init_mm+6+6;
+        else
+            mm = 32+init_mm+i-2;
+        end 
+    else
         mm = i+init_mm-1;
-%     end
+    end
     if mod(mm,12)==0
         yy = init_yy+mm/12-1;
     else
