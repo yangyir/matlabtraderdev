@@ -1,4 +1,4 @@
-k1 = 50;
+k1 = 25;
 k2 = n_30m;
 outputs_30m = tdsq_plot2withboundary(data_govtbond_30m,k1,k2,lf_govtbond);
 tdsq_plot2(data_govtbond_30m,k1,k2,lf_govtbond);
