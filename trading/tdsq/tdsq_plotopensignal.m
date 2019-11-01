@@ -66,7 +66,9 @@ outputs = struct('k1',k1,'y1',y1,...
 
 
 figure(figureidx);
-ax(1) = subplot(211);
+pv1 = [0.05 0.3 0.9 0.65];
+ax(1) = subplot('position',pv1);
+% ax(1) = subplot(211);
 if isnan(k1)
     plot(x,range1max*ones(length(x),1),'c--');hold on;
 else
@@ -197,7 +199,9 @@ set(ax(1),'XTickLabel',xticklabel,'fontsize',8);
 xlabel('time points');ylabel('price');
 
 %
-ax(2) = subplot(212);
+% ax(2) = subplot(212);
+pv2 = [0.05 0.05 0.9 0.2];
+ax(2) = subplot('position',pv2);
 bar(x,diffvec(xreal),'r');
 
 if macdbs(xreal(end),1) ~= 0
