@@ -1,5 +1,8 @@
-function [outputs] = tdsq_plotopensignal( currenti,p,bs,ss,lvlup,lvldn,bc,sc,diffvec )
+function [outputs] = tdsq_plotopensignal( currenti,p,bs,ss,lvlup,lvldn,bc,sc,diffvec,figureidx )
 %
+if nargin < 10
+    figureidx = 1;
+end
 [macdbs,macdss] = tdsq_setup(diffvec);
 temp = diffvec(2:end).*diffvec(1:end-1);
 idxchg = find(temp<0)+1;
@@ -62,7 +65,7 @@ outputs = struct('k1',k1,'y1',y1,...
     'x',x);
 
 
-figure(1);
+figure(figureidx);
 ax(1) = subplot(211);
 if isnan(k1)
     plot(x,range1max*ones(length(x),1),'c--');hold on;
