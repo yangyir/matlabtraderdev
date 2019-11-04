@@ -1,22 +1,20 @@
 %%
-% test code: 1.unwind position before holiday
-% 2. won't open again once the open price has breached the stoploss
 try
     clc;
     delete(timerfindall);
 catch
 end
 combo = rtt_setup('countername','ccb_ly_fut',...
-    'bookname','ni1911imperfect',...
+    'bookname','booktdsq-displayonly',...
     'strategyname','tdsq',...
-    'riskconfigfilename','config_tdsq_ni1911_imperfect.txt',...
+    'riskconfigfilename','config_tdsq_regressiontest_displayonly.txt',...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2019-08-30','replaytodate','2019-08-30');
+    'replayfromdate','2019-11-01','replaytodate','2019-11-04');
 %
+combo.strategy.displaysignalonly_ = true;
 combo.mdefut.printflag_ = false;
-combo.ops.printflag_ = true;
-combo.ops.print_timeinterval_ = 15*60;
+combo.ops.printflag_ = false;
 combo.strategy.printflag_ = false;
 %%
 combo.mdefut.start;

@@ -29,6 +29,8 @@ classdef cStratFutMultiTDSQ < cStrat
         macdss_@cell
         %
         tags_@cell
+        %
+        displaysignalonly_@logical = false
     end
     
     properties
@@ -51,11 +53,16 @@ classdef cStratFutMultiTDSQ < cStrat
     %derived (abstract) methods from superclass
     methods
         function signals = gensignals(obj)
-            signals = obj.gensignals_futmultitdsq2;
+            if ~obj.displaysignalonly_
+                signals = obj.gensignals_futmultitdsq2;
+            else
+                signals = obj.gensignals_futmultitdsq3;
+            end
         end
         %end of gensignals
         
         function [] = autoplacenewentrusts(obj,signals)
+            if obj.displaysignalonly_, return;end
             obj.autoplacenewentrusts_futmultitdsq2(signals)
         end
         %end of autoplacenewentrusts
@@ -65,6 +72,7 @@ classdef cStratFutMultiTDSQ < cStrat
         end
             
         function [] = riskmanagement(obj,dtnum)
+            if obj.displaysignalonly_, return;end
             obj.riskmanagement_futmultitdsq(dtnum)
         end
         
@@ -97,6 +105,7 @@ classdef cStratFutMultiTDSQ < cStrat
         [] = updategreeks_futmultitdsq(obj)
         signals = gensignals_futmultitdsq(obj)
         signals = gensignals_futmultitdsq2(obj)
+        signals = gensignals_futmultitdsq3(obj)
         [] = autoplacenewentrusts_futmultitdsq(obj,signals)
         [] = autoplacenewentrusts_futmultitdsq2(obj,signals)
         [] = initdata_futmultitdsq(obj)

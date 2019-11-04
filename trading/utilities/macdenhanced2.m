@@ -1,4 +1,4 @@
-currenti = 164;
+currenti = 135;
 idxchgbefore = find(idxchg(:,1) <= currenti,3,'last');
 if idxchg(idxchgbefore(end)) ~= currenti
     previouschg1 = idxchg(idxchgbefore(end-1));

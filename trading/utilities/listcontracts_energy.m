@@ -61,7 +61,7 @@ else
 %             3;                          %now listed and activly traded
         n = 8;
     else
-        n = (curr_mm-init_mm+1)+11;
+        n = (curr_mm-init_mm+1)+12;
     end
 end
 
@@ -83,7 +83,7 @@ while i<=n
         elseif i == 5
             mm = 16;
         else
-            mm = i+15;
+            mm = i+16;
         end
     end
     if mod(mm,12)==0
