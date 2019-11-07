@@ -235,8 +235,8 @@ function signals = gensignals_futmultitdsq2(strategy)
             %  
         end
        %%
-        fprintf('\n%s->tdsq info:\n',strategy.name_);
         if i == 1
+            fprintf('\n%s->tdsq info:\n',strategy.name_);
             fprintf('%10s%11s%10s%8s%8s%10s%10s%10s%10s\n',...
                 'contract','time','px','bs','ss','levelup','leveldn','macd','sig');
         end
