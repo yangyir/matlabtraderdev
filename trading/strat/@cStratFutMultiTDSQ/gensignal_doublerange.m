@@ -130,6 +130,7 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
             if isempty(lastidxsc13)
                 openflag = true;
             else
+                np = size(p,1);
                 if np - lastidxsc13 > 11
                     openflag = true;
                 else
