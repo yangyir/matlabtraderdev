@@ -40,7 +40,8 @@ function [] = refreshreplaymode2(mdefut)
             end
         end
         if maxidxsize > 2
-            error('cMDEFut:refreshreplaymode2:internal error')
+%             error('cMDEFut:refreshreplaymode2:internal error')
+            maxidxsize = 2;
         end
         
         if maxidxsize == 1
