@@ -38,10 +38,7 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
     isabove = p(end,5) > lvlup(end)+buffer;
     isbelow = p(end,5) < lvldn(end)-buffer;
     isbetween = p(end,5) <= lvlup(end) && p(end,5) >= lvldn(end);
-    
-%     hassc13inrange = ~isempty(find(sc(end-11:end)==13, 1));
-%     hasbc13inrange = ~isempty(find(bc(end-11:end)==13, 1));
-    
+       
     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
     
     if isbetween
@@ -88,6 +85,11 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
                     openflag = ~isempty(find(diffvec(lastidxbc13:end) > 0,1,'last'));
                 end
             end
+            
+            if openflag
+                openflag = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+            end
+            
             if openflag
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
@@ -109,6 +111,11 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
                     openflag = ~isempty(find(diffvec(lastidxsc13:end) < 0,1,'last'));
                 end
             end
+            
+            if openflag
+                openflag = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+            end
+            
             if openflag
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
@@ -124,7 +131,6 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
         %the most recent bar to determine whether the market
         %was traded below the lvlup
         wasbelowlvlup = ~isempty(find(p(end-8:end,4)<lvlup(end),1,'first'));
-%         wasmacdbearish = ~isempty(find(diffvec(end-8:end-1)<0,1,'first'));
         if wasbelowlvlup && diffvec(end)>0 && ss(end)>0 && ~isperfectss && sc(end) ~= 13 && macdss(end)>0
             lastidxsc13 = find(sc == 13,1,'last');
             if isempty(lastidxsc13)
@@ -138,6 +144,11 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
                     openflag = ~isempty(find(diffvec(lastidxsc13:end) < 0,1,'last'));
                 end
             end
+            
+            if openflag
+                openflag = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+            end
+            
             if openflag
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...
@@ -167,6 +178,11 @@ function [signal] = gensignal_doublerange(strategy,instrument,p,bs,ss,lvlup,lvld
                     openflag = ~isempty(find(diffvec(lastidxbc13:end) > 0,1,'last'));
                 end
             end
+            
+            if openflag
+                openflag = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+            end
+            
             if openflag
                 signal = struct('name','tdsq',...
                     'instrument',instrument,'frequency',samplefreqstr,...

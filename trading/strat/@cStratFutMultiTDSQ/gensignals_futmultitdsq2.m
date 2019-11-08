@@ -151,6 +151,8 @@ function signals = gensignals_futmultitdsq2(strategy)
            signals{i,1} = {};
         else
            signals{i,1} = {};
+           %todo:
+           %在perfectbs和perfectss的情景下，如果两者变得无效，是否可以用imperfect的代码呢？
            if ~closeperfecttradeatm && strcmpi(tag,'perfectbs') && strategy.useperfect_(i)
                signals{i,1} = strategy.gensignal_perfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'perfectbs');
                %

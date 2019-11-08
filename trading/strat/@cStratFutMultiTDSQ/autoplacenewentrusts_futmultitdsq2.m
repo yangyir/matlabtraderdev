@@ -25,13 +25,14 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
             signalmode = signal.mode;
             signaltype = signal.type;
             if strcmpi(signalmode,'unset') || strcmpi(signaltype,'unset'), continue;end
-            trade_signaltype = strategy.getlivetrade_tdsq(instrument.code_ctp,signalmode,signaltype);
+%             trade_signaltype = strategy.getlivetrade_tdsq(instrument.code_ctp,signalmode,signaltype);
             %Note:20190901
             %add a control with a target portfolio
             typeidx = cTDSQInfo.gettypeidx(signaltype);
             targetholding = strategy.targetportfolio_(i,typeidx);
             
-            if ~isempty(trade_signaltype) || targetholding ~= 0, continue;end
+%             if ~isempty(trade_signaltype) || targetholding ~= 0, continue;end
+            if targetholding ~= 0, continue;end
             %
             %cancel any pending entrust with open offsetflag
             n = strategy.helper_.entrustspending_.latest;

@@ -139,6 +139,10 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     end
                     
                     if openflag
+                        openflag = tdsq_validsell1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
+                    end
+                    
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
@@ -170,16 +174,6 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             %add:special treatment before holiday
                             %unwind before holiday as the market is not
                             %continous anymore
-%                             unwindbeforeholiday = false;
-%                             cobd = floor(p(j,1));
-%                             nextbd = businessdate(cobd);
-%                             if nextbd - cobd > 3
-%                                 hh = hour(p(j,1));
-%                                 mm = minute(p(j,1));
-%                                 if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-%                                     unwindbeforeholiday = true;
-%                                 end
-%                             end
                             unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                             if diffvec(j)>0 || (usesetups && ss(j)>=4) || bs(j) >= 24 || bc(j)==13 || isperfectbs_j || ...
                                     (hasbreachlvldn && p(j,4)>lvldn(i)) || unwindbeforeholiday || p(j,4) > lvlup(i)
@@ -217,6 +211,10 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     end
                     
                     if openflag
+                        openflag = tdsq_validbuy1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
+                    end
+                    
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -248,16 +246,6 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             %add:special treatment before holiday
                             %unwind before holiday as the market is not
                             %continous anymore
-%                             unwindbeforeholiday = false;
-%                             cobd = floor(p(j,1));
-%                             nextbd = businessdate(cobd);
-%                             if nextbd - cobd > 3
-%                                 hh = hour(p(j,1));
-%                                 mm = minute(p(j,1));
-%                                 if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-%                                     unwindbeforeholiday = true;
-%                                 end
-%                             end
                             unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                             if diffvec(j) < 0 || (usesetups && bs(j)>=4) || ss(j) >= 24 || sc(j)==13 || isperfectss_j || ...
                                     (hasbreachlvlup && p(j,3)<lvlup(i)) || unwindbeforeholiday || p(j,3) < lvldn(i)
@@ -301,6 +289,10 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     end
                     
                     if openflag
+                        openflag = tdsq_validbuy1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
+                    end
+                    
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
@@ -328,16 +320,6 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             %add:special treatment before holiday
                             %unwind before holiday as the market is not
                             %continous anymore
-%                             unwindbeforeholiday = false;
-%                             cobd = floor(p(j,1));
-%                             nextbd = businessdate(cobd);
-%                             if nextbd - cobd > 3
-%                                 hh = hour(p(j,1));
-%                                 mm = minute(p(j,1));
-%                                 if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-%                                     unwindbeforeholiday = true;
-%                                 end
-%                             end
                             unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                             if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) == 24 || sc(j) == 13 || isperfectss_j || ...
                                     p(j,3)<lvlup(i) || unwindbeforeholiday
@@ -381,6 +363,10 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                     end
                     
                     if openflag
+                        openflag = tdsq_validsell1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
+                    end
+                    
+                    if openflag
                         count = count + 1;
                         trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
                             'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
@@ -407,16 +393,7 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublerange(code,p,bs,ss,lvlup,lvldn,
                             %add:special treatment before holiday
                             %unwind before holiday as the market is not
                             %continous anymore
-                            unwindbeforeholiday = false;
-                            cobd = floor(p(j,1));
-                            nextbd = businessdate(cobd);
-                            if nextbd - cobd > 3
-                                hh = hour(p(j,1));
-                                mm = minute(p(j,1));
-                                if (hh == 14 && mm == 45) || (hh == 15 && mm == 0)
-                                    unwindbeforeholiday = true;
-                                end
-                            end
+                            unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
                             if diffvec(j)>0 || (usesetups && ss(j) >= 4) || bs(j) >= 24 || bc(j) == 13 || isperfectbs_j || ...
                                     p(j,4) > lvldn(i) || unwindbeforeholiday
                                 trade_new.closedatetime1_ = p(j,1);
