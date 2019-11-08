@@ -71,7 +71,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
             
             %use close price to determine whether any of the sequential up
             %to 9 has breached oldlvldn in case of double range
-            waspxbelowlvldn = ~isempty(find(p(lastidxbs-8:lastidxbs,5) < oldlvldn,1,'first')) && isdoublerange;
+            bsbreachdnlvldn = ~isempty(find(p(lastidxbs-8:lastidxbs,5) < oldlvldn,1,'first')) && isdoublerange;
             
             for j = i:n
                 %note:beforehand we only use 9 bars to check whether the
@@ -81,8 +81,8 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 %determine whether it has fallen below the oldlvldn or not
                 sn_j = sns{j};
                 [tag_j,count_j] = tdsq_snbd(sn_j);
-                if ~waspxbelowlvldn && count_j > 9
-                    waspxbelowlvldn = ~isempty(find(p(lastidxbs-8:lastidxbs+count_j-9,5) < oldlvldn,1,'first')) && isdoublerange;
+                if ~bsbreachdnlvldn && count_j > 9
+                    bsbreachdnlvldn = ~isempty(find(p(lastidxbs-8:lastidxbs+count_j-9,5) < oldlvldn,1,'first')) && isdoublerange;
                 end
                 
                 if isempty(openidx) && (strcmpi(tag_j,'perfectss') || strcmpi(tag_j,'semiperfectss') || strcmpi(tag_j,'imperfectss') || strcmpi(tag_j,'perfectbs'))
@@ -97,99 +97,131 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                 %
                 f0 = macdvec(j) > sigvec(j) && ~(usesetups && (bs(j) >= 4 && bs(j) <= 9));
                 if isdoublerange
-                    if waspxbelowlvldn
+                    if bsbreachdnlvldn
                         %the price has breached lvldn but the new lvlup
                         %is still above lvldn
                         f1 = p(j,5) > oldlvldn && ~isempty(find(p(j-8:j-1,5) < oldlvldn,1,'first'));
-                        if rangereverselimit < 0
-                            validrangereverse = true;
-                        else
-                            idx2check = find(bs(lastidxbs+1:j) == 0,1,'first')+lastidxbs-1;
-                            if j - idx2check  < rangereverselimit
-                                validrangereverse = true;
+                        if f1 && rangereverselimit >= 0
+                            idx2check = find(bs(lastidxbs+1:j) == 0,1,'first');
+                            if ~isempty(idx2check)
+                                idx2check = idx2check +lastidxbs-1;
                             else
-                                validrangereverse = false;
+                                idx2check = j;
+                            end
+                            if j - idx2check > rangereverselimit
+                                f1 = false;
                             end
                         end
-                        f1 = f1 && validrangereverse;
-                        if f0 && (f1 || hasbc13inrange) && macdss(j) > 0
-                            openidx = j;
-                            if f1 && ~hasbc13inrange
-                                opensn = 'range-reverse';
-                            elseif ~f1 && hasbc13inrange
-                                opensn = 'range-unreverse-countdown';
-                            elseif f1 && hasbc13inrange
-                                opensn = 'range-reverse-countdown';
+                        
+%                         if f0 && (f1 || hasbc13inrange) && macdss(j) > 0
+                        if f0 && (f1 || hasbc13inrange)
+                            validbuy = tdsq_validbuy1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                            if validbuy
+                                openidx = j;
+                                if f1 && ~hasbc13inrange
+                                    opensn = 'range-reverse';
+                                elseif ~f1 && hasbc13inrange
+                                    opensn = 'range-breachdn-countdown';
+                                elseif f1 && hasbc13inrange
+                                    opensn = 'range-reverse-countdown';
+                                end
+                                break
                             end
-                            break
                         end
                     else
                         %the price failed to breach lvldn
-                        if hasbc13inrange && f0 && macdss(j) > 0
+%                         if hasbc13inrange && f0 && macdss(j) > 0
+                        if hasbc13inrange && f0    
+                            validbuy = tdsq_validbuy1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                            if validbuy
+                                openidx = j;
+                                opensn = 'range-countdown';
+                                break
+                            end
+                        end
+                    end
+                    %
+                    breachlvlup = ~isempty(find(p(j-8:j-1,5) < newlvlup,1,'first')) && p(j,5) > newlvlup;
+                    if breachlvlup && rangebreachlimit >= 0
+                        idx2check = find(bs(lastidxbs:j) == 0,1,'first');
+                        if ~isempty(idx2check)
+                            idx2check = idx2check+lastidxbs-1;
+                        else
+                            idx2check = j;
+                        end
+                        if j - idx2check > rangebreachlimit
+                            breachlvlup = false;
+                        end
+                    end
+%                     if f0 && breachlvlup && macdss(j) > 0
+                    if f0 && breachlvlup
+                        validbuy = tdsq_validbuy1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validbuy
                             openidx = j;
-                            opensn = 'range-countdown';
+                            opensn = 'range-breachup';
                             break
                         end
                     end
-                    breachlvlup = ~isempty(find(p(j-8:j-1,5) < newlvlup,1,'first')) && p(j,5) > newlvlup;
-                    if rangebreachlimit < 0
-                        validrangebreach = true;
-                    else
-                        idx2check = find(bs(lastidxbs:j) == 0,1,'first')+lastidxbs-1;
-                        if j - idx2check  < rangebreachlimit
-                            validrangebreach = true;
-                        else
-                            validrangebreach = false;
-                        end
-                    end
-                    breachlvlup = breachlvlup && validrangebreach;
-                    if f0 && breachlvlup && macdss(j) > 0
-                        openidx = j;
-                        opensn = 'range-breach';
-                        break
-                    end
                     %
                     is9139bc = tdsq_is9139buycount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
-                    if f0 && is9139bc && j - lastidxbs <= 12 && macdss(j) > 0
-                        openidx = j;
-                        opensn = 'range-9139';
-                        break
+%                     if f0 && is9139bc && j - lastidxbs <= 12 && macdss(j) > 0
+                    if f0 && is9139bc && j - lastidxbs <= 12
+                        validbuy = tdsq_validbuy1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validbuy
+                            openidx = j;
+                            opensn = 'range-9139';
+                            break
+                        end
                     end
                     %
                 elseif isdoublebearish || issinglebearish
                     %double-bearish
                     if f0 && bs(j) >= 9 && usesetupscenario
                         %bs >= 9 but with bullish macd
-                        openidx = j;
-                        if isdoublebearish
+                        validbuy = tdsq_validbuy1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validbuy
+                            openidx = j;
                             opensn = 'trend-setup';
-                        else
-                            opensn = 'trend-setup';
+                            break
                         end
-                        break
                     end
                     %
                     %check whether it is 9-13-9 within 12 bars
                     is9139bc = tdsq_is9139buycount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
-                    if f0 && is9139bc && j - lastidxbs <= 12 && macdss(j) > 0
-                        openidx = j;
-                        if isdoublebearish
+%                     if f0 && is9139bc && j - lastidxbs <= 12 && macdss(j) > 0
+                    if f0 && is9139bc && j - lastidxbs <= 12
+                        validbuy = tdsq_validbuy1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validbuy
+                            openidx = j;
                             opensn = 'trend-9139';
-                        else
-                            opensn = 'trend-9139';
+                            break
                         end
-                        break
                     end
                     breachlvlup = ~isempty(find(p(j-8:j-1,5) < newlvlup,1,'first')) && p(j,5) > newlvlup;
-                    breachlvlup = breachlvlup && usetrendbreach;
-                    if f0 && breachlvlup && macdss(j) > 0
-                        openidx = j;
-                        if isdoublebearish
-                            opensn = 'trend-breach';
+                    if breachlvlup && rangebreachlimit >= 0
+                        idx2check = find(bs(lastidxbs:j) == 0,1,'first');
+                        if ~isempty(idx2check)
+                            idx2check = idx2check+lastidxbs-1;
                         else
-                            opensn = 'trend-breach';
+                            idx2check = j;
                         end
-                        break
+                        if j - idx2check > rangebreachlimit
+                            breachlvlup = false;
+                        end
+                    end
+                    breachlvlup = breachlvlup && usetrendbreach;
+%                     if f0 && breachlvlup && macdss(j) > 0
+                    if f0 && breachlvlup && macdss(j) > 0
+                        validbuy = tdsq_validbuy1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validbuy
+                            openidx = j;
+                            if isdoublebearish
+                                opensn = 'trend-breach';
+                            else
+                                opensn = 'trend-breach';
+                            end
+                            break
+                        end
                     end
                 end
             end
@@ -209,10 +241,10 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                     tag_j = tdsq_snbd(sn_j);
                     if strcmpi(tag_j,'perfectss') && closeonperfect, break;end
                     %improvements in riskmanagement
-                    if isdoublerange && waspxbelowlvldn && f1 && p(j,3) < oldlvldn                        
+                    if isdoublerange && bsbreachdnlvldn && f1 && p(j,3) < oldlvldn                        
                         break;
                     end
-                    if isdoublerange && ~waspxbelowlvldn && breachlvlup && p(j,3) < newlvlup
+                    if isdoublerange && ~bsbreachdnlvldn && breachlvlup && p(j,3) < newlvlup
                         break;
                     end
                     if (issinglebearish || isdoublebearish) && breachlvlup && p(j,3) < newlvlup
@@ -301,95 +333,134 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         %the price has breached lvlup but the new lvldn is
                         %still below lvlup
                         f1 = p(j,5) < oldlvlup && ~isempty(find(p(j-8:j-1,5) > oldlvlup,1,'first'));
-                        if rangereverselimit < 0
-                            validrangereverse = true;
-                        else
-                            idx2check = find(ss(lastidxss+1:j) == 0,1,'first')+lastidxss-1;
-                            if j - idx2check  < rangereverselimit
-                                validrangereverse = true;
+                        if f1 && rangereverselimit >= 0
+                            idx2check = find(ss(lastidxss+1:j) == 0,1,'first');
+                            if ~isempty(idx2check)
+                                idx2check = idx2check+lastidxss-1;
                             else
-                                validrangereverse = false;
+                                idx2check = j;
+                            end
+                            if j - idx2check  > rangereverselimit
+                                f1 = false;
                             end
                         end
-                        f1 = f1 && validrangereverse;
-                        if f0 && (f1 || hassc13inrange) && macdbs(j) > 0
-                            openidx = j;
-                            if f1 && ~hassc13inrange
-                                opensn = 'range-reverse';
-                            elseif ~f1 && hassc13inrange
-                                opensn = 'range-unreverse-countdown';
-                            elseif f1 && hassc13inrange
-                                opensn = 'range-reverseback-countdown';
+%                         if f0 && (f1 || hassc13inrange) && macdbs(j) > 0
+                        if f0 && (f1 || hassc13inrange)
+                            validsell = tdsq_validsell1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                            if validsell
+                                openidx = j;
+                                if f1 && ~hassc13inrange
+                                    opensn = 'range-reverse';
+                                elseif ~f1 && hassc13inrange
+                                    opensn = 'range-breachup-countdown';
+                                elseif f1 && hassc13inrange
+                                    opensn = 'range-reverse-countdown';
+                                end
+                                break
                             end
-                            break
                         end
                     else
                         %the price failed to breach lvlup
-                        if hassc13inrange && f0 && macdbs(j) > 0
-                            openidx = j;
-                            opensn = 'range-countdown';
-                            break
+%                         if hassc13inrange && f0 && macdbs(j) > 0
+                        if hassc13inrange && f0
+                            validsell = tdsq_validsell1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                            if validsell
+                                openidx = j;
+                                opensn = 'range-countdown';
+                                break
+                            end
                         end
                     end
                     %
                     breachlvldn = ~isempty(find(p(j-8:j-1,5) > newlvldn,1,'first')) && p(j,5) < newlvldn;
-                    if rangebreachlimit < 0
-                        validrangebreach = true;
-                    else
-                        idx2check = find(ss(lastidxss:j) == 0,1,'first')+lastidxss-1;
-                        if j - idx2check  < rangebreachlimit
-                            validrangebreach = true;
+                    if breachlvldn && rangebreachlimit >= 0
+                        idx2check = find(ss(lastidxss:j) == 0,1,'first');
+                        if ~isempty(idx2check)
+                            idx2check = idx2check + lastidxss-1;
                         else
-                            validrangebreach = false;
+                            idx2check = j;
+                        end
+                        if j - idx2check  > rangebreachlimit
+                            breachlvldn = false;
                         end
                     end
-                    breachlvldn = breachlvldn && validrangebreach;
-                    if f0 && breachlvldn && macdbs(j) > 0
-                        openidx = j;
-                        opensn = 'range-breach';
-                        break
+%                     if f0 && breachlvldn && macdbs(j) > 0
+                    if f0 && breachlvldn
+                        validsell = tdsq_validsell1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validsell
+                            openidx = j;
+                            opensn = 'range-breach';
+                            break
+                        end
                     end
                     %check whether it is 9-13-9 within 12 bars
                     is9139sc = tdsq_is9139sellcount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
-                    if f0 && is9139sc && j - lastidxss <= 12 && macdbs(j) > 0
-                        openidx = j;
-                        opensn = 'range-9139';
-                        break
+%                     if f0 && is9139sc && j - lastidxss <= 12 && macdbs(j) > 0
+                    if f0 && is9139sc && j - lastidxss <= 12
+                        validsell = tdsq_validsell1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validsell
+                            openidx = j;
+                            opensn = 'range-9139';
+                            break
+                        end
                     end
                 elseif isdoublebullish || issinglebullish
                     %double-bullish
                     if f0 && ss(j) >= 9 && usesetupscenario
                         %ss >= 9 but with bearish macd
-                        openidx = j;
-                        if isdoublebullish
-                            opensn = 'trend-setup';
-                        else
-                            opensn = 'trend-setup';
+                        validsell = tdsq_validsell1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validsell
+                            openidx = j;
+                            if isdoublebullish
+                                opensn = 'trend-setup';
+                            else
+                                opensn = 'trend-setup';
+                            end
+                            break
                         end
-                        break
                     end
                     %
                     %check whether it is 9-13-9 within 12 bars
                     is9139sc = tdsq_is9139sellcount(bs(1:j),ss(1:j),bc(1:j),sc(1:j));
-                    if f0 && is9139sc && j - lastidxss <= 12 && macdbs(j) > 0
-                        openidx = j;
-                        if isdoublebullish
-                            opensn = 'trend-9139';
-                        else
-                            opensn = 'trend-9139';
+%                     if f0 && is9139sc && j - lastidxss <= 12 && macdbs(j) > 0
+                    if f0 && is9139sc && j - lastidxss <= 12
+                        validsell = tdsq_validsell1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validsell
+                            openidx = j;
+                            if isdoublebullish
+                                opensn = 'trend-9139';
+                            else
+                                opensn = 'trend-9139';
+                            end
+                            break
                         end
-                        break
                     end
+                    %
                     breachlvldn = ~isempty(find(p(j-8:j-1,5) > newlvldn,1,'first')) && p(j,5) < newlvldn;
-                    breachlvldn = usetrendbreach && breachlvldn;
-                    if f0 && breachlvldn && macdbs(j) > 0
-                        openidx = j;
-                        if isdoublebullish
-                            opensn = 'trend-breach';
+                    if breachlvldn && rangebreachlimit >= 0
+                        idx2check = find(ss(lastidxss:j) == 0,1,'first');
+                        if ~isempty(idx2check)
+                            idx2check = idx2check + lastidxss-1;
                         else
-                            opensn = 'trend-breach';
+                            idx2check = j;
                         end
-                        break
+                        if j - idx2check  > rangebreachlimit
+                            breachlvldn = false;
+                        end
+                    end
+                    breachlvldn = usetrendbreach && breachlvldn;
+%                     if f0 && breachlvldn && macdbs(j) > 0
+                    if f0 && breachlvldn
+                        validsell = tdsq_validsell1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
+                        if validsell
+                            openidx = j;
+                            if isdoublebullish
+                                opensn = 'trend-breach';
+                            else
+                                opensn = 'trend-breach';
+                            end
+                            break
+                        end
                     end
                 end
             end

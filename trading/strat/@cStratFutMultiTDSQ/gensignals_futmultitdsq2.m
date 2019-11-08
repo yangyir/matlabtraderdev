@@ -155,7 +155,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                signals{i,1} = strategy.gensignal_perfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'perfectbs');
                %
            elseif strcmpi(tag,'semiperfectbs') && strategy.usesemiperfect_(i)
-               signals{i,1} = strategy.gensignal_semiperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'semiperfectbs');
+               signals{i,1} = strategy.gensignal_imperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'semiperfectbs');
                %
            elseif strcmpi(tag,'imperfectbs') && strategy.useimperfect_(i)
                signals{i,1} = strategy.gensignal_imperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'imperfectbs');
@@ -164,7 +164,7 @@ function signals = gensignals_futmultitdsq2(strategy)
                signals{i,1} = strategy.gensignal_perfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'perfectss');
                %
            elseif strcmpi(tag,'semiperfectss') && strategy.usesemiperfect_(i)
-               signals{i,1} = strategy.gensignal_semiperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'semiperfectss');
+               signals{i,1} = strategy.gensignal_imperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'semiperfectss');
                %
            elseif strcmpi(tag,'imperfectss') && strategy.useimperfect_(i)
                signals{i,1} = strategy.gensignal_imperfect(instruments{i},p,bs,ss,levelup,leveldn,macdvec,sigvec,bc,sc,'imperfectss');

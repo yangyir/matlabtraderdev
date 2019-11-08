@@ -51,12 +51,14 @@ function [is2closetrade,entrustplaced] = riskmanagement_perfectbs(strategy,trade
         
 
     %case 3:any breach of lvlup afterwards when macd turns bearish
-    tradeopentime = tradein.opendatetime1_;
-    idxstart2check = find(p(:,1) <= tradeopentime,1,'last');
+    openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
+    if isempty(openidx),openidx = 1;end
+    if openidx == 0, openidx = 1;end
+    
     lvlup = tradein.opensignal_.lvlup_;
     breachlvlup = false;
     breachidx = [];
-    for i = idxstart2check:size(p,1)
+    for i = openidx:size(p,1)
         if p(i,5) > lvlup
             breachlvlup = true;
             breachidx = i;

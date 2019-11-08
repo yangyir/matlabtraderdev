@@ -47,16 +47,16 @@ function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,ma
                 ibreach = ibreach + ibs-1;
                 diffvec = macdvec(ibreach:end)-sigvec(ibreach:end);
                 haslvlupbreachedwithmacdbearishafterwards = ~isempty(find(diffvec<0,1,'first'));
-                %用最高价判断是否完全跌回lvlup之下
-                haslvlupbreachedbutbouncedback = ~isempty(find(p(ibreach:end,3)<lvlup(ibs),1,'first'));
-                %如果价格回到了lvlup之下，我们认为perfectbs也就无效了
-                if haslvlupbreachedbutbouncedback
-                    stillvalid = false;
-                end
-                %如果此时间点收盘价在lvlup之下，我们认为该时间点无效
-                if ~haslvlupbreachedbutbouncedback && p(end,5) < lvlup(ibs)
-                    stillvalid = false;
-                end
+%                 %用最高价判断是否完全跌回lvlup之下
+%                 haslvlupbreachedbutbouncedback = ~isempty(find(p(ibreach:end,3)<lvlup(ibs),1,'first'));
+%                 %如果价格回到了lvlup之下，我们认为perfectbs也就无效了
+%                 if haslvlupbreachedbutbouncedback
+%                     stillvalid = false;
+%                 end
+%                 %如果此时间点收盘价在lvlup之下，我们认为该时间点无效
+%                 if ~haslvlupbreachedbutbouncedback && p(end,5) < lvlup(ibs)
+%                     stillvalid = false;
+%                 end
             end
         end
 
@@ -121,16 +121,16 @@ function [signal] = gensignal_perfect(strategy,instrument,p,bs,ss,lvlup,lvldn,ma
                 ibreach = ibreach + iss-1;
                 diffvec = macdvec(ibreach:end)-sigvec(ibreach:end);
                 haslvldnbreachedwithmacdbullishafterwards = ~isempty(find(diffvec>0,1,'first'));
-                %用最低价判断是否完全反弹回lvldn之上
-                haslvldnbreachedbutbouncedback = ~isempty(find(p(ibreach:end,4)>lvldn(iss),1,'first'));
-                %如果价格回到了lvldn之上，我们认为perfectbs也就无效了
-                if haslvldnbreachedbutbouncedback
-                    stillvalid = false;
-                end
-                %如果此时间点收盘价在lvldn之上，我们认为该时间点无效
-                if ~haslvldnbreachedbutbouncedback && p(end,5) > lvldn(iss)
-                    stillvalid = false;
-                end
+%                 %用最低价判断是否完全反弹回lvldn之上
+%                 haslvldnbreachedbutbouncedback = ~isempty(find(p(ibreach:end,4)>lvldn(iss),1,'first'));
+%                 %如果价格回到了lvldn之上，我们认为perfectbs也就无效了
+%                 if haslvldnbreachedbutbouncedback
+%                     stillvalid = false;
+%                 end
+%                 %如果此时间点收盘价在lvldn之上，我们认为该时间点无效
+%                 if ~haslvldnbreachedbutbouncedback && p(end,5) > lvldn(iss)
+%                     stillvalid = false;
+%                 end
             end
         end
         

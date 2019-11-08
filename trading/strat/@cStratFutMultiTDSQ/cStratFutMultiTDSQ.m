@@ -88,11 +88,11 @@ classdef cStratFutMultiTDSQ < cStrat
         [] = riskmanagement_futmultitdsq2(obj,varargin)
         %
         [is2closetrade,entrustplaced] = riskmanagement_perfectbs(obj,tradein,varargin)
-        [is2closetrade,entrustplaced] = riskmanagement_semiperfectbs(obj,tradein,varargin)
+%         [is2closetrade,entrustplaced] = riskmanagement_semiperfectbs(obj,tradein,varargin)
         [is2closetrade,entrustplaced] = riskmanagement_imperfectbs(obj,tradein,varargin)
         %
         [is2closetrade,entrustplaced] = riskmanagement_perfectss(obj,tradein,varargin)
-        [is2closetrade,entrustplaced] = riskmanagement_semiperfectss(obj,tradein,varargin)
+%         [is2closetrade,entrustplaced] = riskmanagement_semiperfectss(obj,tradein,varargin)
         [is2closetrade,entrustplaced] = riskmanagement_imperfectss(obj,tradein,varargin)
         %
         [is2closetrade,entrustplaced] = riskmanagement_singlelvldn(obj,tradein,varargin)
@@ -129,7 +129,7 @@ classdef cStratFutMultiTDSQ < cStrat
     
     methods (Access = private)
         [signal] = gensignal_perfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
-        [signal] = gensignal_semiperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
+%         [signal] = gensignal_semiperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
         [signal] = gensignal_imperfect(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag)
         [signal] = gensignal_singlelvldn(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss)
         [signal] = gensignal_signlelvlup(obj,instrument,p,bs,ss,lvlup,lvldn,macdvec,sigvec,bc,sc,tag,macdbs,macdss)

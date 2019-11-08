@@ -85,6 +85,13 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                             %macd has turned negative
                             haslvlupbreachedwithmacdbearishafterwards = true;
                         end
+%                         haslvlupbreachedbutbouncedback = ~isempty(find(p(ibreach:i,3)<lvlup(ibs),1,'first'));
+%                         if haslvlupbreachedbutbouncedback
+%                             stillvalid = false;
+%                         end
+%                         if ~haslvlupbreachedbutbouncedback && p(i,5) < lvlup(ibs)
+%                             stillvalid = false;
+%                         end
                     end
                     %
                 end
@@ -203,6 +210,13 @@ function [ tradesout ] = bkf_gentrades_tdsqperfect(code,p,bs,ss,lvlup,lvldn,bc,s
                             %macd has turned bullish
                             haslvldnbreachedwithmacdbullishhafterwards = true;
                         end
+%                         haslvldnbreachedbutbouncedback = ~isempty(find(p(ibreach:i,4)>lvldn(iss),1,'first'));
+%                         if haslvldnbreachedbutbouncedback
+%                             stillvalid = false;
+%                         end
+%                         if ~haslvldnbreachedbutbouncedback && p(i,5) > lvldn(iss)
+%                             stillvalid = false;
+%                         end
                     end
                     %
                 end

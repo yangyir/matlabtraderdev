@@ -172,7 +172,7 @@ function [ ret,closestr,tradeout,closeidx ] = bkf_riskmanagement_tdsqimperfect( 
                 break;
             end
             %
-            if isbreach && p(j,4) < newlvldn
+            if isbreach && p(j,4) > newlvldn
                 closestr = 'breachbounceback1';
                 break
             end

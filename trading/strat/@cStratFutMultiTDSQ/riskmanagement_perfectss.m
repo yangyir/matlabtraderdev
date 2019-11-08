@@ -50,12 +50,13 @@ function [is2closetrade,entrustplaced] = riskmanagement_perfectss(strategy,trade
     end
     
     %case 3:any breach of lvldn afterwards when macd turns bullish
-    tradeopentime = tradein.opendatetime1_;
-    idxstart2check = find(p(:,1) <= tradeopentime,1,'last');
+    openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
+    if isempty(openidx),openidx = 1;end
+    if openidx == 0, openidx = 1;end
     lvldn = tradein.opensignal_.lvldn_;
     breachlvldn = false;
     breachidx = [];
-    for i = idxstart2check:size(p,1)
+    for i = openidx:size(p,1)
         if p(i,5) < lvldn
             breachlvldn = true;
             breachidx = i;

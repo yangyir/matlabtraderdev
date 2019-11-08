@@ -17,85 +17,110 @@ function [is2closetrade,entrustplaced] = riskmanagement_imperfectss(strategy,tra
     p = p(idxkeep,:);
     
     %case 2 any ss scenario afterwards when macd turns bearish
-%     bs = strategy.tdbuysetup_{idx};
     ss = strategy.tdsellsetup_{idx};
-%     lvldn = strategy.tdstleveldn_{idx};
-%     bc = strategy.tdbuycountdown_{idx};
-%     sc = strategy.tdsellcountdown_{idx};
+    bs = strategy.tdbuysetup_{idx};
+    bc = strategy.tdbuycountdown_{idx};
     macdvec = strategy.macdvec_{idx};
     sigvec = strategy.nineperma_{idx};
+    macdbs = strategy.macdbs_{idx};
     tag = strategy.tags_{idx};
+    tradetype = tradein.opensignal_.type_;
     
-    if strcmpi(tag,'perfectbs')
-        is2closetrade = true;
-        entrustplaced = strategy.unwindtrade(tradein);
-        typeidx = cTDSQInfo.gettypeidx('imperfectss');
-        strategy.targetportfolio_(idx,typeidx) = 0;
-        return
-    end
+    %perfectsetup
+%     if strcmpi(tag,'perfectbs')
+%         is2closetrade = true;
+%         entrustplaced = strategy.unwindtrade(tradein);
+%         typeidx = cTDSQInfo.gettypeidx(tradetype);
+%         strategy.targetportfolio_(idx,typeidx) = 0;
+%         return
+%     end
     
     riskmode = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmode');
     usesetups = strcmpi(riskmode,'macd-setup');
     
-    if (macdvec(end) > sigvec(end) || (ss(end) >= 4 && usesetups))
+    %macd
+    %setuplimit
+    %countdown13
+    if (macdvec(end) - sigvec(end) > 5e-4 || (ss(end) >= 4 && usesetups)) ...
+            || bs(end) >= 24 || bc(end) == 13
         is2closetrade = true;
         entrustplaced = strategy.unwindtrade(tradein);
-        typeidx = cTDSQInfo.gettypeidx('imperfectss');
+        typeidx = cTDSQInfo.gettypeidx(tradetype);
         strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
     
-    %additional risk management for imperfectbs/semi-perfectbs trade
-    if strcmpi(tradein.opensignal_.scenario_,'doublerange-breachdnlvlup') && ...
-            p(end,4) > tradein.opensignal_.lvlup_
-        is2closetrade = true;
-        entrustplaced = strategy.unwindtrade(tradein);
-        typeidx = cTDSQInfo.gettypeidx('imperfectss');
-        strategy.targetportfolio_(idx,typeidx) = 0;
-        return
+    %additional risk management for imperfectss/semi-perfectss trade
+    israngereverse = ~isempty(strfind(tradein.opensignal_.scenario_,'range-reverse'));
+    isbreach = strcmpi(tradein.opensignal_.scenario_,'breach');
+    israngebreach = ~isempty(strfind(tradein.opensignal_.scenario_,'range-breach'));
+    oldlvlup = tradein.opensignal_.lvlup_;
+    newlvldn = tradein.opensignal_.lvldn_;
+    isdoublebullish = false;
+    if ~isnan(oldlvlup)
+        isdoublebullish = newlvldn > oldlvlup;
     end
-    %
-    if ~isempty(strfind(tradein.opensignal_.scenario_,'breachdnlvldn')) && ...
-            p(end,4) > tradein.opensignal_.lvldn_
+    
+    %reversebounceback
+    if israngereverse && p(end,4) > oldlvlup
         is2closetrade = true;
         entrustplaced = strategy.unwindtrade(tradein);
-        typeidx = cTDSQInfo.gettypeidx('imperfectss');
+        typeidx = cTDSQInfo.gettypeidx(tradetype);
         strategy.targetportfolio_(idx,typeidx) = 0;
         return
     end
     
-    isdoublerange = ~isempty(strfind(tradein.opensignal_.scenario_,'doublerange'));
-    issinglebullish = ~isempty(strfind(tradein.opensignal_.scenario_,'singlebullish'));
-    isdoublebullish = ~isempty(strfind(tradein.opensignal_.scenario_,'doublebullish'));
+    %breachbounceback1
+    if isbreach && p(end,4) > newlvldn
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx(tradetype);
+        strategy.targetportfolio_(idx,typeidx) = 0;
+        return
+    end
     
-    if isdoublerange || issinglebullish
-        openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
-        if isempty(openidx),openidx = 1;end
-        if openidx == 0, openidx = 1;end
-        lvldn = tradein.opensignal_.lvldn_;
-        hasbreachedlvldn = ~isempty(find(p(openidx:end,5) < lvldn,1,'first'));
-        if hasbreachedlvldn && p(end,5) - lvldn >= 4*tradein.instrument_.tick_size
+    %rangebreachsetuplimit
+    if israngebreach && bs(end) == 9
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx(tradetype);
+        strategy.targetportfolio_(idx,typeidx) = 0;
+        return
+    end
+    
+    openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
+    if isempty(openidx),openidx = 1;end
+    if openidx == 0, openidx = 1;end
+    
+    %macdlimit
+    if israngereverse && ~isempty(find(macdbs(openidx:end) == 20,1,'last')) && macdbs(end) == 0
+        is2closetrade = true;
+        entrustplaced = strategy.unwindtrade(tradein);
+        typeidx = cTDSQInfo.gettypeidx(tradetype);
+        strategy.targetportfolio_(idx,typeidx) = 0;
+        return
+    end
+    
+    if ~isdoublebullish
+        hasbreachedlvldn = ~isempty(find(p(openidx:end,5) < newlvldn,1,'first'));
+        %breachbounceback2
+        if hasbreachedlvldn && p(end,5) - newlvldn > 4*instrument.tick_size
             is2closetrade = true;
             entrustplaced = strategy.unwindtrade(tradein);
-            typeidx = cTDSQInfo.gettypeidx('imperfectss');
+            typeidx = cTDSQInfo.gettypeidx(tradetype);
             strategy.targetportfolio_(idx,typeidx) = 0;
+            return
         end
-        return
-    end
-    %
-    if isdoublebullish
-        openidx = find(p(:,1) <= tradein.opendatetime1_,1,'last')-1;
-        if openidx == 0, openidx = 1;end
-        if isempty(openidx),openidx = 1;end
-        lvlup = tradein.opensignal_.lvlup_;
-        hasbreachedlvlup = ~isempty(find(p(openidx:end,5) < lvlup,1,'first'));
-        if hasbreachedlvlup && p(end,5) - lvlup >= 4*tradein.instrument_.tick_size
+    else
+        hasbreachedlvlup = ~isempty(find(p(openidx:end,5) < oldlvlup,1,'first'));
+        %breachbounceback3
+        if hasbreachedlvlup && p(end,5) - oldlvlup > 4*instrument.tick_size
             is2closetrade = true;
             entrustplaced = strategy.unwindtrade(tradein);
-            typeidx = cTDSQInfo.gettypeidx('imperfectss');
+            typeidx = cTDSQInfo.gettypeidx(tradetype);
             strategy.targetportfolio_(idx,typeidx) = 0;
+            return
         end
-        return
     end
-
+    
 end

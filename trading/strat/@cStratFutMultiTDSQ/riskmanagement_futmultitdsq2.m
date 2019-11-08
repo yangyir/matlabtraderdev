@@ -29,7 +29,7 @@ function [] = riskmanagement_futmultitdsq2(strategy,varargin)
         
     if ~isempty(trade_semiperfectbs)
         if strcmpi(trade_semiperfectbs.status_,'unset'), trade_semiperfectbs.status_ = 'set';end
-        [istrade2close,entrustplaced] = strategy.riskmanagement_semiperfectbs(trade_semiperfectbs);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_imperfectbs(trade_semiperfectbs);
         if istrade2close && ~entrustplaced
             fprintf('%s:trade shall be unwinded but entrust NOT placed:semiperfectbs!!!\n',strategy.name_)
         end
@@ -53,7 +53,7 @@ function [] = riskmanagement_futmultitdsq2(strategy,varargin)
 
     if ~isempty(trade_semiperfectss)
         if strcmpi(trade_semiperfectss.status_,'unset'), trade_semiperfectss.status_ = 'set';end
-        [istrade2close,entrustplaced] = strategy.riskmanagement_semiperfectss(trade_semiperfectss);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_imperfectss(trade_semiperfectss);
         if istrade2close && ~entrustplaced
             fprintf('%s:trade shall be unwinded but entrust NOT placed:semiperfectss!!!\n',strategy.name_)
         end
