@@ -2,7 +2,7 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
 %cStratFutMultiTDSQ
     signal = {};
 
-    if strcmpi(tag,'imperfectbs')
+    if strcmpi(tag,'imperfectbs') || strcmpi(tag,'semiperfectbs')
         lastidxbs = find(bs == 9,1,'last');
         newlvlup = lvlup(lastidxbs);
         oldlvldn = lvldn(lastidxbs);
@@ -17,74 +17,76 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
         isdoublerange = ~(isdoublebearish || issinglebearish);
         
         %use close price to determine whether any of the sequential up
-        %to 9 has breached oldlvldn in case of double range
-        waspxbelowlvldn = ~isempty(find(p(lastidxbs-8:lastidxbs,5) < oldlvldn,1,'first')) && isdoublerange;
+        %to 9 has breached oldlvldn in case of double range. 
+        %beforehand we only use 9 bars to check whether the
+        %price has fallen below oldlvldn or not. however, the
+        %buysetup sequential doesn't necessary stop at 9, so we
+        %shall use the buysetup sequential developed so far to
+        %determine whether it has fallen below the oldlvldn or not
+        lastidxbsnonezero = find(bs(lastidxbs:end)==0,1,'first');
+        if isempty(lastidxbsnonezero)
+            lastidxbsnonezero = length(bs);
+        else
+            lastidxbsnonezero = lastidxbsnonezero-1+lastidxbs;
+        end
         f0 = macdvec(end) > sigvec(end);
+        hasbc13inrange = tdsq_hasbc13inrange(bs,ss,bc,sc);
+        
+        %在doublerange的情景下，我们仅在MACD为正的情况(f0 = true)下考虑开仓
         if isdoublerange && f0
-            if waspxbelowlvldn
+            bsbreachdnlvldn = ~isempty(find(p(lastidxbs-8:lastidxbsnonezero,5) < oldlvldn,1,'first'));
+            if bsbreachdnlvldn
                 %the price has breached lvldn but the new lvlup
                 %is still above lvldn
+                %f1:市场的收盘价又回到了之前lvldn的上方且过去的9个收盘价中有收盘价低于之前的lvldn
                 f1 = p(end,5) > oldlvldn && ~isempty(find(p(end-8:end-1,5) < oldlvldn,1,'first'));
-                hasbc13inrange = ~isempty(find(bc(end-11:end) == 13,1,'last'));
-                if hasbc13inrange
-                    lastidxbc13 = find(bc == 13,1,'last');
-                    if lastidxbc13 < lastidxbs, hasbc13inrange = false;end
-                end
-                %when a bs that began before,on,or after
-                %the developing buycountdown, but prior to
-                %a bullish price flip, extends to 18 bars,
-                %the buycountdown shall be recycled
-                if hasbc13inrange
-                    lastidxbs18 = find(bs == 18,1,'last');
-                    if ~isempty(lastidxbs18)
-                        if  lastidxbc13 <= lastidxbs18
-                            hasbc13inrange = false;
-                        elseif lastidxbc13 > lastidxbs18
-                            %make sure there is no bullish price between
-                            hasbc13inrange = ~isempty(find(ss(lastidxbs18+1:lastidxbc13)==1,1,'first'));
-                        end
-                    end
-                end
+                %需要加入距离上次full buysetup的时间距离，如果已经时间过去很久，
+                %我们通常认为这次的反转是虚假的信号
+                f1 = f1 && length(bs) - lastidxbsnonezero <= 18;
                 
                 if (f1 || (~f1 && hasbc13inrange ))
-                    if f1
-                        sn = 'doublerange-breachuplvldn';
-                    elseif ~f1 && hasbc13inrange
-                        sn = 'doublerange';
+                    validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                    if validbuy
+                        if f1
+                            sn = 'range-reverse';
+                            if hasbc13inrange, sn = [sn,'-countdown'];end
+                        elseif ~f1 && hasbc13inrange
+                            sn = 'range-breach-countdown';
+                        end
+                        samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                        signal = struct('name','tdsq',...
+                            'instrument',instrument,'frequency',samplefreqstr,...
+                            'scenarioname',sn,...
+                            'mode','reverse','type',tag,...
+                            'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
+                        return
                     end
-                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-                    signal = struct('name','tdsq',...
-                        'instrument',instrument,'frequency',samplefreqstr,...
-                        'scenarioname',sn,...
-                        'mode','reverse','type',tag,...
-                        'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
-                    return
                 end
             else
                 %the price failed to breach lvldn
-                hasbc13inrange = ~isempty(find(bc(end-11:end) == 13,1,'last'));
                 if hasbc13inrange
-                    lastidxbc13 = find(bc == 13,1,'last');
-                    if lastidxbc13 < lastidxbs, hasbc13inrange = false;end
-                end
-                %when a bs that began before,on,or after
-                %the developing buycountdown, but prior to
-                %a bullish price flip, extends to 18 bars,
-                %the buycountdown shall be recycled
-                if hasbc13inrange
-                    lastidxbs18 = find(bs == 18,1,'last');
-                    if ~isempty(lastidxbs18)
-                        if  lastidxbc13 <= lastidxbs18
-                            hasbc13inrange = false;
-                        elseif lastidxbc13 > lastidxbs18
-                            %make sure there is no bullish price between
-                            hasbc13inrange = ~isempty(find(ss(lastidxbs18+1:lastidxbc13)==1,1,'first'));
-                        end
+                    validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                    if validbuy
+                        sn = 'range-countdown';
+                        samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                        signal = struct('name','tdsq',...
+                            'instrument',instrument,'frequency',samplefreqstr,...
+                            'scenarioname',sn,...
+                            'mode','reverse','type',tag,...
+                            'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
+                        return
                     end
                 end
-                
-                if hasbc13inrange
-                    sn = 'doublerange';
+            end
+            %    
+            breachlvlup = ~isempty(find(p(end-8:end-1,5) < newlvlup,1,'first')) && p(end,5) > newlvlup;
+            %需要加入距离上次full buysetup的时间距离，如果已经时间过去很久，
+            %我们通常认为这次的穿越是虚假的信号
+            breachlvlup = breachlvlup && length(bs) - lastidxbsnonezero <= 12;
+            if breachlvlup
+                validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validbuy
+                    sn = 'range-breach';
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
@@ -93,64 +95,77 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
                         'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
                     return
                 end
-                
-                breachlvlup = ~isempty(find(p(end-8:end-1,5) < newlvlup,1,'first')) && p(end,5) > newlvlup;
-                if breachlvlup
-                    sn = 'doublerange-breachuplvlup';
-                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-                    signal = struct('name','tdsq',...
-                        'instrument',instrument,'frequency',samplefreqstr,...
-                        'scenarioname',sn,...
-                        'mode','reverse','type',tag,...
-                        'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
-                    return
-                end 
-            end
-        elseif (isdoublebearish || issinglebearish) && f0
-            if isdoublebearish
-                sn = 'doublebearish';
-            elseif issinglebearish
-                sn = 'singlebearish';
-            end
-            %
-            %bs >= 9 with bullish macd
-            if bs(end) >= 9
-                samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');                
-                signal = struct('name','tdsq',...
-                    'instrument',instrument,'frequency',samplefreqstr,...
-                    'scenarioname',sn,...
-                    'mode','reverse','type',tag,...
-                    'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
-                return
             end
             %
             is9139bc = tdsq_is9139buycount(bs,ss,bc,sc);
             if is9139bc && length(bs) - lastidxbs <= 12
-                samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-                signal = struct('name','tdsq',...
-                    'instrument',instrument,'frequency',samplefreqstr,...
-                    'scenarioname',sn,...
-                    'mode','reverse','type',tag,...
-                    'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
-                return
+                validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validbuy
+                    sn = 'range-9139';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                    signal = struct('name','tdsq',...
+                        'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
+                    return
+                end
+            end
+            %
+        elseif (isdoublebearish || issinglebearish) && f0
+            %bs >= 9 with bullish macd
+            if bs(end) >= 9
+                validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validbuy
+                    sn = 'trend-setup';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');                
+                    signal = struct('name','tdsq',...
+                        'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
+                    return
+                end
+            end
+            %
+            is9139bc = tdsq_is9139buycount(bs,ss,bc,sc);
+            if is9139bc && length(bs) - lastidxbs <= 12
+                validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validbuy
+                    sn = 'trend-9139';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                    signal = struct('name','tdsq',...
+                        'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
+                    return
+                end
             end
             %
             breachlvlup = ~isempty(find(p(end-8:end-1,5) < newlvlup,1,'first')) && p(end,5) > newlvlup;
-            if breachlvlup
-                samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-                signal = struct('name','tdsq',...
-                    'instrument',instrument,'frequency',samplefreqstr,...
-                    'scenarioname',[sn,'-breachuplvlup'],...
-                    'mode','reverse','type',tag,...
-                    'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
-                return
+            breachlvlup = breachlvlup && length(bs) - lastidxbsnonezero <= 12;
+            %todo:
+            %我们需要考虑trend breach是否在semiperfect/imperfect scenario中
+            if f0 && breachlvlup
+                validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validbuy
+                    sn = 'trend-breach';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                    signal = struct('name','tdsq',...
+                        'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',newlvlup,'lvldn',oldlvldn,'risklvl',-9.99);
+                    return
+                end
             end
         end
         %
         return
     end
     %
-    if strcmpi(tag,'imperfectss')
+    if strcmpi(tag,'imperfectss') || strcmpi(tag,'semiperfectss')
         lastidxss = find(ss == 9,1,'last');
         newlvldn = lvldn(lastidxss);
         oldlvlup = lvlup(lastidxss);
@@ -166,73 +181,74 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
         
         %use close price to determine whether any of the sequential up
         %to 9 has breached oldlvlup
-        waspxabovelvlup = ~isempty(find(p(lastidxss-8:lastidxss,5) > oldlvlup,1,'first')) && isdoublerange;
+        %beforehand we only use 9 bars to check whether the
+        %price has rallied above oldlvlup or not. however, the
+        %sellsetup sequential doesn't necessary stop at 9, so we
+        %shall use the sellsetup sequential developed so far to
+        %determine whether it has rallied above the oldlvlup or not
+        lastidxssnonezero = find(ss(lastidxss:end)==0,1,'first');
+        if isempty(lastidxssnonezero)
+            lastidxssnonezero = length(ss);
+        else
+            lastidxssnonezero = lastidxssnonezero-1+lastidxss;            
+        end
         f0 = macdvec(end) < sigvec(end);
+        hassc13inrange = tdsq_hassc13inrange(bs,ss,bc,sc);
+        
         if isdoublerange && f0
-            if waspxabovelvlup
+            ssbreachuplvlup = ~isempty(find(p(lastidxss-8:lastidxssnonezero,5) > oldlvlup,1,'first'));
+            if ssbreachuplvlup
                 %the price has breached lvlup but the new lvldn is
                 %still below lvlup
+                %f1:市场的收盘价又回到了之前lvlup的下方且过去的9个收盘价中有收盘价高于之前的lvlup
                 f1 = p(end,5) < oldlvlup && ~isempty(find(p(end-8:end-1,5) > oldlvlup,1,'first'));
-                hassc13inrange = ~isempty(find(sc(end-11:end) == 13,1,'last'));
-                if hassc13inrange
-                    lastidxsc13 = find(sc == 13,1,'last');
-                    if lastidxsc13 < lastidxss, hassc13inrange = false;end
-                end
-                %when a ss that began before,on,or after
-                %the developing sellcountdown, but prior to
-                %a bearish price flip, extends to 18 bars,
-                %the sellcountdown shall be recycled
-                if hassc13inrange
-                    lastidxss18 = find(ss == 18,1,'last');
-                    if ~isempty(lastidxss18)
-                        if  lastidxsc13 <= lastidxss18
-                            hassc13inrange = false;
-                        elseif lastidxsc13 > lastidxss18
-                            %make sure there is no bearish price between
-                            hassc13inrange = ~isempty(find(bs(lastidxss18+1:lastidxsc13)==1,1,'first'));
-                        end
-                    end
-                end
-                            
+                %需要加入距离上次full sellsetup的时间距离，如果已经时间过去很久，
+                %我们通常认为这次的反转是虚假的信号
+                f1 = f1 && length(ss) - lastidxssnonezero <= 18;
+                
                 if (f1 || (~f1 && hassc13inrange ))
-                    if f1
-                        sn = 'doublerange-breachdnlvlup';
-                    elseif ~f1 && hassc13inrange
-                        sn = 'doublerange';
+                    validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                    if validsell
+                        if f1
+                            sn = 'range-reverse';
+                            if hassc13inrange, sn = [sn,'-countdown'];end
+                        elseif ~f1 && hassc13inrange
+                            sn = 'range-breach-countdown';
+                        end
+                        samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                        signal = struct('name','tdsq',...
+                            'instrument',instrument,'frequency',samplefreqstr,...
+                            'scenarioname',sn,...
+                            'mode','reverse','type',tag,...
+                            'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
+                        return
                     end
-                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-                    signal = struct('name','tdsq',...
-                        'instrument',instrument,'frequency',samplefreqstr,...
-                        'scenarioname',sn,...
-                        'mode','reverse','type',tag,...
-                        'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
-                    return
                 end
             else
-                %the price failed to breach lvlup
-                hassc13inrange = ~isempty(find(sc(end-11:end) == 13,1,'last'));
+                %the price failed to breach lvlup 
                 if hassc13inrange
-                    lastidxsc13 = find(sc == 13,1,'last');
-                    if lastidxsc13 < lastidxss, hassc13inrange = false;end
-                end
-                %when a ss that began before,on,or after
-                %the developing sellcountdown, but prior to
-                %a bearish price flip, extends to 18 bars,
-                %the sellcountdown shall be recycled
-                if hassc13inrange
-                    lastidxss18 = find(ss == 18,1,'last');
-                    if ~isempty(lastidxss18)
-                        if  lastidxsc13 <= lastidxss18
-                            hassc13inrange = false;
-                        elseif lastidxsc13 > lastidxss18
-                            %make sure there is no bearish price between
-                            hassc13inrange = ~isempty(find(bs(lastidxss18+1:lastidxsc13)==1,1,'first'));
-                        end
+                    validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                    if validsell
+                        sn = 'range-countdown';
+                        samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                        signal = struct('name','tdsq',...
+                            'instrument',instrument,'frequency',samplefreqstr,...
+                            'scenarioname',sn,...
+                            'mode','reverse','type',tag,...
+                            'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
+                        return
                     end
                 end
-                
-                if hassc13inrange
-                    sn = 'doublerange';
+            end
+            %
+            breachlvldn = ~isempty(find(p(end-8:end-1,5) > newlvldn,1,'first')) && p(end,5) < newlvldn;
+            %需要加入距离上次full sellsetup的时间距离，如果已经时间过去很久，
+            %我们通常认为这次的穿越是虚假的信号
+            breachlvldn = breachlvldn && length(ss) - lastidxssnonezero <= 12;
+            if breachlvldn
+                validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validsell
+                    sn = 'range-breach';
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
@@ -241,10 +257,13 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
                         'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
                     return
                 end
-                
-                breachlvldn = ~isempty(find(p(end-8:end-1,5) > newlvldn,1,'first')) && p(end,5) < newlvldn;
-                if breachlvldn
-                    sn = 'doublerange-breachdnlvldn';
+            end
+            %
+            is9139sc = tdsq_is9139sellcount(bs,ss,bc,sc);
+            if is9139sc && length(ss) - lastidxss <= 12
+                validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validsell
+                    sn = 'range-9139';
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
@@ -256,43 +275,51 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
             end
             %
         elseif (isdoublebullish || issinglebullish) && f0
-            if isdoublebullish
-                sn = 'doublebullish';
-            elseif issinglebullish
-                sn = 'singlebullish';
-            end
-            %
-            %bs >= 9 with bearish macd
+            %ss >= 9 with bearish macd
             if ss(end) >= 9
-                samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-                signal = struct('name','tdsq',...
-                     'instrument',instrument,'frequency',samplefreqstr,...
-                     'scenarioname',sn,...
-                     'mode','reverse','type',tag,...
-                     'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
-                 return
+                validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validsell
+                    sn = 'trend-setup';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                    signal = struct('name','tdsq',...
+                         'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
+                    return
+                end
             end
             %check whether it is 9-13-9 within 12 bars
             is9139sc = tdsq_is9139sellcount(bs,ss,bc,sc);
             if is9139sc && length(ss) - lastidxss <= 12
-                samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-                signal = struct('name','tdsq',...
-                    'instrument',instrument,'frequency',samplefreqstr,...
-                    'scenarioname',sn,...
-                    'mode','reverse','type',tag,...
-                    'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
-                return
+                validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validsell
+                    sn = 'trend-setup';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                    signal = struct('name','tdsq',...
+                        'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
+                    return
+                end
             end
             %
             breachlvldn = ~isempty(find(p(end-8:end-1,5) > newlvldn,1,'first')) && p(end,5) < newlvldn;
-            if breachlvldn
-                samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
-                signal = struct('name','tdsq',...
-                    'instrument',instrument,'frequency',samplefreqstr,...
-                    'scenarioname',[sn,'-breachdnlvldn'],...
-                    'mode','reverse','type',tag,...
-                    'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
-                return
+            %我们需要考虑trend breach是否在semiperfect/imperfect scenario中
+            breachlvldn = breachlvldn && length(ss) - lastidxssnonezero <= 12;
+            if f0 && breachlvldn
+                validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
+                if validsell
+                    sn = 'trend-breach';
+                    samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
+                    signal = struct('name','tdsq',...
+                        'instrument',instrument,'frequency',samplefreqstr,...
+                        'scenarioname',sn,...
+                        'mode','reverse','type',tag,...
+                        'lvlup',oldlvlup,'lvldn',newlvldn,'risklvl',-9.99);
+                    return
+                end
             end
         end
         %
