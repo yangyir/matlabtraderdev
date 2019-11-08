@@ -1,7 +1,9 @@
-function [ outputs ] = macdenhanced( currenti,p )
+function [ outputs ] = macdenhanced( currenti,p,diffvec )
 
-[macdvec,sigvec] = macd(p(:,5));
-diffvec = macdvec - sigvec;
+if nargin < 3
+    [macdvec,sigvec] = macd(p(:,5));
+    diffvec = macdvec - sigvec;
+end
 temp = diffvec(2:end).*diffvec(1:end-1);
 idxchg = find(temp<0)+1;
 
