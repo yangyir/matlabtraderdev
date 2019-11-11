@@ -81,14 +81,13 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                     openlongflag = false;
                 end
                 
+                openshortflag = false;
                 if ~openlongflag && diffvec(i)<0
                     refs = macdenhanced(i,p(1:i,:),diffvec(1:i));
                     threshold = refs.range2max - refs.range2maxbarsize;
                     if p(i,5) < threshold
                         openshortflag = tdsq_validsell1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
                         risklvl = refs.range2max;
-                    else
-                        openshortflag = false;
                     end
                 end   
                 
@@ -242,6 +241,23 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                 else
                     openshortflag = false;
                 end
+                openlongflag = false;
+                if ~openshortflag 
+                    if diffvec(i) > 0
+                        refs = macdenhanced(i,p(1:i,:),diffvec(1:i));
+                        threshold = refs.range2min+refs.range2minbarsize;
+                        if p(i,5)>threshold
+                            openlongflag = tdsq_validbuy1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
+                            risklvl = refs.range2min;
+                        end
+                    else
+%                         if bs(i) == 24
+%                             refs = macdenhanced(i,p(1:i,:),diffvec(1:i));
+%                             risklvl = refs.range3min-refs.range3minbarsize;
+%                             openlongflag = true;
+%                         end
+                    end
+                end
                     
                 if openshortflag
                     count = count + 1;
@@ -276,6 +292,41 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                                 unwindbeforeholiday || p(j,4) > lvlup(i)
                             trade_new.closedatetime1_ = p(j,1);
                             trade_new.closeprice_ = p(j,5);
+                            trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
+                            trade_new.status_ = 'closed';
+                            i = j;
+                            break
+                        end
+                        if j == n
+                            trade_new.runningpnl_ = trade_new.opendirection_*(p(j,5)-trade_new.openprice_)*contractsize;
+                            trade_new.status_ = 'set';
+                            i = n;
+                        end
+                    end
+                    tradesout.push(trade_new);
+                elseif openlongflag
+                    count = count + 1;
+                    trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
+                        'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
+                    info = struct('name','tdsq','instrument',instrument,'frequency',freq,...
+                        'scenarioname','','mode','trend','type','single-lvlup','lvlup',lvlup(i),'lvldn',lvldn(i),'risklvl',risklvl);
+                    trade_new.setsignalinfo('name','tdsq','extrainfo',info);
+                    %riskmanagement below
+                    for j = i+1:n
+                        unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
+                        if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) >= 24|| sc(j) == 13 || ...
+                                p(j,4)<risklvl || ...
+                                unwindbeforeholiday
+                            trade_new.closedatetime1_ = p(j,1);
+                            if p(j,4)<risklvl
+                                if p(j,2)<risklvl
+                                    trade_new.closeprice_ = p(j,2);
+                                else
+                                    trade_new.closeprice_ = risklvl;
+                                end
+                            else
+                                trade_new.closeprice_ = p(j,5);
+                            end
                             trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
                             trade_new.status_ = 'closed';
                             i = j;
