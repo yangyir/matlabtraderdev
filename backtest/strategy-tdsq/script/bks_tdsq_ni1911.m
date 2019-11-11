@@ -3,10 +3,20 @@ tradesperfect = bkf_gentrades_tdsqperfect('ni1911',p,bs,ss,lvlup,lvldn,bc,sc,sns
 fprintf('perfect trades:\n');
 bkf_printtrades_tdsq(tradesperfect);
 %% imperfect
-tradesimperfect = bkf_gentrades_tdsqimperfect('ni1911',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd','openapproach','new');
+tradesimperfect = bkf_gentrades_tdsqimperfect('ni1911',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,...
+    'riskmode','macd',...
+    'rangereverselimit',18,...
+    'rangebreachlimit',12,...
+    'usetrendbreach',true,...
+    'usesetupscenario',true,...
+    'closeonperfect',false);
 fprintf('imperfect trades:\n');
 bkf_printtrades_tdsq(tradesimperfect);
-[kelly,W] = kellyratio(tradesimperfect)
+[ratio,W,winavgpnl,lossavgpnl] = kellyratio(tradesimperfect);
+fprintf('kelly ratio:%4.1f\n',ratio);
+fprintf('winning prob:%4.1f%%\n',W*100);
+fprintf('avg win pnl:%4.1f\n',winavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
 %% single lvlup
 tradessinglelvlup = bkf_gentrades_tdsqsinglelvlup('ni1911',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
 fprintf('single lvlup trades:\n');

@@ -5,6 +5,19 @@ function [ flag ] = tdsq_validsell1( p,bs,ss,lvlup,lvldn,macdvec,sigvec )
     flag = false;
     if diffvec(end) > 0, return; end
     
+    if bs(end) == 9
+        low6 = p(end-3,4);
+        low7 = p(end-2,4);
+        low8 = p(end-1,4);
+        low9 = p(end,4);
+        close8 = p(end-1,5);
+        close9 = p(end,5);
+        f1 = (low8 < min(low6,low7) || low9 < min(low6,low7)) && close9 < close8;
+        if f1
+            return
+        end
+    end
+    
     np = size(p,1);
     refs = macdenhanced(np,p,diffvec);
     upperbound1 = refs.y1 + refs.k1*refs.x(end);
@@ -97,10 +110,37 @@ function [ flag ] = tdsq_validsell1( p,bs,ss,lvlup,lvldn,macdvec,sigvec )
                 return
             end
         else
-            if p(end,5) < lowerbound1 && p(end,5) < max(lowerbound2,upperbound2) && bs(end)>1
+            lvluplast = lvlup(end);
+            lvldnlast = lvldn(end);
+            if ~isnan(lvluplast) && refs.range2max>lvluplast && p(end,5)<lvluplast && p(end,5)<lowerbound2
                 flag = true;
                 return
             end
+            %double-bullish
+            if lvluplast < lvldnlast && ~isnan(lvluplast) && ~isnan(lvldnlast)
+                if p(end,5)<lvldnlast && refs.range2max>lvldnlast
+                    if p(end,5)<lowerbound2
+                        flag = true;
+                        return
+                    else
+                        if p(end,5)<lvluplast
+                            flag = true;
+                            return
+                        end
+                    end
+                end
+            end
+%             %
+%             if p(end,5) < lowerbound1 && p(end,5) < max(lowerbound2,upperbound2) && bs(end)>1
+%                 flag = true;
+%                 return
+%             end
+            %
+            if p(end,5) < lowerbound1 && p(end,5) < lowerbound2 && lowerbound2 <upperbound2 && bs(end)>1
+                flag = true;
+                return
+            end
+            
         end
         return
     end

@@ -83,7 +83,10 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
                                 %has macd been positive
                                 openflag = ~isempty(find(diffvec(lastidxbc13:i) > 0,1,'last'));
                             end
-                        end  
+                        end
+                        if openflag
+                            openflag = tdsq_validsell1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
+                        end
                     else
                         openflag = false;
                     end
@@ -155,6 +158,9 @@ function [ tradesout ] = bkf_gentrades_tdsqdoublebearish(code,p,bs,ss,lvlup,lvld
                             %has macd been negative
                             openflag = ~isempty(find(diffvec(lastidxsc13:i) < 0,1,'last'));
                         end
+                    end
+                    if openflag
+                        openflag = tdsq_validbuy1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
                     end
                 else
                     openflag = false;

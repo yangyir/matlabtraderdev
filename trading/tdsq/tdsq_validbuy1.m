@@ -5,6 +5,17 @@ function [ flag ] = tdsq_validbuy1( p,bs,ss,lvlup,lvldn,macdvec,sigvec )
     flag = false;
     if diffvec(end) < 0, return; end
     
+    if ss(end) == 9
+        high6 = p(end-3,3);
+        high7 = p(end-2,3);
+        high8 = p(end-1,3);
+        high9 = p(end,3);
+        close8 = p(end-1,5);
+        close9 = p(end,5);
+        f1 = (high8 > max(high6,high7) || high9 > max(high6,high7)) && (close9>close8);
+        if f1, return;end
+    end
+      
     np = size(p,1);
     refs = macdenhanced(np,p,diffvec);
     upperbound1 = refs.y1 + refs.k1*refs.x(end);
@@ -48,6 +59,11 @@ function [ flag ] = tdsq_validbuy1( p,bs,ss,lvlup,lvldn,macdvec,sigvec )
                 flag = true;
                 return
             end
+            %double-bullish
+            if lvldnlast>lvluplast && p(end,5)>refs.range2max && p(end,5)>lvldnlast && refs.range2min>lvldnlast
+                flag = true;
+                return
+            end
             %otherwise we need to make sure ss is greater than 1
             if ss(end)>1
                 flag = true;
@@ -63,6 +79,11 @@ function [ flag ] = tdsq_validbuy1( p,bs,ss,lvlup,lvldn,macdvec,sigvec )
             end
             %breach lvlup?
             if ~isnan(lvluplast) && refs.range2min<lvluplast && p(end,5)>lvluplast&&p(end,5)>lowerbound1
+                flag = true;
+                return
+            end
+            %double-bullish
+            if lvldnlast>lvluplast && p(end,5)>refs.range2max && p(end,5)>lvldnlast && refs.range2min>lvldnlast
                 flag = true;
                 return
             end
@@ -97,7 +118,16 @@ function [ flag ] = tdsq_validbuy1( p,bs,ss,lvlup,lvldn,macdvec,sigvec )
                 return
             end
         else
-            if p(end,5) > upperbound1 && p(end,5) > min(lowerbound2,upperbound2) && ss(end)>1
+            lvldnlast = lvldn(end);
+            if ~isnan(lvldnlast) && refs.range2min<lvldnlast && p(end,5)>lvldnlast&&p(end,5)>lowerbound2
+                flag = true;
+                return
+            end
+%             if p(end,5) > upperbound1 && p(end,5) > min(lowerbound2,upperbound2) && ss(end)>1
+%                 flag = true;
+%                 return
+%             end
+            if p(end,5) > upperbound1 && p(end,5) > upperbound2 && upperbound2 > lowerbound2 && ss(end)>1
                 flag = true;
                 return
             end
