@@ -251,11 +251,11 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                             risklvl = refs.range2min;
                         end
                     else
-%                         if bs(i) == 24
-%                             refs = macdenhanced(i,p(1:i,:),diffvec(1:i));
-%                             risklvl = refs.range3min-refs.range3minbarsize;
-%                             openlongflag = true;
-%                         end
+                        if bs(i) >= 24
+                            refs = macdenhanced(i,p(1:i,:),diffvec(1:i));
+                            risklvl = refs.range3min-refs.range3minbarsize;
+                            openlongflag = true;
+                        end
                     end
                 end
                     
@@ -312,9 +312,19 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
                         'scenarioname','','mode','trend','type','single-lvlup','lvlup',lvlup(i),'lvldn',lvldn(i),'risklvl',risklvl);
                     trade_new.setsignalinfo('name','tdsq','extrainfo',info);
                     %riskmanagement below
+                    macdbullishonopen = diffvec(i)>0;
                     for j = i+1:n
                         unwindbeforeholiday = islastbarbeforeholiday(instrument,freq,p(j,1));
-                        if diffvec(j)<0 || (usesetups && bs(j) >= 4) || ss(j) >= 24|| sc(j) == 13 || ...
+                        if macdbullishonopen
+                            f1 = diffvec(j)<0 || (usesetups && bs(j) >= 4);
+                        else
+                            if ~isempty(find(diffvec(i:j)>0,1,'first'))
+                                f1 = diffvec(j)<0 || (usesetups && bs(j) >= 4);
+                            else
+                                f1 = false;
+                            end
+                        end
+                        if f1 || ss(j) >= 24|| sc(j) == 13 || ...
                                 p(j,4)<risklvl || ...
                                 unwindbeforeholiday
                             trade_new.closedatetime1_ = p(j,1);

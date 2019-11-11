@@ -17,7 +17,7 @@ function [ flag ] = tdsq_validbuy1( p,bs,ss,lvlup,lvldn,macdvec,sigvec )
     if ~isempty(upperbound1) && isempty(upperbound2)
         %at the turning point,i.e. the last diffvec just turn positive
         if upperbound1 < lowerbound1
-            if p(end,5) > max(upperbound1,lowerbound1) && p(end,5) > refs.rang2min-refs.range2minbarsize && ss(end)>1
+            if p(end,5) > max(upperbound1,lowerbound1) && p(end,5) > refs.range2min+refs.range2minbarsize && ss(end)>1
                 flag = true;
                 return
             else
