@@ -8,7 +8,7 @@ bkf_printtrades_tdsq(tradesperfect);
 fprintf('kelly ratio:%4.1f\n',ratio);
 fprintf('winning prob:%4.1f%%\n',W*100);
 fprintf('avg win pnl:%4.1f\n',winavgpnl);
-fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
 
 %% imperfect
 tradesimperfect = bkf_gentrades_tdsqimperfect('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd',...
@@ -23,7 +23,7 @@ bkf_printtrades_tdsq(tradesimperfect);
 fprintf('kelly ratio:%4.1f\n',ratio);
 fprintf('winning prob:%4.1f%%\n',W*100);
 fprintf('avg win pnl:%4.1f\n',winavgpnl);
-fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
 
 %% single lvlup
 tradessinglelvlup = bkf_gentrades_tdsqsinglelvlup('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
@@ -33,7 +33,7 @@ bkf_printtrades_tdsq(tradessinglelvlup);
 fprintf('kelly ratio:%4.1f\n',ratio);
 fprintf('winning prob:%4.1f%%\n',W*100);
 fprintf('avg win pnl:%4.1f\n',winavgpnl);
-fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
 
 %% single lvldn
 tradessinglelvldn = bkf_gentrades_tdsqsinglelvldn('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
@@ -43,7 +43,7 @@ bkf_printtrades_tdsq(tradessinglelvldn);
 fprintf('kelly ratio:%4.1f\n',ratio);
 fprintf('winning prob:%4.1f%%\n',W*100);
 fprintf('avg win pnl:%4.1f\n',winavgpnl);
-fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
 
 %% double range
 tradesdoublerange = bkf_gentrades_tdsqdoublerange('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
@@ -53,7 +53,7 @@ bkf_printtrades_tdsq(tradesdoublerange);
 fprintf('kelly ratio:%4.1f\n',ratio);
 fprintf('winning prob:%4.1f%%\n',W*100);
 fprintf('avg win pnl:%4.1f\n',winavgpnl);
-fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
 
 %%
 tradesdoublebullish = bkf_gentrades_tdsqdoublebullish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
@@ -63,7 +63,7 @@ bkf_printtrades_tdsq(tradesdoublebullish);
 fprintf('kelly ratio:%4.1f\n',ratio);
 fprintf('winning prob:%4.1f%%\n',W*100);
 fprintf('avg win pnl:%4.1f\n',winavgpnl);
-fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
 
 %%
 tradesdoublebearish = bkf_gentrades_tdsqdoublebearish('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd');
@@ -73,7 +73,7 @@ bkf_printtrades_tdsq(tradesdoublebearish);
 fprintf('kelly ratio:%4.1f\n',ratio);
 fprintf('winning prob:%4.1f%%\n',W*100);
 fprintf('avg win pnl:%4.1f\n',winavgpnl);
-fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
 
 %%
 tradessimpletrend = bkf_gentrades_simpletrend('ni1910',p,bs,ss,lvlup,lvldn,bc,sc,sns,macdvec,sigvec,'riskmode','macd-setup');
@@ -83,4 +83,4 @@ bkf_printtrades_tdsq(tradessimpletrend);
 fprintf('kelly ratio:%4.1f\n',ratio);
 fprintf('winning prob:%4.1f%%\n',W*100);
 fprintf('avg win pnl:%4.1f\n',winavgpnl);
-fprintf('avg loos pnl:%4.1f\n',lossavgpnl);
+fprintf('avg loose pnl:%4.1f\n',lossavgpnl);
