@@ -89,10 +89,8 @@ function signals = gensignals_futmultitdsq2(strategy)
             if size(p,1) - size(bs,1) == 1
                 if strategy.printflag_, fprintf('%s:update tdsq variables of %s...\n',strategy.name_,instruments{i}.code_ctp);end
                 [bs,ss,levelup,leveldn,bc,sc] = tdsq_piecewise(p,bs,ss,levelup,leveldn,bc,sc);
-            elseif size(p,1) < size(bs,1)
+            else
                 [bs,ss,levelup,leveldn,bc,sc] = strategy.mde_fut_.calc_tdsq_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-            elseif size(p,1) - size(bs,1) > 1
-                error('unknown error and check is required')
             end
         
             %update strategy-related variables
