@@ -16,9 +16,11 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('RiskMode','macd-setup',@ischar);
     iparser.addParameter('Frequency','15m',@ischar);
+    iparser.addParameter('DoReverse',false,@islogical);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
     freq = iparser.Results.Frequency;
+    doreverse = iparser.Results.DoReverse;
     
     if ~(strcmpi(riskmode,'macd-setup') || strcmpi(riskmode,'macd'))
         error('invalid risk mode input')
@@ -93,7 +95,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                 end
                 
                 openshortflag = false;
-                if ~openlongflag
+                if ~openlongflag && doreverse
                     if diffvec(i) < 0
                         refs = macdenhanced(i,p(1:i,:),diffvec(1:i));
                         threshold = refs.range2max-refs.range2maxbarsize;
@@ -245,7 +247,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvldn(code,p,bs,ss,lvlup,lvldn,
                 end
                 
                 openlongflag = false;
-                if ~openshortflag 
+                if ~openshortflag && doreverse
                     if diffvec(i)>0
                         refs = macdenhanced(i,p(1:i,:),diffvec(1:i));
                         threshold = refs.range2min+refs.range2minbarsize;

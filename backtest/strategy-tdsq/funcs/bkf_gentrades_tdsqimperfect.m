@@ -389,7 +389,7 @@ function [ tradesout ] = bkf_gentrades_tdsqimperfect(code,p,bs,ss,lvlup,lvldn,bc
                         validsell = tdsq_validsell1(p(1:j,:),bs(1:j),ss(1:j),lvlup(1:j),lvldn(1:j),macdvec(1:j),sigvec(1:j));
                         if validsell
                             openidx = j;
-                            opensn = 'range-breach';
+                            opensn = 'range-breachdn';
                             break
                         end
                     end

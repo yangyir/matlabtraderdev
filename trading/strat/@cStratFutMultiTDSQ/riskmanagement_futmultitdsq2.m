@@ -69,32 +69,50 @@ function [] = riskmanagement_futmultitdsq2(strategy,varargin)
     
     if ~isempty(trade_singlelvldn)
         if strcmpi(trade_singlelvldn.status_,'unset'), trade_singlelvldn.status_ = 'set';end
-        strategy.riskmanagement_singlelvldn(trade_singlelvldn);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_singlelvldn(trade_singlelvldn);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:singlelvldn!!!\n',strategy.name_)
+        end  
     end
     
     if ~isempty(trade_singlelvlup)
         if strcmpi(trade_singlelvlup.status_,'unset'), trade_singlelvlup.status_ = 'set';end
-        strategy.riskmanagement_singlelvlup(trade_singlelvlup);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_singlelvlup(trade_singlelvlup);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:singlelvlup!!!\n',strategy.name_)
+        end
     end
     
     if ~isempty(trade_doublerange)
         if strcmpi(trade_doublerange.status_,'unset'), trade_doublerange.status_ = 'set';end
-        strategy.riskmanagement_doublerange(trade_doublerange);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_doublerange(trade_doublerange);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:doublerange!!!\n',strategy.name_)
+        end
     end
     
     if ~isempty(trade_doublebullish)
         if strcmpi(trade_doublebullish.status_,'unset'), trade_doublebullish.status_ = 'set';end
-        strategy.riskmanagement_doublebullish(trade_doublebullish);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_doublebullish(trade_doublebullish);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:doublebullish!!!\n',strategy.name_)
+        end
     end
     
     if ~isempty(trade_doublebearish)
         if strcmpi(trade_doublebearish.status_,'unset'), trade_doublebearish.status_ = 'set';end
-        strategy.riskmanagement_doublebearish(trade_doublebearish);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_doublebearish(trade_doublebearish);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:doublebearish!!!\n',strategy.name_)
+        end
     end
     
     if ~isempty(trade_simpletrend)
         if strcmpi(trade_simpletrend.status_,'unset'), trade_simpletrend.status_ = 'set';end
-        strategy.riskmanagement_simpletrend(trade_simpletrend);
+        [istrade2close,entrustplaced] = strategy.riskmanagement_simpletrend(trade_simpletrend);
+        if istrade2close && ~entrustplaced
+            fprintf('%s:trade shall be unwinded but entrust NOT placed:simpletrend!!!\n',strategy.name_)
+        end
     end
     
 end
