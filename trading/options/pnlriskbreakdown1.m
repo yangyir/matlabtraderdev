@@ -85,8 +85,8 @@ tau2 = (sec.opt_expiry_date1 - datenum(cobdate))/365;
 tau3 = (sec.opt_expiry_date1 - datenum(nextdate))/365;
 r = 0.035;
 if sec.opt_american
-    iv1 = bjsimpv(price1_underlier,k,r,datenum(predate),sec.opt_expiry_date1,pv1_sec,[],r,[],optclass);
-    iv2 = bjsimpv(price2_underlier,k,r,datenum(cobdate),sec.opt_expiry_date2,pv2_sec,[],r,[],optclass);
+    iv1 = bjsimpv(price1_underlier,k,r,datenum(predate),sec.last_trade_date1,pv1_sec,[],r,[],optclass);
+    iv2 = bjsimpv(price2_underlier,k,r,datenum(cobdate),sec.last_trade_date1,pv2_sec,[],r,[],optclass);
 else
     iv1 = blkimpv(price1_underlier,k,r,tau1,pv1_sec,[],[],{optclass});
     iv2 = blkimpv(price2_underlier,k,r,tau2,pv2_sec,[],[],{optclass});
@@ -96,12 +96,12 @@ end
 %pvcarry_:to next business date
 if sec.opt_american
     if strcmpi(sec.opt_type,'C')
-        pvcarry = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1,r);
-        pvcarry_ = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2,r);
+        pvcarry = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.last_trade_date1,iv1,r);
+        pvcarry_ = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.last_trade_date1,iv2,r);
         
     else
-        [~,pvcarry] = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1,r);
-        [~,pvcarry_] = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2,r);
+        [~,pvcarry] = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.last_trade_date1,iv1,r);
+        [~,pvcarry_] = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.last_trade_date1,iv2,r);
     end
 else
     if strcmpi(sec.opt_type,'C')
@@ -123,15 +123,15 @@ priceup_ = price2_underlier*(1+bump);
 pricedn_ = price2_underlier*(1-bump);
 if sec.opt_american
     if strcmpi(sec.opt_type,'C')
-        pvup = bjsprice(priceup,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1,r);
-        pvdn = bjsprice(pricedn,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1,r);
-        pvup_ = bjsprice(priceup_,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2,r);
-        pvdn_ = bjsprice(pricedn_,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2,r);
+        pvup = bjsprice(priceup,k,r,datenum(cobdate),sec.last_trade_date1,iv1,r);
+        pvdn = bjsprice(pricedn,k,r,datenum(cobdate),sec.last_trade_date1,iv1,r);
+        pvup_ = bjsprice(priceup_,k,r,datenum(nextdate),sec.last_trade_date1,iv2,r);
+        pvdn_ = bjsprice(pricedn_,k,r,datenum(nextdate),sec.last_trade_date1,iv2,r);
     else
-        [~,pvup] = bjsprice(priceup,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1,r);
-        [~,pvdn] = bjsprice(pricedn,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1,r);
-        [~,pvup_] = bjsprice(priceup_,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2,r);
-        [~,pvdn_] = bjsprice(pricedn_,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2,r);
+        [~,pvup] = bjsprice(priceup,k,r,datenum(cobdate),sec.last_trade_date1,iv1,r);
+        [~,pvdn] = bjsprice(pricedn,k,r,datenum(cobdate),sec.last_trade_date1,iv1,r);
+        [~,pvup_] = bjsprice(priceup_,k,r,datenum(nextdate),sec.last_trade_date1,iv2,r);
+        [~,pvdn_] = bjsprice(pricedn_,k,r,datenum(nextdate),sec.last_trade_date1,iv2,r);
     end
 else
     if strcmpi(sec.opt_type,'C')
@@ -157,15 +157,15 @@ gammacarry = (pvup_+pvdn_-2*pvcarry_)/(bump*price2_underlier)^2*price2_underlier
 %vega
 if sec.opt_american
     if strcmpi(sec.opt_type,'C')
-        pvvolup = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1+bump,r);
-        pvvoldn = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1-bump,r);
-        pvvolup_ = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2+bump,r);
-        pvvoldn_ = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2-bump,r);
+        pvvolup = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.last_trade_date1,iv1+bump,r);
+        pvvoldn = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.last_trade_date1,iv1-bump,r);
+        pvvolup_ = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.last_trade_date1,iv2+bump,r);
+        pvvoldn_ = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.last_trade_date1,iv2-bump,r);
     else
-        [~,pvvolup] = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1+bump,r);
-        [~,pvvoldn] = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.opt_expiry_date1,iv1-bump,r);
-        [~,pvvolup_] = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2+bump,r);
-        [~,pvvoldn_] = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.opt_expiry_date1,iv2-bump,r);
+        [~,pvvolup] = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.last_trade_date1,iv1+bump,r);
+        [~,pvvoldn] = bjsprice(price1_underlier,k,r,datenum(cobdate),sec.last_trade_date1,iv1-bump,r);
+        [~,pvvolup_] = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.last_trade_date1,iv2+bump,r);
+        [~,pvvoldn_] = bjsprice(price2_underlier,k,r,datenum(nextdate),sec.last_trade_date1,iv2-bump,r);
     end
 else
     if strcmpi(sec.opt_type,'C')
