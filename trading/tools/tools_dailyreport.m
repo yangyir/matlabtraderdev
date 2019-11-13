@@ -19,7 +19,9 @@ wrperiod = 14;
 wpctr = willpctr(ci(:,3), ci(:,4), ci(:,5), wrperiod);
 wpctrmat = [wpctr(wrperiod:end-1),ci(wrperiod+1:end,5)-ci(wrperiod:end-1,5)];
 wpctrmatsorted = sortrows(wpctrmat);
+figure(1);
 plot(wpctrmatsorted(:,1),cumsum(wpctrmatsorted(:,2)));
+xlabel('william R%');ylabel('cumulative return');
 
 if macdvec(end) < 0
     maind = 'bearish';
