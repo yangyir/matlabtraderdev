@@ -31,7 +31,6 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
             typeidx = cTDSQInfo.gettypeidx(signaltype);
             targetholding = strategy.targetportfolio_(i,typeidx);
             
-%             if ~isempty(trade_signaltype) || targetholding ~= 0, continue;end
             if targetholding ~= 0, continue;end
             %
             %cancel any pending entrust with open offsetflag
@@ -60,8 +59,11 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 lasttrade = tick(4);
                 volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','volumeperfect');
                 if lasttrade > signal.risklvl && volume > 0
-                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = volume;
+                    try
+                        strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             elseif strcmpi(signaltype,'semiperfectbs') || strcmpi(signaltype,'imperfectbs')
@@ -73,7 +75,7 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 else
                     volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','volumeimperfect');
                 end
-                if ~isempty(strfind(sn,'-breachuplvldn'))
+                if ~isempty(strfind(sn,'-range-reverse'))
                     stillopen = lasttrade > signal.lvldn;
                 elseif ~isempty(strfind(sn,'-breachuplvlup'))
                     stillopen = lasttrade > signal.lvlup;
@@ -81,8 +83,11 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                     stillopen = true;
                 end
                 if stillopen && volume > 0
-                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = volume;
+                    try
+                        strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             elseif strcmpi(signaltype,'perfectss')
@@ -110,68 +115,113 @@ function [] = autoplacenewentrusts_futmultitdsq2(strategy,signals)
                 end
                 if ~isempty(strfind(sn,'-breachdnlvldn'))
                     stillopen = lasttrade < signal.lvldn;
-                elseif ~isempty(strfind(sn,'-breachdnlvlup'))
+                elseif ~isempty(strfind(sn,'-range-reverse'))
                     stillopen = lasttrade < signal.lvlup;
                 else
                     stillopen = true;
                 end
                 if stillopen && volume > 0
-                    strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = -volume;
+                    try
+                        strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             elseif strcmpi(signaltype,'single-lvldn')
                 volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','volumesinglelvldn');
-                if volume > 0
-                    strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                if signal.direction == 1 && volume > 0
+                    strategy.targetportfolio_(i,typeidx) = volume;
+                    try
+                        strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
+                elseif signal.direction == -1 && volume > 0
                     strategy.targetportfolio_(i,typeidx) = -volume;
+                    try
+                        strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             elseif strcmpi(signaltype,'single-lvlup')
                 volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','volumesinglelvlup');
-                if volume > 0
-                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                if signal.direction == 1 && volume > 0
                     strategy.targetportfolio_(i,typeidx) = volume;
+                    try
+                        strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
+                elseif signal.direction == -1 && volume > 0
+                    strategy.targetportfolio_(i,typeidx) = -volume;
+                    try
+                        strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             elseif strcmpi(signaltype,'double-range')
                 volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','volumedoublerange');
                 if signal.direction == 1 && volume > 0
-                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = volume;
+                    try
+                        strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 elseif signal.direction == -1 && volume > 0
-                    strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = -volume;
+                    try
+                        strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             elseif strcmpi(signaltype,'double-bullish')
                 volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','volumedoublebullish');
                 if signal.direction == 1 && volume > 0
-                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = volume;
+                    try
+                        strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 elseif signal.direction == -1 && volume > 0
-                    strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = -volume;
+                    try
+                        strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             elseif strcmpi(signaltype,'double-bearish')
                 volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','volumedoublebearish');
-                if signal.direction == -1 && volume > 0
-                    strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
-                    strategy.targetportfolio_(i,typeidx) = -volume;
-                elseif signal.direction == 1 && volume > 0
-                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                if signal.direction == 1 && volume > 0
                     strategy.targetportfolio_(i,typeidx) = volume;
+                    try
+                        strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
+                elseif signal.direction == -1 && volume > 0
+                    strategy.targetportfolio_(i,typeidx) = -volume;
+                    try
+                        strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             elseif strcmpi(signaltype,'simpletrend')
                 volume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','volumesimpletrend');
                 if signal.direction == 1 && volume > 0
-                    strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = volume;
+                    try
+                        strategy.longopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 elseif signal.direction == -1 && volume > 0
-                    strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
                     strategy.targetportfolio_(i,typeidx) = -volume;
+                    try
+                        strategy.shortopen(instrument.code_ctp,volume,'signalinfo',signal);
+                    catch
+                    end
                 end
                 %
             else

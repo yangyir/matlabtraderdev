@@ -86,7 +86,7 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
             if breachlvlup
                 validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
                 if validbuy
-                    sn = 'range-breach';
+                    sn = 'range-breachuplvlup';
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
@@ -150,7 +150,7 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
             if f0 && breachlvlup
                 validbuy = tdsq_validbuy1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
                 if validbuy
-                    sn = 'trend-breach';
+                    sn = 'trend-breachuplvlup';
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
@@ -248,7 +248,7 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
             if breachlvldn
                 validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
                 if validsell
-                    sn = 'range-breach';
+                    sn = 'range-breachdnlvldn';
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
@@ -311,7 +311,7 @@ function [signal] = gensignal_imperfect(strategy,instrument,p,bs,ss,lvlup,lvldn,
             if f0 && breachlvldn
                 validsell = tdsq_validsell1(p,bs,ss,lvlup,lvldn,macdvec,sigvec);
                 if validsell
-                    sn = 'trend-breach';
+                    sn = 'trend-breachdnlvldn';
                     samplefreqstr = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','samplefreq');
                     signal = struct('name','tdsq',...
                         'instrument',instrument,'frequency',samplefreqstr,...
