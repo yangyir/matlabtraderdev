@@ -16,7 +16,7 @@ function [ tradesout ] = bkf_gentrades_tdsqsinglelvlup(code,p,bs,ss,lvlup,lvldn,
     iparser.CaseSensitive = false;iparser.KeepUnmatched = true;
     iparser.addParameter('RiskMode','macd-setup',@ischar);
     iparser.addParameter('Frequency','15m',@ischar);
-    iparser.addParameter('DoReverse',false,@ischar);
+    iparser.addParameter('DoReverse',false,@islogical);
     iparser.parse(varargin{:});
     riskmode = iparser.Results.RiskMode;
     freq = iparser.Results.Frequency;
