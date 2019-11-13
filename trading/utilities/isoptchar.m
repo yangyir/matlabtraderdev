@@ -82,7 +82,11 @@ for i = 1:size(codelist)
         else
             underlierstr = [assetshortcode,tenor(1:3)];
             mmnum = str2double(tenor(2:3));
-            yynum = 2010+str2double(tenor(1));
+            if str2double(tenor(1)) == 8 || str2double(tenor(1)) == 9
+                yynum = 2010+str2double(tenor(1));
+            else
+                yynum = 2020+str2double(tenor(1));
+            end
             if ~isempty(strfind(underlierstr,'SR'))
                 %zhengzhou:the expiry date of the sugar option is the last 5th business date of
                 %the month which is two month before the underlier future's expiry
@@ -101,13 +105,13 @@ for i = 1:size(codelist)
                 %zhengzhou:the expiry date of the cotton option is the 3rd business date of
                 %the pre-month of the underlier future's expiry
                 if mmnum == 1
-                mmnum_opt = 12;
-                yynum_opt = yynum - 1;
-            else
-                mmnum_opt = mmnum - 1;
-                yynum_opt = yynum;
-            end
-            opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,3,1);     
+                    mmnum_opt = 12;
+                    yynum_opt = yynum - 1;
+                else
+                    mmnum_opt = mmnum - 1;
+                    yynum_opt = yynum;
+                end
+                opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,3,1);     
             end
         end
         
