@@ -1,4 +1,5 @@
-function [ outputs ] = tools_dailyreport( assetname )
+function [ outputs,ci ] = tools_dailyreport( assetname,figureidx )
+if nargin < 2, figureidx = 1;end
 [ri,oi] = bkfunc_genfutrollinfo(assetname);
 [cf,crt,ci] = bkfunc_buildcontinuousfutures(ri,oi);
 [res] = bkfunc_hvcalib(crt,'forecastperiod',21,...
@@ -19,9 +20,9 @@ wrperiod = 14;
 wpctr = willpctr(ci(:,3), ci(:,4), ci(:,5), wrperiod);
 wpctrmat = [wpctr(wrperiod:end-1),ci(wrperiod+1:end,5)-ci(wrperiod:end-1,5)];
 wpctrmatsorted = sortrows(wpctrmat);
-figure(1);
+figure(figureidx);
 plot(wpctrmatsorted(:,1),cumsum(wpctrmatsorted(:,2)));
-xlabel('william R%');ylabel('cumulative return');
+xlabel('william R%');ylabel('cumulative return');title(assetname);
 
 if macdvec(end) < 0
     maind = 'bearish';

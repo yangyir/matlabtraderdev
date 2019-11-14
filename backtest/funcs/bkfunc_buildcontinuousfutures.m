@@ -82,7 +82,9 @@ function [continuousfutures,continuousret,continuousindex] = bkfunc_buildcontinu
                 log(oidata{i+1}(idx2+1,4)/oidata{i+1}(idx2,5)),...
                 log(oidata{i+1}(idx2+1,5)/oidata{i+1}(idx2,5))];
             idx = find(continuousret(:,1) == tRoll)+1;
-            continuousret(idx,2:end) = ret2;
+            if ~isempty(idx)
+                continuousret(idx,2:end) = ret2;
+            end
         end
     end
     %

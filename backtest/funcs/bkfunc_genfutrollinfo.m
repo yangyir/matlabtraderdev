@@ -47,10 +47,13 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
                 end
             end
             if ~flag
-                if ~exist('bbg','var')
-                    bbg = cBloomberg;
+                try
+                    if ~exist('bbg','var')
+                        bbg = cBloomberg;
+                    end
+                    savedailybarfrombloomberg(bbg,code);
+                catch
                 end
-                savedailybarfrombloomberg(bbg,code);
             end
 %             if ltd > lbd
 %                 savedailybarfrombloomberg(bbg,code,true);
