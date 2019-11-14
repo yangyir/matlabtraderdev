@@ -50,30 +50,35 @@ function [ tradesout ] = bkf_gentrades_simpletrend(code,p,bs,ss,lvlup,lvldn,bc,s
 %         if isnan(lvlup(i)) && isnan(lvldn(i)), i=i+1;continue;end
         
         if ss(i) > 0 && diffvec(i) > 0 && diffvec(i-1) < 0 && p(i,5) >= p(i,2) && macdss(i) > 0
-            count = count + 1;
-%             scenname = sns{i};
-            trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
-                'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
-            info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                'scenarioname','','mode','trend');
-            trade_new.setsignalinfo('name','tdsq','extrainfo',info);
-            for j = i+1:n
-                if diffvec(j) < 0 || (usesetups && bs(j) >= 3) || ss(j) >= 24 || sc(j) >= 12
-                    trade_new.closedatetime1_ = p(j,1);
-                    trade_new.closeprice_ = p(j,5);
-                    trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
-                    trade_new.status_ = 'closed';
-                    i = j;
-                    break
+            validbuy = tdsq_validbuy1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
+            if validbuy
+                count = count + 1;
+    %             scenname = sns{i};
+                trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
+                    'opendatetime',p(i,1),'opendirection',1,'openvolume',1,'openprice',p(i,5));
+                info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
+                    'scenarioname','','mode','trend');
+                trade_new.setsignalinfo('name','tdsq','extrainfo',info);
+                for j = i+1:n
+                    if diffvec(j) < 0 || (usesetups && bs(j) >= 3) || ss(j) >= 24 || sc(j) >= 12
+                        trade_new.closedatetime1_ = p(j,1);
+                        trade_new.closeprice_ = p(j,5);
+                        trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
+                        trade_new.status_ = 'closed';
+                        i = j;
+                        break
+                    end
+                    if j == n
+                        trade_new.runningpnl_ = trade_new.opendirection_*(p(j,5)-trade_new.openprice_)*contractsize;
+                        trade_new.status_ = 'set';
+                        i = n;
+                    end
                 end
-                if j == n
-                    trade_new.runningpnl_ = trade_new.opendirection_*(p(j,5)-trade_new.openprice_)*contractsize;
-                    trade_new.status_ = 'set';
-                    i = n;
-                end
+                tradesout.push(trade_new);
+                if i == n, i = i+1;end
+            else
+                i=i+1;
             end
-            tradesout.push(trade_new);
-            if i == n, i = i+1;end
             %
         %Conditions for SHORT
         %1.in the start period of developing a TD Buy Setup, i.e. bs between 0
@@ -82,32 +87,37 @@ function [ tradesout ] = bkf_gentrades_simpletrend(code,p,bs,ss,lvlup,lvldn,bc,s
         %3.open candle bar is negative, i.e. close price is less than or
         %equal to the open price
         elseif bs(i) > 0 && diffvec(i) < 0 && diffvec(i-1) > 0 && p(i,5) <= p(i,2) && macdbs(i) > 0
-            count = count + 1;
-%             scenname = sns{i};
-            trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
-                'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
-            info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
-                'scenarioname','','mode','trend');
-            trade_new.setsignalinfo('name','tdsq','extrainfo',info);
-            for j = i+1:n
-                if diffvec(j) > 0 || (usesetups && ss(j) >= 3) || bs(j) >= 24 || bc(j) >= 12
-                    trade_new.closedatetime1_ = p(j,1);
-                    trade_new.closeprice_ = p(j,5);
-                    trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
-                    trade_new.status_ = 'closed';
-                    i = j;
-                    break
+            validsell = tdsq_validsell1(p(1:i,:),bs(1:i),ss(1:i),lvlup(1:i),lvldn(1:i),macdvec(1:i),sigvec(1:i));
+            if validsell 
+                count = count + 1;
+    %             scenname = sns{i};
+                trade_new = cTradeOpen('id',count,'bookname','tdsq','code',code,...
+                    'opendatetime',p(i,1),'opendirection',-1,'openvolume',1,'openprice',p(i,5));
+                info = struct('name','tdsq','instrument',instrument,'frequency','15m',...
+                    'scenarioname','','mode','trend');
+                trade_new.setsignalinfo('name','tdsq','extrainfo',info);
+                for j = i+1:n
+                    if diffvec(j) > 0 || (usesetups && ss(j) >= 3) || bs(j) >= 24 || bc(j) >= 12
+                        trade_new.closedatetime1_ = p(j,1);
+                        trade_new.closeprice_ = p(j,5);
+                        trade_new.closepnl_ = trade_new.opendirection_*(trade_new.closeprice_-trade_new.openprice_)*contractsize;
+                        trade_new.status_ = 'closed';
+                        i = j;
+                        break
+                    end
+                    if j == n
+                        trade_new.runningpnl_ = trade_new.opendirection_*(p(j,5)-trade_new.openprice_)*contractsize;
+                        trade_new.status_ = 'set';
+                        i = n;
+                    end
                 end
-                if j == n
-                    trade_new.runningpnl_ = trade_new.opendirection_*(p(j,5)-trade_new.openprice_)*contractsize;
-                    trade_new.status_ = 'set';
-                    i = n;
-                end
+                tradesout.push(trade_new);
+                if i == n, i = i+1;end
+            else
+                i=i+1;
             end
-            tradesout.push(trade_new);
-            if i == n, i = i+1;end
         else
-            i=i+1;
+            i = i + 1;
         end
     end
     
