@@ -122,7 +122,8 @@ classdef cOption < cInstrument
                 return
             end
             
-            [flag,type,strike,underlierstr,expiry] = isoptchar(codestr);
+%             [flag,type,strike,underlierstr,expiry] = isoptchar(codestr);
+            [flag,type,strike,underlierstr] = isoptchar(codestr);
             if ~flag
                 error('cOption:invalid string input')
             end
@@ -132,8 +133,8 @@ classdef cOption < cInstrument
             obj.code_wind_underlier = ctp2wind(obj.code_ctp_underlier);
             obj.code_bbg_underlier = ctp2bbg(obj.code_ctp_underlier);
             
-            obj.opt_expiry_date1 = expiry;
-            obj.opt_expiry_date2 = datestr(obj.opt_expiry_date1,'yyyy-mm-dd');
+%             obj.opt_expiry_date1 = expiry;
+%             obj.opt_expiry_date2 = datestr(obj.opt_expiry_date1,'yyyy-mm-dd');
             
             obj.code_ctp = str2ctp(codestr);
             obj.code_wind = ctp2wind(obj.code_ctp);

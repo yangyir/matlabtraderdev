@@ -26,6 +26,9 @@ function obj = init_bbg(obj,conn)
     obj.first_trade_date2 = datestr(obj.first_trade_date1,'yyyy-mm-dd');
     obj.last_trade_date1 = data.last_tradeable_dt;
     obj.last_trade_date2 = datestr(obj.last_trade_date1,'yyyy-mm-dd');
+    
+    obj.opt_expiry_date1 = obj.last_trade_date1;
+    obj.opt_expiry_date2 = obj.last_trade_date2;
 
     th = data.exchange_trading_session_hours;
     th_ = th{1};

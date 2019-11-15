@@ -1,6 +1,6 @@
 function [] = init(obj,codestr)
 %cQuoteOpt
-    [flag,optiontype,strike,underlierstr,expiry] = isoptchar(codestr);
+    [flag,optiontype,strike,underlierstr] = isoptchar(codestr);
     if flag
         obj.code_ctp = str2ctp(codestr);
         obj.code_wind = ctp2wind(obj.code_ctp);
@@ -16,8 +16,9 @@ function [] = init(obj,codestr)
         else
             obj.opt_strike = strike;
         end
-        obj.opt_expiry_date1 = expiry;
-        obj.opt_expiry_date2 = datestr(expiry,'yyyy-mm-dd');
+        opt = code2instrument(codestr);
+        obj.opt_expiry_date1 = opt.opt_expiry_date1;
+        obj.opt_expiry_date2 = opt.opt_expiry_date2;
 
         obj.init_flag = true;
         
