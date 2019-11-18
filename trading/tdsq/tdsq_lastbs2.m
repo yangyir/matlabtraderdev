@@ -29,7 +29,7 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelo
     rangehigh = max(p(lastidxbs_start:lastidxbs_end,3));
     rangelow = min(p(lastidxbs_start:lastidxbs_end,4));
     ptemp = p(lastidxbs_start:lastidxbs_end,4);
-    idxtruelow = find(ptemp == rangelow) + lastidxbs_start-1;
+    idxtruelow = find(ptemp == rangelow,1,'last') + lastidxbs_start-1;
     truelowbarsize = p(idxtruelow,3) - p(idxtruelow,4);
     
     low6 = p(lastidxbs-3,4);
@@ -61,9 +61,9 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelo
         f2 = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'));
         if f1 && f2
             if close9 < close8
-                tag = 'perfectbs-scenario1';
+                tag = 'perfectbs-scenario2';
             else
-                tag = 'semiperfectbs-scenario1';
+                tag = 'semiperfectbs-scenario2';
             end
         else
             tag = 'imperfectbs-scenario2';
@@ -81,66 +81,112 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelo
             %in case all prices closes below lvldn_old
             f4 = isempty(find(p(lastidxbs_start:lastidxbs,5) > lvldn_old,1,'first'));
             if f3
+                %in case all prices closes above lvlup_old
+                if f1
+                    if close9 < close8
+                        tag = 'perfectbs-scenario3a';
+                    else
+                        tag = 'semiperfectbs-scenario3a';
+                    end
+                else
+                    tag = 'imperfectbs-scenario3a';
+                end
             elseif f4
+                %in case all prices closes below lvldn_old
+                if f1
+                    if close9 < close8
+                        tag = 'perfectbs-scenario3d';
+                    else
+                        tag = 'semiperfectbs-scenario3d';
+                    end
+                else
+                    tag = 'imperfectbs-scenario3d';
+                end
             else
-                %in case all prices closes above lvldn_old but not lvlup_old
-                %in case some prices closes above lvldn_old but some below
+                if ~(f3 || f4) && isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'))
+                    %in case all prices closes above lvldn_old but not lvlup_old
+                    if f1
+                        if close9 < close8
+                            tag = 'perfectbs-scenario3b';
+                        else
+                            tag = 'semiperfectbs-scenario3b';
+                        end
+                    else
+                        tag = 'imperfectbs-scenario3b';
+                    end
+                else
+                    %in case some prices closes above lvldn_old but some below
+                    if f1
+                        if close9 < close8
+                            tag = 'perfectbs-scenario3c';
+                        else
+                            tag = 'semiperfectbs-scenario3c';
+                        end
+                    else
+                        tag = 'imperfectbs-scenario3c';
+                    end
+                end
             end
-            
-            
-            
+            %
         elseif lvlup_old < lvldn_old
             %in case all prices close above lvldn_old
-            %in case all prices close above lvlup_old but not lvldn_old
-            %in case some prices close above lvlup_old but some below
+            f3 = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'));
             %in case all prices close below lvlup_old
-            
+            f4 = isempty(find(p(lastidxbs_start:lastidxbs,5) > lvlup_old,1,'first'));
+            if f3
+                %in case all prices close above lvldn_old
+                if f1
+                    if close9 < close8
+                        tag = 'perfectbs-scenario4a';
+                    else
+                        tag = 'semiperfectbs-scenario4a';
+                    end
+                else
+                    tag = 'imperfectbs-scenario4a';
+                end
+            elseif f4
+                %in case all prices close below lvlup_old
+                if f1
+                    if close9 < close8
+                        tag = 'perfectbs-scenario4d';
+                    else
+                        tag = 'semiperfectbs-scenario4d';
+                    end
+                else
+                    tag = 'imperfectbs-scenario4d';
+                end
+            else
+                if ~(f3 || f4) && isempty(find(p(lastidxbs_start:lastidxbs,5) < lvlup_old,1,'first'))
+                    %in case all prices close above lvlup_old but not lvldn_old
+                    if f1
+                        if close9 < close8
+                            tag = 'perfectbs-scenario4b';
+                        else
+                            tag = 'semiperfectbs-scenario4b';
+                        end
+                    else
+                        tag = 'imperfectbs-scenario4b';
+                    end
+                else
+                    %in case some prices close above lvlup_old but some below
+                    if f1
+                        if close9 < close8
+                            tag = 'perfectbs-scenario4c';
+                        else
+                            tag = 'semiperfectbs-scenario4c';
+                        end
+                    else
+                        tag = 'imperfectbs-scenario4c';
+                    end
+                end
+            end
         end
-        
-        
         return
     end
     
-
-
-
     variablenotused(ss);
     variablenotused(lvlup);
     variablenotused(bc);
     variablenotused(sc);
-
-    
-    
-        
-        
-    
-    
-    
-    %here also need to check whether any bar within the TD Buy Setup
-    %has closed below TDST Leveldn
-    closedbelow = false;
-    for i = lastidxbs-8:lastidxbs
-        if isnan(lvldn(i)), continue;end
-        if p(i,5) < lvldn(i)
-            closedbelow = true;
-            break
-        end
-    end
-    
-    if  && ~closedbelow
-        if close9 < close8
-            tag = 'perfectbs';
-        else
-            tag = 'semiperfectbs';
-        end
-    else
-        tag = 'imperfectbs';
-    end
-    
-    
-    
-    
-    tag = [tag,num2str(bs(lastidxbs_end))];
-    
     
 end
