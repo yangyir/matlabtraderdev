@@ -43,11 +43,31 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelo
     
     %scenario 1: only bs9 is available, i.e. no ss9 happened beforehand
     if isnan(lvldn(lastidxbs))
+        if f1
+            if close9 < close8
+                tag = 'perfectbs-scenario1';
+            else
+                tag = 'semiperfectbs-scenario1';
+            end
+        else
+            tag = 'imperfectbs-scenario1';
+        end
         return
     end
     
     %scenario 2:the first bs9 with ss9 happened beforehand
     if isnan(lvlup(lastidxbs_start)) && ~isnan(lvldn(lastidxbs_start))
+        lvldn_old = lvldn(lastidxbs_start);
+        f2 = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'));
+        if f1 && f2
+            if close9 < close8
+                tag = 'perfectbs-scenario1';
+            else
+                tag = 'semiperfectbs-scenario1';
+            end
+        else
+            tag = 'imperfectbs-scenario2';
+        end
         return
     end
     
@@ -57,9 +77,18 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelo
         lvldn_old = lvldn(lastidxbs_start);
         if lvlup_old > lvldn_old
             %in case all prices closes above lvlup_old
-            %in case all prices closes above lvldn_old but not lvlup_old
-            %in case some prices closes above lvldn_old but some below
+            f3 = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvlup_old,1,'first'));
             %in case all prices closes below lvldn_old
+            f4 = isempty(find(p(lastidxbs_start:lastidxbs,5) > lvldn_old,1,'first'));
+            if f3
+            elseif f4
+            else
+                %in case all prices closes above lvldn_old but not lvlup_old
+                %in case some prices closes above lvldn_old but some below
+            end
+            
+            
+            
         elseif lvlup_old < lvldn_old
             %in case all prices close above lvldn_old
             %in case all prices close above lvlup_old but not lvldn_old
