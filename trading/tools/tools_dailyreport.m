@@ -1,4 +1,4 @@
-function [ outputs,ci ] = tools_dailyreport( assetname,figureidx )
+function [ outputs,ci,ri ] = tools_dailyreport( assetname,figureidx )
 if nargin < 2, figureidx = 1;end
 [ri,oi] = bkfunc_genfutrollinfo(assetname);
 [cf,crt,ci] = bkfunc_buildcontinuousfutures(ri,oi);
