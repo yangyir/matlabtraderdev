@@ -21,7 +21,7 @@ function [] = setstoplossfromsignalinfo(obj,signalinfo)
         return
     end
     
-    if isa(signalinfo,'cBatmanManual')
+    if isa(signalinfo,'cBatmanManual') || isa(signalinfo,'cManualInfo')
         obj.pxstoploss_ = signalinfo.pxstoploss_;
         return
     end

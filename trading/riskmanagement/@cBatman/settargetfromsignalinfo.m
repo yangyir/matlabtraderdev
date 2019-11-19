@@ -20,7 +20,7 @@ function [] = settargetfromsignalinfo(obj,signalinfo)
         return
     end
     
-    if isa(signalinfo,'cBatmanManual')
+    if isa(signalinfo,'cBatmanManual') || isa(signalinfo,'cManualInfo')
         obj.pxtarget_ = signalinfo.pxtarget_;
         return
     end
