@@ -54,6 +54,8 @@ function [obj] = table2tradeopen2(obj,headers,data)
             signal = cWilliamsRInfo;
         elseif strcmpi(opensignal_name,'TDSQ')
             signal = cTDSQInfo;
+        elseif strcmpi(opensignal_name,'Manual')
+            signal = cManualInfo;
         else
             error('cTradeOpen:table2tradeopen2:%s signal name not supported',opensignal_name)
         end
