@@ -5,13 +5,17 @@ if nargin < 3, volume = 1; end
 
 if ischar(opt)
     try
-        opt = cOption(opt);
-        opt.loadinfo([opt.code_ctp,'_info.txt']);
+        opt = code2instrument(opt);
+%         opt = cOption(opt);
+%         opt.loadinfo([opt.code_ctp,'_info.txt']);
+        if ~(isa(opt,'cOption') || isa(opt,'cFutures'))
+            error('opt_pnlbreakdown:invalid string input')
+        end
     catch e
         fprintf(['error:',e.message,'\n']);
         return
     end 
-elseif ~isa(opt,'cOption')
+elseif ~(isa(opt,'cOption') || isa(opt,'cFutures'))
     error('opt_pnlbreakdown:invalid option input')
 end
 
@@ -27,6 +31,35 @@ try
     q = quotes{idx};
 catch e
     error(e.message)
+end
+%%
+if isa(opt,'cFutures')
+    mult = opt.contract_size; 
+    data = cDataFileIO.loadDataFromTxtFile([opt.code_ctp,'_daily.txt']);
+    predate = getlastbusinessdate;
+    cobdate = businessdate(predate,1);
+    price1_underlier = data(data(:,1)==datenum(predate),5);
+    if isempty(price1_underlier)
+        error(['underlier ',opt.code_ctp,' historical price not saved!'])
+    end
+    price2_underlier = q.last_trade;
+    pnl = price2_underlier - price1_underlier;
+    output = struct('code',opt.code_ctp,...
+    'pnltotal',pnl*volume*mult,...
+    'pnltheta',0,...
+    'pnldelta',pnl*volume*mult,...
+    'pnlgamma',0,...
+    'pnlvega',0,...
+    'pnlunexplained',0,...
+    'date1',datestr(predate,'yyyy-mm-dd'),...
+    'date2',datestr(cobdate,'yyyy-mm-dd'),...
+    'iv1',NaN,...
+    'iv2',NaN,...
+    'spot1',price1_underlier,...
+    'spot2',price2_underlier,...
+    'premium1',NaN,...
+    'premium2',NaN);
+    return
 end
 
 %%
