@@ -17,10 +17,10 @@ function [] = opt_arbmonitor(mdeopt,underlier,strikes)
         ask_underlier = qc.ask_underlier;
         if i == 1
             fprintf('\n');
-            fprintf('%s\t%s\t%s\t%s\t%s\n','strike','fwdbid','fwdask','futbid','futask');
+            fprintf('%6s\t%6s\t%6s\t%6s\t%6s\n','strike','fwdbid','fwdask','futbid','futask');
         end
 
-        fprintf('%s\t%s\t%s\t%s\t%s\n',num2str(strikes(i)),num2str(bid),num2str(ask),...
+        fprintf('%6s\t%6s\t%6s\t%6s\t%6s\n',num2str(strikes(i)),num2str(bid),num2str(ask),...
             num2str(bid_underlier),num2str(ask_underlier));
     end
 
