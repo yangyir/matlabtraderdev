@@ -3,7 +3,8 @@ function [] = opt_arbmonitor(mdeopt,underlier,strikes)
 
     for i = 1:length(strikes)
         if strcmpi(underlier(1:2),'SR') || strcmpi(underlier(1:2),'CF') ...
-                || strcmpi(underlier(1:2),'cu') || strcmpi(underlier(1:2),'ru')
+                || strcmpi(underlier(1:2),'cu') || strcmpi(underlier(1:2),'ru') ...
+                || strcmpi(underlier(1:2),'TA') || strcmpi(underlier(1:2),'MA')
             qc = qms.getquote([underlier,'C',num2str(strikes(i))]);
             qp = qms.getquote([underlier,'P',num2str(strikes(i))]);
         else

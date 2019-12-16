@@ -340,6 +340,94 @@ for j = 1:length(strikes2_cotton)
 end
 fprintf('done for white cotton options......\n\n');
 %%
+% PTA
+futlist_i = listcontracts('pta','connection','bloomberg');
+check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
+ltd = check_i.last_tradeable_dt;
+idx = ltd >= lastbd;
+livefutlist_i = futlist_i(idx);
+check_i = getdata(conn.ds_,livefutlist_i,'open_int');
+open_int = check_i.open_int;
+open_int_sorted = sort(open_int,'descend');
+
+idx1 = find(open_int == open_int_sorted(1));
+idx2 = find(open_int == open_int_sorted(2));
+
+check_i = history(conn.ds_,livefutlist_i{idx1},'px_last',lastbd,lastbd);
+px1 = check_i(2);
+futcode1 = bbg2ctp(livefutlist_i{idx1});
+%
+check_i = history(conn.ds_,livefutlist_i{idx2},'px_last',lastbd,lastbd);
+px2 = check_i(2);
+futcode2 = bbg2ctp(livefutlist_i{idx2});
+%
+bucketsize = 50;
+nopt = 30;
+strikes1_pta = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+strikes2_pta = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+
+for j = 1:length(strikes1_pta)
+    c_code_ = [futcode1,'C',num2str(strikes1_pta(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode1,'P',num2str(strikes1_pta(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+if ~strcmpi(futcode2,'TA001')
+    for j = 1:length(strikes2_pta)
+        c_code_ = [futcode2,'C',num2str(strikes2_pta(j))];
+        savedailybarfrombloomberg(conn,c_code_,override);
+        %
+        p_code_ = [futcode2,'P',num2str(strikes2_pta(j))];
+        savedailybarfrombloomberg(conn,p_code_,override);
+    end
+end
+fprintf('done for white PTA options......\n\n');
+%%
+% Methanol
+futlist_i = listcontracts('methanol','connection','bloomberg');
+check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
+ltd = check_i.last_tradeable_dt;
+idx = ltd >= lastbd;
+livefutlist_i = futlist_i(idx);
+check_i = getdata(conn.ds_,livefutlist_i,'open_int');
+open_int = check_i.open_int;
+open_int_sorted = sort(open_int,'descend');
+
+idx1 = find(open_int == open_int_sorted(1));
+idx2 = find(open_int == open_int_sorted(2));
+
+check_i = history(conn.ds_,livefutlist_i{idx1},'px_last',lastbd,lastbd);
+px1 = check_i(2);
+futcode1 = bbg2ctp(livefutlist_i{idx1});
+%
+check_i = history(conn.ds_,livefutlist_i{idx2},'px_last',lastbd,lastbd);
+px2 = check_i(2);
+futcode2 = bbg2ctp(livefutlist_i{idx2});
+%
+bucketsize = 25;
+nopt = 30;
+strikes1_ma = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+strikes2_ma = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+
+for j = 1:length(strikes1_ma)
+    c_code_ = [futcode1,'C',num2str(strikes1_ma(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode1,'P',num2str(strikes1_ma(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+if ~strcmpi(futcode2,'MA001')
+    for j = 1:length(strikes2_ma)
+        c_code_ = [futcode2,'C',num2str(strikes2_ma(j))];
+        savedailybarfrombloomberg(conn,c_code_,override);
+        %
+        p_code_ = [futcode2,'P',num2str(strikes2_ma(j))];
+        savedailybarfrombloomberg(conn,p_code_,override);
+    end
+end
+fprintf('done for methanol options......\n\n');
+%%
 % copper
 futlist_i = listcontracts('copper','connection','bloomberg');
 check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
