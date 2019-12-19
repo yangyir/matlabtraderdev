@@ -197,7 +197,9 @@ for i = 1:nxtick
 end
 set(ax(1),'XTickLabel',xticklabel,'fontsize',8);
 xlabel('time points');ylabel('price');
-ylim([min(p(:,4))*0.99 max(p(:,3))*1.01])
+ytick = get(ax(1),'YTick');
+
+ylim([max(ytick(1),min(p(:,4))*0.99) min(max(p(:,3))*1.01,ytick(end))])
 
 %
 % ax(2) = subplot(212);

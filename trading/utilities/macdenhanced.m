@@ -93,8 +93,8 @@ if ~isempty(k4)
     lb_running = y4+k4*x(end);
     ub_running = y3+k3*x(end);
 else
-    lb_running = [];
-    ub_running = [];
+    lb_running = y2+k2*x(end);
+    ub_running = y1+k1*x(end);
 end
     
 lb_critical = y2+k2*x(end);

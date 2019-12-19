@@ -1,4 +1,4 @@
-function [output] = tdsq_plot2(p,idxstart,idxend,instr2)
+function [output] = tdsq_plot2(p,idxstart,idxend,instr2,figidx)
 %tdsq_plot's enhancement:
 %with first graph as tdsq, i.e. TD Sequential and TD Countdown(going
 %forward)
@@ -7,7 +7,11 @@ if isa(instr2,'cInstrument')
 else
     shift = instr2;
 end
-figure(4);
+if nargin < 5
+    figidx = 4;
+end
+
+figure(figidx);
 % h1 = gca;
 
 pxopen = p(:,2);pxhigh = p(:,3);pxlow = p(:,4);pxclose = p(:,5);
@@ -42,7 +46,7 @@ plot(tdSTSupport(idxstart:idxend),'g:','LineWidth',2);
 if isa(instr2,'cInstrument')
     title(instr2.code_ctp);
 end
-legend('tdst-resistence','tdst-support');
+% legend('tdst-resistence','tdst-support');
 candle(pxhigh2plot,pxlow2plot,pxclose2plot,pxopen2plot);
 xtick = get(ax(1),'XTick');
 nxtick = length(xtick);
