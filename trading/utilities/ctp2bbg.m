@@ -80,18 +80,24 @@ fcode = getfutcode(str2double(mmstr));
 
 [~,~,codelist1,codelist2]=getassetmaptable;
 bcode = '';
-for i = 1:size(codelist1)
-    if strcmpi(assetshortcode,codelist2{i})
-        if ~opt
-            if strcmpi(assetshortcode,'IF') || strcmpi(assetshortcode,'IC') || strcmpi(assetshortcode,'IH')
-                bcode = [codelist1{i},fcode,byystr,' Index'];
+
+if strcmpi(assetshortcode,'IO')
+    [~,~,~,~,opt_expiry] = isoptchar(codestr);
+    bcode = ['SHSN300 ',datestr(opt_expiry,'mm/dd/yy'),' ',opt_type,opt_strike,' Index'];
+else
+    for i = 1:size(codelist1)
+        if strcmpi(assetshortcode,codelist2{i})
+            if ~opt
+                if strcmpi(assetshortcode,'IF') || strcmpi(assetshortcode,'IC') || strcmpi(assetshortcode,'IH')
+                    bcode = [codelist1{i},fcode,byystr,' Index'];
+                else
+                    bcode = [codelist1{i},fcode,byystr,' Comdty'];
+                end
             else
-                bcode = [codelist1{i},fcode,byystr,' Comdty'];
+                bcode = [codelist1{i},fcode,byystr,opt_type,' ',opt_strike,' Comdty'];
             end
-        else
-            bcode = [codelist1{i},fcode,byystr,opt_type,' ',opt_strike,' Comdty'];
+            break
         end
-        break
     end
 end
 
