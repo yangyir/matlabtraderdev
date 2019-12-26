@@ -518,4 +518,69 @@ for j = 1:length(strikes2_rubber)
     savedailybarfrombloomberg(conn,p_code_,override);
 end
 fprintf('done for rubber options......\n\n');
+%%
+% gold
+futlist_i = listcontracts('gold','connection','bloomberg');
+check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
+ltd = check_i.last_tradeable_dt;
+idx = ltd >= lastbd;
+livefutlist_i = futlist_i(idx);
+check_i = getdata(conn.ds_,livefutlist_i,'open_int');
+open_int = check_i.open_int;
+open_int_sorted = sort(open_int,'descend');
 
+idx1 = find(open_int == open_int_sorted(1));
+idx2 = idx1+1;
+
+check_i = history(conn.ds_,livefutlist_i{idx1},'px_last',lastbd,lastbd);
+px1 = check_i(2);
+futcode1 = bbg2ctp(livefutlist_i{idx1});
+%
+check_i = history(conn.ds_,livefutlist_i{idx2},'px_last',lastbd,lastbd);
+px2 = check_i(2);
+futcode2 = bbg2ctp(livefutlist_i{idx2});
+bucketsize = 4;
+nopt = 10;
+strikes1_gold = floor(px1/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px1/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+strikes2_gold = floor(px2/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px2/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+
+for j = 1:length(strikes1_gold)
+    c_code_ = [futcode1,'C',num2str(strikes1_gold(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode1,'P',num2str(strikes1_gold(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+
+for j = 1:length(strikes2_gold)
+    c_code_ = [futcode2,'C',num2str(strikes2_gold(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [futcode2,'P',num2str(strikes2_gold(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+fprintf('done for gold options......\n\n');
+%% equity index
+eqindex = 'SHSN300 Index';
+px = history(conn.ds_,eqindex,'px_last',lastbd,lastbd);px = px(2);
+bucketsize = 50;
+nopt = 10;
+strikes_eqindex = floor(px/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px/bucketsize)*bucketsize+(nopt)/2*bucketsize;
+code1 = 'IO2002';
+code2 = 'IO2003';
+for j = 1:length(strikes_eqindex)
+    c_code_ = [code1,'-C-',num2str(strikes_eqindex(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [code1,'-P-',num2str(strikes_eqindex(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+
+for j = 1:length(strikes_eqindex)
+    c_code_ = [code2,'-C-',num2str(strikes_eqindex(j))];
+    savedailybarfrombloomberg(conn,c_code_,override);
+    %
+    p_code_ = [code2,'-P-',num2str(strikes_eqindex(j))];
+    savedailybarfrombloomberg(conn,p_code_,override);
+end
+fprintf('done for equity index options......\n\n');
