@@ -28,28 +28,39 @@ else
     opt = false;
 end
 
-
-[~,~,~,codelist,exlist]=getassetmaptable;
-for i = 1:size(codelist)
-    if strcmpi(assetshortcode,codelist{i})
-        if opt
-            %we need to use the capital letter for 'C' and 'P'
-            idx = strfind(upper(tenor),'C');
-            if isempty(idx)
-                idx = strfind(upper(tenor),'P');
+if strcmpi(assetshortcode,'IO')
+    idx = strfind(upper(tenor),'C');
+    if isempty(idx)
+        idx = strfind(upper(tenor),'P');
+        if isempty(idx)
+            error('str2ctp:invalid input'); 
+        end
+    end
+    tenor = [tenor(1:idx-1),upper(tenor(idx)),tenor(idx+1:end)];
+    ctpcode = [upper(assetshortcode),tenor];
+else
+    [~,~,~,codelist,exlist]=getassetmaptable;
+    for i = 1:size(codelist)
+        if strcmpi(assetshortcode,codelist{i})
+            if opt
+                %we need to use the capital letter for 'C' and 'P'
+                idx = strfind(upper(tenor),'C');
                 if isempty(idx)
-                    error('str2ctp:invalid input'); 
+                    idx = strfind(upper(tenor),'P');
+                    if isempty(idx)
+                        error('str2ctp:invalid input'); 
+                    end
                 end
+                tenor = [tenor(1:idx-1),upper(tenor(idx)),tenor(idx+1:end)];
             end
-            tenor = [tenor(1:idx-1),upper(tenor(idx)),tenor(idx+1:end)];
-        end
                 
-        if strcmpi(exlist{i},'.CFE') || strcmpi(exlist{i},'.CZC')
-            ctpcode = [upper(assetshortcode),tenor];
-        else
-            ctpcode = [lower(assetshortcode),tenor];
+            if strcmpi(exlist{i},'.CFE') || strcmpi(exlist{i},'.CZC')
+                ctpcode = [upper(assetshortcode),tenor];
+            else
+                ctpcode = [lower(assetshortcode),tenor];
+            end
+            break
         end
-        break
     end
 end
 
