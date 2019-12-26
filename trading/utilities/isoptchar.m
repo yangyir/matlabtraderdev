@@ -33,6 +33,10 @@ idx = i-1;
 if idx == 0, return; end
 
 assetshortcode = codestr(1:idx);
+if strcmpi(assetshortcode,'IO')
+    assetshortcode = 'IF';
+end
+
 tenor = codestr(idx+1:end);
 
 if length(tenor) <= 4, return; end
@@ -50,7 +54,7 @@ for i = 1:size(codelist)
         else
             opt_type = 'C';
         end
-        
+                
         if strcmpi(exlist{i},'.DCE')
             underlierstr = [assetshortcode,tenor(1:4)];
             mmnum = str2double(tenor(3:4));
@@ -78,7 +82,14 @@ for i = 1:size(codelist)
                 mmnum_opt = mmnum - 1;
                 yynum_opt = yynum;
             end
-            opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,5,-1);     
+            opt_expiry = getbusinessdate(yynum_opt,mmnum_opt,5,-1);
+        elseif strcmpi(exlist{i},'.CFE')
+            underlierstr = [assetshortcode,tenor(1:4)];
+            %equity index option:the expiry date of the option is on the
+            %3rd friday of the month, the same as the futures
+            fut = code2instrument(underlierstr);
+            opt_expiry = fut.last_trade_date1;
+            %
         else
             underlierstr = [assetshortcode,tenor(1:3)];
             mmnum = str2double(tenor(2:3));
