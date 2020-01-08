@@ -16,6 +16,7 @@ function params = opt_volfit(code_underlier,cobdate,varargin)
     initialguess = p.Results.initialguess;
     
     hd_underlier = cDataFileIO.loadDataFromTxtFile([code_underlier,'_daily.txt']);
+    if ischar(cobdate),cobdate = datenum(cobdate);end
     spot = hd_underlier(hd_underlier(:,1) == cobdate,5);
     if strcmpi(code_underlier(1:2),'SR')
         bucketsize = 100;

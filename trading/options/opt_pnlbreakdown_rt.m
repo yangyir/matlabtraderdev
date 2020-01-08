@@ -104,10 +104,14 @@ tau2 = (opt.opt_expiry_date1 - datenum(cobdate))/365;
 r = 0.035;
 if opt.opt_american
     iv1 = bjsimpv(price1_underlier,k,r,datenum(predate),opt.opt_expiry_date1,pv1_opt,[],r,[],optclass);
+    if isnan(iv1), iv1 = 0.01;end
     iv2 = bjsimpv(price2_underlier,k,r,datenum(cobdate),opt.opt_expiry_date2,pv2_opt,[],r,[],optclass);
+    if isnan(iv2), iv2 = 0.01;end
 else
     iv1 = blkimpv(price1_underlier,k,r,tau1,pv1_opt,[],[],{optclass});
+    if isnan(iv1), iv1 = 0.01;end
     iv2 = blkimpv(price2_underlier,k,r,tau2,pv2_opt,[],[],{optclass});
+    if isnan(iv2), iv2 = 0.01;end
 end
 
 %pvcarry

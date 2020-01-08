@@ -86,10 +86,14 @@ tau3 = (sec.opt_expiry_date1 - datenum(nextdate))/365;
 r = 0.035;
 if sec.opt_american
     iv1 = bjsimpv(price1_underlier,k,r,datenum(predate),sec.last_trade_date1,pv1_sec,[],r,[],optclass);
+    if isnan(iv1), iv1 = 0.01;end
     iv2 = bjsimpv(price2_underlier,k,r,datenum(cobdate),sec.last_trade_date1,pv2_sec,[],r,[],optclass);
+    if isnan(iv2), iv2 = 0.01;end
 else
     iv1 = blkimpv(price1_underlier,k,r,tau1,pv1_sec,[],[],{optclass});
+    if isnan(iv1), iv1 = 0.01;end
     iv2 = blkimpv(price2_underlier,k,r,tau2,pv2_sec,[],[],{optclass});
+    if isnan(iv2), iv2 = 0.01;end
 end
 
 %pvcarry: from previous business date
