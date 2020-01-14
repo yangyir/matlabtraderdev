@@ -52,8 +52,12 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
         %here we switch to get data from local drive rather than from the
         %terminal
         filename = [code,'_daily.txt'];
-        data = cDataFileIO.loadDataFromTxtFile(filename);
-        ois(i,:) = [data(end,1),data(end,7)];        
+        try
+            data = cDataFileIO.loadDataFromTxtFile(filename);
+            ois(i,:) = [data(end,1),data(end,7)];
+        catch
+            ois(i,:) = [0,0];
+        end
     end
     maxoi = max(ois(:,end));
     lastFutIdx = find(ois(:,end) == maxoi) + lastFutIdx-1;
