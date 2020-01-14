@@ -5,10 +5,29 @@ if nargin < 2, figureidx = 0;end
 %all period
 [res] = bkfunc_hvcalib(crt,'forecastperiod',21,'scalefactor',sqrt(252));
 %recent 1y
-
+try
+    [res_1y] = bkfunc_hvcalib(crt(end-251:end,:),'forecastperiod',21,'scalefactor',sqrt(252));
+catch
+    res_1y = struct('LongTermVol',NaN);
+end
 %recent 2y
+try
+    [res_2y] = bkfunc_hvcalib(crt(end-503:end,:),'forecastperiod',21,'scalefactor',sqrt(252));
+catch
+    res_2y = struct('LongTermVol',NaN);
+end
 %recent 3y
+try
+    [res_3y] = bkfunc_hvcalib(crt(end-755:end,:),'forecastperiod',21,'scalefactor',sqrt(252));
+catch
+    res_3y = struct('LongTermVol',NaN);
+end
 %recent 5y
+try
+    [res_5y] = bkfunc_hvcalib(crt(end-1259:end,:),'forecastperiod',21,'scalefactor',sqrt(252));
+catch
+    res_5y = struct('LongTermVol',NaN);
+end
 
 rdvec = cell2mat(ri(:,1));
 avgrollperiod = floor(mean(diff(rdvec)));
@@ -53,6 +72,10 @@ outputs = struct('LastContract',ri{end,5},...
     'LastRollDate',ri{end,end},...
     'DaysSinceLastRoll',ndayssincelastroll,...
     'LongTermVol',res.LongTermVol,...
+    'LongTermVol1',res_1y.LongTermVol,...
+    'LongTermVol2',res_2y.LongTermVol,...
+    'LongTermVol3',res_3y.LongTermVol,...
+    'LongTermVol5',res_5y.LongTermVol,...
     'PeriodInDays',21,...
     'HistoricalVol',res.HistoricalVol,...
     'EWMAVol',res.EWMAVol,...
