@@ -28,6 +28,10 @@ function params = opt_volfit(code_underlier,cobdate,varargin)
         bucketsize = 250;
     elseif strcmpi(code_underlier(1),'m')
         bucketsize = 50;
+    elseif strcmpi(code_underlier(1:2),'IF')
+        bucketsize = 50;
+    elseif strcmpi(code_underlier(1:2),'au')
+        bucketsize = 4;
     else
         bucketsize = 20;
     end
@@ -37,14 +41,19 @@ function params = opt_volfit(code_underlier,cobdate,varargin)
     if strcmpi(code_underlier(1:2),'SR') || strcmpi(code_underlier(1:2),'CF')
         interstrc = 'C';
         interstrp = 'P';
-    elseif strcmpi(code_underlier(1:2),'cu') || strcmpi(code_underlier(1:2),'ru')
+    elseif strcmpi(code_underlier(1:2),'cu') || strcmpi(code_underlier(1:2),'ru') ...
+            || strcmpi(code_underlier(1:2),'au')
         interstrc = 'C';
         interstrp = 'P';
     else
         interstrc = '-C-';
         interstrp = '-P-';
     end
-    optcode = [code_underlier,interstrc,num2str(k_dn)];
+    if strcmpi(code_underlier(1:2),'IF')
+        optcode = ['IO',code_underlier(3:end),interstrc,num2str(k_dn)];
+    else
+        optcode = [code_underlier,interstrc,num2str(k_dn)];
+    end
     optinstr = code2instrument(optcode);
     optexpiry = optinstr.opt_expiry_date1;
     calendar_tau = (optexpiry-cobdate)/365;
@@ -56,11 +65,19 @@ function params = opt_volfit(code_underlier,cobdate,varargin)
    
         
     for i = 1:nstrikes
-        ci = [code_underlier,interstrc,num2str(strikes(i))];
+        if strcmpi(code_underlier(1:2),'IF')
+            ci = ['IO',code_underlier(3:end),interstrc,num2str(strikes(i))];
+        else
+            ci = [code_underlier,interstrc,num2str(strikes(i))];
+        end
         dataci = cDataFileIO.loadDataFromTxtFile([ci,'_daily.txt']);
         premiumci = dataci(dataci(:,1)==cobdate,5);
         %
-        pi = [code_underlier,interstrp,num2str(strikes(i))];
+        if strcmpi(code_underlier(1:2),'IF')
+            pi = ['IO',code_underlier(3:end),interstrp,num2str(strikes(i))];
+        else
+            pi = [code_underlier,interstrp,num2str(strikes(i))];
+        end
         datapi = cDataFileIO.loadDataFromTxtFile([pi,'_daily.txt']);
         premiumpi = datapi(datapi(:,1)==cobdate,5);
 
