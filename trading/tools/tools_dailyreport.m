@@ -1,11 +1,14 @@
 function [ outputs,ci,ri ] = tools_dailyreport( assetname,figureidx )
-if nargin < 2, figureidx = 1;end
+if nargin < 2, figureidx = 0;end
 [ri,oi] = bkfunc_genfutrollinfo(assetname);
 [cf,crt,ci] = bkfunc_buildcontinuousfutures(ri,oi);
-[res] = bkfunc_hvcalib(crt,'forecastperiod',21,...
-    'printresults',false,...
-    'plotconditonalvariance',false,...
-    'scalefactor',sqrt(252));
+%all period
+[res] = bkfunc_hvcalib(crt,'forecastperiod',21,'scalefactor',sqrt(252));
+%recent 1y
+
+%recent 2y
+%recent 3y
+%recent 5y
 
 rdvec = cell2mat(ri(:,1));
 avgrollperiod = floor(mean(diff(rdvec)));
@@ -20,9 +23,12 @@ wrperiod = 14;
 wpctr = willpctr(ci(:,3), ci(:,4), ci(:,5), wrperiod);
 wpctrmat = [wpctr(wrperiod:end-1),ci(wrperiod+1:end,5)-ci(wrperiod:end-1,5)];
 wpctrmatsorted = sortrows(wpctrmat);
-figure(figureidx);
-plot(wpctrmatsorted(:,1),cumsum(wpctrmatsorted(:,2)));
-xlabel('william R%');ylabel('cumulative return');title(assetname);
+
+if figureidx > 0 
+    figure(figureidx);
+    plot(wpctrmatsorted(:,1),cumsum(wpctrmatsorted(:,2)));
+    xlabel('william R%');ylabel('cumulative return');title(assetname);
+end
 
 if macdvec(end) < 0
     maind = 'bearish';
