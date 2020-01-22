@@ -5,6 +5,8 @@ classdef cMDEOptBBG < cMyTimerObj
     
     properties
         conn_@cBloomberg
+        options_@cell
+        underliers_@cell
     end
     
     properties
@@ -44,7 +46,7 @@ classdef cMDEOptBBG < cMyTimerObj
     end
     
     methods
-        [] = registerinstrument(obj,instrument)
+        [] = registeroption(obj,underlier,cpflag,strike,maturity)
         %
         % abstract methods derived from base class
         [] = refresh(obj,varargin)
