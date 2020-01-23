@@ -42,7 +42,8 @@ classdef cMDEOptBBG < cMyTimerObj
     end
     
     methods
-        
+        res = getgreeks(obj,code_bbg)
+        res = getportfoliogreeks(obj,codes_bbg,weights)
     end
     
     methods
