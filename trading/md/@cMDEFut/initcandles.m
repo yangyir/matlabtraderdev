@@ -1,7 +1,7 @@
 function [ret] = initcandles(mdefut,instrument,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
-    p.addParameter('NumberofPeriods',10,@isnumeric);
+    p.addParameter('NumberofPeriods',20,@isnumeric);
     p.parse(varargin{:});
     nop = p.Results.NumberofPeriods;
     instruments = mdefut.qms_.instruments_.getinstrument;
