@@ -1,3 +1,12 @@
+%%
+nfractal = 2;
+outputmat = tools_technicalplot1(p,nfractal);
+HH = outputmat(:,7);LL = outputmat(:,8);
+jaw = outputmat(:,9);teeth = outputmat(:,10);lips = outputmat(:,11);
+bs = outputmat(:,12);ss = outputmat(:,13);
+lvlup = outputmat(:,14);lvldn = outputmat(:,15);
+bc = outputmat(:,16);sc = outputmat(:,17);
+%%
 N = length(p);
 % DAILY price with 5-day fractal, i.e. nfractal = 2
 % valid HH: the highest high is above alligator's teeth
@@ -280,7 +289,7 @@ for i = 1:nSell2
     end
 end
 
-%%
+%% todo
 isBuy3 = [0;validLL(1:end-1) & p(1:end-1,5)<LL(1:end-1) & p(2:end,5)>LL(1:end-1)];
 %
 isSell3 = [0;validHH(1:end-1) & p(1:end-1,5)>HH(1:end-1) & p(2:end,5)<HH(1:end-1)];
@@ -290,3 +299,52 @@ totalpnl = sum(p(idxBuy1Stop,5)-p(idxBuy1,5))+...
     sum(p(idxBuy2Stop,5)-p(idxBuy2,5))+...
     sum(p(idxSell1,5)-p(idxSell1Stop,5))+...
     sum(p(idxSell2,5)-p(idxSell2Stop,5));
+%%
+signals = zeros(N,1);
+for i = 1:nBuy1
+    jstart = idxBuy1(i);
+    jend = idxBuy1Stop(i);
+    signals(jstart:jend-1) = 1 + signals(jstart:jend-1);
+end
+for i = 1:nBuy2
+    jstart = idxBuy2(i);
+    jend = idxBuy2Stop(i);
+    signals(jstart:jend-1) = 1 + signals(jstart:jend-1);
+end
+for i = 1:nSell1
+    jstart = idxSell1(i);
+    jend = idxSell1Stop(i);
+    signals(jstart:jend-1) = -1 + signals(jstart:jend-1);
+end
+for i = 1:nSell2
+    jstart = idxSell2(i);
+    jend = idxSell2Stop(i);
+    signals(jstart:jend-1) = -1 + signals(jstart:jend-1);
+end
+runningpnl = [0;signals(1:end-1).*(p(2:end,5)-p(1:end-1,5))];
+figure(2);
+plot(cumsum(runningpnl));grid on;hold on;
+plot(p(1:end,5)-p(1,5),'r');hold off;
+%
+nWinBuy1 = sum(p(idxBuy1Stop,5)-p(idxBuy1,5)>0);
+pnlWinBuy1 = (p(idxBuy1Stop,5)-p(idxBuy1,5)>0).*(p(idxBuy1Stop,5)-p(idxBuy1,5));
+nWinBuy2 = sum(p(idxBuy2Stop,5)-p(idxBuy2,5)>0);
+pnlWinBuy2 = (p(idxBuy2Stop,5)-p(idxBuy2,5)>0).*(p(idxBuy2Stop,5)-p(idxBuy2,5));
+nWinSell1 = sum(p(idxSell1,5)-p(idxSell1Stop,5)>0);
+pnlWinSell1 = (p(idxSell1,5)-p(idxSell1Stop,5)>0).*(p(idxSell1,5)-p(idxSell1Stop,5));
+nWinSell2 = sum(p(idxSell2,5)-p(idxSell2Stop,5)>0);
+pnlWinSell2 = (p(idxSell2,5)-p(idxSell2Stop,5)>0).*(p(idxSell2,5)-p(idxSell2Stop,5));
+W = (nWinBuy1+nWinBuy2+nWinSell1+nWinSell2)/(nBuy1+nBuy2+nSell1+nSell2);
+wintotalpnl = sum(pnlWinBuy1)+sum(pnlWinBuy2)+sum(pnlWinSell1)+sum(pnlWinSell2);
+losstotalpnl = totalpnl-wintotalpnl;
+winavgpnl = wintotalpnl/(nWinBuy1+nWinBuy2+nWinSell1+nWinSell2);
+lossavgpnl = losstotalpnl/(nBuy1+nBuy2+nSell1+nSell2-(nWinBuy1+nWinBuy2+nWinSell1+nWinSell2));
+R = abs(winavgpnl/lossavgpnl);
+if W == 1
+    ratio = 1;
+    lossavgpnl = NaN;
+else
+    ratio = W-(1-W)/R;
+end
+fprintf('kelly ratio:%2.2f\n',ratio);
+

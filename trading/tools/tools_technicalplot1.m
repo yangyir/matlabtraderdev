@@ -8,7 +8,7 @@ teeth = smma(p,8,5);teeth = [nan(5,1);teeth];
 lips = smma(p,5,3);lips = [nan(3,1);lips];
 [idx,HH,LL] = fractal(p,nfractal);
 [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
-
+figure(1);
 candle(p(:,3),p(:,4),p(:,5),p(:,2),[0.75,0.75,0.75]);hold on;
 plot(jaw,'b');
 plot(teeth,'r');
