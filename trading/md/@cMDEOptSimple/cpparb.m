@@ -1,4 +1,4 @@
-function [sellfwdlongspot,sellspotlongfwd] = cpparb(obj,underlier)
+function [sellfwdlongspot,sellspotlongfwd,synfwdbid,synfwdask] = cpparb(obj,underlier)
 %cMDEOptSimple
     if ~isa(underlier,'cInstrument'), underlier = code2instrument(underlier);end
     
@@ -19,7 +19,7 @@ function [sellfwdlongspot,sellspotlongfwd] = cpparb(obj,underlier)
     spotask = zeros(nk,1);
     
     for i = 1:nk
-        if strcmpi(underlier.asset_name,'soymeal') || strcmpi(underlier.asset_name,'corn') ...
+        if strcmpi(underlier.exchange,'.DCE')
             qc = qms.getquote([underlier.code_ctp,'-C-',num2str(strikes(i))]);
             qp = qms.getquote([underlier.code_ctp,'-P-',num2str(strikes(i))]);
         else
@@ -36,13 +36,15 @@ function [sellfwdlongspot,sellspotlongfwd] = cpparb(obj,underlier)
     sellfwdlongspot = synfwdbid-spotask;
     sellspotlongfwd = spotbid-synfwdask;
     
-    for i = 1:nk
-        if sellfwdlongspot(i) > 0
-            fprintf('%6s\t%6s\t%6s\t%6s\t%6s\n',underlier.code_ctp,num2str(qc.last_trade_underlier),num2str(strikes(i)),'-C+P+S',num2str(sellfwdlongspot(i)));
-        end
-        %
-        if sellspotlongfwd(i) > 0
-            fprintf('%6s\t%6s\t%6s\t%6s\t%6s\n',underlier.code_ctp,num2str(qc.last_trade_underlier),num2str(strikes(i)),'C-P-S',num2str(sellspotlongfwd(i)));
+    if obj.printflag_
+        for i = 1:nk
+            if sellfwdlongspot(i) > obj.threshold_(idx)
+                fprintf('%6s\t%6s\t%6s\t%6s\t%6s\n',underlier.code_ctp,num2str(qc.last_trade_underlier),num2str(strikes(i)),'-C+P+S',num2str(sellfwdlongspot(i)));
+            end
+            %
+            if sellspotlongfwd(i) > obj.threshold_(idx)
+                fprintf('%6s\t%6s\t%6s\t%6s\t%6s\n',underlier.code_ctp,num2str(qc.last_trade_underlier),num2str(strikes(i)),'C-P-S',num2str(sellspotlongfwd(i)));
+            end
         end
     end
 
