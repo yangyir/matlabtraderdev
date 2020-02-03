@@ -11,7 +11,7 @@ res_tdsq = tdsq_plot2(hd(:,1:5),size(hd,1)-252,size(hd,1),0.01);
 exp_feb = '2020-02-26';
 exp_mar = '2020-03-25';
 exp_jun = '2020-06-24';
-k = [2.85,2.9,2.95,3,3.1,3.2,3.3];
+k = [2.75,2.8,2.85,2.9,2.95,3,3.1,3.2,3.3];
 opt_c_feb = cell(length(k),1);opt_p_feb = opt_c_feb;
 opt_c_mar = cell(length(k),1);opt_p_mar = opt_c_mar;
 opt_c_jun = cell(length(k),1);opt_p_jun = opt_c_jun;

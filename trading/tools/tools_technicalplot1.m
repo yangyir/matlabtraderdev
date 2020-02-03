@@ -53,11 +53,11 @@ for i = 1:length(p)
         end
     end
     %
-    if bc(i) == 12 || bc(i) == 13
+    if bc(i) == 13
         text(i,p(i,4)-2*shift,num2str(bc(i) ),'color','k','fontweight','bold','fontsize',7);
     end
     %
-    if sc(i) == 12 || sc(i) == 13
+    if sc(i) == 13
         text(i,p(i,3)+2*shift,num2str(sc(i) ),'color','k','fontweight','bold','fontsize',7);
     end
 end
