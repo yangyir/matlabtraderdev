@@ -18,6 +18,8 @@ function [] = registeroptions(obj,underlier,strikes)
     if ~flag
         nu = obj.underliers_.count;
         obj.underliers_.addinstrument(underlier);
+        obj.setthreshold(underlier,0);
+        obj.setnmax(underlier,0);
         k = cell(nu+1,1);
         for i = 1:nu;k{i,1} = obj.strikes_{i,1};end
         k{nu+1,1} = strikes;

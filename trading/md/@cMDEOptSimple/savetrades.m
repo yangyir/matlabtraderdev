@@ -2,6 +2,12 @@ function [] = savetrades(obj,varargin)
 %cMDEOptSimple
     % the trades are saved between 15:15pm and 15:25pm, when we can disconnect
     % the MDE
+    n = obj.underliers_.count;
+    us = obj.underliers_.getinstrument;
+    for i = 1:n
+        obj.setnmax(us{i},0);
+    end
+    
     if ~strcmpi(obj.mode_,'realtime'), return; end
     
     if ~obj.qms_.isconnect, return; end

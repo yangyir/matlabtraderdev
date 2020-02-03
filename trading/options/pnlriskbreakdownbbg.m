@@ -6,27 +6,6 @@ function [output] = pnlriskbreakdownbbg(code_bbg,cobdate,volume)
 %codeup for 300ETF and 50ETF
 if nargin < 3, volume = 1; end
 
-% if ischar(code_bbg)
-%     flag = isoptchar(code_bbg);
-%     if ~flag
-%         try
-%             code_bbg = cFutures(code_bbg);
-%             code_bbg.loadinfo([code_bbg.code_ctp,'_info.txt']);
-%         catch e
-%             fprintf(['error:',e.message,'\n']);
-%             return
-%         end
-%     else
-%         try
-%             code_bbg = cOption(code_bbg);
-%             code_bbg.loadinfo([code_bbg.code_ctp,'_info.txt']);
-%         catch e
-%             fprintf(['error:',e.message,'\n']);
-%             return
-%         end
-%     end
-% end
-
 if strcmpi(code_bbg,'510050 CH Equity') || strcmpi(code_bbg,'510300 CH Equity')
     predate = businessdate(cobdate,-1);
     data = cDataFileIO.loadDataFromTxtFile([code_bbg(1:6),'_daily.txt']);

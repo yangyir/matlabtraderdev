@@ -20,6 +20,10 @@ function [] = registerinstrument(obj,instrument)
     underlier.loadinfo([underlierstr,'_info.txt']);
     
     
-    if ~obj.underliers_.hasinstrument(underlier), obj.underliers_.addinstrument(underlier);end
+    if ~obj.underliers_.hasinstrument(underlier)
+        obj.underliers_.addinstrument(underlier);
+        obj.setthreshold(underlier,0);
+        obj.setumax(underlier,0);
+    end
 end
 %end of registerinstrument

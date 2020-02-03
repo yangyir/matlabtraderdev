@@ -12,6 +12,7 @@ classdef cMDEOptSimple < cMyTimerObj
         tradeflag_@logical = false
         countertype_@char = 'ctp'
         threshold_@double
+        nmaxtradeperday_@double
     end
     
     properties
@@ -40,9 +41,10 @@ classdef cMDEOptSimple < cMyTimerObj
     methods
         %cMDEOptSimple specific ones
         [] = registeroptions(obj,underlier,strikes)
-        [a,b] = cpparb(obj,underlier)
+        [sellfwdlongspot,sellspotlongfwd,fwdbid,fwdask] = cpparb(obj,underlier)
         %trading related
         [] = setthreshold(obj,underlier,val)
+        [] = setnmax(obj,underlier,val)
     end
     
     
