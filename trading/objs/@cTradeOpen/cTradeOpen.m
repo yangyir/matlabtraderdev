@@ -68,7 +68,11 @@ classdef cTradeOpen < handle
         
         function instrument = get.instrument_(obj)
             if ~isempty(obj.code_)
-                instrument = code2instrument(obj.code_);
+                try
+                    instrument = code2instrument(obj.code_);
+                catch
+                    instrument = [];
+                end
             else
                 instrument = [];
             end

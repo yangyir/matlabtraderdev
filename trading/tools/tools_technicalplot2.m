@@ -1,17 +1,12 @@
-function outputmat = tools_technicalplot1(p,nfractal,doplot)
-%technical plot with DeMark and Williams' fractal and alligator indicator
+function [] = tools_technicalplot2(inputmat)
 
-if nargin < 2, nfractal = 2;end
-if nargin < 3, doplot = 0;end
-
-jaw = smma(p,13,8);jaw = [nan(8,1);jaw];
-teeth = smma(p,8,5);teeth = [nan(5,1);teeth];
-lips = smma(p,5,3);lips = [nan(3,1);lips];
-[idx,HH,LL] = fractal(p,nfractal);
-[bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
-outputmat = [m2xdate(p(:,1)),p(:,2:5),idx,HH,LL,jaw,teeth,lips,bs,ss,lvlup,lvldn,bc,sc];
-
-if ~doplot;return,end
+p = inputmat(:,1:5);
+%idx = inputmat(:,6);
+HH = inputmat(:,7);LL = inputmat(:,8);
+jaw = inputmat(:,9);teeth = inputmat(:,10);lips = inputmat(:,11);
+bs = inputmat(:,12);ss = inputmat(:,13);
+lvlup = inputmat(:,14);lvldn = inputmat(:,15);
+bc = inputmat(:,16);sc = inputmat(:,17);
 
 figure(1);
 candle(p(:,3),p(:,4),p(:,5),p(:,2),[0.75,0.75,0.75]);hold on;
@@ -21,8 +16,8 @@ plot(lips,'g');
 %
 stairs(HH,'r--');
 stairs(LL,'g--');
-stairs(lvlup,'color',[0.75 0 0],'linewidth',1);
-stairs(lvldn,'color',[0 0.75 0],'linewidth',1);
+stairs(lvlup,'color',[0.75 0 0],'linewidth',1.5);
+stairs(lvldn,'color',[0 0.75 0],'linewidth',1.5);
 
 shift = 0.01;
 for i = 1:length(p)
@@ -93,4 +88,6 @@ hold off;
 
 
 
+
 end
+
