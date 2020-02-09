@@ -53,6 +53,8 @@ function [] = registerinstrument(mdefut,instrument)
         %TDSQ
         mdefut.tdsqlag_ = 4*ones(ns,1);
         mdefut.tdsqconsecutive_ = 9*ones(ns,1);
+        %fractal
+        mdefut.nfractals_ = 2*ones(ns,1);
     else
         ns_ = size(mdefut.wrnperiod_,1);
         if ns_ ~= ns
@@ -62,6 +64,7 @@ function [] = registerinstrument(mdefut,instrument)
             mdefut.macdavg_ = [mdefut.macdavg_;9*ones(ns-ns_,1)];
             mdefut.tdsqlag_ = [mdefut.tdsqlag_;4*ones(ns-ns_,1)];
             mdefut.tdsqconsecutive_ = [mdefut.tdsqconsecutive_;9*ones(ns-ns_,1)];
+            mdefut.nfractals_ = [mdefut.nfractals_;2*ones(ns-ns_,1)];
         end
     end          
     % init of candle freq

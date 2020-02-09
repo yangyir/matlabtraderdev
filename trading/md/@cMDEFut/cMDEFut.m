@@ -18,8 +18,6 @@ classdef cMDEFut < cMyTimerObj
         %historical data,which is used for technical indicator calculation
         hist_candles_@cell
         
-        technical_indicator_autocalc_@double
-        technical_indicator_table_@cell
         %William %R number of period
         wrnperiod_@double
         %MACD
@@ -29,7 +27,8 @@ classdef cMDEFut < cMyTimerObj
         %TDSQ
         tdsqlag_@double
         tdsqconsecutive_@double
-        %
+        %Williams Fractals
+        nfractals_@double
         %
         replayer_@cReplayer
         replay_datetimevec_@double
@@ -40,6 +39,11 @@ classdef cMDEFut < cMyTimerObj
         datenum_close_@cell
         %
         lastclose_@double
+    end
+    
+    properties (Hidden = true)
+        technical_indicator_autocalc_@double
+        technical_indicator_table_@cell
     end
     
     properties (GetAccess = public, SetAccess = private)
@@ -123,6 +127,10 @@ classdef cMDEFut < cMyTimerObj
         [macdvec,sig,diffbar] = calc_macd_(obj,instrument,varargin)
         % TDSQ
         [buysetup,sellsetup,levelup,leveldn,buycountdown,sellcountdown] = calc_tdsq_(obj,instrument,varargin)
+        % William's fractal
+        [idx,HH,LL] = calc_fractal_(obj,instrument,varargin)
+        % William's alligator
+        [jaw,teeth,lips] = calc_alligator_(obj,instrument,varargin)
         
     end
     

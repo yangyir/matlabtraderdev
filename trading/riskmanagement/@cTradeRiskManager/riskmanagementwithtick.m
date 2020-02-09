@@ -23,7 +23,7 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
     tickTime = tick(1);
     tickBid = tick(2);
     tickAsk = tick(3);
-    tickTrade = tick(4);
+%     tickTrade = tick(4);
     
     %skip this if the tick time happend in the past, this might be used in
     %the replay mode
@@ -32,26 +32,36 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
     %skip this in case the trade is closed
     if strcmpi(obj.trade_.status_,'closed'), return; end
     
-    %skip this in case the batman is closed
+    %skip this in case the risk manager is closed
     if strcmpi(obj.status_,'closed'), return; end
     
-    %1.check whether stop loss is breached
-    if (obj.trade_.opendirection_ == 1 && tickTrade < obj.pxstoploss_) ||...
-            (obj.trade_.opendirection_ == -1 && tickTrade > obj.pxstoploss_ )
+    %1.check whether either 1) stop loss is breached or 2) target is
+    %breached
+    if (obj.trade_.opendirection_ == 1 && tickBid < obj.pxstoploss_) ||...
+            (obj.trade_.opendirection_ == -1 && tickAsk > obj.pxstoploss_ ) ||...
+            (obj.trade_.opendirection_ == 1 && tickBid > obj.pxtarget_) || ...
+            (obj.trade_.opendirection_ == -1 && tickAsk < obj.pxtarget_)
         obj.status_ = 'closed';
         obj.trade_.status_ = 'closed';
         
-        if strcmpi(class(obj),'cBatman')
-            obj.checkflag_ = 0;
-        end
+        if strcmpi(class(obj),'cBatman'), obj.checkflag_ = 0;end
         
         unwindtrade = obj.trade_;
         
         if doprint
-            fprintf('%s:%s closed as tick price breaches stoploss price at %s...\n',...
-                datestr(tickTime,'yyyy-mm-dd HH:MM'),...
-                class(obj),...
-                num2str(obj.pxstoploss_));            
+            if (obj.trade_.opendirection_ == 1 && tickBid < obj.pxstoploss_) || ...
+                    (obj.trade_.opendirection_ == -1 && tickAsk > obj.pxstoploss_ )
+                fprintf('%s:%s closed as tick price breaches stoploss price at %s...\n',...
+                    datestr(tickTime,'yyyy-mm-dd HH:MM:SS'),...
+                    class(obj),...
+                    num2str(obj.pxstoploss_));
+            elseif (obj.trade_.opendirection_ == 1 && tickBid > obj.pxtarget_) || ...
+                    (obj.trade_.opendirection_ == -1 && tickAsk < obj.pxtarget_)
+                fprintf('%s:%s closed as tick price breaches target price at %s...\n',...
+                    datestr(tickTime,'yyyy-mm-dd HH:MM:SS'),...
+                    class(obj),...
+                    num2str(obj.pxtarget_));
+            end
         end
         %
         if updatepnlforclosedtrade
@@ -65,8 +75,7 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
             end
             obj.trade_.closedatetime1_ = tickTime;
             obj.trade_.closedatetime2_ = datestr(obj.trade_.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
-        end
-        
+        end       
         return
     else
         if obj.trade_.opendirection_ == 1
@@ -89,7 +98,7 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
         
         if doprint
             fprintf('%s:%s closed as time breaches stop time at %s...\n',...
-                datestr(tickTime,'yyyy-mm-dd HH:MM'),...
+                datestr(tickTime,'yyyy-mm-dd HH:MM:SS'),...
                 class(oj),...
                 obj.trade_.stopdatetime2_);
         end
