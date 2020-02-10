@@ -17,8 +17,8 @@ function [] = printmarket(obj)
         %enrich printed information with last close and change
         
         fprintf('\nlatest market quotes:\n');
-        fprintf('%10s%8s%8s%8s%9s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s\n',...
-            'contract','bid','ask','close','change','time','wr','max','min','bs','ss','levelup','leveldn','macd','sig');
+        fprintf('%10s%8s%8s%8s%9s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s%10s\n',...
+            'contract','bid','ask','close','change','time','wr','max','min','bs','ss','levelup','leveldn','jaw','teeth','lips');
         for i = 1:n
             code = quotes{i}.code_ctp;
             bid = quotes{i}.bid1;
@@ -44,14 +44,16 @@ function [] = printmarket(obj)
             instr = code2instrument(code);
             wrinfo = obj.calc_wr_(instr,'IncludeLastCandle',1);
             [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr,'IncludeLastCandle',1);
-            [macdvec,sig] = obj.calc_macd_(instr,'IncludeLastCandle',1);
-            dataformat = '%10s%8s%8s%8s%8.1f%%%11s%10.1f%10s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
+%             [macdvec,sig] = obj.calc_macd_(instr,'IncludeLastCandle',1);
+            [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',1);
+            [~,HH,LL] = obj.calc_fractal_(instr,'includelastcandle',1);
+            dataformat = '%10s%8s%8s%8s%8.1f%%%11s%10.1f%10s%10s%8s%8s%10s%10s%10.2f%10.2f%10.2f\n';
             
             fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
                 delta,timet,...
-                wrinfo(1),num2str(wrinfo(2)),num2str(wrinfo(3)),...
+                wrinfo(1),num2str(HH(end)),num2str(LL(end)),...
                 num2str(buysetup(end)),num2str(sellsetup(end)),num2str(levelup(end)),num2str(leveldn(end)),...
-                macdvec(end),sig(end));
+                jaw(end),teeth(end),lips(end));
         end
     else
         %replay mode
@@ -79,23 +81,25 @@ function [] = printmarket(obj)
             rowcount = rowcount + 1;
             if rowcount == 1
                 fprintf('\nlatest market quotes (replay):\n');
-                fprintf('%10s%8s%8s%8s%9s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s\n',...
-            'contract','bid','ask','close','change','time','wr','max','min','bs','ss','levelup','leveldn','macd','sig');
+                fprintf('%10s%8s%8s%8s%9s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s%10s\n',...
+            'contract','bid','ask','close','change','time','wr','max','min','bs','ss','levelup','leveldn','jaw','teeth','lips');
             end
             lasttrade = lasttick(4);
             timet = datestr(lasttick(1),'HH:MM:SS');
-            dataformat = '%10s%8s%8s%8s%8.1f%%%11s%10.1f%10s%10s%8s%8s%10s%10s%10.1f%10.1f\n';
+            dataformat = '%10s%8s%8s%8s%8.1f%%%11s%10.1f%10s%10s%8s%8s%10s%10s%10.2f%10.2f%10.2f\n';
             delta = ((lasttrade/obj.lastclose_(i))-1)*100;
             
             wrinfo = obj.calc_wr_(instruments{i},'IncludeLastCandle',1);
             [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instruments{i},'IncludeLastCandle',1);
-            [macdvec,sig] = obj.calc_macd_(instruments{i},'IncludeLastCandle',1);
+%             [macdvec,sig] = obj.calc_macd_(instruments{i},'IncludeLastCandle',1);
+            [jaw,teeth,lips] = obj.calc_alligator_(instruments{i},'includelastcandle',1);
+            [~,HH,LL] = obj.calc_fractal_(instruments{i},'includelastcandle',1);
             
             fprintf(dataformat,code,num2str(lasttrade),num2str(lasttrade),num2str(obj.lastclose_(i)),...
                 delta,timet,...
-                wrinfo(1),num2str(wrinfo(2)),num2str(wrinfo(3)),...
+                wrinfo(1),num2str(HH(end)),num2str(LL(end)),...
                 num2str(buysetup(end)),num2str(sellsetup(end)),num2str(levelup(end)),num2str(leveldn(end)),...
-                macdvec(end),sig(end));
+                jaw(end),teeth(end),lips(end));
         end
         
     end

@@ -11,7 +11,7 @@ mdefut.setcandlefreq(30,instr);
 checkdt = '2020-02-07';
 replay_filename = [code,'_',datestr(checkdt,'yyyymmdd'),'_tick.txt'];
 mdefut.initreplayer('code',code,'fn',replay_filename);
-%%
+%
 mdefut.initcandles(instr);
 %%
 candlesticks = mdefut.getallcandles(instr);
@@ -33,5 +33,6 @@ fprintf('jaw:%6.2f\n',jaw(end));
 fprintf('teeth:%6.2f\n',teeth(end));
 fprintf('lips:%6.2f\n',lips(end));
 %%
+mdefut.print_timeinterval_ = 30*60;
 mdefut.start;
 

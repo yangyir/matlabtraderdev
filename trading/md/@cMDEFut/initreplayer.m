@@ -70,6 +70,14 @@ function [] = initreplayer(obj,varargin)
     
     obj.replay_idx_(idx2) = 0;
     
+    % last close needs to be inline with replay date
+    filename = [codestr,'_daily.txt'];
+    dailypx = cDataFileIO.loadDataFromTxtFile(filename);
+    lastbd = businessdate(obj.replay_date1_,-1);
+    idx = dailypx(:,1) == lastbd;
+    lastpx = dailypx(idx,5);
+    if ~isempty(lastpx), obj.lastclose_(idx2) = lastpx;end
+    
     % compute num21_00_00_; num21_00_0_5_;num00_00_00_;num00_00_0_5_ if it
     % is required
     if obj.categories_(idx2) > 3
