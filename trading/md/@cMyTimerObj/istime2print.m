@@ -20,5 +20,10 @@ function [flag] = istime2print(obj,t)
         flag = true;
         obj.setprintbucket(thiscount);
     end
+    
+    if (thissecond > 53999 && thissecond <= 54000) || ...
+            (thissecond > 54899 && thissecond <= 54900)
+        flag = true;
+    end
 
 end

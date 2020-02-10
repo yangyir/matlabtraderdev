@@ -127,12 +127,13 @@ function [] = refreshreplaymode2(mdefut)
 %             if (minuteinday > 150 && minuteinday < 540) || ...
 %                     (minuteinday > 690 && minuteinday < 780) || ...
 %                     (minuteinday > 915 && minuteinday < 1260)
-                mdefut.replay_time1_ = mdefut.replay_time1_ + mdefut.print_timeinterval_/86400;
+                mdefut.replay_time1_ = mdefut.replay_time1_ + 1/1440;
 %             else
 %                 mdefut.replay_time1_ = mdefut.replay_time1_ + 1/86400;
 %             end
         end
         mdefut.replay_time2_ = datestr(mdefut.replay_time1_,'yyyy-mm-dd HH:MM:SS');
+%         fprintf('%s\n',mdefut.replay_time2_);
     end
             
 end

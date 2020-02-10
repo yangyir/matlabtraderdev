@@ -13,26 +13,40 @@ function [ret] = initcandles(mdefut,instrument,varargin)
         ds = cLocal;
     end
     if nargin < 2
-%     if isempty(instrument)
         for i = 1:ns
             date2 = floor(mdefut.candles_{i}(1,1));
-            count = 1;
-            date1 = date2;
-            while count <= nop
-                date1 = businessdate(date1,-1);
-                count = count + 1;
-            end
-            lastbd = businessdate(date2,-1);
-            if strcmpi(instruments{i}.break_interval{end,end},'01:00:00') ||...
-                    strcmpi(instruments{i}.break_interval{end,end},'02:30:00')
-                date2str = [datestr(lastbd+1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+            if mdefut.candle_freq_(i) ~= 1440
+                count = 1;
+                date1 = date2;
+                while count <= nop,date1 = businessdate(date1,-1);count = count + 1;end
+                lastbd = businessdate(date2,-1);
+                if strcmpi(instruments{i}.break_interval{end,end},'01:00:00') ||...
+                        strcmpi(instruments{i}.break_interval{end,end},'02:30:00')
+                    date2str = [datestr(lastbd+1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+                else
+                    date2str = [datestr(lastbd,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+                end
+                date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
+                candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
+                mdefut.hist_candles_{i} = candles;
             else
-                date2str = [datestr(lastbd,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+                %add daily buckets
+                %best to use in-house build index for equity index as it
+                %rolls everymonth
+                %todo:add oil and base metals
+                assetname = instruments{i}.asset_name;
+                if strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || strcmpi(assetname,'eqindex_500')
+                    [ri,oi] = bkfunc_genfutrollinfo(assetname);
+                    [~,~,hd] = bkfunc_buildcontinuousfutures(ri,oi);
+                else
+                    hd = cDataFileIO.loadDataFromTxtFile([instruments{i}.code_ctp,'_daily.txt']);
+                end
+                candles = hd(hd(:,1)<date2,1:5);
+                if length(candles) > 252, candles = candles(end-251:end,:);end
+                candles(:,1) = candles(:,1)+(mdefut.candles_{i}(1,1)-date2);
+                mdefut.hist_candles_{i} = candles;
             end
-            date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
-            candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
-            mdefut.hist_candles_{i} = candles;
-
+            
             %fill the live candles in case it is missing
             if ~strcmpi(mdefut.mode_,'replay')
                 t = now;
@@ -71,7 +85,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     end
                 end
             end
-
+            
         end
         ret = true;
         ds.close;
@@ -90,23 +104,35 @@ function [ret] = initcandles(mdefut,instrument,varargin)
         if strcmpi(instruments{i}.code_ctp,instrument.code_ctp)
             flag = true;
             date2 = floor(mdefut.candles_{i}(1,1));
-            %intraday candles for the last 10 business dates
-            count = 1;
-            date1 = date2;
-            while count <= nop
-                date1 = businessdate(date1,-1);
-                count = count + 1;
-            end
-            lastbd = businessdate(date2,-1);
-            if strcmpi(instruments{i}.break_interval{end,end},'01:00:00') ||...
-                    strcmpi(instruments{i}.break_interval{end,end},'02:30:00')
-                date2str = [datestr(lastbd+1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+            if mdefut.candle_freq_(i) ~= 1440
+                %intraday candles for the last 10 business dates
+                count = 1;
+                date1 = date2;
+                while count <= nop,date1 = businessdate(date1,-1);count = count + 1;end
+                lastbd = businessdate(date2,-1);
+                if strcmpi(instruments{i}.break_interval{end,end},'01:00:00') ||...
+                        strcmpi(instruments{i}.break_interval{end,end},'02:30:00')
+                    date2str = [datestr(lastbd+1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+                else
+                    date2str = [datestr(lastbd,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+                end
+                date1str = [datestr(date1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{1,1}];
+                candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
+                mdefut.hist_candles_{i} = candles;
             else
-                date2str = [datestr(lastbd,'yyyy-mm-dd'),' ',instruments{i}.break_interval{end,end}];
+                %add daily buckets
+                assetname = instruments{i}.asset_name;
+                if strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || strcmpi(assetname,'eqindex_500')
+                    [ri,oi] = bkfunc_genfutrollinfo(assetname);
+                    [~,~,hd] = bkfunc_buildcontinuousfutures(ri,oi);
+                else
+                    hd = cDataFileIO.loadDataFromTxtFile([instruments{i}.code_ctp,'_daily.txt']);
+                end
+                candles = hd(hd(:,1)<date2,1:5);
+                if length(candles) > 252, candles = candles(end-251:end,:);end
+                candles(:,1) = candles(:,1)+(mdefut.candles_{i}(1,1)-date2);
+                mdefut.hist_candles_{i} = candles;
             end
-            date1str = [datestr(date1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{1,1}];
-            candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
-            mdefut.hist_candles_{i} = candles;
             
             %fill the live candles in case it is missing
             if ~strcmpi(mdefut.mode_,'replay')

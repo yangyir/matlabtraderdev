@@ -41,15 +41,19 @@ function [] = updatecandleinmem(mdefut)
         if ~usetick, return; end    
         
         % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
-        equalorNot = (round(buckets(2:end) *10e+07) == round(t*10e+07));
-        equalorNot4save = (round(buckets4save(2:end) *10e+07) == round(t*10e+07));
-        if sum(sum(equalorNot)) == 0
-            idx = buckets(1:end-1) < t & buckets(2:end) >= t;
+        if mdefut.candle_freq_(i) ~= 1440
+            equalorNot = (round(buckets(2:end) *10e+07) == round(t*10e+07));
+            if sum(sum(equalorNot)) == 0
+                idx = buckets(1:end-1) < t & buckets(2:end) >= t;
+            else
+                idx = buckets(1:end-1) <t & equalorNot;
+            end
+            this_bucket = buckets(idx);
         else
-            idx = buckets(1:end-1) <t & equalorNot;
+            this_bucket = buckets;
         end
-        this_bucket = buckets(idx);
         %
+        equalorNot4save = (round(buckets4save(2:end) *10e+07) == round(t*10e+07));
         if sum(sum(equalorNot4save)) == 0
            idx4save = buckets4save(1:end-1) < t & buckets4save(2:end) >= t;
         else
@@ -81,11 +85,23 @@ function [] = updatecandleinmem(mdefut)
                 newset = false;
                 mdefut.newset_(i) = newset;
             end
-            mdefut.candles_{i}(this_count,5) = px_trade;
+            if mdefut.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+                adj = mdefut.hist_candles_{i}(end,5)/mdefut.lastclose_(i);
+                mdefut.candles_{i}(this_count,5) = px_trade*adj;
+            else
+                mdefut.candles_{i}(this_count,5) = px_trade;
+            end
             if newset
-                mdefut.candles_{i}(this_count,2) = px_trade;   %px_open
-                mdefut.candles_{i}(this_count,3) = px_trade;   %px_high
-                mdefut.candles_{i}(this_count,4) = px_trade;   %px_low
+                if mdefut.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+                    adj = mdefut.hist_candles_{i}(end,5)/mdefut.lastclose_(i);
+                    mdefut.candles_{i}(this_count,2) = px_trade*adj;   %px_open
+                    mdefut.candles_{i}(this_count,3) = px_trade*adj;   %px_high
+                    mdefut.candles_{i}(this_count,4) = px_trade*adj;   %px_low
+                else
+                    mdefut.candles_{i}(this_count,2) = px_trade;   %px_open
+                    mdefut.candles_{i}(this_count,3) = px_trade;   %px_high
+                    mdefut.candles_{i}(this_count,4) = px_trade;   %px_low
+                end
                 %NOTE:20190422
                 %SOMETIMES we miss ticks for a certain bucket for illiquid
                 %and the candle bucket will thus have zero entries; we need
@@ -103,8 +119,14 @@ function [] = updatecandleinmem(mdefut)
             else
                 high = mdefut.candles_{i}(this_count,3);
                 low = mdefut.candles_{i}(this_count,4);
-                if px_trade > high, mdefut.candles_{i}(this_count,3) = px_trade; end
-                if px_trade < low, mdefut.candles_{i}(this_count,4) = px_trade;end
+                if mdefut.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+                    adj = mdefut.hist_candles_{i}(end,5)/mdefut.lastclose_(i);
+                    if px_trade*adj > high, mdefut.candles_{i}(this_count,3) = px_trade*adj; end
+                    if px_trade*adj < low, mdefut.candles_{i}(this_count,4) = px_trade*adj;end
+                else
+                    if px_trade > high, mdefut.candles_{i}(this_count,3) = px_trade; end
+                    if px_trade < low, mdefut.candles_{i}(this_count,4) = px_trade;end
+                end
             end
         end
         %
