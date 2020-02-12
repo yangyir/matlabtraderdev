@@ -1,4 +1,4 @@
-function [buysetup,sellsetup,levelup,leveldn,buycountdown,sellcountdown] = calc_tdsq_(mdefut,instrument,varargin)
+function [buysetup,sellsetup,levelup,leveldn,buycountdown,sellcountdown,data] = calc_tdsq_(mdefut,instrument,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addRequired('Instrument', @(x) validateattributes(x,{'cInstrument'},{},'','Instrument'));

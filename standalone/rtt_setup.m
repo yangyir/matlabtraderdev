@@ -135,6 +135,8 @@ function [rtt_output] = rtt_setup(varargin)
         rtt_strategy = cStratFutPairCointegration;
     elseif strcmpi(stratname,'tdsq')
         rtt_strategy = cStratFutMultiTDSQ;
+    elseif strcmpi(stratname,'fractal')
+        rtt_strategy = cStratFutMultiFractal;
     else
     end
     

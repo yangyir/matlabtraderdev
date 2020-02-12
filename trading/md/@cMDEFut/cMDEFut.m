@@ -126,7 +126,7 @@ classdef cMDEFut < cMyTimerObj
         % MACD
         [macdvec,sig,diffbar] = calc_macd_(obj,instrument,varargin)
         % TDSQ
-        [buysetup,sellsetup,levelup,leveldn,buycountdown,sellcountdown] = calc_tdsq_(obj,instrument,varargin)
+        [buysetup,sellsetup,levelup,leveldn,buycountdown,sellcountdown,p] = calc_tdsq_(obj,instrument,varargin)
         % William's fractal
         [idx,HH,LL] = calc_fractal_(obj,instrument,varargin)
         % William's alligator
