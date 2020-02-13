@@ -5,19 +5,19 @@ if ~isa(bbg,'cBloomberg')
 end
 
 activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
-datestart = datenum('2018-04-10');   % Bloomberg only record tick/intraday bucket data for 6 months
+% datestart = datenum('2018-04-10');   % Bloomberg only record tick/intraday bucket data for 6 months
 
 %%
 % list the active contract names
-assetlist = getassetmaptable;
+[assetlist,~,bcodelist] = getassetmaptable;
 nasset = size(assetlist,1);
 dateend = getlastbusinessdate;
-busdates = gendates('fromdate',datestart,'todate',dateend);
+% busdates = gendates('fromdate',datestart,'todate',dateend);
 listing = dir(activefuturesdir);
 nfile = length(listing);
-ndates = length(busdates);
-for idate = 1:ndates
-    filename = ['activefutures_',datestr(busdates(idate),'yyyymmdd'),'.txt'];
+% ndates = length(busdates);
+% for idate = 1:ndates
+    filename = ['activefutures_',datestr(dateend,'yyyymmdd'),'.txt'];
     iflag = false;
     for ifile = 1:nfile
         if strcmpi(listing(ifile).name,filename)
@@ -26,11 +26,25 @@ for idate = 1:ndates
         end
     end
     
-    if iflag, continue; end
+    if iflag, return; end
     %
+    codes = bcodelist;
+    for i = 1:nasset
+        if i <= 3
+            codes{i} = [codes{i},'A Index'];
+        else
+            codes{i} = [codes{i},'A Comdty'];
+        end
+    end
+    
+    res = getdata(bbg.ds_,codes,'parsekyable_des');
+    res = res.parsekyable_des;
+    
+    
     futs = cell(nasset,1);
     for iasset = 1:nasset
-        futs{iasset} = getactivefutures(bbg.ds_,assetlist{iasset},'date',busdates(idate));
+%         futs{iasset} = getactivefutures(bbg.ds_,assetlist{iasset},'date',busdates(idate));
+        futs{iasset} = bbg2ctp(res{iasset});
     end
     %
     fid = fopen([activefuturesdir,filename],'w');
@@ -38,7 +52,7 @@ for idate = 1:ndates
         fprintf(fid,'%s\n',futs{iasset});
     end
     fclose(fid);
-end
+% end
 
 %
 % % find the last record date of the tick data
