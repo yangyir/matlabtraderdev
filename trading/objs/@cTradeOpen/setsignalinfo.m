@@ -113,6 +113,35 @@ function [] = setsignalinfo(obj,varargin)
         return
     end
     
+    if strcmpi(name,'fractal')
+        signalinfo = cFractalInfo;
+        try
+            signalinfo.frequency_ = info.frequency;
+        catch
+            signalinfo.frequency_ = '';
+        end
+        %
+        try
+            signalinfo.type_ = info.type;
+        catch
+            signalinfo.type_ = 'unset';
+        end
+        %
+        try
+            signalinfo.hh_ = info.hh;
+        catch
+            signalinfo.hh_ = [];
+        end
+        %
+        try
+            signalinfo.ll_ = info.ll;
+        catch
+            signalinfo.ll_ = [];
+        end
+        obj.opensignal_ = signalinfo;
+        return
+    end
+    
     if strcmpi(name,'tdsq')
         signalinfo = cTDSQInfo;
         try

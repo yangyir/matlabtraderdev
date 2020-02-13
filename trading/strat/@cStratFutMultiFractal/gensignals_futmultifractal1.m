@@ -1,8 +1,8 @@
-function signals = gensignals_futmultifractal2(stratfractal)
+function signals = gensignals_futmultifractal1(stratfractal)
 %cStratFutMultiFractal
     n = stratfractal.count;
-    signals = zeros(n,1);
-    if ~stratfractal.displaysignalonly_, return;end
+    signals = zeros(n,3);
+    if stratfractal.displaysignalonly_, return;end
     
     if strcmpi(stratfractal.mode_,'replay')
         runningt = stratfractal.replay_time1_;
@@ -47,23 +47,24 @@ function signals = gensignals_futmultifractal2(stratfractal)
         if is2minbeforemktopen, return;end
     end
     
+    calcsignalflag = zeros(n,1);
     for i = 1:n
         try
-            calcsignalflag = stratfractal.getcalcsignalflag(instruments{i});
+            calcsignalflag(i) = stratfractal.getcalcsignalflag(instruments{i});
         catch e
-            calcsignalflag = 0;
+            calcsignalflag(i) = 0;
             msg = ['ERROR:%s:getcalcsignalflag:',class(stratfractal),e.message,'\n'];
             fprintf(msg);
             if strcmpi(stratfractal.onerror_,'stop'), stratfractal.stop; end
         end
         
-        if ~calcsignalflag && ~calcsignalbeforemktclose;continue;end
+        if ~calcsignalflag(i) && ~calcsignalbeforemktclose;continue;end
         
         if ~calcsignalbeforemktclose
-            includelastcandle = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
-            [bs,ss,lvlup,lvldn,bc,sc,p] = mdefut.calc_tdsq_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-            [~,hh,ll] = mdefut.calc_fractal_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
-            [jaw,teeth,lips] = mdefut.calc_alligator_(instruments{i},'IncludeLastCandle',includelastcandle,'RemoveLimitPrice',1);
+%             includelastcandle = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
+            [bs,ss,lvlup,lvldn,bc,sc,p] = mdefut.calc_tdsq_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [~,hh,ll] = mdefut.calc_fractal_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [jaw,teeth,lips] = mdefut.calc_alligator_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
             stratfractal.hh_{i} = hh;
             stratfractal.ll_{i} = ll;
             stratfractal.jaw_{i} = jaw;
@@ -89,25 +90,14 @@ function signals = gensignals_futmultifractal2(stratfractal)
             tick = mdefut.getlasttick(instruments{i});
         
             if validbreachhh && sc(end) ~= 13 && tick(3)>hh(end-1)
-                signals(i) = 1;                                             %breach hh buy
+                signals(i,1) = 1;                                           %breach hh buy
+                signals(i,2) = hh(end);
+                signals(i,3) = ll(end);
             elseif validbreachll && bc(end) ~= 13 && tick(2)<ll(end-1)                               
-                signals(i) = -1;                                            %breach ll sell
+                signals(i,1) = -1;                                          %breach ll sell
+                signals(i,2) = hh(end);
+                signals(i,3) = ll(end);
             end
-        
-            fprintf('\n%s->fractal info:\n',stratfractal.name_);
-            if i == 1
-                fprintf('%10s%11s%10s%8s%8s%10s%10s%10s%10s%10s%10s%10s\n',...
-                    'code','time','px','bs','ss','lvlup','lvldn','bc','sc','hh','ll','B/S');
-            end
-            timet = datestr(tick(1),'HH:MM:SS');
-            dataformat = '%10s%11s%10s%8s%8s%10s%10s%10s%10s%10s%10s%10d\n';
-            fprintf(dataformat,instruments{i}.code_ctp,...
-                timet,...
-                num2str(p(end,5)),...
-                num2str(bs(end)),num2str(ss(end)),num2str(lvlup(end)),num2str(lvldn(end)),...
-                num2str(bc(end)),num2str(sc(end)),...
-                num2str(hh(end)),num2str(ll(end)),...
-                signals(i));
         end
         
         if calcsignalbeforemktclose && mdefut.candle_freq_(i) == 1440
@@ -123,28 +113,29 @@ function signals = gensignals_futmultifractal2(stratfractal)
                 ll(end-1)==ll(end)&...
                 teeth(end-1)<jaw(end-1);
             
-            tick = mdefut.getlasttick(instruments{i});
         
             if validbreachhh && sc(end) ~= 13
-                signals(i) = 1;                                             %breach hh buy
+                signals(i,1) = 1;                                           %breach hh buy
+                signals(i,2) = hh(end);
+                signals(i,3) = ll(end);
             elseif validbreachll && bc(end) ~= 13
-                signals(i) = -1;                                            %breach ll sell
+                signals(i,1) = -1;                                          %breach ll sell
+                signals(i,2) = hh(end);
+                signals(i,3) = ll(end);
             end
-        
-            fprintf('\n%s->fractal info:\n',stratfractal.name_);
-            if i == 1
-                fprintf('%10s%11s%10s%8s%8s%10s%10s%10s%10s%10s%10s%10s\n',...
-                    'code','time','px','bs','ss','lvlup','lvldn','bc','sc','hh','ll','B/S');
-            end
-            timet = datestr(tick(1),'HH:MM:SS');
-            dataformat = '%10s%11s%10s%8s%8s%10s%10s%10s%10s%10s%10s%10d\n';
-            fprintf(dataformat,instruments{i}.code_ctp,...
-                timet,...
-                num2str(p(end,5)),...
-                num2str(bs(end)),num2str(ss(end)),num2str(lvlup(end)),num2str(lvldn(end)),...
-                num2str(bc(end)),num2str(sc(end)),...
-                num2str(hh(end)),num2str(ll(end)),...
-                signals(i));
         end
     end
+    %
+    if sum(calcsignalflag) == 0, return;end
+    
+    fprintf('\n%s->%s:signal calculated...\n',stratfractal.name_,datestr(runningt,'yyyy-mm-dd HH:MM'));
+    
+    if sum(abs(signals(:,1))) == 0, return;end
+    
+    %some signal generated
+    for i = 1:n
+        if signals(i) == 0, continue;end
+        fprintf('\t%6s:%4s\n',instruments{i}.code_ctp,num2str(signals(i,1)));
+    end
+    fprintf('\n');
 end
