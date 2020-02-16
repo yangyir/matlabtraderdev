@@ -14,6 +14,7 @@ function [] = riskmanagement(obj,dtnum)
     %set risk manager
     for i = 1:ntrades
         trade_i = obj.helper_.trades_.node_(i);
+        instrument = trade_i.instrument_;
         if strcmpi(trade_i.status_,'closed'), continue; end
         if ~isempty(trade_i.riskmanager_), continue;end
         if isempty(trade_i.opensignal_) && isa(obj,'cStratFutPairCointegration'), continue;end
@@ -51,6 +52,7 @@ function [] = riskmanagement(obj,dtnum)
             hh = trade_i.opensignal_.hh_;
             ll = trade_i.opensignal_.ll_;
             type = trade_i.opensignal_.type_;
+            instrument = trade_i.instrument_;
             riskmanagername = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmanagername');
             if strcmpi(riskmanagername,'standard')
                 if strcmpi(type,'breachup-B')
@@ -68,7 +70,7 @@ function [] = riskmanagement(obj,dtnum)
                 end
                 extrainfo = struct('pxtarget_',pxtarget,'pxstoploss_',pxstoploss);
             elseif strcmpi(riskmanagername,'spiderman')
-                extrainfo = struct('hh',hh,'ll',ll,'type',type);
+                extrainfo = struct('hh0_',hh,'hh1_',hh,'ll0_',ll,'ll1_',ll,'type_',type);
             else
                 error('ERROR:%s;riskmanagement:unsupported risk manger name for FRACTAL...',class(obj))
             end
@@ -211,7 +213,19 @@ function [] = riskmanagement(obj,dtnum)
     %
     %
     %set status of trade with risk management in place
-    if ~isa(obj,'cStratFutPairCointegration')
+    if isa(obj,'cStratFutPairCointegration')
+    elseif isa(obj,'cStratFutMultiFractal')
+        for i = 1:ntrades
+            trade_i = obj.helper_.trades_.node_(i);
+            if strcmpi(trade_i.status_,'closed'), continue; end
+            
+            unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
+                'UpdatePnLForClosedTrade',false,'Strategy',obj);
+        
+            if ~isempty(unwindtrade),obj.unwindtrade(unwindtrade);end
+            
+        end
+    else
         for i = 1:ntrades
             trade_i = obj.helper_.trades_.node_(i);
             if strcmpi(trade_i.status_,'closed'), continue; end
@@ -221,10 +235,8 @@ function [] = riskmanagement(obj,dtnum)
         
             if ~isempty(unwindtrade)
                 obj.unwindtrade(unwindtrade);
-
             end
         end
-    else
         %cStratFutPairCointegration
 %         instruments = obj.getinstruments;
 %         leg1 = instruments{1};

@@ -88,19 +88,77 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %1.stop the trade if price falls below alligator's lips
         if candleClose < extrainfo.lips(end)
             closeflag = 1;
-        %2.stop the trade if price breaches stoploess
+        %2.stop the trade if price breaches stoploss
         elseif candleClose < obj.pxstoploss2_
             closeflag = 1;
         %3.stop the trade if it fails to breaches TDST-lvlup,i.e.the high
         %price fell below lvlup
-        elseif
-            
-            
-        
+        elseif extrainfo.p(end-1,5)>extainfo.lvlup(end-1) && extrainfo.p(end,3)<extrainfo.lvlup(end-1)
+            closeflag = 1;
+        %4.if it finishes TD Sell Sequential, then stop the trade once it
+        %falles below the low of the bar with the true high of the
+        %sequential
+        elseif extrainfo.ss(end) >= 9
+            ssreached = extrainfo.ss(end);
+            tdhigh = max(extrainfo.p(end-ssreached+1:end,3));
+            tdidx = find(extrainfo.p(end-ssreached+1:end,3)==tdhigh,1,'last')+length(extrainfo.ss)-ssreached;
+            tdlow = extrainfo.p(tdidx,4);
+            if candleClose < tdlow && (tdhigh - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)
+                closeflag = 1;
+            else
+                closeflag = 0;
+                obj.updatestoploss('extrainfo',extrainfo);
+            end
+        else
+            closeflag = 0;
+            obj.updatestoploss('extrainfo',extrainfo);
+        end     
+        %   
     elseif direction == -1
-        
-        
-    
-    
-    
+        %1.stop the trade if price breaches above alligator's lips
+        if candleClose > extrainfo.lips(end)
+            closeflag = 1;
+        %2.stop the trade if price breaches stoploss
+        elseif candleClose > obj.pxstoploss2_
+            closeflag = 1;
+        %3.stop the trade if it fails to breaches TDST-lvldn,i.e.the low
+        %price stayed above lvldn
+        elseif extrainfo.p(end-1,5)<extrainfo.lvldn(end-1) && extrainfo.p(end,4)>extrainfo.lvldn(end-1)
+            closeflag = 1;
+        %4.if it finishes TD Buy Sequential, then stop the trade once it
+        %stayed above the high of the bar with the true low of the
+        %sequential
+        elseif extrainfo.bs(end) >= 9
+            bsreached = extrainfo.bs(end);
+            tdlow = min(extrainfo.p(end-bsreached+1:end,4));
+            tdidx = find(extrainfo.p(end-bsreached+1:end,4)==tdlow,1,'last')+length(extrainfo.bs)-bsreached;
+            tdhigh = extrainfo.p(tdidx,3);
+            if candleClose > tdhigh && (trade.openprice_ - tdlow) > 0.236*(obj.hh1_-obj.ll1_);
+                closeflag = 1;
+            else
+                closeflag = 0;
+                obj.updatestoploss('extrainfo',extrainfo);
+            end
+        else
+            closeflag = 0;
+            obj.updatestoploss('extrainfo',extrainfo);
+        end
+        %
+    end
+    %
+    if closeflag
+        if doprint, fprintf('close candle time:%s\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));end
+        obj.status_ = 'closed';
+        obj.trade_.status_ = 'closed';
+        unwindtrade = obj.trade_;
+        if updatepnlforclosedtrade
+            obj.trade_.runningpnl_ = 0;
+            obj.trade_.closepnl_ = direction*volume*(candleClose-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+            obj.trade_.closedatetime1_ = candleTime;
+            obj.trade_.closeprice_ = candleClose;
+        end
+        return
+    else
+        obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+    end
 end

@@ -1,6 +1,6 @@
 %%
 try
-    clc;
+    clear;clc;
     delete(timerfindall);
 catch
 end

@@ -89,11 +89,15 @@ function signals = gensignals_futmultifractal1(stratfractal)
         
             tick = mdefut.getlasttick(instruments{i});
         
-            if validbreachhh && sc(end) ~= 13 && tick(3)>hh(end-1)
+            if validbreachhh && sc(end) ~= 13 && tick(3)>hh(end-1) && ...
+                    tick(3) > p(end,3)-0.382*(p(end,3)-ll(end)) && ...
+                    tick(3) > lips(end)
                 signals(i,1) = 1;                                           %breach hh buy
                 signals(i,2) = p(end,3);
                 signals(i,3) = ll(end);
-            elseif validbreachll && bc(end) ~= 13 && tick(2)<ll(end-1)                               
+            elseif validbreachll && bc(end) ~= 13 && tick(2)<ll(end-1) && ...
+                    tick(2) < p(end,4)+0.382*(hh(end)-p(end,4)) && ...
+                    tick(2) < lips(end)
                 signals(i,1) = -1;                                          %breach ll sell
                 signals(i,2) = hh(end);
                 signals(i,3) = p(end,4);

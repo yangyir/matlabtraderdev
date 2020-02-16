@@ -11,11 +11,12 @@ function [] = setriskmanager_spiderman(obj,varargin)
     end
     
     riskmanager = cSpiderman;
-    riskmanager.hh0_ = info.hh;
-    riskmanager.hh1_ = info.hh;
-    riskmanager.ll0_ = info.ll;
-    riskmanager.ll1_ = info.ll;
-    riskmanager.type_ = info.type;
+    riskmanager.hh0_ = info.hh0_;
+    riskmanager.hh1_ = info.hh1_;
+    riskmanager.ll0_ = info.ll0_;
+    riskmanager.ll1_ = info.ll1_;
+    riskmanager.type_ = info.type_;
+    riskmanager.trade_ = obj;
 
     if strcmpi(riskmanager.type_,'breachup-B')
         riskmanager.pxstoploss_ = riskmanager.hh1_ - 0.618*(riskmanager.hh1_-riskmanager.ll1_);

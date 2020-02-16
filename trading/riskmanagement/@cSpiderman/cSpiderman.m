@@ -21,7 +21,7 @@ classdef cSpiderman < cTradeRiskManager
     methods
         [unwindtrade] = riskmanagement(obj,varargin)
         [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
-        [ret] = updatestoploss(obj,varargin)
+        [] = updatestoploss(obj,varargin)
     end
     
 end

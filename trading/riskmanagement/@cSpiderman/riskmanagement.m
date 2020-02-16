@@ -11,10 +11,11 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     p.addParameter('MDEFut',{},@(x) validateattributes(x,{'cMDEFut'},{},'','MDEFut'));
     p.addParameter('Debug',false,@islogical);
     p.addParameter('UpdatePnLForClosedTrade',false,@islogical);
-    p.addParameter('ExtraInfo',{},@isstruct);
+    p.addParameter('Strategy',{},...
+        @(x) validateattributes(x,{'cStratFutMultiFractal'},{},'','Strategy'));
     p.parse(varargin{:});
     mdefut = p.Results.MDEFut;
-    extrainfo = p.Results.ExtraInfo;
+    strat = p.Results.Strategy;
     if isempty(mdefut), return;end
     
     debug = p.Results.Debug;
@@ -35,7 +36,7 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     if strcmpi(trade.status_,'unset')
         openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
         candleTime = candleK(end,1);
-        if openBucket < candleTime
+        if openBucket <= candleTime
             trade.status_ = 'set';
             obj.status_ = 'set';
         end
@@ -54,6 +55,13 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         else
             candlepoped = candleK(this_count,:);
         end
+        
+        [~,idx] = strat.hasinstrument(instrument);
+        [~,~,px] = mdefut.calc_macd_(instrument,'includelastcandle',0,'removelimitprice',1);
+        extrainfo = struct('p',px,'hh',strat.hh_{idx},'ll',strat.ll_{idx},...
+            'jaw',strat.jaw_{idx},'teeth',strat.teeth_{idx},'lips',strat.lips_{idx},...
+            'bs',strat.bs_{idx},'ss',strat.ss_{idx},'bc',strat.bc_{idx},'sc',strat.sc_{idx},...
+            'lvlup',strat.lvlup_{idx},'lvldn',strat.lvldn_{idx});
         
         unwindtrade = obj.riskmanagementwithcandle(candlepoped,...
             'debug',debug,...
