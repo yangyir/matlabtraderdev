@@ -1,4 +1,5 @@
 function [] = riskmanagement(obj,dtnum)
+%cStrat:base class
     ismarketopen = zeros(obj.count,1);
     instruments = obj.getinstruments;
     for i = 1:obj.count
@@ -46,6 +47,33 @@ function [] = riskmanagement(obj,dtnum)
             end
             trade_i.setriskmanager('name',trade_i.opensignal_.riskmanagername_,'extrainfo',extrainfo);
             %
+        elseif isa(trade_i.opensignal_,'cFractalInfo')
+            hh = trade_i.opensignal_.hh_;
+            ll = trade_i.opensignal_.ll_;
+            type = trade_i.opensignal_.type_;
+            riskmanagername = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmanagername');
+            if strcmpi(riskmanagername,'standard')
+                if strcmpi(type,'breachup-B')
+                    pxstoploss = hh-(hh-ll)*0.382;
+                    pxtarget = hh+hh-ll;
+                elseif strcmpi(type,'reverse-B')
+                    error('ERROR:%s:riskmanagement:reverse-B not implemented for FRACTAL...',class(obj))
+                elseif strcmpi(type,'breachdn-S')
+                    pxstoploss = ll+(hh-ll)*0.382;
+                    pxtarget = ll-(hh-ll);
+                elseif strcmpi(type,'reverse-S')
+                    error('ERROR:%s:riskmanagement:reverse-S not implemented for FRACTAL...',class(obj))
+                else
+                    error('ERROR:%s:riskmanagment:invalid type for FRACTAL...',class(obj))
+                end
+                extrainfo = struct('pxtarget_',pxtarget,'pxstoploss_',pxstoploss);
+            elseif strcmpi(riskmanagername,'spiderman')
+                extrainfo = struct('hh',hh,'ll',ll,'type',type);
+            else
+                error('ERROR:%s;riskmanagement:unsupported risk manger name for FRACTAL...',class(obj))
+            end
+            trade_i.setriskmanager('name',riskmanagername,'extrainfo',extrainfo);
+            %    
         else
             instrument = trade_i.instrument_;
             overrideriskmanagername = trade_i.opensignal_.overrideriskmanagername_;

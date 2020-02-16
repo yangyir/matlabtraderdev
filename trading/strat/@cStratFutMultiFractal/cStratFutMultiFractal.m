@@ -52,7 +52,7 @@ classdef cStratFutMultiFractal < cStrat
         
         function [] = riskmanagement(obj,dtnum)
             if obj.displaysignalonly_, return;end
-            obj.riskmanagement_futmultifractal(dtnum)
+            riskmanagement@cStrat(obj,dtnum)
         end
         
         function [] = initdata(obj)

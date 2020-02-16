@@ -133,7 +133,10 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
             freq = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','samplefreq');
             signalinfo = struct('name','manual','frequency',freq);
         end
-        
+        if ~isempty(signalinfo) && strcmpi(class(strategy),'cStratFutMultiFractal')
+            freq = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','samplefreq');
+            signalinfo.frequency = freq;
+        end
         [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'b','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
         if ret
             e.date = floor(ordertime);

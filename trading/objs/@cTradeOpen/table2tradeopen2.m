@@ -54,6 +54,8 @@ function [obj] = table2tradeopen2(obj,headers,data)
             signal = cWilliamsRInfo;
         elseif strcmpi(opensignal_name,'TDSQ')
             signal = cTDSQInfo;
+        elseif strcmpi(opensignal_name,'Fractal')
+            signal = cFractalInfo;
         elseif strcmpi(opensignal_name,'Manual')
             signal = cManualInfo;
         else

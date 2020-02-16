@@ -18,6 +18,10 @@ function [] = setriskmanager(obj,varargin)
         %
     elseif strcmpi(name,'stairs')
         obj.setriskmanager_stairs(varargin{:});
+        %
+    elseif strcmpi(name,'spiderman')
+        obj.setriskmanager_spiderman(varargin{:});
+        %
     else
         error('cTradeOpen:setriskmanager:%s not supported',name);
     end

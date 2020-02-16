@@ -119,6 +119,7 @@ classdef cTradeOpen < handle
         [] = setriskmanager_batman(obj,varargin)
         [] = setriskmanager_wrstep(obj,varargin) 
         [] = setriskmanager_stairs(obj,varargin)
+        [] = setriskmanager_spiderman(obj,varargin)
     end
     
     methods (Static = true)

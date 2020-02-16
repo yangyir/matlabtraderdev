@@ -91,12 +91,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
         
             if validbreachhh && sc(end) ~= 13 && tick(3)>hh(end-1)
                 signals(i,1) = 1;                                           %breach hh buy
-                signals(i,2) = hh(end);
+                signals(i,2) = p(end,3);
                 signals(i,3) = ll(end);
             elseif validbreachll && bc(end) ~= 13 && tick(2)<ll(end-1)                               
                 signals(i,1) = -1;                                          %breach ll sell
                 signals(i,2) = hh(end);
-                signals(i,3) = ll(end);
+                signals(i,3) = p(end,4);
             end
         end
         
