@@ -45,8 +45,22 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     if ~strcmpi(trade.status_,'set'), return; end
     if ticktime < buckets(end), return;end
     
+    if strcmpi(strat.mode_,'replay')
+        runningt = strat.replay_time1_;
+    else
+        runningt = now;
+    end
+    
+    runningmm = hour(runningt)*60+minute(runningt);
+    runriskmanagementbeforemktclose = false;
+    if (runningmm == 899 || runningmm == 914) && second(runningt) > 56
+        cobd = floor(runningt);
+        nextbd = businessdate(cobd);
+        runriskmanagementbeforemktclose = nextbd - cobd <= 3;
+    end
+    
     this_count = size(buckets,1)-1;
-    if this_count ~= obj.bucket_count_
+    if this_count ~= obj.bucket_count_ || runriskmanagementbeforemktclose
         %the last candle has just finished
         if this_count < 1
             histcandleCell = mdefut.gethistcandles(instrument);
@@ -57,7 +71,17 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         end
         
         [~,idx] = strat.hasinstrument(instrument);
-        [~,~,px] = mdefut.calc_macd_(instrument,'includelastcandle',0,'removelimitprice',1);
+        if ~runriskmanagementbeforemktclose
+            [~,~,px] = mdefut.calc_macd_(instrument,'includelastcandle',0,'removelimitprice',1);
+        else
+            [~,~,px] = mdefut.calc_macd_(instrument,'includelastcandle',1,'removelimitprice',1);
+            candlepoped = px(end,:);
+        end
+        
+        if size(px,1) ~= size(strat.hh_{idx},1) && runriskmanagementbeforemktclose
+            'stop';
+        end
+        
         extrainfo = struct('p',px,'hh',strat.hh_{idx},'ll',strat.ll_{idx},...
             'jaw',strat.jaw_{idx},'teeth',strat.teeth_{idx},'lips',strat.lips_{idx},...
             'bs',strat.bs_{idx},'ss',strat.ss_{idx},'bc',strat.bc_{idx},'sc',strat.sc_{idx},...

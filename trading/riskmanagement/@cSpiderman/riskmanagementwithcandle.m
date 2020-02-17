@@ -84,7 +84,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
     end
     
-    if direction == 1 
+    if direction == 1
+        closeflag = 0;
         %1.stop the trade if price falls below alligator's lips
         if candleClose < extrainfo.lips(end)
             closeflag = 1;
@@ -95,26 +96,32 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %price fell below lvlup
         elseif extrainfo.p(end-1,5)>extrainfo.lvlup(end-1) && extrainfo.p(end,3)<extrainfo.lvlup(end-1)
             closeflag = 1;
+        end
         %4.if it finishes TD Sell Sequential, then stop the trade once it
         %falles below the low of the bar with the true high of the
         %sequential
-        elseif extrainfo.ss(end) >= 9
+        if closeflag == 0 && extrainfo.ss(end) >= 9 && isnan(obj.tdlow_)
             ssreached = extrainfo.ss(end);
-            tdhigh = max(extrainfo.p(end-ssreached+1:end,3));
-            tdidx = find(extrainfo.p(end-ssreached+1:end,3)==tdhigh,1,'last')+length(extrainfo.ss)-ssreached;
-            tdlow = extrainfo.p(tdidx,4);
-            if candleClose < tdlow && (tdhigh - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)
-                closeflag = 1;
-            else
-                closeflag = 0;
-                obj.updatestoploss('extrainfo',extrainfo);
+            obj.tdhigh_ = max(extrainfo.p(end-ssreached+1:end,3));
+            tdidx = find(extrainfo.p(end-ssreached+1:end,3)==obj.tdhigh_,1,'last')+length(extrainfo.ss)-ssreached;
+            obj.tdlow_ = extrainfo.p(tdidx,4);
+        end
+        if closeflag == 0 && ~isnan(obj.tdlow_) && extrainfo.ss(end) > 9
+            if extrainfo.p(end,3) > obj.tdhigh_
+                obj.tdhigh_ = extrainfo.p(end,3);
+                obj.tdlow_ = extrainfo.p(end,4);
             end
-        else
-            closeflag = 0;
-            obj.updatestoploss('extrainfo',extrainfo);
-        end     
+        end
+        if closeflag == 0 && candleClose < obj.tdlow_ && (tdhigh - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)
+                closeflag = 1;
+                obj.tdhigh_ = NaN;
+                obj.tdlow_ = NaN;
+        end
+        %
+        if closeflag == 0, obj.updatestoploss('extrainfo',extrainfo); end
         %   
     elseif direction == -1
+        closeflag = 0;
         %1.stop the trade if price breaches above alligator's lips
         if candleClose > extrainfo.lips(end)
             closeflag = 1;
@@ -125,24 +132,29 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %price stayed above lvldn
         elseif extrainfo.p(end-1,5)<extrainfo.lvldn(end-1) && extrainfo.p(end,4)>extrainfo.lvldn(end-1)
             closeflag = 1;
+        end
         %4.if it finishes TD Buy Sequential, then stop the trade once it
         %stayed above the high of the bar with the true low of the
         %sequential
-        elseif extrainfo.bs(end) >= 9
+        if closeflag == 0 && extrainfo.bs(end) >= 9 && isnan(obj.tdhigh_)
             bsreached = extrainfo.bs(end);
-            tdlow = min(extrainfo.p(end-bsreached+1:end,4));
-            tdidx = find(extrainfo.p(end-bsreached+1:end,4)==tdlow,1,'last')+length(extrainfo.bs)-bsreached;
-            tdhigh = extrainfo.p(tdidx,3);
-            if candleClose > tdhigh && (trade.openprice_ - tdlow) > 0.236*(obj.hh1_-obj.ll1_);
-                closeflag = 1;
-            else
-                closeflag = 0;
-                obj.updatestoploss('extrainfo',extrainfo);
-            end
-        else
-            closeflag = 0;
-            obj.updatestoploss('extrainfo',extrainfo);
+            obj.tdlow_ = min(extrainfo.p(end-bsreached+1:end,4));
+            tdidx = find(extrainfo.p(end-bsreached+1:end,4)==obj.tdlow_,1,'last')+length(extrainfo.p)-bsreached;
+            obj.tdhigh_ = extrainfo.p(tdidx,3);
         end
+        if closeflag == 0 && ~isnan(obj.tdhigh_) && extrainfo.bs(end) > 9
+           if extrainfo.p(end,4) < obj.tdlow_
+               obj.tdlow_ = extrainfo.p(end,4);
+               obj.tdhigh_ = extrainfo.p(end,3);
+           end
+        end
+        if closeflag == 0 && candleClose > obj.tdhigh_ && (trade.openprice_ - obj.tdlow_) > 0.236*(obj.hh1_-obj.ll1_);
+            closeflag = 1;
+            obj.tdhigh_ = NaN;
+            obj.tdlow_ = NaN;
+        end
+        %
+        if closeflag == 0;obj.updatestoploss('extrainfo',extrainfo);end
         %
     end
     %

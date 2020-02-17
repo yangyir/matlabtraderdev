@@ -6,6 +6,8 @@ classdef cSpiderman < cTradeRiskManager
         hh1_@double
         ll1_@double
         pxstoploss2_@double = -9.99                                         %stoploss at candle level
+        tdhigh_@double = NaN
+        tdlow_@double = NaN
     end
     
     properties (Access = private)
