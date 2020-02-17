@@ -93,7 +93,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             closeflag = 1;
         %3.stop the trade if it fails to breaches TDST-lvlup,i.e.the high
         %price fell below lvlup
-        elseif extrainfo.p(end-1,5)>extainfo.lvlup(end-1) && extrainfo.p(end,3)<extrainfo.lvlup(end-1)
+        elseif extrainfo.p(end-1,5)>extrainfo.lvlup(end-1) && extrainfo.p(end,3)<extrainfo.lvlup(end-1)
             closeflag = 1;
         %4.if it finishes TD Sell Sequential, then stop the trade once it
         %falles below the low of the bar with the true high of the
