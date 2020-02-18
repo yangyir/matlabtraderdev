@@ -103,7 +103,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if closeflag == 0 && extrainfo.ss(end) >= 9 && isnan(obj.tdlow_)
             ssreached = extrainfo.ss(end);
             obj.tdhigh_ = max(extrainfo.p(end-ssreached+1:end,3));
-            tdidx = find(extrainfo.p(end-ssreached+1:end,3)==obj.tdhigh_,1,'last')+length(extrainfo.ss)-ssreached;
+            tdidx = find(extrainfo.p(end-ssreached+1:end,3)==obj.tdhigh_,1,'last')+length(extrainfo.p)-ssreached;
             obj.tdlow_ = extrainfo.p(tdidx,4);
         end
         if closeflag == 0 && ~isnan(obj.tdlow_) && extrainfo.ss(end) > 9
@@ -112,10 +112,10 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 obj.tdlow_ = extrainfo.p(end,4);
             end
         end
-        if closeflag == 0 && candleClose < obj.tdlow_ && (tdhigh - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)
-                closeflag = 1;
-                obj.tdhigh_ = NaN;
-                obj.tdlow_ = NaN;
+        if closeflag == 0 && candleClose < obj.tdlow_ && (obj.tdhigh_ - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)
+            closeflag = 1;
+            obj.tdhigh_ = NaN;
+            obj.tdlow_ = NaN;
         end
         %
         if closeflag == 0, obj.updatestoploss('extrainfo',extrainfo); end
