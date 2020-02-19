@@ -100,6 +100,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %4.if it finishes TD Sell Sequential, then stop the trade once it
         %falles below the low of the bar with the true high of the
         %sequential
+        if closeflag == 0 && candleClose < obj.tdlow_ && (obj.tdhigh_ - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)
+            closeflag = 1;
+            obj.tdhigh_ = NaN;
+            obj.tdlow_ = NaN;
+        end
         if closeflag == 0 && extrainfo.ss(end) >= 9 && isnan(obj.tdlow_)
             ssreached = extrainfo.ss(end);
             obj.tdhigh_ = max(extrainfo.p(end-ssreached+1:end,3));
@@ -111,11 +116,6 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 obj.tdhigh_ = extrainfo.p(end,3);
                 obj.tdlow_ = extrainfo.p(end,4);
             end
-        end
-        if closeflag == 0 && candleClose < obj.tdlow_ && (obj.tdhigh_ - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)
-            closeflag = 1;
-            obj.tdhigh_ = NaN;
-            obj.tdlow_ = NaN;
         end
         %
         if closeflag == 0, obj.updatestoploss('extrainfo',extrainfo); end
@@ -136,6 +136,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %4.if it finishes TD Buy Sequential, then stop the trade once it
         %stayed above the high of the bar with the true low of the
         %sequential
+        if closeflag == 0 && candleClose > obj.tdhigh_ && (trade.openprice_ - obj.tdlow_) > 0.236*(obj.hh1_-obj.ll1_);
+            closeflag = 1;
+            obj.tdhigh_ = NaN;
+            obj.tdlow_ = NaN;
+        end
         if closeflag == 0 && extrainfo.bs(end) >= 9 && isnan(obj.tdhigh_)
             bsreached = extrainfo.bs(end);
             obj.tdlow_ = min(extrainfo.p(end-bsreached+1:end,4));
@@ -147,11 +152,6 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                obj.tdlow_ = extrainfo.p(end,4);
                obj.tdhigh_ = extrainfo.p(end,3);
            end
-        end
-        if closeflag == 0 && candleClose > obj.tdhigh_ && (trade.openprice_ - obj.tdlow_) > 0.236*(obj.hh1_-obj.ll1_);
-            closeflag = 1;
-            obj.tdhigh_ = NaN;
-            obj.tdlow_ = NaN;
         end
         %
         if closeflag == 0;obj.updatestoploss('extrainfo',extrainfo);end

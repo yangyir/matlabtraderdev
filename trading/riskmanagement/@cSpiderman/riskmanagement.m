@@ -70,22 +70,21 @@ function [unwindtrade] = riskmanagement(obj,varargin)
             candlepoped = candleK(this_count,:);
         end
         
-        [~,idx] = strat.hasinstrument(instrument);
         if ~runriskmanagementbeforemktclose
-            [~,~,px] = mdefut.calc_macd_(instrument,'includelastcandle',0,'removelimitprice',1);
+            [bs,ss,lvlup,lvldn,bc,sc,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [~,hh,ll] = mdefut.calc_fractal_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [jaw,teeth,lips] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
         else
-            [~,~,px] = mdefut.calc_macd_(instrument,'includelastcandle',1,'removelimitprice',1);
+            [bs,ss,lvlup,lvldn,bc,sc,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [~,hh,ll] = mdefut.calc_fractal_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [jaw,teeth,lips] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
             candlepoped = px(end,:);
         end
-        
-        if size(px,1) ~= size(strat.hh_{idx},1) && runriskmanagementbeforemktclose
-            'stop';
-        end
-        
-        extrainfo = struct('p',px,'hh',strat.hh_{idx},'ll',strat.ll_{idx},...
-            'jaw',strat.jaw_{idx},'teeth',strat.teeth_{idx},'lips',strat.lips_{idx},...
-            'bs',strat.bs_{idx},'ss',strat.ss_{idx},'bc',strat.bc_{idx},'sc',strat.sc_{idx},...
-            'lvlup',strat.lvlup_{idx},'lvldn',strat.lvldn_{idx});
+         
+        extrainfo = struct('p',px,'hh',hh,'ll',ll,...
+            'jaw',jaw,'teeth',teeth,'lips',lips,...
+            'bs',bs,'ss',ss,'bc',bc,'sc',sc,...
+            'lvlup',lvlup,'lvldn',lvldn);
         
         unwindtrade = obj.riskmanagementwithcandle(candlepoped,...
             'debug',debug,...
