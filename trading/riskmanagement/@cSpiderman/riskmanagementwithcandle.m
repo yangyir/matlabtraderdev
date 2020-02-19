@@ -110,11 +110,17 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.tdhigh_ = max(extrainfo.p(end-ssreached+1:end,3));
             tdidx = find(extrainfo.p(end-ssreached+1:end,3)==obj.tdhigh_,1,'last')+length(extrainfo.p)-ssreached;
             obj.tdlow_ = extrainfo.p(tdidx,4);
+            if obj.tdlow_ - (obj.tdhigh_-obj.tdlow_) > obj.pxstoploss_
+                obj.pxstoploss_ = obj.tdlow_ - (obj.tdhigh_-obj.tdlow_);
+            end
         end
         if closeflag == 0 && ~isnan(obj.tdlow_) && extrainfo.ss(end) > 9
             if extrainfo.p(end,3) > obj.tdhigh_
                 obj.tdhigh_ = extrainfo.p(end,3);
                 obj.tdlow_ = extrainfo.p(end,4);
+                if obj.tdlow_ - (obj.tdhigh_-obj.tdlow_) > obj.pxstoploss_
+                    obj.pxstoploss_ = obj.tdlow_ - (obj.tdhigh_-obj.tdlow_);
+                end   
             end
         end
         %
@@ -146,11 +152,17 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.tdlow_ = min(extrainfo.p(end-bsreached+1:end,4));
             tdidx = find(extrainfo.p(end-bsreached+1:end,4)==obj.tdlow_,1,'last')+length(extrainfo.p)-bsreached;
             obj.tdhigh_ = extrainfo.p(tdidx,3);
+            if obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_) < obj.pxstoploss_
+                obj.pxstoploss_ = obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_);
+            end
         end
         if closeflag == 0 && ~isnan(obj.tdhigh_) && extrainfo.bs(end) > 9
            if extrainfo.p(end,4) < obj.tdlow_
                obj.tdlow_ = extrainfo.p(end,4);
                obj.tdhigh_ = extrainfo.p(end,3);
+               if obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_) < obj.pxstoploss_
+                   obj.pxstoploss_ = obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_);
+               end
            end
         end
         %

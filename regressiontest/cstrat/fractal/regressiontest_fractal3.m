@@ -18,7 +18,7 @@ combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
 %%
 db = cLocal;
-p = db.intradaybar(code2instrument('IC2003'),'2020-01-10','2020-02-18',30,'trade');
+p = db.intradaybar(code2instrument('IC2003'),'2020-01-10','2020-02-19',30,'trade');
 outputmat = tools_technicalplot1(p,6,1);
 %%
 candlesticks = combo.mdefut.getallcandles('IC2003');
