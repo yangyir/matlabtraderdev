@@ -75,7 +75,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             %
             if updatepnlforclosedtrade
                 obj.trade_.runningpnl_ = 0;
-                obj.trade_.closepnl_ = direction*volume*(closeprice-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                if isempty(instrument)
+                    obj.trade_.closepnl_ = direction*volume*(closeprice-trade.openprice_);
+                else
+                    obj.trade_.closepnl_ = direction*volume*(closeprice-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                end
                 obj.trade_.closedatetime1_ = closetime;
                 obj.trade_.closeprice_ = closeprice;
             end
@@ -86,6 +90,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     
     if direction == 1
         closeflag = 0;
+        idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
         %1.stop the trade if price falls below alligator's lips
         if candleClose < extrainfo.lips(end)
             closeflag = 1;
@@ -94,7 +99,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             closeflag = 1;
         %3.stop the trade if it fails to breaches TDST-lvlup,i.e.the high
         %price fell below lvlup
-        elseif extrainfo.p(end-1,5)>extrainfo.lvlup(end-1) && extrainfo.p(end,3)<extrainfo.lvlup(end-1)
+        elseif ~isempty(find(extrainfo.p(idxstart2check:end-1,5)>extrainfo.lvlup(end-1),1,'first')) && extrainfo.p(end,3)<extrainfo.lvlup(end-1)
             closeflag = 1;
         end
         %4.if it finishes TD Sell Sequential, then stop the trade once it
@@ -110,24 +115,29 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.tdhigh_ = max(extrainfo.p(end-ssreached+1:end,3));
             tdidx = find(extrainfo.p(end-ssreached+1:end,3)==obj.tdhigh_,1,'last')+length(extrainfo.p)-ssreached;
             obj.tdlow_ = extrainfo.p(tdidx,4);
-            if obj.tdlow_ - (obj.tdhigh_-obj.tdlow_) > obj.pxstoploss_
-                obj.pxstoploss_ = obj.tdlow_ - (obj.tdhigh_-obj.tdlow_);
-            end
         end
         if closeflag == 0 && ~isnan(obj.tdlow_) && extrainfo.ss(end) > 9
             if extrainfo.p(end,3) > obj.tdhigh_
                 obj.tdhigh_ = extrainfo.p(end,3);
-                obj.tdlow_ = extrainfo.p(end,4);
-                if obj.tdlow_ - (obj.tdhigh_-obj.tdlow_) > obj.pxstoploss_
-                    obj.pxstoploss_ = obj.tdlow_ - (obj.tdhigh_-obj.tdlow_);
-                end   
+                obj.tdlow_ = extrainfo.p(end,4); 
             end
         end
+%         %5.a new condition that if ss9 or more is achieved with maximum
+%         %close and high price also but teeth is below jaw
+%         if closeflag == 0 && extrainfo.ss(end)>=9
+%             ssreached = extrainfo.ss(end);
+%             if extrainfo.p(end,5) >= max(extrainfo.p(end-ssreached+1:end,5)) &&...
+%                     extrainfo.p(end,3) >= max(extrainfo.p(end-ssreached+1:end,3)) &&...
+%                     extrainfo.teeth(end) < extrainfo.jaw(end)
+%                 closeflag = 1;
+%             end
+%         end
         %
         if closeflag == 0, obj.updatestoploss('extrainfo',extrainfo); end
         %   
     elseif direction == -1
         closeflag = 0;
+        idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
         %1.stop the trade if price breaches above alligator's lips
         if candleClose > extrainfo.lips(end)
             closeflag = 1;
@@ -136,13 +146,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             closeflag = 1;
         %3.stop the trade if it fails to breaches TDST-lvldn,i.e.the low
         %price stayed above lvldn
-        elseif extrainfo.p(end-1,5)<extrainfo.lvldn(end-1) && extrainfo.p(end,4)>extrainfo.lvldn(end-1)
+        elseif ~isempty(find(extrainfo.p(idxstart2check:end-1,5)<extrainfo.lvldn(end-1),1,'first')) && extrainfo.p(end,4)>extrainfo.lvldn(end-1)
             closeflag = 1;
         end
         %4.if it finishes TD Buy Sequential, then stop the trade once it
         %stayed above the high of the bar with the true low of the
         %sequential
-        if closeflag == 0 && candleClose > obj.tdhigh_ && (trade.openprice_ - obj.tdlow_) > 0.236*(obj.hh1_-obj.ll1_);
+        if closeflag == 0 && candleClose > obj.tdhigh_ && (trade.openprice_ - obj.tdlow_) > 0.236*(obj.hh1_-obj.ll1_)
             closeflag = 1;
             obj.tdhigh_ = NaN;
             obj.tdlow_ = NaN;
@@ -152,17 +162,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.tdlow_ = min(extrainfo.p(end-bsreached+1:end,4));
             tdidx = find(extrainfo.p(end-bsreached+1:end,4)==obj.tdlow_,1,'last')+length(extrainfo.p)-bsreached;
             obj.tdhigh_ = extrainfo.p(tdidx,3);
-            if obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_) < obj.pxstoploss_
-                obj.pxstoploss_ = obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_);
-            end
         end
         if closeflag == 0 && ~isnan(obj.tdhigh_) && extrainfo.bs(end) > 9
            if extrainfo.p(end,4) < obj.tdlow_
                obj.tdlow_ = extrainfo.p(end,4);
                obj.tdhigh_ = extrainfo.p(end,3);
-               if obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_) < obj.pxstoploss_
-                   obj.pxstoploss_ = obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_);
-               end
            end
         end
         %
@@ -177,12 +181,20 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         unwindtrade = obj.trade_;
         if updatepnlforclosedtrade
             obj.trade_.runningpnl_ = 0;
-            obj.trade_.closepnl_ = direction*volume*(candleClose-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+            if isempty(instrument)
+                obj.trade_.closepnl_ = direction*volume*(candleClose-trade.openprice_);
+            else
+                obj.trade_.closepnl_ = direction*volume*(candleClose-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+            end
             obj.trade_.closedatetime1_ = candleTime;
             obj.trade_.closeprice_ = candleClose;
         end
         return
     else
-        obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+        if isempty(instrument)
+            obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_);
+        else
+            obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+        end
     end
 end

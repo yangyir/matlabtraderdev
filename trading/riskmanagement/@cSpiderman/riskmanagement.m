@@ -33,17 +33,41 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     candleK = candleCell{1};
     buckets = candleK(:,1);
     
+    if ticktime < buckets(end), return;end
+    
     if strcmpi(trade.status_,'unset')
         openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
         candleTime = candleK(end,1);
         if openBucket <= candleTime
             trade.status_ = 'set';
             obj.status_ = 'set';
+            if trade.opendirection_ == 1 && isnan(obj.tdhigh_) && isnan(obj.tdlow_)
+                [~,ss,~,~,~,~,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                if ss(end) >= 9
+                    ssreached = ss(end);
+                    obj.tdhigh_ = max(px(end-ssreached+1:end,3));
+                    tdidx = find(px(end-ssreached+1:end,3)==obj.tdhigh_,1,'last')+length(px)-ssreached;
+                    obj.tdlow_ = px(tdidx,4);
+                    if obj.tdlow_ - (obj.tdhigh_-obj.tdlow_) > obj.pxstoploss_
+                        obj.pxstoploss_ = obj.tdlow_ - (obj.tdhigh_-obj.tdlow_);
+                    end
+                end
+            elseif trade.opendirection_ == -1 && isnan(obj.tdhigh_) && isnan(obj.tdlow_)
+                [bs,~,~,~,~,~,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                if bs(end) >= 9
+                    bsreached = bs(end);
+                    obj.tdlow_ = min(px(end-bsreached+1:end,4));
+                    tdidx = find(px(end-bsreached+1:end,4)==obj.tdlow_,1,'last')+length(px)-bsreached;
+                    obj.tdhigh_ = px(tdidx,3);
+                    if obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_) < obj.pxstoploss_
+                        obj.pxstoploss_ = obj.tdhigh_ + (obj.tdhigh_-obj.tdlow_);
+                    end
+                end
+            end
         end
     end
     
     if ~strcmpi(trade.status_,'set'), return; end
-    if ticktime < buckets(end), return;end
     
     if strcmpi(strat.mode_,'replay')
         runningt = strat.replay_time1_;
