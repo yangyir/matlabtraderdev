@@ -32,6 +32,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     volume = trade.openvolume_;
     instrument = trade.instrument_;
     
+    if ~isempty(instrument)
+        ticksize = instrument.tick_size;
+    else
+        ticksize = 0;
+    end
+    
     if strcmpi(trade.status_,'unset')
         openbucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
         % return in case the candle happened in the past
@@ -92,10 +98,10 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         closeflag = 0;
         idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
         %1.stop the trade if price falls below alligator's lips
-        if candleClose < extrainfo.lips(end)
+        if candleClose < extrainfo.lips(end)-ticksize
             closeflag = 1;
         %2.stop the trade if price breaches stoploss
-        elseif candleClose < obj.pxstoploss2_
+        elseif candleClose < obj.pxstoploss2_-ticksize
             closeflag = 1;
         %3.stop the trade if it fails to breaches TDST-lvlup,i.e.the high
         %price fell below lvlup
@@ -139,10 +145,10 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         closeflag = 0;
         idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
         %1.stop the trade if price breaches above alligator's lips
-        if candleClose > extrainfo.lips(end)
+        if candleClose > extrainfo.lips(end)+ticksize
             closeflag = 1;
         %2.stop the trade if price breaches stoploss
-        elseif candleClose > obj.pxstoploss2_
+        elseif candleClose > obj.pxstoploss2_+ticksize
             closeflag = 1;
         %3.stop the trade if it fails to breaches TDST-lvldn,i.e.the low
         %price stayed above lvldn
