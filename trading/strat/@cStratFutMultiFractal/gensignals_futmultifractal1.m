@@ -63,7 +63,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
         if ~calcsignalbeforemktclose
 %             includelastcandle = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
             [bs,ss,lvlup,lvldn,bc,sc,p] = mdefut.calc_tdsq_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            [~,hh,ll] = mdefut.calc_fractal_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [idxfractal,hh,ll] = mdefut.calc_fractal_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
             [jaw,teeth,lips] = mdefut.calc_alligator_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
             stratfractal.hh_{i} = hh;
             stratfractal.ll_{i} = ll;
@@ -79,23 +79,58 @@ function signals = gensignals_futmultifractal1(stratfractal)
             
             validbreachhh = p(end,5)>hh(end-1)&p(end-1,5)<hh(end-1)&...
                 hh(end-1)>teeth(end-1)&...
-                hh(end-1)==hh(end)&...
-                (teeth(end-1)>jaw(end-1) || hh(end-1)>jaw(end-1));
+                hh(end-1)==hh(end);
+            %exclude sell countdown 13
+            validbreachhh = validbreachhh && sc(end) ~= 13;
+            %exclude perfect sell sequential if it is not a 'strong' breach
+            if validbreachhh && ~(teeth(end) > jaw(end))
+                if ss(end) >= 9 && p(end,5) >= max(p(end-ss(end)+1:end,5)) && p(end,3) >= max(p(end-ss(end)+1:end,3))
+                    validbreachhh = false;
+                end
+            end
+            %exclude if there is sell fractal below teeth happend between
+            if validbreachhh
+                idxHH = find(idxfractal==1,1,'last');
+                idxLL = find(idxfractal(idxHH:end)==-1,1,'first')+idxHH-1;
+                if ~isempty(idxLL)
+                    if ll(idxLL)<teeth(idxLL-mdefut.nfractals_(i)) && idxLL<size(p,1)
+                        validbreachhh = false;
+                    end
+                 end
+            end
+            %    
             %
             validbreachll = p(end,5)<ll(end-1)&p(end-1,5)>ll(end-1)&...
                 ll(end-1)<teeth(end-1)&...
-                ll(end-1)==ll(end)&...
-                (teeth(end-1)<jaw(end-1) || ll(end-1)<jaw(end-1));
-        
+                ll(end-1)==ll(end);
+            %exclude buy countdown 13
+            validbreachll = validbreachll && bc(end) ~= 13;
+            %exclude perfect buy sequential if it is not a 'strong' breach
+            if validbreachll && ~(teeth(end) < jaw(end))
+                if bs(end) >= 9 && p(end,5) <= min(p(end-bs(end)+1:end,5)) && p(end,4) <= min(p(end-bs(end)+1:end,4))
+                    validbreachll = false;
+                end
+            end
+            %exclude if there is buy fractal above teech happend between
+            if validbreachll
+                idxLL = find(idxfractal==-1,1,'last');
+                idxHH = find(idxfractal(idxLL:idxopen,6)==1,1,'first')+idxLL-1;
+                if ~isempty(idxHH)
+                    if hh(idxHH)>teeth(idxHH-mdefut.nfractals_(i)) && idxHH<size(p,1)
+                        validbreachll = false;
+                    end
+                end    
+            end
+            %
             tick = mdefut.getlasttick(instruments{i});
         
-            if validbreachhh && sc(end) ~= 13 && tick(3)>hh(end-1) && ...
+            if validbreachhh && tick(3)>hh(end) && ...
                     tick(3) > p(end,3)-0.382*(p(end,3)-ll(end)) && ...
                     tick(3) > lips(end)
                 signals(i,1) = 1;                                           %breach hh buy
                 signals(i,2) = p(end,3);
                 signals(i,3) = ll(end);
-            elseif validbreachll && bc(end) ~= 13 && tick(2)<ll(end-1) && ...
+            elseif validbreachll && tick(2)<ll(end) && ...
                     tick(2) < p(end,4)+0.382*(hh(end)-p(end,4)) && ...
                     tick(2) < lips(end)
                 signals(i,1) = -1;                                          %breach ll sell
@@ -109,20 +144,52 @@ function signals = gensignals_futmultifractal1(stratfractal)
             p = candlesticks{1};
             validbreachhh = p(end,5)>hh(end-1)&p(end-1,5)<hh(end-1)&...
                 hh(end-1)>teeth(end-1)&...
-                hh(end-1)==hh(end)&...
-                teeth(end-1)>jaw(end-1);
+                hh(end-1)==hh(end);
+            validbreachhh = validbreachhh && sc(end) ~= 13;
+            if validbreachhh && ~(teeth(end) > jaw(end))
+                if ss(end) >= 9 && p(end,5) >= max(p(end-ss(end)+1:end,5)) && p(end,3) >= max(p(end-ss(end)+1:end,3))
+                    validbreachhh = false;
+                end
+            end
+            if validbreachhh
+                idxHH = find(idxfractal==1,1,'last');
+                idxLL = find(idxfractal(idxHH:end)==-1,1,'first')+idxHH-1;
+                if ~isempty(idxLL)
+                    if ll(idxLL)<teeth(idxLL-mdefut.nfractals_(i)) && idxLL<size(p,1)
+                        validbreachhh = false;
+                    end
+                 end
+            end
+            %
             %
             validbreachll = p(end,5)<ll(end-1)&p(end-1,5)>ll(end-1)&...
                 ll(end-1)<teeth(end-1)&...
-                ll(end-1)==ll(end)&...
-                teeth(end-1)<jaw(end-1);
+                ll(end-1)==ll(end);
+            validbreachll = validbreachll && bc(end) ~= 13;
+            if validbreachll && ~(teeth(end) < jaw(end))
+                if bs(end) >= 9 && p(end,5) <= min(p(end-bs(end)+1:end,5)) && p(end,4) <= min(p(end-bs(end)+1:end,4))
+                    validbreachll = false;
+                end
+            end
+            if validbreachll
+                idxLL = find(idxfractal==-1,1,'last');
+                idxHH = find(idxfractal(idxLL:idxopen,6)==1,1,'first')+idxLL-1;
+                if ~isempty(idxHH)
+                    if hh(idxHH)>teeth(idxHH-mdefut.nfractals_(i)) && idxHH<size(p,1)
+                        validbreachll = false;
+                    end
+                end    
+            end
             
-        
-            if validbreachhh && sc(end) ~= 13
+            if validbreachhh && ...
+                    p(end,5) > p(end,3)-0.382*(p(end,3)-ll(end)) && ...
+                    p(end,5) > lips(end)
                 signals(i,1) = 1;                                           %breach hh buy
                 signals(i,2) = hh(end);
                 signals(i,3) = ll(end);
-            elseif validbreachll && bc(end) ~= 13
+            elseif validbreachll && ...
+                    p(end,5) < p(end,4)+0.382*(hh(end)-p(end,4)) && ...
+                    p(end,5) < lips(end)
                 signals(i,1) = -1;                                          %breach ll sell
                 signals(i,2) = hh(end);
                 signals(i,3) = ll(end);
