@@ -32,7 +32,7 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
     if strcmpi(level,'medium')
         %in the medium level we require an additional condition,i.e.
         %HH shall above alligator's teeth
-        flag = flag & HH(1:end-1) > teeth(1:end-1);
+        flag = flag & HH(2:end) > teeth(2:end);
         flag = [0;flag];
         return
     end
@@ -40,8 +40,8 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
     if strcmpi(level,'strong')
         %in the strong level we require alligator's teeth is above
         %alligator's jaw
-        flag = flag & HH(1:end-1) > teeth(1:end-1) & ...
-            teeth(1:end-1) > jaw(1:end-1);
+        flag = flag & HH(2:end) > teeth(2:end) & ...
+            teeth(2:end) > jaw(2:end);
         flag = [0;flag];
         return
     end

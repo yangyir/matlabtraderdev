@@ -88,16 +88,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     validbreachhh = false;
                 end
             end
-            %exclude if there is sell fractal below teeth happend between
-            if validbreachhh
-                idxHH = find(idxfractal==1,1,'last');
-                idxLL = find(idxfractal(idxHH:end)==-1,1,'first')+idxHH-1;
-                if ~isempty(idxLL)
-                    if ll(idxLL)<teeth(idxLL-mdefut.nfractals_(i)) && idxLL<size(p,1)
-                        validbreachhh = false;
-                    end
-                 end
-            end
+%             %exclude if there is sell fractal below teeth happend between
+%             if validbreachhh
+%                 idxHH = find(idxfractal==1,1,'last');
+%                 idxLL = find(idxfractal(idxHH:end)==-1,1,'first')+idxHH-1;
+%                 if ~isempty(idxLL)
+%                     if ll(idxLL)<teeth(idxLL-mdefut.nfractals_(i)) && idxLL<size(p,1)
+%                         validbreachhh = false;
+%                     end
+%                  end
+%             end
             %    
             %
             validbreachll = p(end,5)<ll(end-1)&p(end-1,5)>ll(end-1)&...
@@ -111,16 +111,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     validbreachll = false;
                 end
             end
-            %exclude if there is buy fractal above teech happend between
-            if validbreachll
-                idxLL = find(idxfractal==-1,1,'last');
-                idxHH = find(idxfractal(idxLL:idxopen,6)==1,1,'first')+idxLL-1;
-                if ~isempty(idxHH)
-                    if hh(idxHH)>teeth(idxHH-mdefut.nfractals_(i)) && idxHH<size(p,1)
-                        validbreachll = false;
-                    end
-                end    
-            end
+%             %exclude if there is buy fractal above teech happend between
+%             if validbreachll
+%                 idxLL = find(idxfractal==-1,1,'last');
+%                 idxHH = find(idxfractal(idxLL:idxopen,6)==1,1,'first')+idxLL-1;
+%                 if ~isempty(idxHH)
+%                     if hh(idxHH)>teeth(idxHH-mdefut.nfractals_(i)) && idxHH<size(p,1)
+%                         validbreachll = false;
+%                     end
+%                 end    
+%             end
             %
             tick = mdefut.getlasttick(instruments{i});
         

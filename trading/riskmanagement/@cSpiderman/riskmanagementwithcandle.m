@@ -111,7 +111,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %4.if it finishes TD Sell Sequential, then stop the trade once it
         %falles below the low of the bar with the true high of the
         %sequential
-        if closeflag == 0 && candleClose < obj.tdlow_ && (obj.tdhigh_ - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)
+        if closeflag == 0 && candleClose < obj.tdlow_ && ((obj.tdhigh_ - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)||(ticksize>0&&(obj.tdhigh_ - trade.openprice_)>10*ticksize))
             closeflag = 1;
             obj.tdhigh_ = NaN;
             obj.tdlow_ = NaN;
@@ -158,7 +158,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %4.if it finishes TD Buy Sequential, then stop the trade once it
         %stayed above the high of the bar with the true low of the
         %sequential
-        if closeflag == 0 && candleClose > obj.tdhigh_ && (trade.openprice_ - obj.tdlow_) > 0.236*(obj.hh1_-obj.ll1_)
+        if closeflag == 0 && candleClose > obj.tdhigh_ && ((trade.openprice_ - obj.tdlow_) > 0.236*(obj.hh1_-obj.ll1_)||(ticksize>0&&(trade.openprice_ - obj.tdlow_)>10*ticksize))
             closeflag = 1;
             obj.tdhigh_ = NaN;
             obj.tdlow_ = NaN;
