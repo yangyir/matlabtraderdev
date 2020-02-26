@@ -12,13 +12,17 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
     jaw = smma(p,13,8);jaw = [nan(8,1);jaw];
     teeth = smma(p,8,5);teeth = [nan(5,1);teeth];
     lips = smma(p,5,3);lips = [nan(3,1);lips];
-    [idx,HH,LL,upperchannel,lowerchannel] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
     [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
-    
-    [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,upperchannel,lowerchannel,jaw,teeth,lips );
+    if inpbandsperiod > 0
+        [~,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
+        [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
+    else
+        [~,HH,LL] = fractal(p,nfractal);
+        [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
+    end
     %gentrades with the upperchannel and lowerchannel
-    tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,upperchannel,lowerchannel,bs,ss,'code',code,'freq',freq);
-    tradesfractals1 = fractal_gentradess1( idxfractals1,p,upperchannel,upperchannel,bs,ss,'code',code,'freq',freq);
+    tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,HH,LL,bs,ss,'code',code,'freq',freq);
+    tradesfractals1 = fractal_gentradess1( idxfractals1,p,HH,HH,bs,ss,'code',code,'freq',freq);
     nb1 = tradesfractalb1.latest_;
     ns1 = tradesfractals1.latest_;
     tradesfractal1 = cTradeOpenArray;
@@ -32,9 +36,9 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
         pnl(i,2) = tradein.opendirection_;
         pnl(i,3) = tradein.openprice_;
         
-%         tradeout = fractal_runtrade(tradein,p,upperchannel,lowerchannel,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn);
-        %run pnl with HH and LL instead of upperchannel and lowerchannel
         tradeout = fractal_runtrade(tradein,p,HH,LL,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn);
+        %run pnl with HH and LL instead of upperchannel and lowerchannel
+%         tradeout = fractal_runtrade(tradein,p,HH,LL,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn);
         if isempty(tradeout)
             pnl(i,4) = size(p,1);
             pnl(i,5) = p(end,5);

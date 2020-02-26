@@ -33,15 +33,16 @@ function [ idx,HH,LL,upperchannel,lowerchannel] = fractalenhanced( p,nperiod,var
 
     [idx,HH,LL] = fractal(p,nperiod);
     
-    ret = log(p(2:end,5)./p(1:end-1,5));
+    ret = p(2:end,5)./p(1:end-1,5)-1;
     change = 1.618*std(ret);
+    change = min(0.003,change);
     
     upperchannel = HH;
     lowerchannel = LL;
     
     for i = 2:np
         if volsmooth(i) == -1
-            if abs(HH(i)-upperchannel(i-1))/p(i,5)>change
+            if abs(HH(i)-upperchannel(i-1))/abs(p(i,5))>change
                 upperchannel(i) = HH(i);
             else
                 if ~isnan(upperchannel(i-1))
@@ -49,7 +50,7 @@ function [ idx,HH,LL,upperchannel,lowerchannel] = fractalenhanced( p,nperiod,var
                 end
             end
             %
-            if abs(LL(i)-lowerchannel(i-1))/p(i,5)>change
+            if abs(LL(i)-lowerchannel(i-1))/abs(p(i,5))>change
                 lowerchannel(i) = LL(i);
             else
                 if ~isnan(lowerchannel(i-1))
