@@ -14,3 +14,5 @@ for i = 1:length(opt_c_jun)
     savedailybarfrombloomberg2(conn,opt_c_jun{i});
     savedailybarfrombloomberg2(conn,opt_p_jun{i});
 end
+%
+backhome;
