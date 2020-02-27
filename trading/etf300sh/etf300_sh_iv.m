@@ -33,7 +33,7 @@ function [ iv_c,iv_p,marked_fwd ] = etf300_sh_iv( conn,opt_c,opt_p,exp_rt,k )
     
     fprintf('%10s','bid(c)');fprintf('%10s','ask(c)');fprintf('%10s','ivm(c)');
     fprintf('%10s','strike');
-    fprintf('%10s','bid(c)');fprintf('%10s','ask(c)');fprintf('%10s','ivm(c)');
+    fprintf('%10s','bid(p)');fprintf('%10s','ask(p)');fprintf('%10s','ivm(c)');
     fprintf('%10s','mid(u)');
     fprintf('%10s','bid_fwd');
     fprintf('%10s','ask_fwd');

@@ -6,7 +6,7 @@ dt2 = today;
 hd = conn.history(code_bbg_underlier,{'px_open','px_high','px_low','px_last','volume','open_int'},dt1,dt2);
 rt = [hd(2:end,1),log(hd(2:end,5)./hd(1:end-1,5))];
 [res] = bkfunc_hvcalib(rt,'forecastperiod',21, 'printresults',false, 'plotconditonalvariance',true,'scalefactor',sqrt(246));
-tdsq_plot2(hd(:,1:5),size(hd,1)-252,size(hd,1),0.01);
+%tdsq_plot2(hd(:,1:5),size(hd,1)-252,size(hd,1),0.01);
 %%
 exp_feb = '2020-02-26';
 exp_mar = '2020-03-25';

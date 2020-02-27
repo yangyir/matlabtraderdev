@@ -1,14 +1,15 @@
 % [ iv_c_feb,iv_p_feb,marked_fwd_fed ] = etf50_sh_iv( conn,opt_c_feb,opt_p_feb,exp_feb,k );
-[ iv_c_mar,iv_p_mar,marked_fwd_mar ] = etf50_sh_iv( conn,opt_c_mar,opt_p_mar,exp_mar,k );
+[ iv_c_mar,iv_p_mar,marked_fwd_mar ] = etf50_sh_iv( conn,opt50_c_mar,opt50_p_mar,exp_mar,k );
+[ iv_c_jun,iv_p_jun,marked_fwd_jun ] = etf50_sh_iv( conn,opt50_c_jun,opt50_p_jun,exp_jun,k );
 %%
 % EOD info:
 % CALL
-n_c_mar = length(opt_c_mar);
+n_c_mar = length(opt50_c_mar);
 bd_c_mar = cell(n_c_mar,1);
 tbl_c_mar = [k',zeros(length(k),3)];
 for i = 1:n_c_mar
     try
-        bd_c_mar{i} = pnlriskbreakdownbbg(opt_c_mar{i},datenum('2020-02-26'));
+        bd_c_mar{i} = pnlriskbreakdownbbg(opt50_c_mar{i},datenum('2020-02-27'));
         tbl_c_mar(i,2) = bd_c_mar{i}.iv1;
         tbl_c_mar(i,3) = bd_c_mar{i}.iv2;
         tbl_c_mar(i,4) = bd_c_mar{i}.deltacarry/bd_c_mar{i}.spot2/10000;
@@ -18,12 +19,12 @@ for i = 1:n_c_mar
     end
 end
 % PUT
-n_p_mar = length(opt_p_mar);
+n_p_mar = length(opt50_p_mar);
 bd_p_mar = cell(n_p_mar,1);
 tbl_p_mar = [k',zeros(length(k),3)];
 for i = 1:n_p_mar
     try
-        bd_p_mar{i} = pnlriskbreakdownbbg(opt_p_mar{i},datenum('2020-02-26'));
+        bd_p_mar{i} = pnlriskbreakdownbbg(opt50_p_mar{i},datenum('2020-02-27'));
         tbl_p_mar(i,2) = bd_p_mar{i}.iv1;
         tbl_p_mar(i,3) = bd_p_mar{i}.iv2;
         tbl_p_mar(i,4) = bd_p_mar{i}.deltacarry/bd_p_mar{i}.spot2/10000;
@@ -55,12 +56,15 @@ volinterp2 = interp1(m1,tbl_c_mar(:,3),m);
 bar(m,volinterp2-volinterp1,color);
 xlabel('moneyness');ylabel('spread');
 %%
-port1_mar = {'p2.75';'p2.85';'c2.85';'c2.95'};
-v1_mar = [19;-15;-15;19];
+port1_mar = {'p2.8';'p2.9';'c2.9';'c3.0'};
+v1_mar = [60;-53;-48;62];
 deltapnl = zeros(length(port1_mar),1);
 gammapnl = zeros(length(port1_mar),1);
 thetapnl = zeros(length(port1_mar),1);
 vegapnl = zeros(length(port1_mar),1);
+deltacarry = zeros(length(port1_mar),1);
+gammacarry = zeros(length(port1_mar),1);
+thetacarry = zeros(length(port1_mar),1);
 vegacarry = zeros(length(port1_mar),1);
 iv1 = zeros(length(port1_mar),1);
 iv2 = zeros(length(port1_mar),1);
@@ -79,6 +83,9 @@ for i = 1:length(port1_mar)
     thetapnl(i) = v1_mar(i)*bd_i.pnltheta;
     vegapnl(i) = v1_mar(i)*bd_i.pnlvega;
     vegacarry(i) = v1_mar(i)*bd_i.vegacarry;
+    deltacarry(i) = v1_mar(i)*bd_i.deltacarry;
+    gammacarry(i) = v1_mar(i)*bd_i.gammacarry;
+    thetacarry(i) = v1_mar(i)*bd_i.thetacarry;
     iv1(i) = bd_i.iv1;
     iv2(i) = bd_i.iv2;
 end
