@@ -19,7 +19,7 @@ stairs(LL,'g--');
 stairs(lvlup,'color',[0.75 0 0],'linewidth',1.5);
 stairs(lvldn,'color',[0 0.75 0],'linewidth',1.5);
 
-shift = 0.01;
+shift = 0.005;
 for i = 1:length(p)
     if bs(i) == 9
         for k = 1:9

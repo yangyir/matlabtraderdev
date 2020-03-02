@@ -1,13 +1,21 @@
-function outputmat = tools_technicalplot1(p,nfractal,doplot)
+function outputmat = tools_technicalplot1(p,nfractal,doplot,varargin)
 %technical plot with DeMark and Williams' fractal and alligator indicator
 
 if nargin < 2, nfractal = 2;end
 if nargin < 3, doplot = 0;end
 
+ip = inputParser;
+ip.CaseSensitive = false;ip.KeepUnmatched = true;
+ip.addParameter('volatilityperiod',13,@isnumeric);
+ip.addParameter('tolerance',0.003,@isnumeric);
+ip.parse(varargin{:});
+inpbandsperiod = ip.Results.volatilityperiod;
+change = ip.Results.tolerance;
+
 jaw = smma(p,13,8);jaw = [nan(8,1);jaw];
 teeth = smma(p,8,5);teeth = [nan(5,1);teeth];
 lips = smma(p,5,3);lips = [nan(3,1);lips];
-[idx,HH,LL] = fractal(p,nfractal);
+[idx,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod,'tolerance',change);
 [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
 outputmat = [m2xdate(p(:,1)),p(:,2:5),idx,HH,LL,jaw,teeth,lips,bs,ss,lvlup,lvldn,bc,sc];
 
