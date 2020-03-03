@@ -6,6 +6,11 @@ function [] = refresh(obj,varargin)
     no = size(obj.options_,1);
     if mod(no,2) ~= 0, error('cMDEOptBBG:refresh:number of options shall be even');end
     
+    cobdate = today;
+    if isholiday(cobdate), cobdate = getlastbusinessdate;end
+    if hour(cobdate) < 9, cobdate = businessdate(cobdate,-1);end
+    predate = businessdate(cobdate,-1);
+    
     for i = 1:nu
         opt_c_exp = zeros(no/2,1);
         opt_p_exp = zeros(no/2,1);
@@ -41,12 +46,15 @@ function [] = refresh(obj,varargin)
         end
         
         sec_list = [obj.underliers_{i};opt_c;opt_p];
-        d = obj.conn_.ds_.getdata(sec_list,{'bid';'ask'});
-        iv_c = zeros(count_c,1);
-        iv_p = zeros(count_p,1);
-        bid_u = d.bid(1);ask_u = d.ask(1);mid_u = 0.5*(bid_u+ask_u);
-        bid_c = d.bid(2:count_c+1);ask_c = d.ask(2:count_c+1);mid_c = 0.5*(bid_c+ask_c);
-        bid_p = d.bid(count_c+2:end);ask_p = d.ask(count_c+2:end);mid_p = 0.5*(bid_p+ask_p);
+        d = obj.conn_.ds_.getdata(sec_list,{'bid';'ask';'last_price'});
+        iv2 = zeros(count_c,1);
+        iv1 = zeros(count_p,1);
+        pxuchg = zeros(count_c,1);
+        bid_u = d.bid(1);ask_u = d.ask(1);mid_u = 0.5*(bid_u+ask_u);last_u = d.last_price(1);
+        bid_c = d.bid(2:count_c+1);ask_c = d.ask(2:count_c+1);last_c = d.last_price(2:count_c+1);
+%         mid_c = 0.5*(bid_c+ask_c);
+        bid_p = d.bid(count_c+2:end);ask_p = d.ask(count_c+2:end);last_p = d.last_price(count_c+2:end);
+%         mid_p = 0.5*(bid_p+ask_p);
         
         % arb-monitor
         bid_fwd = k+bid_c-ask_p;
@@ -61,32 +69,85 @@ function [] = refresh(obj,varargin)
                 num2str(k(ishort)),num2str(k(ilong)));
         end
         
-        marked_fwd = mean([bid_fwd;ask_fwd]);
-        
-        r = 0.025;
-        for j = 1:count_c
-            iv_c(j) = blkimpv(marked_fwd,k(j),r,tau,mid_c(j),[],[],{'call'});
-            iv_p(j) = blkimpv(marked_fwd,k(j),r,tau,mid_p(j),[],[],{'put'});
+        for j = 1:no
+            if ~strcmpi(obj.underliers_{i},[obj.options_{j}(1:6),' CH Equity']), continue;end
+            carryinfo = struct('code',obj.options_{j},...
+                'date2',datestr(predate,'yyyy-mm-dd'),...
+                'spot2',obj.spotyesterday_(j),...
+                'fwd2',obj.fwdyesterday_(j),...
+                'premium2',obj.pvcarryyesterday_(j),...
+                'iv2',obj.impvolcarryyesterday_(j),...
+                'thetacarry',obj.thetacarryyesterday_(j),...
+                'deltacarry',obj.deltacarryyesterday_(j),...
+                'gammacarry',obj.gammacarryyesterday_(j),...
+                'vegacarry',obj.vegacarryyesterday_(j));
+            if strcmpi(obj.options_{j}(20),'C')
+                for jj = 1:count_c
+                    if strcmpi(obj.options_{j},opt_c{jj})
+                        break
+                    end
+                end
+%                 rtprbd = pnlriskbreakdownbbg2(carryinfo,[bid_c(jj),ask_c(jj),bid_p(jj),ask_p(jj)],[bid_u,ask_u]);
+                rtprbd = pnlriskbreakdownbbg2(carryinfo,[last_c(jj),last_p(jj)],last_u);
+                obj.deltacarry_(j) = rtprbd.deltacarry;
+                obj.gammacarry_(j) = rtprbd.gammacarry;
+                obj.thetacarry_(j) = rtprbd.thetacarry;
+                obj.vegacarry_(j) = rtprbd.vegacarry;
+                obj.impvol_(j) = rtprbd.iv2;
+                iv2(jj) = rtprbd.iv2;
+                iv1(jj) = rtprbd.iv1;
+                pxuchg(jj) = last_u/carryinfo.spot2-1;
+                obj.rtprbd_{j} = rtprbd;
+            else
+                for jj = 1:count_c
+                    if strcmpi(obj.options_{j},opt_p{jj})
+                        break
+                    end
+                end
+%                 rtprbd = pnlriskbreakdownbbg2(carryinfo,[bid_c(jj),ask_c(jj),bid_p(jj),ask_p(jj)],[bid_u,ask_u]);
+                rtprbd = pnlriskbreakdownbbg2(carryinfo,[last_c(jj),last_p(jj)],last_u);
+                obj.deltacarry_(j) = rtprbd.deltacarry;
+                obj.gammacarry_(j) = rtprbd.gammacarry;
+                obj.thetacarry_(j) = rtprbd.thetacarry;
+                obj.vegacarry_(j) = rtprbd.vegacarry;
+                obj.impvol_(j) = rtprbd.iv2;
+                iv2(jj) = rtprbd.iv2;
+                iv1(jj) = rtprbd.iv1;
+                pxuchg(jj) = last_u/carryinfo.spot2-1;
+                obj.rtprbd_{j} = rtprbd;
+            end
         end
+        
+%         marked_fwd = mean([bid_fwd;ask_fwd]);
+        
+%         r = 0.025;
+%         for j = 1:count_c
+%             iv_c(j) = blkimpv(marked_fwd,k(j),r,tau,mid_c(j),[],[],{'call'});
+%             iv_p(j) = blkimpv(marked_fwd,k(j),r,tau,mid_p(j),[],[],{'put'});
+%         end
     
-        fprintf('%10s','bid(c)');fprintf('%10s','ask(c)');fprintf('%10s','ivm(c)');
+        fprintf('%10s','bid(c)');fprintf('%10s','ask(c)');
         fprintf('%10s','strike');
-        fprintf('%10s','bid(p)');fprintf('%10s','ask(p)');fprintf('%10s','ivm(p)');
-        fprintf('%10s','mid(u)');
+        fprintf('%10s','bid(p)');fprintf('%10s','ask(p)');
+        fprintf('%10s','ivm');
+        fprintf('%10s','ivmchg');
+        fprintf('%10s','spot(m)');
+        fprintf('%10s','spotchg');
         fprintf('%10s','bid_fwd');
         fprintf('%10s','ask_fwd');
         fprintf('\n');
         for j = 1:count_c
             fprintf('%10s',num2str(bid_c(j)));
             fprintf('%10s',num2str(ask_c(j)));
-            fprintf('%9.1f%% ',iv_c(j)*100);
-            fprintf('%9s ',num2str(k(j)));
-            fprintf('%9s ',num2str(bid_p(j)));
-            fprintf('%9s ',num2str(ask_p(j)));
-            fprintf('%8.1f%% ',iv_p(j)*100);
-            fprintf('%9s ',num2str(mid_u));
-            fprintf('%9s ',num2str(bid_fwd(j)));
-            fprintf('%9s ',num2str(ask_fwd(j)));
+            fprintf('%10s',num2str(k(j)));
+            fprintf('%10s',num2str(bid_p(j)));
+            fprintf('%10s',num2str(ask_p(j)));
+            fprintf('%9.1f%%',iv2(j)*100);
+            fprintf('%9.1f%%',(iv2(j)-iv1(j))*100);
+            fprintf('%10s',num2str(mid_u));
+            fprintf('%9.1f%%',pxuchg(j)*100);
+            fprintf('%10s',num2str(bid_fwd(j)));
+            fprintf('%10s',num2str(ask_fwd(j)));
             fprintf('\n');
         end
         

@@ -7,7 +7,7 @@
 n_c_mar = length(opt50_c_mar);
 bd_c_mar = cell(n_c_mar,1);
 tbl_c_mar = [k',zeros(length(k),3)];
-cobdate = '2020-03-02';
+cobdate = '2020-03-03';
 for i = 1:n_c_mar
     try
         bd_c_mar{i} = pnlriskbreakdownbbg(opt50_c_mar{i},datenum(cobdate));
@@ -60,8 +60,8 @@ subplot(212);
 bar(m,volinterp2-volinterp1,color);
 xlabel('moneyness');ylabel('spread');
 %%
-port1_mar = {'p2.8';'c2.9';'p2.9';'c3.0'};
-v1_mar = [60;-53;-48;62];
+port1_mar = {'p2.65';'p2.75';'p2.8';'p2.85';'c2.85';'p2.9';'c2.9';'c3.0';'c3.2'};
+v1_mar = [-110;21;74;-5;-15;-53;-48;77;-40];
 deltapnl = zeros(length(port1_mar),1);
 gammapnl = zeros(length(port1_mar),1);
 thetapnl = zeros(length(port1_mar),1);

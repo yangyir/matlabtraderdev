@@ -11,6 +11,7 @@ code_bbg = optcarryinfo.code;
 %%
 cobdate = today;
 if isholiday(cobdate), cobdate = getlastbusinessdate;end
+if hour(cobdate) < 9, cobdate = businessdate(cobdate,-1);end
 mult = 10000; 
 predate = businessdate(cobdate,-1);
 if predate ~= datenum(optcarryinfo.date2,'yyyy-mm-dd')
@@ -19,30 +20,46 @@ end
 
 nextdate = businessdate(cobdate,1);
 price1_underlier = optcarryinfo.spot2;
-price2_underlier = 0.5*(qu(1) + qu(2));
+if length(qu) == 2
+    price2_underlier = 0.5*(qu(1) + qu(2));
+else
+    price2_underlier = qu;
+end
 
 pv1_sec = optcarryinfo.premium2/mult;
 if strcmpi(code_bbg(20),'C')
     optclass = 'call';
-    pv2_sec = 0.5*(qc(1)+qc(2));
+    if length(qc) == 4
+        pv2_sec = 0.5*(qc(1)+qc(2));
+    else
+        pv2_sec = qc(1);
+    end
 else
     optclass = 'put';
-    pv2_sec = 0.5*(qc(3)+qc(4));
+    if length(qc) == 4
+        pv2_sec = 0.5*(qc(3)+qc(4));
+    else
+        pv2_sec = qc(2);
+    end
 end
 
 k = str2double(code_bbg(21:end-7));
 
-bid_fwd = k+qc(1)-qc(4);
-ask_fwd = k+qc(2)-qc(3);
+% bid_fwd = k+qc(1)-qc(4);
+% ask_fwd = k+qc(2)-qc(3);
 fwd1_underlier = optcarryinfo.fwd2;
-fwd2_underlier = 0.5*(ask_fwd+bid_fwd);
-
+% fwd2_underlier = 0.5*(ask_fwd+bid_fwd);
 
 opt_expiry_date1 = datenum(code_bbg(11:18),'mm/dd/yy');
 
 tau2 = (opt_expiry_date1 - datenum(cobdate))/365;
 tau3 = (opt_expiry_date1 - datenum(nextdate))/365;
 r = 0.025;
+if length(qc) == 4
+    fwd2_underlier = 0.5*(qc(1)+qc(2)-qc(3)-qc(4))*exp(r*tau2)+k;
+else
+    fwd2_underlier = (qc(1)-qc(2))*exp(r*tau2)+k;
+end
 
 yld2 = log(fwd2_underlier/price2_underlier)/tau2-r;
 %
@@ -102,7 +119,7 @@ pnl_unexplained = pnl-pnl_explained;
 
 output = struct('code',code_bbg,...
     'pnltotal',pnl*volume,...
-    'pnltheta',optcarryinfo.thetacarry*volume,...
+    'pnltheta',pnl_theta*volume,...
     'pnldelta',pnl_delta*volume,...
     'pnlgamma',pnl_gamma*volume,...
     'pnlvega',pnl_vega*volume,...

@@ -27,6 +27,10 @@ classdef cMDEOptBBG < cMyTimerObj
         thetacarryyesterday_@double
         impvolcarryyesterday_@double
         pvcarryyesterday_@double
+        fwdyesterday_@double
+        spotyesterday_@double
+        % real-time pnl/risk breakdown
+        rtprbd_@cell
     end
     
     methods
