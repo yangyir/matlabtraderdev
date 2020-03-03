@@ -7,7 +7,7 @@
 n_c_mar = length(opt300_c_mar);
 bd_c_mar = cell(n_c_mar,1);
 tbl_c_mar = [k',zeros(length(k),3)];
-cobdate = '2020-02-24';
+cobdate = '2020-02-28';
 for i = 1:n_c_mar
     try
         bd_c_mar{i} = pnlriskbreakdownbbg(opt300_c_mar{i},datenum(cobdate));

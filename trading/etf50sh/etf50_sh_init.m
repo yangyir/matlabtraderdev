@@ -20,9 +20,41 @@ end
 %%
 db = cLocal;
 %%
-hd_50etf = cDataFileIO.loadDataFromTxtFile('510050_daily.txt');
-fprintf('last date recorded on local file is %s\n',datestr(hd_50etf(end,1)));
+hd_50 = cDataFileIO.loadDataFromTxtFile('510050_daily.txt');
+fprintf('last date recorded on local file is %s\n',datestr(hd_50(end,1)));
 %%
-op_50etf = tools_technicalplot1(hd_50etf,2,0,'change',0.001,'volatilityperiod',0);
+op_50 = tools_technicalplot1(hd_50,2,0,'change',0.001,'volatilityperiod',0);
 shift = 60;
-tools_technicalplot2(op_50etf(end-shift:end,:));
+tools_technicalplot2(op_50(end-shift:end,:));
+%%
+n_opt50c_mar = length(opt50_c_mar);
+bd_opt50c_mar = cell(n_opt50c_mar,1);
+tbl_opt50c_mar = [k',zeros(length(k),3)];
+for i = 1:n_opt50c_mar
+    try
+        bd_opt50c_mar{i} = pnlriskbreakdownbbg(opt50_c_mar{i},getlastbusinessdate-1);
+        tbl_opt50c_mar(i,2) = bd_opt50c_mar{i}.iv1;
+        tbl_opt50c_mar(i,3) = bd_opt50c_mar{i}.iv2;
+        tbl_opt50c_mar(i,4) = bd_opt50c_mar{i}.deltacarry/bd_opt50c_mar{i}.spot2/10000;
+    catch
+        bd_opt50c_mar{i} = [];
+        tbl_opt50c_mar(i,2:4) = NaN;
+    end
+end
+% PUT
+n_opt50p_mar = length(opt50_p_mar);
+bd_opt50p_mar = cell(n_opt50p_mar,1);
+tbl_opt50p_mar = [k',zeros(length(k),3)];
+for i = 1:n_opt50p_mar
+    try
+        bd_opt50p_mar{i} = pnlriskbreakdownbbg(opt50_p_mar{i},getlastbusinessdate-1);
+        tbl_opt50p_mar(i,2) = bd_opt50p_mar{i}.iv1;
+        tbl_opt50p_mar(i,3) = bd_opt50p_mar{i}.iv2;
+        tbl_opt50p_mar(i,4) = bd_opt50p_mar{i}.deltacarry/bd_opt50p_mar{i}.spot2/10000;
+    catch
+        bd_opt50p_mar{i} = [];
+        tbl_opt50p_mar(i,2:4) = NaN;
+    end
+end
+display(tbl_opt50c_mar);
+display(tbl_opt50p_mar);

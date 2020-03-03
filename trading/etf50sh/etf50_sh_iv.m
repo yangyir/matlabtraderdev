@@ -1,4 +1,4 @@
-function [ iv_c,iv_p,marked_fwd ] = etf50_sh_iv( conn,opt_c,opt_p,exp_rt,k )
+function [ iv_c,iv_p,marked_fwd,qo,qu ] = etf50_sh_iv( conn,opt_c,opt_p,exp_rt,k )
     code_bbg_underlier = '510050 CH Equity';
     sec_list = [code_bbg_underlier;opt_c;opt_p];
     d = conn.ds_.getdata(sec_list,{'bid';'ask'});
@@ -51,8 +51,9 @@ function [ iv_c,iv_p,marked_fwd ] = etf50_sh_iv( conn,opt_c,opt_p,exp_rt,k )
         fprintf('%9s ',num2str(ask_fwd(i)));
         fprintf('\n');
     end
-
     
+    qo = [bid_c,ask_c,bid_p,ask_p];
+    qu = [bid_u,ask_u];
     
     
     
