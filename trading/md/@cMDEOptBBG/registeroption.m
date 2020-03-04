@@ -39,9 +39,10 @@ function [] = registeroption(obj,underlier,cpflag,strike,maturity)
         
         try
             lastbd = getlastbusinessdate;
-            if lastbd <= today
+            if lastbd == today && hour(now) >=15
                 lastbd = businessdate(lastbd,-1);
             end
+            fprintf('pls check the last business date is %s\n',datestr(lastbd,'yyyy-mm-dd'));
             pnlriskoutput = pnlriskbreakdownbbg(optstr,lastbd);
             obj.deltacarryyesterday_ = pnlriskoutput.deltacarry;
             obj.gammacarryyesterday_ = pnlriskoutput.gammacarry;
@@ -85,7 +86,7 @@ function [] = registeroption(obj,underlier,cpflag,strike,maturity)
             obj.rtprbd_ = rtprbd;
             try
                 lastbd = getlastbusinessdate;
-                if lastbd <= today
+                if lastbd == today && hour(now) >=15
                     lastbd = businessdate(lastbd,-1);
                 end
                 pnlriskoutput = pnlriskbreakdownbbg(optstr,lastbd);

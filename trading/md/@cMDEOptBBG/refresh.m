@@ -6,10 +6,10 @@ function [] = refresh(obj,varargin)
     no = size(obj.options_,1);
     if mod(no,2) ~= 0, error('cMDEOptBBG:refresh:number of options shall be even');end
     
-    cobdate = today;
-    if isholiday(cobdate), cobdate = getlastbusinessdate;end
-    if hour(cobdate) < 9, cobdate = businessdate(cobdate,-1);end
-    predate = businessdate(cobdate,-1);
+    predate = getlastbusinessdate;
+    if predate == today && hour(now) >=15
+        predate = businessdate(predate,-1);
+    end
     
     for i = 1:nu
         opt_c_exp = zeros(no/2,1);

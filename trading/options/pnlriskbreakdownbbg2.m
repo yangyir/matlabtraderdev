@@ -11,9 +11,12 @@ code_bbg = optcarryinfo.code;
 %%
 cobdate = today;
 if isholiday(cobdate), cobdate = getlastbusinessdate;end
-if hour(cobdate) < 9, cobdate = businessdate(cobdate,-1);end
+if hour(now) < 9, cobdate = businessdate(cobdate,-1);end
 mult = 10000; 
-predate = businessdate(cobdate,-1);
+predate = getlastbusinessdate;
+if predate == today && hour(now) >=15
+    predate = businessdate(predate,-1);
+end
 if predate ~= datenum(optcarryinfo.date2,'yyyy-mm-dd')
     error('invalid optcarryinfo input');
 end
