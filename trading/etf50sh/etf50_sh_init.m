@@ -32,7 +32,7 @@ bd_opt50c_mar = cell(n_opt50c_mar,1);
 tbl_opt50c_mar = [k',zeros(length(k),3)];
 for i = 1:n_opt50c_mar
     try
-        bd_opt50c_mar{i} = pnlriskbreakdownbbg(opt50_c_mar{i},getlastbusinessdate);
+        bd_opt50c_mar{i} = pnlriskbreakdownbbg(opt50_c_mar{i},getlastbusinessdate-1);
         tbl_opt50c_mar(i,2) = bd_opt50c_mar{i}.iv1;
         tbl_opt50c_mar(i,3) = bd_opt50c_mar{i}.iv2;
         tbl_opt50c_mar(i,4) = bd_opt50c_mar{i}.deltacarry/bd_opt50c_mar{i}.spot2/10000;
@@ -47,7 +47,7 @@ bd_opt50p_mar = cell(n_opt50p_mar,1);
 tbl_opt50p_mar = [k',zeros(length(k),3)];
 for i = 1:n_opt50p_mar
     try
-        bd_opt50p_mar{i} = pnlriskbreakdownbbg(opt50_p_mar{i},getlastbusinessdate);
+        bd_opt50p_mar{i} = pnlriskbreakdownbbg(opt50_p_mar{i},getlastbusinessdate-1);
         tbl_opt50p_mar(i,2) = bd_opt50p_mar{i}.iv1;
         tbl_opt50p_mar(i,3) = bd_opt50p_mar{i}.iv2;
         tbl_opt50p_mar(i,4) = bd_opt50p_mar{i}.deltacarry/bd_opt50p_mar{i}.spot2/10000;

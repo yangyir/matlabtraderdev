@@ -12,7 +12,7 @@ end
 %
 for i = 1:length(opt300_c_jun)
     savedailybarfrombloomberg2(conn,opt300_c_jun{i});
-    savedailybarfrombloomberg2(conn,opt300_c_jun{i});
+    savedailybarfrombloomberg2(conn,opt300_p_jun{i});
 end
 %
 backhome;
