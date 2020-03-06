@@ -79,7 +79,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
             
             validbreachhh = p(end,5)>hh(end-1)&p(end-1,5)<hh(end-1)&...
                 hh(end-1)>teeth(end-1)&...
-                hh(end-1)==hh(end);
+                abs(hh(end-1)/hh(end)-1)<0.002;
             %exclude sell countdown 13
             validbreachhh = validbreachhh && sc(end) ~= 13;
             %exclude perfect sell sequential if it is not a 'strong' breach
@@ -102,7 +102,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
             %
             validbreachll = p(end,5)<ll(end-1)&p(end-1,5)>ll(end-1)&...
                 ll(end-1)<teeth(end-1)&...
-                ll(end-1)==ll(end);
+                abs(ll(end-1)/ll(end)-1)<0.002;
             %exclude buy countdown 13
             validbreachll = validbreachll && bc(end) ~= 13;
             %exclude perfect buy sequential if it is not a 'strong' breach
