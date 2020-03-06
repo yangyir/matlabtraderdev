@@ -83,7 +83,7 @@ while i<=n
         elseif i == 5
             mm = 16;
         else
-            mm = i+20;
+            mm = i+21;
         end
     end
     if mod(mm,12)==0
