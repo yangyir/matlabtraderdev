@@ -6,8 +6,8 @@
 % CALL
 n_c_mar = length(opt300_c_mar);
 bd_c_mar = cell(n_c_mar,1);
-tbl_c_mar = [k',zeros(length(k),3)];
-cobdate = '2020-02-28';
+tbl_c_mar = [k_300',zeros(length(k_300),3)];
+cobdate = '2020-03-06';
 for i = 1:n_c_mar
     try
         bd_c_mar{i} = pnlriskbreakdownbbg(opt300_c_mar{i},datenum(cobdate));
@@ -22,7 +22,7 @@ end
 % PUT
 n_p_mar = length(opt300_p_mar);
 bd_p_mar = cell(n_p_mar,1);
-tbl_p_mar = [k',zeros(length(k),3)];
+tbl_p_mar = [k_300',zeros(length(k_300),3)];
 for i = 1:n_p_mar
     try
         bd_p_mar{i} = pnlriskbreakdownbbg(opt300_p_mar{i},datenum(cobdate));
@@ -32,5 +32,35 @@ for i = 1:n_p_mar
     catch
         bd_p_mar{i} = [];
         tbl_p_mar(i,2:4) = NaN;
+    end
+end
+%%
+n_c_jun = length(opt300_c_jun);
+bd_c_jun = cell(n_c_jun,1);
+tbl_c_jun = [k_300',zeros(length(k_300),3)];
+for i = 1:n_c_jun
+    try
+        bd_c_jun{i} = pnlriskbreakdownbbg(opt300_c_jun{i},datenum(cobdate));
+        tbl_c_jun(i,2) = bd_c_jun{i}.iv1;
+        tbl_c_jun(i,3) = bd_c_jun{i}.iv2;
+        tbl_c_jun(i,4) = bd_c_jun{i}.deltacarry/bd_c_jun{i}.spot2/10000;
+    catch
+        bd_c_jun{i} = [];
+        tbl_c_jun(i,2:4) = NaN;
+    end
+end
+% PUT
+n_p_jun = length(opt300_p_jun);
+bd_p_jun = cell(n_p_jun,1);
+tbl_p_jun = [k_300',zeros(length(k_300),3)];
+for i = 1:n_p_jun
+    try
+        bd_p_jun{i} = pnlriskbreakdownbbg(opt300_p_jun{i},datenum(cobdate));
+        tbl_p_jun(i,2) = bd_p_jun{i}.iv1;
+        tbl_p_jun(i,3) = bd_p_jun{i}.iv2;
+        tbl_p_jun(i,4) = bd_p_jun{i}.deltacarry/bd_p_jun{i}.spot2/10000;
+    catch
+        bd_p_jun{i} = [];
+        tbl_p_jun(i,2:4) = NaN;
     end
 end
