@@ -7,7 +7,7 @@ p = conn.history(code_bbg_underlier,{'px_open','px_high','px_low','px_last'},dt1
 %%
 res = tools_technicalplot1(p,2);
 res(:,1) = x2mdate(res(:,1));
-res = timeseries_window(res,'fromdate','2017-01-01','todate','2020-02-21');
+% res = timeseries_window(res,'fromdate','2017-01-01','todate','2020-02-21');
 tools_technicalplot2(res);
 %
 px = res(:,1:5);
@@ -26,39 +26,39 @@ idxfractalb1 = [find(flagb1==1),ones(length(find(flagb1==1)),1);...
     find(flagb1==2),2*ones(length(find(flagb1==2)),1);...
     find(flagb1==3),3*ones(length(find(flagb1==3)),1)];
 idxfractalb1 = sortrows(idxfractalb1);
-% optional:exclude sell countdown 13 
-for i = 1:size(idxfractalb1,1)
-    j = idxfractalb1(i,1);
-    if sc(j) == 13 && lips(j)>teeth(j)&&teeth(j)>jaw(j),idxfractalb1(i,2) = 0;end
-end
-idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
-%optional:exclude perfect sell sequential if it is not a 'strong' breach
-for i = 1:size(idxfractalb1,1)
-    if idxfractalb1(i,2) == 3, continue;end
-    %teeth is less than jaw in other cases
-    j = idxfractalb1(i,1);
-    if ss(j) >= 9 && px(j,5) >= max(px(j-ss(j)+1:j,5)) && px(j,3) >= max(px(j-ss(j)+1:j,3))
-        idxfractalb1(i,2) = 0;
-    end
-    %in weak or medium case we need lips greater than jaw
-%     if lips(j) < jaw(j)
+% % optional:exclude sell countdown 13 
+% for i = 1:size(idxfractalb1,1)
+%     j = idxfractalb1(i,1);
+%     if sc(j) == 13 && lips(j)>teeth(j)&&teeth(j)>jaw(j),idxfractalb1(i,2) = 0;end
+% end
+% idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
+% %optional:exclude perfect sell sequential if it is not a 'strong' breach
+% for i = 1:size(idxfractalb1,1)
+%     if idxfractalb1(i,2) == 3, continue;end
+%     %teeth is less than jaw in other cases
+%     j = idxfractalb1(i,1);
+%     if ss(j) >= 9 && px(j,5) >= max(px(j-ss(j)+1:j,5)) && px(j,3) >= max(px(j-ss(j)+1:j,3))
 %         idxfractalb1(i,2) = 0;
 %     end
-end
-idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
-% optional:exclude those with sell fractal between
-for i = 1:size(idxfractalb1,1)
-    idxopen = idxfractalb1(i,1);
-    idxHH = find(res(1:idxopen,6)==1,1,'last');
-    idxLL = find(res(idxHH:idxopen,6)==-1,1,'first')+idxHH-1;
-    if ~isempty(idxLL)
-        if LL(idxLL)<teeth(idxLL-2) && idxLL<idxopen
-            idxfractalb1(i,2) = 0;
-        end
-    end
-end
-idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
-idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 1,:);
+%     %in weak or medium case we need lips greater than jaw
+% %     if lips(j) < jaw(j)
+% %         idxfractalb1(i,2) = 0;
+% %     end
+% end
+% idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
+% % optional:exclude those with sell fractal between
+% for i = 1:size(idxfractalb1,1)
+%     idxopen = idxfractalb1(i,1);
+%     idxHH = find(res(1:idxopen,6)==1,1,'last');
+%     idxLL = find(res(idxHH:idxopen,6)==-1,1,'first')+idxHH-1;
+%     if ~isempty(idxLL)
+%         if LL(idxLL)<teeth(idxLL-2) && idxLL<idxopen
+%             idxfractalb1(i,2) = 0;
+%         end
+%     end
+% end
+% idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
+% idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 1,:);
 
 %
 tradesfractalb1 = cTradeOpenArray;
@@ -170,35 +170,35 @@ idxfractals1 = [find(flags1==1),ones(length(find(flags1==1)),1);...
     find(flags1==2),2*ones(length(find(flags1==2)),1);...
     find(flags1==3),3*ones(length(find(flags1==3)),1)];
 idxfractals1 = sortrows(idxfractals1);
-% optional:exclude buy countdown 13 
-for i = 1:size(idxfractals1,1)
-    j = idxfractals1(i,1);
-    if bc(j) == 13,idxfractals1(i,2) = 0;end
-end
-idxfractals1 = idxfractals1(idxfractals1(:,2) ~= 0,:);
-% optional:exclude perfect buy sequential if it is not a 'strong' breach
-for i = 1:size(idxfractals1,1)
-    if idxfractals1(i,2) == 3, continue;end
-    %teeth is less than jaw in other cases
-    j = idxfractals1(i,1);
-    if bs(j) >= 9 && px(j,5) <= min(px(j-bs(j)+1:j,5)) && px(j,4) <= min(px(j-bs(j)+1:j,4))
-        idxfractals1(i,2) = 0;
-    end
-end
-idxfractals1 = idxfractals1(idxfractals1(:,2) ~= 0,:);
-% optional:exclude those with buy fractal between
-for i = 1:size(idxfractals1,1)
-    idxopen = idxfractals1(i,1);
-    idxLL = find(res(1:idxopen,6)==-1,1,'last');
-    idxHH = find(res(idxLL:idxopen,6)==1,1,'first')+idxLL-1;
-    if ~isempty(idxHH)
-        if HH(idxHH)>teeth(idxHH-2) && idxHH<idxopen
-            idxfractals1(i,2) = 0;
-        end
-    end
-end
-idxfractals1 = idxfractals1(idxfractals1(:,2) ~= 0,:);
-idxfractals1 = idxfractals1(idxfractals1(:,2) ~= 1,:);
+% % optional:exclude buy countdown 13 
+% for i = 1:size(idxfractals1,1)
+%     j = idxfractals1(i,1);
+%     if bc(j) == 13,idxfractals1(i,2) = 0;end
+% end
+% idxfractals1 = idxfractals1(idxfractals1(:,2) ~= 0,:);
+% % optional:exclude perfect buy sequential if it is not a 'strong' breach
+% for i = 1:size(idxfractals1,1)
+%     if idxfractals1(i,2) == 3, continue;end
+%     %teeth is less than jaw in other cases
+%     j = idxfractals1(i,1);
+%     if bs(j) >= 9 && px(j,5) <= min(px(j-bs(j)+1:j,5)) && px(j,4) <= min(px(j-bs(j)+1:j,4))
+%         idxfractals1(i,2) = 0;
+%     end
+% end
+% idxfractals1 = idxfractals1(idxfractals1(:,2) ~= 0,:);
+% % optional:exclude those with buy fractal between
+% for i = 1:size(idxfractals1,1)
+%     idxopen = idxfractals1(i,1);
+%     idxLL = find(res(1:idxopen,6)==-1,1,'last');
+%     idxHH = find(res(idxLL:idxopen,6)==1,1,'first')+idxLL-1;
+%     if ~isempty(idxHH)
+%         if HH(idxHH)>teeth(idxHH-2) && idxHH<idxopen
+%             idxfractals1(i,2) = 0;
+%         end
+%     end
+% end
+% idxfractals1 = idxfractals1(idxfractals1(:,2) ~= 0,:);
+% idxfractals1 = idxfractals1(idxfractals1(:,2) ~= 1,:);
 
 %
 tradesfractals1 = cTradeOpenArray;

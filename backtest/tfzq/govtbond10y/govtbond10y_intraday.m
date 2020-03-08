@@ -1,19 +1,21 @@
 db = cLocal;
-% code = 'T2006';p = db.intradaybar(code2instrument(code),'2020-02-01','2020-02-24',30,'trade');
+code = 'T2006';p = db.intradaybar(code2instrument(code),'2020-02-01',datestr(getlastbusinessdate,'yyyy-mm-dd'),30,'trade');
 % code = 'T2003';p = db.intradaybar(code2instrument(code),'2019-11-01','2020-02-07',30,'trade');
 % code = 'T1912';p = db.intradaybar(code2instrument(code),'2019-08-01','2019-11-07',30,'trade');
 % code = 'T1909';p = db.intradaybar(code2instrument(code),'2019-05-01','2019-08-07',30,'trade');
 % code = 'T1906';p = db.intradaybar(code2instrument(code),'2019-02-01','2019-05-07',30,'trade');
 % code = 'T1903';p = db.intradaybar(code2instrument(code),'2018-11-01','2019-02-07',30,'trade');
-code = 'T1812';p = db.intradaybar(code2instrument(code),'2018-08-01','2018-11-07',30,'trade');
+% code = 'T1812';p = db.intradaybar(code2instrument(code),'2018-08-01','2018-11-07',30,'trade');
 
 %%
-nfractals = 6;
+nfractals = 10;
 res = tools_technicalplot1(p,nfractals,1);res(:,1) = x2mdate(res(:,1));
 px = res(:,1:5);
 fractalidx = res(:,6);HH = res(:,7);LL = res(:,8);
 jaw = res(:,9);teeth = res(:,10);lips = res(:,11);
 bs = res(:,12);ss = res(:,13);lvlup = res(:,14);lvldn = res(:,15);bc = res(:,16);sc = res(:,17);
+%%
+tools_technicalplot2(res(end-40:end,:))
 %%
 [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( px,HH,LL,jaw,teeth,lips );
 %%
@@ -145,7 +147,7 @@ for i = 1:tradesfractals1.latest_
 end
 
 %% CHECK INDIVIDUAL SHORT TRADE
-i = 13;
+i = 4;
 trade2plot = tradesfractals1.node_(i);
 idx1 = find(res(:,1) == trade2plot.opendatetime1_);
 if isempty(trade2plot.closedatetime1_)
