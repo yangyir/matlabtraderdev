@@ -34,6 +34,8 @@ function dateout = dateadd(datein,interval,bump,midofthemonth)
         mm = mm + intervalnum;
         if mm > 12
             nyear = floor(mm/12);
+        elseif mm == 0
+            nyear = -1;
         else
             nyear = 0;
         end
