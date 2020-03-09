@@ -16,8 +16,11 @@ function [] = setriskmanager_spiderman(obj,varargin)
     riskmanager.ll0_ = info.ll0_;
     riskmanager.ll1_ = info.ll1_;
     riskmanager.type_ = info.type_;
-    riskmanager.tdhigh_ = info.tdhigh_;
-    riskmanager.tdlow_ = info.tdlow_;
+    try
+        riskmanager.tdhigh_ = info.tdhigh_;
+        riskmanager.tdlow_ = info.tdlow_;
+    catch
+    end
     riskmanager.trade_ = obj;
 
     if strcmpi(riskmanager.type_,'breachup-B')
