@@ -4,16 +4,20 @@ code_bbg_underlier = '510300 CH Equity';
 %%
 exp_feb = '2020-02-26';
 exp_mar = '2020-03-25';
+exp_apr = '2020-04-22';
 exp_jun = '2020-06-24';
 k_300 = 3.6:0.1:4.4;
 opt300_c_feb = cell(length(k_300),1);opt300_p_feb = opt300_c_feb;
 opt300_c_mar = cell(length(k_300),1);opt300_p_mar = opt300_c_mar;
+opt300_c_apr = cell(length(k_300),1);opt300_p_apr = opt300_c_apr;
 opt300_c_jun = cell(length(k_300),1);opt300_p_jun = opt300_c_jun;
 for i = 1:length(k_300)
     opt300_c_feb{i} = ['510300 CH ',datestr(exp_feb,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
     opt300_p_feb{i} = ['510300 CH ',datestr(exp_feb,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
     opt300_c_mar{i} = ['510300 CH ',datestr(exp_mar,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
     opt300_p_mar{i} = ['510300 CH ',datestr(exp_mar,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
+    opt300_c_apr{i} = ['510300 CH ',datestr(exp_apr,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
+    opt300_p_apr{i} = ['510300 CH ',datestr(exp_apr,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
     opt300_c_jun{i} = ['510300 CH ',datestr(exp_jun,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
     opt300_p_jun{i} = ['510300 CH ',datestr(exp_jun,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
 end

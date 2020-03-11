@@ -1,4 +1,4 @@
-function [] = tools_technicalplot2(inputmat)
+function [] = tools_technicalplot2(inputmat,figureidx,titlestr,usedatelabel)
 
 p = inputmat(:,1:5);
 %idx = inputmat(:,6);
@@ -8,7 +8,9 @@ bs = inputmat(:,12);ss = inputmat(:,13);
 lvlup = inputmat(:,14);lvldn = inputmat(:,15);
 bc = inputmat(:,16);sc = inputmat(:,17);
 
-figure(1);
+if nargin < 2, figureidx = 1;end
+
+figure(figureidx);
 candle(p(:,3),p(:,4),p(:,5),p(:,2),[0.75,0.75,0.75]);hold on;
 plot(jaw,'b');
 plot(teeth,'r');
@@ -86,7 +88,22 @@ end
 
 hold off;
 
+if nargin >= 3, title(titlestr);end
 
+if nargin == 4 && usedatelabel
+    xtick = get(gca,'XTick');
+    nxtick = length(xtick);
+    xticklabel = cell(nxtick,1);
+    for i = 1:nxtick
+        if xtick(i) > size(p,1), continue;end
+        if xtick(i) == 0
+            xticklabel{i} = datestr(p(1,1),'dd-mmm');
+        else
+            xticklabel{i}= datestr(p(xtick(i),1),'dd-mmm');
+        end
+    end
+    set(gca,'XTickLabel',xticklabel,'fontsize',8);
+end
 
 
 end
