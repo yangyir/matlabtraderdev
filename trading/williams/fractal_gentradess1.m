@@ -14,6 +14,15 @@ function [ tradesfractals1 ] = fractal_gentradess1( idxfractals1,px,HH,LL,bs,ss,
     tradesfractals1 = cTradeOpenArray;
     for i = 1:size(idxfractals1,1)
         j = idxfractals1(i);
+        if ~isempty(code)
+            instrument = code2instrument(code);
+            adj = instrument.tick_size;
+        else
+            adj = 0;
+        end
+        
+        if LL(j)-px(j,5) <= adj, continue;end
+        
         signalinfo = struct('name','fractal','hh',HH(j),'ll',LL(j),'frequency',freq);
         riskmanager = struct('hh0_',HH(j),'hh1_',HH(j),'ll0_',px(j,4),'ll1_',px(j,4),'type_','breachdn-S');
         tradenew = cTradeOpen('id',i,'opendatetime',px(j,1),'openprice',px(j,5),...
