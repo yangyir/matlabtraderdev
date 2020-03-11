@@ -21,7 +21,9 @@ function [ wad,trh,trl ] = williamsad( p,usevolume )
     pxhigh = p(:,3);
     pxlow = p(:,4);
     pxclose = p(:,5);
-    volume = p(:,6);
+    if usevolume
+        volume = p(:,6);
+    end
     
     trh(1) = pxhigh(1);
     trl(1) = pxlow(1);
