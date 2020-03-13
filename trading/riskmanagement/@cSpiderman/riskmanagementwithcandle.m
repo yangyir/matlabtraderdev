@@ -58,19 +58,34 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if (candleLow < obj.pxstoploss_ && direction == 1) || ...
                 (candleHigh > obj.pxstoploss_ && direction == -1)
             closeflag = 1;
+        elseif (candleLow < obj.pxtarget_ && direction == -1) ||...
+                (candleHigh > obj.pxtarget_ && direction == 1)
+            closeflag = 2;
         else
             closeflag = 0;
         end
+        
         if closeflag
             obj.status_ = 'closed';
             unwindtrade = obj.trade_;
-            if direction == 1 && candleOpen < obj.pxstoploss_
-                closeprice = candleOpen;
-            elseif direction == -1 && candleOpen > obj.pxstoploss_
-                closeprice = candleOpen;
-            else
-                closeprice = obj.pxstoploss_;
+            if closeflag == 1
+                if direction == 1 && candleOpen < obj.pxstoploss_
+                    closeprice = candleOpen;
+                elseif direction == -1 && candleOpen > obj.pxstoploss_
+                    closeprice = candleOpen;
+                else
+                    closeprice = obj.pxstoploss_;
+                end
+            elseif closeflag == 2
+                if direction == 1 && candleOpen > obj.pxtarget_
+                    closeprice = candleOpen;
+                elseif direction == -1 && candleOpen < obj.pxtarget_
+                    closeprice = candleOpen;
+                else
+                    closeprice = obj.pxstoploss_;
+                end
             end
+                
             closetime = candleTime;
             %
             if doprint
