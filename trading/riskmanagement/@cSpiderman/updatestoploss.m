@@ -16,6 +16,14 @@ function [] = updatestoploss(spiderman,varargin)
         spiderman.pxstoploss_ = spiderman.hh1_ - 0.618*(spiderman.hh1_-spiderman.ll1_);
         spiderman.pxstoploss2_ = spiderman.hh1_ - 0.382*(spiderman.hh1_-spiderman.ll1_);
         spiderman.pxtarget_ = spiderman.hh1_ + 1.618*(spiderman.hh1_-spiderman.ll1_);
+        
+        if ~isempty(spiderman.trade_.instrument_)
+            ticksize = spiderman.trade_.instrument_.tick_size;
+            spiderman.pxstoploss_ = floor(spiderman.pxstoploss_/ticksize)*ticksize;
+            spiderman.pxstoploss2_ = floor(spiderman.pxstoploss2_/ticksize)*ticksize;
+            spiderman.pxtarget_ = ceil(spiderman.pxtarget_/ticksize)*ticksize;
+        end
+        
         if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
             if spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_) > spiderman.pxstoploss_
                 spiderman.pxstoploss_ = spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_);
@@ -33,6 +41,14 @@ function [] = updatestoploss(spiderman,varargin)
         spiderman.pxstoploss_ = spiderman.ll1_ + 0.618*(spiderman.hh1_-spiderman.ll1_);
         spiderman.pxstoploss2_ = spiderman.ll1_ + 0.382*(spiderman.hh1_-spiderman.ll1_);
         spiderman.pxtarget_ = spiderman.ll1_ - 1.618*(spiderman.hh1_-spiderman.ll1_);
+        
+        if ~isempty(spiderman.trade_.instrument_)
+            ticksize = spiderman.trade_.instrument_.tick_size;
+            spiderman.pxstoploss_ = ceil(spiderman.pxstoploss_/ticksize)*ticksize;
+            spiderman.pxstoploss2_ = ceil(spiderman.pxstoploss2_/ticksize)*ticksize;
+            spiderman.pxtarget_ = floor(spiderman.pxtarget_/ticksize)*ticksize;
+        end
+        
         if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
             if spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_) < spiderman.pxstoploss_
                 spiderman.pxstoploss_ = spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_);

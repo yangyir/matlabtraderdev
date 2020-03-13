@@ -13,6 +13,7 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
     teeth = smma(p,8,5);teeth = [nan(5,1);teeth];
     lips = smma(p,5,3);lips = [nan(3,1);lips];
     [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
+    wad = williamsad(p(:,1:5));
     if inpbandsperiod > 0
         [~,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
         [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
@@ -36,7 +37,7 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
         pnl(i,2) = tradein.opendirection_;
         pnl(i,3) = tradein.openprice_;
         
-        tradeout = fractal_runtrade(tradein,p,HH,LL,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn);
+        tradeout = fractal_runtrade(tradein,p,HH,LL,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn,wad);
         %run pnl with HH and LL instead of upperchannel and lowerchannel
 %         tradeout = fractal_runtrade(tradein,p,HH,LL,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn);
         if isempty(tradeout)
