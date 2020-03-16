@@ -50,7 +50,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             
         elseif openbucket < candleTime
             %note:this shall never happen
-            error('cStairs:riskmanagementwithcandle:internal error!!!')
+            error('cSpiderman:riskmanagementwithcandle:internal error!!!')
         end
     end
     
@@ -89,8 +89,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             closetime = candleTime;
             %
             if doprint
-                fprintf('%s:spiderman closed as tick price breaches stoploss price at %s...\n',...
-                    datestr(closetime,'yyyy-mm-dd HH:MM'),...
+                fprintf('point %4s:spiderman closed as tick price breaches stoploss price at %s...\n',...
+                    num2str(length(extrainfo.lips)),...
                     num2str(closeprice));
             end
             %
@@ -111,8 +111,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     
     if direction == 1
         closeflag = 0;
-        openbucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
-        idxstart2check = find(extrainfo.p(:,1)>=openbucket,1,'first');
+        if strcmpi(trade.opensignal_.frequency_,'daily')
+            idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
+        else
+            openbucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
+            idxstart2check = find(extrainfo.p(:,1)>=openbucket,1,'first');
+        end
         if isempty(idxstart2check)
             return
         end
@@ -120,12 +124,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if candleClose < extrainfo.lips(end)-2*ticksize
             closeflag = 1;
             if doprint
-                fprintf('%s:spiderman closed as close price breach alligator lips...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                fprintf('point %4s:spiderman closed as close price breach alligator lips...\n',num2str(length(extrainfo.lips)));
             end
         elseif candleClose < extrainfo.lips(end) && candleClose < extrainfo.hh(end)
             closeflag = 1;
             if doprint
-                fprintf('%s:spiderman closed as close price breach alligator lips...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                fprintf('point %4s:spiderman closed as close price breach alligator lips...\n',num2str(length(extrainfo.lips)));
             end
         %STOP the trade if price breaches stoploss
 %         elseif candleClose < obj.pxstoploss2_-2*ticksize
@@ -135,7 +139,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         elseif ~isempty(find(extrainfo.p(idxstart2check:end-1,5)>extrainfo.lvlup(end-1),1,'first')) && extrainfo.p(end,3)<extrainfo.lvlup(end-1)
             closeflag = 1;
             if doprint
-                fprintf('%s:spiderman closed as close price failed to breach TDST lvlup...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                fprintf('point %4s:spiderman closed as close price failed to breach TDST lvlup...\n',num2str(length(extrainfo.lips)));
             end
         end
         %IF TDST-lvlup exists and is higher then HH at open
@@ -155,7 +159,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if conditionsatisfied && extrainfo.p(end,5) < hhopen && extrainfo.p(end,5)<max(max(extrainfo.lips(end),extrainfo.teeth(end)),extrainfo.jaw(end))
                 closeflag = 1;
                 if doprint
-                    fprintf('%s:spiderman closed as close price fell from above TDST lvlup to below HH again...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                    fprintf('point %4s:spiderman closed as close price fell from above TDST lvlup to below HH again...\n',num2str(length(extrainfo.lips)));
                 end
             end
         end
@@ -167,7 +171,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.tdhigh_ = NaN;
             obj.tdlow_ = NaN;
             if doprint
-                fprintf('%s:spiderman closed as close price fell from low of TDST sell sequential...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                fprintf('point %4s:spiderman closed as close price fell from low of TDST sell sequential...\n',num2str(length(extrainfo.lips)));
             end
         end
         if closeflag == 0 && extrainfo.ss(end) >= 9 && isnan(obj.tdlow_)
@@ -182,7 +186,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if closeflag == 0 && ~isnan(obj.tdlow_)
             if extrainfo.p(end,3) >= obj.tdhigh_
                 obj.tdhigh_ = extrainfo.p(end,3);
-                obj.tdlow_ = max(obj.tdlow_,extrainfo.p(end,4));
+                if extrainfo.p(end,4) < obj.tdlow_ && extrainfo.p(end,5) > obj.tdlow_
+                    obj.tdlow_ = extrainfo.p(end,5);
+                else
+                    obj.tdlow_ = max(obj.tdlow_,extrainfo.p(end,4));
+                end
             end
         end
         %
@@ -196,12 +204,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 if extrainfo.wad(end) < wadhighss
                     closeflag = 1;
                     if doprint
-                        fprintf('%s:spiderman closed as price and wad inconsistence after finishing TDST sell sequential...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                        fprintf('point %4s:spiderman closed as price and wad inconsistence after finishing TDST sell sequential...\n',num2str(length(extrainfo.lips)));
                     end
                 elseif extrainfo.wad(end) == wadhighss && extrainfo.p(end,5) - pxhighss > 2*ticksize
                     closeflag = 1;
                     if doprint
-                        fprintf('%s:spiderman closed as price and wad inconsistence after finishing TDST sell sequential...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                        fprintf('point %4s:spiderman closed as price and wad inconsistence after finishing TDST sell sequential...\n',num2str(length(extrainfo.lips)));
                     end
                 end
             elseif extrainfo.p(end,5) == pxhighss
@@ -216,17 +224,31 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 if extrainfo.wad(end) < wadhighsc13
                     closeflag = 1;
                     if doprint
-                        fprintf('%s:spiderman closed as price and wad inconsistence after reaching TDST Sell Countdown 13...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                        fprintf('point %4s:spiderman closed as price and wad inconsistence after reaching TDST Sell Countdown 13...\n',num2str(length(extrainfo.lips)));
                     end
                 elseif extrainfo.wad(end) == wadhighsc13 && extrainfo.p(end,5) - pxhighsc13 > 2*ticksize
                     closeflag = 1;
                     if doprint
-                        fprintf('%s:spiderman closed as price and wad inconsistence after reaching TDST Sell Countdown 13...\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));
+                        fprintf('point %4s:spiderman closed as price and wad inconsistence after reaching TDST Sell Countdown 13...\n',num2str(length(extrainfo.lips)));
+                    end
+                end
+            end  
+        end
+        %
+        %
+        if closeflag == 0
+            pxmaxsofar = max(extrainfo.p(idxstart2check:end-1,5));
+            if pxmaxsofar < extrainfo.p(end,5)
+                pxmaxsofaridx = find(extrainfo.p(idxstart2check:end-1,5)==pxmaxsofar,1,'last')+idxstart2check-1;
+                if extrainfo.wad(end) < extrainfo.wad(pxmaxsofaridx)
+                    closeflag = 1;
+                    if doprint
+                        fprintf('point %4s:spiderman closed as price and wad inconsistence...\n',num2str(length(extrainfo.lips)));
                     end
                 end
             end
-            
         end
+        
 %         %5.a new condition that if ss9 or more is achieved with maximum
 %         %close and high price also but teeth is below jaw
 %         if closeflag == 0 && extrainfo.ss(end)>=9
@@ -242,8 +264,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %   
     elseif direction == -1
         closeflag = 0;
-        openbucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
-        idxstart2check = find(extrainfo.p(:,1)>=openbucket,1,'first');
+        if strcmpi(trade.opensignal_.frequency_,'daily')
+            idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
+        else
+            openbucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
+            idxstart2check = find(extrainfo.p(:,1)>=openbucket,1,'first');
+        end
         if isempty(idxstart2check)
             return
         end
@@ -296,7 +322,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if closeflag == 0 && ~isnan(obj.tdhigh_)
            if extrainfo.p(end,4) <= obj.tdlow_
                obj.tdlow_ = extrainfo.p(end,4);
-               obj.tdhigh_ = min(obj.tdhigh_,extrainfo.p(end,3));
+               if extrainfo.p(end,3) > obj.tdhigh_ && extrainfo.p(end,5) < obj.tdhigh_
+                   obj.tdhigh_ = extrainfo.p(end,5);
+               else
+                   obj.tdhigh_ = min(obj.tdhigh_,extrainfo.p(end,3));
+               end
            end
         end
         %
@@ -327,7 +357,19 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     closeflag = 1;
                 end
             end
-            
+        end
+        %
+        if closeflag == 0
+            pxminsofar = min(extrainfo.p(idxstart2check:end-1,5));
+            if pxminsofar > extrainfo.p(end,5)
+                pxminsofaridx = find(extrainfo.p(idxstart2check:end-1,5)==pxminsofar,1,'last')+idxstart2check-1;
+                if extrainfo.wad(end) > extrainfo.wad(pxminsofaridx)
+                    closeflag = 1;
+                    if doprint
+                        fprintf('point %4s:spiderman closed as price and wad inconsistence...\n',num2str(length(extrainfo.lips)));
+                    end
+                end
+            end
         end
         %
         if closeflag == 0;obj.updatestoploss('extrainfo',extrainfo);end
@@ -335,7 +377,6 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     end
     %
     if closeflag
-        if doprint, fprintf('close candle time:%s\n',datestr(candleTime,'yyyy-mm-dd HH:MM'));end
         obj.status_ = 'closed';
         obj.trade_.status_ = 'closed';
         unwindtrade = obj.trade_;

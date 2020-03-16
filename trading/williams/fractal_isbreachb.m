@@ -25,7 +25,7 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
     if strcmpi(level,'weak')
         %in the weak level:
         %just need 1)price breach HH and 2)HH doesn't jump on that point
-%         flag = flag & HH(2:end) > lips(2:end); 
+        flag = flag & ~(HH(2:end) < lips(2:end) & lips(2:end)<teeth(2:end) & teeth(2:end)<jaw(2:end));
         flag = [0;flag];
         return
     end

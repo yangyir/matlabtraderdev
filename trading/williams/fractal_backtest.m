@@ -4,10 +4,12 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
     ip.addParameter('code','',@ischar);
     ip.addParameter('freq','1d',@ischar);
     ip.addParameter('volatilityperiod',13,@isnumeric);
+    ip.addParameter('debug',false,@islogical);
     ip.parse(varargin{:});
     code = ip.Results.code;
     freq = ip.Results.freq;
     inpbandsperiod = ip.Results.volatilityperiod;
+    debug = ip.Results.debug;
     
     jaw = smma(p,13,8);jaw = [nan(8,1);jaw];
     teeth = smma(p,8,5);teeth = [nan(5,1);teeth];
@@ -15,15 +17,15 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
     [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
     wad = williamsad(p(:,1:5));
     if inpbandsperiod > 0
-        [idxHH,idxLL,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
+        [~,~,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
         [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
     else
-        [idxHH,idxLL,HH,LL] = fractal(p,nfractal);
+        [~,~,HH,LL] = fractal(p,nfractal);
         [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
     end
     %gentrades with the upperchannel and lowerchannel
-    tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,HH,LL,bs,ss,'code',code,'freq',freq,'lips',lips,'idxHH',idxHH,'wad',wad,'nfractal',nfractal);
-    tradesfractals1 = fractal_gentradess1( idxfractals1,p,HH,LL,bs,ss,'code',code,'freq',freq,'lips',lips,'idxLL',idxLL,'wad',wad,'nfractal',nfractal);
+    tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,HH,LL,bs,ss,lvlup,lvldn,bc,sc,'code',code,'freq',freq,'lips',lips,'wad',wad,'nfractal',nfractal,'debug',debug);
+    tradesfractals1 = fractal_gentradess1( idxfractals1,p,HH,LL,bs,ss,lvlup,lvldn,bc,sc,'code',code,'freq',freq,'lips',lips,'wad',wad,'nfractal',nfractal,'debug',debug);
     nb1 = tradesfractalb1.latest_;
     ns1 = tradesfractals1.latest_;
     tradesfractal1 = cTradeOpenArray;
@@ -37,7 +39,7 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
         pnl(i,2) = tradein.opendirection_;
         pnl(i,3) = tradein.openprice_;
         
-        tradeout = fractal_runtrade(tradein,p,HH,LL,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn,wad);
+        tradeout = fractal_runtrade(tradein,p,HH,LL,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn,wad,debug);
         %run pnl with HH and LL instead of upperchannel and lowerchannel
 %         tradeout = fractal_runtrade(tradein,p,HH,LL,jaw,teeth,lips,bs,ss,bc,sc,lvlup,lvldn);
         if isempty(tradeout)
