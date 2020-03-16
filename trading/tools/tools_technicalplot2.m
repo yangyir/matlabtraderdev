@@ -2,11 +2,11 @@ function [] = tools_technicalplot2(inputmat,figureidx,titlestr,usedatelabel)
 
 p = inputmat(:,1:5);
 %idx = inputmat(:,6);
-HH = inputmat(:,7);LL = inputmat(:,8);
-jaw = inputmat(:,9);teeth = inputmat(:,10);lips = inputmat(:,11);
-bs = inputmat(:,12);ss = inputmat(:,13);
-lvlup = inputmat(:,14);lvldn = inputmat(:,15);
-bc = inputmat(:,16);sc = inputmat(:,17);
+HH = inputmat(:,8);LL = inputmat(:,9);
+jaw = inputmat(:,10);teeth = inputmat(:,11);lips = inputmat(:,12);
+bs = inputmat(:,13);ss = inputmat(:,14);
+lvlup = inputmat(:,15);lvldn = inputmat(:,16);
+bc = inputmat(:,17);sc = inputmat(:,18);
 
 if nargin < 2, figureidx = 1;end
 

@@ -14,9 +14,9 @@ function [ wad,trh,trl ] = williamsad( p,usevolume )
     %Williams' accumulation distribution
     wad = zeros(np,1);
     %true range high;the greater of high(today) and close price(yesterday)
-    trh = zeros(np,1);
+%     trh = zeros(np,1);
     %true range low:the lesser of low(today) and close yesterday
-    trl = zeros(np,1);
+%     trl = zeros(np,1);
     
     pxhigh = p(:,3);
     pxlow = p(:,4);
@@ -25,11 +25,15 @@ function [ wad,trh,trl ] = williamsad( p,usevolume )
         volume = p(:,6);
     end
     
-    trh(1) = pxhigh(1);
-    trl(1) = pxlow(1);
+    trh_ = max([pxhigh(2:end),pxclose(1:end-1)],[],2);
+    trl_ = min([pxlow(2:end),pxclose(1:end-1)],[],2);
+    
+    trh = [pxhigh(1);trh_];
+    trl = [pxlow(1);trl_];
+    
     for i = 2:np
-        trh(i) = max(pxhigh(i),pxclose(i-1));
-        trl(i) = min(pxlow(i),pxclose(i-1));
+%         trh(i) = max(pxhigh(i),pxclose(i-1));
+%         trl(i) = min(pxlow(i),pxclose(i-1));
         if pxclose(i)>pxclose(i-1)
             pxmove = pxclose(i)-trl(i);
         elseif pxclose(i)<pxclose(i-1)

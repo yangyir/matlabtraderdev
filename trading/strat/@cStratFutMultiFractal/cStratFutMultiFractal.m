@@ -12,6 +12,7 @@ classdef cStratFutMultiFractal < cStrat
         sc_@cell                                                            %TDST Sell Countdown
         lvlup_@cell                                                         %TDST Resistence,i.e.highest of a buy sequential
         lvldn_@cell                                                         %TDST Support,i.e.lowest of a sell sequential
+        wad_@cell                                                           %Williams' acculate/distribute
         %
         signals_@cell
         %

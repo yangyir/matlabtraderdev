@@ -17,14 +17,15 @@ function flag = fractal_isbreachs(px,HH,LL,jaw,teeth,lips,varargin)
         error('fractal_isbreachs:invalid level input')
     end
     
-    flag = (px(1:end-1,5)>LL(1:end-1)&px(2:end,5)<LL(1:end-1)) &...
-        LL(1:end-1) == LL(2:end) &...
+    flag = (px(1:end-1,5)>=LL(1:end-1)&px(2:end,5)<LL(1:end-1)) &...
+        abs(LL(1:end-1)./LL(2:end)-1)<0.002 &...
         px(2:end,4)<lips(2:end) &...
         ~isnan(lips(1:end-1)) & ~isnan(teeth(1:end-1)) & ~isnan(jaw(1:end-1));
 %         ~(lips(2:end)>teeth(2:end) & teeth(2:end)>jaw(2:end));
     if strcmpi(level,'weak')
         %in the weak level:
-        %just need 1)price breach LL and 2)LL doesn't jump on that point 
+        %just need 1)price breach LL and 2)LL doesn't jump on that point
+%         flag = flag & LL(2:end) < lips(2:end);
         flag = [0;flag];
         return
     end

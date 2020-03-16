@@ -15,15 +15,15 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
     [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
     wad = williamsad(p(:,1:5));
     if inpbandsperiod > 0
-        [~,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
+        [idxHH,idxLL,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
         [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
     else
-        [~,HH,LL] = fractal(p,nfractal);
+        [idxHH,idxLL,HH,LL] = fractal(p,nfractal);
         [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
     end
     %gentrades with the upperchannel and lowerchannel
-    tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,HH,LL,bs,ss,'code',code,'freq',freq);
-    tradesfractals1 = fractal_gentradess1( idxfractals1,p,HH,HH,bs,ss,'code',code,'freq',freq);
+    tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,HH,LL,bs,ss,'code',code,'freq',freq,'lips',lips,'idxHH',idxHH,'wad',wad,'nfractal',nfractal);
+    tradesfractals1 = fractal_gentradess1( idxfractals1,p,HH,LL,bs,ss,'code',code,'freq',freq,'lips',lips,'idxLL',idxLL,'wad',wad,'nfractal',nfractal);
     nb1 = tradesfractalb1.latest_;
     ns1 = tradesfractals1.latest_;
     tradesfractal1 = cTradeOpenArray;
@@ -54,7 +54,8 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
             pnl(i,6) = tradein.closepnl_;
         end
         if i <= nb1
-            pnl(i,7) = idxfractalb1(i,2);
+            k = idxfractalb1(:,1) == pnl(i,1);
+            pnl(i,7) = idxfractalb1(k,2);
             if bc(pnl(i,1)) == 13, pnl(i,8) = 1;end
             if ss(pnl(i,1))>=9
                 j = pnl(i,1);
@@ -64,7 +65,8 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
                 end
             end
         else
-            pnl(i,7) = idxfractals1(i-nb1,2);
+            k = idxfractals1(:,1) == pnl(i,1);
+            pnl(i,7) = idxfractals1(k,2);
             if sc(pnl(i,1)) == 13, pnl(i-nb1,8) = 1;end
             if bs(pnl(i,1))>=9
                 j = pnl(i,1);

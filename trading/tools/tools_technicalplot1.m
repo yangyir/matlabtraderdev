@@ -15,9 +15,9 @@ change = ip.Results.tolerance;
 jaw = smma(p,13,8);jaw = [nan(8,1);jaw];
 teeth = smma(p,8,5);teeth = [nan(5,1);teeth];
 lips = smma(p,5,3);lips = [nan(3,1);lips];
-[idx,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod,'tolerance',change);
+[idxHH,idxLL,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod,'tolerance',change);
 [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
-outputmat = [m2xdate(p(:,1)),p(:,2:5),idx,HH,LL,jaw,teeth,lips,bs,ss,lvlup,lvldn,bc,sc];
+outputmat = [m2xdate(p(:,1)),p(:,2:5),idxHH,idxLL,HH,LL,jaw,teeth,lips,bs,ss,lvlup,lvldn,bc,sc];
 
 if ~doplot;return,end
 

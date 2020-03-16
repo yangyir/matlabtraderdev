@@ -1,16 +1,13 @@
-function [idxHH,idxLL,HH,LL] = calc_fractal_(mdefut,instrument,varargin)
+function [wad] = calc_wad_(mdefut,instrument,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addRequired('Instrument', @(x) validateattributes(x,{'cInstrument'},{},'','Instrument'));
-    p.addParameter('nperiod',2,@isnumeric);
     p.addParameter('IncludeLastCandle',0,@isnumeric);
     p.addParameter('RemoveLimitPrice',0,@isnumeric);
-    p.addParameter('VolatilityPeriod',0,@isnumeric);
     p.parse(instrument,varargin{:});
     instrument = p.Results.Instrument;
     includeLastCandle = p.Results.IncludeLastCandle;
     removeLimitPrice = p.Results.RemoveLimitPrice;
-    volatilityperiod = p.Results.VolatilityPeriod;
     
     candlesticks = mdefut.getallcandles(instrument);
     data = candlesticks{1};
@@ -23,18 +20,7 @@ function [idxHH,idxLL,HH,LL] = calc_fractal_(mdefut,instrument,varargin)
         data = data(idxkeep,:);
     end
     
-    [~,idx] = mdefut.qms_.instruments_.hasinstrument(instrument);
-    try
-        nperiod = mdefut.nfractals_(idx);
-    catch
-        nperiod = p.Results.nperiod;
-    end
+    wad = williamsad( data );
     
-    if volatilityperiod == 0
-        [idxHH,idxLL,HH,LL] = fractal(data,nperiod);
-    else
-        [idxHH,idxLL,~,~,HH,LL] = fractalenhanced(data,nperiod,'volatilityperiod',volatilityperiod);
-    end
-
+    
 end
-

@@ -1,4 +1,4 @@
-function [ idx,HH,LL,upperchannel,lowerchannel,volsmooth] = fractalenhanced( p,nperiod,varargin )
+function [ idxHH,idxLL,HH,LL,upperchannel,lowerchannel,volsmooth] = fractalenhanced( p,nperiod,varargin )
 %FRACTALENHANCED Summary of this function goes here
 % the fractal enhanced indicator draws range boxes overlaid on the
 % price chart. the upper and lower side of the boxes are made from recent
@@ -8,7 +8,7 @@ function [ idx,HH,LL,upperchannel,lowerchannel,volsmooth] = fractalenhanced( p,n
     ip = inputParser;
     ip.CaseSensitive = false;ip.KeepUnmatched = true;
     ip.addParameter('volatilityperiod',13,@isnumeric);
-    ip.addParameter('tolerance',0.003,@isnumeric);
+    ip.addParameter('tolerance',0.000,@isnumeric);
     ip.parse(varargin{:});
     inpbandsperiod = ip.Results.volatilityperiod;
     change = ip.Results.tolerance;
@@ -21,7 +21,7 @@ function [ idx,HH,LL,upperchannel,lowerchannel,volsmooth] = fractalenhanced( p,n
         error('fractalenhanced:tolerance input shall be non-negative')
     end
     
-    [idx,HH,LL] = fractal(p,nperiod);
+    [idxHH,idxLL,HH,LL] = fractal(p,nperiod);
     
     if inpbandsperiod == 0 && change == 0
         upperchannel = HH;

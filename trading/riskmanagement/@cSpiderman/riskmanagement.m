@@ -96,19 +96,21 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         
         if ~runriskmanagementbeforemktclose
             [bs,ss,lvlup,lvldn,bc,sc,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            [~,hh,ll] = mdefut.calc_fractal_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [~,~,hh,ll] = mdefut.calc_fractal_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
             [jaw,teeth,lips] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            wad = mdefut.calc_wad_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
         else
-            [bs,ss,lvlup,lvldn,bc,sc,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            [~,hh,ll] = mdefut.calc_fractal_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            [jaw,teeth,lips] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            [bs,ss,lvlup,lvldn,bc,sc,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            [~,~,hh,ll] = mdefut.calc_fractal_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            [jaw,teeth,lips] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
             candlepoped = px(end,:);
+            wad = mdefut.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
         end
          
         extrainfo = struct('p',px,'hh',hh,'ll',ll,...
             'jaw',jaw,'teeth',teeth,'lips',lips,...
             'bs',bs,'ss',ss,'bc',bc,'sc',sc,...
-            'lvlup',lvlup,'lvldn',lvldn);
+            'lvlup',lvlup,'lvldn',lvldn,'wad',wad);
         
         unwindtrade = obj.riskmanagementwithcandle(candlepoped,...
             'debug',debug,...

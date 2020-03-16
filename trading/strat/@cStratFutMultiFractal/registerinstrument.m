@@ -15,6 +15,7 @@ function [] = registerinstrument(stratfractal,instrument)
     sc = cell(n,1);
     lvlup = cell(n,1);
     lvldn = cell(n,1);
+    wad = cell(n,1);
     if isempty(stratfractal.hh_)
         stratfractal.hh_ = hh;
         stratfractal.ll_ = ll;
@@ -27,6 +28,7 @@ function [] = registerinstrument(stratfractal,instrument)
         stratfractal.sc_ = sc;
         stratfractal.lvlup_ = lvlup;
         stratfractal.lvldn_ = lvldn;
+        stratfractal.wad_ = wad;
     else
         m = size(stratfractal.hh_);
         hh(1:m) = stratfractal.hh_;
@@ -40,6 +42,7 @@ function [] = registerinstrument(stratfractal,instrument)
         sc(1:m) = stratfractal.sc_;
         lvlup(1:m) = stratfractal.lvlup_;
         lvldn(1:m) = stratfractal.lvldn_;
+        wad(1:m) = stratfractal.wad_;
         %
         stratfractal.hh_ = hh;
         stratfractal.ll_ = ll;
@@ -52,6 +55,7 @@ function [] = registerinstrument(stratfractal,instrument)
         stratfractal.sc_ = sc;
         stratfractal.lvlup_ = lvlup;
         stratfractal.lvldn_ = lvldn;
+        stratfractal.wad_ = wad;
     end
     %
     targetportfolio = zeros(n,1);
