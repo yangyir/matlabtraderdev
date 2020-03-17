@@ -1,3 +1,4 @@
+close all;
 hd_300etf = cDataFileIO.loadDataFromTxtFile('510300_daily.txt');
 op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod',0);
 [wad_300etf,trh_300etf,trl_300etf] = williamsad(hd_300etf,0);
@@ -63,9 +64,12 @@ for i = 1:n_opt300_p_mar
         tbl_opt300_p_mar(i,2:4) = NaN;
     end
 end
-fwd1 = bd_opt300_c_mar{1}.fwd1;fwd2 = bd_opt300_c_mar{1}.fwd2;
-m1 = tbl_opt300_c_mar(:,1)/fwd1;
-m2 = tbl_opt300_c_mar(:,1)/fwd2;
+m1 = zeros(length(opt300_c_mar),1);
+m2 = zeros(length(opt300_c_mar),1);
+for i = 1:length(opt300_c_mar)
+    m1(i) = tbl_opt300_c_mar(i,1)/bd_opt300_c_mar{i}.fwd1;
+    m2(i) = tbl_opt300_c_mar(i,1)/bd_opt300_c_mar{i}.fwd2;
+end
 m = max(min(m1),min(m2)):0.01:min(max(m1),max(m2));
 volinterp1 = interp1(m1,tbl_opt300_c_mar(:,2),m);
 volinterp2 = interp1(m1,tbl_opt300_c_mar(:,3),m);

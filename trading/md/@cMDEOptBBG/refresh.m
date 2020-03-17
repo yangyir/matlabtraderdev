@@ -151,6 +151,25 @@ function [] = refresh(obj,varargin)
             fprintf('\n');
         end
         
-    end
+        if nu == 1
+            figure(2);
+            subplot(211);
+            plot(k,iv1,'-');hold on;
+            if pxuchg(1) > 0
+                color = 'r';
+                plot(k,iv2,'r-');
+            else
+                color = 'g';
+                plot(k,iv2,'g-');
+            end
+            hold off;
+            xlabel('strike');ylabel('vol');
+            %
+            subplot(212);
+
+            bar(k,iv2-iv1,color);
+            xlabel('strike');ylabel('spread');
+        
+        end
     
 end

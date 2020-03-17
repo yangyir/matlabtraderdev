@@ -251,7 +251,7 @@ if ~strcmpi(futcode2,'i2001')
         p_code_ = [futcode2,'-P-',num2str(strikes2_ironore(j))];
         savedailybarfrombloomberg(conn,p_code_,override);
     end
-    fprintf('done for corn options......\n\n');
+    fprintf('done for iron-ore options......\n\n');
 end
 %%
 % sugar

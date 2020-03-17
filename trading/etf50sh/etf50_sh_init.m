@@ -24,10 +24,10 @@ end
 %%
 db = cLocal;
 %%
-hd_50 = cDataFileIO.loadDataFromTxtFile('510050_daily.txt');
-fprintf('last date recorded on local file is %s\n',datestr(hd_50(end,1)));
+hd_50etf = cDataFileIO.loadDataFromTxtFile('510050_daily.txt');
+fprintf('last date recorded on local file is %s\n',datestr(hd_50etf(end,1)));
 %%
-op_50 = tools_technicalplot1(hd_50,2,0,'change',0.001,'volatilityperiod',0);
+op_50 = tools_technicalplot1(hd_50etf,2,0,'change',0.001,'volatilityperiod',0);
 shift = 60;
 tools_technicalplot2(op_50(end-shift:end,:));
 %%

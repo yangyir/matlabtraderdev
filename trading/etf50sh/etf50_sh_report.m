@@ -63,9 +63,12 @@ for i = 1:n_opt50_p_mar
         tbl_opt50_p_mar(i,2:4) = NaN;
     end
 end
-fwd1 = bd_opt50_c_mar{1}.fwd1;fwd2 = bd_opt50_c_mar{1}.fwd2;
-m1 = tbl_opt50_c_mar(:,1)/fwd1;
-m2 = tbl_opt50_c_mar(:,1)/fwd2;
+m1 = zeros(length(opt50_c_mar),1);
+m2 = zeros(length(opt50_c_mar),1);
+for i = 1:length(opt50_c_mar)
+    m1(i) = tbl_opt50_c_mar(i,1)/bd_opt50_c_mar{i}.fwd1;
+    m2(i) = tbl_opt50_c_mar(i,1)/bd_opt50_c_mar{i}.fwd2;
+end
 m = max(min(m1),min(m2)):0.01:min(max(m1),max(m2));
 volinterp1 = interp1(m1,tbl_opt50_c_mar(:,2),m);
 volinterp2 = interp1(m1,tbl_opt50_c_mar(:,3),m);

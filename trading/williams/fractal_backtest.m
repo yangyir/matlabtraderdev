@@ -17,15 +17,18 @@ function [pnl] = fractal_backtest(p,nfractal,varargin)
     [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
     wad = williamsad(p(:,1:5));
     if inpbandsperiod > 0
-        [~,~,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
-        [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
+        [~,~,HH,LL,upper,lower] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod);
+        [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,upper,lower,jaw,teeth,lips );
+        tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,upper,lower,bs,ss,lvlup,lvldn,bc,sc,'code',code,'freq',freq,'lips',lips,'wad',wad,'nfractal',nfractal,'debug',debug);
+    tradesfractals1 = fractal_gentradess1( idxfractals1,p,upper,lower,bs,ss,lvlup,lvldn,bc,sc,'code',code,'freq',freq,'lips',lips,'wad',wad,'nfractal',nfractal,'debug',debug);
     else
         [~,~,HH,LL] = fractal(p,nfractal);
         [ idxfractalb1,idxfractals1 ] = fractal_genindicators1( p,HH,LL,jaw,teeth,lips );
+        tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,HH,LL,bs,ss,lvlup,lvldn,bc,sc,'code',code,'freq',freq,'lips',lips,'wad',wad,'nfractal',nfractal,'debug',debug);
+    tradesfractals1 = fractal_gentradess1( idxfractals1,p,HH,LL,bs,ss,lvlup,lvldn,bc,sc,'code',code,'freq',freq,'lips',lips,'wad',wad,'nfractal',nfractal,'debug',debug);
     end
     %gentrades with the upperchannel and lowerchannel
-    tradesfractalb1 = fractal_gentradesb1( idxfractalb1,p,HH,LL,bs,ss,lvlup,lvldn,bc,sc,'code',code,'freq',freq,'lips',lips,'wad',wad,'nfractal',nfractal,'debug',debug);
-    tradesfractals1 = fractal_gentradess1( idxfractals1,p,HH,LL,bs,ss,lvlup,lvldn,bc,sc,'code',code,'freq',freq,'lips',lips,'wad',wad,'nfractal',nfractal,'debug',debug);
+    
     nb1 = tradesfractalb1.latest_;
     ns1 = tradesfractals1.latest_;
     tradesfractal1 = cTradeOpenArray;
