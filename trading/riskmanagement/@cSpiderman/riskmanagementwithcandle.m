@@ -212,11 +212,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     if doprint
                         fprintf('point %4s:spiderman closed as price and wad inconsistence after finishing TDST sell sequential...\n',num2str(length(extrainfo.lips)));
                     end
-                elseif extrainfo.wad(end) == wadhighss && extrainfo.p(end,5) - pxhighss > 2*ticksize
-                    closeflag = 1;
-                    if doprint
-                        fprintf('point %4s:spiderman closed as price and wad inconsistence after finishing TDST sell sequential...\n',num2str(length(extrainfo.lips)));
-                    end
+%                 elseif extrainfo.wad(end) == wadhighss && extrainfo.p(end,5) - pxhighss > 2*ticksize
+%                     closeflag = 1;
+%                     if doprint
+%                         fprintf('point %4s:spiderman closed as price and wad inconsistence after finishing TDST sell sequential...\n',num2str(length(extrainfo.lips)));
+%                     end
                 end
             elseif extrainfo.p(end,5) == pxhighss
             end            
@@ -232,11 +232,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     if doprint
                         fprintf('point %4s:spiderman closed as price and wad inconsistence after reaching TDST Sell Countdown 13...\n',num2str(length(extrainfo.lips)));
                     end
-                elseif extrainfo.wad(end) == wadhighsc13 && extrainfo.p(end,5) - pxhighsc13 > 2*ticksize
-                    closeflag = 1;
-                    if doprint
-                        fprintf('point %4s:spiderman closed as price and wad inconsistence after reaching TDST Sell Countdown 13...\n',num2str(length(extrainfo.lips)));
-                    end
+%                 elseif extrainfo.wad(end) == wadhighsc13 && extrainfo.p(end,5) - pxhighsc13 > 2*ticksize
+%                     closeflag = 1;
+%                     if doprint
+%                         fprintf('point %4s:spiderman closed as price and wad inconsistence after reaching TDST Sell Countdown 13...\n',num2str(length(extrainfo.lips)));
+%                     end
                 end
             end  
         end
