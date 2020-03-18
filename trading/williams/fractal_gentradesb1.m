@@ -151,7 +151,7 @@ function [ tradesfractalb1 ] = fractal_gentradesb1( idxfractalb1,px,HH,LL,bs,ss,
         if ss(j) >= 9
             ssreached = ss(j);
             tradenew.riskmanager_.tdhigh_ = max(px(j-ssreached+1:j,3));
-            tdidx = find(px(j-ssreached+1:end,3)==tradenew.riskmanager_.tdhigh_,1,'last')+j-ssreached;
+            tdidx = find(px(j-ssreached+1:j,3)==tradenew.riskmanager_.tdhigh_,1,'last')+j-ssreached;
             tradenew.riskmanager_.tdlow_ = px(tdidx,4);
             if tradenew.riskmanager_.tdlow_ - (tradenew.riskmanager_.tdhigh_-tradenew.riskmanager_.tdlow_) > tradenew.riskmanager_.pxstoploss_
                 tradenew.riskmanager_.pxstoploss_ = tradenew.riskmanager_.tdlow_ - (tradenew.riskmanager_.tdhigh_-tradenew.riskmanager_.tdlow_);

@@ -40,6 +40,8 @@ function [ wad,trh,trl ] = williamsad( p,usevolume )
             pxmove = pxclose(i)-trh(i);
         elseif pxclose(i) == pxclose(i-1)
             pxmove = 0;
+        else
+            pxmove = 0;
         end
         if usevolume
             wad(i) = wad(i-1)+pxmove*volume(i);
