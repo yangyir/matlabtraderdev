@@ -152,7 +152,7 @@ function [] = refresh(obj,varargin)
         end
         
         if nu == 1
-            figure(2);
+            figure(10);
             subplot(211);
             plot(k,iv1,'-');hold on;
             if pxuchg(1) > 0
