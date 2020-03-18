@@ -1,5 +1,5 @@
 if ~(exist('conn','var') && isa(conn,'cBloomberg')), conn = cBloomberg;end
-code_bbg_underlier = '510300 CH Equity';
+bbgcode_300etf = '510300 CH Equity';
 
 %%
 exp_feb = '2020-02-26';
