@@ -17,7 +17,7 @@ function [] = initdata_futmultifractal(stratfractal)
             nbdays = 3;
         elseif samplefreqnum == 5
             nbdays = 5;
-        elseif samplefreqnum == 15
+        elseif samplefreqnum == 10 || samplefreqnum == 15
             nbdays = 10;
         elseif samplefreqnum == 30
             nbdays = 20;
