@@ -6,7 +6,7 @@ exp_feb = '2020-02-26';
 exp_mar = '2020-03-25';
 exp_apr = '2020-04-22';
 exp_jun = '2020-06-24';
-k_50 = [2.65,2.7,2.75,2.8,2.85,2.9,2.95,3,3.1,3.2,3.3];
+k_50 = [2.4,2.45,2.5,2.55,2.6,2.65,2.7,2.75,2.8,2.85,2.9,2.95,3,3.1,3.2,3.3];
 opt50_c_feb = cell(length(k_50),1);opt50_p_feb = opt50_c_feb;
 opt50_c_mar = cell(length(k_50),1);opt50_p_mar = opt50_c_mar;
 opt50_c_apr = cell(length(k_50),1);opt50_p_apr = opt50_c_apr;

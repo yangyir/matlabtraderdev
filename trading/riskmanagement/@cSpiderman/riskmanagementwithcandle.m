@@ -138,8 +138,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 fprintf('point %4s:spiderman closed as close price breach alligator lips...\n',num2str(length(extrainfo.lips)));
             end
         %STOP the trade if price breaches stoploss
-%         elseif candleClose < obj.pxstoploss2_-2*ticksize
-%             closeflag = 1;
+        elseif candleClose < obj.pxstoploss2_-2*ticksize
+            closeflag = 1;
         %STOP the trade if it fails to breaches TDST-lvlup,i.e.the high
         %price fell below lvlup
         elseif ~isempty(find(extrainfo.p(idxstart2check:end-1,5)>extrainfo.lvlup(end-1),1,'first')) && extrainfo.p(end,3)<extrainfo.lvlup(end-1)
@@ -172,12 +172,14 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %IF it finishes TD Sell Sequential, then stop the trade once it
         %falles below the low of the bar with the true high of the
         %sequential
-        if closeflag == 0 && candleClose < obj.tdlow_ && ((obj.tdhigh_ - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)||(ticksize>0&&(obj.tdhigh_ - trade.openprice_)>10*ticksize))
-            closeflag = 1;
-            obj.tdhigh_ = NaN;
-            obj.tdlow_ = NaN;
-            if doprint
-                fprintf('point %4s:spiderman closed as close price fell from low of TDST sell sequential...\n',num2str(length(extrainfo.lips)));
+        if closeflag == 0 && candleClose < obj.tdlow_ 
+            if ((obj.tdhigh_ - trade.openprice_) > 0.236*(obj.hh1_-obj.ll1_)||(ticksize>0&&(obj.tdhigh_ - trade.openprice_)>10*ticksize))
+                closeflag = 1;
+                obj.tdhigh_ = NaN;
+                obj.tdlow_ = NaN;
+                if doprint
+                    fprintf('point %4s:spiderman closed as close price fell from low of TDST sell sequential...\n',num2str(length(extrainfo.lips)));
+                end
             end
         end
         if closeflag == 0 && extrainfo.ss(end) >= 9 && isnan(obj.tdlow_)
@@ -291,8 +293,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 fprintf('point %4s:spiderman closed as close price breach alligator lips...\n',num2str(length(extrainfo.lips)));
             end
         %STOP the trade if price breaches stoploss
-%         elseif candleClose > obj.pxstoploss2_+2*ticksize
-%             closeflag = 1;
+        elseif candleClose > obj.pxstoploss2_+2*ticksize
+            closeflag = 1;
         %STOP the trade if it fails to breaches TDST-lvldn,i.e.the low
         %price stayed above lvldn
         elseif ~isempty(find(extrainfo.p(idxstart2check:end-1,5)<extrainfo.lvldn(end-1),1,'first')) && extrainfo.p(end,4)>extrainfo.lvldn(end-1)

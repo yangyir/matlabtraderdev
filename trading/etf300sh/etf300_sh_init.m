@@ -6,7 +6,7 @@ exp_feb = '2020-02-26';
 exp_mar = '2020-03-25';
 exp_apr = '2020-04-22';
 exp_jun = '2020-06-24';
-k_300 = 3.6:0.1:4.4;
+k_300 = 3.4:0.1:4.4;
 opt300_c_feb = cell(length(k_300),1);opt300_p_feb = opt300_c_feb;
 opt300_c_mar = cell(length(k_300),1);opt300_p_mar = opt300_c_mar;
 opt300_c_apr = cell(length(k_300),1);opt300_p_apr = opt300_c_apr;
