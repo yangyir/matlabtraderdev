@@ -24,7 +24,7 @@ usedatestr = false;
 if strcmpi(code_bbg,'510050 CH Equity') || strcmpi(code_bbg,'510300 CH Equity')
     coldefs = {'date','open','high','low','close','volume'};
     fn_ = [code_bbg(1:6),'_daily.txt'];
-    startdate = datenum('2018-01-01','yyyy-mm-dd');
+    startdate = datenum('2010-01-01','yyyy-mm-dd');
     enddate = getlastbusinessdate;
     data = bbg.ds_.history(code_bbg,{'px_open','px_high','px_low','px_last','volume'},startdate,enddate);
 else
