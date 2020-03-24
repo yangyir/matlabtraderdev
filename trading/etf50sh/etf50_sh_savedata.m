@@ -5,10 +5,10 @@ savedailybarfrombloomberg2(conn,'510050 CH Equity');
 %     savedailybarfrombloomberg2(conn,opt_p_feb{i});
 % end
 %
-for i = 1:length(opt50_c_mar)
-    savedailybarfrombloomberg2(conn,opt50_c_mar{i});
-    savedailybarfrombloomberg2(conn,opt50_p_mar{i});
-end
+% for i = 1:length(opt50_c_mar)
+%     savedailybarfrombloomberg2(conn,opt50_c_mar{i});
+%     savedailybarfrombloomberg2(conn,opt50_p_mar{i});
+% end
 %
 for i = 1:length(opt50_c_apr)
     savedailybarfrombloomberg2(conn,opt50_c_apr{i});
