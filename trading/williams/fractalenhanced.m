@@ -36,10 +36,11 @@ function [ idxHH,idxLL,HH,LL,upperchannel,lowerchannel,volsmooth] = fractalenhan
         for i = 2:np
             if abs((HH(i)-upperchannel(i-1))/p(i,5))>change
                 upperchannel(i) = HH(i);
+                idxHH(i) = 1;
             else
-                if idxHH(i) == 1
+%                 if idxHH(i) == 1
                     idxHH(i) = 0;
-                end
+%                 end
                 if ~isnan(upperchannel(i-1))
                     upperchannel(i) = upperchannel(i-1);
                 end
@@ -47,10 +48,11 @@ function [ idxHH,idxLL,HH,LL,upperchannel,lowerchannel,volsmooth] = fractalenhan
             %
             if abs((LL(i)-lowerchannel(i-1))/p(i,5))>change
                 lowerchannel(i) = LL(i);
+                idxLL(i) = 1;
             else
-                if idxLL(i) == 1
+%                 if idxLL(i) == 1
                     idxLL(i) = 0;
-                end
+%                 end
                 if ~isnan(lowerchannel(i-1))
                     lowerchannel(i) = lowerchannel(i-1);
                 end
@@ -87,25 +89,31 @@ function [ idxHH,idxLL,HH,LL,upperchannel,lowerchannel,volsmooth] = fractalenhan
         if volsmooth(i) == -1
             if abs(HH(i)-upperchannel(i-1))/abs(p(i,5))>change
                 upperchannel(i) = HH(i);
+                idxHH(i) = 1;
             else
                 if ~isnan(upperchannel(i-1))
                     upperchannel(i) = upperchannel(i-1);
+                    idxHH(i) = 0;
                 end
             end
             %
             if abs(LL(i)-lowerchannel(i-1))/abs(p(i,5))>change
                 lowerchannel(i) = LL(i);
+                idxLL(i) = -1;
             else
                 if ~isnan(lowerchannel(i-1))
                     lowerchannel(i) = lowerchannel(i-1);
+                    idxLL(i) = 0;
                 end
             end
         else
             if ~isnan(upperchannel(i-1))
                 upperchannel(i) = upperchannel(i-1);
+                idxHH(i) = 0;
             end
             if ~isnan(lowerchannel(i-1))
                 lowerchannel(i) = lowerchannel(i-1);
+                idxLL(i) = 0;
             end
         end
     end
