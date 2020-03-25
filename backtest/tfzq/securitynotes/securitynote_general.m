@@ -2,7 +2,7 @@ hd_eqindex500 = load('hd_eqindex500.mat');
 hd_eqindex500 = hd_eqindex500.hd_eqindex500;
 %%
 %3m running period
-notional = 62;
+notional = 63;
 lastidx = size(hd_eqindex500,1)-notional;
 payoff = zeros(lastidx,2);
 for i = 1:lastidx

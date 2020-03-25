@@ -5,10 +5,10 @@ for i = 1:size(idxfractalb1,1)
 end
 %%
 %%
-idx1 = 1256;
+idx1 = 132;
 idx2 = idx1;
 for i = idx1:size(p,1)
-    if p(i,5) < lips(i)
+    if p(i,5) - lips(i)< -0.002
         idx2 = i;
         break
     end

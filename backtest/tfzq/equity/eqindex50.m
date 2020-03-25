@@ -1,9 +1,4 @@
-if ~(exist('conn','var') && isa(conn,'cBloomberg')), conn = cBloomberg;end
-code_bbg_underlier = '510050 CH Equity';
-% historical data
-dt1 = datenum('2017-01-01');
-dt2 = getlastbusinessdate;
-p = conn.history(code_bbg_underlier,{'px_open','px_high','px_low','px_last'},dt1,dt2);
+p = cDataFileIO.loadDataFromTxtFile('510050_daily.txt');
 %%
 res = tools_technicalplot1(p,2,0,'volatilityperiod',0,'tolerance',0.001);
 res(:,1) = x2mdate(res(:,1));
@@ -11,12 +6,13 @@ res(:,1) = x2mdate(res(:,1));
 %tools_technicalplot2(res);
 %
 px = res(:,1:5);
-HH = res(:,8);LL = res(:,9);
+idxHH = res(:,6);idxLL = res(:,7);HH = res(:,8);LL = res(:,9);
 jaw = res(:,10);teeth = res(:,11);lips = res(:,12);
 bs = res(:,13);ss = res(:,14);
 lvlup = res(:,15);lvldn = res(:,16);
 bc = res(:,17);sc = res(:,18);
 wad = williamsad(px);
+[a,b] = macd(px(:,5));macdvec = a-b;
 %%
 flagweakb1 = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,'level','weak');
 flagmediumb1 = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,'level','medium');
@@ -27,11 +23,13 @@ idxfractalb1 = [find(flagb1==1),ones(length(find(flagb1==1)),1);...
     find(flagb1==2),2*ones(length(find(flagb1==2)),1);...
     find(flagb1==3),3*ones(length(find(flagb1==3)),1)];
 idxfractalb1 = sortrows(idxfractalb1);
+%%
 % optional:exclude sell countdown 13 
 for i = 1:size(idxfractalb1,1)
     j = idxfractalb1(i,1);
     if sc(j) == 13 && lips(j)>teeth(j)&&teeth(j)>jaw(j),idxfractalb1(i,2) = 0;end
 end
+%%
 idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
 %optional:exclude perfect sell sequential if it is not a 'strong' breach
 for i = 1:size(idxfractalb1,1)
@@ -46,6 +44,7 @@ for i = 1:size(idxfractalb1,1)
 %         idxfractalb1(i,2) = 0;
 %     end
 end
+%%
 idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
 % optional:exclude those with sell fractal between
 for i = 1:size(idxfractalb1,1)
@@ -58,15 +57,17 @@ for i = 1:size(idxfractalb1,1)
         end
     end
 end
+%%
 idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 0,:);
 idxfractalb1 = idxfractalb1(idxfractalb1(:,2) ~= 1,:);
-
+%%
 %
 tradesfractalb1 = cTradeOpenArray;
 for i = 1:size(idxfractalb1,1)
     j = idxfractalb1(i);
     signalinfo = struct('name','fractal','hh',HH(j),'ll',LL(j),'frequency','daily');
     riskmanager = struct('hh0_',HH(j),'hh1_',HH(j),'ll0_',LL(j),'ll1_',LL(j),'type_','breachup-B');
+%     riskmanager = struct('hh0_',p(j,3),'hh1_',HH(j),'ll0_',LL(j),'ll1_',LL(j),'type_','breachup-B');
     tradenew = cTradeOpen('id',i,'opendatetime',px(j,1),'openprice',px(j,5),...
         'opendirection',1,'openvolume',1);
     tradenew.status_ = 'set';
@@ -94,7 +95,7 @@ for i = 1:tradesfractalb1.latest_
         extrainfo = struct('p',px(1:k,:),'hh',HH(1:k),'ll',LL(1:k),...
             'jaw',jaw(1:k),'teeth',teeth(1:k),'lips',lips(1:k),...
             'bs',bs(1:k),'ss',ss(1:k),'bc',bc(1:k),'sc',sc(1:k),...
-            'lvlup',lvlup(1:k),'lvldn',lvldn(1:k),'wad',wad);
+            'lvlup',lvlup(1:k),'lvldn',lvldn(1:k),'wad',wad(1:k));
         tradeout = tradein.riskmanager_.riskmanagementwithcandle(px(k,:),...
             'usecandlelastonly',false,...
             'debug',true,...
@@ -154,7 +155,7 @@ for i = 1:tradesfractalb1.latest_
     end
 end
 %%
-i = 29;
+i = 13;
 trade2plot = tradesfractalb1.node_(i);
 idx1 = find(res(:,1) == trade2plot.opendatetime1_);
 idx2 = find(res(:,1) == trade2plot.closedatetime1_);
@@ -205,12 +206,12 @@ idxfractals1 = sortrows(idxfractals1);
 tradesfractals1 = cTradeOpenArray;
 for i = 1:size(idxfractals1,1)
     j = idxfractals1(i);
-    signalinfo = struct('name','fractal','hh',HH(j),'ll',LL(j),'frequency','1d');
+    signalinfo = struct('name','fractal','hh',HH(j),'ll',LL(j),'frequency','daily');
     riskmanager = struct('hh0_',HH(j),'hh1_',HH(j),'ll0_',LL(j),'ll1_',LL(j),'type_','breachdn-S');
     tradenew = cTradeOpen('id',i,'opendatetime',px(j,1),'openprice',px(j,5),...
         'opendirection',-1,'openvolume',1);
     tradenew.status_ = 'set';
-    tradenew.setsignalinfo(signalinfo);
+    tradenew.setsignalinfo('name','fractal','extrainfo',signalinfo);
     tradenew.setriskmanager('name','spiderman','extrainfo',riskmanager);
     if bs(j) >= 9
         bsreached = bs(j);
@@ -234,7 +235,7 @@ for i = 1:tradesfractals1.latest_
         extrainfo = struct('p',px(1:k,:),'hh',HH(1:k),'ll',LL(1:k),...
             'jaw',jaw(1:k),'teeth',teeth(1:k),'lips',lips(1:k),...
             'bs',bs(1:k),'ss',ss(1:k),'bc',bc(1:k),'sc',sc(1:k),...
-            'lvlup',lvlup(1:k),'lvldn',lvldn(1:k));
+            'lvlup',lvlup(1:k),'lvldn',lvldn(1:k),'wad',wad(1:k));
         tradeout = tradein.riskmanager_.riskmanagementwithcandle(px(k,:),...
             'usecandlelastonly',false,...
             'debug',true,...
@@ -280,11 +281,11 @@ for i = 1:tradesfractals1.latest_
     end  
 end
 %%
-i = 19;
+i = 32;
 trade2plot = tradesfractals1.node_(i);
 idx1 = find(res(:,1) == trade2plot.opendatetime1_);
 idx2 = find(res(:,1) == trade2plot.closedatetime1_);
-idx1 = find(res(1:idx1,6)==-1,1,'last');
+idx1 = find(res(1:idx1,7)==-1,1,'last');
 temp = timeseries_window(res,'fromdate',p(idx1-4,1),'todate',p(idx2+5,1));
 tools_technicalplot2(temp);
 %%
@@ -319,9 +320,17 @@ signal_nb = sum(signal_nb,2);
 %
 for i = 1:ns
     idx1 = find(px(:,1)==tradesfractals1.node_(i).opendatetime1_);
-    idx2 = find(px(:,1)==tradesfractals1.node_(i).closedatetime1_);
+    try
+        idx2 = find(px(:,1)==tradesfractals1.node_(i).closedatetime1_);
+    catch
+        idx2 = size(px,1);
+    end
     signal_ns(idx1:idx2-1,i) = -1;
-    ptraded(idx2) = tradesfractals1.node_(i).closeprice_;
+    try
+        ptraded(idx2) = tradesfractals1.node_(i).closeprice_;
+    catch
+        ptraded(idx2) = px(idx2,5);
+    end
 end
 signal_ns = sum(signal_ns,2);
 %
