@@ -31,34 +31,34 @@ op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod'
 shift = 60;
 tools_technicalplot2(op_300etf(end-shift:end,:));
 %%
-n_opt300c_mar = length(opt300_c_mar);
-bd_opt300c_mar = cell(n_opt300c_mar,1);
-tbl_opt300c_mar = [k_300',zeros(length(k_300),3)];
-for i = 1:n_opt300c_mar
+n_opt300c_apr = length(opt300_c_apr);
+bd_opt300c_apr = cell(n_opt300c_apr,1);
+tbl_opt300c_apr = [k_300',zeros(length(k_300),3)];
+for i = 1:n_opt300c_apr
     try
-        bd_opt300c_mar{i} = pnlriskbreakdownbbg(opt300_c_mar{i},getlastbusinessdate);
-        tbl_opt300c_mar(i,2) = bd_opt300c_mar{i}.iv1;
-        tbl_opt300c_mar(i,3) = bd_opt300c_mar{i}.iv2;
-        tbl_opt300c_mar(i,4) = bd_opt300c_mar{i}.deltacarry/bd_opt300c_mar{i}.spot2/10000;
+        bd_opt300c_apr{i} = pnlriskbreakdownbbg(opt300_c_mar{i},getlastbusinessdate);
+        tbl_opt300c_apr(i,2) = bd_opt300c_apr{i}.iv1;
+        tbl_opt300c_apr(i,3) = bd_opt300c_apr{i}.iv2;
+        tbl_opt300c_apr(i,4) = bd_opt300c_apr{i}.deltacarry/bd_opt300c_apr{i}.spot2/10000;
     catch
-        bd_opt300c_mar{i} = [];
-        tbl_opt300c_mar(i,2:4) = NaN;
+        bd_opt300c_apr{i} = [];
+        tbl_opt300c_apr(i,2:4) = NaN;
     end
 end
 % PUT
-n_opt300p_mar = length(opt300_p_mar);
-bd_opt300p_mar = cell(n_opt300p_mar,1);
-tbl_opt300p_mar = [k_300',zeros(length(k_300),3)];
-for i = 1:n_opt300p_mar
+n_opt300p_apr = length(opt300_p_apr);
+bd_opt300p_apr = cell(n_opt300p_apr,1);
+tbl_opt300p_apr = [k_300',zeros(length(k_300),3)];
+for i = 1:n_opt300p_apr
     try
-        bd_opt300p_mar{i} = pnlriskbreakdownbbg(opt300_p_mar{i},getlastbusinessdate);
-        tbl_opt300p_mar(i,2) = bd_opt300p_mar{i}.iv1;
-        tbl_opt300p_mar(i,3) = bd_opt300p_mar{i}.iv2;
-        tbl_opt300p_mar(i,4) = bd_opt300p_mar{i}.deltacarry/bd_opt300p_mar{i}.spot2/10000;
+        bd_opt300p_apr{i} = pnlriskbreakdownbbg(opt300_p_mar{i},getlastbusinessdate);
+        tbl_opt300p_apr(i,2) = bd_opt300p_apr{i}.iv1;
+        tbl_opt300p_apr(i,3) = bd_opt300p_apr{i}.iv2;
+        tbl_opt300p_apr(i,4) = bd_opt300p_apr{i}.deltacarry/bd_opt300p_apr{i}.spot2/10000;
     catch
-        bd_opt300p_mar{i} = [];
-        tbl_opt300p_mar(i,2:4) = NaN;
+        bd_opt300p_apr{i} = [];
+        tbl_opt300p_apr(i,2:4) = NaN;
     end
 end
-display(tbl_opt300c_mar);
-display(tbl_opt300p_mar);
+display(tbl_opt300c_apr);
+display(tbl_opt300p_apr);

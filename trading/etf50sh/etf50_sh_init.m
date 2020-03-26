@@ -31,34 +31,34 @@ op_50 = tools_technicalplot1(hd_50etf,2,0,'change',0.001,'volatilityperiod',0);
 shift = 60;
 tools_technicalplot2(op_50(end-shift:end,:));
 %%
-n_opt50c_mar = length(opt50_c_mar);
-bd_opt50c_mar = cell(n_opt50c_mar,1);
-tbl_opt50c_mar = [k_50',zeros(length(k_50),3)];
-for i = 1:n_opt50c_mar
+n_opt50c_apr = length(k_50);
+bd_opt50c_apr = cell(n_opt50c_apr,1);
+tbl_opt50c_apr = [k_50',zeros(length(k_50),3)];
+for i = 1:n_opt50c_apr
     try
-        bd_opt50c_mar{i} = pnlriskbreakdownbbg(opt50_c_mar{i},getlastbusinessdate);
-        tbl_opt50c_mar(i,2) = bd_opt50c_mar{i}.iv1;
-        tbl_opt50c_mar(i,3) = bd_opt50c_mar{i}.iv2;
-        tbl_opt50c_mar(i,4) = bd_opt50c_mar{i}.deltacarry/bd_opt50c_mar{i}.spot2/10000;
+        bd_opt50c_apr{i} = pnlriskbreakdownbbg(opt50_c_mar{i},getlastbusinessdate);
+        tbl_opt50c_apr(i,2) = bd_opt50c_apr{i}.iv1;
+        tbl_opt50c_apr(i,3) = bd_opt50c_apr{i}.iv2;
+        tbl_opt50c_apr(i,4) = bd_opt50c_apr{i}.deltacarry/bd_opt50c_apr{i}.spot2/10000;
     catch
-        bd_opt50c_mar{i} = [];
-        tbl_opt50c_mar(i,2:4) = NaN;
+        bd_opt50c_apr{i} = [];
+        tbl_opt50c_apr(i,2:4) = NaN;
     end
 end
 % PUT
-n_opt50p_mar = length(opt50_p_mar);
-bd_opt50p_mar = cell(n_opt50p_mar,1);
-tbl_opt50p_mar = [k_50',zeros(length(k_50),3)];
-for i = 1:n_opt50p_mar
+n_opt50p_apr = length(k_50);
+bd_opt50p_apr = cell(n_opt50p_apr,1);
+tbl_opt50p_apr = [k_50',zeros(length(k_50),3)];
+for i = 1:n_opt50p_apr
     try
-        bd_opt50p_mar{i} = pnlriskbreakdownbbg(opt50_p_mar{i},getlastbusinessdate);
-        tbl_opt50p_mar(i,2) = bd_opt50p_mar{i}.iv1;
-        tbl_opt50p_mar(i,3) = bd_opt50p_mar{i}.iv2;
-        tbl_opt50p_mar(i,4) = bd_opt50p_mar{i}.deltacarry/bd_opt50p_mar{i}.spot2/10000;
+        bd_opt50p_apr{i} = pnlriskbreakdownbbg(opt50_p_mar{i},getlastbusinessdate);
+        tbl_opt50p_apr(i,2) = bd_opt50p_apr{i}.iv1;
+        tbl_opt50p_apr(i,3) = bd_opt50p_apr{i}.iv2;
+        tbl_opt50p_apr(i,4) = bd_opt50p_apr{i}.deltacarry/bd_opt50p_apr{i}.spot2/10000;
     catch
-        bd_opt50p_mar{i} = [];
-        tbl_opt50p_mar(i,2:4) = NaN;
+        bd_opt50p_apr{i} = [];
+        tbl_opt50p_apr(i,2:4) = NaN;
     end
 end
-display(tbl_opt50c_mar);
-display(tbl_opt50p_mar);
+display(tbl_opt50c_apr);
+display(tbl_opt50p_apr);
