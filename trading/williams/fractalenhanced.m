@@ -48,7 +48,7 @@ function [ idxHH,idxLL,HH,LL,upperchannel,lowerchannel,volsmooth] = fractalenhan
             %
             if abs((LL(i)-lowerchannel(i-1))/p(i,5))>change
                 lowerchannel(i) = LL(i);
-                idxLL(i) = 1;
+                idxLL(i) = -1;
             else
 %                 if idxLL(i) == 1
                     idxLL(i) = 0;

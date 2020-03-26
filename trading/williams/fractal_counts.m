@@ -1,4 +1,4 @@
-function [nbelowlips1,nbelowteeth1,nbelowlips2,nbelowteeth2,n ] = fractal_counts(p,idxLL,nfractal,lips,teeth)
+function [nbelowlips1,nbelowteeth1,nbelowlips2,nbelowteeth2,n,teethjawcrossed,teethlipscrossed ] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw)
 %nabovelips1:No.of consecutive candles below lips since last ll
 %naboveteeth1:No. of consecutive candles below teeth since last ll
 %nabovelips2:No.of consecutive candles below lips before last candle
@@ -45,6 +45,21 @@ for i = np:-1:idx_lastll-nfractal
         break
     end
 end
+
+diff = teeth(np-n+1:np)-jaw(np-n+1:np);
+if (~isempty(find(diff>0,1,'first')) && ~isempty(find(diff<0,1,'first')))
+    teethjawcrossed = true;
+else
+    teethjawcrossed = false;
+end
+%
+diff2 = lips(np-n+1:np)-teeth(np-n+1:np);
+if (~isempty(find(diff2>0,1,'first')) && ~isempty(find(diff2<0,1,'first')))
+    teethlipscrossed = true;
+else
+    teethlipscrossed = false;
+end
+
 
 
 

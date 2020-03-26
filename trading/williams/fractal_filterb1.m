@@ -14,7 +14,7 @@ for i = 1:size(idxfractalb1_filtered,1)
     j = idxfractalb1_filtered(i,1);
     if sc(j) == 13 && lips(j)>teeth(j)&&teeth(j)>jaw(j),idxfractalb1_filtered(i,2) = 0;end
 end
-idxfractalb1_filtered = idxfractalb1_filtered(idxfractalb1_filtered(:,2) ~= 0,:);
+% idxfractalb1_filtered = idxfractalb1_filtered(idxfractalb1_filtered(:,2) ~= 0,:);
 %%    
 %treatment for medium breach case
 for i = 1:size(idxfractalb1_filtered,1)
@@ -126,8 +126,8 @@ for i = 1:size(idxfractalb1_filtered,1)
             %
             %we shall also keep the signal if the breach of lvlup was
             %during this TDST-Sell Setup
-            if ss(j) > 0 && ~isempty(find(px(j-ss(j):j,5)<lvlup(j),1,'first'))&&p(j,5)>lvlup(j),continue;end
-            if ss(j) > 0 && ~isempty(find(px(j-ss(j):j,5)<lvldn(j),1,'first'))&&p(j,5)>lvldn(j),continue;end
+            if ss(j) > 0 && ~isempty(find(px(j-ss(j):j,5)<lvlup(j),1,'first'))&&px(j,5)>lvlup(j),continue;end
+            if ss(j) > 0 && ~isempty(find(px(j-ss(j):j,5)<lvldn(j),1,'first'))&&px(j,5)>lvldn(j),continue;end
             %
             %we shall also keep the signal if it failed the last sell
             %countdown 13 by breaching its high
