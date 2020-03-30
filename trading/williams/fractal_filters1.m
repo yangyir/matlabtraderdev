@@ -69,12 +69,12 @@ for i = 1:size(idxfractals1_filtered,1)
     end
     %keep if it breaches the ll after bc13
     lastbc13 = find(bc(1:j-1)==13,1,'last');
-    if ~isempty(lastbc13) && j-lastbc13<=12 &&px(j,5)<min(px(lastbc13:j-1,4))
+    if ~isempty(lastbc13) && j-lastbc13<=2*nfractal+1 &&px(j,5)<min(px(lastbc13:j-1,4))
         comments{i} = 'breachdn-lowbc13';
         continue;
     end
     %
-    [~,~,~,nkbelowteeth,nkfromll] = fractal_counts(px(1:j,:),idxLL,nfractal,lips,teeth,jaw);
+    [~,~,nkbelowlips,nkbelowteeth,nkfromll] = fractal_counts(px(1:j,:),idxLL,nfractal,lips,teeth,jaw);
     barsizelast = px(j,3)-px(j,4);
     barsizerest = px(j-nkfromll+1:j-1,3)-px(j-nkfromll+1:j-1,4);
     isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
@@ -101,16 +101,21 @@ for i = 1:size(idxfractals1_filtered,1)
     %
     if nkbelowteeth >= 2*nfractal+1
         if lips(j) < teeth(j)
-            comments{i} = '5morebelowteeth-inc';
+            comments{i} = 'mediumbreach-trendconfirmed';
             continue;
         else
-            comments{i} = '5morebelowteeth-exc';
+            comments{i} = 'mediumbreach-trendbreak';
             idxfractals1_filtered(i,2) = 0;
+            continue;
         end
     else
-        comments{i} = '5lessbelowteeth';
-        idxfractals1_filtered(i,2) = 0;
-        continue;
+        if (nkbelowlips == nkfromll || nkbelowteeth == nkfromll) && nkfromll == nfractal+2
+            comments{i} = 'mediumbreach-trendconfirmed';
+        else
+            comments{i} = 'mediumbreach-trendbreak';
+            idxfractals1_filtered(i,2) = 0;
+            continue;
+        end
     end  
 end
 %
@@ -126,7 +131,7 @@ for i = 1:size(idxfractals1_filtered,1)
         idxfractals1_filtered(i,2) = 0;
         continue;
     end
-    %2.pay attention to case of alligator's teeth and jaw crossed
+    %
     %keep if it breaches-down TDST-lvldn
     isbreachlvldn = (~isempty(find(px(j-bs(j)+1:j,5)<lvldn(j),1,'first')) &&~isempty(find(px(j-bs(j)+1:j,5)>lvldn(j),1,'first')) && px(j,5)<lvldn(j)) || ...
         (px(j,5)<lvldn(j) && px(j-1,5)>lvldn(j)) ||...
@@ -143,6 +148,8 @@ for i = 1:size(idxfractals1_filtered,1)
         comments{i} = 'breachdn-lvlup';
         continue;
     end
+    %
+    %2.pay attention to case of alligator's teeth and jaw crossed
     [~,~,~,nkbelowteeth2,nkfromll,teethjawcrossed] = fractal_counts(px(1:j,:),idxLL,nfractal,lips,teeth,jaw);
     if teethjawcrossed
         comments{i} = 'teethjawcrossed';
@@ -158,12 +165,11 @@ for i = 1:size(idxfractals1_filtered,1)
         end
         %keep if it breaches the ll after bc13
         lastbc13 = find(bc(1:j-1)==13,1,'last');
-        if ~isempty(lastbc13) && j-lastbc13<=12 &&px(j,5)<min(px(lastbc13:j-1,4))
+        if ~isempty(lastbc13) && j-lastbc13<=2*nfractal+1 &&px(j,5)<min(px(lastbc13:j-1,4))
             comments{i} = 'breachdn-lowbc13';
             continue;
         end
         %
-    
         barsizelast = px(j,3)-px(j,4);
         barsizerest = px(j-nkfromll+1:j-1,3)-px(j-nkfromll+1:j-1,4);
         isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
@@ -185,70 +191,18 @@ for i = 1:size(idxfractals1_filtered,1)
                     comments{i} = 'volblowup2';
                     continue;
                 end
+            else
+                if nkbelowteeth2 >= 2*nfractal+1 && nkbelowteeth2 == nkfromll
+                    comments{i} = 'strongbreach-trendconfirmed';
+                    continue;
+                else
+                    comments{i} = 'strongbreach-trendbroken';
+                    idxfractals1_filtered(i,2) = 0;
+                    continue;
+                end
             end 
         end
     end
-    
-    
-%     
-%     barsizelast = px(j,3)-px(j,4);    
-%     barsizerest = px(j-nkfromll+1:j-1,3)-px(j-nkfromll+1:j-1,4);
-%     isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
-%     %
-%     isbreachlvldn = (~isempty(find(px(j-bs(j)+1:j,5)<lvldn(j),1,'first')) &&~isempty(find(px(j-bs(j)+1:j,5)>lvldn(j),1,'first')) && px(j,5)<lvldn(j)) || ...
-%         (px(j,5)<lvldn(j) && px(j-1,5)>lvldn(j)) ||...
-%         (px(j,5)<lvldn(j) && px(j,3)>lvldn(j));
-%     isclose2lvldn = px(j,5)>lvldn(j) && (lvlup(j)-px(j,5))/(lvlup(j)-lvldn(j))>0.9&&lvlup(j)>lvldn(j);
-%     if isclose2lvldn
-%         comments{i} = 'closetolvldn';
-%         idxfractals1_filtered(i,2) = 0;
-%         continue
-%     end 
-    %
-    
-%     if teethjawcrossed
-%         comments{i} = 'teethjawcrossed';
-%         idxfractals1_filtered(i,2) = 0;
-%         continue;
-%     %3.alligator's teeth and jaw are not crossed
-%     else
-%         if nkbelowteeth == nkfromll
-%             if nkfromll == nfractal+2
-%                 %TODO:not sure about this for now
-%                 if isbreachlvldn && lvldn(j) < lvlup(j)
-%                     comments{i}='breachdn-lvldn';
-%                 else
-%                     if isvolblowup
-%                         comments{i} = 'volblowup';
-%                     else
-%                         idxfractals1_filtered(i,2) = 0;
-%                         comments{i} = 'firstcandlebreach';
-%                     end
-%                 end
-%             else
-%                 if isbreachlvldn && lvldn(j) < lvlup(j)
-%                     comments{i}='breachdn-lvldn';
-%                 else
-%                     if isvolblowup
-%                         comments{i} = 'volblowup';
-%                     else
-%                         comments{i} = '5morebelowteeth';
-%                     end
-%                 end
-%             end
-%         else 
-%             if isbreachlvldn && lvldn(j) < lvlup(j)
-%                 comments{i}='breachdn-lvldn';
-%             else
-%                 if isvolblowup
-%                     comments{i} = 'volblowup';
-%                 else
-%                     idxfractals1_filtered(i,2) = 0;
-%                     comments{i} = '5lessbelowteeth';
-%                 end
-%             end
-%         end
-%         
         
 end
 end

@@ -1,149 +1,235 @@
 function [idxfractalb1_filtered,comments] = fractal_filterb1(idxfractalb1,inputmatrix,nfractal)
-%first filter-out at point HH is less than (below) HH
-idxfractalb1_filtered = idxfractalb1(idxfractalb1(:,2) ~= 1,:);
+idxfractalb1_filtered = idxfractalb1;
+comments = cell(size(idxfractalb1,1),1);
 %%
-px = inputmatrix(:,1:5);
-idxHH = inputmatrix(:,6);idxLL = inputmatrix(:,7);HH = inputmatrix(:,8);LL = inputmatrix(:,9);
-jaw = inputmatrix(:,10);teeth = inputmatrix(:,11);lips = inputmatrix(:,12);
-bs = inputmatrix(:,13);ss = inputmatrix(:,14);
-lvlup = inputmatrix(:,15);lvldn = inputmatrix(:,16);
-bc = inputmatrix(:,17);sc = inputmatrix(:,18);
-%%
-%second filter-out any sc 13 case
+%filter-out any sc 13 case
 for i = 1:size(idxfractalb1_filtered,1)
+    if idxfractalb1_filtered(i,2) == 0, continue;end
     j = idxfractalb1_filtered(i,1);
-    if sc(j) == 13 && lips(j)>teeth(j)&&teeth(j)>jaw(j),idxfractalb1_filtered(i,2) = 0;end
-end
-% idxfractalb1_filtered = idxfractalb1_filtered(idxfractalb1_filtered(:,2) ~= 0,:);
-%%    
-%treatment for medium breach case
-for i = 1:size(idxfractalb1_filtered,1)
-    if idxfractalb1_filtered(i,2) ~= 2, continue;end
-    j = idxfractalb1_filtered(i,1);
-    if ss(j) < 9, continue;end
-    %remove perfect ss
-    if px(j,5) >= max(px(j-ss(j)+1:j,5)) && px(j,3) >= max(px(j-ss(j)+1:j,3))
-        %need to make sure it is not breach lvlup
-        if ~(px(j,5)>lvlup(j) && px(j-1,5) < lvlup(j))
-            idxfractalb1_filtered(i,2) = 0;
-        end
-    end    
-end
-% idxfractalb1_filtered = idxfractalb1_filtered(idxfractalb1_filtered(:,2) ~= 0,:);
-%treatment for medium breach case continue
-%filter by count No.of candles stay above lips before open
-for i = 1:size(idxfractalb1_filtered,1)
-    if idxfractalb1_filtered(i,2) ~= 2, continue;end
-    j = idxfractalb1_filtered(i,1);
-    if px(j,5)<lvlup(j)&&(px(j,5)-lvldn(j))/(lvlup(j)-lvldn(j))>0.90&&(lvlup(j)>lvldn(j))
+    if sc(j) == 13 && lips(j)>teeth(j)&&teeth(j)>jaw(j)
         idxfractalb1_filtered(i,2) = 0;
+        comments{i} = 'sc13';
         continue;
-    end    
-    [~,~,nkabovelips,~,nkfromhh] = fractal_countb(px(1:j,:),idxHH,nfractal,lips,teeth,jaw);
-    if nkabovelips == nkfromhh
-        %do nothing maybe something at later stage
-    else
-        %need to check whether it make sense to include all breach if it
-        %happens on the first candle after the fractal
-        if nkfromhh == nfractal + 2, continue;end
-        %
-        %we shall keep the signal if it breach up TDST-lvlup or
-        %TDST-lvldn at the same time
-        isbreachlvlup = px(j,5)>lvlup(j) && (px(j-1,5)<lvlup(j) || px(j,4)<lvlup(j));
-        isbreachlvldn = px(j,5)>lvldn(j) && (px(j-1,5)<lvldn(j) || px(j,4)<lvldn(j));
-        if (isbreachlvlup || isbreachlvldn), continue;end
-        %
-        %we shall also keep the signal if the breach candle's vol is
-        %much higher than the previous ones
-        barsizelast = px(j,3)-px(j,4);    
-        barsizerest = px(j-nkfromhh+1:j-1,3)-px(j-nkfromhh+1:j-1,4);
-        if barsizelast > mean(barsizerest) + 2.58*std(barsizerest), continue;end
-        %
-        %we shall also keep the signal if the breach of lvlup was
-        %during this TDST-Sell Setup
-        if ss(j) > 0 && ~isempty(find(px(j-ss(j):j,5)<lvlup(j),1,'first'))&&p(j,5)>lvlup(j),continue;end
-        if ss(j) > 0 && ~isempty(find(px(j-ss(j):j,5)<lvldn(j),1,'first'))&&p(j,5)>lvldn(j),continue;end
-        %
-        %we shall also keep the signal if it failed the last sell
-        %countdown 13 by breaching its high
-        lastsc13 = find(sc(1:j)==13,1,'last');
-        if ~isempty(lastsc13) && j-lastsc13 <= 12 && px(j,5)>px(lastsc13,3), continue;end
-        %with close above teeth
-        %HERE we need more samples
-        if nkabovelips >= 2*nfractal+1,continue;end
-        idxfractalb1_filtered(i,2) = 0;
     end
 end
-% idxfractalb1_filtered = idxfractalb1_filtered(idxfractalb1_filtered(:,2) ~= 0,:);
+%%
+%treatment for weak breach case
+%keep it if and only if breach through TDST-lvlup or TDST-lvldn 
+for i = 1:size(idxfractalb1_filtered,1)
+    if idxfractalb1_filtered(i,2) ~= 1, continue;end
+    j = idxfractalb1_filtered(i,1);
+    if (px(j,5)>lvlup(j) && px(j-1,5)<lvlup(j)) ||...
+        (px(j,5)>lvlup(j) && px(j,4)<lvlup(j))
+        comments{i} = 'weakbreach-breachup-lvlup';
+    elseif (px(j,5)>lvldn(j) && px(j-1,5)<lvldn(j)) ||...
+        (px(j,5)>lvldn(j) && px(j,4)<lvldn(j))
+        comments{i} = 'weakbreach-breachdn-lvldn';
+    else
+        idxfractalb1_filtered(i,2) = 0;
+        comments{i} = 'weakbreach';
+    end
+end
+%%
+%treatment for medium breach case
+for i = 1:size(idxfractalb1_filtered,1)
+    if idxfractalb1_filtered(i,2) == 0, continue;end
+    if idxfractalb1_filtered(i,2) ~= 2, continue;end
+    j = idxfractalb1_filtered(i,1);
+    %keep if it breaches-up TDST-lvlup
+    isbreachlvlup = (~isempty(find(px(j-ss(j)+1:j,5)>lvlup(j),1,'first')) &&~isempty(find(px(j-ss(j)+1:j,5)<lvlup(j),1,'first')) && px(j,5)>lvlup(j)) || ...
+        (px(j,5)>lvlup(j) && px(j-1,5)<lvlup(j)) ||...
+        (px(j,5)>lvlup(j) && px(j,4)<lvlup(j));
+    if isbreachlvlup
+        comments{i} = 'breachup-lvlup';
+        continue;
+    end
+    %keep if it breach-up TDST-lvldn
+    isbreachlvldn = (~isempty(find(px(j-ss(j)+1:j,5)>lvldn(j),1,'first')) &&~isempty(find(px(j-ss(j)+1:j,5)<lvldn(j),1,'first')) && px(j,5)>lvldn(j)) || ...
+        (px(j,5)>lvldn(j) && px(j-1,5)<lvldn(j)) ||...
+        (px(j,5)>lvldn(j) && px(j,4)<lvldn(j));
+    if isbreachlvldn
+        comments{i} = 'breachup-lvldn';
+        continue;
+    end
+    %exclude if it is too close to TDST-lvlup
+    isclose2lvlup = px(j,5)<lvlup(j) && (lvlup(j)-px(j,5))/(lvlup(j)-lvldn(j))<0.1&&lvlup(j)>lvldn(j);
+    if isclose2lvlup
+        comments{i} = 'closetolvlup';
+        idxfractalb1_filtered(i,2) = 0;
+        continue;
+    end
+    %exclude perfect TDST-sellsetup
+    if ss(j) >= 9 && px(j,5) >= max(px(j-ss(j)+1:j,5)) && px(j,3) >= max(px(j-ss(j)+1:j,3))
+        comments{i} = 'mediumbreach-sshighvalue';
+        idxfractalb1_filtered(i,2) = 0;
+        continue;
+    end
+    %keep if it breaches the hh after sc13
+    lastsc13 = find(sc(1:j-1)==13,1,'last');
+    if ~isempty(lastsc13) && j-lastsc13<=2*nfractal+1 &&px(j,5)>max(px(lastsc13:j-1,3))
+        comments{i} = 'breachup-highbc13';
+        continue;
+    end
+    %
+    [~,~,nkabovelips,nkaboveteeth,nkfromhh] = fractal_countb(px(1:j,:),idxHH,nfractal,lips,teeth,jaw);
+    barsizelast = px(j,3)-px(j,4);
+    barsizerest = px(j-nkfromhh+1:j-1,3)-px(j-nkfromhh+1:j-1,4);
+    isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+    if isvolblowup
+        comments{i} = 'volblowup';
+        continue;
+    else
+        barsizelast = abs(px(j,5)-px(j-1,5));
+        isvolblowup2 = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+        if isvolblowup2
+            if ss(j) <= 1
+                idxfractalb1_filtered(i,2) = 0;
+                comments{i} = 'volblowup2-ss1';
+                continue;
+            else
+                comments{i} = 'volblowup2';
+                continue;
+            end
+        end
+    end
+    %
+    if nkaboveteeth >= 2*nfractal+1;
+        if lips(j) > teeth(j)
+            comments{i} = 'mediumbreach-trendconfirmed';
+            continue;
+        else
+            comments{i} = 'mediumbreach-trendbreak';
+            idxfractalb1_filtered(i,2) = 0;
+            continue;
+        end
+    else
+        %TODO:INVESTIGATE MORE IN THE FUTURES
+        if (nkabovelips == nkfromhh || nkaboveteeth == nkfromhh) && nkfromhh == nfractal+2
+            comments{i} = 'mediumbreach-trendconfirmed';
+        else
+            if nkfromhh == nfractal+2
+                if nkabovelips > 1 && nkaboveteeth > 1
+                    comments{i} = 'mediumbreach-trendconfirmed';
+                    continue;
+                else
+                    comments{i} = 'mediumbreach-trendbreak';
+                    idxfractalb1_filtered(i,2) = 0;
+                    continue;
+                end
+            else
+                if nkabovelips >= 2*nfractal+1
+                    comments{i} = 'mediumbreach-trendconfirmed';
+                    continue;
+                else
+                    comments{i} = 'mediumbreach-trendbreak';
+                    idxfractalb1_filtered(i,2) = 0;
+                    continue;
+                end
+            end
+        end
+    end     
+end
 %%
 %treatment for strong breach case
 for i = 1:size(idxfractalb1_filtered,1)
+    if idxfractalb1_filtered(i,2) == 0, continue;end
     if idxfractalb1_filtered(i,2) ~= 3, continue;end
     j = idxfractalb1_filtered(i,1);
-    %1.we are not going to follow when the market is extremely bullish
-    if ss(j) >= 15, idxfractalb1_filtered(i,2) = 0;end
-    [~,~,~,nkaboveteeth2,nkfromhh,teethjawcrossed] = fractal_countb(px(1:j,:),idxHH,nfractal,lips,teeth,jaw);
-    %
-    %2.pay attention to case of alligator's teeth and jaw crossed
-    if teethjawcrossed
-        %it's risky to follow the bullish trend in case teeth and jaw crossed
-        if ss(j) >= 9, idxfractalb1_filtered(i,2) = 0;end
-        if idxfractalb1_filtered(i,2) == 0, continue;end
-        %but it is ok if it also breach lvlup
-        if ~(px(j,5)>lvlup(j) && (px(j-1,5)<lvlup(j) || px(j,4)<lvlup(j)))
-            %also it is ok if it breach high of a previous sell sequential
-            %and the high is also a fractal upper boundary
-            %perfect sell sequential is also needed
-            if ss(j-nkfromhh+1) >= 9
-                lastss = ss(j-nkfromhh+1);
-                if ~(px(j-nkfromhh+1,5) >= max(px(j-nkfromhh-lastss+2:j-nkfromhh+1,5)) && ...
-                        px(j-nkfromhh+1,4) >= max(px(j-nkfromhh-lastss+2:j-nkfromhh+1,4)))
-                    idxfractalb1_filtered(i,2) = 0;
-                end
-            else
-                idxfractalb1_filtered(i,2) = 0;
-            end
-        end
-    %3.alligator's teeth and jaw are not crossed    
-    else
-        if nkaboveteeth2 == nkfromhh
-            if px(j,5)<lvlup(j)&&(px(j,5)-lvldn(j))/(lvlup(j)-lvldn(j))>0.95&&(lvlup(j)>lvldn(j))
-                idxfractalb1_filtered(i,2) = 0;
-            end
-        else
-            %nkaboveteeth2<nkfromhh
-            %we shall keep the signal if it breach up TDST-lvlup or
-            %TDST-lvldn at the same time
-            isbreachlvlup = px(j,5)>lvlup(j) && (px(j-1,5)<lvlup(j) || px(j,4)<lvlup(j));
-            isbreachlvldn = px(j,5)>lvldn(j) && (px(j-1,5)<lvldn(j) || px(j,4)<lvldn(j));
-            if (isbreachlvlup || isbreachlvldn), continue;end
-            %
-            %we shall also keep the signal if the breach candle's vol is
-            %much higher than the previous ones
-            barsizelast = px(j,3)-px(j,4);    
-            barsizerest = px(j-nkfromhh+1:j-1,3)-px(j-nkfromhh+1:j-1,4);
-            if barsizelast > mean(barsizerest) + 2.58*std(barsizerest), continue;end
-            %
-            %we shall also keep the signal if the breach of lvlup was
-            %during this TDST-Sell Setup
-            if ss(j) > 0 && ~isempty(find(px(j-ss(j):j,5)<lvlup(j),1,'first'))&&px(j,5)>lvlup(j),continue;end
-            if ss(j) > 0 && ~isempty(find(px(j-ss(j):j,5)<lvldn(j),1,'first'))&&px(j,5)>lvldn(j),continue;end
-            %
-            %we shall also keep the signal if it failed the last sell
-            %countdown 13 by breaching its high
-            lastsc13 = find(sc(1:j)==13,1,'last');
-            if ~isempty(lastsc13) && j-lastsc13 <= 12 && px(j,5)>px(lastsc13,3), continue;end
-            %
-            %last but not least to keep at least 2*nfratcal+1 candle bar
-            %with close above teeth
-            %HERE we need more samples
-            if nkaboveteeth2 >= 2*nfractal+1,continue;end
-            idxfractalb1_filtered(i,2) = 0;
-        end
+    %1.exclude when the market is extremely bullish
+    if ss(j) >= 15
+        comments{i} = 'strongbreach-sshighvalue';
+        idxfractalb1_filtered(i,2) = 0;
+        continue;
     end
     %
-end
-% idxfractalb1_filtered = idxfractalb1_filtered(idxfractalb1_filtered(:,2) ~= 0,:);
-
+    %2.pay attention to case of alligator's teeth and jaw crossed
+    [~,~,~,nkaboveteeth2,nkfromhh,teethjawcrossed] = fractal_countb(px(1:j,:),idxHH,nfractal,lips,teeth,jaw);
+    %
+    %keep if it breach-up TDST-lvlup
+    isbreachlvlup = (~isempty(find(px(j-ss(j):j,5)>lvlup(j),1,'first')) &&~isempty(find(px(j-ss(j):j,5)<lvlup(j),1,'first')) && px(j,5)>lvlup(j)) || ...
+        (px(j,5)>lvlup(j) && px(j-1,5)<lvlup(j)) ||...
+        (px(j,5)>lvlup(j) && px(j,4)<lvlup(j));
+    if isbreachlvlup
+        if teethjawcrossed && ss(j) >= 9
+            comments{i} = 'teethjawcrossed';
+            idxfractalb1_filtered(i,2) = 0;
+            continue;
+        else
+            comments{i} = 'breachup-lvlup';
+            continue;
+        end
+    end
+    %keep if it breach-up TDST-lvldn
+    isbreachlvldn = (~isempty(find(px(j-ss(j):j,5)>lvldn(j),1,'first')) &&~isempty(find(px(j-ss(j):j,5)<lvldn(j),1,'first')) && px(j,5)>lvldn(j)) || ...
+        (px(j,5)>lvldn(j) && px(j-1,5)<lvldn(j)) ||...
+        (px(j,5)>lvldn(j) && px(j,4)<lvldn(j));
+    if isbreachlvldn
+        if teethjawcrossed && ss(j) >= 9
+            comments{i} = 'teethjawcrossed';
+            idxfractalb1_filtered(i,2) = 0;
+            continue;
+        else
+            comments{i} = 'breachup-lvldn';
+            continue;
+        end
+    end
     
+    %keep if it breach-up high of a previous sell sequential
+    if ss(j-nkfromhh+1) >= 9
+        lastss = ss(j-nkfromhh+1);
+        if (px(j-nkfromhh+1,5) >= max(px(j-nkfromhh-lastss+2:j-nkfromhh+1,5)) && ...
+                px(j-nkfromhh+1,4) >= max(px(j-nkfromhh-lastss+2:j-nkfromhh+1,4)))
+            comments{i} = 'breachup-sshighvalue';
+            continue;
+        end
+    end
+    if teethjawcrossed
+        comments{i} = 'teethjawcrossed';
+        idxfractalb1_filtered(i,2) = 0;
+        continue;
+    else
+        %exclude if it is too close to TDST-lvlup
+        isclose2lvlup = px(j,5)<lvlup(j) && (lvlup(j)-px(j,5))/(lvlup(j)-lvldn(j))<0.1&&lvlup(j)>lvldn(j); 
+        if isclose2lvlup
+            comments{i} = 'closetolvlup';
+            idxfractalb1_filtered(i,2) = 0;
+            continue;
+        end
+        %keep if it breachs the hh after sc13
+        lastsc13 = find(sc(1:j-1)==13,1,'last');
+        if ~isempty(lastsc13) && j-lastsc13<=2*nfractal+1 &&px(j,5)>max(px(lastsc13:j-1,3))
+            comments{i} = 'breachup-highsc13';
+            continue;
+        end
+        %
+        barsizelast = px(j,3)-px(j,4);
+        barsizerest = px(j-nkfromhh+1:j-1,3)-px(j-nkfromhh+1:j-1,4);
+        isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+        if isvolblowup
+            comments{i} = 'volblowup';
+            continue;
+        else
+            barsizelast = abs(px(j,5)-px(j-1,5));
+            isvolblowup2 = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+            if isvolblowup2
+                if ss(j) <= 1
+                    idxfractalb1_filtered(i,2) = 0;
+                    comments{i} = 'volblowup2-ss1';
+                    continue;
+                else
+                    comments{i} = 'volblowup2';
+                    continue;
+                end
+            else
+                if nkaboveteeth2 >= 2*nfractal+1 && nkaboveteeth2 == nkfromhh
+                    comments{i} = 'strongbreach-trendconfirmed';
+                    continue;
+                else
+                    comments{i} = 'strongbreach-trendbroken';
+                    idxfractalb1_filtered(i,2) = 0;
+                    continue;
+                end
+            end
+        end
+    end
 end
