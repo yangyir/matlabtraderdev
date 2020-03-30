@@ -3,8 +3,8 @@ function [idxfractalb1_filtered,comments] = fractal_filterb1(idxfractalb1,inputm
 idxfractalb1_filtered = idxfractalb1(idxfractalb1(:,2) ~= 1,:);
 %%
 px = inputmatrix(:,1:5);
-idxHH = inputmatrix(:,6);idxLL = inputmatrix(:,7);HH = res(:,8);LL = inputmatrix(:,9);
-jaw = inputmatrix(:,10);teeth = inputmatrix(:,11);lips = res(:,12);
+idxHH = inputmatrix(:,6);idxLL = inputmatrix(:,7);HH = inputmatrix(:,8);LL = inputmatrix(:,9);
+jaw = inputmatrix(:,10);teeth = inputmatrix(:,11);lips = inputmatrix(:,12);
 bs = inputmatrix(:,13);ss = inputmatrix(:,14);
 lvlup = inputmatrix(:,15);lvldn = inputmatrix(:,16);
 bc = inputmatrix(:,17);sc = inputmatrix(:,18);
