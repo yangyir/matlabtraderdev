@@ -4,6 +4,15 @@ op_50etf = tools_technicalplot1(hd_50etf,2,0,'change',0.001,'volatilityperiod',0
 shift = 60;
 tools_technicalplot2(op_50etf(end-shift:end,:),1,'510050 CH Equity',true);
 %%
+[~,~,~,~,~,~,volsmooth] = fractalenhanced(hd_50etf,2,'volatilityperiod',13,'tolerance',0.001);
+figure(2);
+plot(volsmooth(end-63:end));xlabel('businessdays');title('volatility monitor');
+%%
+fut_50 = code2instrument('IH2006');
+raw_50etf = conn.ds_.timeseries(bbgcode_50etf,{today-10,[datestr(today,'yyyy-mm-dd'),' 15:00:00']},1,'trade');
+intraday_50etf = timeseries_compress(raw_50etf,'tradinghours',fut_50.trading_hours,'tradingbreak',fut_50.trading_break,'frequency','30m');
+tools_technicalplot1(intraday_50etf,4,1,'change',0.001,'volatilityperiod',0);
+%%
 fprintf('510050 SH Equity:\n');
 fprintf('%15s\t%s\n','date:',datestr(hd_50etf(end,1),'yyyy-mm-dd'));
 fprintf('%15s\t%s\n','closeprice:',num2str(hd_50etf(end,5)));

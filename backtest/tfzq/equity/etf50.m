@@ -1,10 +1,9 @@
 p = cDataFileIO.loadDataFromTxtFile('510050_daily.txt');
+fprintf('last record date:%s\n',datestr(p(end,1)));
 %%
-res = tools_technicalplot1(p,2,0,'volatilityperiod',0,'tolerance',0.001);
+nfractal = 2;
+res = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0.001);
 res(:,1) = x2mdate(res(:,1));
-% res = timeseries_window(res,'fromdate','2017-01-01','todate','2020-02-21');
-%tools_technicalplot2(res);
-%
 px = res(:,1:5);
 idxHH = res(:,6);idxLL = res(:,7);HH = res(:,8);LL = res(:,9);
 jaw = res(:,10);teeth = res(:,11);lips = res(:,12);
@@ -13,6 +12,10 @@ lvlup = res(:,15);lvldn = res(:,16);
 bc = res(:,17);sc = res(:,18);
 wad = williamsad(px);
 [a,b] = macd(px(:,5));macdvec = a-b;
+%%
+% res = timeseries_window(res,'fromdate','2017-01-01','todate','2020-02-21');
+%tools_technicalplot2(res);
+%
 %%
 flagweakb1 = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,'level','weak');
 flagmediumb1 = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,'level','medium');
@@ -215,7 +218,7 @@ for i = 1:size(idxfractals1,1)
     tradenew.setriskmanager('name','spiderman','extrainfo',riskmanager);
     if bs(j) >= 9
         bsreached = bs(j);
-        tradenew.riskmanager_.tdlow_ = min(px(j-ssreached+1:j,4));
+        tradenew.riskmanager_.tdlow_ = min(px(j-bsreached+1:j,4));
         tdidx = find(px(j-bsreached+1:end,4)==tradenew.riskmanager_.tdlow_,1,'last')+j-bsreached;
         tradenew.riskmanager_.tdhigh_ = px(tdidx,3);
         if tradenew.riskmanager_.tdhigh_ + (tradenew.riskmanager_.tdhigh_-tradenew.riskmanager_.tdlow_) < tradenew.riskmanager_.pxstoploss_
