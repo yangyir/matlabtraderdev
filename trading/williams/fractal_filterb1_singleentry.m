@@ -100,15 +100,26 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
                 end
             else
                 if nkfromhh == nfractal+2
-                    if nkabovelips > 1 && nkaboveteeth > 1 && lips(end)>teeth(end)
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                        return
-                    else
+                    last2hhidx = find(idxHH(1:end)== 1,2,'last');
+                    if size(last2hhidx,1) < 2
                         output = struct('use',0,'comment','mediumbreach-trendbreak');
                         return
                     end
+                    last2hh = HH(last2hhidx);
+                    %check whether a new higher HH is formed or not
+                    if last2hh(2)>last2hh(1) && ss(end)<9
+                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                    elseif last2hh(2)<last2hh(1)&&px(end,5)>last2hh(1)&&ss(end)<9
+                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                    else
+                        output = struct('use',0,'comment','mediumbreach-trendbreak');
+                    end
+                    return
                 else
-                    if nkabovelips >= 2*nfractal+1
+                    if nkabovelips >= 2*nfractal+1 && nkaboveteeth >= 2*nfractal+1
+                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                        return
+                    elseif nkabovelips >= 2*nfractal+1 && nkfromhh-nkabovelips<nfractal && nkaboveteeth >= nfractal+1
                         output = struct('use',1,'comment','mediumbreach-trendconfirmed');
                         return
                     else
@@ -184,7 +195,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
         if teethjawcrossed
             barsizelast = px(end,3)-px(end,4);
             barsizerest = px(end-nkfromhh+1:end-1,3)-px(end-nkfromhh+1:end-1,4);
-            isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+            isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup
                 output = struct('use',1,'comment','volblowup');
             else
@@ -230,7 +241,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
             end
             %
             %INVESTIGATE AND RESEARCH FURTHER
-            if nkaboveteeth2 >= 2*nfractal+1 && ((~isempty(lastsc13) && size(px,1)-lastsc13>12)||isempty(lastsc13))
+            if nkaboveteeth2 >= 2*nfractal+1 && ((~isempty(lastsc13) && size(px,1)-lastsc13>8)||isempty(lastsc13))
                 output = struct('use',1,'comment','strongbreach-trendconfirmed');
                 return
             else

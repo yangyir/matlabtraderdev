@@ -96,6 +96,8 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
                 %check whether a new lower LL is formed or not
                 if last2ll(2)<last2ll(1) && bs(end) < 9
                     output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                elseif last2ll(2)>last2ll(1)&&px(end,5)<last2ll(1)&&bs(end)<9
+                    output = struct('use',1,'comment','mediumbreach-trendconfirmed');
                 else
                     output = struct('use',0,'comment','mediumbreach-trendbreak');
                 end
@@ -110,6 +112,8 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
                     last2ll = LL(last2llidx);
                     %check whether a new lower LL is formed or not
                     if last2ll(2)<last2ll(1) && bs(end) < 9
+                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                    elseif last2ll(2)>last2ll(1)&&px(end,5)<last2ll(1)&&bs(end)<9
                         output = struct('use',1,'comment','mediumbreach-trendconfirmed');
                     else
                         output = struct('use',0,'comment','mediumbreach-trendbreak');
@@ -185,15 +189,23 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
         %keep if it breach-dn low of a previous buy sequential
         if bs(end-nkfromll+1) >= 9
             lastbs = bs(end-nkfromll+1);
-            if (px(end-nkfromll+1,5) <= min(px(end-nkfromll-lastbs+2:end-nkfromll+1,5)) && ...
-                    px(end-nkfromll+1,4) <= min(px(end-nkfromll-lastbs+2:end-nkfromll+1,4)))
+%             if (px(end-nkfromll+1,5) <= min(px(end-nkfromll-lastbs+2:end-nkfromll+1,5)) && ...
+%                     px(end-nkfromll+1,4) <= min(px(end-nkfromll-lastbs+2:end-nkfromll+1,4)))
+            if px(end-nkfromll+1,4) <= min(px(end-nkfromll-lastbs+2:end-nkfromll+1,4))    
                 output = struct('use',1,'comment','breachdn-bshighvalue');
                 return
             end
         end
         %
         if teethjawcrossed
-            output = struct('use',0,'comment','teethjawcrossed');
+            barsizelast = px(end,3)-px(end,4);
+            barsizerest = px(end-nkfromll+1:end-1,3)-px(end-nkfromll+1:end-1,4);
+            isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
+            if isvolblowup
+                output = struct('use',1,'comment','volblowup');
+            else
+                output = struct('use',0,'comment','teethjawcrossed');
+            end
             return
         else
             %exclude if it is too close to TDST-lvldn
@@ -230,7 +242,7 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
             end
             %
             %INVESTIGATE AND RESEARCH FURTHER
-            if nkbelowteeth2 >= 2*nfractal+1 && ((~isempty(lastbc13) && size(px,1)-lastbc13>12)||isempty(lastbc13))
+            if nkbelowteeth2 >= 2*nfractal+1 && ((~isempty(lastbc13) && size(px,1)-lastbc13>8)||isempty(lastbc13))
                 output = struct('use',1,'comment','strongbreach-trendconfirmed');
                 return
             else
