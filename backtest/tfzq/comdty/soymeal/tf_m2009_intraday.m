@@ -1,7 +1,9 @@
-p = cDataFileIO.loadDataFromTxtFile('rb2005_daily.txt');
+db = cLocal;
+p = db.intradaybar(code2instrument('m2009'),'2020-03-01','2020-04-03',30,'trade');
+%%
 fprintf('last record date:%s\n',datestr(p(end,1)));
 %
-nfractal = 2;
+nfractal = 4;
 res = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0.001);
 res(:,1) = x2mdate(res(:,1));
 px = res(:,1:5);
@@ -23,7 +25,7 @@ idxfractalb1 = [find(flagb1==1),ones(length(find(flagb1==1)),1);...
 idxfractalb1 = sortrows(idxfractalb1);
 %% long trade check
 clc;
-idx1 = 201;
+idx1 = 132;
 idx2 = idx1;
 for i = idx1:size(p,1)
     if p(i,5) - lips(i)< -0.002
@@ -32,7 +34,7 @@ for i = idx1:size(p,1)
     end
 end
 idx11 = find(idxHH(1:idx1)==1,1,'last');
-temp = timeseries_window(res,'fromdate',p(idx11-4,1),'todate',p(idx2+5,1));
+temp = timeseries_window(res,'fromdate',p(idx11-4,1),'todate',p(min(idx2+5,size(p,1)),1));
 tools_technicalplot2(temp,1,num2str(idx1));
 %
 b1type = idxfractalb1(idxfractalb1(:,1)==idx1,2);
@@ -61,7 +63,7 @@ idxfractals1 = [find(flags1==1),ones(length(find(flags1==1)),1);...
 idxfractals1 = sortrows(idxfractals1);
 %%
 clc;
-idx1 = 49;
+idx1 = 193;
 idx2 = idx1;
 for i = idx1:size(p,1)
     if p(i,5) - lips(i) > -0.002

@@ -23,7 +23,7 @@ idxfractalb1 = [find(flagb1==1),ones(length(find(flagb1==1)),1);...
 idxfractalb1 = sortrows(idxfractalb1);
 %% long trade check
 clc;
-idx1 = 205;
+idx1 = 160;
 idx2 = idx1;
 for i = idx1:size(p,1)
     if p(i,5) - lips(i)< -0.002
