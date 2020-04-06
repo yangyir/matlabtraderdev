@@ -10,9 +10,10 @@ figure(2);
 plot(volsmooth(end-63:end));xlabel('businessdays');title('volatility monitor');
 %%
 fut_300 = code2instrument('IF2006');
-raw_300etf = conn.ds_.timeseries(bbgcode_300etf,{today-10,[datestr(today,'yyyy-mm-dd'),' 15:00:00']},1,'trade');
-intraday_50etf = timeseries_compress(raw_300etf,'tradinghours',fut_300.trading_hours,'tradingbreak',fut_300.trading_break,'frequency','30m');
-tools_technicalplot1(intraday_50etf,4,1,'change',0.001,'volatilityperiod',0);
+raw_300etf = conn.ds_.timeseries(bbgcode_300etf,{today-30,[datestr(today,'yyyy-mm-dd'),' 15:00:00']},1,'trade');
+intraday_300etf = timeseries_compress(raw_300etf,'tradinghours',fut_300.trading_hours,'tradingbreak',fut_300.trading_break,'frequency','30m');
+op_300etf_intraday = tools_technicalplot1(intraday_300etf,4,1,'change',0.001,'volatilityperiod',0);
+tools_technicalplot2(op_300etf_intraday(end-45:end,:),2,'510300 intraday');
 %%
 fprintf('510300 SH Equity:\n');
 fprintf('%15s\t%s\n','date:',datestr(hd_300etf(end,1),'yyyy-mm-dd'));

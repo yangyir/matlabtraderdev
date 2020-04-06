@@ -119,6 +119,9 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
                     if nkbelowlips >= 2*nfractal+1 && nkbelowteeth >= 2*nfractal+1
                         output = struct('use',1,'comment','mediumbreach-trendconfirmed');
                         return
+                    elseif nkbelowlips >= 2*nfractal+1 && nkfromll-nkbelowlips<nfractal && nkbelowteeth >= nfractal+1
+                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                        return
                     else
                         output = struct('use',0,'comment','mediumbreach-trendbreak');
                         return
