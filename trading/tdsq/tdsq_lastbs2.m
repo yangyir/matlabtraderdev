@@ -40,35 +40,39 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelo
     close9 = p(lastidxbs,5);
     
     f1 = (low8 < min(low6,low7) || low9 < min(low6,low7));
-    
-    %scenario 1: only bs9 is available, i.e. no ss9 happened beforehand
-    if isnan(lvldn(lastidxbs))
-        if f1
-            if close9 < close8
-                tag = 'perfectbs-scenario1';
-            else
-                tag = 'semiperfectbs-scenario1';
-            end
+    if f1
+        if close9 < close8
+            prefix = 'perfectbs';
         else
-            tag = 'imperfectbs-scenario1';
+            prefix = 'semiperfectbs';
         end
+    else
+        prefix = 'imperfectbs';
+    end
+    
+    lastidxss = find(ss==9,1,'last');
+    %scenario 1: only bs9 is available, i.e. no ss9 happened beforehand
+    if isempty(lastidxss)
+        tag = [prefix,'-singlelvlup'];
         return
     end
     
     %scenario 2:the first bs9 with ss9 happened beforehand
-    if isnan(lvlup(lastidxbs_start)) && ~isnan(lvldn(lastidxbs_start))
+    if isnan(lvlup(lastidxbs_start)) && ~isempty(lastidxss)
         lvldn_old = lvldn(lastidxbs_start);
-        f2 = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'));
-        if f1 && f2
-            if close9 < close8
-                tag = 'perfectbs-scenario2';
-            else
-                tag = 'semiperfectbs-scenario2';
-            end
+        isallabove = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'));
+        isallbelow = isempty(find(p(lastidxbs_start:lastidxbs,5) > lvldn_old,1,'first'));
+        if isallabove
+            %might form a doublerange afterwards
+            tag = [prefix,'-singlelvldn-a'];
+        elseif isallbelow
+            %might (given the highest price) form a doublebearish afterwards
+            tag = [prefix,'-singlelvldn-c'];
         else
-            tag = 'imperfectbs-scenario2';
+            %might form a doublerange
+            tag = [prefix,'-singlelvldn-b'];
         end
-        return
+        return;
     end
     
     %scenario3: both bs9 and ss9 happend beforehand
@@ -77,115 +81,60 @@ function [tag,rangelow,rangehigh,lastidxbs_start,lastidxbs_end,idxtruelow,truelo
         lvldn_old = lvldn(lastidxbs_start);
         if lvlup_old > lvldn_old
             %in case all prices closes above lvlup_old
-            f3 = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvlup_old,1,'first'));
+            isallabovelvlup = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvlup_old,1,'first'));
             %in case all prices closes below lvldn_old
-            f4 = isempty(find(p(lastidxbs_start:lastidxbs,5) > lvldn_old,1,'first'));
-            if f3
-                %in case all prices closes above lvlup_old
-                if f1
-                    if close9 < close8
-                        tag = 'perfectbs-scenario3a';
-                    else
-                        tag = 'semiperfectbs-scenario3a';
-                    end
-                else
-                    tag = 'imperfectbs-scenario3a';
-                end
-            elseif f4
-                %in case all prices closes below lvldn_old
-                if f1
-                    if close9 < close8
-                        tag = 'perfectbs-scenario3d';
-                    else
-                        tag = 'semiperfectbs-scenario3d';
-                    end
-                else
-                    tag = 'imperfectbs-scenario3d';
-                end
+            isallbelowlvldn = isempty(find(p(lastidxbs_start:lastidxbs,5) > lvldn_old,1,'first'));
+            if isallabovelvlup
+                %still form a doublerange afterwards but with lvlup lifted
+                tag = [prefix,'-doublerange-a'];
+            elseif isallbelowlvldn
+                %might (given the highest price) form a doublebearish afterwards 
+                tag = [prefix,'-doublerange-d'];
             else
-                if ~(f3 || f4) && isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'))
-                    %in case all prices closes above lvldn_old but not lvlup_old
-                    if f1
-                        if close9 < close8
-                            tag = 'perfectbs-scenario3b';
-                        else
-                            tag = 'semiperfectbs-scenario3b';
-                        end
-                    else
-                        tag = 'imperfectbs-scenario3b';
-                    end
+                %note the new lvlup might be lifted or moved lower and
+                %shall be double check to summarize how this affect the
+                %trading performance
+                isallabovelvlup = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'));
+                if ~(isallabovelvlup || isallbelowlvldn) && isallabovelvlup    
+                    tag = [prefix,'-doublerange-b'];
                 else
-                    %in case some prices closes above lvldn_old but some below
-                    if f1
-                        if close9 < close8
-                            tag = 'perfectbs-scenario3c';
-                        else
-                            tag = 'semiperfectbs-scenario3c';
-                        end
-                    else
-                        tag = 'imperfectbs-scenario3c';
-                    end
+                    tag = [prefix,'-doublerange-c'];
                 end
             end
             %
         elseif lvlup_old < lvldn_old
-            %in case all prices close above lvldn_old
-            f3 = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'));
-            %in case all prices close below lvlup_old
-            f4 = isempty(find(p(lastidxbs_start:lastidxbs,5) > lvlup_old,1,'first'));
-            if f3
-                %in case all prices close above lvldn_old
-                if f1
-                    if close9 < close8
-                        tag = 'perfectbs-scenario4a';
-                    else
-                        tag = 'semiperfectbs-scenario4a';
-                    end
-                else
-                    tag = 'imperfectbs-scenario4a';
-                end
-            elseif f4
-                %in case all prices close below lvlup_old
-                if f1
-                    if close9 < close8
-                        tag = 'perfectbs-scenario4d';
-                    else
-                        tag = 'semiperfectbs-scenario4d';
-                    end
-                else
-                    tag = 'imperfectbs-scenario4d';
-                end
+            preidxbs = find(bs(1:lastidxbs_start) == 9,1,'last');
+            if preidxbs > lastidxss
+                tag = [prefix,'-doublebearish-'];
             else
-                if ~(f3 || f4) && isempty(find(p(lastidxbs_start:lastidxbs,5) < lvlup_old,1,'first'))
-                    %in case all prices close above lvlup_old but not lvldn_old
-                    if f1
-                        if close9 < close8
-                            tag = 'perfectbs-scenario4b';
-                        else
-                            tag = 'semiperfectbs-scenario4b';
-                        end
-                    else
-                        tag = 'imperfectbs-scenario4b';
-                    end
+                tag = [prefix,'-doublebullish-'];
+            end
+            
+            %in case all prices close above lvldn_old
+            isallabovelvldn = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvldn_old,1,'first'));
+            %in case all prices close below lvlup_old
+            isallbelowlvlup = isempty(find(p(lastidxbs_start:lastidxbs,5) > lvlup_old,1,'first'));
+            if isallabovelvldn
+                %form a doublerange afterwards
+                tag = [tag,'a'];
+            elseif isallbelowlvlup
+                %still doublebearish afterwards and very bearish
+                tag = [tag,'d'];
+            else
+                %note:the new lvlup is lifted but it might be still below
+                %lvldn and shall be check to summarize how this affect the
+                %trading performance
+                isallabovelvlup = isempty(find(p(lastidxbs_start:lastidxbs,5) < lvlup_old,1,'first'));
+                if ~(isallabovelvldn || isallbelowlvlup) && isallabovelvlup 
+                    tag = [tag,'b'];
                 else
-                    %in case some prices close above lvlup_old but some below
-                    if f1
-                        if close9 < close8
-                            tag = 'perfectbs-scenario4c';
-                        else
-                            tag = 'semiperfectbs-scenario4c';
-                        end
-                    else
-                        tag = 'imperfectbs-scenario4c';
-                    end
+                    tag = [tag,'c'];
                 end
             end
         end
         return
     end
     
-    variablenotused(ss);
-    variablenotused(lvlup);
     variablenotused(bc);
     variablenotused(sc);
     

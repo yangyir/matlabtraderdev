@@ -1,6 +1,10 @@
 % only works on MACD turning points
 clc;
 np = size(p,1);
+%note:
+%in tdsq_openlogic1:we will open a long position if and only if macd is
+%positive and also we will open a short position if and only if macd is
+%negative
 nchg = size(idxchg,1);
 for i = 1:nchg
     j = idxchg(i,1);
@@ -182,3 +186,7 @@ for i = 1:nchg
     end
     
 end
+%%
+% we need to do some stats of the trades above in order to maximing the pnl
+% per risk management requirement
+% todo:
