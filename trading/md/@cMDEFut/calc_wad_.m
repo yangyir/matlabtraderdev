@@ -5,7 +5,7 @@ function [wad] = calc_wad_(mdefut,instrument,varargin)
     p.addParameter('IncludeLastCandle',0,@isnumeric);
     p.addParameter('RemoveLimitPrice',0,@isnumeric);
     p.parse(instrument,varargin{:});
-    instrument = p.Results.Instrument;
+%     instrument = p.Results.Instrument;
     includeLastCandle = p.Results.IncludeLastCandle;
     removeLimitPrice = p.Results.RemoveLimitPrice;
     
