@@ -73,16 +73,20 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
             else
                 error('unknown signal');
             end
-            info = struct('name','fractal','type',type,'hh',signals(i,2),'ll',signals(i,3));
-            stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+            if bid < signals(i,3) && bid > signals(i,3)-1.618*(signals(i,2)-signals(i,3))
+                info = struct('name','fractal','type',type,'hh',signals(i,2),'ll',signals(i,3));
+                stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+            end
         else
             if signal == 1
                 type = 'breachup-B';
             else
                 error('unknown signal')
             end
-            info = struct('name','fractal','type',type,'hh',signals(i,2),'ll',signals(i,3));
-            stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+            if ask > signals(i,2) && ask < signals(i,2)+1.618*(signals(i,2)-signals(i,3))
+                info = struct('name','fractal','type',type,'hh',signals(i,2),'ll',signals(i,3));
+                stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+            end
         end
 
     end    
