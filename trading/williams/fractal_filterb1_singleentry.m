@@ -199,7 +199,11 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
             if isvolblowup
                 output = struct('use',1,'comment','volblowup');
             else
-                output = struct('use',0,'comment','teethjawcrossed');
+                if nkaboveteeth2 >= 2*nfractal+1 && ss(end) < 9
+                    output = struct('use',1,'comment','strongbreach-trendconfirmed');
+                else
+                    output = struct('use',0,'comment','teethjawcrossed');
+                end
             end
             return
         else
