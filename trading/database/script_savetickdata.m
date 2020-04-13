@@ -83,11 +83,14 @@ list = {'sugar';'cotton';'corn';'egg';...
             'apple';...
             'rubber'};
 for i = 1:size(list,1)
-    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
-    for j = 1:size(codelist,1)
-        savetickfrombloomberg(conn,codelist{j},...
-            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
-            'todate',todate);
+    try
+        [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+        for j = 1:size(codelist,1)
+            savetickfrombloomberg(conn,codelist{j},...
+                'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+                'todate',todate);
+        end
+    catch
     end
 end
 fprintf('done for saving tick data for agriculture futures\n\n');
