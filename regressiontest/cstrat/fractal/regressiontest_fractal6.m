@@ -5,10 +5,10 @@ try
 catch
 end
 %
-code = 'ru2009';
+code = 'rb2010';
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'replaycomdty';
+bookname = ['replaybook-',code];
 strategyname = 'fractal';
 riskconfigfilename = 'config_replaycomdty.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',{code});
@@ -22,7 +22,7 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2020-04-08','replaytodate','2020-04-08');
+    'replayfromdate','2020-04-09','replaytodate','2020-04-09');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = false;
 combo.ops.printflag_ = true;
@@ -43,3 +43,8 @@ end
 %%
 [~,~,p_code] = combo.mdefut.calc_macd_(code2instrument(code),'includelastcandle',1,'removelimitprice',1);
 op_code = tools_technicalplot1(p_code,4,1,'volatilityperiod',0,'tolerance',0.000);
+%%
+combo.ops.print;
+%%
+combo.ops.book_.printpositions
+

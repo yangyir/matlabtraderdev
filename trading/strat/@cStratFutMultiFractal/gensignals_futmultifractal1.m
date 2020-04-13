@@ -104,10 +104,22 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 end
                 extrainfo = struct('px',p,'ss',ss,'sc',sc,'lvlup',lvlup,'lvldn',lvldn,...
                     'idxhh',idxHH,'hh',hh,...
+                    'idxll',idxLL,'ll',ll,...
                     'lips',lips,'teeth',teeth,'jaw',jaw,...
                     'wad',wad);
                 op = fractal_filterb1_singleentry(b1type,nfractal,extrainfo);
                 validbreachhh = op.use;
+                if ~validbreachhh
+                    %special treatment when market jumps
+                    tick = stratfractal.mde_fut_.getlasttick(instruments{i});
+                    if ~isempty(tick)
+                        ask = tick(3);
+                        if ask>lvlup(end) && p(end,5)<lvlup(end)
+                            validbreachhh = 1;
+                            op.comment = 'breachup-lvlup';
+                        end
+                    end
+                end
                 if ~validbreachhh
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
                     continue;
@@ -137,6 +149,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     s1type = 2;
                 end
                 extrainfo = struct('px',p,'bs',bs,'bc',bc,'lvlup',lvlup,'lvldn',lvldn,...
+                    'idxhh',idxHH,'hh',hh,...
                     'idxll',idxLL,'ll',ll,...
                     'lips',lips,'teeth',teeth,'jaw',jaw,...
                     'wad',wad);

@@ -10,6 +10,7 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
     lvlup = extrainfo.lvlup;
     lvldn = extrainfo.lvldn;
     idxLL = extrainfo.idxll;
+    HH = extrainfo.hh;
     LL = extrainfo.ll;
     lips = extrainfo.lips;
     teeth = extrainfo.teeth;
@@ -59,13 +60,13 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
         [~,~,nkbelowlips,nkbelowteeth,nkfromll] = fractal_counts(px,idxLL,nfractal,lips,teeth,jaw);
         barsizelast = px(end,3)-px(end,4);
         barsizerest = px(end-nkfromll+1:end-1,3)-px(end-nkfromll+1:end-1,4);
-        isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+        isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
         if isvolblowup
             output = struct('use',1,'comment','volblowup');
             return
         else
             barsizelast = abs(px(end,5)-px(end-1,5));
-            isvolblowup2 = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+            isvolblowup2 = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup2
                 if bs(end) <= 1
                     output = struct('use',0,'comment','volblowup2-bs1');
@@ -102,36 +103,45 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
                     output = struct('use',0,'comment','mediumbreach-trendbreak');
                 end
                 return
-            else
-                if nkfromll == nfractal + 2
-                    last2llidx = find(idxLL(1:end)== -1,2,'last');
-                    if size(last2llidx,1) < 2
-                        output = struct('use',0,'comment','mediumbreach-trendbreak');
-                        return
-                    end
-                    last2ll = LL(last2llidx);
-                    %check whether a new lower LL is formed or not
-                    if last2ll(2)<last2ll(1) && bs(end) < 9
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                    elseif last2ll(2)>last2ll(1)&&px(end,5)<last2ll(1)&&bs(end)<9
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                    else
-                        output = struct('use',0,'comment','mediumbreach-trendbreak');
-                    end
-                    return
-                else
-                    if nkbelowlips >= 2*nfractal+1 && nkbelowteeth >= 2*nfractal+1
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                        return
-                    elseif nkbelowlips >= 2*nfractal+1 && nkfromll-nkbelowlips<nfractal && nkbelowteeth >= nfractal+1
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                        return
-                    else
-                        output = struct('use',0,'comment','mediumbreach-trendbreak');
-                        return
-                    end
-                end
             end
+            %
+            if nkfromll == nfractal+2
+                last2llidx = find(idxLL(1:end)== -1,2,'last');
+                if size(last2llidx,1) < 2
+                    output = struct('use',0,'comment','mediumbreach-trendbreak');
+                    return
+                end
+                last2ll = LL(last2llidx);
+                %check whether a new lower LL is formed or not
+                if last2ll(2)<last2ll(1) && bs(end) < 9
+                    output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                elseif last2ll(2)>last2ll(1)&&px(end,5)<last2ll(1)&&bs(end)<9
+                    output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                else
+                    output = struct('use',0,'comment','mediumbreach-trendbreak');
+                end
+                return
+            end
+            %
+            if nkbelowlips >= 2*nfractal+1 && nkbelowteeth >= 2*nfractal+1
+                output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                return
+            end
+            %
+            if nkbelowlips >= 2*nfractal+1 && nkfromll-nkbelowlips<nfractal && nkbelowteeth >= nfractal+1
+                output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                return
+            end
+            %
+            hasbreachedhh = ~isempty(find(px(end-nkfromll+1:end-1,5)-HH(end-nkfromll+1:end-1)>0,1,'first'));
+            if ~hasbreachedhh && nkbelowteeth > nfractal + 1
+                output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                return
+            end
+            %
+            output = struct('use',0,'comment','mediumbreach-trendbreak');
+            return
+            
         end         
     end
     %%
@@ -203,9 +213,21 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
             isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup
                 output = struct('use',1,'comment','volblowup');
-            else
-                output = struct('use',0,'comment','teethjawcrossed');
+                return
             end
+            %
+            if nkbelowteeth2 >= 2*nfractal+1 && bs(end) < 9
+                output = struct('use',1,'comment','strongbreach-trendconfirmed');
+                return
+            end
+            %
+            hasbreachhh = ~isempty(find(px(end-nkfromll+1:end-1,5)-HH(end-nkfromll+1:end-1)>0,1,'first'));
+            if ~hasbreachhh && nkbelowteeth2 > nfractal+1
+                output = struct('use',1,'comment','strongbreach-trendconfirmed');
+                return
+            end
+            output = struct('use',0,'comment','teethjawcrossed');
+           
             return
         else
             %exclude if it is too close to TDST-lvldn

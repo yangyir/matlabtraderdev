@@ -11,6 +11,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
     lvldn = extrainfo.lvldn;
     idxHH = extrainfo.idxhh;
     HH = extrainfo.hh;
+    LL = extrainfo.ll;
     lips = extrainfo.lips;
     teeth = extrainfo.teeth;
     jaw = extrainfo.jaw;
@@ -63,13 +64,13 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
         [~,~,nkabovelips,nkaboveteeth,nkfromhh] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw);
         barsizelast = px(end,3)-px(end,4);
         barsizerest = px(end-nkfromhh+1:end-1,3)-px(end-nkfromhh+1:end-1,4);
-        isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+        isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
         if isvolblowup
             output = struct('use',1,'comment','volblowup');
             return
         else
             barsizelast = abs(px(end,5)-px(end-1,5));
-            isvolblowup2 = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+            isvolblowup2 = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup2
                 if ss(end) <= 1
                     output = struct('use',0,'comment','volblowup2-ss1');
@@ -98,36 +99,45 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
                     output = struct('use',0,'comment','mediumbreach-trendbreak');
                     return
                 end
-            else
-                if nkfromhh == nfractal+2
-                    last2hhidx = find(idxHH(1:end)== 1,2,'last');
-                    if size(last2hhidx,1) < 2
-                        output = struct('use',0,'comment','mediumbreach-trendbreak');
-                        return
-                    end
-                    last2hh = HH(last2hhidx);
-                    %check whether a new higher HH is formed or not
-                    if last2hh(2)>last2hh(1) && ss(end)<9
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                    elseif last2hh(2)<last2hh(1)&&px(end,5)>last2hh(1)&&ss(end)<9
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                    else
-                        output = struct('use',0,'comment','mediumbreach-trendbreak');
-                    end
+            end
+            %
+            if nkfromhh == nfractal+2
+                last2hhidx = find(idxHH(1:end)== 1,2,'last');
+                if size(last2hhidx,1) < 2
+                    output = struct('use',0,'comment','mediumbreach-trendbreak');
                     return
-                else
-                    if nkabovelips >= 2*nfractal+1 && nkaboveteeth >= 2*nfractal+1
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                        return
-                    elseif nkabovelips >= 2*nfractal+1 && nkfromhh-nkabovelips<nfractal && nkaboveteeth >= nfractal+1
-                        output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-                        return
-                    else
-                        output = struct('use',0,'comment','mediumbreach-trendbreak');
-                        return
-                    end
                 end
-            end      
+                last2hh = HH(last2hhidx);
+                %check whether a new higher HH is formed or not
+                if last2hh(2)>last2hh(1) && ss(end)<9
+                    output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                elseif last2hh(2)<last2hh(1)&&px(end,5)>last2hh(1)&&ss(end)<9
+                    output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                else
+                    output = struct('use',0,'comment','mediumbreach-trendbreak');
+                end
+                return
+            end
+            %     
+            if nkabovelips >= 2*nfractal+1 && nkaboveteeth >= 2*nfractal+1
+                output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                return
+            end
+            %
+            if nkabovelips >= 2*nfractal+1 && nkfromhh-nkabovelips<nfractal && nkaboveteeth >= nfractal+1
+                output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                return
+            end
+            %
+            hasbreachedll = ~isempty(find(px(end-nkfromhh+1:end-1,5)-LL(end-nkfromhh+1:end-1)<0,1,'first'));
+            if ~hasbreachedll && nkaboveteeth > nfractal+1
+                output = struct('use',1,'comment','mediumbreach-trendconfirmed');
+                return
+            end
+            %
+            output = struct('use',0,'comment','mediumbreach-trendbreak');
+            return
+                     
         end
     end
         
@@ -198,13 +208,21 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
             isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup
                 output = struct('use',1,'comment','volblowup');
-            else
-                if nkaboveteeth2 >= 2*nfractal+1 && ss(end) < 9
-                    output = struct('use',1,'comment','strongbreach-trendconfirmed');
-                else
-                    output = struct('use',0,'comment','teethjawcrossed');
-                end
+                return
             end
+            %
+            if nkaboveteeth2 >= 2*nfractal+1 && ss(end) < 9
+                output = struct('use',1,'comment','strongbreach-trendconfirmed');
+                return
+            end
+            %
+            hasbreachedll = ~isempty(find(px(end-nkfromhh+1:end-1,5)-LL(end-nkfromhh+1:end-1)<0,1,'first'));
+            if ~hasbreachedll && nkaboveteeth2 > nfractal+1
+                output = struct('use',1,'comment','strongbreach-trendconfirmed');
+                return
+            end
+            output = struct('use',0,'comment','teethjawcrossed');
+                
             return
         else
             %exclude if it is too close to TDST-lvlup
