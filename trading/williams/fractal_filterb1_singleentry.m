@@ -270,7 +270,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
                 if nkfromhh == nfractal+2 &&  nkaboveteeth2 == nkfromhh
                     last2hhidx = find(idxHH(1:end)==1,2,'last');
                     if size(last2hhidx,1) < 2
-                        output = struct('use',0,'comment','strongbreach-break');
+                        output = struct('use',0,'comment','strongbreach-trendbreak');
                         return
                     end
                     last2hh = HH(last2hhidx);
@@ -280,11 +280,11 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
                             && ss(end) < 9
                         output = struct('use',1,'comment','strongbreach-trendconfirmed');
                     else
-                        output = struct('use',0,'comment','strongbreach-break');
+                        output = struct('use',0,'comment','strongbreach-trendbreak');
                     end
                     return
                 else
-                    output = struct('use',0,'comment','strongbreach-break');
+                    output = struct('use',0,'comment','strongbreach-trendbreak');
                     return
                 end
             end
