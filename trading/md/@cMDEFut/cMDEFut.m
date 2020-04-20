@@ -132,7 +132,7 @@ classdef cMDEFut < cMyTimerObj
         % William's alligator
         [jaw,teeth,lips] = calc_alligator_(obj,instrument,varargin)
         %William's accumulate/distribute
-        wad = calc_wad_(obj,instrument,varargin)
+        [wad,p] = calc_wad_(obj,instrument,varargin)
         
     end
     

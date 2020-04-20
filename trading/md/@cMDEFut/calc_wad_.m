@@ -1,4 +1,4 @@
-function [wad] = calc_wad_(mdefut,instrument,varargin)
+function [wad,data] = calc_wad_(mdefut,instrument,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addRequired('Instrument', @(x) validateattributes(x,{'cInstrument'},{},'','Instrument'));
