@@ -15,6 +15,11 @@ for i = 1:length(opt50_c_apr)
     savedailybarfrombloomberg2(conn,opt50_p_apr{i});
 end
 %
+for i = 1:length(opt50_c_may)
+    savedailybarfrombloomberg2(conn,opt50_c_may{i});
+    savedailybarfrombloomberg2(conn,opt50_p_may{i});
+end
+%
 for i = 1:length(opt50_c_jun)
     savedailybarfrombloomberg2(conn,opt50_c_jun{i});
     savedailybarfrombloomberg2(conn,opt50_p_jun{i});
