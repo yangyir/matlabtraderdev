@@ -88,16 +88,18 @@ function [] = refresh(obj,varargin)
                     end
                 end
 %                 rtprbd = pnlriskbreakdownbbg2(carryinfo,[bid_c(jj),ask_c(jj),bid_p(jj),ask_p(jj)],[bid_u,ask_u]);
-                rtprbd = pnlriskbreakdownbbg2(carryinfo,[last_c(jj),last_p(jj)],last_u);
-                obj.deltacarry_(j) = rtprbd.deltacarry;
-                obj.gammacarry_(j) = rtprbd.gammacarry;
-                obj.thetacarry_(j) = rtprbd.thetacarry;
-                obj.vegacarry_(j) = rtprbd.vegacarry;
-                obj.impvol_(j) = rtprbd.iv2;
-                iv2(jj) = rtprbd.iv2;
-                iv1(jj) = rtprbd.iv1;
-                pxuchg(jj) = last_u/carryinfo.spot2-1;
-                obj.rtprbd_{j} = rtprbd;
+                if ~isnan(last_c(jj)) && ~isnan(last_p(jj))
+                    rtprbd = pnlriskbreakdownbbg2(carryinfo,[last_c(jj),last_p(jj)],last_u);
+                    obj.deltacarry_(j) = rtprbd.deltacarry;
+                    obj.gammacarry_(j) = rtprbd.gammacarry;
+                    obj.thetacarry_(j) = rtprbd.thetacarry;
+                    obj.vegacarry_(j) = rtprbd.vegacarry;
+                    obj.impvol_(j) = rtprbd.iv2;
+                    iv2(jj) = rtprbd.iv2;
+                    iv1(jj) = rtprbd.iv1;
+                    pxuchg(jj) = last_u/carryinfo.spot2-1;
+                    obj.rtprbd_{j} = rtprbd;
+                end
             else
                 for jj = 1:count_c
                     if strcmpi(obj.options_{j},opt_p{jj})
@@ -105,16 +107,18 @@ function [] = refresh(obj,varargin)
                     end
                 end
 %                 rtprbd = pnlriskbreakdownbbg2(carryinfo,[bid_c(jj),ask_c(jj),bid_p(jj),ask_p(jj)],[bid_u,ask_u]);
-                rtprbd = pnlriskbreakdownbbg2(carryinfo,[last_c(jj),last_p(jj)],last_u);
-                obj.deltacarry_(j) = rtprbd.deltacarry;
-                obj.gammacarry_(j) = rtprbd.gammacarry;
-                obj.thetacarry_(j) = rtprbd.thetacarry;
-                obj.vegacarry_(j) = rtprbd.vegacarry;
-                obj.impvol_(j) = rtprbd.iv2;
-                iv2(jj) = rtprbd.iv2;
-                iv1(jj) = rtprbd.iv1;
-                pxuchg(jj) = last_u/carryinfo.spot2-1;
-                obj.rtprbd_{j} = rtprbd;
+                if ~isnan(last_c(jj)) && ~isnan(last_p(jj))
+                    rtprbd = pnlriskbreakdownbbg2(carryinfo,[last_c(jj),last_p(jj)],last_u);
+                    obj.deltacarry_(j) = rtprbd.deltacarry;
+                    obj.gammacarry_(j) = rtprbd.gammacarry;
+                    obj.thetacarry_(j) = rtprbd.thetacarry;
+                    obj.vegacarry_(j) = rtprbd.vegacarry;
+                    obj.impvol_(j) = rtprbd.iv2;
+                    iv2(jj) = rtprbd.iv2;
+                    iv1(jj) = rtprbd.iv1;
+                    pxuchg(jj) = last_u/carryinfo.spot2-1;
+                    obj.rtprbd_{j} = rtprbd;
+                end
             end
         end
         
@@ -137,6 +141,7 @@ function [] = refresh(obj,varargin)
         fprintf('%10s','ask_fwd');
         fprintf('\n');
         for j = 1:count_c
+            if isnan(bid_c(j)), continue;end
             fprintf('%10s',num2str(bid_c(j)));
             fprintf('%10s',num2str(ask_c(j)));
             fprintf('%10s',num2str(k(j)));
@@ -154,22 +159,24 @@ function [] = refresh(obj,varargin)
         if nu == 1
             figure(10);
             subplot(211);
-            plot(k,iv1,'-');hold on;
+            idx = iv1 ~= 0;
+            plot(k(idx),iv1(idx),'-');hold on;
             if pxuchg(1) > 0
                 color = 'r';
-                plot(k,iv2,'r-');
+                plot(k(idx),iv2(idx),'r-');
             else
                 color = 'g';
-                plot(k,iv2,'g-');
+                plot(k(idx),iv2(idx),'g-');
             end
             hold off;
             xlabel('strike');ylabel('vol');
             %
             subplot(212);
 
-            bar(k,iv2-iv1,color);
+            bar(k(idx),iv2(idx)-iv1(idx),color);
             xlabel('strike');ylabel('spread');
         
         end
+    end
     
 end
