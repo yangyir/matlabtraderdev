@@ -202,6 +202,10 @@ function [] = updateentrustsandbook2(obj)
                             if strcmpi(trade_i.id_,tradeid)
                                 instrument = trade_i.instrument_;
                                 trade_i.status_ = 'closed';
+                                try
+                                    trade_i.riskmanager_.status_ = 'closed';
+                                catch
+                                end
                                 trade_i.closedatetime1_ = e.complete_time_;
                                 trade_i.closeprice_ = e.price;
                                 trade_i.runningpnl_ = 0;

@@ -7,6 +7,8 @@ classdef cTradeRiskManager < handle
         %
         pxtarget_@double = -9.99
         pxstoploss_@double = -9.99
+        %
+        closestr_@char = 'none'
     end
     
     methods (Abstract)

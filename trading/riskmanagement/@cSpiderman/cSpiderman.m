@@ -8,6 +8,15 @@ classdef cSpiderman < cTradeRiskManager
         pxstoploss2_@double = -9.99                                         %stoploss at candle level
         tdhigh_@double = NaN
         tdlow_@double = NaN
+        %
+        wadopen_@double
+        cpopen_@double
+        %long trade
+        wadhigh_@double = NaN
+        cphigh_@double = NaN
+        %short trade
+        wadlow_@double = NaN
+        cplow_@double = NaN
     end
     
     properties (Access = private)
@@ -26,5 +35,8 @@ classdef cSpiderman < cTradeRiskManager
         [] = updatestoploss(obj,varargin)
     end
     
+    methods (Access = private)
+        [ret] = riskmanagement_wad(obj,varargin)
+    end
 end
 

@@ -36,7 +36,9 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     if ticktime < buckets(end), return;end
     
     if strcmpi(trade.status_,'unset')
-        openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
+%         openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
+        idxopen = find(candleK(:,1) <= trade.opendatetime1_,1,'last')-1;
+        openBucket = candleK(idxopen,1);
         candleTime = candleK(end,1);
         if openBucket <= candleTime
             trade.status_ = 'set';
@@ -64,6 +66,20 @@ function [unwindtrade] = riskmanagement(obj,varargin)
                     end
                 end
             end
+            %
+            if trade.opendirection_ == 1
+                [wad,px] = mdefut.calc_wad_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                obj.wadopen_ = wad(end);
+                obj.cpopen_ = px(end,5);
+                obj.wadhigh_ = wad(end);
+                obj.cphigh_ = px(end,5);
+            elseif trade.opendirection_ == -1
+                [wad,px] = mdefut.calc_wad_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                obj.wadopen_ = wad(end);
+                obj.cpopen_ = px(end,5);
+                obj.wadlow_ = wad(end);
+                obj.cplow_ = px(end,5);
+            end
         end
     end
     
@@ -84,7 +100,8 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     end
     
     this_count = size(buckets,1)-1;
-    if this_count ~= obj.bucket_count_ || runriskmanagementbeforemktclose
+%     if this_count ~= obj.bucket_count_ || runriskmanagementbeforemktclose
+    if this_count ~= obj.bucket_count_
         %the last candle has just finished
         if this_count < 1
             histcandleCell = mdefut.gethistcandles(instrument);

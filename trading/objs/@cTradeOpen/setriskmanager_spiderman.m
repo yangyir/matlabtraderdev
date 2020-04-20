@@ -21,18 +21,37 @@ function [] = setriskmanager_spiderman(obj,varargin)
         riskmanager.tdlow_ = info.tdlow_;
     catch
     end
+    try
+        riskmanager.wadopen_ = info.wadopen_;
+        riskmanager.cpopen_ = info.cpopen_;
+        riskmanager.wadhigh_ = info.wadhigh_;
+        riskmanager.cphigh_ = info.cphigh_;
+        riskmanager.wadlow_ = info.wadlow_;
+        riskmanager.cplow_ = info.cplow_;
+    catch
+    end
     riskmanager.trade_ = obj;
 
     if strcmpi(riskmanager.type_,'breachup-B')
         riskmanager.pxstoploss_ = riskmanager.hh1_ - 0.618*(riskmanager.hh1_-riskmanager.ll1_);
         riskmanager.pxstoploss2_ = riskmanager.hh1_ - 0.382*(riskmanager.hh1_-riskmanager.ll1_);
         riskmanager.pxtarget_ = riskmanager.hh1_ + 1.618*(riskmanager.hh1_-riskmanager.ll1_);
+        if ~isnan(riskmanager.tdlow_) && ~isnan(riskmanager.tdhigh_)
+            if riskmanager.tdlow_ - (riskmanager.tdhigh_-riskmanager.tdlow_) > riskmanager.pxstoploss_
+                riskmanager.pxstoploss_ = riskmanager.tdlow_ - (riskmanager.tdhigh_-riskmanager.tdlow_);
+            end
+        end
     elseif strcmpi(riskmanager.type_,'reverse-B')
         error('cTradeOpen:setriskmanager_spiderman:reverse-B not implemented...')
     elseif strcmpi(riskmanager.type_,'breachdn-S')
         riskmanager.pxstoploss_ = riskmanager.ll1_ + 0.618*(riskmanager.hh1_-riskmanager.ll1_);
         riskmanager.pxstoploss2_ = riskmanager.ll1_ + 0.382*(riskmanager.hh1_-riskmanager.ll1_);
         riskmanager.pxtarget_ = riskmanager.ll1_ - 1.618*(riskmanager.hh1_-riskmanager.ll1_);
+        if ~isnan(riskmanager.tdlow_) && ~isnan(riskmanager.tdhigh_)
+            if riskmanager.tdhigh_ + (riskmanager.tdhigh_-riskmanager.tdlow_) < riskmanager.pxstoploss_
+                riskmanager.pxstoploss_ = riskmanager.tdhigh_ + (riskmanager.tdhigh_-riskmanager.tdlow_);
+            end
+        end
     elseif strcmpi(riskmanager.type_,'reverse-S')
         error('cTradeOpen:setriskmanager_spiderman:reverse-S not implemented...')
     else

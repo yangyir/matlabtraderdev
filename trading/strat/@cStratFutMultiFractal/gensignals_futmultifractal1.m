@@ -28,7 +28,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
     
     if is2minbeforemktopen || calcsignalbeforemktclose
         for i = 1:n
-            [bs,ss,lvlup,lvldn,bc,sc] = mdefut.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            [bs,ss,lvlup,lvldn,bc,sc,p] = mdefut.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
             [~,~,hh,ll] = mdefut.calc_fractal_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
             [jaw,teeth,lips] = mdefut.calc_alligator_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
             wad = mdefut.calc_wad_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
@@ -44,6 +44,24 @@ function signals = gensignals_futmultifractal1(stratfractal)
             stratfractal.lvlup_{i} = lvlup;
             stratfractal.lvldn_{i} = lvldn;
             stratfractal.wad_{i} = wad;
+        end
+        
+        if is2minbeforemktopen
+            ntrades = stratfractal.helper_.trades_.latest_;
+            for itrade = 1:ntrades
+                trade_i = stratfractal.helper_.trades_.node_(itrade);
+                [~,idx_trade] = stratfractal.hasinstrument(trade_i.instrument_);
+                %re-adj wad as the initial calc point changes
+                iopen = find(p(:,1) <= trade_i.opendatetime1_,1,'last')-1;
+                if trade_i.opendirection_ == 1
+                    trade_i.riskmanager_.wadopen_ = stratfractal.wad_{idx_trade}(iopen);
+                    trade_i.riskmanager_.wadhigh_ = max(stratfractal.wad_{idx_trade}(iopen:end));
+                elseif trade_i.opendirection_ == -1
+                    trade_i.riskmanager_.wadopen_ = stratfractal.wad_{idx_trade}(iopen);
+                    trade_i.riskmanager_.wadlow_ = min(stratfractal.wad_{idx_trade}(iopen:end));
+                end
+            end
+            
         end
         
         if is2minbeforemktopen, return;end
@@ -73,7 +91,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
             [bs,ss,lvlup,lvldn,bc,sc,p] = mdefut.calc_tdsq_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
             [idxHH,idxLL,hh,ll] = mdefut.calc_fractal_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
             [jaw,teeth,lips] = mdefut.calc_alligator_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            wad = mdefut.calc_wad_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            wad = mdefut.calc_wad_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
             
             stratfractal.hh_{i} = hh;
             stratfractal.ll_{i} = ll;
@@ -90,11 +108,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
             
             nfractal = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','nfractals');
             
-            validbreachhh = p(end,5)>hh(end-1) & p(end-1,5)<=hh(end-1) &...
+            try
+                ticksize = instruments{i}.tick_size;
+            catch
+                ticksize = 0;
+            end
+            
+            validbreachhh = p(end,5)-hh(end-1)>ticksize & p(end-1,5)<=hh(end-1) &...
                 abs(hh(end-1)/hh(end)-1)<0.002 &...
                 p(end,3)>lips(end) &...
                 ~isnan(lips(end))&~isnan(teeth(end))&~isnan(jaw(end))&... 
-                hh(end)>teeth(end);
+                hh(end)-teeth(end)>=ticksize;
             
             if validbreachhh
                 if teeth(end)>jaw(end)
@@ -136,11 +160,11 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 end
             end
                   
-            validbreachll = p(end,5)<ll(end-1) & p(end-1,5)>=ll(end-1)&...
+            validbreachll = p(end,5)-ll(end-1)<-ticksize & p(end-1,5)>=ll(end-1)&...
                 abs(ll(end-1)/ll(end)-1)<0.002 &...
                 p(end,4)<lips(end) &...
                 ~isnan(lips(end))&~isnan(teeth(end))&~isnan(jaw(end))&...
-                ll(end)<teeth(end);
+                ll(end)-teeth(end)<=-ticksize;
             
             if validbreachll
                 if teeth(end)<jaw(end)

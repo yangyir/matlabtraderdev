@@ -222,7 +222,35 @@ function [] = riskmanagement(obj,dtnum)
             unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
                 'UpdatePnLForClosedTrade',false,'Strategy',obj);
         
-            if ~isempty(unwindtrade),obj.unwindtrade(unwindtrade);end
+            if ~isempty(unwindtrade)
+                if unwindtrade.opendirection_ == 1 && strcmpi(unwindtrade.riskmanager_.closestr_,'new high wad w/o price being higher')
+                    instrument = unwindtrade.instrument_;
+                    lastk = obj.mde_fut_.getlastcandle(instrument);
+                    if lastk{1}(2) >= unwindtrade.riskmanager_.cphigh_
+                        unwindtrade.riskmanager_.closestr_ = 'none';
+                    else
+                        obj.unwindtrade(unwindtrade);
+                    end
+                elseif unwindtrade.opendirection_ == 1 && strcmpi(unwindtrade.riskmanager_.closestr_,'higher price to open with lower wad')
+                    instrument = unwindtrade.instrument_;
+                    [wad,lastk] = obj.mde_fut_.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+                    if lastk(end,2) > lastk(end-2,5)
+                        pmove = lastk(end,2)-min(lastk(end-1,4),lastk(end-2,5));
+                    elseif lastk(end,2) == lastk(end-2,5)
+                        pmove = 0;
+                    elseif lastk(end,2) < lastk(end-2,5)
+                        pmove = lastk(end,2)-max(lastk(end-1,3),lastk(end-2,5));
+                    end
+                    wadadj = wad(end-2)+pmove;
+                    if wadadj > unwindtrade.riskmanager_.wadopen_
+                        unwindtrade.riskmanager_.closestr_ = 'none';
+                    else
+                        obj.unwindtrade(unwindtrade);
+                    end 
+                else
+                    obj.unwindtrade(unwindtrade);
+                end
+            end
             
         end
     else
