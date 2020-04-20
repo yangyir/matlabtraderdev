@@ -4,7 +4,7 @@ for i = 1:size(idxfractalb1,1)
     [output_count(i,1),output_count(i,2),output_count(i,3),output_count(i,4),output_count(i,5),output_count(i,6),output_count(i,7)] = fractal_countb(p(1:j,:),idxHH,nfractal,lips,teeth,jaw);
 end
 %% long trade check
-idx1 = 1075;
+idx1 = 1100;
 idx2 = idx1;
 for i = idx1:size(p,1)
     if p(i,5) - lips(i)< -0.002
@@ -15,7 +15,7 @@ end
 idx11 = find(idxHH(1:idx1)==1,1,'last');
 temp = timeseries_window(res,'fromdate',p(idx11-4,1),'todate',p(idx2+5,1));
 tools_technicalplot2(temp,1,num2str(idx1));
-%%
+%
 b1type = idxfractalb1(idxfractalb1(:,1)==idx1,2);
 extrainfo = struct('px',px(1:idx1,:),'ss',ss(1:idx1),'sc',sc(1:idx1),...
     'lvlup',lvlup(1:idx1),'lvldn',lvldn(1:idx1),...
