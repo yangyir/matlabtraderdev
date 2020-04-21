@@ -212,9 +212,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             close9 = extrainfo.p(end,5);
             close8 = extrainfo.p(end-1,5);
             if high8 > max(high6,high7) && ...
-                    high9 < max(high6,high7) && ...
+                    high9 > max(high6,high7) && ...
                     close9>close8 && ....
-                    extrainfo.wad(end)-extrainfo.wad(end-1)<close9-close8
+                    extrainfo.wad(end)-extrainfo.wad(end-1)>close9-close8
                 closeflag = 1;
                 obj.closestr_ = 'perfectss9';
             end 
@@ -223,6 +223,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if closeflag == 0 && extrainfo.ss(end) >= 16
             closeflag = 1;
             obj.closestr_ = 'sshighvalue-16';
+        end
+        %
+        if closeflag == 0 && extrainfo.sc(end) == 13
+            if extrainfo.p(end,5)-obj.cpopen_ > extrainfo.wad(end)-obj.wadopen_
+                closeflag = 1;
+                obj.closestr_ = 'sc13';
+            end
         end
         %
         if closeflag == 0
