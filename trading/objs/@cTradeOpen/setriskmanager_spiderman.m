@@ -36,6 +36,14 @@ function [] = setriskmanager_spiderman(obj,varargin)
         riskmanager.pxstoploss_ = riskmanager.hh1_ - 0.618*(riskmanager.hh1_-riskmanager.ll1_);
         riskmanager.pxstoploss2_ = riskmanager.hh1_ - 0.382*(riskmanager.hh1_-riskmanager.ll1_);
         riskmanager.pxtarget_ = riskmanager.hh1_ + 1.618*(riskmanager.hh1_-riskmanager.ll1_);
+        
+        if ~isempty(obj.instrument_)
+            ticksize = obj.instrument_.tick_size;
+            riskmanager.pxstoploss_ = floor(riskmanager.pxstoploss_/ticksize)*ticksize;
+            riskmanager.pxstoploss2_ = floor(riskmanager.pxstoploss2_/ticksize)*ticksize;
+            riskmanager.pxtarget_ = ceil(riskmanager.pxtarget_/ticksize)*ticksize;
+        end
+        
         if ~isnan(riskmanager.tdlow_) && ~isnan(riskmanager.tdhigh_)
             if riskmanager.tdlow_ - (riskmanager.tdhigh_-riskmanager.tdlow_) > riskmanager.pxstoploss_
                 riskmanager.pxstoploss_ = riskmanager.tdlow_ - (riskmanager.tdhigh_-riskmanager.tdlow_);
@@ -47,6 +55,15 @@ function [] = setriskmanager_spiderman(obj,varargin)
         riskmanager.pxstoploss_ = riskmanager.ll1_ + 0.618*(riskmanager.hh1_-riskmanager.ll1_);
         riskmanager.pxstoploss2_ = riskmanager.ll1_ + 0.382*(riskmanager.hh1_-riskmanager.ll1_);
         riskmanager.pxtarget_ = riskmanager.ll1_ - 1.618*(riskmanager.hh1_-riskmanager.ll1_);
+        
+        if ~isempty(obj.instrument_)
+            ticksize = obj.instrument_.tick_size;
+            riskmanager.pxstoploss_ = ceil(riskmanager.pxstoploss_/ticksize)*ticksize;
+            riskmanager.pxstoploss2_ = ceil(riskmanager.pxstoploss2_/ticksize)*ticksize;
+            riskmanager.pxtarget_ = floor(riskmanager.pxtarget_/ticksize)*ticksize;
+        end
+        
+        
         if ~isnan(riskmanager.tdlow_) && ~isnan(riskmanager.tdhigh_)
             if riskmanager.tdhigh_ + (riskmanager.tdhigh_-riskmanager.tdlow_) < riskmanager.pxstoploss_
                 riskmanager.pxstoploss_ = riskmanager.tdhigh_ + (riskmanager.tdhigh_-riskmanager.tdlow_);
