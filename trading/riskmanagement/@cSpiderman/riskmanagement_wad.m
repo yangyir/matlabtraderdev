@@ -52,7 +52,40 @@ function [ret] = riskmanagement_wad(obj,varargin)
         end
         %
     elseif direction == -1
-        error('riskmanagement_wad:short trade not implemented yet')
+        if p(end,5) <= obj.cplow_
+            obj.cplow_ = p(end,5);
+            if wad(end) > obj.wadlow_
+                ret = struct('inconsistence',1,...
+                    'reason','new low price w/o wad being lower');
+                return
+            else
+                obj.wadlow_ = wad(end);
+            end
+        end
+        %
+        if wad(end) <= obj.wadlow_
+            obj.wadlow_ = wad(end);
+            if p(end,5) > obj.cphigh_
+                ret = struct('inconsistence',1,...
+                    'reason','new low wad w/o price being lower');
+                return
+            else
+                obj.cplow_ = p(end,5);
+            end
+        end
+        %
+        if p(end,5) < obj.cpopen_ && wad(end) >= obj.wadopen_
+            ret = struct('inconsistence',1,...
+                'reason','lower price to open with higher wad');
+            return
+        end
+        %
+        if p(end,5) == obj.cpopen_ && wad(end) > obj.wadopen_
+            ret = struct('inconsistence',1,...
+                'reason','same price to open with higher wad');
+            return
+        end
+        %
     end
     
 end
