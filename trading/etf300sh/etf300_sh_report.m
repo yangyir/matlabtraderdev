@@ -5,25 +5,28 @@ op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod'
 shift = 60;
 tools_technicalplot2(op_300etf(end-shift:end,:),1,'510300 CH Equity',true);
 %%
+close all;
 [~,~,~,~,~,~,volsmooth] = fractalenhanced(hd_300etf,2,'volatilityperiod',13,'tolerance',0.001);
 figure(2);
 plot(volsmooth(end-63:end));xlabel('businessdays');title('volatility monitor');
 %%
+close all;
 fut_300 = code2instrument('IF2006');
 raw_300etf = conn.ds_.timeseries(bbgcode_300etf,{today-30,[datestr(today,'yyyy-mm-dd'),' 15:00:00']},1,'trade');
 intraday_300etf = timeseries_compress(raw_300etf,'tradinghours',fut_300.trading_hours,'tradingbreak',fut_300.trading_break,'frequency','30m');
 op_300etf_intraday = tools_technicalplot1(intraday_300etf,4,1,'change',0.001,'volatilityperiod',0);
 tools_technicalplot2(op_300etf_intraday(end-45:end,:),2,'510300 intraday');
 %%
+close all;
 fprintf('510300 SH Equity:\n');
 fprintf('%15s\t%s\n','date:',datestr(hd_300etf(end,1),'yyyy-mm-dd'));
 fprintf('%15s\t%s\n','closeprice:',num2str(hd_300etf(end,5)));
 fprintf('%15s\t%4.1f%%\n','pricechg%:',100*(hd_300etf(end,5)/hd_300etf(end-1,5)-1));
 fprintf('%15s\t%4.1f%%\n','volumechg%:',100*(hd_300etf(end,6)/hd_300etf(end-1,6)-1));
-fprintf('%15s\t%s\n','f-upper:',num2str(op_300etf(end,7)));
-fprintf('%15s\t%s\n','f-lower:',num2str(op_300etf(end,8)));
-fprintf('%15s\t%s\n','tdst-upper:',num2str(op_300etf(end,14)));
-fprintf('%15s\t%s\n','tdst-lower:',num2str(op_300etf(end,15)));
+fprintf('%15s\t%s\n','f-upper:',num2str(op_300etf(end,8)));
+fprintf('%15s\t%s\n','f-lower:',num2str(op_300etf(end,9)));
+fprintf('%15s\t%s\n','tdst-upper:',num2str(op_300etf(end,15)));
+fprintf('%15s\t%s\n','tdst-lower:',num2str(op_300etf(end,16)));
 %
 volume_opt300_c_may = zeros(length(k_300),2);
 volume_opt300_p_may = zeros(length(k_300),2);
