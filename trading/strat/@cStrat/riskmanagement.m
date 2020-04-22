@@ -223,85 +223,85 @@ function [] = riskmanagement(obj,dtnum)
                 'UpdatePnLForClosedTrade',false,'Strategy',obj);
         
             if ~isempty(unwindtrade)
-                disp(unwindtrade);
-                if unwindtrade.opendirection_ == 1 && ...
-                        strcmpi(unwindtrade.riskmanager_.closestr_,'new high wad w/o price being higher')
-                    instrument = unwindtrade.instrument_;
-                    lastk = obj.mde_fut_.getlastcandle(instrument);
-                    if lastk{1}(2) >= unwindtrade.riskmanager_.cphigh_
-                        unwindtrade.riskmanager_.status_ = 'set';
-                        unwindtrade.riskmanager_.closestr_ = 'none';
-                        return
-                    else
-                        obj.unwindtrade(unwindtrade);
-                    end
-                elseif unwindtrade.opendirection_ == 1 && ...
-                        (strcmpi(unwindtrade.riskmanager_.closestr_,'higher price to open w/o wad being higher') ||...
-                        strcmpi(unwindtrade.riskmanager_.closestr_,'new high price w/o wad being higher'))
-                    instrument = unwindtrade.instrument_;
-                    [wad,lastk] = obj.mde_fut_.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                    if lastk(end,2) > lastk(end-2,5)
-                        pmove = lastk(end,2)-min(lastk(end-1,4),lastk(end-2,5));
-                    elseif lastk(end,2) == lastk(end-2,5)
-                        pmove = 0;
-                    elseif lastk(end,2) < lastk(end-2,5)
-                        pmove = lastk(end,2)-max(lastk(end-1,3),lastk(end-2,5));
-                    end
-                    wadadj = wad(end-2)+pmove;
-                    if wadadj > unwindtrade.riskmanager_.wadopen_ && ...
-                            strcmpi(unwindtrade.riskmanager_.closestr_,'higher price to open w/o wad being higher')
-                        unwindtrade.riskmanager_.status_ = 'set';
-                        unwindtrade.riskmanager_.closestr_ = 'none';
-                        fprintf('trade not closed with wad being higher\n');
-                        return
-                    elseif wadadj > unwindtrade.riskmanager_.wadhigh_ && ...
-                            strcmpi(unwindtrade.riskmanager_.closestr_,'new high price w/o wad being higher')
-                        unwindtrade.riskmanager_.status_ = 'set';
-                        unwindtrade.riskmanager_.closestr_ = 'none';
-                        return
-                    else
-                        obj.unwindtrade(unwindtrade);
-                    end
-                elseif unwindtrade.opendirection_ == -1 && ...
-                        strcmpi(unwindtrade.riskmanager_.closestr_,'new low wad w/o price being lower')
-                    instrument = unwindtrade.instrument_;
-                    lastk = obj.mde_fut_.getlastcandle(instrument);
-                    if lastk{1}(2) <= unwindtrade.riskmanager_.cplow_
-                        unwindtrade.riskmanager_.status_ = 'set';
-                        unwindtrade.riskmanager_.closestr_ = 'none';
-                        return
-                    else
-                        obj.unwindtrade(unwindtrade);
-                    end
-                elseif unwindtrade.opendirection_ == -1 && ...
-                        (strcmpi(unwindtrade.riskmanager_.closestr_,'lower price to open w/o wad being lower') ||...
-                        strcmpi(unwindtrade.riskmanager_.closestr_,'new low price w/o wad being lower'))
-                    instrument = unwindtrade.instrument_;
-                    [wad,lastk] = obj.mde_fut_.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                    if lastk(end,2) > lastk(end-2,5)
-                        pmove = lastk(end,2)-min(lastk(end-1,4),lastk(end-2,5));
-                    elseif lastk(end,2) == lastk(end-2,5)
-                        pmove = 0;
-                    elseif lastk(end,2) < lastk(end-2,5)
-                        pmove = lastk(end,2)-max(lastk(end-1,3),lastk(end-2,5));
-                    end
-                    wadadj = wad(end-2)+pmove;
-                    if wadadj < unwindtrade.riskmanager_.wadopen_ && ...
-                            strcmpi(unwindtrade.riskmanager_.closestr_,'lower price to open w/o wad being lower')
-                        unwindtrade.riskmanager_.status_ = 'set';
-                        unwindtrade.riskmanager_.closestr_ = 'none';
-                        return
-                    elseif wadadj < unwindtrade.riskmanager_.wadlow_ && ...
-                            strcmpi(unwindtrade.riskmanager_.closestr_,'new low price w/o wad being lower')
-                        unwindtrade.riskmanager_.status_ = 'set';
-                        unwindtrade.riskmanager_.closestr_ = 'none';
-                        return
-                    else
-                        obj.unwindtrade(unwindtrade);
-                    end
-                else
+%                 disp(unwindtrade);
+%                 if unwindtrade.opendirection_ == 1 && ...
+%                         strcmpi(unwindtrade.riskmanager_.closestr_,'new high wad w/o price being higher')
+%                     instrument = unwindtrade.instrument_;
+%                     lastk = obj.mde_fut_.getlastcandle(instrument);
+%                     if lastk{1}(2) >= unwindtrade.riskmanager_.cphigh_
+%                         unwindtrade.riskmanager_.status_ = 'set';
+%                         unwindtrade.riskmanager_.closestr_ = 'none';
+%                         return
+%                     else
+%                         obj.unwindtrade(unwindtrade);
+%                     end
+%                 elseif unwindtrade.opendirection_ == 1 && ...
+%                         (strcmpi(unwindtrade.riskmanager_.closestr_,'higher price to open w/o wad being higher') ||...
+%                         strcmpi(unwindtrade.riskmanager_.closestr_,'new high price w/o wad being higher'))
+%                     instrument = unwindtrade.instrument_;
+%                     [wad,lastk] = obj.mde_fut_.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+%                     if lastk(end,2) > lastk(end-2,5)
+%                         pmove = lastk(end,2)-min(lastk(end-1,4),lastk(end-2,5));
+%                     elseif lastk(end,2) == lastk(end-2,5)
+%                         pmove = 0;
+%                     elseif lastk(end,2) < lastk(end-2,5)
+%                         pmove = lastk(end,2)-max(lastk(end-1,3),lastk(end-2,5));
+%                     end
+%                     wadadj = wad(end-2)+pmove;
+%                     if wadadj > unwindtrade.riskmanager_.wadopen_ && ...
+%                             strcmpi(unwindtrade.riskmanager_.closestr_,'higher price to open w/o wad being higher')
+%                         unwindtrade.riskmanager_.status_ = 'set';
+%                         unwindtrade.riskmanager_.closestr_ = 'none';
+%                         fprintf('trade not closed with wad being higher\n');
+%                         return
+%                     elseif wadadj > unwindtrade.riskmanager_.wadhigh_ && ...
+%                             strcmpi(unwindtrade.riskmanager_.closestr_,'new high price w/o wad being higher')
+%                         unwindtrade.riskmanager_.status_ = 'set';
+%                         unwindtrade.riskmanager_.closestr_ = 'none';
+%                         return
+%                     else
+%                         obj.unwindtrade(unwindtrade);
+%                     end
+%                 if unwindtrade.opendirection_ == -1 && ...
+%                         strcmpi(unwindtrade.riskmanager_.closestr_,'new low wad w/o price being lower')
+%                     instrument = unwindtrade.instrument_;
+%                     lastk = obj.mde_fut_.getlastcandle(instrument);
+%                     if lastk{1}(2) <= unwindtrade.riskmanager_.cplow_
+%                         unwindtrade.riskmanager_.status_ = 'set';
+%                         unwindtrade.riskmanager_.closestr_ = 'none';
+%                         return
+%                     else
+%                         obj.unwindtrade(unwindtrade);
+%                     end
+%                 elseif unwindtrade.opendirection_ == -1 && ...
+%                         (strcmpi(unwindtrade.riskmanager_.closestr_,'lower price to open w/o wad being lower') ||...
+%                         strcmpi(unwindtrade.riskmanager_.closestr_,'new low price w/o wad being lower'))
+%                     instrument = unwindtrade.instrument_;
+%                     [wad,lastk] = obj.mde_fut_.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+%                     if lastk(end,2) > lastk(end-2,5)
+%                         pmove = lastk(end,2)-min(lastk(end-1,4),lastk(end-2,5));
+%                     elseif lastk(end,2) == lastk(end-2,5)
+%                         pmove = 0;
+%                     elseif lastk(end,2) < lastk(end-2,5)
+%                         pmove = lastk(end,2)-max(lastk(end-1,3),lastk(end-2,5));
+%                     end
+%                     wadadj = wad(end-2)+pmove;
+%                     if wadadj < unwindtrade.riskmanager_.wadopen_ && ...
+%                             strcmpi(unwindtrade.riskmanager_.closestr_,'lower price to open w/o wad being lower')
+%                         unwindtrade.riskmanager_.status_ = 'set';
+%                         unwindtrade.riskmanager_.closestr_ = 'none';
+%                         return
+%                     elseif wadadj < unwindtrade.riskmanager_.wadlow_ && ...
+%                             strcmpi(unwindtrade.riskmanager_.closestr_,'new low price w/o wad being lower')
+%                         unwindtrade.riskmanager_.status_ = 'set';
+%                         unwindtrade.riskmanager_.closestr_ = 'none';
+%                         return
+%                     else
+%                         obj.unwindtrade(unwindtrade);
+%                     end
+%                 else
                     obj.unwindtrade(unwindtrade);
-                end
+%                 end
             end
             
         end

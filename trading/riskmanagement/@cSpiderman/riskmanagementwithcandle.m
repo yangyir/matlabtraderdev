@@ -20,7 +20,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     candleTime = candlek(1);
     %double-check candleTime is inline with candleTime in extrainfo
     if candleTime ~= extrainfo.p(end,1)
-        error('cSpiderman:riskmanagementwithcandle:internal error!!!')
+%         error('cSpiderman:riskmanagementwithcandle:internal error!!!')
+        warning('cSpiderman:double check that candle time is different!!!\n');
+        candleTime = extrainfo.p(end,1);
     end
     candleOpen = extrainfo.p(end,2);
     candleHigh = extrainfo.p(end,3);
@@ -234,8 +236,43 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %
         if closeflag == 0
             ret = obj.riskmanagement_wad('extrainfo',extrainfo);
-            closeflag = ret.inconsistence;
-            obj.closestr_ = ret.reason;
+            if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
+                if extrainfo.latestopen < obj.cphigh_
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ret.reason;
+                end
+            elseif ret.inconsistence && strcmpi(ret.reason,'higher price to open w/o wad being higher')
+                if extrainfo.latestopen > extrainfo.p(end-1,5)
+                    pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
+                elseif extrainfo.latestopen == extrainfo.p(end-1,5)
+                    pmove = 0;
+                elseif extrainfo.latestopen < extrainfo.p(end-1,5)
+                    pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+                end
+                wadadj = extrainfo.wad(end-1)+pmove;
+                if wadadj < obj.wadopen_
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ret.reason;
+                end
+            elseif ret.inconsistence && strcmpi(ret.reason,'new high price w/o wad being higher')
+                if extrainfo.latestopen > extrainfo.p(end-1,5)
+                    pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
+                elseif extrainfo.latestopen == extrainfo.p(end-1,5)
+                    pmove = 0;
+                elseif extrainfo.latestopen < extrainfo.p(end-1,5)
+                    pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+                end
+                wadadj = extrainfo.wad(end-1)+pmove;
+                if wadadj < obj.wadhigh_
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ret.reason;
+                end
+            else
+                closeflag = ret.inconsistence;
+                obj.closestr_ = ret.reason;
+                    
+            end
+            
             if closeflag == 1
                 fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
             end
@@ -340,8 +377,41 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
         if closeflag == 0
             ret = obj.riskmanagement_wad('extrainfo',extrainfo);
-            closeflag = ret.inconsistence;
-            obj.closestr_ = ret.reason;
+            if ret.inconsistence && strcmpi(ret.reason,'new low wad w/o price being lower')
+                if extrainfo.latestopen > obj.cplow_
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ret.reason;
+                end
+            elseif ret.inconsistence && strcmpi(ret.reason,'lower price to open w/o wad being lower')
+                if extrainfo.latestopen > extrainfo.p(end-1,5)
+                    pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
+                elseif extrainfo.latestopen == extrainfo.p(end-1,5)
+                    pmove = 0;
+                elseif extrainfo.latestopen < extrainfo.p(end-1,5)
+                    pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+                end
+                wadadj = extrainfo.wad(end-1)+pmove;
+                if wadadj > obj.wadopen_
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ret.reason;
+                end
+            elseif ret.inconsistence && strcmpi(ret.reason,'new low price w/o wad being lower')
+                if extrainfo.latestopen > extrainfo.p(end-1,5)
+                    pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
+                elseif extrainfo.latestopen == extrainfo.p(end-1,5)
+                    pmove = 0;
+                elseif extrainfo.latestopen < extrainfo.p(end-1,5)
+                    pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+                end
+                wadadj = extrainfo.wad(end-1)+pmove;
+                if wadadj > obj.wadlow_
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ret.reason;
+                end
+            else
+                closeflag = ret.inconsistence;
+                obj.closestr_ = ret.reason;
+            end
             if closeflag == 1
                 fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
             end
