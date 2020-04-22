@@ -236,6 +236,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             ret = obj.riskmanagement_wad('extrainfo',extrainfo);
             closeflag = ret.inconsistence;
             obj.closestr_ = ret.reason;
+            if closeflag == 1
+                fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
+            end
         end
         if closeflag == 0, obj.updatestoploss('extrainfo',extrainfo); end
         %   
@@ -329,10 +332,19 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.closestr_ = 'sshighvalue-16';
         end
         %
+        if closeflag == 0 && extrainfo.bc(end) == 13
+            if obj.cpopen_ - extrainfo.p(end,5) > obj.wadopen_ - extrainfo.wad(end)
+                closeflag = 1;
+                obj.closestr_ = 'bc13';
+            end
+        end
         if closeflag == 0
             ret = obj.riskmanagement_wad('extrainfo',extrainfo);
             closeflag = ret.inconsistence;
             obj.closestr_ = ret.reason;
+            if closeflag == 1
+                fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
+            end
         end
         %
         if closeflag == 0;obj.updatestoploss('extrainfo',extrainfo);end
@@ -340,9 +352,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     end
     %
     if closeflag
+        obj.status_ = 'closed';
         unwindtrade = obj.trade_;
         if updatepnlforclosedtrade
-            obj.status_ = 'closed';
             obj.trade_.status_ = 'closed';
             obj.trade_.runningpnl_ = 0;
             if isempty(instrument)

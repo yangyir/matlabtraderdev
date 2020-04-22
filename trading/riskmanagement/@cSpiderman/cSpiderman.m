@@ -20,7 +20,7 @@ classdef cSpiderman < cTradeRiskManager
     end
     
     properties (Access = private)
-        bucket_count_@double = 0
+        bucket_count_@double = -1
     end
        
     methods

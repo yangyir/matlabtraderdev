@@ -70,9 +70,9 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
             if strcmpi(class(obj),'cBatman'), obj.checkflag_ = 0;end
         
             unwindtrade = obj.trade_;
+            obj.status_ = 'closed';
             %
             if updatepnlforclosedtrade
-                obj.status_ = 'closed';
                 obj.trade_.status_ = 'closed';
                 obj.trade_.runningpnl_ = 0;
                 if obj.trade_.opendirection_ == 1
@@ -103,6 +103,7 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
             
             obj.closestr_ = 'time breaches stop time';
             unwindtrade = obj.trade_;
+            obj.status_ = 'closed';
 
             if doprint
                 fprintf('%s:%s:%s of %s...\n',...
@@ -113,7 +114,6 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
             end
             %
             if updatepnlforclosedtrade
-                obj.status_ = 'closed';
                 obj.trade_.status_ = 'closed';
                 obj.trade_.runningpnl_ = 0;
                 if obj.trade_.opendirection_ == 1
