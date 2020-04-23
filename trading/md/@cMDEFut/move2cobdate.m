@@ -45,13 +45,17 @@ function [] = move2cobdate(obj,cobdate)
             idxremove = candles(:,2)==candles(:,3)&candles(:,2)==candles(:,4)&candles(:,2)==candles(:,5);
             idxkeep = ~idxremove;
             candles = candles(idxkeep,:);
-            if datenuminput ~= floor(candles(1))
-                ncandle = size(candles,1);
-                %here we move the historical candle one day
-                %forward to save memory usage
-                histcandles = [histcandles(ncandle+1:end,:);candles];
-                obj.hist_candles_{i} = histcandles;
-            end
+            if ~isempty(candles)
+                if datenuminput ~= floor(candles(1))
+                    ncandle = size(candles,1);
+                    %here we move the historical candle one day
+                    %forward to save memory usage
+                    histcandles = [histcandles(ncandle+1:end,:);candles];
+                    obj.hist_candles_{i} = histcandles;
+                end
+            else
+                %do nothing
+            end 
         end
     end
     

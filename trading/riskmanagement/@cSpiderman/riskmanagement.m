@@ -38,9 +38,13 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     if strcmpi(trade.status_,'unset')
 %         openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
         idxopen = find(candleK(:,1) <= trade.opendatetime1_,1,'last')-1;
-        openBucket = candleK(idxopen,1);
-        candleTime = candleK(end,1);
-        if openBucket <= candleTime
+        if idxopen > 0
+            openBucket = candleK(idxopen,1);
+            setflag = openBucket <= candleK(end,1);
+        else
+            setflag = true;
+        end
+        if setflag
             trade.status_ = 'set';
             obj.status_ = 'set';
             if trade.opendirection_ == 1 && isnan(obj.tdhigh_) && isnan(obj.tdlow_)
@@ -81,6 +85,11 @@ function [unwindtrade] = riskmanagement(obj,varargin)
                 obj.cplow_ = px(end,5);
             end
         end
+        this_count = size(buckets,1)-1;
+        if this_count ~= obj.bucket_count_
+            obj.bucket_count_ = this_count;
+        end
+        return
     end
     
     if ~strcmpi(trade.status_,'set'), return; end
