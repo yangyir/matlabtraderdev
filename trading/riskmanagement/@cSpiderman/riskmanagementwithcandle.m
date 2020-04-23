@@ -382,7 +382,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     closeflag = ret.inconsistence;
                     obj.closestr_ = ret.reason;
                 end
-            elseif ret.inconsistence && strcmpi(ret.reason,'lower price to open w/o wad being lower')
+            elseif ret.inconsistence && (strcmpi(ret.reason,'lower price to open w/o wad being lower') ||...
+                    strcmpi(ret.reason,'same price to open with higher wad'))
                 if extrainfo.latestopen > extrainfo.p(end-1,5)
                     pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
                 elseif extrainfo.latestopen == extrainfo.p(end-1,5)
