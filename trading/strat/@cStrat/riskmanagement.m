@@ -77,6 +77,7 @@ function [] = riskmanagement(obj,dtnum)
             trade_i.setriskmanager('name',riskmanagername,'extrainfo',extrainfo);
             %    
         else
+            %other opensignal
             instrument = trade_i.instrument_;
             overrideriskmanagername = trade_i.opensignal_.overrideriskmanagername_;
             if ~isempty(overrideriskmanagername)

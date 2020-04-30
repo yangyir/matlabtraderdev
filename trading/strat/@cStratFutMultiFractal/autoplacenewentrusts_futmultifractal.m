@@ -36,6 +36,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
         ask = tick(3);
         %in case the market is stopped when the upper or lower limit is breached
         if abs(bid) > 1e10 || abs(ask) > 1e10, continue; end
+        if bid <= 0 || ask <= 0, continue;end
 
         %to check whether position for the instrument exists,
         try

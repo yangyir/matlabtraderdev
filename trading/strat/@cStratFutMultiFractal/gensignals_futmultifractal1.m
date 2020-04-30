@@ -24,26 +24,24 @@ function signals = gensignals_futmultifractal1(stratfractal)
     
     instruments = stratfractal.getinstruments;
     
-    mdefut = stratfractal.mde_fut_;
+%     mdefut = stratfractal.mde_fut_;
     
     if is2minbeforemktopen || calcsignalbeforemktclose
         for i = 1:n
-            [bs,ss,lvlup,lvldn,bc,sc,p] = mdefut.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
-            [~,~,hh,ll] = mdefut.calc_fractal_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
-            [jaw,teeth,lips] = mdefut.calc_alligator_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
-            wad = mdefut.calc_wad_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
-            stratfractal.hh_{i} = hh;
-            stratfractal.ll_{i} = ll;
-            stratfractal.jaw_{i} = jaw;
-            stratfractal.teeth_{i} = teeth;
-            stratfractal.lips_{i} = lips;
-            stratfractal.bs_{i} = bs;
-            stratfractal.ss_{i} = ss;
-            stratfractal.bc_{i} = bc;
-            stratfractal.sc_{i} = sc;
-            stratfractal.lvlup_{i} = lvlup;
-            stratfractal.lvldn_{i} = lvldn;
-            stratfractal.wad_{i} = wad;
+            techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            p = techvar(:,1:5);
+            stratfractal.hh_{i} = techvar(:,8);
+            stratfractal.ll_{i} = techvar(:,9);
+            stratfractal.jaw_{i} = techvar(:,10);
+            stratfractal.teeth_{i} = techvar(:,11);
+            stratfractal.lips_{i} = techvar(:,12);
+            stratfractal.bs_{i} = techvar(:,13);
+            stratfractal.ss_{i} = techvar(:,14);
+            stratfractal.lvlup_{i} = techvar(:,15);
+            stratfractal.lvldn_{i} = techvar(:,16);
+            stratfractal.bc_{i} = techvar(:,17);
+            stratfractal.sc_{i} = techvar(:,18);
+            stratfractal.wad_{i} = techvar(:,19);
         end
         
         if is2minbeforemktopen
@@ -87,12 +85,23 @@ function signals = gensignals_futmultifractal1(stratfractal)
         if ~calcsignalflag(i) && ~calcsignalbeforemktclose;continue;end
         
         if calcsignalflag(i) && ~calcsignalbeforemktclose
-%             includelastcandle = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','includelastcandle');
-            [bs,ss,lvlup,lvldn,bc,sc,p] = mdefut.calc_tdsq_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            [idxHH,idxLL,hh,ll] = mdefut.calc_fractal_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            [jaw,teeth,lips] = mdefut.calc_alligator_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            wad = mdefut.calc_wad_(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
-            
+            techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            p = techvar(:,1:5);
+            idxHH = techvar(:,6);
+            idxLL = techvar(:,7);
+            hh = techvar(:,8);
+            ll = techvar(:,9);
+            jaw = techvar(:,10);
+            teeth = techvar(:,11);
+            lips = techvar(:,12);
+            bs = techvar(:,13);
+            ss = techvar(:,14);
+            lvlup = techvar(:,15);
+            lvldn = techvar(:,16);
+            bc = techvar(:,17);
+            sc = techvar(:,18);
+            wad = techvar(:,19); 
+            %
             stratfractal.hh_{i} = hh;
             stratfractal.ll_{i} = ll;
             stratfractal.jaw_{i} = jaw;
@@ -100,10 +109,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
             stratfractal.lips_{i} = lips;
             stratfractal.bs_{i} = bs;
             stratfractal.ss_{i} = ss;
-            stratfractal.bc_{i} = bc;
-            stratfractal.sc_{i} = sc;
             stratfractal.lvlup_{i} = lvlup;
             stratfractal.lvldn_{i} = lvldn;
+            stratfractal.bc_{i} = bc;
+            stratfractal.sc_{i} = sc;
             stratfractal.wad_{i} = wad;
             
             nfractal = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','nfractals');
@@ -179,6 +188,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     'wad',wad);
                 op = fractal_filters1_singleentry(s1type,nfractal,extrainfo);
                 validbreachll = op.use;
+                if ~validbreachll
+                    %special treatment when market jumps
+                    tick = stratfractal.mde_fut_.getlasttick(instruments{i});
+                    if ~isempty(tick)
+                        bid = tick(2);
+                        if bid < lvldn(end) && p(end,5)>lvldn(end)
+                            validbreachll = 1;
+                            op.comment = 'breachdn-lvldn';
+                        end
+                    end
+                end
                 if ~validbreachll
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
                     continue;

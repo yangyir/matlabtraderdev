@@ -1,3 +1,4 @@
+close all;
 hd_50etf = cDataFileIO.loadDataFromTxtFile('510050_daily.txt');
 op_50etf = tools_technicalplot1(hd_50etf,2,0,'change',0.001,'volatilityperiod',0);
 [wad_50etf,trh_50etf,trl_50etf] = williamsad(hd_50etf,0);
@@ -9,6 +10,7 @@ close all;
 figure(2);
 plot(volsmooth(end-63:end));xlabel('businessdays');title('volatility monitor');
 %%
+close all;
 fut_50 = code2instrument('IH2006');
 raw_50etf = conn.ds_.timeseries(bbgcode_50etf,{today-30,[datestr(today,'yyyy-mm-dd'),' 15:00:00']},1,'trade');
 intraday_50etf = timeseries_compress(raw_50etf,'tradinghours',fut_50.trading_hours,'tradingbreak',fut_50.trading_break,'frequency','30m');

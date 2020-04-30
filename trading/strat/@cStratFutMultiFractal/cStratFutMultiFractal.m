@@ -67,5 +67,7 @@ classdef cStratFutMultiFractal < cStrat
         [] = autoplacenewentrusts_futmultifractal(obj,signals)
         [] = initdata_futmultifractal(obj)
         [] = riskmanagement_futmultifractal(obj,dtnum)
+        %
+        [techvar] = calctechnicalvariable(obj,instrument,varargin)
     end
 end
