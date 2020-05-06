@@ -43,11 +43,11 @@ function [] = printmarket(obj)
             timet = datestr(quotes{i}.update_time1,'HH:MM:SS');
             delta = ((lasttrade/obj.lastclose_(i))-1)*100;
             instr = code2instrument(code);
-            wrinfo = obj.calc_wr_(instr,'IncludeLastCandle',1);
-            [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr,'IncludeLastCandle',1);
+            wrinfo = obj.calc_wr_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
 %             [macdvec,sig] = obj.calc_macd_(instr,'IncludeLastCandle',1);
-            [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',1);
-            [~,HH,LL] = obj.calc_fractal_(instr,'includelastcandle',1);
+            [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
+            [~,~,HH,LL] = obj.calc_fractal_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
             dataformat = '%10s%8s%8s%8s%8.1f%%%11s%10.1f%10s%10s%8s%8s%10s%10s%10.2f%10.2f%10.2f\n';
             if obj.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
                 adj = obj.hist_candles_{i}(end,5)/obj.lastclose_(i);
@@ -106,10 +106,10 @@ function [] = printmarket(obj)
             end
             
             if ~isempty(obj.hist_candles_) && ~isempty(obj.hist_candles_{i})
-                wrinfo = obj.calc_wr_(instruments{i},'IncludeLastCandle',1);
-                [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instruments{i},'IncludeLastCandle',1);
-                [jaw,teeth,lips] = obj.calc_alligator_(instruments{i},'includelastcandle',1);
-                [~,~,HH,LL] = obj.calc_fractal_(instruments{i},'includelastcandle',1);
+                wrinfo = obj.calc_wr_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
+                [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
+                [jaw,teeth,lips] = obj.calc_alligator_(instruments{i},'includelastcandle',1,'RemoveLimitPrice',1);
+                [~,~,HH,LL] = obj.calc_fractal_(instruments{i},'includelastcandle',1,'RemoveLimitPrice',1);
                 fprintf(dataformat,code,num2str(lasttrade),num2str(lasttrade),num2str(obj.hist_candles_{i}(end,5)),...
                     delta,timet,...
                     wrinfo(1),num2str(HH(end)),num2str(LL(end)),...
