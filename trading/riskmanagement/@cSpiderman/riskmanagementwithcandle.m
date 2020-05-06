@@ -140,7 +140,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if direction == 1
         closeflag = 0;
         if strcmpi(trade.opensignal_.frequency_,'daily')
-            idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
+            idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first')+1;
         else
 %             openbucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
 %             idxstart2check = find(extrainfo.p(:,1)>=openbucket,1,'first');
