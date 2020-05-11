@@ -233,7 +233,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
             end
             %keep if it breachs the hh after sc13
             lastsc13 = find(sc(1:end-1)==13,1,'last');
-            if ~isempty(lastsc13) && size(px,1)-lastsc13<9 &&px(end,5)>max(px(lastsc13:end-1,3))
+            if ~isempty(lastsc13) && size(px,1)-lastsc13<12 &&px(end,5)>max(px(lastsc13:end-1,3))
                 if ss(end) < 9
                     output = struct('use',1,'comment','breachup-highsc13');
                 else
@@ -276,7 +276,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
                     last2hh = HH(last2hhidx);
                     %check whether a new higher HH is formed or not
                     if isempty(find(px(last2hhidx(1)-nfractal:end,5)-teeth(last2hhidx(1)-nfractal:end)<0,1,'first')) ...
-                            && last2hh(2)>last2hh(1) ...
+                            && last2hh(2)>=last2hh(1) ...
                             && ss(end) < 9
                         output = struct('use',1,'comment','strongbreach-trendconfirmed');
                     else
