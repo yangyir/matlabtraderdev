@@ -60,6 +60,9 @@ function [] = printmarket(obj)
                 num2str(buysetup(end)),num2str(sellsetup(end)),num2str(levelup(end)),num2str(leveldn(end)),...
                 jaw(end),teeth(end),lips(end));
         end
+        %
+        mde_fin_plot(obj);
+        %
     else
         %replay mode
         
