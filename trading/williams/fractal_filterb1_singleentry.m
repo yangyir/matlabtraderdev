@@ -218,7 +218,11 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
             %
             hasbreachedll = ~isempty(find(px(end-nkfromhh+1:end-1,5)-LL(end-nkfromhh+1:end-1)<0,1,'first'));
             if ~hasbreachedll && nkaboveteeth2 > nfractal+1
-                output = struct('use',1,'comment','strongbreach-trendconfirmed');
+                if ss(end) >= 9 && px(end,5) >= max(px(end-ss(end)+1:end,5)) && px(end,3) >= max(px(end-ss(end)+1:end,3))
+                      output = struct('use',0,'comment','strongbreach-sshighvalue');
+                else
+                      output = struct('use',1,'comment','strongbreach-trendconfirmed');
+                end
                 return
             end
             output = struct('use',0,'comment','teethjawcrossed');
