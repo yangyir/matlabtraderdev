@@ -371,7 +371,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
         %
         if closeflag == 0 && extrainfo.bc(end) == 13
-            if obj.cpopen_ - extrainfo.p(end,5) > obj.wadopen_ - extrainfo.wad(end)
+            if obj.cpopen_ - extrainfo.p(end,5) < obj.wadopen_ - extrainfo.wad(end)
                 closeflag = 1;
                 obj.closestr_ = 'bc13';
             end
