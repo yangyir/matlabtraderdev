@@ -1,7 +1,7 @@
 function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
 %cSpiderman
     unwindtrade = {};
-    if strcmpi(obj.status_,'closed'), return; end
+%     if strcmpi(obj.status_,'closed'), return; end
     if strcmpi(obj.trade_.status_,'closed'), return; end
     if obj.pxstoploss_ == -9.99, return;end
     
@@ -154,6 +154,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.closestr_ = 'candle breach stoploss2';
             if doprint, fprintf('point %4s:spiderman closed as %s...\n',num2str(length(extrainfo.lips)),obj.closestr_);end
         end
+        %
+        if closeflag == 0 && candleClose < extrainfo.teeth(end)-2*ticksize
+            closeflag = 1;
+            obj.closestr_ = 'candle breach teeth';
+            if doprint, fprintf('point %4s:spiderman closed as %s...\n',num2str(length(extrainfo.lips)),obj.closestr_);end
+        end
+        
         %STOP the trade if it fails to breaches TDST-lvlup,i.e.the high
         %price fell below lvlup
         if closeflag == 0 && ...
@@ -297,6 +304,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.closestr_ = 'candle breach stoploss2';
             if doprint, fprintf('point %4s:spiderman closed as %s...\n',num2str(length(extrainfo.lips)),obj.closestr_);end
         end
+        %
+        if closeflag == 0 && candleClose > extrainfo.teeth(end)+2*ticksize
+            closeflag = 1;
+            obj.closestr_ = 'candle breach teeth';
+            if doprint, fprintf('point %4s:spiderman closed as %s...\n',num2str(length(extrainfo.lips)),obj.closestr_);end
+        end
+            
         %STOP the trade if it fails to breaches TDST-lvldn,i.e.the low
         %price stayed above lvldn
         if closeflag == 0 && ....
@@ -371,7 +385,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
         %
         if closeflag == 0 && extrainfo.bc(end) == 13
-            if obj.cpopen_ - extrainfo.p(end,5) > obj.wadopen_ - extrainfo.wad(end)
+            if obj.cpopen_ - extrainfo.p(end,5) < obj.wadopen_ - extrainfo.wad(end)
                 closeflag = 1;
                 obj.closestr_ = 'bc13';
             end
