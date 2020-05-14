@@ -100,6 +100,10 @@ function [unwindtrade] = riskmanagement(obj,varargin)
         runningt = now;
     end
     
+    if ticktime - runningt < -1e-3
+          return;
+    end
+    
     runningmm = hour(runningt)*60+minute(runningt);
     runriskmanagementbeforemktclose = false;
     if (runningmm == 899 || runningmm == 914) && second(runningt) > 56
