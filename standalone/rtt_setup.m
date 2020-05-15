@@ -25,8 +25,8 @@ function [rtt_output] = rtt_setup(varargin)
     end
     
     mode = p.Results.Mode;
-    if ~(strcmpi(mode,'realtime') || strcmpi(mode,'replay'))
-        error('rtt_setup:invalid mode input,must be realtime or replay')
+    if ~(strcmpi(mode,'realtime') || strcmpi(mode,'replay') || strcmpi(mode,'demo'))
+        error('rtt_setup:invalid mode input,must be realtime,replay or demo')
     end
     
     if strcmpi(mode,'replay')
@@ -105,8 +105,10 @@ function [rtt_output] = rtt_setup(varargin)
     if ~isempty(tfn), rtt_helper.registerpasttrades(livetrades);end
     if strcmpi(mode,'realtime')
         dir_ = [getenv('DATAPATH'),'realtimetrading\'];
-    else
+    elseif strcmpi(mode,'replay')
         dir_ = [getenv('DATAPATH'),'replay\'];
+    else
+        dir_ = [getenv('DATAPATH'),'demo\'];
     end
     if strcmpi(countername,'citic_kim_fut')
         dir_ = [dir_,'citickim\'];
@@ -169,6 +171,10 @@ function [rtt_output] = rtt_setup(varargin)
         rtt_mdefut.mode_ = 'replay';
         rtt_helper.mode_ = 'replay';
         rtt_strategy.mode_ = 'replay';
+    elseif strcmpi(mode,'demo')
+        rtt_mdefut.mode_ = 'demo';
+        rtt_helper.mode_ = 'demo';
+        rtt_strategy.mode_ = 'demo';
     end
 
     rtt_mdefut.settimerinterval(0.5/speedadj);
@@ -188,7 +194,7 @@ function [rtt_output] = rtt_setup(varargin)
         if strcmpi(stratname,'manual'), rtt_strategy.usehistoricaldata_ = false;end
     end
     
-    if strcmpi(mode,'realtime')
+    if strcmpi(mode,'realtime') || strcmpi(mode,'demo')
         rtt_mdefut.qms_.watcher_.conn = 'ctp';
         rtt_mdefut.qms_.watcher_.ds = cCTP.ccb_ly_fut;
     end

@@ -1,6 +1,6 @@
 function [] = printmarket(obj)
     instruments = obj.qms_.instruments_.getinstrument;
-    if strcmpi(obj.mode_,'realtime')
+    if strcmpi(obj.mode_,'realtime') || strcmpi(obj.mode_,'demo')
         try
             quotes = obj.qms_.getquote;
         catch

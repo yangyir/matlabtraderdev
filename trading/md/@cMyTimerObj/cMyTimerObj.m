@@ -51,7 +51,7 @@ classdef cMyTimerObj < handle
     %property value controls for mode_ and status_
     methods
         function [] = set.mode_(obj,modein)
-            if ~(strcmpi(modein,'realtime') || strcmpi(modein,'replay'))
+            if ~(strcmpi(modein,'realtime') || strcmpi(modein,'replay') || strcmpi(modein,'demo'))
                 error('mode of timer object can be realtime or replay only')
             end
             obj.mode_ = modein;
