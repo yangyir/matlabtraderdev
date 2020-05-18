@@ -49,5 +49,6 @@ function [] = initdata_futmultifractal(stratfractal)
         stratfractal.sc_{i} = sc;
         stratfractal.lvlup_{i} = lvlup;
         stratfractal.lvldn_{i} = lvldn;
+    end
 
 end

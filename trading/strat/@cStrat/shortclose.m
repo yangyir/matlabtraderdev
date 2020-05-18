@@ -42,7 +42,7 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
     instrument = code2instrument(ctp_code);
     
     if isempty(ordertime)
-        if strcmpi(strategy.mode_,'realtime')
+        if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
             ordertime = now;
         else
             ordertime = strategy.getreplaytime;
@@ -129,7 +129,7 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
         return
     end
     
-    if strcmpi(strategy.mode_,'realtime')
+    if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
         if isopt
             q = strategy.mde_opt_.qms_.getquote(ctp_code);
         else

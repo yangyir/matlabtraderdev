@@ -1,5 +1,5 @@
 function [] = replay_timer_fcn(mytimerobj,~,event)
-    if strcmpi(mytimerobj.mode_,'realtime')
+    if strcmpi(mytimerobj.mode_,'realtime') || strcmpi(mytimerobj.mode_,'demo')
         dtnum = datenum(event.Data.time);
     elseif strcmpi(mytimerobj.mode_,'replay')
         dtnum = mytimerobj.getreplaytime;

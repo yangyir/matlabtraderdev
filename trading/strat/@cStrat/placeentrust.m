@@ -213,7 +213,7 @@ function [ret,e,msg] = placeentrust(obj,instrument,varargin)
             'pxtarget',pxtarget,...
             'pxstoploss',pxstoploss);
     end
-    if strcmpi(obj.mode_,'realtime')
+    if strcmpi(obj.mode_,'realtime') || strcmpi(obj.mode_,'demo')
         ordertime = now;
     else
         try

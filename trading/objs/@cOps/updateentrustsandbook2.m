@@ -85,7 +85,7 @@ function [] = updateentrustsandbook2(obj)
                         e.dealPrice = e.price;
                     end
                 end
-            elseif strcmpi(obj.mode_,'replay')
+            elseif strcmpi(obj.mode_,'replay') || strcmpi(obj.mode_,'demo')
                 codestr = e.instrumentCode;
                 isopt = isoptchar(codestr);
                 if isopt

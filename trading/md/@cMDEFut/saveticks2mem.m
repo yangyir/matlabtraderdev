@@ -6,7 +6,7 @@ function [] = saveticks2mem(mdefut)
 %         error('cMDEFut:saveticks2mem:only single instrument is supported in replay mode');
 %     end
     
-    if strcmpi(mdefut.mode_,'realtime')
+    if strcmpi(mdefut.mode_,'realtime') || strcmpi(mdefut.mode_,'demo')
         qs = mdefut.qms_.getquote;
 %         for i = 1:ns
 %             count = mdefut.ticks_count_(i)+1;

@@ -21,7 +21,7 @@ function [ret,e,msg] = unwindtrade(strategy,tradein,varargin)
     tradeid = tradein.id_;
     
     %we need to unwind the trade
-    if strcmpi(strategy.mode_,'replay')
+    if strcmpi(strategy.mode_,'replay') || strcmpi(strategy.mode_,'demo')
         closetodayFlag = 0;
     else
         if strcmpi(instrument.exchange,'.SHF')

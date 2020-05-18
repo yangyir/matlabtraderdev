@@ -1,6 +1,6 @@
 function [] = refresh(mdefut,varargin)
     if ~isempty(mdefut.qms_)
-        if strcmpi(mdefut.mode_,'realtime')
+        if strcmpi(mdefut.mode_,'realtime') || strcmpi(mdefut.mode_,'demo')
             %refresh qms with the latest market quotes
             mdefut.qms_.refresh;
             %save ticks data into memory
