@@ -345,7 +345,7 @@ for i = 1:tradesfractals1.latest_
 end
 % figure(3);plot(cumsum(pnls1(:,end)));
 %%
-commentarys1 = cell(tradesfractalb1.latest_,3);
+commentarys1 = cell(tradesfractals1.latest_,3);
 for i = 1:tradesfractals1.latest_
     j = idxfractals1(i,1);
     if jaw(j) < teeth(j) && teeth(j) < lips(j)

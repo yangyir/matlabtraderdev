@@ -15,6 +15,7 @@ function [] = updatestoploss(spiderman,varargin)
         if ll > spiderman.ll1_, spiderman.ll1_ = ll;end
         %
         spiderman.pxstoploss_ = spiderman.hh1_ - 0.618*(spiderman.hh1_-spiderman.ll1_);
+        spiderman.pxstoploss_ = min(spiderman.pxstoploss_,extrainfo.lips(end));
         spiderman.pxstoploss2_ = spiderman.hh1_ - 0.382*(spiderman.hh1_-spiderman.ll1_);
         spiderman.pxtarget_ = spiderman.hh1_ + 1.618*(spiderman.hh1_-spiderman.ll1_);
         

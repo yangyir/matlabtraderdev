@@ -29,7 +29,7 @@ function [ret] = setavailablefund(obj,val,varargin)
             fprintf('%s\n',e.message);
             ret = 0;
         end
-    elseif strcmpi(obj.mode_,'replay')
+    elseif strcmpi(obj.mode_,'replay') || strcmpi(obj.mode_,'demo')
         obj.availablefund_ = val;
         if firstset
             obj.preequity_ = val;
