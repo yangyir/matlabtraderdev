@@ -399,6 +399,7 @@ signal_nb = zeros(size(px,1),nb);
 signal_ns = zeros(size(px,1),ns);
 ptraded = px(:,5);
 for i = 1:nb
+    if tblb1.useflagb(i) ~= 1, continue;end
     idx1 = find(px(:,1)==tradesfractalb1.node_(i).opendatetime1_);
     idx2 = find(px(:,1)==tradesfractalb1.node_(i).closedatetime1_);
     signal_nb(idx1:idx2-1,i) = 1;
@@ -407,6 +408,7 @@ end
 signal_nb = sum(signal_nb,2);
 %
 for i = 1:ns
+    if tbls1.useflags(i) ~= 1, continue;end  
     idx1 = find(px(:,1)==tradesfractals1.node_(i).opendatetime1_);
     try
         idx2 = find(px(:,1)==tradesfractals1.node_(i).closedatetime1_);
@@ -424,7 +426,8 @@ signal_ns = sum(signal_ns,2);
 %
 runningpnl = [0;signal_nb(1:end-1).*(ptraded(2:end,1)-ptraded(1:end-1,1))]+...
     [0;signal_ns(1:end-1).*(ptraded(2:end,1)-ptraded(1:end-1,1))];
-
+close all;
+plot(cumsum(runningpnl));
 
 
 

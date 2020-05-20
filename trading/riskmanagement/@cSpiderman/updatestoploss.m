@@ -8,8 +8,11 @@ function [] = updatestoploss(spiderman,varargin)
     candlek = extrainfo.p(end,:);
 
     if strcmpi(spiderman.type_,'breachup-B')
-        hh = candlek(3);
-%         hh = extrainfo.hh(end);
+        phigh = candlek(3);
+        hh = extrainfo.hh(end);
+        if phigh > hh
+              hh = hh + 0.382*(phigh-hh);
+        end
         if hh > spiderman.hh1_, spiderman.hh1_ = hh;end
         ll = extrainfo.ll(end);
         if ll > spiderman.ll1_, spiderman.ll1_ = ll;end
@@ -35,8 +38,11 @@ function [] = updatestoploss(spiderman,varargin)
     elseif strcmpi(spiderman.type_,'reverse-B')
         error('cSpiderman:updatestoploss:reverse-B not implemented...')
     elseif strcmpi(spiderman.type_,'breachdn-S')
-        ll = candlek(4);
-%         ll = extrainfo.ll(end);
+        plow = candlek(4);
+        ll = extrainfo.ll(end);
+        if plow < ll
+              ll = ll - 0.382*(ll-plow);
+        end
         if ll < spiderman.ll1_, spiderman.ll1_ = ll;end
         hh = extrainfo.hh(end);
         if hh < spiderman.hh1_,spiderman.hh1_ = hh;end
