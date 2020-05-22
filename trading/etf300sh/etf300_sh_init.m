@@ -10,7 +10,7 @@ exp_jun = '2020-06-24';
 k_300 = 3.4:0.1:4.4;
 % opt300_c_feb = cell(length(k_300),1);opt300_p_feb = opt300_c_feb;
 % opt300_c_mar = cell(length(k_300),1);opt300_p_mar = opt300_c_mar;
-opt300_c_apr = cell(length(k_300),1);opt300_p_apr = opt300_c_apr;
+% opt300_c_apr = cell(length(k_300),1);opt300_p_apr = opt300_c_apr;
 opt300_c_may = cell(length(k_300),1);opt300_p_may = opt300_c_may;
 opt300_c_jun = cell(length(k_300),1);opt300_p_jun = opt300_c_jun;
 for i = 1:length(k_300)
@@ -18,8 +18,8 @@ for i = 1:length(k_300)
 %     opt300_p_feb{i} = ['510300 CH ',datestr(exp_feb,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
 %     opt300_c_mar{i} = ['510300 CH ',datestr(exp_mar,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
 %     opt300_p_mar{i} = ['510300 CH ',datestr(exp_mar,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
-    opt300_c_apr{i} = ['510300 CH ',datestr(exp_apr,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
-    opt300_p_apr{i} = ['510300 CH ',datestr(exp_apr,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
+%     opt300_c_apr{i} = ['510300 CH ',datestr(exp_apr,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
+%     opt300_p_apr{i} = ['510300 CH ',datestr(exp_apr,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
     opt300_c_may{i} = ['510300 CH ',datestr(exp_may,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
     opt300_p_may{i} = ['510300 CH ',datestr(exp_may,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
     opt300_c_jun{i} = ['510300 CH ',datestr(exp_jun,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
@@ -35,8 +35,8 @@ op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod'
 shift = 60;
 tools_technicalplot2(op_300etf(end-shift:end,:));
 %%
-opt300_c_1 = opt300_c_may;
-opt300_p_1 = opt300_p_may;
+opt300_c_1 = opt300_c_jun;
+opt300_p_1 = opt300_p_jun;
 n_opt300c = length(k_300);
 bd_opt300c_1 = cell(n_opt300c,1);
 tbl_opt300c_1 = [k_300',zeros(length(k_300),3)];
