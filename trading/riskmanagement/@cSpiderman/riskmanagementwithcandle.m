@@ -282,7 +282,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             end
             
             if closeflag == 1
-                fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
+%                 fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
             end
         end
         if closeflag == 0, obj.updatestoploss('extrainfo',extrainfo); end
@@ -429,7 +429,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 obj.closestr_ = ret.reason;
             end
             if closeflag == 1
-                fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
+%                 fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
             end
         end
         %

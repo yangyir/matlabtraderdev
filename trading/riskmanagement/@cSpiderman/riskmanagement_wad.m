@@ -42,7 +42,7 @@ function [ret] = riskmanagement_wad(obj,varargin)
         if p(end,5) > obj.cpopen_ && wad(end) <= obj.wadopen_
             ret = struct('inconsistence',1,...
                 'reason','higher price to open w/o wad being higher');
-            fprintf('riskmanagment_wad:%s:%s\n',datestr(p(end,1),'yyyy-mm-dd HH:MM'),'higher price to open w/o wad being higher');
+%             fprintf('riskmanagment_wad:%s:%s\n',datestr(p(end,1),'yyyy-mm-dd HH:MM'),'higher price to open w/o wad being higher');
             return
         end
         %
