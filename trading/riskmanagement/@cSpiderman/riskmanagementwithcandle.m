@@ -137,6 +137,10 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
     end
     
+    if strcmpi(obj.trade_.opensignal_.frequency_,'daily')
+        unwindtrade = obj.riskmanagement_daily(varargin{:});
+    end
+    
     if direction == 1
         closeflag = 0;
         if strcmpi(trade.opensignal_.frequency_,'daily')

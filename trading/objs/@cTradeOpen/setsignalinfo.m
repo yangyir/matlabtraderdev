@@ -128,6 +128,12 @@ function [] = setsignalinfo(obj,varargin)
         end
         %
         try
+            signalinfo.mode_ = info.mode;
+        catch
+            signalinfo.mode_ = 'unset';
+        end
+        %
+        try
             signalinfo.hh_ = info.hh;
         catch
             signalinfo.hh_ = [];

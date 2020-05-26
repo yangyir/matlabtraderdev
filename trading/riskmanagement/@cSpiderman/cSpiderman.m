@@ -37,6 +37,10 @@ classdef cSpiderman < cTradeRiskManager
     
     methods (Access = private)
         [ret] = riskmanagement_wad(obj,varargin)
+        [unwindtrade] = riskmanagement_daily(obj,varargin)
+        [unwindtrade] = riskmanagement_daily_breachtd(obj,varargin)
+        %
+        [unwindtrade] = riskmanagement_intraday(obj,varargin)
     end
 end
 

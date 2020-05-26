@@ -1,6 +1,7 @@
 classdef cFractalInfo < cSignalInfo
     properties
         type_@char = 'unset'
+        mode_@char = 'unset'
         hh_@double
         ll_@double
     end
@@ -21,5 +22,18 @@ classdef cFractalInfo < cSignalInfo
                 error('cFractalInfo:invalid type input')
             end 
         end
+        %
+        function [] = set.mode_(obj,val)
+            if strcmpi(val,'unset') || ...
+                    strcmpi(val,'breachup-lvlup') || ...
+                    strcmpi(val,'breachup-lvldn') || ...
+                    strcmpi(val,'breachdn-lvldn') || ...
+                    strcmpi(val,'breachdn-lvlup')
+                obj.mode_ = val;
+            else
+                error('cFractalInfo:invalid mode input')
+            end     
+        end
+        
     end
 end
