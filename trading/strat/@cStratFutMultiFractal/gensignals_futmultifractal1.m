@@ -1,7 +1,7 @@
 function signals = gensignals_futmultifractal1(stratfractal)
 %cStratFutMultiFractal
     n = stratfractal.count;
-    signals = zeros(n,3);
+    signals = zeros(n,4);
     if stratfractal.displaysignalonly_, return;end
     
     if strcmpi(stratfractal.mode_,'replay')
@@ -233,6 +233,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals(i,1) = 1;                                           %breach hh buy
                     signals(i,2) = hh(end);
                     signals(i,3) = ll(end);
+                    switch op.comment
+                        case 'breachup-lvlup'
+                            signals(i,4) = 1;
+                        otherwise
+                            signals(i,4) = 0;
+                    end
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
                     continue;
                 end
