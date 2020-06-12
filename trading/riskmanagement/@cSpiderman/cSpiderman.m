@@ -41,6 +41,12 @@ classdef cSpiderman < cTradeRiskManager
         [unwindtrade] = riskmanagement_daily_breachtd(obj,varargin)
         %
         [unwindtrade] = riskmanagement_intraday(obj,varargin)
+        %LONG
+        [unwindtrade] = riskmanagement_intraday_breachuplvlup(obj,varargin)
+        [unwindtrade] = riskmanagement_intraday_breachuplvldn(obj,varargin)
+        %SHORT
+        [unwindtrade] = riskmanagement_intraday_breachdnlvldn(obj,varargin)
+        [unwindtrade] = riskmanagement_intraday_breachdnlvlup(obj,varargin)
     end
 end
 

@@ -22,12 +22,12 @@ function [output] = fractal_filterb1_singleentry_intraday(b1type,nfractal,extrai
     
     if this_momentum == -1
         %it is not wise to long when the market momentum is bearish
-        output = struct('use',0','comment','bearishmomentum');
+        output = struct('use',0','comment','bearishmomentum','momentum',this_momentum);
         return
     end
     
     if sc(end) == 13
-        output = struct('use',0','comment','sc13');
+        output = struct('use',0','comment','sc13','momentum',this_momentum);
         return
     end
     
@@ -38,12 +38,12 @@ function [output] = fractal_filterb1_singleentry_intraday(b1type,nfractal,extrai
             || (px(end,5)>lvlup(end) && px(end-1,5)<lvlup(end))...
             || (px(end,5)>lvlup(end) && px(end,4)<lvlup(end));
     if isbreachlvlup
-        output = struct('use',1,'comment','breachup-lvlup');
+        output = struct('use',1,'comment','breachup-lvlup','momentum',this_momentum);
         return
     end
     
     
-    output = struct('use',0,'comment','n/a');
+    output = struct('use',0,'comment','n/a','momentum',this_momentum);
     
     
 end
