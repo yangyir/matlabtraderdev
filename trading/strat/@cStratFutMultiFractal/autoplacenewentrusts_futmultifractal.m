@@ -9,6 +9,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
         %to check whether there is a valid signal
         if isempty(signal), continue; end
         if signal == 0, continue;end
+        if signals(i,4) == 0, continue;end
 
         %to check whether the instrument is set with autotrade flag
         instrument = instruments{i};
@@ -84,8 +85,13 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
             else
                 error('unknown signal')
             end
+            if signals(i,4) == 1
+                mode = 'breachup-lvlup';
+            else
+                mode = 'unset';
+            end
             if ask > signals(i,2) && ask < signals(i,2)+1.618*(signals(i,2)-signals(i,3))
-                info = struct('name','fractal','type',type,'hh',signals(i,2),'ll',signals(i,3));
+                info = struct('name','fractal','type',type,'hh',signals(i,2),'ll',signals(i,3),'mode',mode);
                 stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
             end
         end

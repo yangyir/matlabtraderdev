@@ -40,7 +40,7 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo)
             return
         end
         %exclude if it is too close to TDST-lvldn
-        isclose2lvldn = px(end,5)>lvldn(end) && (lvlup(end)-px(end,5))/(lvlup(end)-lvldn(end))>0.9&&lvlup(end)>lvldn(end);
+        isclose2lvldn = px(end,5)>=lvldn(end) && (lvlup(end)-px(end,5))/(lvlup(end)-lvldn(end))>0.9&&lvlup(end)>lvldn(end);
         if isclose2lvldn
             output = struct('use',0,'comment','closetolvldn');
             return
