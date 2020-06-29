@@ -34,7 +34,8 @@ if hasTF && hasT
       d_T = mdefut.candles4save_{idxT};
       d_TF = d_TF(d_TF(:,2)~=0,:);
       d_T = d_T(d_T(:,2)~=0,:);
-      spd_1m = [d_TF(:,1),2*d_TF(:,5)-d_T(:,5)];
+      [t,idx_TF,idx_T] = intersect(d_TF(:,1),d_T(:,1));
+      spd_1m = [t,2*d_TF(idx_TF,5)-d_T(idx_T,5)];
       spd_30m = timeseries_compress(spd_1m,'Frequency','30m');
       d_2TFminusT_30m = [d_2TFminusT_30m;spd_30m];
       op_2TFminusT_30m = tools_technicalplot1(d_2TFminusT_30m,mdefut.nfractals_(idxTF),0,'volatilityperiod',0,'tolerance',0);
