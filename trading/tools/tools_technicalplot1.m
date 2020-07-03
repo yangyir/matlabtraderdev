@@ -1,4 +1,4 @@
-function outputmat = tools_technicalplot1(p,nfractal,doplot,varargin)
+function [outputmat,outputstruct] = tools_technicalplot1(p,nfractal,doplot,varargin)
 %technical plot with DeMark and Williams' fractal and alligator indicator
 
 if nargin < 2, nfractal = 2;end
@@ -17,7 +17,15 @@ teeth = smma(p,8,5);teeth = [nan(5,1);teeth];
 lips = smma(p,5,3);lips = [nan(3,1);lips];
 [idxHH,idxLL,~,~,HH,LL] = fractalenhanced(p,nfractal,'volatilityperiod',inpbandsperiod,'tolerance',change);
 [bs,ss,lvlup,lvldn,bc,sc] = tdsq(p(:,1:5));
-outputmat = [m2xdate(p(:,1)),p(:,2:5),idxHH,idxLL,HH,LL,jaw,teeth,lips,bs,ss,lvlup,lvldn,bc,sc];
+wad = williamsad(p);
+outputmat = [m2xdate(p(:,1)),p(:,2:5),idxHH,idxLL,HH,LL,jaw,teeth,lips,bs,ss,lvlup,lvldn,bc,sc,wad];
+
+%
+outputstruct = struct('px',p,...
+    'idxhh',idxHH,'idxll',idxLL,'hh',HH,'ll',LL,...
+    'jaw',jaw,'teeth',teeth,'lips',lips,...
+    'bs',bs,'ss',ss,'lvlup',lvlup,'lvldn',lvldn,'bc',bc,'sc',sc,...
+    'wad',wad);
 
 if ~doplot;return,end
 
