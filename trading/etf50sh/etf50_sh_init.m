@@ -8,7 +8,7 @@ exp_apr = '2020-04-22';
 exp_may = '2020-05-27';
 exp_jun = '2020-06-24';
 exp_jul = '2020-07-22';
-k_50 = [2.4,2.45,2.5,2.55,2.6,2.65,2.7,2.75,2.8,2.85,2.9,2.95,3,3.1,3.2,3.3];
+k_50 = [2.4,2.45,2.5,2.55,2.6,2.65,2.7,2.75,2.8,2.85,2.9,2.95,3,3.1,3.2,3.3,3.4,3.5,3.6];
 % opt50_c_feb = cell(length(k_50),1);opt50_p_feb = opt50_c_feb;
 % opt50_c_mar = cell(length(k_50),1);opt50_p_mar = opt50_c_mar;
 % opt50_c_apr = cell(length(k_50),1);opt50_p_apr = opt50_c_apr;
@@ -35,9 +35,9 @@ db = cLocal;
 hd_50etf = cDataFileIO.loadDataFromTxtFile('510050_daily.txt');
 fprintf('last date recorded on local file is %s\n',datestr(hd_50etf(end,1)));
 %%
-op_50 = tools_technicalplot1(hd_50etf,2,0,'change',0.001,'volatilityperiod',0);
-shift = 60;
-tools_technicalplot2(op_50(end-shift:end,:));
+% op_50 = tools_technicalplot1(hd_50etf,2,0,'change',0.001,'volatilityperiod',0);
+% shift = 60;
+% tools_technicalplot2(op_50(end-shift:end,:));
 %%
 opt50_c_1 = opt50_c_jul;
 opt50_p_1 = opt50_c_jul;

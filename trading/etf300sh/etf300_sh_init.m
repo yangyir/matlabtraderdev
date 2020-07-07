@@ -8,7 +8,7 @@ exp_apr = '2020-04-22';
 exp_may = '2020-05-27';
 exp_jun = '2020-06-24';
 exp_jul = '2020-07-22';
-k_300 = 3.4:0.1:4.4;
+k_300 = 3.4:0.1:5.0;
 % opt300_c_feb = cell(length(k_300),1);opt300_p_feb = opt300_c_feb;
 % opt300_c_mar = cell(length(k_300),1);opt300_p_mar = opt300_c_mar;
 % opt300_c_apr = cell(length(k_300),1);opt300_p_apr = opt300_c_apr;
@@ -35,9 +35,9 @@ db = cLocal;
 hd_300etf = cDataFileIO.loadDataFromTxtFile('510300_daily.txt');
 fprintf('last date recorded on local file is %s\n',datestr(hd_300etf(end,1)));
 %%
-op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod',0);
-shift = 60;
-tools_technicalplot2(op_300etf(end-shift:end,:));
+% op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod',0);
+% shift = 60;
+% tools_technicalplot2(op_300etf(end-shift:end,:));
 %%
 opt300_c_1 = opt300_c_jul;
 opt300_p_1 = opt300_p_jul;
