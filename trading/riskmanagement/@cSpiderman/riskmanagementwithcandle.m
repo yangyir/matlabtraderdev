@@ -1,5 +1,6 @@
 function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
 %cSpiderman
+    variablenotused(candlek);
     unwindtrade = {};
 %     if strcmpi(obj.status_,'closed'), return; end
     if strcmpi(obj.trade_.status_,'closed'), return; end
@@ -17,13 +18,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     updatepnlforclosedtrade = p.Results.UpdatePnLForClosedTrade;
     extrainfo = p.Results.ExtraInfo;
     
-    candleTime = candlek(1);
-    %double-check candleTime is inline with candleTime in extrainfo
-    if candleTime ~= extrainfo.p(end,1)
-%         error('cSpiderman:riskmanagementwithcandle:internal error!!!')
-        warning('cSpiderman:double check that candle time is different!!!\n');
-        candleTime = extrainfo.p(end,1);
-    end
+    candleTime = extrainfo.p(end,1);
     candleOpen = extrainfo.p(end,2);
     candleHigh = extrainfo.p(end,3);
     candleLow = extrainfo.p(end,4);
@@ -39,102 +34,14 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     else
         ticksize = 0;
     end
-    
-    if strcmpi(trade.status_,'unset')
-%         openbucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
-        idxopen = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
-        openbucket = extrainfo.p(idxopen,1);
-        % return in case the candle happened in the past
-        if openbucket > candleTime, return; end
-        %
-        % set the trade once the openbucket is finished
-        if openbucket == candleTime        
-            trade.status_= 'set';
-            obj.status_ = 'set';
-            
-            obj.wadopen_ = extrainfo.wad(end);
-            obj.cpopen_ = extrainfo.p(end,5);
-            if direction == 1
-                obj.wadhigh_ = extrainfo.wad(end);
-                obj.cphigh_ = extrainfo.p(end,5);
-            else
-                obj.wadlow_ = extrainfo.wad(end);
-                obj.cplow_ = extrainfo.p(end,5);
-            end
-            return
-        elseif openbucket < candleTime
-            %note:this shall never happen
-            error('cSpiderman:riskmanagementwithcandle:internal error!!!')
-        end
+        
+    if strcmpi(trade.status_,'unset') || strcmpi(obj.status_,'unset')
+        obj.setspiderman('extrainfo',extrainfo);
     end
     
     if ~usecandlelastonly
-        %FOR BACKTEST PURPOSE ONLY AND SHALL BE SWITCHED OFF IN REALTIME
-        %TRADING OR REPLAY
-        if (candleLow < obj.pxstoploss_ && direction == 1) || ...
-                (candleHigh > obj.pxstoploss_ && direction == -1)
-            closeflag = 1;
-        elseif (candleLow < obj.pxtarget_ && direction == -1) ||...
-                (candleHigh > obj.pxtarget_ && direction == 1)
-            closeflag = 2;
-        else
-            closeflag = 0;
-        end
-        
-        if closeflag
-            
-            unwindtrade = obj.trade_;
-            if closeflag == 1
-                if direction == 1 && candleOpen < obj.pxstoploss_
-                    closeprice = candleOpen;
-                elseif direction == -1 && candleOpen > obj.pxstoploss_
-                    closeprice = candleOpen;
-                else
-                    closeprice = obj.pxstoploss_;
-                end
-                obj.closestr_ = 'tick breaches stoploss price';
-            elseif closeflag == 2
-                if direction == 1 && candleOpen > obj.pxtarget_
-                    closeprice = candleOpen;
-                elseif direction == -1 && candleOpen < obj.pxtarget_
-                    closeprice = candleOpen;
-                else
-                    closeprice = obj.pxtarget_;
-                end
-                obj.closestr_ = 'tick breaches target price';
-            end
-                
-            closetime = candleTime;
-            obj.trade_.closedatetime1_ = closetime;
-            obj.trade_.closeprice_ = closeprice;
-            %
-            if doprint
-                if closeflag == 1
-                    fprintf('point %4s:spiderman closed as %s at %s...\n',...
-                        num2str(length(extrainfo.lips)),...
-                        obj.closestr_,...
-                        num2str(closeprice));
-                elseif closeflag == 2
-                    fprintf('point %4s:spiderman closed as %s at %s...\n',...
-                        num2str(length(extrainfo.lips)),...
-                        obj.closestr_,...
-                        num2str(closeprice));
-                end 
-            end
-            %
-            if updatepnlforclosedtrade
-                obj.status_ = 'closed';
-                obj.trade_.status_ = 'closed';
-                obj.trade_.runningpnl_ = 0;
-                if isempty(instrument)
-                    obj.trade_.closepnl_ = direction*volume*(closeprice-trade.openprice_);
-                else
-                    obj.trade_.closepnl_ = direction*volume*(closeprice-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-                end
-            end
-            %
-            return
-        end
+        unwindtrade = obj.candlehighlow(candleTime,candleOpen,candleHigh,candleLow,updatepnlforclosedtrade);
+        if ~isempty(unwindtrade), return;end  
     end
     
     if strcmpi(obj.trade_.opensignal_.frequency_,'daily')
@@ -246,49 +153,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
         %
         if closeflag == 0
-            ret = obj.riskmanagement_wad('extrainfo',extrainfo);
-            if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
-                if extrainfo.latestopen < obj.cphigh_
-                    closeflag = ret.inconsistence;
-                    obj.closestr_ = ret.reason;
-                end
-            elseif ret.inconsistence && (strcmpi(ret.reason,'higher price to open w/o wad being higher') || ...
-                    strcmpi(ret.reason,'same price to open with lower wad'))
-                if extrainfo.latestopen > extrainfo.p(end-1,5)
-                    pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
-                elseif extrainfo.latestopen == extrainfo.p(end-1,5)
-                    pmove = 0;
-                elseif extrainfo.latestopen < extrainfo.p(end-1,5)
-                    pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
-                end
-                wadadj = extrainfo.wad(end-1)+pmove;
-                if wadadj < obj.wadopen_
-                    closeflag = ret.inconsistence;
-                    obj.closestr_ = ret.reason;
-                end
-            elseif ret.inconsistence && strcmpi(ret.reason,'new high price w/o wad being higher')
-                if extrainfo.latestopen > extrainfo.p(end-1,5)
-                    pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
-                elseif extrainfo.latestopen == extrainfo.p(end-1,5)
-                    pmove = 0;
-                elseif extrainfo.latestopen < extrainfo.p(end-1,5)
-                    pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
-                end
-                wadadj = extrainfo.wad(end-1)+pmove;
-                if wadadj < obj.wadhigh_
-                    closeflag = ret.inconsistence;
-                    obj.closestr_ = ret.reason;
-                end
-            else
-                closeflag = ret.inconsistence;
-                obj.closestr_ = ret.reason;
-                    
-            end
-            
-            if closeflag == 1
-%                 fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
+            [ unwindtrade ] = obj.riskmanagement_wad( 'extrainfo',extrainfo );
+            if ~isempty(unwindtrade)
+                return
             end
         end
+        %
         if closeflag == 0, obj.updatestoploss('extrainfo',extrainfo); end
         %   
     elseif direction == -1
@@ -395,45 +265,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             end
         end
         if closeflag == 0
-            ret = obj.riskmanagement_wad('extrainfo',extrainfo);
-            if ret.inconsistence && strcmpi(ret.reason,'new low wad w/o price being lower')
-                if extrainfo.latestopen > obj.cplow_
-                    closeflag = ret.inconsistence;
-                    obj.closestr_ = ret.reason;
-                end
-            elseif ret.inconsistence && (strcmpi(ret.reason,'lower price to open w/o wad being lower') ||...
-                    strcmpi(ret.reason,'same price to open with higher wad'))
-                if extrainfo.latestopen > extrainfo.p(end-1,5)
-                    pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
-                elseif extrainfo.latestopen == extrainfo.p(end-1,5)
-                    pmove = 0;
-                elseif extrainfo.latestopen < extrainfo.p(end-1,5)
-                    pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
-                end
-                wadadj = extrainfo.wad(end-1)+pmove;
-                if wadadj > obj.wadopen_ && extrainfo.bs(end) ~= 8
-                    closeflag = ret.inconsistence;
-                    obj.closestr_ = ret.reason;
-                end
-            elseif ret.inconsistence && strcmpi(ret.reason,'new low price w/o wad being lower')
-                if extrainfo.latestopen > extrainfo.p(end-1,5)
-                    pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
-                elseif extrainfo.latestopen == extrainfo.p(end-1,5)
-                    pmove = 0;
-                elseif extrainfo.latestopen < extrainfo.p(end-1,5)
-                    pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
-                end
-                wadadj = extrainfo.wad(end-1)+pmove;
-                if wadadj > obj.wadlow_
-                    closeflag = ret.inconsistence;
-                    obj.closestr_ = ret.reason;
-                end
-            else
-                closeflag = ret.inconsistence;
-                obj.closestr_ = ret.reason;
-            end
-            if closeflag == 1
-%                 fprintf('riskmanagementwithcandle:%s:%s\n',datestr(extrainfo.p(end,1),'yyyy-mm-dd HH:MM'),obj.closestr_);
+            [ unwindtrade ] = obj.riskmanagement_wad( 'extrainfo',extrainfo );
+            if ~isempty(unwindtrade)
+                return
             end
         end
         %

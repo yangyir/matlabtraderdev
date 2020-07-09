@@ -33,10 +33,12 @@ classdef cSpiderman < cTradeRiskManager
         [unwindtrade] = riskmanagement(obj,varargin)
         [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         [] = updatestoploss(obj,varargin)
+        [unwindtrade] = riskmanagement_wad(obj,varargin)
+        [unwindtrade] = riskmanagement_tdsq(obj,varargin)
     end
     
     methods (Access = private)
-        [ret] = riskmanagement_wad(obj,varargin)
+        [ret] = riskmanagement_wadupdate(obj,varargin)
         [unwindtrade] = riskmanagement_daily(obj,varargin)
         [unwindtrade] = riskmanagement_daily_breachtd(obj,varargin)
         %
@@ -49,6 +51,10 @@ classdef cSpiderman < cTradeRiskManager
         %SHORT
         [unwindtrade] = riskmanagement_intraday_breachdnlvldn(obj,varargin)
         [unwindtrade] = riskmanagement_intraday_breachdnlvlup(obj,varargin)
+    end
+    
+    methods (Access = private)
+        [unwindtrade] = candlehighlow(obj,t,openp,highp,lowp,updateinfo)
     end
 end
 

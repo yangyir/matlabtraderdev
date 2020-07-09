@@ -1,8 +1,6 @@
-function [ret] = riskmanagement_wad(obj,varargin)
-%cSpiderman private method:riskmanagement_wad
-    ret = struct('inconsistence',0,...
-        'reason','n/a');
-    if strcmpi(obj.status_,'closed'), return; end
+function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
+%cSpiderman method
+    unwindtrade = {};
     if strcmpi(obj.trade_.status_,'closed'), return; end
     
     p = inputParser;
@@ -13,80 +11,115 @@ function [ret] = riskmanagement_wad(obj,varargin)
     
     trade = obj.trade_;
     direction = trade.opendirection_;
-    p = extrainfo.p;
-    wad = extrainfo.wad;
+    
+    ret = obj.riskmanagement_wadupdate('extrainfo',extrainfo);
+    closeflag = 0;
     
     if direction == 1
-        if p(end,5) >= obj.cphigh_
-            obj.cphigh_ = p(end,5);
-            if wad(end) < obj.wadhigh_
-                ret = struct('inconsistence',1,...
-                    'reason','new high price w/o wad being higher');
-                return
+        if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
+            if extrainfo.latestopen < obj.cphigh_
+                closeflag = ret.inconsistence;
+                obj.closestr_ = ret.reason;
             else
-                obj.wadhigh_ = wad(end);
+                %if latest open jumps and moves higher than the highest
+                %close so far, the trade can be saved
             end
-        end
-        %
-        if wad(end) >= obj.wadhigh_
-            obj.wadhigh_ = wad(end);
-            if p(end,5) < obj.cphigh_
-                ret = struct('inconsistence',1,...
-                    'reason','new high wad w/o price being higher');
-                return
+        elseif ret.inconsistence && ...
+                (strcmpi(ret.reason,'higher price to open w/o wad being higher') || ...
+                strcmpi(ret.reason,'same price to open with lower wad'))
+            %use the lastest open to recalculate wad
+            if extrainfo.latestopen > extrainfo.p(end-1,5)
+                pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
+            elseif extrainfo.latestopen == extrainfo.p(end-1,5)
+                pmove = 0;
+            elseif extrainfo.latestopen < extrainfo.p(end-1,5)
+                pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+            end
+            wadadj = extrainfo.wad(end-1)+pmove;
+            if wadadj < obj.wadopen_
+                closeflag = ret.inconsistence;
+                obj.closestr_ = ret.reason;
             else
-                obj.cphigh_ = p(end,5);
+                %if the re-calculated wad is higher than the open wad, the
+                %trade can be saved
             end
-        end
-        %
-        if p(end,5) > obj.cpopen_ && wad(end) <= obj.wadopen_
-            ret = struct('inconsistence',1,...
-                'reason','higher price to open w/o wad being higher');
-%             fprintf('riskmanagment_wad:%s:%s\n',datestr(p(end,1),'yyyy-mm-dd HH:MM'),'higher price to open w/o wad being higher');
-            return
-        end
-        %
-        if p(end,5) == obj.cpopen_ && wad(end) < obj.wadopen_
-            ret = struct('inconsistence',1,...
-                'reason','same price to open with lower wad');
-            return
-        end
-        %
-    elseif direction == -1
-        if p(end,5) <= obj.cplow_
-            obj.cplow_ = p(end,5);
-            if wad(end) > obj.wadlow_
-                ret = struct('inconsistence',1,...
-                    'reason','new low price w/o wad being lower');
-                return
+        elseif ret.inconsistence && strcmpi(ret.reason,'new high price w/o wad being higher')
+            %use the lastest open to recalculate wad
+            if extrainfo.latestopen > extrainfo.p(end-1,5)
+                pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
+            elseif extrainfo.latestopen == extrainfo.p(end-1,5)
+                pmove = 0;
+            elseif extrainfo.latestopen < extrainfo.p(end-1,5)
+                pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+            end
+            wadadj = extrainfo.wad(end-1)+pmove;
+            if wadadj < obj.wadhigh_
+                closeflag = ret.inconsistence;
+                obj.closestr_ = ret.reason;
             else
-                obj.wadlow_ = wad(end);
+                %if the re-calculated wad is higher than the highest wad so
+                %far, the trade can be saved
             end
+        else
+            closeflag = ret.inconsistence;
+            obj.closestr_ = ret.reason;
         end
-        %
-        if wad(end) <= obj.wadlow_
-            obj.wadlow_ = wad(end);
-            if p(end,5) > obj.cplow_
-                ret = struct('inconsistence',1,...
-                    'reason','new low wad w/o price being lower');
-                return
+    else
+        ret = obj.riskmanagement_wadupdate('extrainfo',extrainfo);
+        if ret.inconsistence && strcmpi(ret.reason,'new low wad w/o price being lower')
+            if extrainfo.latestopen > obj.cplow_
+                closeflag = ret.inconsistence;
+                obj.closestr_ = ret.reason;
             else
-                obj.cplow_ = p(end,5);
+                %if latest open jumps and moves lower than the lowest close
+                %so far, the trade can be saved
             end
+        elseif ret.inconsistence && ...
+                (strcmpi(ret.reason,'lower price to open w/o wad being lower') ||...
+                strcmpi(ret.reason,'same price to open with higher wad'))
+            %use the lastest open to recalculate wad
+            if extrainfo.latestopen > extrainfo.p(end-1,5)
+                pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
+            elseif extrainfo.latestopen == extrainfo.p(end-1,5)
+                pmove = 0;
+            elseif extrainfo.latestopen < extrainfo.p(end-1,5)
+                pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+            end
+            wadadj = extrainfo.wad(end-1)+pmove;
+            if wadadj > obj.wadopen_
+                closeflag = ret.inconsistence;
+                obj.closestr_ = ret.reason;
+            else
+                %if the re-calculated wad is lower than the open wad, the
+                %trade can be saved
+            end
+        elseif ret.inconsistence && strcmpi(ret.reason,'new low price w/o wad being lower')
+            %use the lastest open to recalculate wad
+            if extrainfo.latestopen > extrainfo.p(end-1,5)
+                pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
+            elseif extrainfo.latestopen == extrainfo.p(end-1,5)
+                pmove = 0;
+            elseif extrainfo.latestopen < extrainfo.p(end-1,5)
+                pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+            end
+            wadadj = extrainfo.wad(end-1)+pmove;
+            if wadadj > obj.wadlow_
+                closeflag = ret.inconsistence;
+                obj.closestr_ = ret.reason;
+            else
+                %if the re-calculated wad is lower than the lowest wad
+                %so far, the trade can be saved
+            end
+        else
+            closeflag = ret.inconsistence;
+            obj.closestr_ = ret.reason;
         end
-        %
-        if p(end,5) < obj.cpopen_ && wad(end) >= obj.wadopen_
-            ret = struct('inconsistence',1,...
-                'reason','lower price to open w/o wad being lower');
-            return
-        end
-        %
-        if p(end,5) == obj.cpopen_ && wad(end) > obj.wadopen_
-            ret = struct('inconsistence',1,...
-                'reason','same price to open with higher wad');
-            return
-        end
-        %
     end
     
+    if closeflag
+        obj.status_ = 'closed';
+        unwindtrade = obj.trade_;
+    end
+
 end
+
