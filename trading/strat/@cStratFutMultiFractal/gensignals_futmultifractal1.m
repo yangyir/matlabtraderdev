@@ -236,6 +236,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     switch op.comment
                         case 'breachup-lvlup'
                             signals(i,4) = 1;
+                        case 'volblowup'
+                            signals(i,4) = 1;
                         otherwise
                             signals(i,4) = 0;
                     end
@@ -285,6 +287,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals(i,1) = -1;                                          %breach ll sell
                     signals(i,2) = hh(end);
                     signals(i,3) = ll(end);
+                    switch op.comment
+                        case 'breachdn-lvldn'
+                            signals(i,4) = 1;
+                        case 'volblowup'
+                            signals(i,4) = 1;
+                        case 'breachdn-bshighvalue'
+                            signals(i,4) = 1;
+                        otherwise
+                            signals(i,4) = 0;
+                    end
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
                     continue;
                 end
