@@ -1,6 +1,6 @@
 close all;
 hd_300etf = cDataFileIO.loadDataFromTxtFile('510300_daily.txt');
-op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod',0);
+[op_300etf,op_300etf2] = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod',0);
 [wad_300etf,trh_300etf,trl_300etf] = williamsad(hd_300etf,0);
 shift = 60;
 tools_technicalplot2(op_300etf(end-shift:end,:),1,'510300 CH Equity',true);
