@@ -24,6 +24,7 @@ classdef cTradeOpen < handle
         stopdatetime2_@char
         closedatetime2_@char
         instrument_@cInstrument
+        closestr_@char
     end
     
     properties
@@ -99,6 +100,14 @@ classdef cTradeOpen < handle
                 closedatetime2 = datestr(obj.closedatetime1_,'yyyy-mm-dd HH:MM:SS');
             else
                 closedatetime2 = '';
+            end
+        end
+        
+        function closestr = get.closestr_(obj)
+            if isempty(obj.riskmanager_)
+                closestr = 'none';
+            else
+                closestr = obj.riskmanager_.closestr_;
             end
         end
         

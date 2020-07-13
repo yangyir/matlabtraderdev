@@ -6,8 +6,10 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('ExtraInfo',{},@isstruct);
+    p.addParameter('UpdatePnLForClosedTrade',false,@islogical);
     p.parse(varargin{:});
     extrainfo = p.Results.ExtraInfo;
+    updatepnlforclosedtrade = p.Results.UpdatePnLForClosedTrade;
     
     trade = obj.trade_;
     direction = trade.opendirection_;
@@ -19,7 +21,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
         if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
             if extrainfo.latestopen < obj.cphigh_
                 closeflag = ret.inconsistence;
-                obj.closestr_ = ret.reason;
+                obj.closestr_ = ['wad:',ret.reason];
             else
                 %if latest open jumps and moves higher than the highest
                 %close so far, the trade can be saved
@@ -38,7 +40,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj < obj.wadopen_
                 closeflag = ret.inconsistence;
-                obj.closestr_ = ret.reason;
+                obj.closestr_ = ['wad:',ret.reason];
             else
                 %if the re-calculated wad is higher than the open wad, the
                 %trade can be saved
@@ -55,7 +57,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj < obj.wadhigh_
                 closeflag = ret.inconsistence;
-                obj.closestr_ = ret.reason;
+                obj.closestr_ = ['wad:',ret.reason];
             else
                 %if the re-calculated wad is higher than the highest wad so
                 %far, the trade can be saved
@@ -69,7 +71,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
         if ret.inconsistence && strcmpi(ret.reason,'new low wad w/o price being lower')
             if extrainfo.latestopen > obj.cplow_
                 closeflag = ret.inconsistence;
-                obj.closestr_ = ret.reason;
+                obj.closestr_ = ['wad:',ret.reason];
             else
                 %if latest open jumps and moves lower than the lowest close
                 %so far, the trade can be saved
@@ -88,7 +90,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj > obj.wadopen_
                 closeflag = ret.inconsistence;
-                obj.closestr_ = ret.reason;
+                obj.closestr_ = ['wad:',ret.reason];
             else
                 %if the re-calculated wad is lower than the open wad, the
                 %trade can be saved
@@ -105,7 +107,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj > obj.wadlow_
                 closeflag = ret.inconsistence;
-                obj.closestr_ = ret.reason;
+                obj.closestr_ = ['wad:',ret.reason];
             else
                 %if the re-calculated wad is lower than the lowest wad
                 %so far, the trade can be saved
@@ -119,6 +121,17 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
     if closeflag
         obj.status_ = 'closed';
         unwindtrade = obj.trade_;
+        if updatepnlforclosedtrade
+            trade.status_ = 'closed';
+            trade.runningpnl_ = 0;
+            if isempty(trade.instrument_)
+                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_);
+            else
+                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+            end
+            trade.closedatetime1_ = extrainfo.p(end,1);
+            trade.closeprice_ = extrainfo.p(end,5);
+        end
     end
 
 end

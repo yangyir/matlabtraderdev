@@ -8,61 +8,61 @@ function [] = updatestoploss(spiderman,varargin)
     candlek = extrainfo.p(end,:);
 
     if strcmpi(spiderman.type_,'breachup-B')
-        phigh = candlek(3);
-        hh = extrainfo.hh(end);
-        if phigh > hh
-              hh = hh + 0.382*(phigh-hh);
-        end
-        if hh > spiderman.hh1_, spiderman.hh1_ = hh;end
-        ll = extrainfo.ll(end);
-        if ll > spiderman.ll1_, spiderman.ll1_ = ll;end
-        %
-        spiderman.pxstoploss_ = spiderman.hh1_ - 0.618*(spiderman.hh1_-spiderman.ll1_);
-        spiderman.pxstoploss_ = min(spiderman.pxstoploss_,extrainfo.lips(end));
-        spiderman.pxstoploss2_ = spiderman.hh1_ - 0.382*(spiderman.hh1_-spiderman.ll1_);
-        spiderman.pxtarget_ = spiderman.hh1_ + 1.618*(spiderman.hh1_-spiderman.ll1_);
-        
-        if ~isempty(spiderman.trade_.instrument_)
-            ticksize = spiderman.trade_.instrument_.tick_size;
-            spiderman.pxstoploss_ = floor(spiderman.pxstoploss_/ticksize)*ticksize;
-            spiderman.pxstoploss2_ = floor(spiderman.pxstoploss2_/ticksize)*ticksize;
-            spiderman.pxtarget_ = ceil(spiderman.pxtarget_/ticksize)*ticksize;
-        end
-        
-        if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
-            if spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_) > spiderman.pxstoploss_
-                spiderman.pxstoploss_ = spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_);
-            end
-        end
+%         phigh = candlek(3);
+%         hh = extrainfo.hh(end);
+%         if phigh > hh
+%               hh = hh + 0.382*(phigh-hh);
+%         end
+%         if hh > spiderman.hh1_, spiderman.hh1_ = hh;end
+%         ll = extrainfo.ll(end);
+%         if ll > spiderman.ll1_, spiderman.ll1_ = ll;end
+%         %
+%         spiderman.pxstoploss_ = spiderman.hh1_ - 0.618*(spiderman.hh1_-spiderman.ll1_);
+%         spiderman.pxstoploss_ = min(spiderman.pxstoploss_,extrainfo.lips(end));
+%         spiderman.pxstoploss2_ = spiderman.hh1_ - 0.382*(spiderman.hh1_-spiderman.ll1_);
+%         spiderman.pxtarget_ = spiderman.hh1_ + 1.618*(spiderman.hh1_-spiderman.ll1_);
+%         
+%         if ~isempty(spiderman.trade_.instrument_)
+%             ticksize = spiderman.trade_.instrument_.tick_size;
+%             spiderman.pxstoploss_ = floor(spiderman.pxstoploss_/ticksize)*ticksize;
+%             spiderman.pxstoploss2_ = floor(spiderman.pxstoploss2_/ticksize)*ticksize;
+%             spiderman.pxtarget_ = ceil(spiderman.pxtarget_/ticksize)*ticksize;
+%         end
+%         
+%         if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
+%             if spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_) > spiderman.pxstoploss_
+%                 spiderman.pxstoploss_ = spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_);
+%             end
+%         end
         
     elseif strcmpi(spiderman.type_,'reverse-B')
         error('cSpiderman:updatestoploss:reverse-B not implemented...')
     elseif strcmpi(spiderman.type_,'breachdn-S')
-        plow = candlek(4);
-        ll = extrainfo.ll(end);
-        if plow < ll
-              ll = ll - 0.382*(ll-plow);
-        end
-        if ll < spiderman.ll1_, spiderman.ll1_ = ll;end
-        hh = extrainfo.hh(end);
-        if hh < spiderman.hh1_,spiderman.hh1_ = hh;end
-        %
-        spiderman.pxstoploss_ = spiderman.ll1_ + 0.618*(spiderman.hh1_-spiderman.ll1_);
-        spiderman.pxstoploss2_ = spiderman.ll1_ + 0.382*(spiderman.hh1_-spiderman.ll1_);
-        spiderman.pxtarget_ = spiderman.ll1_ - 1.618*(spiderman.hh1_-spiderman.ll1_);
-        
-        if ~isempty(spiderman.trade_.instrument_)
-            ticksize = spiderman.trade_.instrument_.tick_size;
-            spiderman.pxstoploss_ = ceil(spiderman.pxstoploss_/ticksize)*ticksize;
-            spiderman.pxstoploss2_ = ceil(spiderman.pxstoploss2_/ticksize)*ticksize;
-            spiderman.pxtarget_ = floor(spiderman.pxtarget_/ticksize)*ticksize;
-        end
-        
-        if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
-            if spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_) < spiderman.pxstoploss_
-                spiderman.pxstoploss_ = spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_);
-            end
-        end
+%         plow = candlek(4);
+%         ll = extrainfo.ll(end);
+%         if plow < ll
+%               ll = ll - 0.382*(ll-plow);
+%         end
+%         if ll < spiderman.ll1_, spiderman.ll1_ = ll;end
+%         hh = extrainfo.hh(end);
+%         if hh < spiderman.hh1_,spiderman.hh1_ = hh;end
+%         %
+%         spiderman.pxstoploss_ = spiderman.ll1_ + 0.618*(spiderman.hh1_-spiderman.ll1_);
+%         spiderman.pxstoploss2_ = spiderman.ll1_ + 0.382*(spiderman.hh1_-spiderman.ll1_);
+%         spiderman.pxtarget_ = spiderman.ll1_ - 1.618*(spiderman.hh1_-spiderman.ll1_);
+%         
+%         if ~isempty(spiderman.trade_.instrument_)
+%             ticksize = spiderman.trade_.instrument_.tick_size;
+%             spiderman.pxstoploss_ = ceil(spiderman.pxstoploss_/ticksize)*ticksize;
+%             spiderman.pxstoploss2_ = ceil(spiderman.pxstoploss2_/ticksize)*ticksize;
+%             spiderman.pxtarget_ = floor(spiderman.pxtarget_/ticksize)*ticksize;
+%         end
+%         
+%         if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
+%             if spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_) < spiderman.pxstoploss_
+%                 spiderman.pxstoploss_ = spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_);
+%             end
+%         end
     elseif strcmpi(spiderman.type_,'reverse-S')
         error('cSpiderman:updatestoploss:reverse-S not implemented...')
     else

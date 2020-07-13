@@ -7,7 +7,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         error('tdsq_riskmanagement:invalid extrainfo input')
     end
     
-    if strcmpi(obj.trade_.opensignal_.frequency_,'daily')
+    if strcmpi(trade.opensignal_.frequency_,'daily')
         idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last');
     else
         idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last')-1;
@@ -36,13 +36,31 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
     jaw = extrainfo.jaw;
     
     if direction == 1
+        if ~isnan(trade.riskmanager_.tdlow_)
+            if p(end,4) < trade.riskmanager_.tdlow_
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+        end
+        if ~isnan(trade.riskmanager_.td13low_)
+            if p(end,4) < trade.riskmanager_.td13low_
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+        end
         lvlup = extrainfo.lvlup;
         %STOP the trade if it fails to breaches TDST-lvlup,i.e.the high
         %price fell below lvlup
         if ~isempty(find(p(idxopen:end-1,5)>lvlup(end-1),1,'first')) && ...
-                p(end,3)<lvlup(end-1)
+                p(end,3)<lvlup(end-1) && ...
+                p(end,4)<lips(end)
             closeflag = 1;
-            closestr = 'candle failed to breach TDST lvlup';
+            trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
+            closestr = trade.riskmanager_.closestr_;
             return
         end
         %IF TDST-lvlup exists and is higher then HH at open
@@ -62,20 +80,81 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             if conditionsatisfied && p(end,5) < hhopen && ...
                     p(end,5)<max([lips(end),teeth(end),jaw(end)])
                 closeflag = 1;
-                closestr = 'candle fell from above TDST lvlup to below HH again';
+                trade.riskmanager_.closestr_ = 'tdsq:candle fell from above TDST lvlup to below HH again';
+                closestr = trade.riskmanager_.closestr_;
                 return
             end
         end
         %
-        
+        ss = extrainfo.ss;
+        if ss(end) >= 9
+            high9 = extrainfo.p(end,3);
+            high8 = extrainfo.p(end-1,3);
+            high7 = extrainfo.p(end-2,3);
+            high6 = extrainfo.p(end-3,3);
+            close9 = extrainfo.p(end,5);
+            close8 = extrainfo.p(end-1,5);
+            if (high8 > max(high6,high7) || ...
+                    high9 > max(high6,high7)) && ...
+                    close9>close8 && ....
+                    extrainfo.wad(end)-extrainfo.wad(end-1)>close9-close8
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:perfectss9';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+        end
+        if ss(end) >= 16
+            closeflag = 1;
+            trade.riskmanager_.closestr_ = 'tdsq:ss16';
+            closestr = trade.riskmanager_.closestr_;
+            return
+        end
+        sc = extrainfo.sc;
+        if sc(end) == 13
+            if ~isnan(trade.riskmanager_.td13low_)
+                trade.riskmanager_.td13low_ = extrainfo.p(end,4);
+            end
+        end
+        %
+        if ss(end) >= 9 && isnan(trade.riskmanager_.tdlow_)
+            k = ss(end);
+            trade.riskmanager_.tdhigh_ = max(extrainfo.p(end-k+1:end,3));
+            tdidx = find(extrainfo.p(end-k+1:end,3)==trade.riskmanager_.tdhigh_,1,'last')+length(extrainfo.p)-k;
+            trade.riskmanager_.tdlow_ = extrainfo.p(tdidx,4);
+        end
+        if ~isnan(trade.riskmanager_.tdlow_) && ss(end) >= 9
+            if extrainfo.p(end,3) >= trade.riskmanager_.tdhigh_
+                trade.riskmanager_.tdhigh_ = extrainfo.p(end,3);
+                trade.riskmanager_.tdlow_ = extrainfo.p(end,4);
+            end
+        end
     elseif direction == -1
+        if ~isnan(trade.riskmanager_.tdhigh_)
+            if p(end,3) > trade.riskmanager_.tdhigh_
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+        end
+        if ~isnan(trade.riskmanager_.td13high_)
+            if p(end,3) > trade.riskmanager_.td13high_
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:bs13break';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+        end
         lvldn = extrainfo.lvldn;
         %STOP the trade if it fails to breaches TDST-lvldn,i.e.the low
         %price stayed above lvldn
         if ~isempty(find(p(idxopen:end-1,5)<lvldn(end-1),1,'first')) && ...
-                p(end,4)>lvldn(end-1)
+                p(end,4)>lvldn(end-1) && ...
+                p(end,3)>lips(end)
             closeflag = 1;
-            closestr = 'candle failed to breach TDST lvldn';
+            trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
+            closestr = trade.riskmanager_.closestr_;
             return
         end
         %IF TDST-lvldn exists and is lower then LL at open
@@ -95,11 +174,55 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             if conditionsatisfied && p(end,5) > llopen && ...
                     p(end,5)>min([lips(end),teeth(end),jaw(end)])
                 closeflag = 1;
-                closestr = 'candle fell from below TDST lvldn to above LL again';
+                trade.riskmanager_.closestr_ = 'tdsq:candle fell from below TDST lvldn to above LL again';
+                closestr = trade.riskmanager_.closestr_;
                 return
             end
         end
-        
+        %   
+        bs = extrainfo.bs;
+        if bs(end) >= 9
+            low9 = extrainfo.p(end,4);
+            low8 = extrainfo.p(end-1,4);
+            low7 = extrainfo.p(end-2,4);
+            low6 = extrainfo.p(end-3,4);
+            close9 = extrainfo.p(end,5);
+            close8 = extrainfo.p(end-1,5);
+            if (low8 < min(low6,low7) || ...
+                    low9 < min(low6,low7)) && ...
+                    close9<close8 && ....
+                    close8-close9 > extrainfo.wad(end-1)-extrainfo.wad(end)
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:perfectbs9';
+                closestr = trade.riskmanager_.closestr_;
+            end
+        end
+        if bs(end) >= 16
+            closeflag = 1;
+            trade.riskmanager_.closestr_ = 'tdsq:bs16';
+            closestr = trade.riskmanager_.closestr_;
+            return
+        end
+        bc = extrainfo.bc;
+        if bc(end) == 13
+            if ~isnan(trade.riskmanager_.td13high_)
+                trade.riskmanager_.td13high_ = extrainfo.p(end,3);
+            end
+        end
+        %
+        if bs(end) >= 9 && isnan(trade.riskmanager_.tdlow_)
+            k = bs(end);
+            trade.riskmanager_.tdlow_ = min(extrainfo.p(end-k+1:end,4));
+            tdidx = find(extrainfo.p(end-k+1:end,4)==trade.riskmanager_.tdlow_,1,'last')+length(extrainfo.p)-k;
+            trade.riskmanager_.tdhigh_ = extrainfo.p(tdidx,3);
+        end
+        if ~isnan(trade.riskmanager_.tdlow_) && bs(end)>=9
+            if extrainfo.p(end,4) <= trade.riskmanager_.tdlow_
+                trade.riskmanager_.tdlow_ = extrainfo.p(end,4);
+                trade.riskmanager_.tdhigh_ = extrainfo.p(end,3);
+            end
+        end
+
     end
 
 

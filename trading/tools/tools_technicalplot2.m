@@ -1,4 +1,4 @@
-function [] = tools_technicalplot2(inputmat,figureidx,titlestr,usedatelabel)
+function [] = tools_technicalplot2(inputmat,figureidx,titlestr,usedatelabel,shift)
 
 p = inputmat(:,1:5);
 %idx = inputmat(:,6);
@@ -21,7 +21,9 @@ stairs(LL,'g--');
 stairs(lvlup,'color',[0.75 0 0],'linewidth',1.5);
 stairs(lvldn,'color',[0 0.75 0],'linewidth',1.5);
 
-shift = 0.005;
+if nargin < 5
+    shift = 0.005;
+end
 for i = 1:length(p)
     if bs(i) == 9
         for k = 1:9
@@ -90,16 +92,16 @@ hold off;
 
 if nargin >= 3, title(titlestr);end
 
-if nargin == 4 && usedatelabel
+if nargin >= 4 && usedatelabel
     xtick = get(gca,'XTick');
     nxtick = length(xtick);
     xticklabel = cell(nxtick,1);
     for i = 1:nxtick
         if xtick(i) > size(p,1), continue;end
         if xtick(i) == 0
-            xticklabel{i} = datestr(p(1,1),'dd-mmm');
+            xticklabel{i} = datestr(p(1,1),'dd-mmm-yy');
         else
-            xticklabel{i}= datestr(p(xtick(i),1),'dd-mmm');
+            xticklabel{i}= datestr(p(xtick(i),1),'dd-mmm-yy');
         end
     end
     set(gca,'XTickLabel',xticklabel,'fontsize',8);

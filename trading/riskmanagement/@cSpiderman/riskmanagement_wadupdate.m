@@ -39,11 +39,11 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
             end
         end
         %
-        if p(end,5) > obj.cpopen_ && wad(end) <= obj.wadopen_
-            ret = struct('inconsistence',1,...
-                'reason','higher price to open w/o wad being higher');
-            return
-        end
+%         if p(end,5) > obj.cpopen_ && wad(end) <= obj.wadopen_
+%             ret = struct('inconsistence',1,...
+%                 'reason','higher price to open w/o wad being higher');
+%             return
+%         end
         %
 %         if p(end,5) == obj.cpopen_ && wad(end) < obj.wadopen_
 %             ret = struct('inconsistence',1,...
@@ -74,11 +74,11 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
             end
         end
         %
-        if p(end,5) < obj.cpopen_ && wad(end) >= obj.wadopen_
-            ret = struct('inconsistence',1,...
-                'reason','lower price to open w/o wad being lower');
-            return
-        end
+%         if p(end,5) < obj.cpopen_ && wad(end) >= obj.wadopen_
+%             ret = struct('inconsistence',1,...
+%                 'reason','lower price to open w/o wad being lower');
+%             return
+%         end
         %
 %         if p(end,5) == obj.cpopen_ && wad(end) > obj.wadopen_
 %             ret = struct('inconsistence',1,...
