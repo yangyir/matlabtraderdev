@@ -16,18 +16,19 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
     closeflag = 0;
     
     if direction == 1
-        if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_)
+        if extrainfo.p(end,5) < obj.fibonacci1_-0.382*(obj.fibonacci1_-obj.fibonacci0_)
             closeflag = 1;
+            obj.closestr_ = 'fibonacci:0.382';
         end
     else
-        if extrainfo.p(end,5) > obj.fibonacci0_+0.618*(obj.fibonacci1_-obj.fibonacci0_)
+        if extrainfo.p(end,5) > obj.fibonacci0_+0.382*(obj.fibonacci1_-obj.fibonacci0_)
             closeflag = 1;
+            obj.closestr_ = 'fibonacci:0.382';
         end
     end
     
     if closeflag
         obj.status_ = 'closed';
-        obj.closestr_ = 'fibonacci:0.618';
         unwindtrade = obj.trade_;
         if updatepnlforclosedtrade
             trade.status_ = 'closed';
@@ -41,23 +42,62 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
             trade.closeprice_ = extrainfo.p(end,5);
         end
         return
-    end
-    
-    if strcmpi(trade.opensignal_.frequency_,'daily')
-        idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first')+1;
     else
-        idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
+        if strcmpi(obj.type_,'breachup-B')
+            phigh = extrainfo.p(end,3);
+            hh = extrainfo.hh(end);
+            if phigh > hh
+                hh = hh + 0.382*(phigh-hh);
+            end
+            ll = extrainfo.ll(end);
+            if ll > obj.fibonacci0_, obj.fibonacci0_ = ll;end
+            if hh > obj.fibonacci1_
+                obj.fibonacci1_ = hh;
+%                 pstop = phigh - 0.618*(phigh-obj.fibonacci0_);
+                ptarget = obj.fibonacci1_ + 1.618*(obj.fibonacci1_-obj.fibonacci0_);
+                if ~isempty(trade.instrument_)
+                    ticksize = trade.instrument_.tick_size;
+%                     pstop = floor(pstop/ticksize)*ticksize;
+                    ptarget = ceil(ptarget/ticksize)*ticksize;
+                end
+%                 if pstop > obj.pxstoploss_
+%                     obj.pxstoploss_ = pstop;
+%                     obj.closestr_ = 'fibonacci:0.618';
+%                 end
+                if ptarget > obj.pxtarget_
+                    obj.pxtarget_ = ptarget;
+                end
+            end            
+        elseif strcmpi(obj.type_,'breachdn-S')
+            plow = extrainfo.p(end,4);
+            ll = extrainfo.ll(end);
+            if plow < ll
+                ll = ll - 0.382*(ll-plow);
+            end
+            hh = extrainfo.hh(end);
+            if hh < obj.fibonacci1_, obj.fibonacci1_ = hh;end
+            if ll < obj.fibonacci0_
+                obj.fibonacci0_ = ll;
+%                 pstop = ll + 0.618*(ll-obj.fibonacci0_);
+                ptarget = obj.fibonacci0_ - 1.618*(obj.fibonacci1_-obj.fibonacci0_);
+                if ~isempty(trade.instrument_)
+                    ticksize = trade.instrument_.tick_size;
+%                     pstop = ceil(pstop/ticksize)*ticksize;
+                    ptarget = floor(ptarget/ticksize)*ticksize;
+                end
+%                 if pstop < obj.pxstoploss_
+%                     obj.pxstoploss_ = pstop;
+%                     obj.closestr_ = 'fibonacci:0.618';
+%                 end
+                if ptarget < obj.pxtarget_
+                    obj.pxtarget_ = ptarget;
+                end
+            end
+        else 
+            error('cSpiderman:riskmanagement_fibonacci:%s not implemented',obj.type_)
+        end
     end
     
-    if strcmpi(obj.type_,'breachup-B')
-        obj.fibonacci1_ = max(extrainfo.p(idxstart2check:end,3));
-        obj.fibonacci0_ = max(extrainfo.ll(idxstart2check:end));
-        
-        
-    elseif strcmpi(obj.type_,'breachdn-S')
-        obj.fibonacci0_ = min(extrainfo.p(idxstart2check:end,4));
-        obj.fibonacci1_ = min(extrainfo.ll(idxstart2check:end)); 
-    end
     
     
 

@@ -5,12 +5,14 @@ classdef cSpiderman < cTradeRiskManager
         ll0_@double
         hh1_@double
         ll1_@double
-        pxstoploss2_@double = -9.99                                         %stoploss at candle level
+        %stoploss at candle level
+        pxstoploss2_@double = -9.99                                         
+        %TD-related
         tdhigh_@double = NaN
         tdlow_@double = NaN
         td13high_@double = NaN
         td13low_@double = NaN
-        %
+        %WAD-related
         wadopen_@double
         cpopen_@double
         %long trade
@@ -20,7 +22,7 @@ classdef cSpiderman < cTradeRiskManager
         wadlow_@double = NaN
         cplow_@double = NaN
         %
-        %
+        %FIBONACCI-related
         fibonacci0_@double = NaN
         fibonacci1_@double = NaN
     end

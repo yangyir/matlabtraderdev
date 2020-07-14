@@ -16,26 +16,42 @@ function [] = setriskmanager_spiderman(obj,varargin)
     riskmanager.ll0_ = info.ll0_;
     riskmanager.ll1_ = info.ll1_;
     riskmanager.type_ = info.type_;
+    %
     try
         riskmanager.tdhigh_ = info.tdhigh_;
         riskmanager.tdlow_ = info.tdlow_;
+        riskmanager.td13high_ = info.td13high_;
+        riskmanager.td13low_ = info.td13low_;
     catch
     end
+    %
     try
         riskmanager.wadopen_ = info.wadopen_;
         riskmanager.cpopen_ = info.cpopen_;
-        riskmanager.wadhigh_ = info.wadhigh_;
-        riskmanager.cphigh_ = info.cphigh_;
-        riskmanager.wadlow_ = info.wadlow_;
-        riskmanager.cplow_ = info.cplow_;
+        if strcmpi(riskmanager.type_,'breachup-B')
+            riskmanager.wadhigh_ = info.wadhigh_;
+            riskmanager.cphigh_ = info.cphigh_;
+        elseif strcmpi(riskmanager.type_,'breachdn-S')
+            riskmanager.wadlow_ = info.wadlow_;
+            riskmanager.cplow_ = info.cplow_;
+        end
     catch
+    end
+    %
+    try
+        riskmanager.fibonacci0_ = info.fibonacci0_;
+        riskmanager.fibonacci1_ = info.fibonacci1_;
+    catch
+        riskmanager.fibonacci0_ = info.ll1_;
+        riskmanager.fibonacci1_ = info.hh1_;
     end
     riskmanager.trade_ = obj;
 
     if strcmpi(riskmanager.type_,'breachup-B')
-        riskmanager.pxstoploss_ = riskmanager.hh1_ - 0.618*(riskmanager.hh1_-riskmanager.ll1_);
-        riskmanager.pxstoploss2_ = riskmanager.hh1_ - 0.382*(riskmanager.hh1_-riskmanager.ll1_);
-        riskmanager.pxtarget_ = riskmanager.hh1_ + 1.618*(riskmanager.hh1_-riskmanager.ll1_);
+        riskmanager.pxstoploss_ = riskmanager.fibonacci1_ - 0.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+        riskmanager.pxstoploss2_ = riskmanager.fibonacci1_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+        riskmanager.pxtarget_ = riskmanager.fibonacci1_ + 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+        riskmanager.closestr_ = 'fibonacci:0.618';
         
         if ~isempty(obj.instrument_)
             ticksize = obj.instrument_.tick_size;
@@ -47,14 +63,16 @@ function [] = setriskmanager_spiderman(obj,varargin)
         if ~isnan(riskmanager.tdlow_) && ~isnan(riskmanager.tdhigh_)
             if riskmanager.tdlow_ - (riskmanager.tdhigh_-riskmanager.tdlow_) > riskmanager.pxstoploss_
                 riskmanager.pxstoploss_ = riskmanager.tdlow_ - (riskmanager.tdhigh_-riskmanager.tdlow_);
+                riskmanager.closestr_ = 'tdsq:ssbreak';
             end
         end
     elseif strcmpi(riskmanager.type_,'reverse-B')
         error('cTradeOpen:setriskmanager_spiderman:reverse-B not implemented...')
     elseif strcmpi(riskmanager.type_,'breachdn-S')
-        riskmanager.pxstoploss_ = riskmanager.ll1_ + 0.618*(riskmanager.hh1_-riskmanager.ll1_);
-        riskmanager.pxstoploss2_ = riskmanager.ll1_ + 0.382*(riskmanager.hh1_-riskmanager.ll1_);
-        riskmanager.pxtarget_ = riskmanager.ll1_ - 1.618*(riskmanager.hh1_-riskmanager.ll1_);
+        riskmanager.pxstoploss_ = riskmanager.fibonacci0_ + 0.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+        riskmanager.pxstoploss2_ = riskmanager.fibonacci0_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+        riskmanager.pxtarget_ = riskmanager.fibonacci0_ - 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+        riskmanager.closestr_ = 'fibonacci:0.618';
         
         if ~isempty(obj.instrument_)
             ticksize = obj.instrument_.tick_size;
@@ -67,6 +85,7 @@ function [] = setriskmanager_spiderman(obj,varargin)
         if ~isnan(riskmanager.tdlow_) && ~isnan(riskmanager.tdhigh_)
             if riskmanager.tdhigh_ + (riskmanager.tdhigh_-riskmanager.tdlow_) < riskmanager.pxstoploss_
                 riskmanager.pxstoploss_ = riskmanager.tdhigh_ + (riskmanager.tdhigh_-riskmanager.tdlow_);
+                riskmanager.closestr_ = 'tdsq:bsbreak';
             end
         end
     elseif strcmpi(riskmanager.type_,'reverse-S')

@@ -19,57 +19,70 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
     ll = extrainfo.ll(end);
        
     if direction == 1
-        if hh > obj.hh1_
-            obj.hh0_ = obj.hh1_;
-            obj.hh1_ = hh;
-            obj.ll0_ = obj.ll1_;
-            obj.ll1_ = ll;
-        end
-        if ll > obj.ll1_
-            obj.ll0_ = obj.ll1_;
-            obj.ll1_ = ll;
-            obj.hh0_ = obj.hh1_;
-            obj.hh1_ = hh;
-        end
-        if extrainfo.p(end,5) < obj.hh0_ && obj.hh1_ > obj.hh0_
-            closeflag = 1;
-            obj.closestr_ = 'fractal:update';
-        else
-            obj.pxtarget_ = obj.hh1_ + 1.618*(obj.hh1_-obj.ll1_);
-            if ~isempty(trade.instrument_)
-                ticksize = trade.instrument_.tick_size;
-                obj.pxtarget_ = ceil(obj.pxtarget_/ticksize)*ticksize;
-            end
-        end
-        %
         if extrainfo.p(end,5) < extrainfo.lips(end)
             closeflag = 1;
             obj.closestr_ = 'fractal:lips';
-        end
-    else
-        if ll < obj.ll1_
-            obj.ll0_ = obj.ll1_;
-            obj.ll1_ = ll;
-        end
-        if hh < obj.hh1_
-            obj.hh0_ = obj.hh1_;
-            obj.hh1_ = hh;
-        end
-        if extrainfo.p(end,5) > obj.ll0_ && obj.ll1_ < obj.ll0_
-            closeflag = 1;
-            obj.closestr_ = 'fractal:update';
         else
-            obj.pxtarget_ = obj.ll1_ - 1.618*(obj.hh1_-obj.ll1_);
-            if ~isempty(trade.instrument_)
-                ticksize = trade.instrument_.tick_size;
-                obj.pxtarget_ = floor(obj.pxtarget_/ticksize)*ticksize;
+            if hh > obj.hh1_
+                obj.hh0_ = obj.hh1_;
+                obj.hh1_ = hh;
+            end
+            if ll > obj.ll1_
+                obj.ll0_ = obj.ll1_;
+                obj.ll1_ = ll;
+            end
+            if extrainfo.p(end,5) < obj.hh0_ && obj.hh1_ > obj.hh0_
+                closeflag = 1;
+                obj.closestr_ = 'fractal:update';
+            else
+%                 obj.pxtarget_ = obj.hh1_ + 1.618*(obj.hh1_-obj.ll1_);
+%                 if ~isempty(trade.instrument_)
+%                     ticksize = trade.instrument_.tick_size;
+%                     obj.pxtarget_ = ceil(obj.pxtarget_/ticksize)*ticksize;
+%                 end
+                if extrainfo.teeth(end) > obj.pxstoploss_
+                    if ~isempty(trade.instrument_)
+                        ticksize = trade.instrument_.tick_size;
+                        obj.pxstoploss_ = floor(extrainfo.teeth(end)/ticksize)*ticksize;
+                    end
+                    obj.closestr_ = 'fractal:teeth';
+                end 
             end
         end
         %
+    else
         if extrainfo.p(end,5) > extrainfo.lips(end)
             closeflag = 1;
             obj.closestr_ = 'fractal:lips';
+        else
+            if ll < obj.ll1_
+                obj.ll0_ = obj.ll1_;
+                obj.ll1_ = ll;
+            end
+            if hh < obj.hh1_
+                obj.hh0_ = obj.hh1_;
+                obj.hh1_ = hh;
+            end
+            if extrainfo.p(end,5) > obj.ll0_ && obj.ll1_ < obj.ll0_
+                closeflag = 1;
+                obj.closestr_ = 'fractal:update';
+            else
+%                 obj.pxtarget_ = obj.ll1_ - 1.618*(obj.hh1_-obj.ll1_);
+%                 if ~isempty(trade.instrument_)
+%                     ticksize = trade.instrument_.tick_size;
+%                     obj.pxtarget_ = floor(obj.pxtarget_/ticksize)*ticksize;
+%                 end
+                if extrainfo.teeth(end) < obj.pxstoploss_
+                    obj.pxstoploss_ = extrainfo.teeth(end);
+                    if ~isempty(trade.instrument_)
+                        ticksize = trade.instrument_.tick_size;
+                        obj.pxstoploss_ = ceil(extrainfo.teeth(end)/ticksize)*ticksize;
+                    end
+                    obj.closestr_ = 'fractal:teeth';
+                end
+            end
         end
+        %
     end
     
     if closeflag

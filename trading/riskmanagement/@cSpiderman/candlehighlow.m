@@ -26,7 +26,7 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
         else
             closeprice = obj.pxstoploss_;
         end
-        obj.closestr_ = 'tick breaches stoploss price';
+%         obj.closestr_ = 'tick breaches stoploss price';
     elseif closeflag == 2
         if direction == 1 && openp > obj.pxtarget_
             closeprice = openp;
@@ -35,7 +35,7 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
         else
             closeprice = obj.pxtarget_;
         end
-        obj.closestr_ = 'tick breaches target price';
+        obj.closestr_ = 'fibonacci:1.618';
     end
 
     closetime = t;

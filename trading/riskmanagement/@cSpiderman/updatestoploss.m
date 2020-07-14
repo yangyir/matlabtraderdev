@@ -5,7 +5,7 @@ function [] = updatestoploss(spiderman,varargin)
     p.parse(varargin{:});
     extrainfo = p.Results.ExtraInfo;
     
-    candlek = extrainfo.p(end,:);
+%     candlek = extrainfo.p(end,:);
 
     if strcmpi(spiderman.type_,'breachup-B')
 %         phigh = candlek(3);
