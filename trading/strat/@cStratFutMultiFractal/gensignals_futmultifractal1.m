@@ -1,7 +1,15 @@
 function signals = gensignals_futmultifractal1(stratfractal)
 %cStratFutMultiFractal
     n = stratfractal.count;
-    signals = zeros(n,4);
+    signals = zeros(n,6);
+    %column1:direction
+    %column2:fractal hh
+    %column3:fractal ll
+    %column4:use flag
+    %column5:hh1:open candle high
+    %column6:ll1:open candle low
+    
+    
     if stratfractal.displaysignalonly_, return;end
     
     if strcmpi(stratfractal.mode_,'replay')
@@ -233,6 +241,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals(i,1) = 1;                                           %breach hh buy
                     signals(i,2) = hh(end);
                     signals(i,3) = ll(end);
+                    signals(i,5) = p(end,3);
+                    signals(i,6) = p(end,4);
                     switch op.comment
                         case 'breachup-lvlup'
                             signals(i,4) = 1;
@@ -287,6 +297,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals(i,1) = -1;                                          %breach ll sell
                     signals(i,2) = hh(end);
                     signals(i,3) = ll(end);
+                    signals(i,5) = p(end,3);
+                    signals(i,6) = p(end,4);
                     switch op.comment
                         case 'breachdn-lvldn'
                             signals(i,4) = 1;

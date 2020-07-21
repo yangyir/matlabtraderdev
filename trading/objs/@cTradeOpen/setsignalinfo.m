@@ -133,6 +133,11 @@ function [] = setsignalinfo(obj,varargin)
             signalinfo.mode_ = 'unset';
         end
         %
+        try signalinfo.nfractal_ = info.nfractal;
+        catch
+            signalinfo.nfractal_ = [];
+        end
+        %
         try
             signalinfo.hh_ = info.hh;
         catch
@@ -144,6 +149,19 @@ function [] = setsignalinfo(obj,varargin)
         catch
             signalinfo.ll_ = [];
         end
+        %
+        try
+            signalinfo.hh1_ = info.hh1;
+        catch
+            signalinfo.hh1_ = [];
+        end
+        %
+        try
+            signalinfo.ll1_ = info.ll1;
+        catch
+            signalinfo.ll1_ = [];
+        end
+        %
         obj.opensignal_ = signalinfo;
         return
     end

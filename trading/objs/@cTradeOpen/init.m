@@ -25,5 +25,33 @@ obj.openprice_ = p.Results.OpenPrice;
 obj.stopdatetime1_ = p.Results.StopDateTime;
 obj.status_ = 'unset';
 
+if isempty(obj.instrument_)
+    obj.oneminb4close1_ = 899;
+    obj.oneminb4close2_ = NaN;
+else
+    if ~isempty(strfind(obj.instrument_.asset_name,'govtbond'))
+        obj.oneminb4close1_ = 914;
+        obj.oneminb4close2_ = NaN;
+    elseif ~isempty(strfind(obj.instrument_.asset_name,'eqindex'))
+        obj.oneminb4close1_ = 899;
+        obj.oneminb4close2_ = NaN;
+    elseif strcmpi(obj.instrument_.asset_name,'gold') ||...
+            strcmpi(obj.instrument_.asset_name,'silver') ||...
+            strcmpi(obj.instrument_.asset_name,'crude oil')
+        obj.oneminb4close1_ = 899;
+        obj.oneminb4close2_ = 149;
+    elseif strcmpi(obj.instrument_.asset_name,'copper') ||...
+            strcmpi(obj.instrument_.asset_name,'aluminum') ||...
+            strcmpi(obj.instrument_.asset_name,'zinc') ||...
+            strcmpi(obj.instrument_.asset_name,'lead') ||...
+            strcmpi(obj.instrument_.asset_name,'nickel')
+        obj.oneminb4close1_ = 899;
+        obj.oneminb4close2_ = 59;
+    else
+        obj.oneminb4close1_ = 899;
+        obj.oneminb4close2_ = 1379;
+    end
+end
+
 end
 

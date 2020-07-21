@@ -2,8 +2,11 @@ classdef cFractalInfo < cSignalInfo
     properties
         type_@char = 'unset'
         mode_@char = 'unset'
+        nfractal_@double
         hh_@double
         ll_@double
+        hh1_@double
+        ll1_@double
     end
     
     methods

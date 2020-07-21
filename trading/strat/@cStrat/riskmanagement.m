@@ -70,7 +70,20 @@ function [] = riskmanagement(obj,dtnum)
                 end
                 extrainfo = struct('pxtarget_',pxtarget,'pxstoploss_',pxstoploss);
             elseif strcmpi(riskmanagername,'spiderman')
-                extrainfo = struct('hh0_',hh,'hh1_',hh,'ll0_',ll,'ll1_',ll,'type_',type);
+                if trade_i.opendirection_ == 1
+                    hh1 = trade_i.opensignal_.hh1_;
+                    extrainfo = struct('hh0_',hh,'hh1_',hh,'ll0_',ll,'ll1_',ll,...
+                        'type_',type,...
+                        'fibonacci1_',0.618*hh+0.382*hh1,...
+                        'fibonacci0_',ll);
+                else
+                    ll1 = trade_i.opensignal_.ll1_;
+                    extrainfo = struct('hh0_',hh,'hh1_',hh,'ll0_',ll,'ll1_',ll,...
+                        'type_',type,...
+                        'fibonacci1_',hh,...
+                        'fibonacci0_',0.618*ll+0.382*ll1);
+                end
+                
             else
                 error('ERROR:%s;riskmanagement:unsupported risk manger name for FRACTAL...',class(obj))
             end

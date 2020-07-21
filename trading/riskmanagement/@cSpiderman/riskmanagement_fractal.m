@@ -14,6 +14,12 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
     trade = obj.trade_;
     direction = trade.opendirection_;
     closeflag = 0;
+    
+    if ~isempty(trade.instrument_)
+        ticksize = trade.instrument_.tick_size;
+    else
+        ticksize = 0;
+    end
 
     hh = extrainfo.hh(end);
     ll = extrainfo.ll(end);
@@ -31,7 +37,7 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
                 obj.ll0_ = obj.ll1_;
                 obj.ll1_ = ll;
             end
-            if extrainfo.p(end,5) < obj.hh0_ && obj.hh1_ > obj.hh0_
+            if extrainfo.p(end,5) < obj.hh0_ && obj.hh1_ - obj.hh0_ > 2*ticksize
                 closeflag = 1;
                 obj.closestr_ = 'fractal:update';
             else
@@ -63,7 +69,7 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
                 obj.hh0_ = obj.hh1_;
                 obj.hh1_ = hh;
             end
-            if extrainfo.p(end,5) > obj.ll0_ && obj.ll1_ < obj.ll0_
+            if extrainfo.p(end,5) > obj.ll0_ && obj.ll1_ - obj.ll0_ <-2*ticksize
                 closeflag = 1;
                 obj.closestr_ = 'fractal:update';
             else

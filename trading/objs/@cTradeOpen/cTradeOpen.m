@@ -16,6 +16,8 @@ classdef cTradeOpen < handle
         runningpnl_@double
         closepnl_@double
         status_@char
+        oneminb4close1_@double
+        oneminb4close2_@double
         %
     end
     

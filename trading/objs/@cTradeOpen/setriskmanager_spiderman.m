@@ -49,14 +49,14 @@ function [] = setriskmanager_spiderman(obj,varargin)
 
     if strcmpi(riskmanager.type_,'breachup-B')
         riskmanager.pxstoploss_ = riskmanager.fibonacci1_ - 0.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
-        riskmanager.pxstoploss2_ = riskmanager.fibonacci1_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+%         riskmanager.pxstoploss2_ = riskmanager.fibonacci1_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
         riskmanager.pxtarget_ = riskmanager.fibonacci1_ + 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
         riskmanager.closestr_ = 'fibonacci:0.618';
         
         if ~isempty(obj.instrument_)
             ticksize = obj.instrument_.tick_size;
             riskmanager.pxstoploss_ = floor(riskmanager.pxstoploss_/ticksize)*ticksize;
-            riskmanager.pxstoploss2_ = floor(riskmanager.pxstoploss2_/ticksize)*ticksize;
+%             riskmanager.pxstoploss2_ = floor(riskmanager.pxstoploss2_/ticksize)*ticksize;
             riskmanager.pxtarget_ = ceil(riskmanager.pxtarget_/ticksize)*ticksize;
         end
         
@@ -70,14 +70,14 @@ function [] = setriskmanager_spiderman(obj,varargin)
         error('cTradeOpen:setriskmanager_spiderman:reverse-B not implemented...')
     elseif strcmpi(riskmanager.type_,'breachdn-S')
         riskmanager.pxstoploss_ = riskmanager.fibonacci0_ + 0.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
-        riskmanager.pxstoploss2_ = riskmanager.fibonacci0_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+%         riskmanager.pxstoploss2_ = riskmanager.fibonacci0_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
         riskmanager.pxtarget_ = riskmanager.fibonacci0_ - 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
         riskmanager.closestr_ = 'fibonacci:0.618';
         
         if ~isempty(obj.instrument_)
             ticksize = obj.instrument_.tick_size;
             riskmanager.pxstoploss_ = ceil(riskmanager.pxstoploss_/ticksize)*ticksize;
-            riskmanager.pxstoploss2_ = ceil(riskmanager.pxstoploss2_/ticksize)*ticksize;
+%             riskmanager.pxstoploss2_ = ceil(riskmanager.pxstoploss2_/ticksize)*ticksize;
             riskmanager.pxtarget_ = floor(riskmanager.pxtarget_/ticksize)*ticksize;
         end
         

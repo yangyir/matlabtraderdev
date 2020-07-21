@@ -75,8 +75,16 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
             else
                 error('unknown signal');
             end
+            if signals(i,4) == 1
+                mode = 'breachdn-lvldn';
+            else
+                mode = 'unset';
+            end
             if bid < signals(i,3) && bid > signals(i,3)-1.618*(signals(i,2)-signals(i,3))
-                info = struct('name','fractal','type',type,'hh',signals(i,2),'ll',signals(i,3));
+                nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
+                info = struct('name','fractal','type',type,...
+                    'hh',signals(i,2),'ll',signals(i,3),'mode',mode,'nfractal',nfractals,...
+                    'hh1',signals(i,5),'ll1',signals(i,6));
                 stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
             end
         else
@@ -91,7 +99,10 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 mode = 'unset';
             end
             if ask > signals(i,2) && ask < signals(i,2)+1.618*(signals(i,2)-signals(i,3))
-                info = struct('name','fractal','type',type,'hh',signals(i,2),'ll',signals(i,3),'mode',mode);
+                nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
+                info = struct('name','fractal','type',type,...
+                    'hh',signals(i,2),'ll',signals(i,3),'mode',mode,'nfractal',nfractals,...
+                    'hh1',signals(i,5),'ll1',signals(i,6));
                 stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
             end
         end

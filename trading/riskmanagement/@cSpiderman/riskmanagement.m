@@ -106,23 +106,31 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     
     runningmm = hour(runningt)*60+minute(runningt);
     runriskmanagementbeforemktclose = false;
-    if (runningmm == 899 || runningmm == 914) && second(runningt) > 56
-        cobd = floor(runningt);
-        nextbd = businessdate(cobd);
-        runriskmanagementbeforemktclose = nextbd - cobd <= 3;
+    
+    if runningmm == trade.oneminb4close1_ && second(runningt) > 56
+        runriskmanagementbeforemktclose = true;
+    elseif runningmm == trade.oneminb4close2_ && second(runningt) > 56
+        runriskmanagementbeforemktclose = true;
     end
+    
+    
+%     if (runningmm == 899 || runningmm == 914) && second(runningt) > 56
+%         cobd = floor(runningt);
+%         nextbd = businessdate(cobd);
+%         runriskmanagementbeforemktclose = nextbd - cobd <= 3;
+%     end
     
     this_count = size(buckets,1)-1;
 %     if this_count ~= obj.bucket_count_ || runriskmanagementbeforemktclose
     if this_count ~= obj.bucket_count_
         %the last candle has just finished
-        if this_count < 1
-            histcandleCell = mdefut.gethistcandles(instrument);
-            if isempty(histcandleCell), return; end
-            candlepoped = histcandleCell{1}(end,:);
-        else
-            candlepoped = candleK(this_count,:);
-        end
+%         if this_count < 1
+%             histcandleCell = mdefut.gethistcandles(instrument);
+%             if isempty(histcandleCell), return; end
+%             candlepoped = histcandleCell{1}(end,:);
+%         else
+%             candlepoped = candleK(this_count,:);
+%         end
         
         if ~runriskmanagementbeforemktclose
             [bs,ss,lvlup,lvldn,bc,sc,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
@@ -133,7 +141,7 @@ function [unwindtrade] = riskmanagement(obj,varargin)
             [bs,ss,lvlup,lvldn,bc,sc,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
             [~,~,hh,ll] = mdefut.calc_fractal_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
             [jaw,teeth,lips] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-            candlepoped = px(end,:);
+%             candlepoped = px(end,:);
             wad = mdefut.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
         end
          
@@ -143,13 +151,32 @@ function [unwindtrade] = riskmanagement(obj,varargin)
             'lvlup',lvlup,'lvldn',lvldn,'wad',wad,...
             'latestopen',lasttick(4));
         
-        unwindtrade = obj.riskmanagementwithcandle(candlepoped,...
+        unwindtrade = obj.riskmanagementwithcandle([],...
             'debug',debug,...
             'usecandlelastonly',true,...
             'updatepnlforclosedtrade',updatepnlforclosedtrade,...
             'extrainfo',extrainfo);
         
         obj.bucket_count_ = this_count;
+    else
+        if runriskmanagementbeforemktclose
+            %only unwind existing trade
+            [bs,ss,lvlup,lvldn,bc,sc,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            [~,~,hh,ll] = mdefut.calc_fractal_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            [jaw,teeth,lips] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+%             candlepoped = px(end,:);
+            wad = mdefut.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            extrainfo = struct('p',px,'hh',hh,'ll',ll,...
+                'jaw',jaw,'teeth',teeth,'lips',lips,...
+                'bs',bs,'ss',ss,'bc',bc,'sc',sc,...
+                'lvlup',lvlup,'lvldn',lvldn,'wad',wad,...
+                'latestopen',lasttick(4));
+             unwindtrade = obj.riskmanagementwithcandle([],...
+                 'debug',debug,...
+                 'usecandlelastonly',true,...
+                 'updatepnlforclosedtrade',updatepnlforclosedtrade,...
+                 'extrainfo',extrainfo);
+        end
     end
     
     

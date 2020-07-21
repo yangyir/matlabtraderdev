@@ -16,10 +16,16 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
     p = extrainfo.p;
     wad = extrainfo.wad;
     
+    if ~isempty(trade.instrument_)
+        ticksize = trade.instrument_.tick_size;
+    else
+        ticksize = 0;
+    end
+    
     if direction == 1
         if p(end,5) >= obj.cphigh_
             obj.cphigh_ = p(end,5);
-            if wad(end) < obj.wadhigh_
+            if wad(end) < obj.wadhigh_ - ticksize
                 ret = struct('inconsistence',1,...
                     'reason','new high price w/o wad being higher');
                 return
@@ -30,7 +36,7 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
         %
         if wad(end) >= obj.wadhigh_
             obj.wadhigh_ = wad(end);
-            if p(end,5) < obj.cphigh_
+            if p(end,5) < obj.cphigh_ - 2*ticksize
                 ret = struct('inconsistence',1,...
                     'reason','new high wad w/o price being higher');
                 return
@@ -54,7 +60,7 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
     elseif direction == -1
         if p(end,5) <= obj.cplow_
             obj.cplow_ = p(end,5);
-            if wad(end) > obj.wadlow_
+            if wad(end) > obj.wadlow_ + ticksize
                 ret = struct('inconsistence',1,...
                     'reason','new low price w/o wad being lower');
                 return
@@ -65,7 +71,7 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
         
         if wad(end) <= obj.wadlow_
             obj.wadlow_ = wad(end);
-            if p(end,5) > obj.cplow_
+            if p(end,5) > obj.cplow_ + 2*ticksize
                 ret = struct('inconsistence',1,...
                     'reason','new low wad w/o price being lower');
                 return

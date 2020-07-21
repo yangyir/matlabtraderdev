@@ -46,6 +46,19 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 %trade can be saved
             end
         elseif ret.inconsistence && strcmpi(ret.reason,'new high price w/o wad being higher')
+            %note:20200716
+            %there is one exception that 1)the new price is a valid breach
+            %of fractal hh
+            nfractal = trade.opensignal_.nfractal_;
+            flag1 = extrainfo.p(end,5)>extrainfo.hh(end-1)&&...
+                extrainfo.p(end-1,5)<extrainfo.hh(end-1)&&...
+                extrainfo.hh(end-1)==extrainfo.hh(end);
+            flag2 = size(extrainfo.p,1)-find(extrainfo.p(:,5)<extrainfo.teeth,1,'last')>=2*nfractal+1;
+            flag3 = extrainfo.teeth(end) > extrainfo.jaw(end);
+            if flag1 && flag2 && flag3
+                return
+            end
+            %
             %use the lastest open to recalculate wad
             if extrainfo.latestopen > extrainfo.p(end-1,5)
                 pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));
@@ -96,6 +109,18 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 %trade can be saved
             end
         elseif ret.inconsistence && strcmpi(ret.reason,'new low price w/o wad being lower')
+            %note:20200716
+            %there is one exception that 1)the new price is a valid breach
+            %of fractal ll
+            nfractal = trade.opensignal_.nfractal_;
+            flag1 = extrainfo.p(end,5)<extrainfo.ll(end-1)&&...
+                extrainfo.p(end-1,5)>extrainfo.ll(end-1)&&...
+                extrainfo.ll(end-1)==extrainfo.ll(end);
+            flag2 = size(extrainfo.p,1)-find(extrainfo.p(:,5)>extrainfo.teeth,1,'last')>=2*nfractal+1;
+            flag3 = extrainfo.teeth(end) < extrainfo.jaw(end);
+            if flag1 && flag2 && flag3
+                return
+            end
             %use the lastest open to recalculate wad
             if extrainfo.latestopen > extrainfo.p(end-1,5)
                 pmove = extrainfo.latestopen - min(extrainfo.p(end,4),extrainfo.p(end-1,5));

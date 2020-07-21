@@ -29,6 +29,9 @@ function [obj] = table2tradeopen2(obj,headers,data)
             if ~isempty(strfind(headers{i},'datetime2_'))
                 continue;
             end
+            if ~isempty(strfind(headers{i},'closestr'))
+                continue;
+            end
             if isempty(data{i})
                 continue;
             end
