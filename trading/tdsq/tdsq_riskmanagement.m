@@ -56,12 +56,14 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         %STOP the trade if it fails to breaches TDST-lvlup,i.e.the high
         %price fell below lvlup
         if ~isempty(find(p(idxopen:end-1,5)>lvlup(end-1),1,'first')) && ...
-                p(end,3)<lvlup(end-1) && ...
-                p(end,4)<lips(end)
-            closeflag = 1;
-            trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
-            closestr = trade.riskmanager_.closestr_;
-            return
+                p(end,3)<lvlup(end-1)
+            if p(end,4)<lips(end)
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+            trade.riskmanager_.pxstoploss_ = 0.382*lvlup(end-1)+0.618*trade.riskmanager_.hh0_;
         end
         %IF TDST-lvlup exists and is higher then HH at open
         %then one of the candle's high price has breached TDST-lvlup but
@@ -150,12 +152,14 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         %STOP the trade if it fails to breaches TDST-lvldn,i.e.the low
         %price stayed above lvldn
         if ~isempty(find(p(idxopen:end-1,5)<lvldn(end-1),1,'first')) && ...
-                p(end,4)>lvldn(end-1) && ...
-                p(end,3)>lips(end)
-            closeflag = 1;
-            trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
-            closestr = trade.riskmanager_.closestr_;
-            return
+                p(end,4)>lvldn(end-1)
+            if p(end,3)>lips(end)
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+            trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.ll0_;
         end
         %IF TDST-lvldn exists and is lower then LL at open
         %then one of the candle's low price has breached TDST-lvldn but
