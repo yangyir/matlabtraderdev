@@ -40,7 +40,11 @@ function [data,coldefs,textdata] = loadDataFromTxtFile(fn_)
                     data = zeros(size(A.data,1),size(A.data,2)+1);
                     data(:,2:end) = A.data;
                     for i = 1:size(data,1)
-                        data(i,1) = datenum(A.textdata{i+1,1});
+                        try
+                            data(i,1) = datenum(A.textdata{i+1,1});
+                        catch
+                            error('unknown')
+                        end
                     end
                 end
                 textdata = A.textdata(2:end,:);
