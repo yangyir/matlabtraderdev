@@ -23,5 +23,8 @@ for i = 1:nfut
     else
         dt1 = datestr(lastbd-20,'yyyy-mm-dd');
     end
-    p_hist_intraday{i} = db.intradaybar(f,dt1,dt2,30,'trade');
+    try
+        p_hist_intraday{i} = db.intradaybar(f,dt1,dt2,30,'trade');
+    catch
+    end
 end

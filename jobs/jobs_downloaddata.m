@@ -1,9 +1,18 @@
 clear;
-script_savedailybardata;
+try
+    script_savedailybardata;
+catch
+end
 %%
 clear;
-script_saveintradaybardata;
+try
+    script_saveintradaybardata;
+catch
+end
 %%
 clear;
-script_savetickdata;
+try
+    script_savetickdata;
+catch
+end
 clear;
