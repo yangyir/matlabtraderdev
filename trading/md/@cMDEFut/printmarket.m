@@ -43,7 +43,7 @@ function [] = printmarket(obj)
             timet = datestr(quotes{i}.update_time1,'HH:MM:SS');
             delta = ((lasttrade/obj.lastclose_(i))-1)*100;
             instr = code2instrument(code);
-            wrinfo = obj.calc_wr_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+%             wrinfo = obj.calc_wr_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
             [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
 %             [macdvec,sig] = obj.calc_macd_(instr,'IncludeLastCandle',1);
             [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
@@ -56,7 +56,7 @@ function [] = printmarket(obj)
             end
             fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
                 delta,timet,...
-                wrinfo(1),num2str(HH(end)),num2str(LL(end)),...
+                NaN,num2str(HH(end)),num2str(LL(end)),...
                 num2str(buysetup(end)),num2str(sellsetup(end)),num2str(levelup(end)),num2str(leveldn(end)),...
                 jaw(end),teeth(end),lips(end));
         end
@@ -109,13 +109,13 @@ function [] = printmarket(obj)
             end
             
             if ~isempty(obj.hist_candles_) && ~isempty(obj.hist_candles_{i})
-                wrinfo = obj.calc_wr_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
+%                 wrinfo = obj.calc_wr_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
                 [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
                 [jaw,teeth,lips] = obj.calc_alligator_(instruments{i},'includelastcandle',1,'RemoveLimitPrice',1);
                 [~,~,HH,LL] = obj.calc_fractal_(instruments{i},'includelastcandle',1,'RemoveLimitPrice',1);
                 fprintf(dataformat,code,num2str(lasttrade),num2str(lasttrade),num2str(obj.hist_candles_{i}(end,5)),...
                     delta,timet,...
-                    wrinfo(1),num2str(HH(end)),num2str(LL(end)),...
+                    NaN,num2str(HH(end)),num2str(LL(end)),...
                     num2str(buysetup(end)),num2str(sellsetup(end)),num2str(levelup(end)),num2str(leveldn(end)),...
                     jaw(end),teeth(end),lips(end));
             else
