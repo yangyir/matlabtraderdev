@@ -1,5 +1,11 @@
 function signals = gensignals_futmultifractal1(stratfractal)
 %cStratFutMultiFractal
+%NEW CHANGE:signals are not generated with the price before the market
+%close as we don't know whether the open price (once the market open again)
+%would still be valid for a signal. however, we might miss big profit in
+%case the market jumps in favor of the strategy. Of course, we might loose
+%in case the market moves against the strategy
+
     n = stratfractal.count;
     signals = zeros(n,6);
     %column1:direction
@@ -19,59 +25,21 @@ function signals = gensignals_futmultifractal1(stratfractal)
     end
     runningmm = hour(runningt)*60+minute(runningt);
     
-    is2minbeforemktopen = (runningmm >= 538 && runningmm < 540) || ...      %08:58 to 08:59
-            (runningmm >= 778 && runningmm < 780) || ...                    %12:58 to 12:59
-            (runningmm >= 1258 && runningmm < 1260);                        %20:58 to 21:00
+    twominb4mktopen = is2minbeforemktopen(runningt);
+        
+    %the following code only happens in realtime or demo mode
+    %since 2020-07-20, govtbond and eqindex futures start to trade on
+    %9:30am
     
-    calcsignalbeforemktclose = false;
-    if (runningmm == 899 || runningmm == 914) && second(runningt) >= 56
-        cobd = floor(runningt);
-        nextbd = businessdate(cobd);
-        calcsignalbeforemktclose = nextbd - cobd <= 3;
-    end
+    is2minbeforemktopen_fin = runningmm >= 568 && runningmm < 570;
     
-    is2minbeforemktopen_govtbond = runningmm >= 553 && runningmm < 555;
-    is2minbeforemktopen_eqindex = runningmm >= 568 && runningmm < 570;
-    
-    if is2minbeforemktopen_govtbond
+    if is2minbeforemktopen_fin
         ntrades = stratfractal.helper_.trades_.latest_;
         for itrade = 1:ntrades
             trade_i = stratfractal.helper_.trades_.node_(itrade);
             if strcmpi(trade_i.instrument_.asset_name,'govtbond_10y') || ...
-                    strcmpi(trade_i.instrument_.asset_name,'govtbond_5y')
-                [~,idx_trade] = stratfractal.hasinstrument(trade_i.instrument_);
-                techvar = stratfractal.calctechnicalvariable(trade_i.instrument_,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                p = techvar(:,1:5);
-                stratfractal.hh_{idx_trade} = techvar(:,8);
-                stratfractal.ll_{idx_trade} = techvar(:,9);
-                stratfractal.jaw_{idx_trade} = techvar(:,10);
-                stratfractal.teeth_{idx_trade} = techvar(:,11);
-                stratfractal.lips_{idx_trade} = techvar(:,12);
-                stratfractal.bs_{idx_trade} = techvar(:,13);
-                stratfractal.ss_{idx_trade} = techvar(:,14);
-                stratfractal.lvlup_{idx_trade} = techvar(:,15);
-                stratfractal.lvldn_{idx_trade} = techvar(:,16);
-                stratfractal.bc_{idx_trade} = techvar(:,17);
-                stratfractal.sc_{idx_trade} = techvar(:,18);
-                stratfractal.wad_{idx_trade} = techvar(:,19);
-                %re-adj wad as the initial calc point changes
-                iopen = find(p(:,1) <= trade_i.opendatetime1_,1,'last')-1;
-                if trade_i.opendirection_ == 1
-                    trade_i.riskmanager_.wadopen_ = stratfractal.wad_{idx_trade}(iopen);
-                    trade_i.riskmanager_.wadhigh_ = max(stratfractal.wad_{idx_trade}(iopen:end));
-                elseif trade_i.opendirection_ == -1
-                    trade_i.riskmanager_.wadopen_ = stratfractal.wad_{idx_trade}(iopen);
-                    trade_i.riskmanager_.wadlow_ = min(stratfractal.wad_{idx_trade}(iopen:end));
-                end
-            end
-        end        
-    end
-    
-    if is2minbeforemktopen_eqindex
-        ntrades = stratfractal.helper_.trades_.latest_;
-        for itrade = 1:ntrades
-            trade_i = stratfractal.helper_.trades_.node_(itrade);
-            if strcmpi(trade_i.instrument_.asset_name,'eqindex_300') || ...
+                    strcmpi(trade_i.instrument_.asset_name,'govtbond_5y') || ...
+                    strcmpi(trade_i.instrument_.asset_name,'eqindex_300') || ...
                     strcmpi(trade_i.instrument_.asset_name,'eqindex_50') || ...
                     strcmpi(trade_i.instrument_.asset_name,'eqindex_500')
                 [~,idx_trade] = stratfractal.hasinstrument(trade_i.instrument_);
@@ -101,10 +69,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
             end
         end        
     end
-    
+       
     instruments = stratfractal.getinstruments;
         
-    if is2minbeforemktopen || calcsignalbeforemktclose
+    if twominb4mktopen
         for i = 1:n
             techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
             p = techvar(:,1:5);
@@ -118,28 +86,27 @@ function signals = gensignals_futmultifractal1(stratfractal)
             stratfractal.lvlup_{i} = techvar(:,15);
             stratfractal.lvldn_{i} = techvar(:,16);
             stratfractal.bc_{i} = techvar(:,17);
+            
             stratfractal.sc_{i} = techvar(:,18);
             stratfractal.wad_{i} = techvar(:,19);
         end
         
-        if is2minbeforemktopen
-            ntrades = stratfractal.helper_.trades_.latest_;
-            for itrade = 1:ntrades
-                trade_i = stratfractal.helper_.trades_.node_(itrade);
-                [~,idx_trade] = stratfractal.hasinstrument(trade_i.instrument_);
-                %re-adj wad as the initial calc point changes
-                iopen = find(p(:,1) <= trade_i.opendatetime1_,1,'last')-1;
-                if trade_i.opendirection_ == 1
-                    trade_i.riskmanager_.wadopen_ = stratfractal.wad_{idx_trade}(iopen);
-                    trade_i.riskmanager_.wadhigh_ = max(stratfractal.wad_{idx_trade}(iopen:end));
-                elseif trade_i.opendirection_ == -1
-                    trade_i.riskmanager_.wadopen_ = stratfractal.wad_{idx_trade}(iopen);
-                    trade_i.riskmanager_.wadlow_ = min(stratfractal.wad_{idx_trade}(iopen:end));
-                end
-            end          
-        end
+%         ntrades = stratfractal.helper_.trades_.latest_;
+%         for itrade = 1:ntrades
+%             trade_i = stratfractal.helper_.trades_.node_(itrade);
+%             [~,idx_trade] = stratfractal.hasinstrument(trade_i.instrument_);
+%             %re-adj wad as the initial calc point changes
+%             iopen = find(p(:,1) <= trade_i.opendatetime1_,1,'last')-1;
+%             if trade_i.opendirection_ == 1
+%                 trade_i.riskmanager_.wadopen_ = stratfractal.wad_{idx_trade}(iopen);
+%                 trade_i.riskmanager_.wadhigh_ = max(stratfractal.wad_{idx_trade}(iopen:end));
+%             elseif trade_i.opendirection_ == -1
+%                 trade_i.riskmanager_.wadopen_ = stratfractal.wad_{idx_trade}(iopen);
+%                 trade_i.riskmanager_.wadlow_ = min(stratfractal.wad_{idx_trade}(iopen:end));
+%             end
+%         end
         
-        if is2minbeforemktopen, return;end
+        return
     end
     
     calcsignalflag = zeros(n,1);
@@ -159,9 +126,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
     fprintf('\n%s->%s:signal calculated...\n',stratfractal.name_,datestr(runningt,'yyyy-mm-dd HH:MM'));
     
     for i = 1:n
-        if ~calcsignalflag(i) && ~calcsignalbeforemktclose;continue;end
+        if ~calcsignalflag(i);continue;end
         
-        if calcsignalflag(i) && ~calcsignalbeforemktclose
+        if calcsignalflag(i)
             techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
             p = techvar(:,1:5);
             idxHH = techvar(:,6);
@@ -249,7 +216,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         case 'volblowup'
                             signals(i,4) = 1;
                         otherwise
-                            signals(i,4) = 0;
+                            signals(i,4) = 1;
                     end
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
                     continue;
@@ -307,7 +274,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         case 'breachdn-bshighvalue'
                             signals(i,4) = 1;
                         otherwise
-                            signals(i,4) = 0;
+                            signals(i,4) = 1;
                     end
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
                     continue;
