@@ -78,7 +78,28 @@ function [] = loadtrades(obj,varargin)
         if ~isempty(positions), newBook.setpositions(positions);end
 
         obj.trades_ = livetrades;
-        if obj.trades_.latest_ > 0
+        ntrades = obj.trades_.latest_;
+        if ntrades > 0
+            for i = 1:ntrades
+                trade_i = obj.trades_.node_(i);
+                if isa(trade_i.opensignal_,'cFractalInfo')
+                    [wad,px] = obj.mdefut_.calc_wad_(trade_i.instrument_,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                    iopen = find(px(:,1) <= trade_i.opendatetime1_,1,'last')-1;
+                    if isempty(iopen)
+                        error('cOps:loadtrades:trade and historical data not matched')
+                    else
+                        if trade_i.opendirection_ == 1
+                            trade_i.riskmanager_.wadopen_ = wad(iopen);
+                            trade_i.riskmanager_.wadhigh_ = max(wad(iopen:end));
+                        elseif trade_i.opendirection_ == -1
+                            trade_i.riskmanager_.wadopen_ = wad(iopen);
+                            trade_i.riskmanager_.wadlow_ = mn(wad(iopen:end));
+                        end
+                    end
+                end
+            end
+            
+            
             fprintf('cOps:loadtrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
         end
     catch

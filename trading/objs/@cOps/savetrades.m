@@ -39,12 +39,12 @@ function [] = savetrades(obj,varargin)
     
     if npending > 0
         eval('condentrustspending = obj.condentrustspending_;');
-        fn_ = [dir_data_,bookname_,'_condentrustspending_',datestr(t,'yyyymmdd')];
+        fn_ = [dir_data_,bookname_,'_condentrustspending_',datestr(getlastbusinessdate(t),'yyyymmdd')];
         save(fn_,'condentrustspending');
     end
     
     if ntrades > 0
-        fn_ = [dir_data_,bookname_,'_trades_',datestr(t,'yyyymmdd'),'.txt'];
+        fn_ = [dir_data_,bookname_,'_trades_',datestr(getlastbusinessdate(t),'yyyymmdd'),'.txt'];
 %         obj.trades_.totxt(fn_);
         %note 20190218
         %from 20190218 onwards, we will save/load trades in the new format
