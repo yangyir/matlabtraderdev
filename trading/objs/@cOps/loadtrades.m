@@ -82,7 +82,7 @@ function [] = loadtrades(obj,varargin)
         if ntrades > 0
             for i = 1:ntrades
                 trade_i = obj.trades_.node_(i);
-                if isa(trade_i.opensignal_,'cFractalInfo')
+                if isa(trade_i.opensignal_,'cFractalInfo') && isa(trade_i.riskmanager_,'cSpiderman')
                     [wad,px] = obj.mdefut_.calc_wad_(trade_i.instrument_,'IncludeLastCandle',0,'RemoveLimitPrice',1);
                     iopen = find(px(:,1) <= trade_i.opendatetime1_,1,'last')-1;
                     if isempty(iopen)
