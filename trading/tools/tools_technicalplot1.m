@@ -6,8 +6,8 @@ if nargin < 3, doplot = 0;end
 
 ip = inputParser;
 ip.CaseSensitive = false;ip.KeepUnmatched = true;
-ip.addParameter('volatilityperiod',13,@isnumeric);
-ip.addParameter('tolerance',0.003,@isnumeric);
+ip.addParameter('volatilityperiod',0,@isnumeric);
+ip.addParameter('tolerance',0,@isnumeric);
 ip.parse(varargin{:});
 inpbandsperiod = ip.Results.volatilityperiod;
 change = ip.Results.tolerance;
