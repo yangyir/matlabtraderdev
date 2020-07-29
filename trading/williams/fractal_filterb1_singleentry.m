@@ -66,7 +66,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
         barsizerest = px(end-nkfromhh+1:end-1,3)-px(end-nkfromhh+1:end-1,4);
         isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
         if isvolblowup
-            if lips(end) > max(teeth(end),jaw(end))
+            if lips(end) > teeth(end)
                 output = struct('use',1,'comment','volblowup');
             else
                 output = struct('use',0,'comment','volblowup-alligatorfailed');
