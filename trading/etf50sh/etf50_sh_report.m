@@ -14,19 +14,19 @@ fprintf('%15s\t%s\n','f-lower:',num2str(op_50etf(end,9)));
 fprintf('%15s\t%s\n','tdst-upper:',num2str(op_50etf(end,15)));
 fprintf('%15s\t%s\n','tdst-lower:',num2str(op_50etf(end,16)));
 %%
-close all;
 [~,~,~,~,~,~,volsmooth] = fractalenhanced(hd_50etf,2,'volatilityperiod',13,'tolerance',0.001);
 figure(2);
 plot(volsmooth(end-63:end));xlabel('businessdays');title('volatility monitor');
 %%
-close all;
-fut_50 = code2instrument('IH2006');
-raw_50etf = conn.ds_.timeseries(bbgcode_50etf,{today-30,[datestr(today,'yyyy-mm-dd'),' 15:00:00']},1,'trade');
-intraday_50etf = timeseries_compress(raw_50etf,'tradinghours',fut_50.trading_hours,'tradingbreak',fut_50.trading_break,'frequency','30m');
-op_50etf_intraday = tools_technicalplot1(intraday_50etf,4,0,'change',0.000,'volatilityperiod',0);
-tools_technicalplot2(op_50etf_intraday(end-45:end,:),2,'510050-intraday');
+try
+    fut_50 = code2instrument('IH2006');
+    raw_50etf = conn.ds_.timeseries(bbgcode_50etf,{today-30,[datestr(today,'yyyy-mm-dd'),' 15:00:00']},1,'trade');
+    intraday_50etf = timeseries_compress(raw_50etf,'tradinghours',fut_50.trading_hours,'tradingbreak',fut_50.trading_break,'frequency','30m');
+    op_50etf_intraday = tools_technicalplot1(intraday_50etf,4,0,'change',0.000,'volatilityperiod',0);
+    tools_technicalplot2(op_50etf_intraday(end-45:end,:),3,'510050-intraday');
+catch
+end
 %%
-close all;
 %
 volume_opt50_c_aug = zeros(length(k_50),2);
 volume_opt50_p_aug = zeros(length(k_50),2);
@@ -109,6 +109,7 @@ atmf2 = interp1(m1,tbl_opt50_c_aug(:,3),1);
 fprintf('%15s\t%4.1f%%\n','atmfvol:',atmf2*100);
 fprintf('%15s\t%4.1f%%\n','atmfvolchg:',(atmf2-atmf1)*100);
 
+figure(4);
 subplot(211);
 % plot(m1,tbl_c_aug(:,2),'-');hold on;
 plot(m,volinterp1,'-');hold on;
