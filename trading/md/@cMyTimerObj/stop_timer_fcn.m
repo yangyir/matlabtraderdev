@@ -5,7 +5,7 @@ function [] = stop_timer_fcn(obj,~,event)
         if ~isempty(obj.replay_time2_)
             disp([obj.replay_time2_,' ',obj.timer_.Name,' stops......']);
         else
-            disp([datestr(event.Data.time,'yyyy-mm-dd HH:MM:SS'),' ',obj.timer_.Name_,' stops......']);
+            disp([datestr(event.Data.time,'yyyy-mm-dd HH:MM:SS'),' ',obj.timer_.Name,' stops......']);
         end
     end
 end
