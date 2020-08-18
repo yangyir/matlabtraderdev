@@ -68,7 +68,7 @@ end
 
 if bs(length(p)) ~= 0
     i = length(p);
-    for k = 1:9
+    for k = 1:bs(length(p))
         if bs(i-k+1) ~= 0
             text(i-1+2-k,p(i+1-k,4)-shift,num2str(bs(i+1-k) ),'color','r','fontweight','bold','fontsize',7);
         else
@@ -79,7 +79,7 @@ end
 
 if ss(length(p)) ~= 0
     i = length(p);
-    for k = 1:9
+    for k = 1:ss(length(p))
         if ss(i-k+1) ~= 0
             text(i-1+2-k,p(i+1-k,3)+shift,num2str(ss(i+1-k) ),'color','g','fontweight','bold','fontsize',7);
         else
