@@ -1,4 +1,8 @@
-function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
+function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize)
+    if nargin < 4
+        ticksize = 0;
+    end
+
     if b1type == 1
         output = struct('use',0,'comment','weakbreach');
         return
@@ -61,7 +65,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
             return
         end
         %
-        [~,~,nkabovelips,nkaboveteeth,nkfromhh] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw);
+        [~,~,nkabovelips,nkaboveteeth,nkfromhh] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw,ticksize);
         barsizelast = px(end,3)-px(end,4);
         barsizerest = px(end-nkfromhh+1:end-1,3)-px(end-nkfromhh+1:end-1,4);
         isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
@@ -152,7 +156,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo)
             return
         end
         %
-        [~,~,~,nkaboveteeth2,nkfromhh,teethjawcrossed] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw);
+        [~,~,~,nkaboveteeth2,nkfromhh,teethjawcrossed] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw,ticksize);
         %
         %keep if it breach-up TDST-lvlup
         isbreachlvlup = (~isempty(find(px(end-ss(end):end,5)>lvlup(end),1,'first')) &&~isempty(find(px(end-ss(end):end,5)<lvlup(end),1,'first')) && px(end,5)>lvlup(end)) || ...

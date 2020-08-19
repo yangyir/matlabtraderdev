@@ -1,8 +1,12 @@
-function [nabovelips1,naboveteeth1,nabovelips2,naboveteeth2,n,teethjawcrossed,teethlipscrossed ] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw)
+function [nabovelips1,naboveteeth1,nabovelips2,naboveteeth2,n,teethjawcrossed,teethlipscrossed ] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize)
 %nabovelips1:No.of consecutive candles above lips since last hh
 %naboveteeth1:No. of consecutive candles above teeth since last hh
 %nabovelips2:No.of consecutive candles above lips before last candle
 %naboveteeth2:No.of consecutive candles above teeth before last candle
+
+if nargin < 7
+    ticksize = 0;
+end
 
 np = size(p,1);
 idx_lasthh = find(idxHH(1:np,:) == 1,1,'last');
@@ -39,7 +43,7 @@ for i = np:-1:idx_lasthh-nfractal
 end
 %
 for i = np:-1:idx_lasthh-nfractal
-    if p(i,5) > teeth(i)
+    if p(i,5) > teeth(i)-2*ticksize
         naboveteeth2 = naboveteeth2+1;
     else
         break

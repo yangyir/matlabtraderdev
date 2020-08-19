@@ -1,4 +1,9 @@
-function [res] = fractal_b1_status(nfractal,extrainfo)
+function [res] = fractal_b1_status(nfractal,extrainfo,ticksize)
+
+if nargin < 3
+    ticksize = 0;
+end
+
 px = extrainfo.px;
 ss = extrainfo.ss;
 sc = extrainfo.sc;
@@ -43,7 +48,7 @@ isclose2lvlup = ~isnan(lvlup(end)) && ~isnan(lvldn(end)) && ...
     px(end,5)<lvlup(end) && ...
     (lvlup(end)-px(end,5))/(lvlup(end)-lvldn(end))<0.1;
 %
-[~,~,nkabovelips,nkaboveteeth,nkfromhh,isteethjawcrossed,isteethlipscrossed] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw);
+[~,~,nkabovelips,nkaboveteeth,nkfromhh,isteethjawcrossed,isteethlipscrossed] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw,ticksize);
 %isvolblowup
 barsizelast = px(end,3)-px(end,4);
 barsizerest = px(end-nkfromhh+1:end-1,3)-px(end-nkfromhh+1:end-1,4);
