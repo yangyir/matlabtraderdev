@@ -33,7 +33,7 @@ end
 if ~islvlupbreach && ss(end) <= 9
     idx1 = find(px(end-ss(end):end,5)>lvlup(end),1,'first');
     if ~isempty(idx1)
-        idx2 = find(px(end-ss(end)+idx1:end,5)<lvlup(end),1,'first');
+        idx2 = find(px(end-ss(end):end-ss(end)+idx1-1,5)<lvlup(end),1,'first');
         if ~isempty(idx2), islvlupbreach = 3;end        
     end    
 end
@@ -134,4 +134,4 @@ res = struct('b1type',b1type,...
     'isschighbreach',isschighbreach,...
     'istrendconfirmed',istrendconfirmed,...
     'rsi',rsi(end));
-disp(res);
+% disp(res);

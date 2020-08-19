@@ -16,14 +16,14 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
     closeflag = 0;
     
     if direction == 1
-        if extrainfo.p(end,5) < obj.fibonacci1_-0.5*(obj.fibonacci1_-obj.fibonacci0_)
+        if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_)
             closeflag = 1;
-            obj.closestr_ = 'fibonacci:0.5';
+            obj.closestr_ = 'fibonacci:0.618';
         end
     else
-        if extrainfo.p(end,5) > obj.fibonacci0_+0.5*(obj.fibonacci1_-obj.fibonacci0_)
+        if extrainfo.p(end,5) > obj.fibonacci0_+0.618*(obj.fibonacci1_-obj.fibonacci0_)
             closeflag = 1;
-            obj.closestr_ = 'fibonacci:0.5';
+            obj.closestr_ = 'fibonacci:0.618';
         end
     end
     

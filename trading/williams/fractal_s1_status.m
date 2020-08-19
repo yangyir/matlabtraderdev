@@ -136,6 +136,6 @@ res = struct('s1type',s1type,...
     'istrendconfirmed',istrendconfirmed,...
     'rsi',rsi(end));
 
-disp(res);
+% disp(res);
 
 end
