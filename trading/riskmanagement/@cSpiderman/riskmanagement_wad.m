@@ -20,7 +20,8 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
     if direction == 1
         if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
             if extrainfo.latestopen < obj.cphigh_
-                closeflag = ret.inconsistence;
+%                 closeflag = ret.inconsistence;
+                obj.pxstoploss_ = max(extrainfo.p(end,4),extrainfo.lips(end));
                 obj.closestr_ = ['wad:',ret.reason];
             else
                 %if latest open jumps and moves higher than the highest
@@ -83,7 +84,8 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
         ret = obj.riskmanagement_wadupdate('extrainfo',extrainfo);
         if ret.inconsistence && strcmpi(ret.reason,'new low wad w/o price being lower')
             if extrainfo.latestopen > obj.cplow_
-                closeflag = ret.inconsistence;
+%                 closeflag = ret.inconsistence;
+                obj.pxstoploss_ =  min(extrainfo.p(end,3),extrainfo.lips(end));
                 obj.closestr_ = ['wad:',ret.reason];
             else
                 %if latest open jumps and moves lower than the lowest close
