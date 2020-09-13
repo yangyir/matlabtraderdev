@@ -106,6 +106,16 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 closestr = trade.riskmanager_.closestr_;
                 return
             end
+            %
+            if (high8 > max(high6,high7) || ...
+                    high9 > max(high6,high7)) && ...
+                    close9>close8 && ...
+                    strcmpi(trade.opensignal_.mode_,'breachup-highsc13')
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:9139';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
         end
 %         if ss(end) >= 16
 %             closeflag = 1;

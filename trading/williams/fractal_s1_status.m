@@ -1,4 +1,9 @@
-function [res] = fractal_s1_status(nfractal,extrainfo)
+function [res] = fractal_s1_status(nfractal,extrainfo,ticksize)
+
+if nargin < 3
+    ticksize = 0;
+end
+
 px = extrainfo.px;
 bs = extrainfo.bs;
 bc = extrainfo.bc;
@@ -44,7 +49,7 @@ isclose2lvldn = ~isnan(lvlup(end)) && ~isnan(lvldn(end)) && ...
     px(end,5)>lvldn(end) && ...
     (lvlup(end)-px(end,5))/(lvlup(end)-lvldn(end))>0.9;
 %
-[~,~,nkbelowlips,nkbelowteeth,nkfromll,isteethjawcrossed,isteethlipscrossed] = fractal_counts(px,idxLL,nfractal,lips,teeth,jaw);
+[~,~,nkbelowlips,nkbelowteeth,nkfromll,isteethjawcrossed,isteethlipscrossed] = fractal_counts(px,idxLL,nfractal,lips,teeth,jaw,ticksize);
 %isvolblowup
 barsizelast = px(end,3)-px(end,4);
 barsizerest = px(end-nkfromll+1:end-1,3)-px(end-nkfromll+1:end-1,4);
@@ -116,7 +121,9 @@ elseif teeth(end)<lips(end) && lips(end)<jaw(end)
     alligatorstatus = 'teeth<lips<jaw';
 end
 %
-rsi = rsindex(px(:,5));
+% rsi = rsindex(px(:,5));
+ao = smma(px(:,1:5),min(size(px,1),5))-smma(px(:,1:5),min(size(px,1),34));
+
 %
 res = struct('s1type',s1type,...
     'islvldnbreach',islvldnbreach,...
@@ -134,8 +141,7 @@ res = struct('s1type',s1type,...
     'nkfrombc13',nkfrombc13,...
     'isbclowbreach',isbclowbreach,...
     'istrendconfirmed',istrendconfirmed,...
-    'rsi',rsi(end));
-
+    'ao',ao(end));
 % disp(res);
 
 end

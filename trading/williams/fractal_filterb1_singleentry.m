@@ -21,6 +21,8 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
     jaw = extrainfo.jaw;
     wad = extrainfo.wad;
     
+    status = fractal_b1_status(nfractal,extrainfo);
+    
     if sc(end) == 13 && lips(end)>teeth(end)&&teeth(end)>jaw(end)
         output = struct('use',0,'comment','sc13');
         return
@@ -251,7 +253,15 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
             lastsc13 = find(sc(1:end-1)==13,1,'last');
             if ~isempty(lastsc13) && size(px,1)-lastsc13<12 &&px(end,5)>max(px(lastsc13:end-1,3))
                 if ss(end) < 9
-                    output = struct('use',1,'comment','breachup-highsc13');
+                    if px(end,5)<px(end,2) 
+                        if status.issshighbreach
+                            output = struct('use',1,'comment','breachup-highsc13');
+                        else
+                            output = struct('use',0,'comment','breachup-highsc13-negative');
+                        end
+                    else
+                        output = struct('use',1,'comment','breachup-highsc13');
+                    end
                 else
                     output = struct('use',0,'comment','breachup-highsc13-highssvalue');
                 end
