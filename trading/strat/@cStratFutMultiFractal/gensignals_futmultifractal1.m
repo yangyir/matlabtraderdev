@@ -133,23 +133,23 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     'lips',lips,'teeth',teeth,'jaw',jaw,...
                     'wad',wad);
                 op = fractal_filterb1_singleentry(b1type,nfractal,extrainfo);
-                validbreachhh = op.use;
-                if ~validbreachhh
+                useflag = op.use;
+                if ~useflag
                     %special treatment when market jumps
                     tick = stratfractal.mde_fut_.getlasttick(instruments{i});
                     if ~isempty(tick)
                         ask = tick(3);
                         if ask>lvlup(end) && p(end,5)<lvlup(end)
-                            validbreachhh = 1;
+                            useflag = 1;
                             op.comment = 'breachup-lvlup';
                         end
                     end
                 end
-                if ~validbreachhh
+                if ~useflag
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
                     continue;
                 end
-                if validbreachhh && ...
+                if useflag && ...
                         p(end,5) > p(end,3)-0.382*(p(end,3)-ll(end)) && ...
                         p(end,5) < hh(end)+1.618*(hh(end)-ll(end)) && ...
                         p(end,5) > lips(end)
@@ -168,6 +168,49 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
                     continue;
+                end
+            else
+                %not a validbreach
+                %1.已经连续2*nfractal的K线排列在alligator teeth的上方；且HH形成在alligator
+                %teeth的上方，在HH的上方一个tick挂买单
+                %且最新的收盘价还在HH的下方
+                %且最新的HH比前一个HH高，证明趋势向上
+                aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
+                aboveteeth = aboveteeth & p(end,5)<hh(end);
+                last2hhidx = find(idxHH(1:end)==1,2,'last');
+                if size(last2hhidx,1) == 2
+                    last2hh = hh(last2hhidx);
+                    aboveteeth = aboveteeth & last2hh(2) > last2hh(1);
+                    if last2hh(2) <= last2hh(1)
+                       %如果新的HH比旧的HH低，且有条件单未执行，需要撤销条件单
+                       ncondpending = stratfractal.helper_.condentrustspending_.latest;
+                       if ncondpending == 0, continue;end
+                       condentrusts2remove = EntrustArray;
+                       for jj = 1:ncondpending
+                           condentrust = stratfractal.helper_.condentrustspending_.node(jj);
+                           if ~strcmpi(instruments{i}.code_ctp,condentrust.instrumentCode), continue;end
+                           if condentrust.offsetFlag ~= 1, continue; end
+                           if condentrust.direction ~= 1, continue;end %the same direction
+                           condentrusts2remove.push(condentrust);
+                       end
+                       stratfractal.removecondentrusts(condentrusts2remove);
+                       fprintf('\t%6s:\t%s\n',instruments{i}.code_ctp,'conditional entrust canceled given lower HH');
+                    end                    
+                end
+                    
+                if ~aboveteeth, continue;end
+                
+                signals(i,1) = 1;
+                signals(i,2) = hh(end);
+                signals(i,3) = ll(end);
+                signals(i,5) = p(end,3);
+                signals(i,6) = p(end,4);
+                signals(i,4) = 2;
+                if teeth(end)>jaw(end)
+                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:strongbreach-trendconfirmed');
+                else
+                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:mediumbreach-trendconfirmed');
                 end
             end
                   
@@ -189,23 +232,23 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     'lips',lips,'teeth',teeth,'jaw',jaw,...
                     'wad',wad);
                 op = fractal_filters1_singleentry(s1type,nfractal,extrainfo);
-                validbreachll = op.use;
-                if ~validbreachll
+                useflag = op.use;
+                if ~useflag
                     %special treatment when market jumps
                     tick = stratfractal.mde_fut_.getlasttick(instruments{i});
                     if ~isempty(tick)
                         bid = tick(2);
                         if bid < lvldn(end) && p(end,5)>lvldn(end)
-                            validbreachll = 1;
+                            useflag = 1;
                             op.comment = 'breachdn-lvldn';
                         end
                     end
                 end
-                if ~validbreachll
+                if ~useflat
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
                     continue;
                 end
-                if validbreachll && ...
+                if useflag && ...
                         p(end,5) < p(end,4)+0.382*(hh(end)-p(end,4)) && ...
                         p(end,5) > ll(end)-1.618*(hh(end)-ll(end)) && ...
                         p(end,5) < lips(end)
