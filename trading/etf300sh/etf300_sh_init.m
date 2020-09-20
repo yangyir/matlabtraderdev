@@ -10,6 +10,7 @@ exp_jun = '2020-06-24';
 exp_jul = '2020-07-22';
 exp_aug = '2020-08-26';
 exp_sep = '2020-09-23';
+exp_oct = '2020-10-28';
 k_300 = [3.4:0.1:5.0,5.25,5.5];
 % opt300_c_feb = cell(length(k_300),1);opt300_p_feb = opt300_c_feb;
 % opt300_c_mar = cell(length(k_300),1);opt300_p_mar = opt300_c_mar;
@@ -19,6 +20,7 @@ k_300 = [3.4:0.1:5.0,5.25,5.5];
 % opt300_c_jul = cell(length(k_300),1);opt300_p_jul = opt300_c_jul;
 opt300_c_aug = cell(length(k_300),1);opt300_p_aug = opt300_c_aug;
 opt300_c_sep = cell(length(k_300),1);opt300_p_sep = opt300_c_sep;
+opt300_c_oct = cell(length(k_300),1);opt300_p_oct = opt300_c_oct;
 for i = 1:length(k_300)
 %     opt300_c_feb{i} = ['510300 CH ',datestr(exp_feb,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
 %     opt300_p_feb{i} = ['510300 CH ',datestr(exp_feb,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
@@ -32,10 +34,12 @@ for i = 1:length(k_300)
 %     opt300_p_jun{i} = ['510300 CH ',datestr(exp_jun,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
 %     opt300_c_jul{i} = ['510300 CH ',datestr(exp_jul,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
 %     opt300_p_jul{i} = ['510300 CH ',datestr(exp_jul,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
-    opt300_c_aug{i} = ['510300 CH ',datestr(exp_aug,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
-    opt300_p_aug{i} = ['510300 CH ',datestr(exp_aug,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
+%     opt300_c_aug{i} = ['510300 CH ',datestr(exp_aug,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
+%     opt300_p_aug{i} = ['510300 CH ',datestr(exp_aug,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
     opt300_c_sep{i} = ['510300 CH ',datestr(exp_sep,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
     opt300_p_sep{i} = ['510300 CH ',datestr(exp_sep,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
+    opt300_c_oct{i} = ['510300 CH ',datestr(exp_oct,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
+    opt300_p_oct{i} = ['510300 CH ',datestr(exp_oct,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
 end
 %%
 db = cLocal;
@@ -47,8 +51,8 @@ fprintf('last date recorded on local file is %s\n',datestr(hd_300etf(end,1)));
 % shift = 60;
 % tools_technicalplot2(op_300etf(end-shift:end,:));
 %%
-opt300_c_1 = opt300_c_sep;
-opt300_p_1 = opt300_p_sep;
+opt300_c_1 = opt300_c_oct;
+opt300_p_1 = opt300_p_oct;
 n_opt300c = length(k_300);
 bd_opt300c_1 = cell(n_opt300c,1);
 tbl_opt300c_1 = [k_300',zeros(length(k_300),3)];
