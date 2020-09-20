@@ -5,16 +5,18 @@ try
 catch
 end
 %
-code = 'rb2005';
+codes = {'m2009';'i2009';'ag2012';'p2009';'SR009';'cu2009'};
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = ['replaybook-',code];
+bookname = ['replaybook-9'];
 strategyname = 'fractal';
 riskconfigfilename = 'config_replaycomdty.txt';
-genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',{code});
-modconfigfile([path_,riskconfigfilename],'code',code,...
+genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
+for i = 1:length(codes)
+modconfigfile([path_,riskconfigfilename],'code',codes{i},...
     'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade'},...
-    'propvalues',{4;'30m';1;3;'spiderman';1});
+    'propvalues',{4;'30m';1;1;'spiderman';1});
+end
 %
 combo = rtt_setup('countername','ccb_ly_fut',...
     'bookname',bookname,...
@@ -22,13 +24,13 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2020-03-19','replaytodate','2020-03-19');
+    'replayfromdate','2020-07-23','replaytodate','2020-07-24');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = false;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-%%
+%
 combo.mdefut.start;
 combo.ops.start;
 combo.strategy.start;
