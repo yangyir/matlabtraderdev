@@ -237,8 +237,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
                 aboveteeth = aboveteeth & p(end,5)<hh(end);
                 last2hhidx = find(idxHH(1:end)==1,2,'last');
+                last2hh = hh(last2hhidx);
                 if size(last2hhidx,1) == 2
-                    last2hh = hh(last2hhidx);
                     aboveteeth = aboveteeth & last2hh(2) > last2hh(1);     
                 end
                     
@@ -256,7 +256,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                         stratfractal.removecondentrusts(condentrusts2remove);
                         if condentrusts2remove.latest > 0
-                            if last2hh(2) <= last2hh(1)
+                            if size(last2hhidx,1) == 2 && last2hh(2) <= last2hh(1)
                                 fprintf('\t%6s:\t%s\n',instruments{i}.code_ctp,'conditional entrust canceled given lower HH...');
                             else
                                 fprintf('\t%6s:\t%s\n',instruments{i}.code_ctp,'conditional entrust canceled given price fell below teeth...');
@@ -286,8 +286,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 belowteeth = belowteeth & ll(end)-teeth(end)<=-ticksize;
                 belowteeth = belowteeth & p(end,5)>ll(end);
                 last2llidx = find(idxLL(1:end)==1,2,'last');
-                if size(last2llidx,1) == 2
-                    last2ll = ll(last2llidx);
+                last2ll = ll(last2llidx);
+                if size(last2ll) == 2
                     belowteeth = belowteeth & last2ll(2) < last2ll(1);          
                 end
                 if ~belowteeth
@@ -304,7 +304,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                         stratfractal.removecondentrusts(condentrusts2remove);
                         if condentrusts2remove.latest > 0 
-                            if last2ll(2) >= last2ll(1)
+                            if size(last2ll,1) == 2 && last2ll(2) >= last2ll(1)
                                 fprintf('\t%6s:\t%s\n',instruments{i}.code_ctp,'conditional entrust canceled given higher LL...');
                             else
                                 fprintf('\t%6s:\t%s\n',instruments{i}.code_ctp,'conditional entrust canceled given price rallied above teeth...');
