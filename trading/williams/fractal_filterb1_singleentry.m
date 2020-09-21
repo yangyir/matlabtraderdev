@@ -37,14 +37,14 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
             output = struct('use',1,'comment','breachup-lvlup');
             return
         end
-        %keep if it breach-up TDST-lvldn
-        isbreachlvldn = (~isempty(find(px(end-ss(end):end,5)>lvldn(end),1,'first')) &&~isempty(find(px(end-ss(end):end,5)<lvldn(end),1,'first')) && px(end,5)>lvldn(end)) || ...
-            (px(end,5)>lvldn(end) && px(end-1,5)<lvldn(end)) ||...
-            (px(end,5)>lvldn(end) && px(end,4)<lvldn(end));
-        if isbreachlvldn
-            output = struct('use',1,'comment','breachup-lvldn');
-            return
-        end
+%         %keep if it breach-up TDST-lvldn
+%         isbreachlvldn = (~isempty(find(px(end-ss(end):end,5)>lvldn(end),1,'first')) &&~isempty(find(px(end-ss(end):end,5)<lvldn(end),1,'first')) && px(end,5)>lvldn(end)) || ...
+%             (px(end,5)>lvldn(end) && px(end-1,5)<lvldn(end)) ||...
+%             (px(end,5)>lvldn(end) && px(end,4)<lvldn(end));
+%         if isbreachlvldn
+%             output = struct('use',1,'comment','breachup-lvldn');
+%             return
+%         end
         %exclude if it is too close to TDST-lvlup
         isclose2lvlup = px(end,5)<lvlup(end) && (lvlup(end)-px(end,5))/(lvlup(end)-lvldn(end))<0.1&&lvlup(end)>lvldn(end);
         if isclose2lvlup
@@ -180,26 +180,26 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
                 return
             end
         end
-        %keep if it breach-up TDST-lvldn
-        isbreachlvldn = (~isempty(find(px(end-ss(end):end,5)>lvldn(end),1,'first')) &&~isempty(find(px(end-ss(end):end,5)<lvldn(end),1,'first')) && px(end,5)>lvldn(end)) || ...
-            (px(end,5)>lvldn(end) && px(end-1,5)<lvldn(end)) ||...
-            (px(end,5)>lvldn(end) && px(end,4)<lvldn(end));
-        if isbreachlvldn
-            if teethjawcrossed && ss(end) >= 9
-                %check whether WAD is consistent with the price move
-                maxpx = max(px(end-ss(end)+1:end-1,5));
-                maxpxidx = find(px(end-ss(end)+1:end-1,5)==maxpx,1,'last')+size(px,1)-ss(end);
-                if wad(maxpxidx) < wad(end)
-                    output = struct('use',1,'comment','breachup-lvldn');
-                else
-                    output = struct('use',0,'comment','breachup-lvldn-teethjawcrossed');
-                end
-                return
-            else
-                output = struct('use',1,'comment','breachup-lvldn');
-                return
-            end
-        end
+%         %keep if it breach-up TDST-lvldn
+%         isbreachlvldn = (~isempty(find(px(end-ss(end):end,5)>lvldn(end),1,'first')) &&~isempty(find(px(end-ss(end):end,5)<lvldn(end),1,'first')) && px(end,5)>lvldn(end)) || ...
+%             (px(end,5)>lvldn(end) && px(end-1,5)<lvldn(end)) ||...
+%             (px(end,5)>lvldn(end) && px(end,4)<lvldn(end));
+%         if isbreachlvldn
+%             if teethjawcrossed && ss(end) >= 9
+%                 %check whether WAD is consistent with the price move
+%                 maxpx = max(px(end-ss(end)+1:end-1,5));
+%                 maxpxidx = find(px(end-ss(end)+1:end-1,5)==maxpx,1,'last')+size(px,1)-ss(end);
+%                 if wad(maxpxidx) < wad(end)
+%                     output = struct('use',1,'comment','breachup-lvldn');
+%                 else
+%                     output = struct('use',0,'comment','breachup-lvldn-teethjawcrossed');
+%                 end
+%                 return
+%             else
+%                 output = struct('use',1,'comment','breachup-lvldn');
+%                 return
+%             end
+%         end
         %
         %keep if it breach-up high of a previous sell sequential
         if ss(end-nkfromhh+1) >= 9
