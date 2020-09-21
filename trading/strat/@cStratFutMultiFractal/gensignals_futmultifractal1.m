@@ -199,7 +199,23 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end                    
                 end
                     
-                if ~aboveteeth, continue;end
+                if ~aboveteeth
+                    %如果条件不满足，但是有未执行的条件单，需要撤销条件单
+                    ncondpending = stratfractal.helper_.condentrustspending_.latest;
+                    if ncondpending == 0, continue;end
+                    condentrusts2remove = EntrustArray;
+                    for jj = 1:ncondpending
+                        condentrust = stratfractal.helper_.condentrustspending_.node(jj);
+                        if ~strcmpi(instruments{i}.code_ctp,condentrust.instrumentCode), continue;end
+                        if condentrust.offsetFlag ~= 1, continue; end
+                        if condentrust.direction ~= 1, continue;end %the same direction
+                        condentrusts2remove.push(condentrust);
+                    end
+                    stratfractal.removecondentrusts(condentrusts2remove);
+                    fprintf('\t%6s:\t%s\n',instruments{i}.code_ctp,'conditional entrust canceled given price fell below teeth ');
+                    
+                    continue;
+                end
                 
                 signals(i,1) = 1;
                 signals(i,2) = hh(end);
@@ -300,7 +316,22 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end                    
                 end
                 
-                if ~belowteeth, continue;end
+                if ~belowteeth
+                    %如果条件不满足，但是有未执行的条件单，需要撤销条件单
+                    ncondpending = stratfractal.helper_.condentrustspending_.latest;
+                    if ncondpending == 0, continue;end
+                    condentrusts2remove = EntrustArray;
+                    for jj = 1:ncondpending
+                        condentrust = stratfractal.helper_.condentrustspending_.node(jj);
+                        if ~strcmpi(instruments{i}.code_ctp,condentrust.instrumentCode), continue;end
+                        if condentrust.offsetFlag ~= 1, continue; end
+                        if condentrust.direction ~= -1, continue;end %the same direction
+                        condentrusts2remove.push(condentrust);
+                    end
+                    stratfractal.removecondentrusts(condentrusts2remove);
+                    fprintf('\t%6s:\t%s\n',instruments{i}.code_ctp,'conditional entrust canceled given price rallied above teeth');
+                    continue;
+                end
                 
                 signals(i,1) = -1;
                 signals(i,2) = hh(end);
