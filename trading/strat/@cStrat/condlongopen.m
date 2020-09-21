@@ -33,7 +33,7 @@ function [ret,e,msg] = condlongopen(strategy,code_ctp,condpx,lots,varargin)
    isopt = isoptchar(code_ctp);
    instrument = code2instrument(code_ctp);
 
-   if strcmpi(strategy.mode_,'realtime')
+   if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
        ordertime = now;
    else
        ordertime = strategy.getreplaytime;
@@ -47,7 +47,7 @@ function [ret,e,msg] = condlongopen(strategy,code_ctp,condpx,lots,varargin)
        return
    end
    
-   if strcmpi(strategy.mode_,'realtime')
+   if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
         if isopt
             q = strategy.mde_opt_.qms_.getquote(code_ctp);
         else
