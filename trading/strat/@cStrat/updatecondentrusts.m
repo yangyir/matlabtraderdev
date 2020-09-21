@@ -10,7 +10,7 @@ function [] = updatecondentrusts(strategy)
                 condentrust = strategy.helper_.condentrustspending_.node(i);               
                 codestr = condentrust.instrumentCode;
                 instrument = code2instrument(codestr);
-                if strcmpi(strategy.mode_,'realtime')
+                if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
                     ordertime = now;
                 else
                     ordertime = strategy.getreplaytime;
