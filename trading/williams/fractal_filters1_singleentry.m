@@ -35,14 +35,14 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticks
             output = struct('use',1,'comment','breachdn-lvldn');
             return
         end
-        %keep if it breaches-down TDST-lvlup
-        isbreachlvlup = (~isempty(find(px(end-bs(end):end,5)<lvlup(end),1,'first')) &&~isempty(find(px(end-bs(end):end,5)>lvlup(end),1,'first')) && px(end,5)<lvldn(end)) || ...
-            (px(end,5)<lvlup(end) && px(end-1,5)>lvlup(end)) ||...
-            (px(end,5)<lvlup(end) && px(end,3)>lvlup(end));
-        if isbreachlvlup
-            output = struct('use',1,'comment','breachdn-lvlup');
-            return
-        end
+%         %keep if it breaches-down TDST-lvlup
+%         isbreachlvlup = (~isempty(find(px(end-bs(end):end,5)<lvlup(end),1,'first')) &&~isempty(find(px(end-bs(end):end,5)>lvlup(end),1,'first')) && px(end,5)<lvldn(end)) || ...
+%             (px(end,5)<lvlup(end) && px(end-1,5)>lvlup(end)) ||...
+%             (px(end,5)<lvlup(end) && px(end,3)>lvlup(end));
+%         if isbreachlvlup
+%             output = struct('use',1,'comment','breachdn-lvlup');
+%             return
+%         end
         %exclude if it is too close to TDST-lvldn
         isclose2lvldn = px(end,5)>=lvldn(end) && (lvlup(end)-px(end,5))/(lvlup(end)-lvldn(end))>0.9&&lvlup(end)>lvldn(end);
         if isclose2lvldn
@@ -183,26 +183,26 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticks
             end
         end
         %
-        %keep if it breaches-down TDST-lvlup
-        isbreachlvlup = (~isempty(find(px(end-bs(end):end,5)<lvlup(end),1,'first')) &&~isempty(find(px(end-bs(end):end,5)>lvlup(end),1,'first')) && px(end,5)<lvldn(end)) || ...
-            (px(end,5)<lvlup(end) && px(end-1,5)>lvlup(end)) ||...
-            (px(end,5)<lvlup(end) && px(end,3)>lvlup(end));
-        if isbreachlvlup
-            if teethjawcrossed && bs(end) >= 9
-                %check whether WAD is consitent with the price move
-                minpx = min(px(end-bs(end)+1:end-1,5));
-                minpxidx = find(px(end-bs(end)+1:end-1,5)==minpx,1,'last')+size(px,1)-bs(end);
-                if wad(minpxidx) > wad(end)
-                    output = struct('use',1,'comment','breachdn-lvlup');
-                else
-                    output = struct('use',0,'comment','breachdn-lvlup-teethjawcrossed');
-                end
-                return
-            else
-                output = struct('use',1,'comment','breachdn-lvlup');
-                return
-            end
-        end
+%         %keep if it breaches-down TDST-lvlup
+%         isbreachlvlup = (~isempty(find(px(end-bs(end):end,5)<lvlup(end),1,'first')) &&~isempty(find(px(end-bs(end):end,5)>lvlup(end),1,'first')) && px(end,5)<lvldn(end)) || ...
+%             (px(end,5)<lvlup(end) && px(end-1,5)>lvlup(end)) ||...
+%             (px(end,5)<lvlup(end) && px(end,3)>lvlup(end));
+%         if isbreachlvlup
+%             if teethjawcrossed && bs(end) >= 9
+%                 %check whether WAD is consitent with the price move
+%                 minpx = min(px(end-bs(end)+1:end-1,5));
+%                 minpxidx = find(px(end-bs(end)+1:end-1,5)==minpx,1,'last')+size(px,1)-bs(end);
+%                 if wad(minpxidx) > wad(end)
+%                     output = struct('use',1,'comment','breachdn-lvlup');
+%                 else
+%                     output = struct('use',0,'comment','breachdn-lvlup-teethjawcrossed');
+%                 end
+%                 return
+%             else
+%                 output = struct('use',1,'comment','breachdn-lvlup');
+%                 return
+%             end
+%         end
         %
         %keep if it breach-dn low of a previous buy sequential
         if bs(end-nkfromll+1) >= 9
