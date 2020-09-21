@@ -71,23 +71,41 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
 
         if signal < 0
             type = 'breachdn-S';
-            if signals(i,4) == 1
-                mode = 'breachdn-lvldn';
-            else
-                mode = 'unset';
-            end
-            if bid < signals(i,3) && bid > signals(i,3)-1.618*(signals(i,2)-signals(i,3))
+            if signals(i,4) == -2
+                %here we place conditional entrust or an entrust directly
+                %if the price is below LL already
+                ticksize = instrument.tick_size;
                 nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                 info = struct('name','fractal','type',type,...
-                    'hh',signals(i,2),'ll',signals(i,3),'mode',mode,'nfractal',nfractals,...
-                    'hh1',signals(i,5),'ll1',signals(i,6));
-                stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                        'hh',signals(i,2),'ll',signals(i,3),'mode','unset','nfractal',nfractals,...
+                        'hh1',signals(i,5),'ll1',signals(i,6));
+                if bid < signals(i,3) && bid > signals(i,3)-1.618*(signals(i,2)-signals(i,3))
+                    stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                elseif bid > signals(i,3)
+                    %conditional entrust shall be placed
+                    ncondpending = stratfractal.helper_.condentrustspending_.latest;
+                    if ncondpending >= volume, continue;end
+                    stratfractal.condshortopen(instrument.code_ctp,signals(i,3)-ticksize,volume,'signalinfo',info);
+                end
+            else
+                if signals(i,4) == 1
+                    mode = 'breachdn-lvldn';
+                else
+                    mode = 'unset';
+                end
+                if bid < signals(i,3) && bid > signals(i,3)-1.618*(signals(i,2)-signals(i,3))
+                    nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
+                    info = struct('name','fractal','type',type,...
+                        'hh',signals(i,2),'ll',signals(i,3),'mode',mode,'nfractal',nfractals,...
+                        'hh1',signals(i,5),'ll1',signals(i,6));
+                    stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                end
             end
         else
             type = 'breachup-B';
             if signals(i,4) == 2
                 %here we place conditional entrust or an entrust directly
-                %if the price is above teeth already
+                %if the price is above HH already
                 ticksize = instrument.tick_size;
                 nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                 info = struct('name','fractal','type',type,...
@@ -98,7 +116,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 elseif ask < signals(i,2)
                     %conditional entrust shall be placed
                     ncondpending = stratfractal.helper_.condentrustspending_.latest;
-                    if volume_exist + ncondpending >= maxvolume, continue;end
+                    if ncondpending >= volume, continue;end
                     stratfractal.condlongopen(instrument.code_ctp,signals(i,2)+ticksize,volume,'signalinfo',info);
                 end
             else                

@@ -270,6 +270,50 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
                     continue;
                 end
+            else
+                %not a validbreach
+                %1.已经连续2*nfractal的K线排列在alligator teeth的下方；且LL形成在alligator
+                %teeth的下方，在LL的下方一个tick挂卖单
+                %且最新的收盘价还在LL的上方
+                %且最新的LL比前一个LL低，证明趋势向下
+                belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+                belowteeth = belowteeth & ll(end)-teeth(end)<=-ticksize;
+                belowteeth = belowteeth & p(end,5)>ll(end);
+                last2llidx = find(idxLL(1:end)==1,2,'last');
+                if size(last2llidx,1) == 2
+                    last2ll = ll(last2llidx);
+                    belowteeth = belowteeth & last2ll(2) < last2ll(1);
+                    if last2ll(2) >= last2ll(1)
+                       %如果新的LL比旧的LL高，且有条件单未执行，需要撤销条件单
+                       ncondpending = stratfractal.helper_.condentrustspending_.latest;
+                       if ncondpending == 0, continue;end
+                       condentrusts2remove = EntrustArray;
+                       for jj = 1:ncondpending
+                           condentrust = stratfractal.helper_.condentrustspending_.node(jj);
+                           if ~strcmpi(instruments{i}.code_ctp,condentrust.instrumentCode), continue;end
+                           if condentrust.offsetFlag ~= 1, continue; end
+                           if condentrust.direction ~= -1, continue;end %the same direction
+                           condentrusts2remove.push(condentrust);
+                       end
+                       stratfractal.removecondentrusts(condentrusts2remove);
+                       fprintf('\t%6s:\t%s\n',instruments{i}.code_ctp,'conditional entrust canceled given lower HH');
+                    end                    
+                end
+                
+                if ~belowteeth, continue;end
+                
+                signals(i,1) = -1;
+                signals(i,2) = hh(end);
+                signals(i,3) = ll(end);
+                signals(i,5) = p(end,3);
+                signals(i,6) = p(end,4);
+                signals(i,4) = -2;
+                if teeth(end)<jaw(end)
+                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:strongbreach-trendconfirmed');
+                else
+                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:mediumbreach-trendconfirmed');
+                end
+                
             end
             
         end
