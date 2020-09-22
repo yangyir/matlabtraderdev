@@ -290,7 +290,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if size(last2ll) == 2
                     belowteeth = belowteeth & last2ll(2) < last2ll(1);          
                 end
-                if ~belowteeth
+                %2.TDST level dn在LL的上方；且alligator lips小于alligator
+                %teeth和alligator jaw,在LL的下方一个tick挂卖单
+                %且最新的收盘价还在LL的上方
+                %且K线的最高价在level dn的上方
+                %如果向下穿透LL则必然已经穿透TDST level dn
+                llbelowlvldn = ll(end)<lvldn(end) & lips(end)<teeth(end) ...
+                    & lips(end)<jaw(end);
+                llbelowlvldn = llbelowlvldn & p(end,5)>ll(end)...
+                    & p(end,3)>lvldn(end);
+                %
+                if ~belowteeth && ~llbelowlvldn
                     %如果条件不满足，但是有未执行的条件单，需要撤销条件单
                     ncondpending = stratfractal.helper_.condentrustspending_.latest;
                     if ncondpending > 0
@@ -318,12 +328,20 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals(i,5) = p(end,3);
                     signals(i,6) = p(end,4);
                     signals(i,4) = -2;
-                    if teeth(end)<jaw(end)
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
+                    if belowteeth
+                        if teeth(end)<jaw(end)
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
+                        else
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
+                        end
                     else
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
+                        if llbelowlvldn, fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');end
                     end
                 end
+                %
+                %
+                
+                
             end
         end
     end
