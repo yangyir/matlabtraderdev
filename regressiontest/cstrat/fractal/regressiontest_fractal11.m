@@ -8,14 +8,14 @@ end
 codes = {'p2101'};
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'book10';
+bookname = 'book11';
 strategyname = 'fractal';
-riskconfigfilename = 'config_replaycomdty.txt';
+riskconfigfilename = 'config_book11.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
     'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade'},...
-    'propvalues',{4;'30m';1;3;'spiderman';1});
+    'propvalues',{4;'30m';1;1;'spiderman';1});
 end
 %
 combo = rtt_setup('countername','ccb_ly_fut',...
@@ -24,7 +24,7 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2020-09-21','replaytodate','2020-09-21');
+    'replayfromdate','2020-09-21','replaytodate','2020-09-22');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = false;
 combo.ops.printflag_ = true;
