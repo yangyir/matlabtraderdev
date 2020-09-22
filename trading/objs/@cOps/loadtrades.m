@@ -114,7 +114,18 @@ function [] = loadtrades(obj,varargin)
     try
         filename = [dir_data_,bookname,'_condentrustspending_',datestr(lastbd,'yyyymmdd')];
         data = load(filename);
-        obj.condentrustspending_ = data.condentrustspending;
+        condentrustspending = EntrustArray;
+        npending = data.condentrustspending.latest;
+        for jj = 1:npending
+            %凡是fractal的条件单是不用被load的，因为都是重新计算的
+            if ~isempty(data.condentrustspending.node(jj).signalinfo_) && ...
+                    strcmpi(data.condentrustspending.node(jj).signalinfo_.name,'fractal')
+                continue;
+            end
+            condentrustspending.push(data.condentrustspending.node(jj));
+        end
+%         obj.condentrustspending_ = data.condentrustspending;
+        obj.condentrustspending_ = condentrustspending;
     catch
         obj.condentrustspending_ = EntrustArray;
     end
