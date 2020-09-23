@@ -25,7 +25,7 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
     ll = extrainfo.ll(end);
        
     if direction == 1
-        if extrainfo.p(end,5) < extrainfo.lips(end)
+        if extrainfo.p(end,5) < extrainfo.lips(end)-ticksize
             closeflag = 1;
             obj.closestr_ = 'fractal:lips';
         else
@@ -57,7 +57,7 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
         end
         %
     else
-        if extrainfo.p(end,5) > extrainfo.lips(end)
+        if extrainfo.p(end,5) > extrainfo.lips(end)+ticksize
             closeflag = 1;
             obj.closestr_ = 'fractal:lips';
         else
