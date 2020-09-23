@@ -102,10 +102,11 @@ function [ret,e,msg] = condlongopen(strategy,code_ctp,condpx,lots,varargin)
            if ~isempty(signalinfo)
                e.signalinfo_ = signalinfo;
            end
-           msg = sprintf('%s placed conditional long open entrust with code:%8s, price:%6s, amount:%3d',...
+           msg = sprintf('%s placed conditional long open entrust with code:%8s,price:%6s,amount:%3d',...
                datestr(e.time,'yyyymmdd HH:MM:SS'),...
-               code_ctp,condpx,lots);
+               code_ctp,num2str(condpx),lots);
            strategy.helper_.condentrustspending_.push(e);
+           fprintf('%s\n',msg);
            ret = 1;
        else
            ret = 0;
