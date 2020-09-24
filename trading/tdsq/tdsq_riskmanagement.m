@@ -35,9 +35,15 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
     teeth = extrainfo.teeth;
     jaw = extrainfo.jaw;
     
+    try
+        ticksize = trade.instrument_.tick_size;
+    catch
+        ticksize = 0;
+    end
+       
     if direction == 1
         if ~isnan(trade.riskmanager_.tdlow_)
-            if p(end,5) < trade.riskmanager_.tdlow_
+            if p(end,5) < trade.riskmanager_.tdlow_-ticksize
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
                 closestr = trade.riskmanager_.closestr_;
@@ -45,7 +51,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
         end
         if ~isnan(trade.riskmanager_.td13low_)
-            if p(end,5) < trade.riskmanager_.td13low_
+            if p(end,5) < trade.riskmanager_.td13low_-ticksize
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:sc13break';
                 closestr = trade.riskmanager_.closestr_;
@@ -144,7 +150,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         end
     elseif direction == -1
         if ~isnan(trade.riskmanager_.tdhigh_)
-            if p(end,5) > trade.riskmanager_.tdhigh_
+            if p(end,5) > trade.riskmanager_.tdhigh_+ticksize
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
                 closestr = trade.riskmanager_.closestr_;
@@ -152,7 +158,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
         end
         if ~isnan(trade.riskmanager_.td13high_)
-            if p(end,5) > trade.riskmanager_.td13high_
+            if p(end,5) > trade.riskmanager_.td13high_+ticksize
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:bs13break';
                 closestr = trade.riskmanager_.closestr_;
