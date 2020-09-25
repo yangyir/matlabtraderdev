@@ -300,7 +300,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             %above the alligator's teeth )or the latest LL
                             %is above the previous LL
                             ispxaboveteeth = p(end,5)>teeth(end)+2*ticksize;
-                            last2ll = hh(find(idxLL(1:end) == -1,2,'last'));
+                            last2ll = ll(find(idxLL(1:end) == -1,2,'last'));
                             if size(last2ll,1) == 2
                                 islatestllhigher = last2ll(2)>last2ll(1);
                             else

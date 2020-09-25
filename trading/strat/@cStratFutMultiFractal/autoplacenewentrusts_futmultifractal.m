@@ -90,8 +90,16 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
                 elseif bid > signals(i,3)
                     %conditional entrust shall be placed
-                    ncondpending = stratfractal.helper_.condentrustspending_.latest;
-                    if ncondpending >= volume, continue;end
+                    ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
+                    ncondpendingvolume = 0;
+                    for ii = 1:ncondpendingall
+                        epending = stratfractal.helper_.condentrustspending_.node(ii);
+                        if strcmpi(epending.instrumentCode,instrument.code_ctp) && ...
+                                epending.direction == -1
+                            ncondpendingvolume = ncondpendingvolume + epending.volume;
+                        end                                
+                    end
+                    if ncondpendingvolume >= volume, continue;end
                     if signals(i,4) == -2
                         stratfractal.condshortopen(instrument.code_ctp,signals(i,3)-2*ticksize,volume,'signalinfo',info);
                     elseif signals(i,4) == -3
@@ -133,8 +141,16 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
                 elseif ask < signals(i,2)
                     %conditional entrust shall be placed
-                    ncondpending = stratfractal.helper_.condentrustspending_.latest;
-                    if ncondpending >= volume, continue;end
+                    ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
+                    ncondpendingvolume = 0;
+                    for ii = 1:ncondpendingall
+                        epending = stratfractal.helper_.condentrustspending_.node(ii);
+                        if strcmpi(epending.instrumentCode,instrument.code_ctp) && ...
+                                epending.direction == 1
+                            ncondpendingvolume = ncondpendingvolume + epending.volume;
+                        end                                
+                    end
+                    if ncondpendingvolume >= volume, continue;end
                     stratfractal.condlongopen(instrument.code_ctp,signals(i,2)+2*ticksize,volume,'signalinfo',info);
                 end
             else                
