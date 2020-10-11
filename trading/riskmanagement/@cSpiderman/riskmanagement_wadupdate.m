@@ -25,7 +25,7 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
     if direction == 1
         if p(end,5) > obj.cphigh_
             obj.cphigh_ = p(end,5);
-            if wad(end) < obj.wadhigh_ - ticksize
+            if wad(end) < obj.wadhigh_ - 2*ticksize
                 ret = struct('inconsistence',1,...
                     'reason','new high price w/o wad being higher');
                 return
@@ -60,7 +60,7 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
     elseif direction == -1
         if p(end,5) < obj.cplow_
             obj.cplow_ = p(end,5);
-            if wad(end) > obj.wadlow_ + ticksize
+            if wad(end) > obj.wadlow_ + 2*ticksize
                 ret = struct('inconsistence',1,...
                     'reason','new low price w/o wad being lower');
                 return
