@@ -362,7 +362,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if size(last2hhidx,1) == 2
                     aboveteeth = aboveteeth & last2hh(2) > last2hh(1);     
                 end
-                %1b.TDST level up在HH的上方；且alligator lips大于alligator
+                %1b.HH在TDST level up的上方；且alligator lips大于alligator
                 %teeth和alligator jaw,在HH的上方挂买单
                 %且最新的收盘价还在HH的下方
                 %且K线的最高价在TDST level up的上方
@@ -410,7 +410,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if size(last2ll) == 2
                     belowteeth = belowteeth & last2ll(2) < last2ll(1);          
                 end
-                %2b.TDST level dn在LL的上方；且alligator lips小于alligator
+                %2b.LL在TDST level dn的下方；且alligator lips小于alligator
                 %teeth和alligator jaw,在LL的下方一个tick挂卖单
                 %且最新的收盘价还在LL的上方
                 %且K线的最低价在level dn的下方
