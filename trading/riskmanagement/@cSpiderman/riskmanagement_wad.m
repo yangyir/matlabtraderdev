@@ -81,7 +81,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
 %             obj.closestr_ = ret.reason;
         end
     else
-        ret = obj.riskmanagement_wadupdate('extrainfo',extrainfo);
+%         ret = obj.riskmanagement_wadupdate('extrainfo',extrainfo);
         if ret.inconsistence && strcmpi(ret.reason,'new low wad w/o price being lower')
             if extrainfo.latestopen > obj.cplow_
 %                 closeflag = ret.inconsistence;
