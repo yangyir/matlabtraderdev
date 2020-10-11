@@ -27,7 +27,9 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
         else
             closeprice = obj.pxstoploss_;
         end
-%         obj.closestr_ = 'tick breaches stoploss price';
+        if strcmpi(obj.closestr_,'n/a')
+            obj.closestr_ = 'fractal:teeth';
+        end
     elseif closeflag == 2
         if direction == 1 && openp > obj.pxtarget_
             closeprice = openp;
