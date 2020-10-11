@@ -100,8 +100,8 @@ if ~istrendconfirmed
     %1.in case all candles are above teeth since hh formed but there are
     %less than 2*nfractal+1 candles since then, we include candles before
     %the hh formed and double check
-    if nkaboveteeth == nkfromhh
-        istrendconfirmed = isempty(find(px(end-2*nfractal:end,5)<teeth(end-2*nfractal:end),1,'first'));
+    if nkaboveteeth >= nkfromhh
+        istrendconfirmed = isempty(find(px(end-2*nfractal:end,5)-teeth(end-2*nfractal:end)<-2*ticksize,1,'first'));
     end
 end
 %
