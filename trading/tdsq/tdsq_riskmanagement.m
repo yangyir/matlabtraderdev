@@ -115,7 +115,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             %
             if (high8 > max(high6,high7) || ...
                     high9 > max(high6,high7)) && ...
-                    close9>close8 && ...
+                    close9>=close8 && ...
                     strcmpi(trade.opensignal_.mode_,'breachup-highsc13')
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:9139';
@@ -158,9 +158,9 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
         end
         if ~isnan(trade.riskmanager_.td13high_)
-            if p(end,5) > trade.riskmanager_.td13high_+ticksize
+            if p(end,5) > trade.riskmanager_.td13high_+ticksize && trade.riskmanager_.td13high_ > lips(end)+ticksize
                 closeflag = 1;
-                trade.riskmanager_.closestr_ = 'tdsq:bs13break';
+                trade.riskmanager_.closestr_ = 'tdsq:bc13break';
                 closestr = trade.riskmanager_.closestr_;
                 return
             end
