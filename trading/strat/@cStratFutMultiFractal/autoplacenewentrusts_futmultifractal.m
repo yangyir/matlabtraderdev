@@ -104,6 +104,8 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                         stratfractal.condshortopen(instrument.code_ctp,signals(i,3)-2*ticksize,volume,'signalinfo',info);
                     elseif signals(i,4) == -3
                         stratfractal.condshortopen(instrument.code_ctp,signals(i,3),volume,'signalinfo',info);
+                    elseif signals(i,4) == -4
+                        stratfractal.condshortopen(instrument.code_ctp,signals(i,3)-ticksize,volume,'signalinfo',info);
                     end
                 end
             else

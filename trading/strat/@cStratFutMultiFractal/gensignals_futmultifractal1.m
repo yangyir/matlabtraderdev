@@ -330,17 +330,26 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             end
                         elseif strcmpi(signalinfo.mode,'conditional-breachuplvlup')
                             %cancel the entrust once the highest price as
-                            %of the latest candle fell below lvlup
-                            if p(end,3) < lvlup(end)
+                            %of the latest candle fell below lvldn
+                            if p(end,3) < lvldn(end) || hh(end-1) ~= hh(end)
                                 condentrusts2remove.push(condentrust);
-                                fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as highest price fell below lvlup...');
+                                if p(end,3) < lvldn(end)
+                                    fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as highest price fell below lvldn...');
+                                elseif hh(end-1) ~= hh(end)
+                                    fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as hh value updated...');
+                                end
                             end
                         elseif strcmpi(signalinfo.mode,'conditional-breachdnlvldn')
                             %cancel the entrust once the lowest price as of
-                            %the latest candle rallies above lvldn
-                            if p(end,4) > lvldn(end)
+                            %the latest candle rallies above lvlup
+                            if p(end,4) > lvlup(end) || ll(end-1) ~= ll(end)
                                 condentrusts2remove.push(condentrust);
-                                fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as lowest price rallied above lvldn...');
+                                if p(end,4) > lvlup(end)
+                                    fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as lowest price rallied above lvlup...');
+                                elseif ll(end-1) ~= ll(end)
+                                    fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as ll value updated...');
+                                end
+                                    
                             end
                         else
                             continue;
@@ -415,11 +424,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %且最新的收盘价还在LL的上方
                 %且K线的最低价在level dn的下方
                 %如果向下穿透LL则必然已经穿透TDST level dn
-                llbelowlvldn = ll(end)<lvldn(end) & lips(end)<teeth(end) ...
-                    & lips(end)<jaw(end);
-                llbelowlvldn = llbelowlvldn & p(end,5)>ll(end)...
-                    & p(end,4)<=lvldn(end);
-
+%                 llbelowlvldn = ll(end)<lvldn(end) & lips(end)<teeth(end) ...
+%                     & lips(end)<jaw(end);
+%                 llbelowlvldn = llbelowlvldn & p(end,5)>ll(end)...
+%                     & p(end,4)<=lvldn(end);
+                llbelowlvldn = ll(end)<lvldn(end) && ll(end)<teeth(end);
+                
                 if belowteeth
                     signals(i,1) = -1;
                     signals(i,2) = hh(end);
