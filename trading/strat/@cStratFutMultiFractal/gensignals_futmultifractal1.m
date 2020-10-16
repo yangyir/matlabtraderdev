@@ -371,16 +371,15 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if size(last2hhidx,1) == 2
                     aboveteeth = aboveteeth & last2hh(2) > last2hh(1);     
                 end
-                %1b.HH在TDST level up的上方；且alligator lips大于alligator
-                %teeth和alligator jaw,在HH的上方挂买单
-                %且最新的收盘价还在HH的下方
+                %1b.HH在TDST level up的上方；
+                %HH大于alligator teeth
+                %最新的收盘价还在HH的下方
                 %且K线的最高价在TDST level up的上方
                 %如果向上穿透HH则必然已经穿透TDST level up
-                hhabovelvlup = hh(end)>=lvlup(end) & lips(end)>teeth(end) ...
-                    & lips(end)>jaw(end);
-                hhabovelvlup = hhabovelvlup & p(end,5)<hh(end)...
-                    & p(end,3)>=lvlup(end);
-                
+                hhabovelvlup = hh(end)>=lvlup(end) ...
+                    & hh(end)>teeth(end) ...
+                    & p(end,5)<hh(end) ...
+                    & isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize>0,1,'first'));
                 if aboveteeth
                     %TREND has priority over TDST breakout
                     signals(i,1) = 1;
@@ -419,16 +418,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if size(last2ll) == 2
                     belowteeth = belowteeth & last2ll(2) < last2ll(1);          
                 end
-                %2b.LL在TDST level dn的下方；且alligator lips小于alligator
-                %teeth和alligator jaw,在LL的下方一个tick挂卖单
+                %2b.LL在TDST level dn的下方；
+                %LL小于alligator teeth
                 %且最新的收盘价还在LL的上方
                 %且K线的最低价在level dn的下方
                 %如果向下穿透LL则必然已经穿透TDST level dn
-%                 llbelowlvldn = ll(end)<lvldn(end) & lips(end)<teeth(end) ...
-%                     & lips(end)<jaw(end);
-%                 llbelowlvldn = llbelowlvldn & p(end,5)>ll(end)...
-%                     & p(end,4)<=lvldn(end);
-                llbelowlvldn = ll(end)<lvldn(end) && ll(end)<teeth(end);
+
+                llbelowlvldn = ll(end)<=lvldn(end) ...
+                    & ll(end)<teeth(end) ...
+                    & p(end,5)>ll(end) ...
+                    & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'));
                 
                 if belowteeth
                     signals(i,1) = -1;
