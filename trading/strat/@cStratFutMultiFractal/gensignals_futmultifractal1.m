@@ -435,11 +435,23 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals(i,3) = ll(end);
                     signals(i,5) = p(end,3);
                     signals(i,6) = p(end,4);
-                    signals(i,4) = -2;
-                    if teeth(end)<jaw(end)
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
+                    if ~llbelowlvldn
+                        signals(i,4) = -2;
                     else
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
+                        signals(i,4) = -4;
+                    end
+                    if llbelowlvldn
+                        if teeth(end)<jaw(end)
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed-llbelowlvldn');
+                        else
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed-llbelowlvldn');
+                        end
+                    else
+                        if teeth(end)<jaw(end)
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
+                        else
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
+                        end    
                     end
                 else
                     if llbelowlvldn
