@@ -380,6 +380,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & hh(end)>teeth(end) ...
                     & p(end,5)<hh(end) ...
                     & isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize>0,1,'first'));
+                %1c.HH在TDST level up的下方；
+                %HH大于alligator teeth
+                %最新的收盘价还在HH的下方
+                hhbelowlvlup = hh(end)<lvlup(end) ...
+                    & hh(end)>teeth(end) ...
+                    & p(end,5)<hh(end);
                 if aboveteeth
                     %TREND has priority over TDST breakout
                     signals(i,1) = 1;
@@ -397,6 +403,14 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     if hhabovelvlup
                         signals(i,1) = 1;
                         signals(i,2) = hh(end);
+                        signals(i,3) = ll(end);
+                        signals(i,5) = p(end,3);
+                        signals(i,6) = p(end,4);
+                        signals(i,4) = 4;
+                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
+                    elseif hhbelowlvlup
+                        signals(i,1) = 1;
+                        signals(i,2) = lvlup(end);
                         signals(i,3) = ll(end);
                         signals(i,5) = p(end,3);
                         signals(i,6) = p(end,4);
