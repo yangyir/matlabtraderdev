@@ -11,6 +11,7 @@ exp_jul = '2020-07-22';
 exp_aug = '2020-08-26';
 exp_sep = '2020-09-23';
 exp_oct = '2020-10-28';
+exp_nov = '2020-11-25';
 k_300 = [3.4:0.1:5.0,5.25,5.5];
 % opt300_c_feb = cell(length(k_300),1);opt300_p_feb = opt300_c_feb;
 % opt300_c_mar = cell(length(k_300),1);opt300_p_mar = opt300_c_mar;
@@ -18,9 +19,10 @@ k_300 = [3.4:0.1:5.0,5.25,5.5];
 % opt300_c_may = cell(length(k_300),1);opt300_p_may = opt300_c_may;
 % opt300_c_jun = cell(length(k_300),1);opt300_p_jun = opt300_c_jun;
 % opt300_c_jul = cell(length(k_300),1);opt300_p_jul = opt300_c_jul;
-opt300_c_aug = cell(length(k_300),1);opt300_p_aug = opt300_c_aug;
-opt300_c_sep = cell(length(k_300),1);opt300_p_sep = opt300_c_sep;
+% opt300_c_aug = cell(length(k_300),1);opt300_p_aug = opt300_c_aug;
+% opt300_c_sep = cell(length(k_300),1);opt300_p_sep = opt300_c_sep;
 opt300_c_oct = cell(length(k_300),1);opt300_p_oct = opt300_c_oct;
+opt300_c_nov = cell(length(k_300),1);opt300_p_nov = opt300_c_nov;
 for i = 1:length(k_300)
 %     opt300_c_feb{i} = ['510300 CH ',datestr(exp_feb,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
 %     opt300_p_feb{i} = ['510300 CH ',datestr(exp_feb,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
@@ -36,10 +38,12 @@ for i = 1:length(k_300)
 %     opt300_p_jul{i} = ['510300 CH ',datestr(exp_jul,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
 %     opt300_c_aug{i} = ['510300 CH ',datestr(exp_aug,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
 %     opt300_p_aug{i} = ['510300 CH ',datestr(exp_aug,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
-    opt300_c_sep{i} = ['510300 CH ',datestr(exp_sep,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
-    opt300_p_sep{i} = ['510300 CH ',datestr(exp_sep,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
+%     opt300_c_sep{i} = ['510300 CH ',datestr(exp_sep,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
+%     opt300_p_sep{i} = ['510300 CH ',datestr(exp_sep,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
     opt300_c_oct{i} = ['510300 CH ',datestr(exp_oct,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
     opt300_p_oct{i} = ['510300 CH ',datestr(exp_oct,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
+    opt300_c_nov{i} = ['510300 CH ',datestr(exp_nov,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
+    opt300_p_nov{i} = ['510300 CH ',datestr(exp_nov,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
 end
 %%
 db = cLocal;
