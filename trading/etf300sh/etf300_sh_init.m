@@ -55,8 +55,8 @@ fprintf('last date recorded on local file is %s\n',datestr(hd_300etf(end,1)));
 % shift = 60;
 % tools_technicalplot2(op_300etf(end-shift:end,:));
 %%
-opt300_c_1 = opt300_c_oct;
-opt300_p_1 = opt300_p_oct;
+opt300_c_1 = opt300_c_nov;
+opt300_p_1 = opt300_p_nov;
 n_opt300c = length(k_300);
 bd_opt300c_1 = cell(n_opt300c,1);
 tbl_opt300c_1 = [k_300',zeros(length(k_300),3)];
