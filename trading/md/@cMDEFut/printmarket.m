@@ -124,6 +124,8 @@ function [] = printmarket(obj)
             end
         end
         
+        mde_fin_plot(obj);
+        
     end
 
 end
