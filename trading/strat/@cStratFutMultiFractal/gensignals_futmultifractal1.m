@@ -400,7 +400,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:mediumbreach-trendconfirmed');
                     end
                 else
-                    if hhabovelvlup
+                    if hhabovelvlup && p(end,3)>lvldn(end)
                         signals(i,1) = 1;
                         signals(i,2) = hh(end);
                         signals(i,3) = ll(end);
@@ -408,7 +408,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         signals(i,6) = p(end,4);
                         signals(i,4) = 4;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
-                    elseif hhbelowlvlup
+                    elseif hhbelowlvlup && p(end,3)>lvldn(end)
                         signals(i,1) = 1;
                         signals(i,2) = lvlup(end);
                         signals(i,3) = ll(end);
