@@ -197,8 +197,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         continue;
                     end
                 end
-                %
-            elseif ~validbreachhh && validbreachll
+            end
+            %    
+            if ~validbreachhh && validbreachll
                 %%市场按收盘价出现了有效的向下突破
                 if teeth(end)<jaw(end)
                     s1type = 3;
@@ -268,8 +269,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         signals{i,2} = this_signal;
                     end
                 end
-                %
-            elseif ~validbreachhh && ~validbreachll
+            end
+            %
+            if ~validbreachhh && ~validbreachll
                 %neither a validbreachhh nor a validbreachll
                 %special code for conditional entrust (sign indicates
                 %direction)
@@ -388,7 +390,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 hhabovelvlup = hh(end)>=lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & p(end,5)<hh(end) ...
-                    & isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize>0,1,'first'));
+                    & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first'));
                 %1c.HH在TDST level up的下方；
                 %HH大于alligator teeth
                 %最新的收盘价还在HH的下方
@@ -411,41 +413,27 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end
                     signals{i,1} = this_signal;
                 else
+                    %NOT ABOVE TEETH
                     if hhabovelvlup && p(end,3)>lvldn(end)
-                        signals(i,1) = 1;
-                        signals(i,2) = hh(end);
-                        signals(i,3) = ll(end);
-                        signals(i,5) = p(end,3);
-                        signals(i,6) = p(end,4);
-                        signals(i,4) = 4;
+                        this_signal = zeros(1,6);
+                        this_signal(1,1) = 1;
+                        this_signal(1,2) = hh(end);                             %HH is already above TDST-lvlup
+                        this_signal(1,3) = ll(end);
+                        this_signal(1,5) = p(end,3);
+                        this_signal(1,6) = p(end,4);
+                        this_signal(1,4) = 4;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
+                        signals{i,1} = this_signal;
                     elseif hhbelowlvlup && p(end,3)>lvldn(end)
-                        signals(i,1) = 1;
-                        signals(i,2) = lvlup(end);
-                        signals(i,3) = ll(end);
-                        signals(i,5) = p(end,3);
-                        signals(i,6) = p(end,4);
-                        signals(i,4) = 4;
-                    if hhabovelvlup
                         this_signal = zeros(1,6);
                         this_signal(1,1) = 1;
-                        this_signal(1,2) = hh(end);
+                        this_signal(1,2) = lvlup(end);                          %HH is still below TDST-lvlup
                         this_signal(1,3) = ll(end);
                         this_signal(1,5) = p(end,3);
                         this_signal(1,6) = p(end,4);
                         this_signal(1,4) = 4;
-                        signals{i,1} = this_signal;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
-                    elseif hhbelowlvlup
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = 1;
-                        this_signal(1,2) = lvlup(end);
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = 4;
                         signals{i,1} = this_signal;
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
                     end
                 end
                 %
@@ -513,9 +501,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end
                     
                 end
-                %
-                %
             end
+            %
         end
     end
    

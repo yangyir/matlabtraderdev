@@ -10,9 +10,9 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
         %to check whether there is a valid signal
         if isempty(signal_long) && isempty(signal_short), continue; end
         
-        if ~isempty(signal_long) && ~isempty(signal_short)
-           fprintf('found\n'); 
-        end
+%         if ~isempty(signal_long) && ~isempty(signal_short)
+%            fprintf('found\n'); 
+%         end
         sum_direction = 0;
         if ~isempty(signal_long), sum_direction = sum_direction + abs(signal_long(1));end
         if ~isempty(signal_short), sum_direction = sum_direction + abs(signal_short(1));end

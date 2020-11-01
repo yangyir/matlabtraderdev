@@ -276,7 +276,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
                 if lips(end) > teeth(end)
                     output = struct('use',1,'comment','volblowup');
                 else
-                    output = struct('use',1,'comment','volblowup-alligatorfailed');
+                    output = struct('use',0,'comment','volblowup-alligatorfailed');
                 end
                 return
             else
