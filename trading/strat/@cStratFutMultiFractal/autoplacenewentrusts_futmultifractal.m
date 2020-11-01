@@ -5,23 +5,11 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
     n = stratfractal.count;
     instruments = stratfractal.getinstruments;
     for i = 1:n
-        signal_long = signals{i,1};
-        signal_short = signals{i,2};
+        signal = signals(i,1);
         %to check whether there is a valid signal
-        if isempty(signal_long) && isempty(signal_short), continue; end
-        
-        if ~isempty(signal_long) && ~isempty(signal_short)
-           fprintf('found\n'); 
-        end
-        sum_direction = 0;
-        if ~isempty(signal_long), sum_direction = sum_direction + abs(signal_long(1));end
-        if ~isempty(signal_short), sum_direction = sum_direction + abs(signal_short(1));end
-        if sum_direction == 0, continue;end
-        %
-        sum_use = 0;
-        if ~isempty(signal_long), sum_use = sum_use + abs(signal_long(4));end
-        if ~isempty(signal_short), sum_use = sum_use + abs(signal_short(4));end
-        if sum_use == 0, continue;end
+        if isempty(signal), continue; end
+        if signal == 0, continue;end
+        if signals(i,4) == 0, continue;end
 
         %to check whether the instrument is set with autotrade flag
         instrument = instruments{i};
@@ -81,26 +69,26 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
             stratfractal.helper_.getcounter.withdrawEntrust(e);
         end
 
-        if ~isempty(signal_short) && signal_short(1) == -1
+        if signal < 0
             type = 'breachdn-S';
-            if signal_short(4) == -2 || signal_short(4) == -3 || signal_short(4) == -4
+            if signals(i,4) == -2 || signals(i,4) == -3 || signals(i,4) == -4
                 %here we place conditional entrust or an entrust directly
                 %if the price is below LL already
                 ticksize = instrument.tick_size;
                 nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
-                if signal_short(4) == -2
+                if signals(i,4) == -2
                     mode = 'conditional-dntrendconfirmed';
-                elseif signal_short(4) == -3
+                elseif signals(i,4) == -3
                     mode = 'conditional-close2lvldn';
-                elseif signal_short(4) == -4
+                elseif signals(i,4) == -4
                     mode = 'conditional-breachdnlvldn';
                 end
                 info = struct('name','fractal','type',type,...
-                        'hh',signal_short(2),'ll',signal_short(3),'mode',mode,'nfractal',nfractals,...
-                        'hh1',signal_short(5),'ll1',signal_short(6));
-                if bid < signal_short(3) && bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
+                        'hh',signals(i,2),'ll',signals(i,3),'mode',mode,'nfractal',nfractals,...
+                        'hh1',signals(i,5),'ll1',signals(i,6));
+                if bid < signals(i,3) && bid > signals(i,3)-1.618*(signals(i,2)-signals(i,3))
                     stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
-                elseif bid > signal_short(3)
+                elseif bid > signals(i,3)
                     %conditional entrust shall be placed
                     ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
                     ncondpendingvolume = 0;
@@ -111,52 +99,49 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                             ncondpendingvolume = ncondpendingvolume + epending.volume;
                         end                                
                     end
-                    if ncondpendingvolume < volume
-                        if signal_short(4) == -2
-                            stratfractal.condshortopen(instrument.code_ctp,signal_short(3)-2*ticksize,volume,'signalinfo',info);
-                        elseif signal_short(4) == -3
-                            stratfractal.condshortopen(instrument.code_ctp,signal_short(3),volume,'signalinfo',info);
-                        elseif signal_short(4) == -4
-                            stratfractal.condshortopen(instrument.code_ctp,signal_short(3),volume,'signalinfo',info);
-                        end
+                    if ncondpendingvolume >= volume, continue;end
+                    if signals(i,4) == -2
+                        stratfractal.condshortopen(instrument.code_ctp,signals(i,3)-2*ticksize,volume,'signalinfo',info);
+                    elseif signals(i,4) == -3
+                        stratfractal.condshortopen(instrument.code_ctp,signals(i,3),volume,'signalinfo',info);
+                    elseif signals(i,4) == -4
+                        stratfractal.condshortopen(instrument.code_ctp,signals(i,3),volume,'signalinfo',info);
                     end
                 end
             else
-                if signal_short(4) == 1
+                if signals(i,4) == 1
                     mode = 'breachdn-lvldn';
                 else
                     mode = 'unset';
                 end
-                if bid < signal_short(3) && bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
+                if bid < signals(i,3) && bid > signals(i,3)-1.618*(signals(i,2)-signals(i,3))
                     nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                     info = struct('name','fractal','type',type,...
-                        'hh',signal_short(2),'ll',signal_short(3),'mode',mode,'nfractal',nfractals,...
-                        'hh1',signal_short(5),'ll1',signal_short(6));
+                        'hh',signals(i,2),'ll',signals(i,3),'mode',mode,'nfractal',nfractals,...
+                        'hh1',signals(i,5),'ll1',signals(i,6));
                     stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
                 end
             end
-        end
-        %
-        if ~isempty(signal_long) && signal_long(1) == 1
+        else
             type = 'breachup-B';
-            if signal_long(4) == 2 || signal_long(4) == 3 || signal_long(4) == 4
+            if signals(i,4) == 2 || signals(i,4) == 3 || signals(i,4) == 4
                 %here we place conditional entrust or an entrust directly
                 %if the price is above HH already
                 ticksize = instrument.tick_size;
                 nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
-                if signal_long(4) == 2
+                if signals(i,4) == 2
                     mode = 'conditional-uptrendconfirmed';
-                elseif signal_long(4) == 3
+                elseif signals(i,4) == 3
                     mode = 'conditional-close2lvlup';
-                elseif signal_long(4) == 4
+                elseif signals(i,4) == 4
                     mode = 'conditional-breachuplvlup';
                 end                
                 info = struct('name','fractal','type',type,...
-                        'hh',signal_long(2),'ll',signal_long(3),'mode',mode,'nfractal',nfractals,...
-                        'hh1',signal_long(5),'ll1',signal_long(6));
-                if ask > signal_long(2)+ticksize && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
+                        'hh',signals(i,2),'ll',signals(i,3),'mode',mode,'nfractal',nfractals,...
+                        'hh1',signals(i,5),'ll1',signals(i,6));
+                if ask > signals(i,2)+ticksize && ask < signals(i,2)+1.618*(signals(i,2)-signals(i,3))
                     stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
-                elseif ask < signal_long(2)
+                elseif ask < signals(i,2)
                     %conditional entrust shall be placed
                     ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
                     ncondpendingvolume = 0;
@@ -167,32 +152,31 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                             ncondpendingvolume = ncondpendingvolume + epending.volume;
                         end                                
                     end
-                    if ncondpendingvolume < volume
-                        if signal_long(4) == 2
-                            stratfractal.condlongopen(instrument.code_ctp,signal_long(2)+2*ticksize,volume,'signalinfo',info);
-                        elseif signal_long(4) == 3
-                            stratfractal.condlongopen(instrument.code_ctp,signal_long(2),volume,'signalinfo',info);
-                        elseif signal_long(4) == 4
-                            stratfractal.condlongopen(instrument.code_ctp,signal_long(2),volume,'signalinfo',info);
-                        end
+                    if ncondpendingvolume >= volume, continue;end
+                    if signals(i,4) == 2
+                        stratfractal.condlongopen(instrument.code_ctp,signals(i,2)+2*ticksize,volume,'signalinfo',info);
+                    elseif signals(i,4) == 3
+                        stratfractal.condlongopen(instrument.code_ctp,signals(i,2),volume,'signalinfo',info);
+                    elseif signals(i,4) == 4
+                        stratfractal.condlongopen(instrument.code_ctp,signals(i,2),volume,'signalinfo',info);
                     end
                 end
             else                
-                if signal_long(4) == 1
+                if signals(i,4) == 1
                     mode = 'breachup-lvlup';
                 else
                     mode = 'unset';
                 end
-                if ask > signal_long(2) && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
+                if ask > signals(i,2) && ask < signals(i,2)+1.618*(signals(i,2)-signals(i,3))
                     nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                     info = struct('name','fractal','type',type,...
-                        'hh',signal_long(2),'ll',signal_long(3),'mode',mode,'nfractal',nfractals,...
-                        'hh1',signal_long(5),'ll1',signal_long(6));
+                        'hh',signals(i,2),'ll',signals(i,3),'mode',mode,'nfractal',nfractals,...
+                        'hh1',signals(i,5),'ll1',signals(i,6));
                     stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
                 end
             end
         end
-        %
+
     end    
     
 end

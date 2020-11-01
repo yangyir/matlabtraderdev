@@ -7,8 +7,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
 %in case the market moves against the strategy
 
     n = stratfractal.count;
-%     signals = zeros(n,6);
-    signals = cell(n,2);
+    signals = zeros(n,6);
     %column1:direction
     %column2:fractal hh
     %column3:fractal ll
@@ -160,14 +159,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     %entrust just one tick above lvlup
                     status = fractal_b1_status(nfractal,extrainfo,ticksize);
                     if status.isclose2lvlup
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = 1;
-                        this_signal(1,2) = lvlup(end);                          %here replace HH with lvlup
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = 3;                                   %special key for closetolvlup
-                        signals{i,1} = this_signal;
+                        signals(i,1) = 1;
+                        signals(i,2) = lvlup(end);                          %here replace HH with lvlup
+                        signals(i,3) = ll(end);
+                        signals(i,5) = p(end,3);
+                        signals(i,6) = p(end,4);
+                        signals(i,4) = 3;                                   %special key for closetolvlup
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:closetolvlup');
                     else
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
@@ -177,22 +174,20 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         p(end,5) < hh(end)+1.618*(hh(end)-ll(end)) & ...
                         p(end,5) > lips(end);
                     if validlongopen
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = 1;                                   %breach hh buy
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
+                        signals(i,1) = 1;                                   %breach hh buy
+                        signals(i,2) = hh(end);
+                        signals(i,3) = ll(end);
+                        signals(i,5) = p(end,3);
+                        signals(i,6) = p(end,4);
                         switch op.comment
                             %TODO
                             case 'breachup-lvlup'
-                                this_signal(1,4) = 1;
+                                signals(i,4) = 1;
                             case 'volblowup'
-                                this_signal(1,4) = 1;
+                                signals(i,4) = 1;
                             otherwise
-                                this_signal(1,4) = 1;
+                                signals(i,4) = 1;
                         end
-                        signals{i,1} = this_signal;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
                         continue;
                     end
@@ -230,42 +225,38 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     %entrust just one tick below lvldn
                     status = fractal_s1_status(nfractal,extrainfo,ticksize);
                     if status.isclose2lvldn
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = -1;
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = lvldn(end);                          %here replace LL with lvldn
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = -3;                                  %special key for closetolvldn
+                        signals(i,1) = -1;
+                        signals(i,2) = hh(end);
+                        signals(i,3) = lvldn(end);                          %here replace LL with lvldn
+                        signals(i,5) = p(end,3);
+                        signals(i,6) = p(end,4);
+                        signals(i,4) = -3;                                  %special key for closetolvldn
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:closetolvldn');
-                        signals{i,2} = this_signal;
                     else
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
-                    end                    
+                    end
                 else
                     validshortopen = p(end,5)<p(end,4)+0.382*(hh(end)-p(end,4)) & ...
                         p(end,5)>ll(end)-1.618*(hh(end)-ll(end)) & ...
                         p(end,5)<lips(end);
                     if validshortopen
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = -1;                                          %breach ll sell
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
+                        signals(i,1) = -1;                                          %breach ll sell
+                        signals(i,2) = hh(end);
+                        signals(i,3) = ll(end);
+                        signals(i,5) = p(end,3);
+                        signals(i,6) = p(end,4);
                         switch op.comment
                             %TODO
                             case 'breachdn-lvldn'
-                                this_signal(1,4) = 1;
+                                signals(i,4) = 1;
                             case 'volblowup'
-                                this_signal(1,4) = 1;
+                                signals(i,4) = 1;
                             case 'breachdn-bshighvalue'
-                                this_signal(1,4) = 1;
+                                signals(i,4) = 1;
                             otherwise
-                                this_signal(1,4) = 1;
+                                signals(i,4) = 1;
                         end
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
-                        signals{i,2} = this_signal;
                     end
                 end
                 %
@@ -397,19 +388,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & p(end,5)<hh(end);
                 if aboveteeth
                     %TREND has priority over TDST breakout
-                    this_signal = zeros(1,6);
-                    this_signal(1,1) = 1;
-                    this_signal(1,2) = hh(end);
-                    this_signal(1,3) = ll(end);
-                    this_signal(1,5) = p(end,3);
-                    this_signal(1,6) = p(end,4);
-                    this_signal(1,4) = 2;
+                    signals(i,1) = 1;
+                    signals(i,2) = hh(end);
+                    signals(i,3) = ll(end);
+                    signals(i,5) = p(end,3);
+                    signals(i,6) = p(end,4);
+                    signals(i,4) = 2;
                     if teeth(end)>jaw(end)
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:strongbreach-trendconfirmed');
                     else
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:mediumbreach-trendconfirmed');
                     end
-                    signals{i,1} = this_signal;
                 else
                     if hhabovelvlup && p(end,3)>lvldn(end)
                         signals(i,1) = 1;
@@ -427,24 +416,20 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         signals(i,6) = p(end,4);
                         signals(i,4) = 4;
                     if hhabovelvlup
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = 1;
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = 4;
-                        signals{i,1} = this_signal;
+                        signals(i,1) = 1;
+                        signals(i,2) = hh(end);
+                        signals(i,3) = ll(end);
+                        signals(i,5) = p(end,3);
+                        signals(i,6) = p(end,4);
+                        signals(i,4) = 4;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
                     elseif hhbelowlvlup
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = 1;
-                        this_signal(1,2) = lvlup(end);
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = 4;
-                        signals{i,1} = this_signal;
+                        signals(i,1) = 1;
+                        signals(i,2) = lvlup(end);
+                        signals(i,3) = ll(end);
+                        signals(i,5) = p(end,3);
+                        signals(i,6) = p(end,4);
+                        signals(i,4) = 4;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
                     end
                 end
@@ -474,18 +459,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'));
                 
                 if belowteeth
-                    this_signal = zeros(1,6);
-                    this_signal(1,1) = -1;
-                    this_signal(1,2) = hh(end);
-                    this_signal(1,3) = ll(end);
-                    this_signal(1,5) = p(end,3);
-                    this_signal(1,6) = p(end,4);
+                    signals(i,1) = -1;
+                    signals(i,2) = hh(end);
+                    signals(i,3) = ll(end);
+                    signals(i,5) = p(end,3);
+                    signals(i,6) = p(end,4);
                     if ~llbelowlvldn
-                        this_signal(1,4) = -2;
+                        signals(i,4) = -2;
                     else
-                        this_signal(1,4) = -4;
+                        signals(i,4) = -4;
                     end
-                    signals{i,2} = this_signal;
                     if llbelowlvldn
                         if teeth(end)<jaw(end)
                             fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed-llbelowlvldn');
@@ -501,14 +484,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end
                 else
                     if llbelowlvldn
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = -1;
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = -4;
-                        signals{i,2} = this_signal;
+                        signals(i,1) = -1;
+                        signals(i,2) = hh(end);
+                        signals(i,3) = ll(end);
+                        signals(i,5) = p(end,3);
+                        signals(i,6) = p(end,4);
+                        signals(i,4) = -4;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');
                     end
                     
@@ -520,19 +501,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
     end
    
     
-    sum_signal = 0;
-    for i = 1:n
-        signal_long = signals{i,1};
-        signal_short = signals{i,2};
-        if ~isempty(signal_long)
-            sum_signal = sum_signal + abs(signal_long(1));
-        end
-        if ~isempty(signal_short)
-            sum_signal = sum_signal + abs(signal_short(1));
-        end
-    end
     
-    if sum_signal == 0, return;end
+    
+    if sum(abs(signals(:,1))) == 0, return;end
     
     fprintf('\n');
 end
