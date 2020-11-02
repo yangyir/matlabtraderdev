@@ -92,10 +92,12 @@ function [] = loadtrades(obj,varargin)
                             trade_i.riskmanager_.wadopen_ = wad(iopen);
                             trade_i.riskmanager_.wadhigh_ = max(wad(iopen:end));
                             trade_i.riskmanager_.cphigh_ = max(px(iopen:end,5));
+                            trade_i.riskmanager_.status_ = 'set';
                         elseif trade_i.opendirection_ == -1
                             trade_i.riskmanager_.wadopen_ = wad(iopen);
                             trade_i.riskmanager_.wadlow_ = min(wad(iopen:end));
                             trade_i.riskmanager_.cplow_ = min(px(iopen:end,5));
+                            trade_i.riskmanager_.status_ = 'set';
                         end
                     end
                 end
