@@ -12,7 +12,8 @@ exp_aug = '2020-08-26';
 exp_sep = '2020-09-23';
 exp_oct = '2020-10-28';
 exp_nov = '2020-11-25';
-k_300 = [3.4:0.1:5.0,5.25,5.5];
+exp_dec = '2020-12-23';
+k_300 = [3.4:0.1:5.0,5.25,5.5,5.75,6];
 % opt300_c_feb = cell(length(k_300),1);opt300_p_feb = opt300_c_feb;
 % opt300_c_mar = cell(length(k_300),1);opt300_p_mar = opt300_c_mar;
 % opt300_c_apr = cell(length(k_300),1);opt300_p_apr = opt300_c_apr;
@@ -40,10 +41,12 @@ for i = 1:length(k_300)
 %     opt300_p_aug{i} = ['510300 CH ',datestr(exp_aug,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
 %     opt300_c_sep{i} = ['510300 CH ',datestr(exp_sep,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
 %     opt300_p_sep{i} = ['510300 CH ',datestr(exp_sep,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
-    opt300_c_oct{i} = ['510300 CH ',datestr(exp_oct,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
-    opt300_p_oct{i} = ['510300 CH ',datestr(exp_oct,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
+%     opt300_c_oct{i} = ['510300 CH ',datestr(exp_oct,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
+%     opt300_p_oct{i} = ['510300 CH ',datestr(exp_oct,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
     opt300_c_nov{i} = ['510300 CH ',datestr(exp_nov,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
     opt300_p_nov{i} = ['510300 CH ',datestr(exp_nov,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
+    opt300_c_dec{i} = ['510300 CH ',datestr(exp_dec,'mm/dd/yy'),' C',num2str(k_300(i)),' Equity'];
+    opt300_p_dec{i} = ['510300 CH ',datestr(exp_dec,'mm/dd/yy'),' P',num2str(k_300(i)),' Equity'];
 end
 %%
 db = cLocal;
@@ -55,8 +58,8 @@ fprintf('last date recorded on local file is %s\n',datestr(hd_300etf(end,1)));
 % shift = 60;
 % tools_technicalplot2(op_300etf(end-shift:end,:));
 %%
-opt300_c_1 = opt300_c_nov;
-opt300_p_1 = opt300_p_nov;
+opt300_c_1 = opt300_c_dec;
+opt300_p_1 = opt300_p_dec;
 n_opt300c = length(k_300);
 bd_opt300c_1 = cell(n_opt300c,1);
 tbl_opt300c_1 = [k_300',zeros(length(k_300),3)];
