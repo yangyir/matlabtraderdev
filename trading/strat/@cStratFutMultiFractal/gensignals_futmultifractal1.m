@@ -379,7 +379,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 aboveteeth = aboveteeth & p(end,5)<hh(end);
                 last2hhidx = find(idxHH(1:end)==1,2,'last');
                 last2hh = hh(last2hhidx);
-                if size(last2hhidx,1) == 2
+                if size(last2hhidx,1) == 2 && aboveteeth
                     aboveteeth = aboveteeth & last2hh(2) > last2hh(1);     
                 end
                 %1b.HH在TDST level up的上方；

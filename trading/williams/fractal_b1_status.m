@@ -77,7 +77,7 @@ end
 issshighbreach = 0;
 if size(ss,1)-lastss9+1<=nkfromhh
     lastssval = ss(lastss);
-    issshighbreach = px(end,5) > max(px(lastss-lastssval+1:lastss,3));
+    issshighbreach = px(end,5) > max(px(lastss-lastssval+1:min(lastss,size(px,1)-1),3));
 end
 %does it stand beyond a sell sequential with highest high and close price
 issshighvalue = ss(end)>= 9 && px(end,5)>=max(px(end-ss(end)+1:end,5)) && px(end,3)>=max(px(end-ss(end)+1:end,3));
@@ -89,7 +89,7 @@ if isempty(lastsc13)
     isschighbreach = 0;
 else
     nkfromsc13 = size(px,1)-lastsc13;
-    isschighbreach = px(end,5)>max(px(lastsc13:end-1,3));
+    isschighbreach = px(end,5)>=max(px(lastsc13:end-1,3));
 end
 %
 %all the special case above passed

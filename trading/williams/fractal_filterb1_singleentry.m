@@ -211,6 +211,12 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
                 return
             end
         end
+        if ss(end) > 9
+            if px(end,5) > max(px(end-ss(end):end-1,3))
+                output = struct('use',1,'comment','breachup-sshighvalue');
+                return
+            end
+        end
         %
         if teethjawcrossed
             barsizelast = px(end,3)-px(end,4);
