@@ -5,12 +5,12 @@ try
 catch
 end
 %
-codes = {'p2101'};
+codes = {'IH2012'};
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'book11';
+bookname = 'book15';
 strategyname = 'fractal';
-riskconfigfilename = 'config_book11.txt';
+riskconfigfilename = 'config_book15.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
@@ -24,9 +24,9 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2020-09-21','replaytodate','2020-09-22');
+    'replayfromdate','2020-11-27','replaytodate','2020-11-30');
 combo.strategy.displaysignalonly_ = false;
-combo.mdefut.printflag_ = false;
+combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
