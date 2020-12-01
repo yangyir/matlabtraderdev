@@ -17,7 +17,7 @@ classdef cTradeOpen < handle
         closepnl_@double
         status_@char
         oneminb4close1_@double
-        oneminb4close2_@double
+        oneminb4close2_@double = inf
         %
     end
     
