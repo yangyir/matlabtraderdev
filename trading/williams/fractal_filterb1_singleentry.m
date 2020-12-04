@@ -58,7 +58,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
         end
         %keep if it breaches the hh after sc13
         lastsc13 = find(sc(1:end-1)==13,1,'last');
-        if ~isempty(lastsc13) && size(px,1)-lastsc13<9 &&px(end,5)>max(px(lastsc13:end-1,3))
+        if ~isempty(lastsc13) && size(px,1)-lastsc13<9 &&px(end,5)>=max(px(lastsc13:end-1,3))
             if ss(end) < 9
                 output = struct('use',1,'comment','breachup-highsc13');
             else
@@ -82,10 +82,10 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
             barsizelast = abs(px(end,5)-px(end-1,5));
             isvolblowup2 = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup2
-                if ss(end) <= 1
-                    output = struct('use',0,'comment','volblowup2-ss1');
-                else
+                if lips(end) > teeth(end)
                     output = struct('use',1,'comment','volblowup2');
+                else
+                    output = struct('use',0,'comment','volblowup2-alligatorfailed');
                 end
                 return
             end
@@ -257,7 +257,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
             end
             %keep if it breachs the hh after sc13
             lastsc13 = find(sc(1:end-1)==13,1,'last');
-            if ~isempty(lastsc13) && size(px,1)-lastsc13<12 &&px(end,5)>max(px(lastsc13:end-1,3))
+            if ~isempty(lastsc13) && size(px,1)-lastsc13<12 &&px(end,5)>=max(px(lastsc13:end-1,3))
                 if ss(end) < 9
                     if px(end,5)<px(end,2) 
                         if status.issshighbreach
@@ -277,7 +277,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
             %
             barsizelast = px(end,3)-px(end,4);
             barsizerest = px(end-nkfromhh+1:end-1,3)-px(end-nkfromhh+1:end-1,4);
-            isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+            isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup
                 if lips(end) > teeth(end)
                     output = struct('use',1,'comment','volblowup');
@@ -287,12 +287,12 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
                 return
             else
                 barsizelast = abs(px(end,5)-px(end-1,5));
-                isvolblowup2 = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+                isvolblowup2 = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
                 if isvolblowup2
-                    if ss(end) <= 1
-                        output = struct('use',0,'comment','volblowup2-ss1');
-                    else
+                    if lips(end) > teeth(end)
                         output = struct('use',1,'comment','volblowup2');
+                    else
+                        output = struct('use',0,'comment','volblowup2-alligatorfailed');
                     end
                     return
                 end

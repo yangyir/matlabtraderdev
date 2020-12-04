@@ -48,7 +48,30 @@ function [] = savetrades(obj,varargin)
 %         obj.trades_.totxt(fn_);
         %note 20190218
         %from 20190218 onwards, we will save/load trades in the new format
-        obj.trades_.totxt2(fn_);
+        %20201204
+        %first check whether the file exists
+        oldtrades = cTradeOpenArray;
+        try
+            oldtrades.fromtxt2(fn_);
+            closedtrades = oldtrades.filterby('Status','closed');
+        catch
+            closedtrades = cTradeOpenArray;
+        end
+        %second:add back closed trades for record purpose
+        if closedtrades.latest_ > 0
+            savedtrades = cTradeOpenArray;
+            for itrade = 1:closedtrades.latest_
+                if closedtrades.node_(itrade).opendatetime1_ > getlastbusinessdate(t)+ 0.375
+                    savedtrades.push(closedtrades.node_(itrade));
+                end
+            end
+            for itrade = 1:obj.trades_.latest_
+                savedtrades.push(obj.trades_.node_(itrade));
+            end
+            savedtrades.totxt2(fn_);
+        else
+            obj.trades_.totxt2(fn_);
+        end
         fprintf('cOps:savetrades on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
     end
     %

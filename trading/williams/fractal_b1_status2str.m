@@ -20,6 +20,14 @@ function [outputstr] = fractal_b1_status2str(status)
         outputstr = [outputstr,'-breachup-lvlup'];
     end
     
+    if status.issshighbreach
+        outputstr = [outputstr,'-sshighvalue'];
+    end
+    
+    if status.isschighbreach
+        outputstr = [outputstr,'-highsc13'];
+    end
+    
     if status.istrendconfirmed
         outputstr = [outputstr,'-trendconfirmed'];
     else

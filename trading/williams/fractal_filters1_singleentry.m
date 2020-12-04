@@ -76,10 +76,10 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticks
             barsizelast = abs(px(end,5)-px(end-1,5));
             isvolblowup2 = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup2
-                if bs(end) <= 1
-                    output = struct('use',0,'comment','volblowup2-bs1');
-                else
+                if lips(end) < teeth(end)
                     output = struct('use',1,'comment','volblowup2');
+                else
+                    output = struct('use',0,'comment','volblowup2-alligatorfailed');
                 end
                 return
             end
@@ -258,7 +258,7 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticks
             %
             barsizelast = px(end,3)-px(end,4);
             barsizerest = px(end-nkfromll+1:end-1,3)-px(end-nkfromll+1:end-1,4);
-            isvolblowup = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+            isvolblowup = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
             if isvolblowup
                 if lips(end) < teeth(end)
                     output = struct('use',1,'comment','volblowup');
@@ -268,12 +268,12 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticks
                 return
             else
                 barsizelast = abs(px(end,5)-px(end-1,5));
-                isvolblowup2 = barsizelast > mean(barsizerest) + 2.58*std(barsizerest);
+                isvolblowup2 = barsizelast > mean(barsizerest) + norminv(0.99)*std(barsizerest);
                 if isvolblowup2
-                    if bs(end) <= 1
-                        output = struct('use',0,'comment','volblowup2-bs1');
-                    else
+                    if lips(end) < teeth(end)
                         output = struct('use',1,'comment','volblowup2');
+                    else
+                        output = struct('use',0,'comment','volblowup2-alligatorfailed');
                     end
                     return
                 end
