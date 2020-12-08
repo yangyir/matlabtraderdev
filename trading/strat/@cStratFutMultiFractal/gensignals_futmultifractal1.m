@@ -382,6 +382,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if size(last2hhidx,1) == 2 && aboveteeth
                     aboveteeth = aboveteeth & last2hh(2) > last2hh(1);     
                 end
+                [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
+                aboveteeth = aboveteeth & ~isteethjawcrossed;
                 %1b.HH在TDST level up的上方；
                 %HH大于alligator teeth
                 %最新的收盘价还在HH的下方
@@ -414,7 +416,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals{i,1} = this_signal;
                 else
                     %NOT ABOVE TEETH
-                    if hhabovelvlup && p(end,3)>lvldn(end)
+%                     if hhabovelvlup && p(end,3)>lvldn(end)
+                    if hhabovelvlup
                         this_signal = zeros(1,6);
                         this_signal(1,1) = 1;
                         this_signal(1,2) = hh(end);                             %HH is already above TDST-lvlup
@@ -450,6 +453,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if size(last2ll) == 2
                     belowteeth = belowteeth & last2ll(2) < last2ll(1);          
                 end
+                [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
+                belowteeth = belowteeth & ~isteethjawcrossed;
                 %2b.LL在TDST level dn的下方；
                 %LL小于alligator teeth
                 %且最新的收盘价还在LL的上方
