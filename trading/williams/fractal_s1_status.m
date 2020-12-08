@@ -88,10 +88,10 @@ isbslowvalue = bs(end)>=9 && px(end,5) <= min(px(end-bs(end)+1:end,5)) && px(end
 lastbc13 = find(bc(1:end-1)==13,1,'last');
 if isempty(lastbc13)
     nkfrombc13 = NaN;
-    isbclowbreach = 0;
+    isbclowbreach = false;
 else
     nkfrombc13 = size(px,1)-lastbc13;
-    isbclowbreach = px(end,5)<min(px(lastbc13:end-1,4));
+    isbclowbreach = px(end,5)<min(px(lastbc13:end-1,4)) & nkfrombc13 < 12;
 end
 %all the special case above passed
 %and to check whether there are 2*nfractal+1 candles stay below teeth

@@ -86,10 +86,10 @@ issshighvalue = ss(end)>= 9 && px(end,5)>=max(px(end-ss(end)+1:end,5)) && px(end
 lastsc13 = find(sc(1:end-1)==13,1,'last');
 if isempty(lastsc13)
     nkfromsc13 = NaN;
-    isschighbreach = 0;
+    isschighbreach = false;
 else
     nkfromsc13 = size(px,1)-lastsc13;
-    isschighbreach = px(end,5)>=max(px(lastsc13:end-1,3));
+    isschighbreach = px(end,5)>=max(px(lastsc13:end-1,3)) & nkfromsc13<12;
 end
 %
 %all the special case above passed
