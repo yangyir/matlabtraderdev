@@ -140,7 +140,7 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
             end
             %
             hasbreachedll = ~isempty(find(px(end-nkfromhh+1:end-1,5)-LL(end-nkfromhh+1:end-1)<0,1,'first'));
-            if ~hasbreachedll && nkaboveteeth > nfractal+1
+            if ~hasbreachedll && status.istrendconfirmed
                 output = struct('use',1,'comment','mediumbreach-trendconfirmed');
                 return
             end

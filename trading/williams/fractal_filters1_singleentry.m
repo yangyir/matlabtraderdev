@@ -21,6 +21,8 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticks
     jaw = extrainfo.jaw;
     wad = extrainfo.wad;
     
+    status = fractal_s1_status(nfractal,extrainfo);
+    
     if bc(end) == 13 && lips(end)<teeth(end)&&teeth(end)<jaw(end)
         output = struct('use',0,'comment','bc13');
         return
@@ -234,7 +236,7 @@ function [output] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticks
             end
             %
             hasbreachhh = ~isempty(find(px(end-nkfromll+1:end-1,5)-HH(end-nkfromll+1:end-1)>0,1,'first'));
-            if ~hasbreachhh && nkbelowteeth2 > nfractal+1
+            if ~hasbreachhh && status.istrendconfirmed
                 output = struct('use',1,'comment','strongbreach-trendconfirmed');
                 return
             end
