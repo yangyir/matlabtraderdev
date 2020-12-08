@@ -54,9 +54,8 @@ barsizelast = px(end,3)-px(end,4);
 barsizerest = px(end-nkfromhh+1:end-1,3)-px(end-nkfromhh+1:end-1,4);
 isvolblowup = (barsizelast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
 %isvolblowup2
-retlast = log(px(end,5)/px(end-1,5));
-retrest = log(px(end-nkfromhh+1:end-1,5)./px(end-nkfromhh:end-2,5));
-isvolblowup2 = abs(retlast-mean(retrest))/std(retrest)>norminv(0.99);
+retlast = abs(px(end,5)-px(end-1,5));
+isvolblowup2 = (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
 %
 lastss9 = find(ss==9,1,'last');
 if isempty(lastss9)
@@ -95,7 +94,7 @@ end
 %all the special case above passed
 %and to check whether there are 2*nfractal+1 candles stay above teeth
 %before it breach the fractal hh
-istrendconfirmed = nkaboveteeth>=2*nfractal+1;
+istrendconfirmed = nkaboveteeth>2*nfractal+1;
 if ~istrendconfirmed
     %1.in case all candles are above teeth since hh formed but there are
     %less than 2*nfractal+1 candles since then, we include candles before
