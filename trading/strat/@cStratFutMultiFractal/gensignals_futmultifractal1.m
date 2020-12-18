@@ -374,7 +374,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %teeth的上方，在HH的上方挂买单
                 %且最新的收盘价还在HH的下方
                 %且最新的HH比前一个HH高，证明趋势向上
-                aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+%                 aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                aboveteeth = isempty(find(p(end-2*nfractal:end,5)-teeth(end-2*nfractal:end)+2*ticksize<0,1,'first'));
                 aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
                 aboveteeth = aboveteeth & p(end,5)<hh(end);
                 last2hhidx = find(idxHH(1:end)==1,2,'last');
@@ -445,7 +446,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %teeth的下方，在LL的下方一个tick挂卖单
                 %且最新的收盘价还在LL的上方
                 %且最新的LL比前一个LL低，证明趋势向下
-                belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+%                 belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+                belowteeth = isempty(find(p(end-2*nfractal:end,5)-teeth(end-2*nfractal:end)-2*ticksize>0,1,'first'));
                 belowteeth = belowteeth & ll(end)-teeth(end)<=-ticksize;
                 belowteeth = belowteeth & p(end,5)>ll(end);
                 last2llidx = find(idxLL(1:end)==1,2,'last');
