@@ -4,8 +4,12 @@ function [outputstr] = fractal_s1_status2str(status)
     elseif status.s1type == 3
         outputstr = 'strongbreach';
     else
-        outputstr = 'weakbreach';
-        return
+        if ~status.islvldnbreach
+            outputstr = 'weakbreach';
+            return
+        else
+            outputstr = 'weakbreach';
+        end
     end
     
     if status.isvolblowup
@@ -17,6 +21,14 @@ function [outputstr] = fractal_s1_status2str(status)
     
     if status.islvldnbreach
         outputstr = [outputstr,'-breachdn-lvldn'];
+    end
+    
+    if status.isbslowbreach
+        outputstr = [outputstr,'-bshighvalue'];
+    end
+    
+    if status.isbclowbreach
+        outputstr = [outputstr,'-highbc13'];
     end
     
     if status.istrendconfirmed

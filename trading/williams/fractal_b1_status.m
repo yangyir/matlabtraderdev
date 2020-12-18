@@ -54,9 +54,8 @@ barsizelast = px(end,3)-px(end,4);
 barsizerest = px(end-nkfromhh+1:end-1,3)-px(end-nkfromhh+1:end-1,4);
 isvolblowup = (barsizelast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
 %isvolblowup2
-retlast = log(px(end,5)/px(end-1,5));
-retrest = log(px(end-nkfromhh+1:end-1,5)./px(end-nkfromhh:end-2,5));
-isvolblowup2 = abs(retlast-mean(retrest))/std(retrest)>norminv(0.99);
+retlast = abs(px(end,5)-px(end-1,5));
+isvolblowup2 = (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
 %
 lastss9 = find(ss==9,1,'last');
 if isempty(lastss9)
