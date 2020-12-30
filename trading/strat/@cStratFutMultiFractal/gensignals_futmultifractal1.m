@@ -393,12 +393,14 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 hhabovelvlup = hh(end)>=lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & p(end,5)<hh(end) ...
+                    & lips(end)>teeth(end) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first'));
                 %1c.HH在TDST level up的下方；
                 %HH大于alligator teeth
                 %最新的收盘价还在HH的下方
                 hhbelowlvlup = hh(end)<lvlup(end) ...
                     & hh(end)>teeth(end) ...
+                    & lips(end)>teeth(end) ...
                     & p(end,5)<hh(end);
                 if aboveteeth
                     %TREND has priority over TDST breakout
@@ -462,51 +464,57 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %且最新的收盘价还在LL的上方
                 %且K线的最低价在level dn的下方
                 %如果向下穿透LL则必然已经穿透TDST level dn
-
                 llbelowlvldn = ll(end)<=lvldn(end) ...
                     & ll(end)<teeth(end) ...
                     & p(end,5)>ll(end) ...
+                    & lips(end)<teeth(end) ...
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'));
+                %2c.LL在TDST level dn的上方；
+                %LL小于alligator teeth
+                %且最新的收盘价还在LL的上方
+                llabovelvldn = ll(end)>lvldn(end) ...
+                    & ll(end)<teeth(end) ...
+                    & lips(end)<teeth(end) ...
+                    & p(end,5)>ll(end);
                 
                 if belowteeth
+                    %TREND has priority over TDST breakout
                     this_signal = zeros(1,6);
                     this_signal(1,1) = -1;
                     this_signal(1,2) = hh(end);
                     this_signal(1,3) = ll(end);
                     this_signal(1,5) = p(end,3);
                     this_signal(1,6) = p(end,4);
-                    if ~llbelowlvldn
-                        this_signal(1,4) = -2;
+                    this_signal(1,4) = -2;
+                    if teeth(end)<jaw(end)
+                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
                     else
-                        this_signal(1,4) = -4;
+                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
                     end
                     signals{i,2} = this_signal;
-                    if llbelowlvldn
-                        if teeth(end)<jaw(end)
-                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed-llbelowlvldn');
-                        else
-                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed-llbelowlvldn');
-                        end
-                    else
-                        if teeth(end)<jaw(end)
-                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
-                        else
-                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
-                        end    
-                    end
                 else
+                    %NOT BELOW TEETH
                     if llbelowlvldn
                         this_signal = zeros(1,6);
                         this_signal(1,1) = -1;
                         this_signal(1,2) = hh(end);
-                        this_signal(1,3) = ll(end);
+                        this_signal(1,3) = ll(end);                         %LL is already below TDST-lvldn
                         this_signal(1,5) = p(end,3);
                         this_signal(1,6) = p(end,4);
                         this_signal(1,4) = -4;
                         signals{i,2} = this_signal;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');
-                    end
-                    
+                    elseif llabovelvldn && p(end,4)<lvlup(end)
+                        this_signal = zeros(1,6);
+                        this_signal(1,1) = -1;
+                        this_signal(1,2) = hh(end);
+                        this_signal(1,3) = lvldn(end);                      %LL is still above TDST-lvldn
+                        this_signal(1,5) = p(end,3);
+                        this_signal(1,6) = p(end,4);
+                        this_signal(1,4) = -4;
+                        signals{i,2} = this_signal;
+                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');
+                    end   
                 end
             end
             %
