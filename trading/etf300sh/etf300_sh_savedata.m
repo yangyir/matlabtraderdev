@@ -45,13 +45,18 @@ savedailybarfrombloomberg2(conn,'510300 CH Equity');
 %     savedailybarfrombloomberg2(conn,opt300_p_oct{i});
 % end
 %
-for i = 1:length(opt300_c_nov)
-    savedailybarfrombloomberg2(conn,opt300_c_nov{i});
-    savedailybarfrombloomberg2(conn,opt300_p_nov{i});
-end
+% for i = 1:length(opt300_c_nov)
+%     savedailybarfrombloomberg2(conn,opt300_c_nov{i});
+%     savedailybarfrombloomberg2(conn,opt300_p_nov{i});
+% end
 %
 for i = 1:length(opt300_c_dec)
     savedailybarfrombloomberg2(conn,opt300_c_dec{i});
     savedailybarfrombloomberg2(conn,opt300_p_dec{i});
+end
+%
+for i = 1:length(opt300_c_jan)
+    savedailybarfrombloomberg2(conn,opt300_c_jan{i});
+    savedailybarfrombloomberg2(conn,opt300_p_jan{i});
 end
 backhome;
