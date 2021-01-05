@@ -17,14 +17,17 @@ teeth = extrainfo.teeth;
 jaw = extrainfo.jaw;
 % wad = extrainfo.wad;
 
-if HH(end-1) < teeth(end-1)
-    b1type = 1;
-elseif HH(end-1) > teeth(end-1)
+% if HH(end-1) < teeth(end-1)
+%     b1type = 1;
+% elseif HH(end-1) > teeth(end-1)
+if HH(end-1) - teeth(end-1) > -ticksize
     if teeth(end-1) > jaw(end-1)
         b1type = 3;
     elseif teeth(end-1) < jaw(end-1)
         b1type = 2;
     end
+else
+    b1type = 1;
 end
 
 %islvlupbreach
@@ -77,6 +80,9 @@ issshighbreach = 0;
 if size(ss,1)-lastss9+1<=nkfromhh
     lastssval = ss(lastss);
     issshighbreach = px(end,5) > max(px(lastss-lastssval+1:min(lastss,size(px,1)-1),3));
+end
+if ~issshighbreach && ss(end) > 9
+    issshighbreach = px(end,5) > max(px(end-ss(end):end-1,3));
 end
 %does it stand beyond a sell sequential with highest high and close price
 issshighvalue = ss(end)>= 9 && px(end,5)>=max(px(end-ss(end)+1:end,5)) && px(end,3)>=max(px(end-ss(end)+1:end,3));

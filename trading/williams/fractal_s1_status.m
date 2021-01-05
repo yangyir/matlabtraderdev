@@ -17,14 +17,16 @@ teeth = extrainfo.teeth;
 jaw = extrainfo.jaw;
 % wad = extrainfo.wad;
 
-if LL(end-1) > teeth(end-1)
-    s1type = 1;
-elseif LL(end-1) < teeth(end-1)
+% if LL(end-1) > teeth(end-1)
+%     s1type = 1;
+if LL(end-1) - teeth(end-1) < ticksize
     if teeth(end-1) < jaw(end-1)
         s1type = 3;
     elseif teeth(end-1) > jaw(end-1)
         s1type = 2;
     end
+else
+    s1type = 1;
 end
 
 
@@ -79,9 +81,12 @@ if size(bs,1)-lastbs9+1<=nkfromll
     lastbsval = bs(lastbs);
     isbslowbreach = px(end,5) < min(px(lastbs-lastbsval+1:lastbs,4));
 end
+if ~isbslowbreach && bs(end) > 9
+    isbslowbreach = px(end,5) < min(px(end-bs(end):end-1,4));
+end
 %
 %does it stand beyond a buy sequential with lowest low and close price
-isbslowvalue = bs(end)>=9 && px(end,5) <= min(px(end-bs(end)+1:end,5)) && px(end,4) <= min(px(end-bs(end)+1:end,4));
+isbshighvalue = bs(end)>=9 && px(end,5) <= min(px(end-bs(end)+1:end,5)) && px(end,4) <= min(px(end-bs(end)+1:end,4));
 %
 %does it breach-dn ll after bc13
 lastbc13 = find(bc(1:end-1)==13,1,'last');
@@ -134,7 +139,7 @@ res = struct('s1type',s1type,...
     'alligatorstatus',alligatorstatus,...
     'bs',bs(end),...
     'nkfrombs',nkfrombs,...
-    'isbslowvalue',isbslowvalue,...
+    'isbshighvalue',isbshighvalue,...
     'isbslowbreach',isbslowbreach,...
     'bc',bc(end),...
     'nkfrombc13',nkfrombc13,...
