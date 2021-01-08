@@ -381,7 +381,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 last2hhidx = find(idxHH(1:end)==1,2,'last');
                 last2hh = hh(last2hhidx);
                 if size(last2hhidx,1) == 2 && aboveteeth
-                    aboveteeth = aboveteeth & last2hh(2) > last2hh(1);     
+                    if last2hh(2) > last2hh(1)
+                        aboveteeth = true;
+                    else
+                        %如果所有的K线都在alligator lips上方，还是多头趋势
+                        aboveteeth = isempty(find(p(end-2*nfractal:end,5)-lips(end-2*nfractal:end)+2*ticksize<0,1,'first'));
+                    end  
+%                     aboveteeth = aboveteeth & last2hh(2) > last2hh(1);
                 end
                 [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
                 aboveteeth = aboveteeth & ~isteethjawcrossed;
@@ -455,7 +461,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 last2llidx = find(idxLL(1:end)==1,2,'last');
                 last2ll = ll(last2llidx);
                 if size(last2ll) == 2
-                    belowteeth = belowteeth & last2ll(2) < last2ll(1);          
+                    if last2ll(2) < last2ll(1)
+                        belowteeth = true;
+                    else
+                        %已经连续2*nfractal的K线排列在alligator lips的下方；且LL形成在alligator
+                        belowteeth = isempty(find(p(end-2*nfractal:end,5)-lips(end-2*nfractal:end)-2*ticksize>0,1,'first'));
+                    end
                 end
                 [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
                 belowteeth = belowteeth & ~isteethjawcrossed;
