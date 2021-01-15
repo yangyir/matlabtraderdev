@@ -149,8 +149,10 @@ function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticks
     if b1type == 3
         %exclude when the market is extremely bullish
         if ss(end) >= 15
-            output = struct('use',0,'comment','strongbreach-sshighvalue');
-            return
+            if ~status.isschighbreach
+                output = struct('use',0,'comment','strongbreach-sshighvalue');
+                return
+            end
         end
         %
 %         [~,~,~,nkaboveteeth2,nkfromhh,teethjawcrossed] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw,ticksize);
