@@ -1,6 +1,8 @@
 function [ momentum ] = tdsq_momentum(p,bs,ss,lvlup,lvldn)
+
     lastbs9 = find(bs==9,1,'last');
     lastss9 = find(ss==9,1,'last');
+
     if isempty(lastbs9) && isempty(lastss9)
         %in case neither TDST Buy Sequential nor Sell Sequential is formed,
         %the market momentum is relatively neutral
@@ -39,7 +41,7 @@ function [ momentum ] = tdsq_momentum(p,bs,ss,lvlup,lvldn)
     end
     %
     %
-    if lvlup(end) > lvldn(end)
+    if lvlup(end) >= lvldn(end)
         if lastss9 > lastbs9
             %a TDST Sell Sequential is formed later than the last Buy
             %Sequential, i.e. market rally
@@ -86,7 +88,6 @@ function [ momentum ] = tdsq_momentum(p,bs,ss,lvlup,lvldn)
         
     else
         %lvlup(end) == lvldn(end)
-        
     end
 end
 
