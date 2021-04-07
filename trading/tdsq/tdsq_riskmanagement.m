@@ -144,7 +144,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             trade.riskmanager_.tdlow_ = extrainfo.p(tdidx,4);
         end
         if ~isnan(trade.riskmanager_.tdlow_) && ss(end) >= 9
-            if extrainfo.p(end,3) >= trade.riskmanager_.tdhigh_
+            if extrainfo.p(end,3) > trade.riskmanager_.tdhigh_ + 2*ticksize
                 trade.riskmanager_.tdhigh_ = extrainfo.p(end,3);
                 trade.riskmanager_.tdlow_ = extrainfo.p(end,4);
             end
@@ -240,7 +240,8 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             trade.riskmanager_.tdhigh_ = extrainfo.p(tdidx,3);
         end
         if ~isnan(trade.riskmanager_.tdlow_) && bs(end)>=9
-            if extrainfo.p(end,4) <= trade.riskmanager_.tdlow_
+%             if extrainfo.p(end,4) <= trade.riskmanager_.tdlow_
+            if extrainfo.p(end,4) < trade.riskmanager_.tdlow_ - 2*ticksize
                 trade.riskmanager_.tdlow_ = extrainfo.p(end,4);
                 trade.riskmanager_.tdhigh_ = extrainfo.p(end,3);
             end
