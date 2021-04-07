@@ -349,6 +349,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 elseif hh(end-1) ~= hh(end)
                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as hh value updated...');
                                 end
+                            else
+                                [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
+                                if isteethjawcrossed && ss(end) >= 8
+                                    maxpx = max(p(end-ss(end)+1:end-1,5));
+                                    maxpxidx = find(p(end-ss(end)+1:end-1,5)==maxpx,1,'last')+size(p,1)-ss(end);
+                                    if wad(maxpxidx) >= wad(end)
+                                        condentrusts2remove.push(condentrust);
+                                        fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as teeth jaw crossed..');
+                                    end
+                                end
                             end
                         elseif strcmpi(signalinfo.mode,'conditional-breachdnlvldn')
                             %cancel the entrust once the lowest price as of
@@ -403,6 +413,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & p(end,5)<hh(end) ...
                     & lips(end)>teeth(end) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first'));
+                if hhabovelvlup
+                    [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
+                    if isteethjawcrossed && ss(end) >= 8
+                        maxpx = max(p(end-ss(end)+1:end-1,5));
+                        maxpxidx = find(p(end-ss(end)+1:end-1,5)==maxpx,1,'last')+size(p,1)-ss(end);
+                        if wad(maxpxidx) >= wad(end)
+                            hhabovelvlup = false;
+                        end
+                    end
+                end
                 %且最新的HH比之前一个HH高，证明趋势向上
                 if size(last2hhidx,1) == 2 && hhabovelvlup
                     if last2hh(2) > last2hh(1)
@@ -412,10 +432,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
                     end
                 end
-%                 if hhabovelvlup
-%                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
-%                     hhabovelvlup = hhabovelvlup && ~isteethjawcrossed;
-%                 end
+                %
                 %1c.HH在TDST level up的下方；
                 %HH大于alligator teeth
                 %最新的收盘价还在HH的下方
