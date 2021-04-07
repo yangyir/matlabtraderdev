@@ -389,8 +389,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end  
 %                     aboveteeth = aboveteeth & last2hh(2) > last2hh(1);
                 end
-                [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
-                aboveteeth = aboveteeth & ~isteethjawcrossed;
+                if aboveteeth
+                    [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
+                    aboveteeth = aboveteeth & ~isteethjawcrossed;
+                end
                 %1b.HH在TDST level up的上方；
                 %HH大于alligator teeth
                 %最新的收盘价还在HH的下方
@@ -401,6 +403,19 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & p(end,5)<hh(end) ...
                     & lips(end)>teeth(end) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first'));
+                %且最新的HH比之前一个HH高，证明趋势向上
+                if size(last2hhidx,1) == 2 && hhabovelvlup
+                    if last2hh(2) > last2hh(1)
+                        hhabovelvlup = true;
+                    else
+                        %如果前nfractal根K线都在alligator lips上方，还是多头趋势
+                        hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
+                    end
+                end
+%                 if hhabovelvlup
+%                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
+%                     hhabovelvlup = hhabovelvlup && ~isteethjawcrossed;
+%                 end
                 %1c.HH在TDST level up的下方；
                 %HH大于alligator teeth
                 %最新的收盘价还在HH的下方
