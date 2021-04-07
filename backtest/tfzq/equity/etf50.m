@@ -109,7 +109,7 @@ tblb1 = table(nabovelips1,naboveteeth1,nabovelips2,nkaboveteeth2,nkfromhh,teethj
 tradesfractalb1 = cTradeOpenArray;
 for i = 1:size(idxfractalb1,1)
     j = idxfractalb1(i);
-    signalinfo = struct('name','fractal','hh',HH(j),'ll',LL(j),'frequency','daily');
+    signalinfo = struct('name','fractal','hh',HH(j),'ll',LL(j),'frequency','daily','nfractal',2);
     riskmanager = struct('hh0_',HH(j),'hh1_',HH(j),'ll0_',LL(j),'ll1_',LL(j),'type_','breachup-B',...
         'wadopen_',wad(j),'cpopen_',p(j,5),'wadhigh_',wad(j),'cphigh_',p(j,5),'wadlow_',wad(j),'cplow_',p(j,5));
     tradenew = cTradeOpen('id',i,'opendatetime',px(j,1),'openprice',px(j,5),'opendirection',1,'openvolume',1);

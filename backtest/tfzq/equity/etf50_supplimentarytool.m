@@ -4,7 +4,7 @@ for i = 1:size(idxfractalb1,1)
     [output_count(i,1),output_count(i,2),output_count(i,3),output_count(i,4),output_count(i,5),output_count(i,6),output_count(i,7)] = fractal_countb(p(1:j,:),idxHH,nfractal,lips,teeth,jaw);
 end
 %% long trade check
-idx1 = 2256;
+idx1 = 2123;
 idx2 = idx1;
 for i = idx1:size(p,1)
     if p(i,5) - lips(i)< -0.002
@@ -32,7 +32,7 @@ for i = 1:size(idxfractals1,1)
     [output_count_s(i,1),output_count_s(i,2),output_count_s(i,3),output_count_s(i,4),output_count_s(i,5),output_count_s(i,6),output_count_s(i,7)] = fractal_counts(p(1:j,:),idxLL,nfractal,lips,teeth,jaw);
 end
 %% short trade check
-idx1 = 2523;
+idx1 = 354;
 idx2 = idx1;
 for i = idx1:size(p,1)
     if p(i,5) > lips(i) > 0.002

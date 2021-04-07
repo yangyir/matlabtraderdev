@@ -1,4 +1,4 @@
-function [calls1,puts1,calls2,puts2,strikes,exp1,exp2] = etf50_listoptions(datein)
+function [calls1,puts1,calls2,puts2,strikes,exp1,exp2,S] = etf50_listoptions(datein)
     %calls1 are the 9 call options expiries on current month
     %puts1 are the 9 put options on expiries on current month
     %calls2 are the 9 call options expiries on next month
