@@ -28,71 +28,71 @@ catch
 end
 %%
 %
-volume_opt50_c_jan = zeros(length(k_50),2);
-volume_opt50_p_jan = zeros(length(k_50),2);
-for i = 1:length(opt50_c_jan)
-    code_bbg = opt50_c_jan{i};
+volume_opt50_c_feb = zeros(length(k_50),2);
+volume_opt50_p_feb = zeros(length(k_50),2);
+for i = 1:length(opt50_c_feb)
+    code_bbg = opt50_c_feb{i};
     try
         fn = [code_bbg(1:6),'_',datestr(code_bbg(11:18),'mmmyy'),'_',code_bbg(20:end-7),'_daily.txt'];
         data = cDataFileIO.loadDataFromTxtFile(fn);
-        volume_opt50_c_jan(i,1) = data(end-1,6);
-        volume_opt50_c_jan(i,2) = data(end,6);
+        volume_opt50_c_feb(i,1) = data(end-1,6);
+        volume_opt50_c_feb(i,2) = data(end,6);
     catch
     end
     %
-    code_bbg = opt50_p_jan{i};
+    code_bbg = opt50_p_feb{i};
     try
         fn = [code_bbg(1:6),'_',datestr(code_bbg(11:18),'mmmyy'),'_',code_bbg(20:end-7),'_daily.txt'];
         data = cDataFileIO.loadDataFromTxtFile(fn);
-        volume_opt50_p_jan(i,1) = data(end-1,6);
-        volume_opt50_p_jan(i,2) = data(end,6);
+        volume_opt50_p_feb(i,1) = data(end-1,6);
+        volume_opt50_p_feb(i,2) = data(end,6);
     catch
     end
 end
-pcratio = sum(volume_opt50_p_jan(:,2))/sum(volume_opt50_c_jan(:,2));
+pcratio = sum(volume_opt50_p_feb(:,2))/sum(volume_opt50_c_feb(:,2));
 fprintf('%15s\t%4.2f\n','pc-ratio',pcratio);
 %
 %
-n_opt50_c_jan = length(opt50_c_jan);
-bd_opt50_c_jan = cell(n_opt50_c_jan,1);
-tbl_opt50_c_jan = [k_50',zeros(n_opt50_c_jan,3)];
+n_opt50_c_feb = length(opt50_c_feb);
+bd_opt50_c_feb = cell(n_opt50_c_feb,1);
+tbl_opt50_c_feb = [k_50',zeros(n_opt50_c_feb,3)];
 cobdate = hd_50etf(end,1);
-for i = 1:length(opt50_c_jan)
+for i = 1:length(opt50_c_feb)
     try
-        bd_opt50_c_jan{i} = pnlriskbreakdownbbg(opt50_c_jan{i},datenum(cobdate));
-        tbl_opt50_c_jan(i,2) = bd_opt50_c_jan{i}.iv1;
-        tbl_opt50_c_jan(i,3) = bd_opt50_c_jan{i}.iv2;
-        tbl_opt50_c_jan(i,4) = bd_opt50_c_jan{i}.deltacarry/bd_opt50_c_jan{i}.spot2/10000;
+        bd_opt50_c_feb{i} = pnlriskbreakdownbbg(opt50_c_feb{i},datenum(cobdate));
+        tbl_opt50_c_feb(i,2) = bd_opt50_c_feb{i}.iv1;
+        tbl_opt50_c_feb(i,3) = bd_opt50_c_feb{i}.iv2;
+        tbl_opt50_c_feb(i,4) = bd_opt50_c_feb{i}.deltacarry/bd_opt50_c_feb{i}.spot2/10000;
     catch
-        bd_opt50_c_jan{i} = [];
-        tbl_opt50_c_jan(i,2:4) = NaN;
+        bd_opt50_c_feb{i} = [];
+        tbl_opt50_c_feb(i,2:4) = NaN;
     end
 end
 % PUT
-n_opt50_p_jan = n_opt50_c_jan;
-bd_opt50_p_jan = cell(n_opt50_p_jan,1);
-tbl_opt50_p_jan = [k_50',zeros(n_opt50_p_jan,3)];
-for i = 1:n_opt50_p_jan
+n_opt50_p_feb = n_opt50_c_feb;
+bd_opt50_p_feb = cell(n_opt50_p_feb,1);
+tbl_opt50_p_feb = [k_50',zeros(n_opt50_p_feb,3)];
+for i = 1:n_opt50_p_feb
     try
-        bd_opt50_p_jan{i} = pnlriskbreakdownbbg(opt50_p_jan{i},datenum(cobdate));
-        tbl_opt50_p_jan(i,2) = bd_opt50_p_jan{i}.iv1;
-        tbl_opt50_p_jan(i,3) = bd_opt50_p_jan{i}.iv2;
-        tbl_opt50_p_jan(i,4) = bd_opt50_p_jan{i}.deltacarry/bd_opt50_p_jan{i}.spot2/10000;
+        bd_opt50_p_feb{i} = pnlriskbreakdownbbg(opt50_p_feb{i},datenum(cobdate));
+        tbl_opt50_p_feb(i,2) = bd_opt50_p_feb{i}.iv1;
+        tbl_opt50_p_feb(i,3) = bd_opt50_p_feb{i}.iv2;
+        tbl_opt50_p_feb(i,4) = bd_opt50_p_feb{i}.deltacarry/bd_opt50_p_feb{i}.spot2/10000;
     catch
-        bd_opt50_p_jan{i} = [];
-        tbl_opt50_p_jan(i,2:4) = NaN;
+        bd_opt50_p_feb{i} = [];
+        tbl_opt50_p_feb(i,2:4) = NaN;
     end
 end
-m1 = zeros(length(opt50_c_jan),1);
-m2 = zeros(length(opt50_c_jan),1);
-for i = 1:length(opt50_c_jan)
+m1 = zeros(length(opt50_c_feb),1);
+m2 = zeros(length(opt50_c_feb),1);
+for i = 1:length(opt50_c_feb)
     try
-        m1(i) = tbl_opt50_c_jan(i,1)/bd_opt50_c_jan{i}.fwd1;
+        m1(i) = tbl_opt50_c_feb(i,1)/bd_opt50_c_feb{i}.fwd1;
     catch
         m1(i) = NaN;
     end
     try
-        m2(i) = tbl_opt50_c_jan(i,1)/bd_opt50_c_jan{i}.fwd2;
+        m2(i) = tbl_opt50_c_feb(i,1)/bd_opt50_c_feb{i}.fwd2;
     catch
         m2(i) = NaN;
     end
@@ -100,12 +100,12 @@ end
 idx = ~isnan(m1);
 m1 = m1(idx);
 m2 = m2(idx);
-tbl_opt50_c_jan = tbl_opt50_c_jan(idx,:);
+tbl_opt50_c_feb = tbl_opt50_c_feb(idx,:);
 m = max(min(m1),min(m2)):0.01:min(max(m1),max(m2));
-volinterp1 = interp1(m1,tbl_opt50_c_jan(:,2),m);
-volinterp2 = interp1(m1,tbl_opt50_c_jan(:,3),m);
-atmf1 = interp1(m1,tbl_opt50_c_jan(:,2),1);
-atmf2 = interp1(m1,tbl_opt50_c_jan(:,3),1);
+volinterp1 = interp1(m1,tbl_opt50_c_feb(:,2),m);
+volinterp2 = interp1(m1,tbl_opt50_c_feb(:,3),m);
+atmf1 = interp1(m1,tbl_opt50_c_feb(:,2),1);
+atmf2 = interp1(m1,tbl_opt50_c_feb(:,3),1);
 fprintf('%15s\t%4.1f%%\n','atmfvol:',atmf2*100);
 fprintf('%15s\t%4.1f%%\n','atmfvolchg:',(atmf2-atmf1)*100);
 
