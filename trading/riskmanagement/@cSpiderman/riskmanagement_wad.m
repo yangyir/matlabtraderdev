@@ -119,6 +119,9 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 extrainfo.p(end-1,5)>extrainfo.ll(end-1)&&...
                 extrainfo.ll(end-1)==extrainfo.ll(end);
             flag2 = size(extrainfo.p,1)-find(extrainfo.p(:,5)>extrainfo.teeth,1,'last')>=2*nfractal+1;
+            if isempty(flag2)
+                flag2 = false;
+            end
             flag3 = extrainfo.teeth(end) < extrainfo.jaw(end);
             if flag1 && flag2 && flag3
                 return
