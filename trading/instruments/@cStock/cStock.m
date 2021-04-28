@@ -132,6 +132,7 @@ classdef cStock < cInstrument
         [] = demo(obj)
         [assetname,exch] = getexchangestr(obj)
         [] = init_bbg(obj,conn)
+        [] = init_wind(obj,w)
     end
         
 end

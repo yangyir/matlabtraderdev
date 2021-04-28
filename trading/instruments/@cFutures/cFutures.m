@@ -146,6 +146,7 @@ classdef cFutures < cInstrument
         tradingLength = trading_length(obj)        
         [] = demo(obj)
         [] = init_bbg(obj,conn)
+        [] = init_wind(obj,w)
         [assetname,exch] = getexchangestr(obj)
         [ret] = isable2trade(obj,t)
         

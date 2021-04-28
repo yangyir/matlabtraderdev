@@ -156,6 +156,7 @@ classdef cOption < cInstrument
         
         [] = demo(obj)
         [] = init_bbg(obj,conn)
+        [] = init_wind(obj,conn)
         [assetname,exch] = getexchangestr(obj)
         
     end

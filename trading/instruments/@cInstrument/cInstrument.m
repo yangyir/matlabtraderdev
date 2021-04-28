@@ -22,6 +22,7 @@ classdef (Abstract) cInstrument < handle
     
     methods (Abstract)
         [] = init_bbg(obj,ds_)
+        [] = init_wind(obj,ds_)
         [assetname,exch] = getexchangestr(obj)
     end
 end
