@@ -56,7 +56,7 @@ end
 
 if isempty(freq) || (~isempty(freq)&&n==1)
     % nothing to do
-    if m > 2;
+    if m > 2
         results = data;
     else
         results = [data,data(:,2),data(:,2),data(:,2)];

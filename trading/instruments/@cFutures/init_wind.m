@@ -69,7 +69,16 @@ tickSize = str2double(ticksizeStr(1:idxStr-1));
     
     if size(th_,2) == 3
         
-        str3 = th_{1,3}(3:end-4);
+        %下午21:00-次日2:30(夜盘)
+        %下午21:00-次日1:00(夜盘)
+        %下午21:00-23:00(夜盘)
+        if strcmpi(th_{1,3}, '下午21:00-23:00(夜盘)')
+            str3 = '21:00-23:00';
+        elseif strcmpi(th_{1,3}, '下午21:00-次日1:00(夜盘)')
+            str3 = '21:00-01:00';
+        elseif strcmpi(th_{1,3}, '下午21:00-次日2:30(夜盘)')
+            str3 = '21:00-02:30';
+        end
         
         obj.trading_hours = [str1,';',str2,';',str3];
         obj.trading_break = '10:15-10:30';
