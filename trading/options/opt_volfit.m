@@ -58,7 +58,7 @@ function params = opt_volfit(code_underlier,cobdate,varargin)
     optexpiry = optinstr.opt_expiry_date1;
     calendar_tau = (optexpiry-cobdate)/365;
     
-    strikes = k_dn-3*bucketsize:bucketsize:k_up+3*bucketsize;
+    strikes = k_dn-5*bucketsize:bucketsize:k_up+5*bucketsize;
     nstrikes = length(strikes);
     vols = zeros(nstrikes,1);
     m = log(strikes./spot)/sqrt(calendar_tau);m=m';
