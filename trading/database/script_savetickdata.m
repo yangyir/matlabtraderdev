@@ -25,16 +25,16 @@ fprintf('done for saving tick data for base metal futures......\n\n');
 
 %%
 % govt bond
-list = {'govtbond_5y';'govtbond_10y'};
-for i = 1:size(list,1)
-    [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
-    for j = 1:size(codelist,1)
-        savetickfrombloomberg(conn,codelist{j},...
-            'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
-            'todate',todate);
-    end
-end
-fprintf('done for saving tick data for govt bond futures......\n\n');
+% list = {'govtbond_5y';'govtbond_10y'};
+% for i = 1:size(list,1)
+%     [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
+%     for j = 1:size(codelist,1)
+%         savetickfrombloomberg(conn,codelist{j},...
+%             'fromdate',datestr(firstrecorddt(j),'yyyy-mm-dd'),...
+%             'todate',todate);
+%     end
+% end
+% fprintf('done for saving tick data for govt bond futures......\n\n');
 
 %%
 % equity index futures
@@ -51,7 +51,7 @@ fprintf('done for saving tick data for eqindex futures......\n\n');
 
 %%
 % precious metals
-list = {'gold';'silver'};
+list = {'gold';'silver';'crude oil'};
 for i = 1:size(list,1)
     [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
     for j = 1:size(codelist,1)
@@ -64,7 +64,7 @@ fprintf('done for saving tick data for precious metal futures\n\n');
 
 %%
 % energy
-list = {'pta';'lldpe';'pp';'methanol';'thermal coal';'crude oil'};
+list = {'pta';'lldpe';'pp';'methanol'};
 for i = 1:size(list,1)
     [codelist,firstrecorddt] = gettickdatainfo(conn,list{i});
     for j = 1:size(codelist,1)

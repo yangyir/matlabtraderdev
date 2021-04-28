@@ -71,7 +71,7 @@ fprintf('done for saving intraday bar data for equity index futures......\n\n');
 
 %%
 % precious metals
-list = {'gold';'silver'};
+list = {'gold';'silver';'crude oil'};
 for i = 1:size(list,1)
     futlist_i = listcontracts(list{i},'connection','bloomberg');
     check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
@@ -87,7 +87,7 @@ fprintf('done for saving intraday bar data for precious metal futures\n\n');
 
 %%
 % energy
-list = {'pta';'lldpe';'pp';'methanol';'thermal coal';'crude oil'};
+list = {'pta';'lldpe';'pp';'methanol';'thermal coal'};
 for i = 1:size(list,1)
     futlist_i = listcontracts(list{i},'connection','bloomberg');
     check_i = getdata(conn.ds_,futlist_i,'last_tradeable_dt');
