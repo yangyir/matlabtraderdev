@@ -35,6 +35,9 @@ elseif strcmpi(assetName,'lead')
 elseif strcmpi(assetName,'nickel')
     init_mm = 9;
     init_yy = 2015;
+elseif strcmpi(assetName,'tin')
+    init_mm = 9;
+    init_yy = 2015;
 else
     error(['invalid base metal:',assetName]);
 end
