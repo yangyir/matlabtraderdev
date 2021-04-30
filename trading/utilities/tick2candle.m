@@ -158,8 +158,10 @@ function [candlesout] = tick2candle(code,datein)
         end
     else
         fn1 = [code,'_',datestr(datestr_start,'yyyymmdd'),'_1m.txt'];
-        if ~isempty(candlesout)
-            cDataFileIO.saveDataToTxtFile([intradaypath,fn1],candlesout,coldefs,'w',true);
+        idx1 = sum(candlesout(:,2:end),2) ~=0;
+        datasaved1 = candlesout(idx1,:);
+        if ~isempty(datasaved1)
+            cDataFileIO.saveDataToTxtFile([intradaypath,fn1],datasaved1,coldefs,'w',true);
         end
     end
         
