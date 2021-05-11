@@ -1,4 +1,4 @@
-function [tblb_headers,tblb_data,tbls_headers,tbls_data,data] = fractal_gettradesummary(code)
+function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess] = fractal_gettradesummary(code)
 % code = 'cu2101';
 fut = code2instrument(code);
 ticksize = fut.tick_size;
