@@ -27,8 +27,8 @@ function [flag,t_trading] = istrading(t,tradingHours,varargin)
     %code change:
     %time shall be before the market close time not before and on the
     %market close time
-    idx_m = (t - date >= mOpen/1440) & (t - date < mClose/1440);
-    idx_a = (t - date >= aOpen/1440) & (t - date < aClose/1440);
+    idx_m = (t - date - mOpen/1440 > -1e-10) & (t - date < mClose/1440);
+    idx_a = (t - date - aOpen/1440 > -1e-10) & (t - date < aClose/1440);
     idx = idx_m | idx_a;
     
     if length(th) == 3
