@@ -69,5 +69,7 @@ classdef cStratFutMultiFractal < cStrat
         [] = riskmanagement_futmultifractal(obj,dtnum)
         %
         [techvar] = calctechnicalvariable(obj,instrument,varargin)
+        [] = processcondentrust(obj, instrument, varargin)
+        signals = gencondsignals__futmultifractal(obj, instrument, varargin)
     end
 end
