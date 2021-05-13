@@ -1,8 +1,15 @@
+%% 生成WIND客户端
+if ~exist('w','var'), w = cWind;end
+fprintf('wind instance launched....\n');
+%% 下载沪深300指数ETF数据
+savedailybarfromwind2(w,'510300.SH');
+fprintf('shsz 300 index ETF daily data saved...\n');
+%%
 close all;
 hd_300etf = cDataFileIO.loadDataFromTxtFile('510300_daily.txt');
 [op_300etf,op_300etf2] = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod',0);
 [wad_300etf,trh_300etf,trl_300etf] = williamsad(hd_300etf,0);
-shift = 60;
+shift = 126;%取过去半年的数据做日线
 tools_technicalplot2(op_300etf(end-shift:end,:),1,'510300 CH Equity',true);
 fprintf('510300 SH Equity:\n');
 fprintf('%15s\t%s\n','date:',datestr(hd_300etf(end,1),'yyyy-mm-dd'));

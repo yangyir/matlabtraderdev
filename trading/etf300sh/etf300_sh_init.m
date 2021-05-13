@@ -59,9 +59,9 @@ db = cLocal;
 hd_300etf = cDataFileIO.loadDataFromTxtFile('510300_daily.txt');
 fprintf('last date recorded on local file is %s\n',datestr(hd_300etf(end,1)));
 %%
-% op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod',0);
-% shift = 60;
-% tools_technicalplot2(op_300etf(end-shift:end,:));
+op_300etf = tools_technicalplot1(hd_300etf,2,0,'change',0.001,'volatilityperiod',0);
+shift = 60;
+tools_technicalplot2(op_300etf(end-shift:end,:));
 %%
 opt300_c_1 = opt300_c_feb;
 opt300_p_1 = opt300_p_feb;
