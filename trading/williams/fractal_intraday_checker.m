@@ -10,25 +10,17 @@ doplot = p.Results.plot;
 direction = p.Results.direction;
 
 %load the data
-instrument = code2instrument(code);
-assetinfo = getassetinfo(instrument.asset_name);
-shortcode = lower(assetinfo.WindCode);
-% fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
-%     '\',shortcode,'\',shortcode,'_intraday.mat'];
-fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
-    '\',shortcode,'\',code,'.mat'];
-
-data = load(fn);
-% data_intraday = data.([shortcode,'_intraday']);
-% data_intraday = data.data;
-% cp = [];
-cp = data.data;
-% for i = 1:size(data_intraday,1)
-%     if strcmpi(code,data_intraday{i,1})
-%         cp = data_intraday{i,2};
-%         break;
-%     end
-% end
+if strcmpi(code,'510300')
+    cp = cDataFileIO.loadDataFromTxtFile([code,'_daily.txt']);
+else
+    instrument = code2instrument(code);
+    assetinfo = getassetinfo(instrument.asset_name);
+    shortcode = lower(assetinfo.WindCode);
+    fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
+        '\',shortcode,'\',code,'.mat'];
+    data = load(fn);
+    cp = data.data;
+end
 if isempty(cp),error('fractal_intraday_checker:invalid code input or data not stored');end
 %generate trades and table
 [tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot);

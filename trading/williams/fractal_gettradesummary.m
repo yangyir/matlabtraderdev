@@ -1,7 +1,11 @@
 function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess] = fractal_gettradesummary(code)
 % code = 'cu2101';
-fut = code2instrument(code);
-ticksize = fut.tick_size;
+if strcmpi(code,'510300')
+    ticksize = 0;
+else
+    fut = code2instrument(code);
+    ticksize = fut.tick_size;
+end
 
 [tblb,~,tradesb,~,resstruct] = fractal_intraday_checker(code,...
         'type','all','direction',1,'plot',false);

@@ -11,7 +11,7 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
     end
     p = inputParser;p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('level','medium',@ischar);
-    p.addParameter('instrument',[],@(x)validateattributes(x,{'cInstrument'},{},'','instrument'));
+    p.addParameter('instrument',[],@(x)validateattributes(x,{'cInstrument','char'},{},'','instrument'));
     p.parse(varargin{:});
     level = p.Results.level;
     instrument = p.Results.instrument;
@@ -21,7 +21,13 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
     if isempty(instrument)
         ticksize = 0;
     else
-        ticksize = instrument.tick_size;
+        if isa(instrument,'cInstrument')
+            ticksize = instrument.tick_size;
+        elseif ischar(instrument)
+            ticksize = 0;
+        else
+            error('fractal_isbreachb:invalid instrument input')
+        end
     end
     
     flag = (px(1:end-1,5)<=HH(1:end-1)&px(2:end,5)-HH(1:end-1)>=ticksize) &...
