@@ -11,7 +11,12 @@ bc = inputmat(:,17);sc = inputmat(:,18);
 if nargin < 2, figureidx = 1;end
 
 figure(figureidx);
-candle(p(:,3),p(:,4),p(:,5),p(:,2),[0.75,0.75,0.75]);hold on;
+if strcmpi(version('-release'),'2014a')
+    candle(p(:,3),p(:,4),p(:,5),p(:,2),[0.75,0.75,0.75]);hold on;
+else
+%     candle(Data) plots a candlestick chart from a series of opening, high, low, and closing prices of a security.
+    candle(p(:,2:5),[0.75,0.75,0.75]);hold on;
+end
 plot(jaw,'b');
 plot(teeth,'r');
 plot(lips,'g');
