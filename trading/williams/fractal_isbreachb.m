@@ -24,7 +24,11 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
         if isa(instrument,'cInstrument')
             ticksize = instrument.tick_size;
         elseif ischar(instrument)
-            ticksize = 0;
+            if strcmpi(instrument,'510300')
+                ticksize = 0.001;
+            else
+                ticksize = 0;
+            end
         else
             error('fractal_isbreachb:invalid instrument input')
         end

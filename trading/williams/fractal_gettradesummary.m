@@ -1,7 +1,7 @@
 function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess] = fractal_gettradesummary(code)
-% code = 'cu2101';
+%
 if strcmpi(code,'510300')
-    ticksize = 0;
+    ticksize = 0.001;
 else
     fut = code2instrument(code);
     ticksize = fut.tick_size;
@@ -23,7 +23,11 @@ for i = 1:tradesb.latest_
     trade_i = tradesb.node_(i);
     extrainfo = fractal_genextrainfo(resstruct{1},trade_i.id_);
     tdsqmomentum = tdsq_momentum(extrainfo.p,extrainfo.bs,extrainfo.ss,extrainfo.lvlup,extrainfo.lvldn);
-    status = fractal_b1_status(4,extrainfo,ticksize);
+    if strcmpi(trade_i.opensignal_.frequency_,'daily')
+        status = fractal_b1_status(2,extrainfo,ticksize);
+    else
+        status = fractal_b1_status(4,extrainfo,ticksize);
+    end
     tblbtrades{i,1} = resstruct{1}.px(trade_i.id_,1);   %time
     tblbtrades{i,2} = trade_i.code_;            %code
     tblbtrades{i,3} = trade_i.id_;              %id
@@ -51,7 +55,11 @@ for i = 1:tradess.latest_
     trade_i = tradess.node_(i);
     extrainfo = fractal_genextrainfo(resstruct{1},trade_i.id_);
     tdsqmomentum = tdsq_momentum(extrainfo.p,extrainfo.bs,extrainfo.ss,extrainfo.lvlup,extrainfo.lvldn);
-    status = fractal_s1_status(4,extrainfo,ticksize);
+    if strcmpi(trade_i.opensignal_.frequency_,'daily')
+        status = fractal_s1_status(2,extrainfo,ticksize);
+    else
+        status = fractal_s1_status(4,extrainfo,ticksize);
+    end
     tblstrades{i,1} = resstruct{1}.px(trade_i.id_,1);   %time
     tblstrades{i,2} = trade_i.code_;            %code
     tblstrades{i,3} = trade_i.id_;              %id

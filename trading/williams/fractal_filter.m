@@ -59,15 +59,17 @@ iplot = 0;
 for i = 1:n
     if strcmpi(codes{i},'510300')
         instrument = codes{i};
-        ticksize = 0;
+        ticksize = 0.001;
     else
         instrument = code2instrument(codes{i});
         ticksize = instrument.tick_size;
     end
     p = data_intraday{i};
     if p(2,1) - p(1,1) < 1
+        freqstr = '30m';
         nfractal = 4;
     else
+        freqstr = 'daily';
         nfractal = 2;
     end
     [resmat{i},resstruct{i}] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
@@ -149,7 +151,7 @@ for i = 1:n
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromhh_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 end
             end
-            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,1,'30m');
+            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,1,freqstr);
             trades.push(trade);
         end
         
@@ -227,7 +229,7 @@ for i = 1:n
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromll_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 end
             end
-            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,-1,'30m');
+            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,-1,freqstr);
             trades.push(trade);
         end
         
