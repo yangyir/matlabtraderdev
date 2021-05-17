@@ -33,6 +33,8 @@ coldefs = {'date','open','high','low','close','volume'};
 fn_ = [code_wind(1:idx-1),'_daily.txt'];
 if strcmpi(code_wind,'510300.SH')
     startdate = datenum('2012-05-28','yyyy-mm-dd');
+elseif strcmpi(code_wind,'512400.SH')
+    startdate = datenum('2017-09-01','yyyy-mm-dd');
 else
     startdate = datenum('2010-01-01','yyyy-mm-dd');
 end
