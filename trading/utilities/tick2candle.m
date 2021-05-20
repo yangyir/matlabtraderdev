@@ -135,6 +135,11 @@ function [candlesout] = tick2candle(code,datein)
     % save files
     coldefs = {'datetime','open','high','low','close'};
     intradaypath = [getenv('datapath'),'intradaybar\',code,'\'];
+    try
+        cd(intradaypath);
+    catch
+        mkdir(intradaypath);
+    end
     if category == 5
         %commodity traded overnight requires 2 files for candle storage
         fn1 = [code,'_',datestr(datestr_start,'yyyymmdd'),'_1m.txt'];
