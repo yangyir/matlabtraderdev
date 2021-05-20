@@ -31,7 +31,7 @@ function savetickfromwind(w,code_ctp,varargin)
     f.loadinfo(fn_info_);
     if isempty(f.contract_size)
         %not loaded
-        f.init(w.ds_);
+        f.init(w);
         f.saveinfo(fn_info_);
     end
     

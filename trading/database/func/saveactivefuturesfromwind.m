@@ -1,7 +1,10 @@
-function [] = saveactivefuturesfromwind(w)
+function [] = saveactivefuturesfromwind(w,override)
 %save active futures from wind
 if ~isa(w,'cWind')
     error('saveactivefuturesfromwind;invalid wind instance input')
+end
+if nargin < 2
+    override = false;
 end
 activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
 dateend = getlastbusinessdate;
@@ -15,7 +18,7 @@ for ifile = 1:nfile
         break
     end
 end
-if iflag, return; end
+if iflag && ~override, return; end
 %%
 assetlist = {'IF.CFE';'IH.CFE';'IC.CFE';...
     'TF.CFE';'T.CFE';...
