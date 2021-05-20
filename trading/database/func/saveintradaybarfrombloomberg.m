@@ -1,4 +1,4 @@
-function saveintradaybarfrombloomberg(bbg,code_ctp,override)
+function saveintradaybarfrombloomberg(bbg,code_ctp,override,dt1,dt2)
 
 if ~isa(bbg,'cBloomberg')
     error('saveintradaybarfrombloomberg;invalid bloomberg instance input')
@@ -10,6 +10,8 @@ end
 
 if nargin < 3
     override = false;
+    dt1 = [];
+    dt2 = [];
 end
 
 dir_ = getenv('DATAPATH');
@@ -54,10 +56,18 @@ nfiles = size(files,1);
 coldefs = {'datetime','open','high','low','close'};
 permission = 'w';
 usedatestr = true;
-startdate = f.first_trade_date1;
+if isempty(dt1)
+    startdate = f.first_trade_date1;
+else
+    startdate = dt1;
+end
 lbd = getlastbusinessdate;
 plbd = businessdate(lbd,-1);
-enddate = min(lbd,f.last_trade_date1);
+if isempty(dt2)
+    enddate = min(lbd,f.last_trade_date1);
+else
+    enddate = dt2;
+end
 bds = gendates('fromdate',startdate,'todate',enddate);
 
 for i = 1:size(bds,1)

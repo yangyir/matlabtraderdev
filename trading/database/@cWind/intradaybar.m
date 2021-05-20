@@ -21,11 +21,11 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             'todate',datenum(enddate,'yyyy-mm-dd'));
         n = size(bds,1);
         if n == 0
-            fprintf('cWind:intradaybar:no business dates found between input start date and enddate\n');
-            data = [];
-            return
+            [wdata,~,~,wtime] = obj.ds_.wsi(code_wind,'open,high,low,close',startdate,enddate,'BarSize=1');
+            data_raw_ = [wtime,wdata];
         elseif n == 1
-            startdate_ = [datestr(bds,'yyyymmdd'),' ',instrument.break_interval{1,1}];
+%             startdate_ = [datestr(bds,'yyyymmdd'),' ',instrument.break_interval{1,1}];
+            startdate_ = datestr(bds,'yyyymmdd');
             if category > 4
                 enddate_ = [datestr(bds+1,'yyyymmdd'),' ',instrument.break_interval{end,end}];
             else
@@ -34,7 +34,8 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             [wdata,~,~,wtime] = obj.ds_.wsi(code_wind,'open,high,low,close',startdate_,enddate_,'BarSize=1');
             data_raw_ = [wtime,wdata];
         else
-            startdate_ = [datestr(bds(1),'yyyymmdd'),' ',instrument.break_interval{1,1}];
+%             startdate_ = [datestr(bds(1),'yyyymmdd'),' ',instrument.break_interval{1,1}];
+            startdate_ = datestr(bds(1),'yyyymmdd');
             if category > 4
                 enddate_ = [datestr(bds(1)+1,'yyyymmdd'),' ',instrument.break_interval{end,end}];
             else
@@ -43,8 +44,9 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             [wdata,~,~,wtime] = obj.ds_.wsi(code_wind,'open,high,low,close',startdate_,enddate_,'BarSize=1');
             data_raw_ = [wtime,wdata];
             for i = 2:n
-                startdate_ = [datestr(bds(1),'yyyymmdd'),' ',instrument.break_interval{1,1}];
-                if datenum(startdate_) > today, continue;end
+%                 startdate_ = [datestr(bds(i),'yyyymmdd'),' ',instrument.break_interval{1,1}];
+                startdate_ = datestr(bds(i),'yyyymmdd');
+                if datenum(startdate_,'yyyymmdd HH:MM:SS') > today, continue;end
                 if category > 4
                     enddate_ = [datestr(bds(i)+1,'yyyymmdd'),' ',instrument.break_interval{end,end}];
                 else

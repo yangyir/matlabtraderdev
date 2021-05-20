@@ -1,4 +1,5 @@
-function savetickfromwind(w,code_ctp,varargin)
+function data = savetickfromwind(w,code_ctp,varargin)
+    data = [];
     if ~isa(w,'cWind')
         error('savetickfromwind:invalid wind instance input')
     end
@@ -61,8 +62,12 @@ function savetickfromwind(w,code_ctp,varargin)
         if ~flag || (flag && override) || bds(i) == lbd || bds(i) == plbd
             fn_ = [dir_data_,f.code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_tick.txt'];
             data = w.tickdata(f,datestr(bds(i),'yyyy-mm-dd'),datestr(bds(i),'yyyy-mm-dd'));
-            if isempty(data), continue; end
-            cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
+            if isempty(data)
+                fprintf('savetickfromwind:no tick data returned on %s...\n',datestr(bds(i),'yyyy-mm-dd'));
+                continue; 
+            else
+                cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
+            end
         end
     end
     
