@@ -113,7 +113,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     end
                     if ncondpendingvolume < volume
                         if signal_short(4) == -2
-                            stratfractal.condshortopen(instrument.code_ctp,signal_short(3)-2*ticksize,volume,'signalinfo',info);
+                            stratfractal.condshortopen(instrument.code_ctp,signal_short(3)-ticksize,volume,'signalinfo',info);
                         elseif signal_short(4) == -3
                             stratfractal.condshortopen(instrument.code_ctp,signal_short(3),volume,'signalinfo',info);
                         elseif signal_short(4) == -4
@@ -169,7 +169,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     end
                     if ncondpendingvolume < volume
                         if signal_long(4) == 2
-                            stratfractal.condlongopen(instrument.code_ctp,signal_long(2)+2*ticksize,volume,'signalinfo',info);
+                            stratfractal.condlongopen(instrument.code_ctp,signal_long(2)+ticksize,volume,'signalinfo',info);
                         elseif signal_long(4) == 3
                             stratfractal.condlongopen(instrument.code_ctp,signal_long(2),volume,'signalinfo',info);
                         elseif signal_long(4) == 4
