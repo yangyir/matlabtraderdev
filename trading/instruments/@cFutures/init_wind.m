@@ -18,15 +18,20 @@ function [] = init_wind(obj,w)
     'thours',...
     'margin'};
 
-[wdata,~,~,~,errorid,~] = w.wss(obj.code_wind,wind_fields);
+    [wdata,~,~,~,errorid,~] = w.wss(obj.code_wind,wind_fields);
 
-if errorid ~= 0
-    error('cFutures:init_wind failed')
-end
+    if errorid ~= 0
+        error('cFutures:init_wind failed')
+    end
 
-ticksizeStr = wdata{1,2};
-idxStr = strfind(ticksizeStr,'人民币');
-tickSize = str2double(ticksizeStr(1:idxStr-1));
+    ticksizeStr = wdata{1,2};
+    for i = length(ticksizeStr):-1:1
+        if ~isnan(str2double(ticksizeStr(i)))
+            idxStr = i;
+            break
+        end
+    end
+    tickSize = str2double(ticksizeStr(1:idxStr));
 
     obj.contract_size = wdata{1,1};
     obj.tick_size = tickSize;
@@ -55,31 +60,46 @@ tickSize = str2double(ticksizeStr(1:idxStr-1));
     th_ = regexp(th,',','split');
     
     n1 = length(th_{1,1});
-    n2 = length(th_{1,2});
-    if n1 == 12
-        str1 = ['0',th_{1,1}(3:end)];
-    else
-        str1 = ['0',th_{1,1}];
-    end
-    if n2 == 13
-        str2 = th_{1,2}(3:end);
-    else
-        str2 = th_{1,2};
+    try
+        n2 = length(th_{1,2});
+        if n1 == 12
+            str1 = ['0',th_{1,1}(3:end)];
+        else
+            str1 = ['0',th_{1,1}];
+        end
+        if n2 == 13
+            str2 = th_{1,2}(3:end);
+        else
+            str2 = th_{1,2};
+        end
+    catch e
+        if strcmpi(obj.asset_name,'crude oil')
+            str1 = '09:00-11:30';
+            str2 = '13:30-03:00';
+            str3 = '21:00-02:30';
+            obj.trading_hours = [str1,';',str2,';',str3];
+            obj.trading_break = '10:15-10:30';
+            return
+        else
+            error('cFutures:init_wind:%s',e.message)
+        end
     end
     
     if size(th_,2) == 3
-        
-        %下午21:00-次日2:30(夜盘)
-        %下午21:00-次日1:00(夜盘)
-        %下午21:00-23:00(夜盘)
-        if strcmpi(th_{1,3}, '下午21:00-23:00(夜盘)')
-            str3 = '21:00-23:00';
-        elseif strcmpi(th_{1,3}, '下午21:00-次日1:00(夜盘)')
+        if strcmpi(obj.asset_name,'copper') || ...
+                strcmpi(obj.asset_name,'aluminum') || ...
+                strcmpi(obj.asset_name,'zinc') || ...
+                strcmpi(obj.asset_name,'lead') || ...
+                strcmpi(obj.asset_name,'nickel') || ...
+                strcmpi(obj.asset_name,'tin')
             str3 = '21:00-01:00';
-        elseif strcmpi(th_{1,3}, '下午21:00-次日2:30(夜盘)')
+        elseif strcmpi(obj.asset_name,'gold') || ...
+                strcmpi(obj.asset_name,'silver') || ...
+                strcmpi(obj.asset_name,'crude oil')
             str3 = '21:00-02:30';
+        else
+            str3 = '21:00-23:00';
         end
-        
         obj.trading_hours = [str1,';',str2,';',str3];
         obj.trading_break = '10:15-10:30';
     else
