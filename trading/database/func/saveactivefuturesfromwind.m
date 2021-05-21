@@ -54,5 +54,5 @@ for iasset = 1:nasset
     fprintf(fid,'%s\n',futs{iasset});
 end
 fclose(fid);
-fprintf('finish save active futures from bloomberg...\n');
+fprintf('finish save active futures from wind...\n');
 end

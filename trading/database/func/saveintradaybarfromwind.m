@@ -88,6 +88,9 @@ for i = 1:size(bds,1)
             delete(fn_);
         end
         data = w.intradaybar(f,bd,bd,1,'trade');
+        check = sum(data(:,2:end),2);
+        idx = ~isnan(check);
+        data = data(idx,:);
         if isempty(data), continue; end
         cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
     end
@@ -109,6 +112,9 @@ for i = 1:size(bds,1)
             if today >= datenum(nextsaturday,'yyyy-mm-dd')
                 fn_ = [dir_data_,f.code_ctp,'_',datestr(nextsaturday,'yyyymmdd'),'_1m.txt'];
                 data = w.intradaybar(f,nextsaturday,datestr(bds(i)+2,'yyyy-mm-dd'),1,'trade');
+                check = sum(data(:,2:end),2);
+                idx = ~isnan(check);
+                data = data(idx,:);
                 if isempty(data), continue; end
                 cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
             end
@@ -122,6 +128,9 @@ for i = 1:size(bds,1)
         if today >= datenum(nextbd,'yyyy-mm-dd')
             fn_ = [dir_data_,f.code_ctp,'_',datestr(nextbd,'yyyymmdd'),'_1m.txt'];
             data = w.intradaybar(f,nextbd,datestr(bds(i)+2,'yyyy-mm-dd'),1,'trade');
+            check = sum(data(:,2:end),2);
+            idx = ~isnan(check);
+            data = data(idx,:);
             if isempty(data), continue; end
             cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
         end

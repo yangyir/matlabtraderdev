@@ -22,10 +22,14 @@ function data = tickdata(obj,instrument,startdate,enddate)
                 enddate_ = [datestr(bds,'yyyymmdd'),' ',instrument.break_interval{end,end}];
             end
             [wdata,~,~,wtime] = obj.ds_.wst(code_wind,'last,volume',startdate_,enddate_);
-            %wind终端返回的是累计成交量
-            d = [wtime,wdata(:,1),[wdata(1,2);wdata(2:end,2)-wdata(1:end-1,2)]];
-            idx = d(:,end) ~= 0;
-            data = d(idx,:);
+            %wind returns accumulated trading volume
+            if isnumeric(wdata)
+                d = [wtime,wdata(:,1),[wdata(1,2);wdata(2:end,2)-wdata(1:end-1,2)]];
+                idx = d(:,end) ~= 0;
+                data = d(idx,:);
+            else
+                data = [];
+            end
         else
             data_ = cell(n,1);
             for i = 1:n
