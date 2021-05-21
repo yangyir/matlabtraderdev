@@ -63,7 +63,8 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                             candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx+1),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                         else
                             try
-                                ds2 = cBloomberg;
+%                                 ds2 = cBloomberg;
+                                ds2 = cWind;
                                 candles = ds2.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),mdefut.candle_freq_(i),'trade');
                             catch e
                                 fprintf('%s\n',e.message);
@@ -149,7 +150,8 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                             candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                         else
                             try
-                                ds2 = cBloomberg;
+%                                 ds2 = cBloomberg;
+                                ds2 = cWind;
                                 candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                             catch e
                                 fprintf('%s\n',e.message);
