@@ -75,7 +75,7 @@ function [] = init_wind(obj,w)
     catch e
         if strcmpi(obj.asset_name,'crude oil')
             str1 = '09:00-11:30';
-            str2 = '13:30-03:00';
+            str2 = '13:30-15:00';
             str3 = '21:00-02:30';
             obj.trading_hours = [str1,';',str2,';',str3];
             obj.trading_break = '10:15-10:30';
