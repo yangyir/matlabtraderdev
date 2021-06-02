@@ -75,8 +75,8 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
             e = stratfractal.helper_.entrustspending_.node(jj);
             if e.offsetFlag ~= 1, continue; end
             if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
-            if e.direction ~= direction, continue;end %the same direction
-            if e.volume ~= volume,continue;end  %the same volume
+%             if e.direction ~= direction, continue;end %the same direction
+%             if e.volume ~= volume,continue;end  %the same volume
             %if the code reaches here, the existing entrust shall be canceled
             stratfractal.helper_.getcounter.withdrawEntrust(e);
         end
