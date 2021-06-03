@@ -30,7 +30,11 @@ outputstruct = struct('px',p,...
 if ~doplot;return,end
 
 figure(1);
-candle(p(:,3),p(:,4),p(:,5),p(:,2),[0.75,0.75,0.75]);hold on;
+if strcmpi(version('-release'),'2014a')
+    candle(p(:,3),p(:,4),p(:,5),p(:,2),[0.75,0.75,0.75]);hold on;
+else
+    candle(p(:,2:5),[0.75,0.75,0.75]);hold on;
+end
 plot(jaw,'b');
 plot(teeth,'r');
 plot(lips,'g');
