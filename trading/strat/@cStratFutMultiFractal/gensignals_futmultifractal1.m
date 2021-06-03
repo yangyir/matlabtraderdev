@@ -129,7 +129,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 ll(end)-teeth(end)<=-ticksize;
             
             if validbreachhh && ~validbreachll
-                %市场按收盘价出现了有效的向上突破
+                %there is a valid up-breach with close price of the candle
                 if teeth(end)>jaw(end)
                     b1type = 3;
                 else
@@ -200,7 +200,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
             end
             %    
             if ~validbreachhh && validbreachll
-                %%市场按收盘价出现了有效的向下突破
+                %%there is a valid down-breach with close price of the
+                %%candle
                 if teeth(end)<jaw(end)
                     s1type = 3;
                 else
@@ -395,11 +396,15 @@ function signals = gensignals_futmultifractal1(stratfractal)
 %                 end
                 %
                 %
-                %1a.已经连续2*nfractal的K线排列在alligator teeth的上方；且HH形成在alligator
-                %teeth的上方，在HH的上方挂买单
-                %且最新的收盘价还在HH的下方
-                %且最新的HH比前一个HH高，证明趋势向上
-                %或者即使最新的HH比前一个HH略低，但是已经连续2*nfractal的K线排列在alligator lips的上方
+                %1a.there are 2*nfactal candles above alligator's teeth
+                %continuously with HH being above alligator's teeth
+                %the latest close price should be still below HH
+                %the latest HH shall be above the previous HH, indicating
+                %an upper trend
+                %in case the latest HH is below the previous HH, i.e. the
+                %previous was formed given higher price volatility, we
+                %shall still regard the up-trend as valid if and only if
+                %there are 2*nfractal candles above alligator's lips
                 aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)<0,1,'first'));
                 aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
                 aboveteeth = aboveteeth & p(end,5)<hh(end);
@@ -409,19 +414,41 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     if last2hh(2) > last2hh(1)-ticksize
                         aboveteeth = true;
                     else
-                        %如果所有的K线都在alligator lips上方，还是多头趋势
+                        %there are 2*nfractal candles above alligator's lips
                         aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)<0,1,'first'));
                     end  
                 end
                 if aboveteeth
                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
+                    %DO NOT place any order if alligator's teeth and jaw
+                    %crossed
                     aboveteeth = aboveteeth & ~isteethjawcrossed;
                 end
-                %1b.HH在TDST level up的上方；
-                %HH大于alligator teeth
-                %最新的收盘价还在HH的下方
-                %且K线的最高价在TDST level up的上方
-                %如果向上穿透HH则必然已经穿透TDST level up
+                %20210603?special case:
+                %the upper-trend might be too strong and about to exhausted
+                %1)the latest candle stick is within 12 sticks(inclusive) from
+                %the latest sell count 13
+                %2)the latest sell sequential is greater than or equal 22(9+13)
+                %3)the latest sell count 13 is included in the latest sell sequential
+                %DO N0T place any order if the above 3 conditions hold
+                if aboveteeth
+                    idx_sc13_last = find(sc==13,1,'last');
+                    idx_ss_last = find(ss >= 9, 1,'last');
+                    ss_last = ss(idx_ss_last);
+                    idx_ss_start = idx_ss_last-ss_last+1;
+                    if size(sc,1) - idx_sc13_last <= 12 && ss_last >= 22 ...
+                            && idx_ss_start +9 < idx_sc13_last
+                        aboveteeth = false;
+                    end
+                end
+                %
+                %1b.HH is above TDST level-up
+                %HH is also above alligator's teeth
+                %the latest close price is still below HH
+                %the alligator's lips is above alligator's teeth
+                %some of the last 2*nfracal candles's low price was below TDST level-up
+                %i.e.not all candles above TDST level-up
+                %if HH is breached, it shall also breach TDST level up
                 hhabovelvlup = hh(end)>=lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & p(end,5)<hh(end) ...
@@ -429,27 +456,34 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first'));
                 if hhabovelvlup
                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
+                    %in case alligator's teeth and jaw is crossed and also
+                    %sell sequential is above 8, if wad distracts from the
+                    %price movement
                     if isteethjawcrossed && ss(end) >= 8
                         maxpx = max(p(end-ss(end)+1:end-1,5));
                         maxpxidx = find(p(end-ss(end)+1:end-1,5)==maxpx,1,'last')+size(p,1)-ss(end);
                         if wad(maxpxidx) >= wad(end)
+                            fprintf('hhabovelvlup failed because inconsistence of wad\n');
                             hhabovelvlup = false;
                         end
                     end
                 end
-                %且最新的HH比之前一个HH高，证明趋势向上
+                %the latest HH is above the previous, indicating an
+                %upper-trend
                 if size(last2hhidx,1) == 2 && hhabovelvlup
                     if last2hh(2) > last2hh(1)
                         hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
                     else
-                        %如果前nfractal根K线都在alligator lips上方，还是多头趋势
+                        %we regard the upper trend is valid if nfractal+1
+                        %candle close above the alligator's lips
                         hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
                     end
                 end
                 %
-                %1c.HH在TDST level up的下方；
-                %HH大于alligator teeth
-                %最新的收盘价还在HH的下方
+                %1c.HH is below TDST level up
+                %HH is also above alligator's teeth
+                %the alligator's lips is above alligator's teeth
+                %the latest close price is still below HH
                 hhbelowlvlup = hh(end)<lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & lips(end)>teeth(end) ...
@@ -496,12 +530,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 end
                 %
                 %
-                %2a.已经连续2*nfractal的K线排列在alligator teeth的下方；且LL形成在alligator
-                %teeth的下方，在LL的下方一个tick挂卖单
-                %且最新的收盘价还在LL的上方
-                %且最新的LL比前一个LL低，证明趋势向下
-%                 belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-                belowteeth = isempty(find(p(end-2*nfractal:end,5)-teeth(end-2*nfractal:end)-2*ticksize>0,1,'first'));
+                %2a.there are 2*nfactal candles below alligator's teeth
+                %continuously with LL being below alligator's teeth
+                %the latest close price should be still above LL
+                %the latest LL shall be below the previous LL, indicating
+                %a down trend
+                %in case the latest LL is above the previous LL, i.e. the
+                %previous was formed given higher price volatility, we
+                %shall still regard the down-trend as valid if and only if
+                %there are 2*nfractal candles below alligator's lips
+                belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
                 belowteeth = belowteeth & ll(end)-teeth(end)<=-ticksize;
                 belowteeth = belowteeth & p(end,5)>ll(end);
                 last2llidx = find(idxLL(1:end)==1,2,'last');
@@ -510,30 +548,79 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     if last2ll(2) < last2ll(1)
                         belowteeth = true;
                     else
-                        %已经连续2*nfractal的K线排列在alligator lips的下方；且LL形成在alligator
-                        belowteeth = isempty(find(p(end-2*nfractal:end,5)-lips(end-2*nfractal:end)-2*ticksize>0,1,'first'));
+                        %there are 2*nfractal candles below alligator's lips
+                        belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
                     end
                 end
-                [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
-                belowteeth = belowteeth & ~isteethjawcrossed;
-                %2b.LL在TDST level dn的下方；
-                %LL小于alligator teeth
-                %且最新的收盘价还在LL的上方
-                %且K线的最低价在level dn的下方
-                %如果向下穿透LL则必然已经穿透TDST level dn
+                if belowteeth
+                    [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
+                    %DO NOT place any order if alligator's tteh and jaw
+                    %crossed
+                    belowteeth = belowteeth & ~isteethjawcrossed;
+                end
+                %20210603?special case:
+                %the down-trend might be too strong and about to exhausted
+                %1)the latest candle stick is within 12 sticks(inclusive)
+                %from the latest buy count 13
+                %2)the latest buy sequential is greater than or equal 22(9+13)
+                %3)the latest buy count 13 is included in the latest buy sequential
+                %DO NOT place any order if the above 3 conditions hold
+                if belowteeth
+                    idx_bc13_last = find(bc==13,1,'last');
+                    idx_bs_last = find(bs>=9,1,'last');
+                    bs_last = bs(idx_bs_last);
+                    idx_bs_start = idx_bs_last-bs_last+1;
+                    if size(bc,1)-idx_bc13_last <= 12 && bs_last >= 12 ...
+                            &&idx_bs_start + 9 < idx_bc13_last
+                        belowteeth = false;
+                    end
+                end
+                %
+                %2b.LL is below TDST level-dn
+                %LL is also below alligator's teeth
+                %the latest close price is still above LL
+                %the alligator's lips is below alligator's teeth
+                %some of the latest 2*nfractal candle's high price was
+                %above TDST level-up
                 llbelowlvldn = ll(end)<=lvldn(end) ...
                     & ll(end)<teeth(end) ...
                     & p(end,5)>ll(end) ...
                     & lips(end)<teeth(end) ...
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'));
-                %2c.LL在TDST level dn的上方；
-                %LL小于alligator teeth
-                %且最新的收盘价还在LL的上方
+                if llbelowlvldn
+                    [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
+                    %in case alligator's teeth and jaw is crossed and also
+                    %buy sequential is above 8, if wad distracts from the
+                    %price movement
+                    if isteethjawcrossed && bs(end) >= 8
+                        minpx = min(p(end-bs(end)+1:end-1,5));
+                        minpxid = find(p(end-bs(end)+1:end-1,5) == minpx,1,'last')+size(p,1)-bs(end);
+                        if wad(minpxid) <= wad(end)
+                            fprintf('llbelowlvldn failed because inconsistence of wad\n');
+                            llbelowlvldn = false;
+                        end
+                    end
+                end
+                %the latest LL is below the previous, indicating a
+                %down-trend
+                if size(last2llidx,1) == 2 && llbelowlvldn
+                    if last2ll(2) < last2ll(1)
+                        llbelowlvldn = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)-2*ticksize>0,1,'first'));
+                    else
+                        %we regard the down trend is valid if nfractal+1
+                        %candle close below the alligator's lips
+                        llbelowlvldn = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)-2*ticksize>0,1,'first'));
+                    end
+                end
+                %
+                %2c.LL is above TDST level dn
+                %LL is also below alligator's teeth
+                %the alligator's lips is below alligator's teeth
+                %the latest close price is still above LL
                 llabovelvldn = ll(end)>lvldn(end) ...
                     & ll(end)<teeth(end) ...
                     & lips(end)<teeth(end) ...
                     & p(end,5)>ll(end);
-                
                 if belowteeth
                     %TREND has priority over TDST breakout
                     this_signal = zeros(1,6);
