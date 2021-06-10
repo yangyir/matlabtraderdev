@@ -434,11 +434,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if aboveteeth
                     idx_sc13_last = find(sc==13,1,'last');
                     idx_ss_last = find(ss >= 9, 1,'last');
-                    ss_last = ss(idx_ss_last);
-                    idx_ss_start = idx_ss_last-ss_last+1;
-                    if size(sc,1) - idx_sc13_last <= 12 && ss_last >= 22 ...
-                            && idx_ss_start +9 < idx_sc13_last
-                        aboveteeth = false;
+                    if ~isempty(idx_sc13_last) && ~isempty(idx_ss_last)
+                        ss_last = ss(idx_ss_last);
+                        idx_ss_start = idx_ss_last-ss_last+1;
+                        if size(sc,1) - idx_sc13_last <= 12 && ss_last >= 22 ...
+                                && idx_ss_start +9 < idx_sc13_last
+                            aboveteeth = false;
+                        end
                     end
                 end
                 %
@@ -568,11 +570,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if belowteeth
                     idx_bc13_last = find(bc==13,1,'last');
                     idx_bs_last = find(bs>=9,1,'last');
-                    bs_last = bs(idx_bs_last);
-                    idx_bs_start = idx_bs_last-bs_last+1;
-                    if size(bc,1)-idx_bc13_last <= 12 && bs_last >= 12 ...
-                            &&idx_bs_start + 9 < idx_bc13_last
-                        belowteeth = false;
+                    if ~isempty(idx_bc13_last) && ~isempty(idx_bs_last)
+                        bs_last = bs(idx_bs_last);
+                        idx_bs_start = idx_bs_last-bs_last+1;
+                        if size(bc,1)-idx_bc13_last <= 12 && bs_last >= 12 ...
+                                &&idx_bs_start + 9 < idx_bc13_last
+                            belowteeth = false;
+                        end
                     end
                 end
                 %
