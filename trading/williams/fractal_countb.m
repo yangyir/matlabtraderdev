@@ -16,7 +16,7 @@ n = np - idx_lasthh+nfractal+1;
 nabovelips1 = 0;
 naboveteeth1 = 0;
 for i = idx_lasthh-nfractal:np
-    if p(i,5) > lips(i)
+    if p(i,5) > lips(i)-2*ticksize
         nabovelips1 = nabovelips1+1;
     else
         break
@@ -24,7 +24,7 @@ for i = idx_lasthh-nfractal:np
 end
 %
 for i = idx_lasthh-nfractal:np
-    if p(i,5) > teeth(i)
+    if p(i,5) > teeth(i)-2*ticksize
         naboveteeth1 = naboveteeth1+1;
     else
         break
@@ -35,7 +35,7 @@ end
 nabovelips2 = 0;
 naboveteeth2 = 0;
 for i = np:-1:idx_lasthh-nfractal
-    if p(i,5) > lips(i)
+    if p(i,5) > lips(i)-2*ticksize
         nabovelips2 = nabovelips2+1;
     else
         break

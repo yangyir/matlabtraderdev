@@ -100,7 +100,7 @@ end
 %all the special case above passed
 %and to check whether there are 2*nfractal+1 candles stay above teeth
 %before it breach the fractal hh
-istrendconfirmed = nkaboveteeth>2*nfractal+1;
+istrendconfirmed = nkaboveteeth>=2*nfractal+1;
 if ~istrendconfirmed
     %1.in case all candles are above teeth since hh formed but there are
     %less than 2*nfractal+1 candles since then, we include candles before

@@ -16,7 +16,7 @@ n = np - idx_lastll+nfractal+1;
 nbelowlips1 = 0;
 nbelowteeth1 = 0;
 for i = idx_lastll-nfractal:np
-    if p(i,5) < lips(i)
+    if p(i,5) < lips(i) + 2*ticksize
         nbelowlips1 = nbelowlips1+1;
     else
         break
@@ -24,7 +24,7 @@ for i = idx_lastll-nfractal:np
 end
 %
 for i = idx_lastll-nfractal:np
-    if p(i,5) < teeth(i)
+    if p(i,5) < teeth(i) + 2*ticksize
         nbelowteeth1 = nbelowteeth1+1;
     else
         break
@@ -35,7 +35,7 @@ end
 nbelowlips2 = 0;
 nbelowteeth2 = 0;
 for i = np:-1:idx_lastll-nfractal
-    if p(i,5) < lips(i)
+    if p(i,5) < lips(i) + 2*ticksize
         nbelowlips2 = nbelowlips2+1;
     else
         break
