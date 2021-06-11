@@ -140,7 +140,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     'idxll',idxLL,'ll',ll,...
                     'lips',lips,'teeth',teeth,'jaw',jaw,...
                     'wad',wad);
-                op = fractal_filterb1_singleentry(b1type,nfractal,extrainfo);
+                op = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize);
                 useflag = op.use;
                 if ~useflag
                     %special treatment when market jumps
@@ -212,7 +212,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     'idxll',idxLL,'ll',ll,...
                     'lips',lips,'teeth',teeth,'jaw',jaw,...
                     'wad',wad);
-                op = fractal_filters1_singleentry(s1type,nfractal,extrainfo);
+                op = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksize);
                 useflag = op.use;
                 if ~useflag
                     %special treatment when market jumps
@@ -405,7 +405,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %previous was formed given higher price volatility, we
                 %shall still regard the up-trend as valid if and only if
                 %there are 2*nfractal candles above alligator's lips
-                aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)<0,1,'first'));
+                aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
                 aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
                 aboveteeth = aboveteeth & p(end,5)<hh(end);
                 last2hhidx = find(idxHH(1:end)==1,2,'last');
@@ -415,7 +415,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         aboveteeth = true;
                     else
                         %there are 2*nfractal candles above alligator's lips
-                        aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)<0,1,'first'));
+                        aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
                     end  
                 end
                 if aboveteeth

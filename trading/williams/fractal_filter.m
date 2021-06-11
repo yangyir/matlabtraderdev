@@ -61,8 +61,12 @@ for i = 1:n
         instrument = codes{i};
         ticksize = 0.001;
     else
-        instrument = code2instrument(codes{i});
-        ticksize = instrument.tick_size;
+        try
+            instrument = code2instrument(codes{i});
+            ticksize = instrument.tick_size;
+        catch
+            ticksize = 0;
+        end
     end
     p = data_intraday{i};
     if p(2,1) - p(1,1) < 1
