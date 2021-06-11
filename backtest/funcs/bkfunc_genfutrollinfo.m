@@ -3,10 +3,12 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     datadir = [getenv('DATAPATH'),'dailybar\'];
     fnlist = dir(datadir);
     
-    futlist = listcontracts(assetname,'connection','bloomberg');
+%     futlist = listcontracts(assetname,'connection','bloomberg');
+    futlist = listcontracts(assetname,'connection','wind');
     expiries = zeros(size(futlist,1),1);
     for i = 1:size(futlist,1)
-        code = bbg2ctp(futlist{i});
+%         code = bbg2ctp(futlist{i});
+        code = wind2ctp(futlist{i});
         instrument = code2instrument(code);
         if isempty(instrument.contract_size)
             if ~exist('bbg','var')
@@ -48,7 +50,8 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     ncheck = length(expiries)-lastFutIdx+1;
     ois = zeros(ncheck,2);
     for i = 1:ncheck
-        code = bbg2ctp(futlist{i+lastFutIdx-1});
+%         code = bbg2ctp(futlist{i+lastFutIdx-1});
+        code = wind2ctp(futlist{i+lastFutIdx-1});
         %here we switch to get data from local drive rather than from the
         %terminal
         filename = [code,'_daily.txt'];
@@ -66,7 +69,8 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
     futures = futlist(firstFutIdx:lastFutIdx);
     pxoidata = cell(length(futures),1);
     for i = 1:length(futures)
-        code = bbg2ctp(futures{i});
+%         code = bbg2ctp(futures{i});
+        code = wind2ctp(futures{i});
         filename = [code,'_daily.txt'];
         
         try
@@ -105,8 +109,10 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
                     rollinfo{i,1} = tRoll;
                     rollinfo{i,2} = find(data1(:,1) == tRoll);
                     rollinfo{i,3} = find(data2(:,1) == tRoll);
-                    rollinfo{i,4} = bbg2ctp(futures{i});
-                    rollinfo{i,5} = bbg2ctp(futures{i+1});
+%                     rollinfo{i,4} = bbg2ctp(futures{i});
+%                     rollinfo{i,5} = bbg2ctp(futures{i+1});
+                    rollinfo{i,4} = wind2ctp(futures{i});
+                    rollinfo{i,5} = wind2ctp(futures{i+1});
                     rollinfo{i,6} = datestr(tRoll);
                     continue
                 else
@@ -120,8 +126,10 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
             rollinfo{i,1} = tRoll;
             rollinfo{i,2} = find(data1(:,1) == tRoll);
             rollinfo{i,3} = find(data2(:,1) == tRoll);
-            rollinfo{i,4} = bbg2ctp(futures{i});
-            rollinfo{i,5} = bbg2ctp(futures{i+1});
+%             rollinfo{i,4} = bbg2ctp(futures{i});
+%             rollinfo{i,5} = bbg2ctp(futures{i+1});
+            rollinfo{i,4} = wind2ctp(futures{i});
+            rollinfo{i,5} = wind2ctp(futures{i+1});
             rollinfo{i,6} = datestr(tRoll);
         end    
     end
