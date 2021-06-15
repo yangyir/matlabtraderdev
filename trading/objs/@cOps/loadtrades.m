@@ -121,7 +121,8 @@ function [] = loadtrades(obj,varargin)
         condentrustspending = EntrustArray;
         npending = data.condentrustspending.latest;
         for jj = 1:npending
-            %凡是fractal的条件单是不用被load的，因为都是重新计算的
+            % no need to load conditional entrusts in fractal as it is
+            % recomputed
             if ~isempty(data.condentrustspending.node(jj).signalinfo_) && ...
                     strcmpi(data.condentrustspending.node(jj).signalinfo_.name,'fractal')
                 continue;
