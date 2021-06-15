@@ -612,6 +612,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %the latest LL is below the previous, indicating a
                 %down-trend
                 if size(last2llidx,1) == 2 && llbelowlvldn
+                    last2ll = ll(last2llidx);
                     if last2ll(2) < last2ll(1)
                         llbelowlvldn = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)-2*ticksize>0,1,'first'));
                     else
