@@ -80,16 +80,24 @@ function [] = updatecondentrusts(strategy)
                 end
                 %
                 if direction == 1 && lasttick(3) >= condpx && abs(condpx+9.99) > 1e-5
-                    ret = strategy.longopen(codestr,volume,'overrideprice',lasttick(3),...
+                    [ret,~,errmsg] = strategy.longopen(codestr,volume,'overrideprice',lasttick(3),...
                         'signalinfo',condentrust.signalinfo_);
                     if ret
                         condentrusts2remove.push(condentrust);
+                    else
+                        if ~isempty(strfind(errmsg,'max allowance'))
+                            condentrusts2remove.push(condentrust);
+                        end
                     end
                 elseif direction == -1 && lasttick(2) <= condpx && abs(condpx+9.99) > 1e-5                    
-                    ret = strategy.shortopen(codestr,volume,'overrideprice',lasttick(2),...
+                    [ret,~,errmsg] = strategy.shortopen(codestr,volume,'overrideprice',lasttick(2),...
                         'signalinfo',condentrust.signalinfo_);
                     if ret
                         condentrusts2remove.push(condentrust);
+                    else
+                        if ~isempty(strfind(errmsg,'max allowance'))
+                            condentrusts2remove.push(condentrust);
+                        end
                     end
 
                 end
