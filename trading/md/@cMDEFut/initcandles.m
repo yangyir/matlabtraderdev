@@ -18,7 +18,26 @@ function [ret] = initcandles(mdefut,instrument,varargin)
             if mdefut.candle_freq_(i) ~= 1440
                 count = 1;
                 date1 = date2;
-                while count <= nop,date1 = businessdate(date1,-1);count = count + 1;end
+                foldername = [getenv('DATAPATH'),'intradaybar\',instruments{i}.code_ctp];
+                filelist = ls(foldername);
+                while count <= nop
+                    date1 = businessdate(date1,-1);
+                    ifound = false;
+                    filename = [instruments{i}.code_ctp,'_',datestr(date1,'yyyymmdd'),'_1m.txt'];
+                    %check whether intraday data is available on that date
+                    for ifile = 1:size(filelist,1)
+                        if strcmpi(filename,filelist(ifile,:))
+                            ifound = true;
+                            break
+                        end
+                    end
+                    if ifound
+                        count = count + 1;
+                    else
+                        date1 = businessdate(date1,-1);
+                        break
+                    end
+                end
                 lastbd = businessdate(date2,-1);
                 if strcmpi(instruments{i}.break_interval{end,end},'01:00:00') ||...
                         strcmpi(instruments{i}.break_interval{end,end},'02:30:00')
@@ -109,7 +128,26 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                 %intraday candles for the last 10 business dates
                 count = 1;
                 date1 = date2;
-                while count <= nop,date1 = businessdate(date1,-1);count = count + 1;end
+                foldername = [getenv('DATAPATH'),'intradaybar\',instrument.code_ctp];
+                filelist = ls(foldername);
+                while count <= nop
+                    date1 = businessdate(date1,-1);
+                    ifound = false;
+                    filename = [instrument.code_ctp,'_',datestr(date1,'yyyymmdd'),'_1m.txt'];
+                    %check whether intraday data is available on that date
+                    for ifile = 1:size(filelist,1)
+                        if strcmpi(filename,filelist(ifile,:))
+                            ifound = true;
+                            break
+                        end
+                    end
+                    if ifound
+                        count = count + 1;
+                    else
+                        date1 = businessdate(date1,1);
+                        break
+                    end
+                end
                 lastbd = businessdate(date2,-1);
                 if strcmpi(instruments{i}.break_interval{end,end},'01:00:00') ||...
                         strcmpi(instruments{i}.break_interval{end,end},'02:30:00')
