@@ -4,9 +4,15 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
     unwindtrade = {};
     trade = obj.trade_;
     direction = trade.opendirection_;
+    instrument = trade.instrument_;
+    try
+        ticksize = instrument.tick_size;
+    catch
+        ticksize = 0;
+    end
     
-    if (lowp < obj.pxstoploss_ && direction == 1) || ...
-            (highp > obj.pxstoploss_ && direction == -1)
+    if (lowp - obj.pxstoploss_ < -ticksize && direction == 1) || ...
+            (highp - obj.pxstoploss_ > ticksize && direction == -1)
         closeflag = 1;
     elseif (lowp < obj.pxtarget_ && direction == -1) ||...
             (highp > obj.pxtarget_ && direction == 1)
@@ -44,7 +50,7 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
     closetime = t;
     obj.trade_.closedatetime1_ = closetime;
     obj.trade_.closeprice_ = closeprice;
-    instrument = trade.instrument_;
+    
     %
     if updateinfo
         volume = trade.openvolume_;
@@ -54,7 +60,7 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
         if isempty(instrument)
             obj.trade_.closepnl_ = direction*volume*(closeprice-trade.openprice_);
         else
-            obj.trade_.closepnl_ = direction*volume*(closeprice-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+            obj.trade_.closepnl_ = direction*volume*(closeprice-trade.openprice_)/ticksize * instrument.tick_value;
         end
     end
     %
