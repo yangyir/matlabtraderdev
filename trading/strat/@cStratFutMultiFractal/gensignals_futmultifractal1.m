@@ -405,18 +405,22 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %previous was formed given higher price volatility, we
                 %shall still regard the up-trend as valid if and only if
                 %there are 2*nfractal candles above alligator's lips
-                aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-                aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
-                aboveteeth = aboveteeth & p(end,5)<hh(end);
                 last2hhidx = find(idxHH(1:end)==1,2,'last');
                 last2hh = hh(last2hhidx);
-                if size(last2hhidx,1) == 2 && aboveteeth
-                    if last2hh(2) > last2hh(1)-ticksize
-                        aboveteeth = true;
-                    else
-                        %there are 2*nfractal candles above alligator's lips
-                        aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-                    end  
+                if size(p,1)-(last2hhidx(end)-nfractal) >= 2*nfractal
+                    aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                    aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
+                    aboveteeth = aboveteeth & p(end,5)<hh(end);                    
+                    if size(last2hhidx,1) == 2 && aboveteeth
+                        if last2hh(2) - last2hh(1) >= ticksize
+                            aboveteeth = true;
+                        else
+                            %there are 2*nfractal candles above alligator's lips
+                            aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                        end
+                    end
+                else
+                    aboveteeth = false;
                 end
                 if aboveteeth
                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
@@ -453,7 +457,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %if HH is breached, it shall also breach TDST level up
                 hhabovelvlup = hh(end)>=lvlup(end) ...
                     & hh(end)>teeth(end) ...
-                    & p(end,5)<hh(end) ...
+                    & p(end,5)<=hh(end) ...
                     & lips(end)>teeth(end) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first'));
                 if hhabovelvlup
@@ -489,7 +493,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 hhbelowlvlup = hh(end)<lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & lips(end)>teeth(end) ...
-                    & p(end,5)<hh(end);
+                    & p(end,5)<=hh(end);
                 if aboveteeth
                     %TREND has priority over TDST breakout
                     this_signal = zeros(1,6);
@@ -548,7 +552,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     belowteeth = belowteeth & p(end,5)>ll(end);
                     last2ll = ll(last2llidx);
                     if size(last2ll,1) == 2 && belowteeth
-                        if last2ll(2) < last2ll(1)
+                        if last2ll(2) - last2ll(1) <= -ticksize
                             belowteeth = true;
                         else
                             %there are 2*nfractal candles below alligator's lips
@@ -592,7 +596,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %above TDST level-up
                 llbelowlvldn = ll(end)<=lvldn(end) ...
                     & ll(end)<teeth(end) ...
-                    & p(end,5)>ll(end) ...
+                    & p(end,5)>=ll(end) ...
                     & lips(end)<teeth(end) ...
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'));
                 if llbelowlvldn
@@ -629,7 +633,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 llabovelvldn = ll(end)>lvldn(end) ...
                     & ll(end)<teeth(end) ...
                     & lips(end)<teeth(end) -2*ticksize...
-                    & p(end,5)>ll(end);
+                    & p(end,5)>=ll(end);
                 if llabovelvldn && ~isnan(lvlup(end))
                     llabovelvldn = llabovelvldn & p(end,4)<lvlup(end);
                 end
