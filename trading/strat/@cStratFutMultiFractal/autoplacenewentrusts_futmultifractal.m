@@ -100,7 +100,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                         'hh1',signal_short(5),'ll1',signal_short(6));
                 if bid < signal_short(3) && bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
                     stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
-                elseif bid > signal_short(3)
+                elseif bid >= signal_short(3)
                     %conditional entrust shall be placed
                     ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
                     ncondpendingvolume = 0;
@@ -156,7 +156,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                         'hh1',signal_long(5),'ll1',signal_long(6));
                 if ask > signal_long(2)+ticksize && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
                     stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
-                elseif ask < signal_long(2)
+                elseif ask <= signal_long(2)
                     %conditional entrust shall be placed
                     ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
                     ncondpendingvolume = 0;
