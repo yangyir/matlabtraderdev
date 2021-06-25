@@ -69,7 +69,7 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
                 obj.hh0_ = obj.hh1_;
                 obj.hh1_ = hh;
             end
-            if extrainfo.p(end,5) > 0.382*obj.ll0_+1.382*obj.ll1_ && obj.ll1_ - obj.ll0_ <-2*ticksize
+            if extrainfo.p(end,5) > 1.382*obj.ll0_-0.382*obj.ll1_ && obj.ll1_ - obj.ll0_ <-2*ticksize
                 closeflag = 1;
                 obj.closestr_ = 'fractal:update';
             else
