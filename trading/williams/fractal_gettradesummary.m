@@ -2,6 +2,8 @@ function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess] = 
 %
 if strcmpi(code,'510300')
     ticksize = 0.001;
+elseif strcmpi(code,'gzhy')
+    ticksize = 0.0001;
 else
     fut = code2instrument(code);
     ticksize = fut.tick_size;

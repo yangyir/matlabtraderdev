@@ -12,6 +12,13 @@ direction = p.Results.direction;
 %load the data
 if strcmpi(code,'510300')
     cp = cDataFileIO.loadDataFromTxtFile([code,'_daily.txt']);
+elseif strcmpi(code,'gzhy')
+    path = 'C:\Users\yiran\OneDrive\ea\govtbond\';
+    xlfn = 'wind_gyhy10y_yield.xlsx';
+    [num,~,~] = xlsread([path,xlfn]);
+    num(:,1) = x2mdate(num(:,1));
+    idx = ~(isnan(num(:,2)) | isnan(num(:,3)) | isnan(num(:,4)) | isnan(num(:,5)));
+    cp = num(idx,1:5);
 else
     instrument = code2instrument(code);
     assetinfo = getassetinfo(instrument.asset_name);
