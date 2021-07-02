@@ -26,7 +26,9 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     if isempty(lasttick), return; end
     ticktime = lasttick(1);
     unwindtrade = obj.riskmanagementwithtick(lasttick,varargin{:});
-    if ~isempty(unwindtrade), return;end
+    if ~isempty(unwindtrade)
+        return
+    end
    
     candleCell = mdefut.getcandles(instrument);
     if isempty(candleCell), return;end

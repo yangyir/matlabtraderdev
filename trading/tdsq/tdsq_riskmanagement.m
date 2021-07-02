@@ -71,6 +71,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
 %             trade.riskmanager_.pxstoploss_ = 0.382*lvlup(end-1)+0.618*trade.riskmanager_.hh0_;
             trade.riskmanager_.pxstoploss_ = 0.382*lvlup(end-1)+0.618*trade.riskmanager_.pxstoploss_;
+            trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
         end
         %IF TDST-lvlup exists and is higher then HH at open
         %then one of the candle's high price has breached TDST-lvlup but
@@ -179,6 +180,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
 %             trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.ll0_;
             trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.pxstoploss_;
+            trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
         end
         %IF TDST-lvldn exists and is lower then LL at open
         %then one of the candle's low price has breached TDST-lvldn but

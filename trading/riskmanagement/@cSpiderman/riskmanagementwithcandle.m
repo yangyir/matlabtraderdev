@@ -35,7 +35,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     
     if ~usecandlelastonly
         unwindtrade = obj.candlehighlow(candleTime,candleOpen,candleHigh,candleLow,updatepnlforclosedtrade);
-        if ~isempty(unwindtrade), return;end  
+        if ~isempty(unwindtrade)
+            return
+        end  
     end
     
     if strcmpi(trade.opensignal_.frequency_,'daily')
