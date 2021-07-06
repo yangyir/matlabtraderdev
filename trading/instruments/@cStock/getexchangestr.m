@@ -1,26 +1,5 @@
 function [assetname,exch] = getexchangestr(obj)
-    % support stock?
-    ctpstr = obj.code_ctp_underlier;
-    if isempty(ctpstr)
-        assetname = '';
-        exch = '';
-        return
-    end
-
-    for i = 1:length(ctpstr)
-        if isnumchar(ctpstr(i)), break; end
-    end
-    idx = i-1;
-    assetshortcode = ctpstr(1:idx);
-    [assetlist,~,~,codelist,exlist]=getassetmaptable;
-    for i = 1:size(codelist)
-        if strcmpi(assetshortcode,codelist{i})
-            assetname = assetlist{i};
-            exch = exlist{i};
-            return
-        end
-    end
-    exch = 'unknown';
+%cStock
+    assetname = obj.asset_name;
+    exch = obj.exchange;
 end
-%end of getexchangestr
-
