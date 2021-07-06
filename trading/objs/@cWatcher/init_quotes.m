@@ -22,6 +22,9 @@ function [] = init_quotes(watcher)
                         q.riskless_rate = 0.035;
                     end
                 end
+            elseif strcmpi(watcher.types{i},'stock')
+                q = cQuoteStock;
+                q.init(watcher.singles{i});
             else
                 q = cQuoteFut;
                 q.init(watcher.singles{i});

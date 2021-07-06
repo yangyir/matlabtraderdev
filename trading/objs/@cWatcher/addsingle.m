@@ -13,9 +13,17 @@ function [] = addsingle(watcher,singlestr)
         s_b = cell(n,1);
         s_ctp = cell(n,1);
         s{n} = singlestr;
-        s_ctp{n} = str2ctp(singlestr);
-        s_w{n} = ctp2wind(s_ctp{n});
-        s_b{n} = ctp2bbg(s_ctp{n});
+        isstock = false;
+        try
+            s_ctp{n} = str2ctp(singlestr);
+            s_w{n} = ctp2wind(s_ctp{n});
+            s_b{n} = ctp2bbg(s_ctp{n});
+        catch
+            s_ctp{n} = singlestr;
+            s_w{n} = singlestr;
+            s_b{n} = singlestr;
+            isstock = true;
+        end
         if n > 1
             for i = 1:n-1
                 s{i} = watcher.singles{i};
@@ -33,7 +41,11 @@ function [] = addsingle(watcher,singlestr)
         if flag
             types_{n} = 'option';
         else
-            types_{n} = 'futures';
+            if ~isstock
+                types_{n} = 'futures';
+            else
+                types_{n} = 'stock';
+            end
         end
         if n > 1
             for i = 1:n-1

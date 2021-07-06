@@ -33,6 +33,12 @@ function [] = refresh(watcher,timestr)
             watcher.qs{i}.update(watcher.singles_ctp{i},data(i,1),data(i,2),...
                 data(i,3),data(i,4),data(i,5),data(i,6),data(i,7),...
                 watcher.qs{ns+idx},watcher.calcgreeks);
+        elseif strcmpi(watcher.types{i},'stock')
+            if isempty(watcher.qs{i})
+                watcher.qs{i} = cQuoteStock;
+            end
+            watcher.qs{i}.update(watcher.singles_ctp{i},data(i,1),data(i,2),data(i,3),...
+                data(i,4),data(i,5),data(i,6),data(i,7));
         else
             error('cWatcher:refresh:internal error')
         end
