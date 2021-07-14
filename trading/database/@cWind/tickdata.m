@@ -46,6 +46,47 @@ function data = tickdata(obj,instrument,startdate,enddate)
             end
             data = cell2mat(data_);
         end
+    elseif ischar(instrument)
+        code_wind = instrument;
+        bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...
+            'todate',datenum(enddate,'yyyy-mm-dd'));
+        n = size(bds,1);
+        if n == 0
+            fprintf('cWind:tickdata:no business dates found between input startdate and enddate\n');
+            data = [];
+            return
+        elseif n == 1
+            startdate_ = [datestr(bds,'yyyymmdd'),' 09:30:00'];
+            enddate_ = [datestr(bds,'yyyymmdd'),' 15:00:00'];
+            if strcmpi(code_wind(1),'5') || strcmpi(code_wind(1),'6')
+                [wdata,~,~,wtime] = obj.ds_.wst([code_wind,'.SH'],'last,volume',startdate_,enddate_);
+            else
+                [wdata,~,~,wtime] = obj.ds_.wst([code_wind,'.SZ'],'last,volume',startdate_,enddate_);
+            end
+            %wind returns accumulated trading volume
+            if isnumeric(wdata)
+                d = [wtime,wdata(:,1),[wdata(1,2);wdata(2:end,2)-wdata(1:end-1,2)]];
+                idx = d(:,end) ~= 0;
+                data = d(idx,:);
+            else
+                data = [];
+            end
+        else
+            data_ = cell(n,1);
+            for i = 1:n
+                startdate_ = [datestr(bds(i),'yyyymmdd'),' 09:30:00'];
+                enddate_ = [datestr(bds(i),'yyyymmdd'),' 15:00:00'];
+                if strcmpi(code_wind(1),'5') || strcmpi(code_wind(1),'6')
+                    [wdata,~,~,wtime] = obj.ds_.wst([code_wind,'.SH'],'last,volume',startdate_,enddate_);
+                else
+                    [wdata,~,~,wtime] = obj.ds_.wst([code_wind,'.SZ'],'last,volume',startdate_,enddate_);
+                end
+                d =  [wtime,wdata(:,1),[wdata(1,2);wdata(2:end,2)-wdata(1:end-1,2)]];
+                idx = d(:,end) ~= 0;
+                data_{i,1} = d(idx,:);
+            end
+            data = cell2mat(data_);
+        end
     else
         classname = class(instrument);
         error(['cWind:tickdata:not implemented for class ',...
