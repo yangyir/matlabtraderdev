@@ -1,36 +1,16 @@
-function [tblb,tbls,trades,pnl,resstruct] = fractal_intraday_checker(code,varargin)
+function [tblb,trades,pnl,resstruct] = fractal_checker_etf(code,cp,varargin)
+%work both for etf and stock with long direction only
 p = inputParser;
 p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('type','',@ischar);
 p.addParameter('plot',false,@islogical);
-p.addParameter('direction',[],@isnumeric);
 p.parse(varargin{:});
 type = p.Results.type;
 doplot = p.Results.plot;
-direction = p.Results.direction;
 
-%load the data
-if strcmpi(code,'510300')
-    cp = cDataFileIO.loadDataFromTxtFile([code,'_daily.txt']);
-elseif strcmpi(code,'gzhy')
-    path = [getenv('onedrive'),'\ea\govtbond\'];
-    xlfn = 'wind_gyhy10y_yield.xlsx';
-    [num,~,~] = xlsread([path,xlfn]);
-    num(:,1) = x2mdate(num(:,1));
-    idx = ~(isnan(num(:,2)) | isnan(num(:,3)) | isnan(num(:,4)) | isnan(num(:,5)));
-    cp = num(idx,1:5);
-else
-    instrument = code2instrument(code);
-    assetinfo = getassetinfo(instrument.asset_name);
-    shortcode = lower(assetinfo.WindCode);
-    fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
-        '\',shortcode,'\',code,'.mat'];
-    data = load(fn);
-    cp = data.data;
-end
-if isempty(cp),error('fractal_intraday_checker:invalid code input or data not stored');end
+if isempty(cp),error('fractal_checker_etf:invalid data input');end
 %generate trades and table
-[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot);
+[tblb,~,trades,~,resstruct] = fractal_filter_etf(code,cp,type,1,doplot);
 %
 %backtest trade performance
 n = trades.latest_;
