@@ -25,20 +25,28 @@ end
 
 
 %first try to load information from local drive
-f = cFutures(code_ctp);
-fn_info_ = [dir_info_,code_ctp,'_info.txt'];
-f.loadinfo(fn_info_);
-if isempty(f.contract_size)
-    %not loaded
-    f.init(w);
-    f.saveinfo(fn_info_);
+try
+    f = cFutures(code_ctp);
+    fn_info_ = [dir_info_,code_ctp,'_info.txt'];
+    f.loadinfo(fn_info_);
+    if isempty(f.contract_size)
+        %not loaded
+        f.init(w);
+        f.saveinfo(fn_info_);
+    end
+catch
+    f = [];
 end
 
-sessions = regexp(f.trading_hours,';','split');
-nsession = length(sessions);
-if nsession > 2
-    if strcmpi(sessions{3},'21:00-01:00') || strcmpi(sessions{3},'21:00-02:30')
-        midnighttrading = true;
+if ~isempty(f)
+    sessions = regexp(f.trading_hours,';','split');
+    nsession = length(sessions);
+    if nsession > 2
+        if strcmpi(sessions{3},'21:00-01:00') || strcmpi(sessions{3},'21:00-02:30')
+            midnighttrading = true;
+        else
+            midnighttrading = false;
+        end
     else
         midnighttrading = false;
     end
@@ -72,7 +80,11 @@ bds = gendates('fromdate',startdate,'todate',enddate);
 
 for i = 1:size(bds,1)
     bd = datestr(bds(i),'yyyy-mm-dd');
-    fn_ = [f.code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+    if ~isempty(f)
+        fn_ = [f.code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+    else
+        fn_ = [code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+    end
     %first check whether fn_ exists
     flag = false;
     for j = 1:nfiles
@@ -83,11 +95,19 @@ for i = 1:size(bds,1)
     end
     if ~flag || (flag && override) || bds(i) == lbd || bds(i) == plbd
         %20180527:we will always update data for the last businessdate
-        fn_ = [dir_data_,f.code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+        if ~isempty(f)
+            fn_ = [dir_data_,f.code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+        else
+            fn_ = [dir_data_,code_ctp,'_',datestr(bd,'yyyymmdd'),'_1m.txt'];
+        end
         if flag && (bds(i) == lbd || bds(i) == plbd)
             delete(fn_);
         end
-        data = w.intradaybar(f,bd,bd,1,'trade');
+        if ~isempty(f)
+            data = w.intradaybar(f,bd,bd,1,'trade');
+        else
+            data = w.intradaybar(code_ctp,bd,bd,1,'trade');
+        end
         check = sum(data(:,2:end),2);
         idx = ~isnan(check);
         data = data(idx,:);

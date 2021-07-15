@@ -73,6 +73,46 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             'tradinghours',instrument.trading_hours,...
             'tradingbreak',instrument.trading_break,...
             'frequency',[num2str(interval),'m']);
+    elseif ischar(instrument)
+        if strcmpi(instrument(1),'5') || strcmpi(instrument(1),'6')
+            code_wind = [instrument,'.SH'];
+        else
+            code_wind = [instrument,'.SZ'];
+        end
+        bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...
+            'todate',datenum(enddate,'yyyy-mm-dd'));
+        n = size(bds,1);
+        if n == 0
+            [wdata,~,~,wtime] = obj.ds_.wsi(code_wind,'open,high,low,close',startdate,enddate,'BarSize=1');
+            data_raw_ = [wtime,wdata];
+        elseif n == 1
+            startdate_ = datestr(bds,'yyyymmdd');            
+            enddate_ = [datestr(bds,'yyyymmdd'),' 15:00:00'];
+            [wdata,~,~,wtime] = obj.ds_.wsi(code_wind,'open,high,low,close',startdate_,enddate_,'BarSize=1');
+            data_raw_ = [wtime,wdata];
+        else
+%             startdate_ = [datestr(bds(1),'yyyymmdd'),' ',instrument.break_interval{1,1}];
+            startdate_ = datestr(bds(1),'yyyymmdd');
+            enddate_ = [datestr(bds(1),'yyyymmdd'),' 15:00:00'];
+            [wdata,~,~,wtime] = obj.ds_.wsi(code_wind,'open,high,low,close',startdate_,enddate_,'BarSize=1');
+            data_raw_ = [wtime,wdata];
+            for i = 2:n
+%                 startdate_ = [datestr(bds(i),'yyyymmdd'),' ',instrument.break_interval{1,1}];
+                startdate_ = datestr(bds(i),'yyyymmdd');
+                if datenum(startdate_,'yyyymmdd HH:MM:SS') > today, continue;end
+                enddate_ = [datestr(bds(i),'yyyymmdd'),' 15:00:00'];
+                [wdata,~,~,wtime] = obj.ds_.wsi(code_wind,'open,high,low,close',startdate_,enddate_,'BarSize=1');
+                tmp = data_raw_;
+                data_new_ = [wtime,wdata];
+                data_raw_ = [tmp;data_new_];
+            end
+        end
+        data = timeseries_compress(data_raw_(:,1:5),...
+            'fromdate',startdate,...
+            'todate',enddate,...
+            'tradinghours','09:30-11:30;13:00-15:00',...
+            'tradingbreak','',...
+            'frequency',[num2str(interval),'m']);
     else
         classname = class(instrument);
         error(['cWind:intradaybar:not implemented for class ',...

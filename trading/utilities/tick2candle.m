@@ -1,5 +1,9 @@
 function [candlesout] = tick2candle(code,datein)
-    instrument = code2instrument(code);
+    try
+        instrument = code2instrument(code);
+    catch
+        instrument = [];
+    end
     tickpath = [getenv('datapath'),'ticks\',code,'\'];
     tickfile = [code,'_',datestr(datein,'yyyymmdd'),'_tick.txt'];
     try
@@ -10,10 +14,17 @@ function [candlesout] = tick2candle(code,datein)
         return
     end
     %
-    buckets = getintradaybuckets2('date',datein,...
-                'frequency','1m',...
-                'tradinghours',instrument.trading_hours,...
-                'tradingbreak',instrument.trading_break);
+    if ~isempty(instrument)
+        buckets = getintradaybuckets2('date',datein,...
+                    'frequency','1m',...
+                    'tradinghours',instrument.trading_hours,...
+                    'tradingbreak',instrument.trading_break);
+    else
+        buckets = getintradaybuckets2('date',datein,...
+                    'frequency','1m',...
+                    'tradinghours','09:30-11:30;13:00-15:00',...
+                    'tradingbreak','');
+    end
     datestr_start = datestr(floor(buckets(1,1)),'yyyy-mm-dd');
     datestr_end = datestr(floor(buckets(end,1)),'yyyy-mm-dd');
     
@@ -23,8 +34,12 @@ function [candlesout] = tick2candle(code,datein)
     %category2:govtbond
     %category3:commodity without evening trading sessions
     %category4:commodity with evening trading sessions but not traded overnight
-    %category5:commodity with evening trading sessions and traded overnight 
-    category = getfutcategory(instrument);
+    %category5:commodity with evening trading sessions and traded overnight
+    if ~isempty(instrument)
+        category = getfutcategory(instrument);
+    else
+        category = 1;
+    end
     
     if category > 3
         num21_00_00_ = datenum([datestr_start,' 21:00:00']);
@@ -35,15 +50,27 @@ function [candlesout] = tick2candle(code,datein)
 %         num00_00_00_ = datenum([datestr_end,' 00:00:00']);
 %         num00_00_0_5_ = datenum([datestr_end,' 00:00:0.5']);
 %     end
-    
-    nintervals = size(instrument.break_interval,1);
+    if ~isempty(instrument)
+        nintervals = size(instrument.break_interval,1);
+    else
+        dummyinstrument = code2instrument('IF2106');
+        nintervals = size(dummyinstrument.break_interval,1);
+    end
     datenum_open = zeros(nintervals,1);
     datenum_close = zeros(nintervals,1);
     blankstr = ' ';   
     for i = 1:nintervals
-        datenum_open(i,1) = datenum([datestr_start,blankstr,instrument.break_interval{i,1}]);
+        if ~isempty(instrument)
+            datenum_open(i,1) = datenum([datestr_start,blankstr,instrument.break_interval{i,1}]);
+        else
+            datenum_open(i,1) = datenum([datestr_start,blankstr,dummyinstrument.break_interval{i,1}]);
+        end
         if category ~= 5
-            datenum_close(i,1) = datenum([datestr_start,blankstr,instrument.break_interval{i,2}]);
+            if ~isempty(instrument)
+                datenum_close(i,1) = datenum([datestr_start,blankstr,instrument.break_interval{i,2}]);
+            else
+                datenum_close(i,1) = datenum([datestr_start,blankstr,dummyinstrument.break_interval{i,2}]);
+            end
         else
             if i == nintervals
                 datenum_close(i,1) = datenum([datestr_end,blankstr,instrument.break_interval{i,2}]);

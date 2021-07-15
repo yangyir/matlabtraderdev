@@ -97,6 +97,53 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
                 'fromdate',startdate,...
                 'todate',enddate);
         end
+    elseif ischar(instrument)
+        code_ctp = instrument;
+        bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...
+            'todate',datenum(enddate,'yyyy-mm-dd'));
+        n = size(bds,1);
+
+        if n == 1
+            fn_ = [code_ctp,'_',datestr(bds,'yyyymmdd'),'_1m.txt'];
+            fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
+            data_raw_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+        else
+            data_intermediate_ = cell(n,1);
+            for i = 1:n
+                fn_ = [code_ctp,'_',datestr(bds(i),'yyyymmdd'),'_1m.txt'];
+                fullfn_ = [obj.ds_,'intradaybar\',code_ctp,'\',fn_];
+                data1_ = cDataFileIO.loadDataFromTxtFile(fullfn_);
+                if ~isnumeric(data1_), continue; end
+                data_intermediate_{i} = data1_;    
+            end
+            data_raw_ = cell2mat(data_intermediate_);
+        end
+
+        %the columns in d contain the following:
+        %numeric representation of data and time
+        %open price
+        %high price
+        %low price
+        %closing price
+        %volume of ticks
+        %number of ticks
+        %total tick value in the bar
+        if interval ~= 1
+            dummyinstrument = code2instrument('IF2106');
+            enddate2 = datenum(enddate) + interval/1440 - 1/86400;            
+            enddate2 = datestr(enddate2,'yyyy-mm-dd HH:MM:SS');
+            data = timeseries_compress(data_raw_(:,1:5),...
+                'fromdate',startdate,...
+                'todate',enddate2,...
+                'tradinghours',dummyinstrument.trading_hours,...
+                'tradingbreak',dummyinstrument.trading_break,...
+                'frequency',[num2str(interval),'m']);
+        else
+            data = timeseries_window(data_raw_(:,1:5),...
+                'fromdate',startdate,...
+                'todate',enddate);
+        end
+        
     else
         classname = class(instrument);
         error(['cLocal:intradaybar:not implemented for class ',...
