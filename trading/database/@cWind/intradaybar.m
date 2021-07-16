@@ -99,7 +99,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             for i = 2:n
 %                 startdate_ = [datestr(bds(i),'yyyymmdd'),' ',instrument.break_interval{1,1}];
                 startdate_ = datestr(bds(i),'yyyymmdd');
-                if datenum(startdate_,'yyyymmdd HH:MM:SS') > today, continue;end
+                if bds(i) > today, continue;end
                 enddate_ = [datestr(bds(i),'yyyymmdd'),' 15:00:00'];
                 [wdata,~,~,wtime] = obj.ds_.wsi(code_wind,'open,high,low,close',startdate_,enddate_,'BarSize=1');
                 tmp = data_raw_;
