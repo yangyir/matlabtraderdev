@@ -1,9 +1,11 @@
 classdef cMDEWind < cMyTimerObj
     %the datasource is wind only
+    %for now equity/fund only
     
     properties
         conn_@cWind
         codes_@cell
+        codeswind_@cell
         freq_@cell
     end
     
