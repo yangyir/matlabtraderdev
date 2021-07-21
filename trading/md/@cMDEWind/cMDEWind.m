@@ -10,6 +10,8 @@ classdef cMDEWind < cMyTimerObj
     end
     
     properties
+        hcandlesintraday_@cell
+        hcandlesdaily_@cell
         candlesintraday_@cell
         candlesdaily_@cell
     end
