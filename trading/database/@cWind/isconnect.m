@@ -1,7 +1,11 @@
 function flag = isconnect(obj)
-    if isempty(obj.ds_)
+    if isempty(obj)
         flag = false;
     else
-        flag = obj.ds_.isconnected;
+        if isempty(obj.ds_)
+            flag = false;
+        else
+            flag = obj.ds_.isconnected;
+        end
     end
 end
