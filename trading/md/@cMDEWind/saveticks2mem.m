@@ -15,7 +15,11 @@ function [] = saveticks2mem(obj)
         for i = 1:size(obj.codes_,1)
             count = obj.ticks_count_(i)+1;
             tstr = num2str(rtdata(i,1));
-            ticktime_i = [datestr(today,'yyyy-mm-dd'),' ',tstr(1:2),':',tstr(3:4),':',tstr(5:6)];
+            if length(tstr) < 6
+                ticktime_i = [datestr(today,'yyyy-mm-dd'),' 0',tstr(1),':',tstr(2:3),':',tstr(4:5)];
+            else
+                ticktime_i = [datestr(today,'yyyy-mm-dd'),' ',tstr(1:2),':',tstr(3:4),':',tstr(5:6)];
+            end
             obj.ticksquick_(i,1) = datenum(ticktime_i,'yyyy-mm-dd HH:MM:SS');
             obj.ticksquick_(i,2) = rtdata(i,2);
             obj.ticksquick_(i,3) = rtdata(i,3);
