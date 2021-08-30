@@ -11,10 +11,14 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
         code = wind2ctp(futlist{i});
         instrument = code2instrument(code);
         if isempty(instrument.contract_size)
-            if ~exist('bbg','var')
-                bbg = cBloomberg;
+%             if ~exist('bbg','var')
+%                 bbg = cBloomberg;
+%             end
+%             savedailybarfrombloomberg(bbg,code,true);
+            if ~exist('w','var')
+                w = cWind;
             end
-            savedailybarfrombloomberg(bbg,code,true);
+            savedailybarfromwind(w,code,true);
             instrument = code2instrument(code);
             ltd = instrument.last_trade_date1;
             if isempty(ltd)
