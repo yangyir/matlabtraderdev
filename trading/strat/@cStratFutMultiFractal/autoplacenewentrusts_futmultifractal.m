@@ -117,7 +117,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                         elseif signal_short(4) == -3
                             stratfractal.condshortopen(instrument.code_ctp,signal_short(3),volume,'signalinfo',info);
                         elseif signal_short(4) == -4
-                            stratfractal.condshortopen(instrument.code_ctp,signal_short(3),volume,'signalinfo',info);
+                            stratfractal.condshortopen(instrument.code_ctp,signal_short(3)-ticksize,volume,'signalinfo',info);
                         end
                     end
                 end
@@ -127,7 +127,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 else
                     mode = 'unset';
                 end
-                if bid < signal_short(3) && bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
+                if bid <= signal_short(3) && bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
                     nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                     info = struct('name','fractal','type',type,...
                         'hh',signal_short(2),'ll',signal_short(3),'mode',mode,'nfractal',nfractals,...
@@ -173,7 +173,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                         elseif signal_long(4) == 3
                             stratfractal.condlongopen(instrument.code_ctp,signal_long(2),volume,'signalinfo',info);
                         elseif signal_long(4) == 4
-                            stratfractal.condlongopen(instrument.code_ctp,signal_long(2),volume,'signalinfo',info);
+                            stratfractal.condlongopen(instrument.code_ctp,signal_long(2)+ticksize,volume,'signalinfo',info);
                         end
                     end
                 end
@@ -183,7 +183,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 else
                     mode = 'unset';
                 end
-                if ask > signal_long(2) && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
+                if ask >= signal_long(2) && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
                     nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                     info = struct('name','fractal','type',type,...
                         'hh',signal_long(2),'ll',signal_long(3),'mode',mode,'nfractal',nfractals,...
