@@ -8,7 +8,11 @@ for i = 1:n
       n_fin = n_fin + 1;
       [~,~,p_i] = mdefut.calc_macd_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
       op_i = tools_technicalplot1(p_i,mdefut.nfractals_(i),0,'volatilityperiod',0,'tolerance',0);
-      tools_technicalplot2(op_i(end-79:end,:),n_fin,instruments{i}.code_ctp);
+      if size(op_i,1) >= 80
+          tools_technicalplot2(op_i(end-79:end,:),n_fin,instruments{i}.code_ctp);
+      else
+          tools_technicalplot2(op_i(1:end,:),n_fin,instruments{i}.code_ctp);
+      end
 end
    
 % %plot 2*TF-T spread
