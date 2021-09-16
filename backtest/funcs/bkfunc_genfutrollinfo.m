@@ -39,10 +39,14 @@ function [rollinfo,pxoidata] = bkfunc_genfutrollinfo(assetname)
             end
             if ~flag && ~(strcmpi(assetname,'sugar') ||  strcmpi(assetname,'cotton'))
                 try
-                    if ~exist('bbg','var')
-                        bbg = cBloomberg;
+%                     if ~exist('bbg','var')
+%                         bbg = cBloomberg;
+%                     end
+%                     savedailybarfrombloomberg(bbg,code);
+                    if ~exist('w','var')
+                        w = cWind;
                     end
-                    savedailybarfrombloomberg(bbg,code);
+                    savedailybarfromwind(w);
                 catch
                 end
             end
