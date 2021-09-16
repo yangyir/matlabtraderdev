@@ -14,7 +14,7 @@ end
 [~,tbls,tradess,~,~] = fractal_intraday_checker(code,...
         'type','all','direction',-1,'plot',false);
     
-data = resstruct{1}.px;
+data = resstruct{1};
 
 nbtrades = tradesb.latest_;
 nstrades = tradess.latest_;
