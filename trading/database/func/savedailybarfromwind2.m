@@ -10,6 +10,8 @@ end
 %20210716:the format shall be number only from this date onwards
 if strcmpi(code_wind(1),'5') || strcmpi(code_wind(1),'6')
     code_wind_ = [code_wind,'.SH'];
+elseif strcmpi(code_wind,'000001.SH')
+    code_wind_ = code_wind;
 else
     code_wind_ = [code_wind,'.SZ'];
 end
