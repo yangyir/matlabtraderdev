@@ -10,23 +10,28 @@ doplot = p.Results.plot;
 direction = p.Results.direction;
 
 %load the data
-if strcmpi(code,'510300')
-    cp = cDataFileIO.loadDataFromTxtFile([code,'_daily.txt']);
-elseif strcmpi(code,'gzhy')
-    path = [getenv('onedrive'),'\ea\govtbond\'];
-    xlfn = 'wind_gyhy10y_yield.xlsx';
-    [num,~,~] = xlsread([path,xlfn]);
-    num(:,1) = x2mdate(num(:,1));
-    idx = ~(isnan(num(:,2)) | isnan(num(:,3)) | isnan(num(:,4)) | isnan(num(:,5)));
-    cp = num(idx,1:5);
-else
-    instrument = code2instrument(code);
-    assetinfo = getassetinfo(instrument.asset_name);
-    shortcode = lower(assetinfo.WindCode);
-    fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
-        '\',shortcode,'\',code,'.mat'];
+isequity = isinequitypool(code);
+if isequity
+    fn = [getenv('onedrive'),'\matlabdev\equity\',code,'\',code,'.mat'];
     data = load(fn);
     cp = data.data;
+else
+    if strcmpi(code,'gzhy')
+        path = [getenv('onedrive'),'\ea\govtbond\'];
+        xlfn = 'wind_gyhy10y_yield.xlsx';
+        [num,~,~] = xlsread([path,xlfn]);
+        num(:,1) = x2mdate(num(:,1));
+        idx = ~(isnan(num(:,2)) | isnan(num(:,3)) | isnan(num(:,4)) | isnan(num(:,5)));
+        cp = num(idx,1:5);
+    else
+        instrument = code2instrument(code);
+        assetinfo = getassetinfo(instrument.asset_name);
+        shortcode = lower(assetinfo.WindCode);
+        fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
+            '\',shortcode,'\',code,'.mat'];
+        data = load(fn);
+        cp = data.data;
+    end
 end
 if isempty(cp),error('fractal_intraday_checker:invalid code input or data not stored');end
 %generate trades and table

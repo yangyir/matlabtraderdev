@@ -58,18 +58,25 @@ trades = cTradeOpenArray;
 
 iplot = 0;
 for i = 1:n
-    if strcmpi(codes{i},'510300')
-        instrument = codes{i};
-        ticksize = 0.001;
-    elseif strcmpi(codes{i},'gzhy')
-        instrument = codes{i};
-        ticksize = 0.0001;%1bp
+    instrument = codes{i};
+    [isequity,equitytype] = isinequitypool(codes{i});
+    if isequity
+        if equitytype == 1 || equitytype == 2
+            ticksize = 0.001;
+        else
+            ticksize = 0.01;
+        end
     else
-        try
-            instrument = code2instrument(codes{i});
-            ticksize = instrument.tick_size;
-        catch
-            ticksize = 0;
+        if strcmpi(codes{i},'gzhy')
+            instrument = codes{i};
+            ticksize = 0.0001;%1bp
+        else
+            try
+                instrument = code2instrument(codes{i});
+                ticksize = instrument.tick_size;
+            catch
+                ticksize = 0;
+            end
         end
     end
     p = data_intraday{i};

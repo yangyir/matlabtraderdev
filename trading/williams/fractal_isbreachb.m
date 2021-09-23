@@ -24,8 +24,13 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
         if isa(instrument,'cInstrument')
             ticksize = instrument.tick_size;
         elseif ischar(instrument)
-            if strcmpi(instrument,'510300')
-                ticksize = 0.001;
+            [isequity,equitytype] = isinequitypool(instrument);
+            if isequity
+                if equitytype == 1 || equitytype == 2 
+                    ticksize = 0.001;
+                else
+                    ticksize = 0.01;
+                end
             else
                 ticksize = 0;
             end
