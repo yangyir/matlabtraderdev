@@ -1,12 +1,24 @@
 function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess] = fractal_gettradesummary(code)
 %
-if strcmpi(code,'510300')
-    ticksize = 0.001;
-elseif strcmpi(code,'gzhy')
-    ticksize = 0.0001;
+[isequity,equitytype] = isinequitypool(code);
+
+if isequity
+    if equitytype == 1 || equitytype == 2   
+        ticksize = 0.001;
+    else
+        ticksize = 0.01;
+    end
 else
-    fut = code2instrument(code);
-    ticksize = fut.tick_size;
+    if strcmpi(code,'gzhy')
+        ticksize = 0.0001;
+    else
+        try
+            fut = code2instrument(code);
+            ticksize = fut.tick_size;
+        catch
+            error('fractal_gettradesummary:invalid code input')
+        end
+    end
 end
 
 [tblb,~,tradesb,~,resstruct] = fractal_intraday_checker(code,...
