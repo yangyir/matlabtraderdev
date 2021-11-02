@@ -6,7 +6,8 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
 %         dtnum = mytimerobj.getreplaytime;
     end
         
-    slept = mytimerobj.istime2sleep(dtnum);
+%     slept = mytimerobj.istime2sleep(dtnum);
+    slept = false;
     %note:the status of the object is set via other explict functions
     %defined in the class for replay mode
     if strcmpi(mytimerobj.mode_,'realtime')
@@ -21,16 +22,17 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             end
         end
     else
-        %note, the replay time is updated via the refresh function in
-        %replay mode
-        try
-            mytimerobj.refresh('time',dtnum);
-        catch e
-            fprintf('%s error when run refresh methods:%s\n',mytimerobj.name_,e.message);
-            if strcmpi(mytimerobj.onerror_,'stop')
-                mytimerobj.stop;
-            end
-        end
+        error('not implemented yet')
+%         %note, the replay time is updated via the refresh function in
+%         %replay mode
+%         try
+%             mytimerobj.refresh('time',dtnum);
+%         catch e
+%             fprintf('%s error when run refresh methods:%s\n',mytimerobj.name_,e.message);
+%             if strcmpi(mytimerobj.onerror_,'stop')
+%                 mytimerobj.stop;
+%             end
+%         end
     end
     
     if mytimerobj.istime2print(dtnum) && ~slept
@@ -43,50 +45,6 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             end
         end
     end
-    
-    if mytimerobj.istime2savemktdata(dtnum)
-        try
-            mytimerobj.savemktdata('time',dtnum);
-        catch e
-            fprintf('%s error when run savemktdata methods:%s\n',mytimerobj.name_,e.message);
-            if strcmpi(mytimerobj.onerror_,'stop')
-                mytimerobj.stop;
-            end
-        end
-    end
-    
-    if mytimerobj.istime2savetrades(dtnum)
-        try
-            mytimerobj.savetrades('time',dtnum);
-        catch e
-            fprintf('%s error when run savetrades methods:%s\n',mytimerobj.name_,e.message);
-            if strcmpi(mytimerobj.onerror_,'stop')
-                mytimerobj.stop;
-            end
-        end
-    end
-    
-    if mytimerobj.istime2loadmktdata(dtnum)
-        try
-            mytimerobj.loadmktdata('time',dtnum);
-        catch e
-            fprintf('%s error when run loadmktdata methods:%s\n',mytimerobj.name_,e.message);
-            if strcmpi(mytimerobj.onerror_,'stop')
-                mytimerobj.stop;
-            end
-        end
-    end
-    
-    if mytimerobj.istime2loadtrades(dtnum)
-        try
-            mytimerobj.loadtrades('time',dtnum);
-        catch e
-            fprintf('%s error when run loadtrades methods:%s\n',mytimerobj.name_,e.message);
-            if strcmpi(mytimerobj.onerror_,'stop')
-                mytimerobj.stop;
-            end
-        end
-    end 
     
 
 end
