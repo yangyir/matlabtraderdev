@@ -92,6 +92,8 @@ classdef cETFWatcher < handle
         [] = savedata(obj,varargin)
         %
         [] = printsignal(obj,varargin)
+        %
+        [] = eodanalysis(obj,varargin)
     end
     
     methods (Access = private)

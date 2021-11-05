@@ -9,7 +9,7 @@ function [] = printmarket(obj,varargin)
         'code','latest','close','change','Ktime','hh','ll','bs','ss','levelup','leveldn','jaw','teeth','lips','name');
     for i = 1:n_index
         code = obj.codes_index_{i}(1:end-3);
-        latest = obj.dailybarmat_index_{i}(end,5);
+        latest = obj.intradaybarmat_index_{i}(end,5);
         lastclose = obj.dailybarmat_index_{i}(end-1,5);
         timet = datestr(obj.intradaybarmat_index_{i}(end,1),'HH:MM:SS');
         delta = (latest/lastclose-1)*100;
@@ -36,7 +36,7 @@ function [] = printmarket(obj,varargin)
         'code','latest','close','change','Ktime','hh','ll','bs','ss','levelup','leveldn','jaw','teeth','lips','name');
     for i = 1:n_sector
         code = obj.codes_sector_{i}(1:end-3);
-        latest = obj.dailybarmat_sector_{i}(end,5);
+        latest = obj.intradaybarmat_sector_{i}(end,5);
         lastclose = obj.dailybarmat_sector_{i}(end-1,5);
         timet = datestr(obj.intradaybarmat_sector_{i}(end,1),'HH:MM:SS');
         delta = (latest/lastclose-1)*100;
