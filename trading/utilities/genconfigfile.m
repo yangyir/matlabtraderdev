@@ -44,10 +44,15 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
                 strcmpi(assettype,'energy') || ...
                 strcmpi(assettype,'agriculture') || ...
                 strcmpi(assettype,'industrial') || ...
-                strcmpi(assettype,'all'))
-                error('genconfigfile:invalid asset type input:must either be eqindex,govtbond,preciousmetal,basemetal,energy,agriculture,industrial or all') 
+                strcmpi(assettype,'all') || ...
+                strcmpi(assettype,'equity'))
+                error('genconfigfile:invalid asset type input:must either be eqindex,govtbond,preciousmetal,basemetal,energy,agriculture,industrial,all or equity') 
+            end
+            if strcmpi(assettype, 'equity')
+                warning('genconfigfile:asset type equity not supported with empty instrument input...')
             end
         end
+        %note:the code below doesn't support with equity
         [~,typelist] = getassetmaptable;
         lastbd = getlastbusinessdate;
         path = [getenv('DATAPATH'),'activefutures\activefutures_'];
@@ -83,7 +88,7 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
             elseif strcmpi(rownames{i},'codectp_')
                 fprintf(fid,'%s',instruments{j});
             elseif strcmpi(rownames{i},'samplefreq_')
-                fprintf(fid,'%s','15m');
+                fprintf(fid,'%s','30m');%default 30m interval
             elseif strcmpi(rownames{i},'riskmanagername_')
                 fprintf(fid,'%s','standard');
             elseif strcmpi(rownames{i},'stoptypepertrade_')
@@ -138,6 +143,13 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
                 fprintf(fid,'%s','-9.99');
             elseif strcmpi(rownames{i},'bandtype_')
                 fprintf(fid,'%s','0');
+            %fractal
+            elseif strcmpi(rownames{i},'tdsqlag_')
+                fprintf(fid,'%s','4');
+            elseif strcmpi(rownames{i},'tdsqconsecutive_')
+                fprintf(fid,'%s','9');
+            elseif strcmpi(rownames{i},'nfractals_')
+                fprintf(fid,'%s','4');
             else
                 %TODO:add more properties
             end
