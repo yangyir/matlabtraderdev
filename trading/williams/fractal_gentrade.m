@@ -41,10 +41,10 @@ if longshort == 1
     if cond1
         opendt = resstruct.px(idx+1,1);
         openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksize);
-    elseif cond2 && strcmpi(mode,'breachup-lvlup')
+    elseif cond2 && strcmpi(mode,'breachup-lvlup') && resstruct.lips(idx) > resstruct.teeth(idx)
         opendt = resstruct.px(idx+1,1);
         openpx = max(resstruct.px(idx,2),resstruct.lvlup(idx-1)+ticksize);
-    elseif cond3 && strcmpi(mode,'breachup-lvlup')
+    elseif cond3 && strcmpi(mode,'breachup-lvlup') && resstruct.jaw(idx) < resstruct.hh(idx-1)
         opendt = resstruct.px(idx+1,1);
         openpx = max(resstruct.px(idx,2),resstruct.hh(idx-1)+2*ticksize);
     else
