@@ -7,7 +7,7 @@ function [] = init_wind(obj,w)
 
     if nargin < 2, return; end
 
-    if ~isa(w,'windmatlab')
+    if ~isa(w,'cWind')
         error('cStock:init_wind:invalid wind connection')
     end
 
@@ -15,7 +15,7 @@ function [] = init_wind(obj,w)
     'exch_eng',...
     'ipo_date'};
 
-    [wdata,~,~,~,errorid,~] = w.wss(obj.code_wind,wind_fields);
+    [wdata,~,~,~,errorid,~] = w.ds_.wss(obj.code_wind,wind_fields);
 
     if errorid ~= 0
         error('cStock:init_wind failed')

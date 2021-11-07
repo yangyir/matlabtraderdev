@@ -43,9 +43,13 @@ classdef cStock < cInstrument
             end
             
             obj.code_ctp = codestr;
-            obj.code_wind = codestr;
-            obj.code_bbg = codestr;
-            obj.code_H5 = codestr;
+            if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
+                obj.code_wind = [codestr,'.SH'];
+            else
+                obj.code_wind = [codestr,'.SZ'];
+            end
+            obj.code_bbg = 'n/a';
+            obj.code_H5 = 'n/a';
             
             if strcmpi(codestr(1),'1') || strcmpi(codestr(1),'5')
                 obj.tick_size = 0.001;
