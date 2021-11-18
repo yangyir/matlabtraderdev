@@ -509,6 +509,25 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & p(end,5)<=hh(end);
                 if aboveteeth
                     %TREND has priority over TDST breakout
+                    %note:20211118
+                    %it is necessary to withdraw pending conditional
+                    %entrust with higher price to long
+                    ne = stratfractal.helper_.condentrustspending_.latest;
+                    if ne > 0
+                        condentrusts2remove = EntrustArray;
+                        for jj = 1:ne
+                            e = stratfractal.helper_.condentrustspending_.node(jj);
+                            if e.offsetFlag ~= 1, continue; end
+                            if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
+                            if e.direction ~= 1, continue;end %the same direction
+                            if e.price <= hh(end)+ticksize,continue;end
+                            %if the code reaches here, the existing entrust shall be canceled
+                            condentrusts2remove.push(e);
+                        end
+                        if condentrusts2remove.latest > 0
+                            stratfractal.removecondentrusts(condentrusts2remove);
+                        end
+                    end
                     this_signal = zeros(1,6);
                     this_signal(1,1) = 1;
                     this_signal(1,2) = hh(end);
@@ -660,6 +679,25 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 
                 if belowteeth
                     %TREND has priority over TDST breakout
+                    %note:20211118
+                    %it is necessary to withdraw pending conditional
+                    %entrust with lower price to short
+                    ne = stratfractal.helper_.condentrustspending_.latest;
+                    if ne > 0
+                        condentrusts2remove = EntrustArray;
+                        for jj = 1:ne
+                            e = stratfractal.helper_.condentrustspending_.node(jj);
+                            if e.offsetFlag ~= 1, continue; end
+                            if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
+                            if e.direction ~= -1, continue;end %the same direction
+                            if e.price >= ll(end)-ticksize,continue;end
+                            %if the code reaches here, the existing entrust shall be canceled
+                            condentrusts2remove.push(e);
+                        end
+                        if condentrusts2remove.latest > 0
+                            stratfractal.removecondentrusts(condentrusts2remove);
+                        end
+                    end
                     this_signal = zeros(1,6);
                     this_signal(1,1) = -1;
                     this_signal(1,2) = hh(end);
