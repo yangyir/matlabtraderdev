@@ -566,8 +566,8 @@ px = history(conn.ds_,eqindex,'px_last',lastbd,lastbd);px = px(2);
 bucketsize = 50;
 nopt = 10;
 strikes_eqindex = floor(px/bucketsize)*bucketsize-(nopt)/2*bucketsize:bucketsize:ceil(px/bucketsize)*bucketsize+(nopt)/2*bucketsize;
-code1 = 'IO2004';
-code2 = 'IO2006';
+code1 = 'IO2011';
+code2 = 'IO2012';
 for j = 1:length(strikes_eqindex)
     c_code_ = [code1,'-C-',num2str(strikes_eqindex(j))];
     savedailybarfrombloomberg(conn,c_code_,override);
