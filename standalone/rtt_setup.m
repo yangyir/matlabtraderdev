@@ -40,14 +40,14 @@ function [rtt_output] = rtt_setup(varargin)
     countername = p.Results.CounterName;
     %note:20180905:currently we only work with CTP counter
     %note:20180918:we can now have RH counter
-    if strcmpi(countername,'rh_demo_tf')
-        rtt_counter = CounterRH.(countername);
+%     if strcmpi(countername,'rh_demo_tf')
+%         rtt_counter = CounterRH.(countername);
+    if strcmpi(countername,'ccb_ly_fut') || strcmpi(countername,'ccb_yy_fut')
+        rtt_counter = CounterCTP.(countername);
+    elseif strcmpi(coutername,'demowind') %for equity demo/replay
+        rtt_counter = [];%todo
     else
-        try
-            rtt_counter = CounterCTP.(countername);
-        catch e
-            error('rtt_setup:%s',e.message);
-        end
+        error('rtt_setup:%s','invalid counter name');
     end
         
     bookname = p.Results.BookName;
@@ -62,13 +62,13 @@ function [rtt_output] = rtt_setup(varargin)
     tfn = p.Results.TradesFileName;
     
     usemdeopt = false;
-    if strcmpi(markettype,'futures')
+    if strcmpi(markettype,'futures') || strcmpi(markettype,'equity')
         usemdefut = true;
     elseif strcmpi(markettype,'options')
         usemdefut = true;
         usemdeopt = true;
     else
-        error('rtt_setup:invalid market type input, must either be futures or options')
+        error('rtt_setup:invalid market type input, must either be equity, futures or options')
     end
     
     helpername = [bookname,'-ops'];
@@ -110,14 +110,13 @@ function [rtt_output] = rtt_setup(varargin)
     else
         dir_ = [getenv('DATAPATH'),'demo\'];
     end
-    if strcmpi(countername,'citic_kim_fut')
-        dir_ = [dir_,'citickim\'];
-    elseif strcmpi(countername,'ccb_ly_fut')
+    
+    if strcmpi(countername,'ccb_ly_fut')
         dir_ = [dir_,'ccbly\'];
     elseif strcmpi(countername,'ccb_yy_fut')
         dir_ = [dir_,'ccbyy\'];
-    elseif strcmpi(countername,'dh_professorWan_fut')
-        dir_ = [dir_,'dhpw\'];
+    elseif strcmpi(countername,'demowind')
+        dir_ = [dir_,'demowind\'];
     else
         error('rtt_setup:invalid countername')
     end

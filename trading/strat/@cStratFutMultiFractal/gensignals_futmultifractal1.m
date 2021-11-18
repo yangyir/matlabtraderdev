@@ -407,7 +407,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %there are 2*nfractal candles above alligator's lips
                 last2hhidx = find(idxHH(1:end)==1,2,'last');
                 last2hh = hh(last2hhidx);
-                if size(p,1)-(last2hhidx(end)-nfractal) >= 2*nfractal
+                if size(p,1)-(last2hhidx(end)-nfractal)+1 >= 2*nfractal
                     aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
                     aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
                     aboveteeth = aboveteeth & p(end,5)<hh(end);                    
@@ -417,6 +417,15 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         else
                             %there are 2*nfractal candles above alligator's lips
                             aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                            if ~aboveteeth
+                                %weak condition:1)there are 2*nfracal 
+                                %candles's low above alligator's teeth;
+                                %2)the last close above lips
+                                flag1 = isempty(find(p(end-2*nfractal+1:end,4)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                                flag2 = p(end,5)-lips(end)-2*ticksize>0;
+                                flag3 = ss(end) >= 1;
+                                aboveteeth = flag1 & flag2 & flag3;
+                            end
                         end
                     end
                 else
@@ -451,15 +460,18 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %1b.HH is above TDST level-up
                 %HH is also above alligator's teeth
                 %the latest close price is still below HH
-                %the alligator's lips is above alligator's teeth
-                %some of the last 2*nfracal candles's low price was below TDST level-up
+                %the alligator's lips is above alligator's teeth OR
+                %HH is well above jaw
+                %some of the last 2*nfracal candles' low price was below TDST level-up
+                %some of the last 2*nfractal candles' close was below TDST level-up
                 %i.e.not all candles above TDST level-up
                 %if HH is breached, it shall also breach TDST level up
                 hhabovelvlup = hh(end)>=lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & p(end,5)<=hh(end) ...
-                    & lips(end)>teeth(end) ...
-                    & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first'));
+                    & (lips(end)>teeth(end) || (lips(end)<=teeth(end) && hh(end)>jaw(end))) ...
+                    & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first')) ...
+                    & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)-2*ticksize<0,1,'first'));
                 if hhabovelvlup
                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
                     %in case alligator's teeth and jaw is crossed and also
@@ -477,8 +489,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %the latest HH is above the previous, indicating an
                 %upper-trend
                 if size(last2hhidx,1) == 2 && hhabovelvlup
-                    if last2hh(2) > last2hh(1)
-                        hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
+                    if last2hh(2) >= last2hh(1)
+%                         hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
+                        hhabovelvlup = true;
                     else
                         %we regard the upper trend is valid if nfractal+1
                         %candle close above the alligator's lips
@@ -546,7 +559,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %shall still regard the down-trend as valid if and only if
                 %there are 2*nfractal candles below alligator's lips
                 last2llidx = find(idxLL(1:end)==-1,2,'last');
-                if size(p,1)-(last2llidx(end)-nfractal) >= 2*nfractal
+                if size(p,1)-(last2llidx(end)-nfractal)+1 >= 2*nfractal
                     belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
                     belowteeth = belowteeth & ll(end)-teeth(end)<=-ticksize;
                     belowteeth = belowteeth & p(end,5)>ll(end);
@@ -600,15 +613,22 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & lips(end)<teeth(end) ...
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'));
                 if llbelowlvldn
+                    %not to place conditional order in
+                    %mediumbreach-bshighvalue
+                    isbshighvalue = bs(end)>=9 & teeth(end)-jaw(end)>=-2*ticksize;
+                    if isbshighvalue
+                        llbelowlvldn = false;
+                    end                    
                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
                     %in case alligator's teeth and jaw is crossed and also
                     %buy sequential is above 8, if wad distracts from the
                     %price movement
-                    if isteethjawcrossed && bs(end) >= 8
+                    if isteethjawcrossed && bs(end) >= 8 && llbelowlvldn
                         minpx = min(p(end-bs(end)+1:end-1,5));
                         minpxid = find(p(end-bs(end)+1:end-1,5) == minpx,1,'last')+size(p,1)-bs(end);
-                        if wad(minpxid) <= wad(end)
-                            fprintf('llbelowlvldn failed because inconsistence of wad\n');
+                        allabovell = isempty(find(p(end-bs(end)+1:end,5)-ll(end)-2*ticksize<0,1,'first'));
+                        if wad(minpxid) <= wad(end) && allabovell
+                            fprintf('%s:llbelowlvldn failed because inconsistence of wad\n',instruments{i}.code_ctp);
                             llbelowlvldn = false;
                         end
                     end
