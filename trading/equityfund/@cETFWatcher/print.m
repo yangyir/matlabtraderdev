@@ -1,6 +1,6 @@
 function [] = print(obj,varargin)
 %cETFWatcher
-    obj.printmarket;
+    obj.printmarket(varargin{:});
     %
     obj.printsignal;
     %

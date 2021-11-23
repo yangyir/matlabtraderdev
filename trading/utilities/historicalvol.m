@@ -40,14 +40,14 @@ elseif strcmpi(mode,'ewma')
     else
         lambda = parameters;
     end
-    hv = NaN(npx,ncols);
+    hv = NaN(npx,2);
     for i = 2:npx
         if i == 2
-            hv(i,ncols) = abs(ret(i-1,ncols));
+            hv(i,2) = abs(ret(i-1,2));
         else
-            hv(i,ncols) = hv(i-1,ncols)^2*lambda + ...
-                ret(i-1,ncols)^2*(1-lambda);
-            hv(i,ncols) = sqrt(hv(i,ncols));
+            hv(i,2) = hv(i-1,2)^2*lambda + ...
+                ret(i-1,2)^2*(1-lambda);
+            hv(i,2) = sqrt(hv(i,2));
         end 
     end
     if ncols > 1

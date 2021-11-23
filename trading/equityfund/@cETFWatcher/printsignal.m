@@ -12,6 +12,7 @@ function [] = printsignal(obj,varargin)
     n_sector = size(obj.codes_sector_,1);
     
     ticksize = 0.001;
+    candlebucket = 1/48;%intraday 30m bucket
     
     if strcmpi(code2print,'all')
         for i = 1:n_index
@@ -29,7 +30,7 @@ function [] = printsignal(obj,varargin)
             foundflag = true;
             candlet = obj.intradaybarstruct_index_{i}.px(:,1);
             %found the last candle which was fully poped
-            idx = find(candlet+1/48 < timet,1,'last');
+            idx = find(candlet+candlebucket < timet,1,'last');
             px = obj.intradaybarstruct_index_{i}.px(1:idx,:);
             hh = obj.intradaybarstruct_index_{i}.hh(1:idx,:);
             ll = obj.intradaybarstruct_index_{i}.ll(1:idx,:);

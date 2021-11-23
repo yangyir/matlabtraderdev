@@ -48,6 +48,7 @@ function obj = init(obj,varargin)
         '688686.SH';...%奥普特
         '688305.SH';....%科德数控
         '688690.SH';...%纳微科技
+        '000661.SZ';...%长春高新
     };
 
     obj.names_index_ = obj.conn_.ds_.wss(obj.codes_index_,'sec_name');

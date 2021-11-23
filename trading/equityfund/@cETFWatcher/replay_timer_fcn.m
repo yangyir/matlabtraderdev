@@ -35,7 +35,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
 %         end
     end
     
-    if mytimerobj.istime2print(dtnum) && ~slept
+    if ~slept
         try
             mytimerobj.print('time',dtnum);
         catch e
