@@ -7,7 +7,7 @@ end
 if ~ischar(code_wind)
     error('saveintradaybarfromwind2;invalid wind code input')
 end
-<<<<<<< Updated upstream
+
 %20210716:the format shall be number only from this date onwards
 if strcmpi(code_wind(1),'5') || strcmpi(code_wind(1),'6')
     code_wind_ = [code_wind,'.SH'];
@@ -17,11 +17,10 @@ else
     code_wind_ = [code_wind,'.SZ'];
 end
 
-=======
 
-idx = strfind(code_wind,'.SH');
+idx = strfind(code_wind_,'.SH');
 if isempty(idx)
-    idx = strfind(code_wind,'.SZ');
+    idx = strfind(code_wind_,'.SZ');
 end
 
 if isempty(idx)
@@ -58,7 +57,6 @@ if isempty(idx)
         error('saveintradaybarfromwind2;invalid equity wind code input')
     end
 end
->>>>>>> Stashed changes
 
 dir_ = getenv('DATAPATH');
 dir_data_ = [dir_,'dailybar\'];
@@ -73,22 +71,13 @@ usedatestr = false;
 
 
 coldefs = {'date','open','high','low','close','volume'};
-<<<<<<< Updated upstream
+
 fn_ = [code_wind,'_daily.txt'];
 
 try
     wdata = w.ds_.wss(code_wind_,'ipo_date');
     startdate = datenum(wdata{1});
 catch
-=======
-fn_ = [code_wind(1:idx-1),'_daily.txt'];
-if strcmpi(code_wind,'510300.SH')
-    startdate = datenum('2012-05-28','yyyy-mm-dd');
-elseif strcmpi(code_wind,'512400.SH')
-    %BASE METAL ETF
-    startdate = datenum('2017-09-01','yyyy-mm-dd');
-else
->>>>>>> Stashed changes
     startdate = datenum('2010-01-01','yyyy-mm-dd');
 end
 
