@@ -40,7 +40,9 @@ function [pnl] = calc_pnl(obj,varargin)
     instrument = obj.instrument_;
     multi = instrument.contract_size;
     if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
-        multi = multi/100;
+        if multi == 1000000
+            multi = multi/100;
+        end
     end
     cost = obj.cost_open_;
 
