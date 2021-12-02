@@ -100,6 +100,7 @@ classdef cETFWatcher < handle
         obj = init(obj,varargin)
         [] = printmarket(obj,varargin)
         [] = printtrade(obj,varargin)
+        [ret] = istime2refresh(obj,varargin)
     end
     
     

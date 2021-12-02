@@ -6,12 +6,11 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
 %         dtnum = mytimerobj.getreplaytime;
     end
         
-%     slept = mytimerobj.istime2sleep(dtnum);
-    slept = false;
+    flag = mytimerobj.istime2refresh('time',dtnum);
     %note:the status of the object is set via other explict functions
     %defined in the class for replay mode
     if strcmpi(mytimerobj.mode_,'realtime')
-        if ~slept
+        if flag
             try
                 mytimerobj.refresh('time',dtnum);
             catch e
@@ -35,7 +34,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
 %         end
     end
     
-    if ~slept
+    if flag
         try
             mytimerobj.print('time',dtnum);
         catch e
