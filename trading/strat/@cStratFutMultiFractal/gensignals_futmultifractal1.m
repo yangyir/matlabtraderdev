@@ -149,132 +149,19 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 signals{i,1} = signal_i;
             else
                 %neither a valid breachhh nor a valid breachll
-            end
+%             end
             
-            [validbreachhh,validbreachll,b1type,s1type] = fractal_validbreach(extrainfo,ticksize);
-                        
-            if validbreachhh && ~validbreachll
-%                 op = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize);
-%                 useflag = op.use;
-%                 if ~useflag
-%                     %special treatment when market jumps
-%                     tick = stratfractal.mde_fut_.getlasttick(instruments{i});
-%                     if ~isempty(tick)
-%                         ask = tick(3);
-%                         if ask>lvlup(end) && p(end,5)<lvlup(end)
-%                             useflag = 1;
-%                             op.comment = 'breachup-lvlup';
-%                         end
-%                     end
-%                 end
-%                 if ~useflag
-%                     %special treatment when market moves close to lvlup,
-%                     %i.e.the market breached up HH but still stayed below
-%                     %lvlup closely, we shall here place a conditional
-%                     %entrust just one tick above lvlup
-%                     status = fractal_b1_status(nfractal,extrainfo,ticksize);
-%                     if status.isclose2lvlup
-%                         this_signal = zeros(1,6);
-%                         this_signal(1,1) = 1;
-%                         this_signal(1,2) = lvlup(end);                          %here replace HH with lvlup
-%                         this_signal(1,3) = ll(end);
-%                         this_signal(1,5) = p(end,3);
-%                         this_signal(1,6) = p(end,4);
-%                         this_signal(1,4) = 3;                                   %special key for closetolvlup
-%                         signals{i,1} = this_signal;
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:closetolvlup');
-%                     else
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
-%                     end
-%                 else
-%                     validlongopen = p(end,5) > p(end,3)-0.382*(p(end,3)-ll(end)) & ...
-%                         p(end,5) < hh(end)+1.618*(hh(end)-ll(end)) & ...
-%                         p(end,5) > lips(end);
-%                     if validlongopen
-%                         this_signal = zeros(1,6);
-%                         this_signal(1,1) = 1;                                   %breach hh buy
-%                         this_signal(1,2) = hh(end);
-%                         this_signal(1,3) = ll(end);
-%                         this_signal(1,5) = p(end,3);
-%                         this_signal(1,6) = p(end,4);
-%                         switch op.comment
-%                             %TODO
-%                             case 'breachup-lvlup'
-%                                 this_signal(1,4) = 1;
-%                             case 'volblowup'
-%                                 this_signal(1,4) = 1;
-%                             otherwise
-%                                 this_signal(1,4) = 1;
-%                         end
-%                         signals{i,1} = this_signal;
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
-%                         continue;
-%                     end
-%                 end
-            end
-            %    
-            if ~validbreachhh && validbreachll
-%                 op = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksize);
-%                 useflag = op.use;
-%                 if ~useflag
-%                     %special treatment when market jumps
-%                     tick = stratfractal.mde_fut_.getlasttick(instruments{i});
-%                     if ~isempty(tick)
-%                         bid = tick(2);
-%                         if bid < lvldn(end) && p(end,5)>lvldn(end)
-%                             useflag = 1;
-%                             op.comment = 'breachdn-lvldn';
-%                         end
-%                     end
-%                 end
-%                 if ~useflag
-%                     %special treatment when market moves close to
-%                     %lvldn,i.e.the market breached down LL but still stayed
-%                     %above lvldn closely, we shall here place an conditonal
-%                     %entrust just one tick below lvldn
-%                     status = fractal_s1_status(nfractal,extrainfo,ticksize);
-%                     if status.isclose2lvldn
-%                         this_signal = zeros(1,6);
-%                         this_signal(1,1) = -1;
-%                         this_signal(1,2) = hh(end);
-%                         this_signal(1,3) = lvldn(end);                          %here replace LL with lvldn
-%                         this_signal(1,5) = p(end,3);
-%                         this_signal(1,6) = p(end,4);
-%                         this_signal(1,4) = -3;                                  %special key for closetolvldn
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:closetolvldn');
-%                         signals{i,2} = this_signal;
-%                     else
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
-%                     end                    
-%                 else
-%                     validshortopen = p(end,5)<p(end,4)+0.382*(hh(end)-p(end,4)) & ...
-%                         p(end,5)>ll(end)-1.618*(hh(end)-ll(end)) & ...
-%                         p(end,5)<lips(end);
-%                     if validshortopen
-%                         this_signal = zeros(1,6);
-%                         this_signal(1,1) = -1;                                          %breach ll sell
-%                         this_signal(1,2) = hh(end);
-%                         this_signal(1,3) = ll(end);
-%                         this_signal(1,5) = p(end,3);
-%                         this_signal(1,6) = p(end,4);
-%                         switch op.comment
-%                             %TODO
-%                             case 'breachdn-lvldn'
-%                                 this_signal(1,4) = 1;
-%                             case 'volblowup'
-%                                 this_signal(1,4) = 1;
-%                             case 'breachdn-bshighvalue'
-%                                 this_signal(1,4) = 1;
-%                             otherwise
-%                                 this_signal(1,4) = 1;
-%                         end
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
-%                         signals{i,2} = this_signal;
-%                     end
-%                 end
-            end
+%             [validbreachhh,validbreachll] = fractal_validbreach(extrainfo,ticksize);
+%                         
+%             if validbreachhh && ~validbreachll
+% 
+%             end
+%             %    
+%             if ~validbreachhh && validbreachll
+% 
+%             end
             %
-            if ~validbreachhh && ~validbreachll
+%             if ~validbreachhh && ~validbreachll
                 %neither a validbreachhh nor a validbreachll
                 %special code for conditional entrust (sign indicates
                 %direction)
@@ -288,114 +175,6 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     stratfractal.stop;
                 end
                 
-%                 ncondpending = stratfractal.helper_.condentrustspending_.latest;
-%                 if ncondpending > 0
-%                     condentrusts2remove = EntrustArray;
-%                     for jj = 1:ncondpending
-%                         condentrust = stratfractal.helper_.condentrustspending_.node(jj);
-%                         if ~strcmpi(instruments{i}.code_ctp,condentrust.instrumentCode), continue;end
-%                         if condentrust.offsetFlag ~= 1, continue; end
-%                         signalinfo = condentrust.signalinfo_;
-%                         if isempty(signalinfo),continue;end
-%                         if strcmpi(signalinfo.mode,'conditional-uptrendconfirmed')
-%                             %cancel the entrust 1)either the price fell below
-%                             %the alligator's teeth 2)or the lastest HH is
-%                             %below the previous HH
-%                             ispxbelowteeth = p(end,5)<teeth(end);
-%                             last2hh = hh(find(idxHH(1:end) == 1,2,'last'));
-%                             if size(last2hh,1) == 2
-%                                 islatesthhlower = last2hh(2)<last2hh(1)-ticksize;
-%                                 ishhupdated = condentrust.price < last2hh(2);
-%                             else
-%                                 islatesthhlower = false;
-%                                 ishhupdated = false;
-%                             end
-%                             if ispxbelowteeth || islatesthhlower || ishhupdated
-%                                  condentrusts2remove.push(condentrust);
-%                                 if ispxbelowteeth
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as price fell below alligator teeth...');
-%                                 elseif islatesthhlower
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as new hh is lower...');
-%                                 elseif ishhupdated
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as new hh is higher...');
-%                                 end
-%                             end
-%                         elseif strcmpi(signalinfo.mode,'conditional-dntrendconfirmed')
-%                             %cancel the entrust 1)either the price rallied
-%                             %above the alligator's teeth )or the latest LL
-%                             %is above the previous LL
-%                             ispxaboveteeth = p(end,5)>teeth(end);
-%                             last2ll = ll(find(idxLL(1:end) == -1,2,'last'));
-%                             if size(last2ll,1) == 2
-%                                 islatestllhigher = last2ll(2)>last2ll(1);
-%                                 isllupdated = condentrust.price > last2ll(2);
-%                             else
-%                                 islatestllhigher = false;
-%                                 isllupdated = false;
-%                             end
-%                             if ispxaboveteeth || islatestllhigher || isllupdated
-%                                 condentrusts2remove.push(condentrust);
-%                                 if ispxaboveteeth
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as price rallied above alligator teeth...');
-%                                 elseif islatestllhigher
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as new ll is higher...');
-%                                 elseif isllupdated
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as new ll is lower...');
-%                                 end
-%                             end
-%                         elseif strcmpi(signalinfo.mode,'conditional-close2lvlup')
-%                             %cancel the entrust once the close price as of
-%                             %the latest candle stick fell below HH
-%                             if p(end,5) < hh(end)
-%                                 condentrusts2remove.push(condentrust);
-%                                 fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as close price fell below hh...');
-%                             end
-%                         elseif strcmpi(signalinfo.mode,'conditional-close2lvldn')
-%                             %cancel the entrust once the close price as of
-%                             %the latest candle stick rallied above LL
-%                             if p(end,5) > ll(end)
-%                                 condentrusts2remove.push(condentrust);
-%                                 fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as close price rallied above ll...');
-%                             end
-%                         elseif strcmpi(signalinfo.mode,'conditional-breachuplvlup')
-%                             %cancel the entrust once the highest price as
-%                             %of the latest candle fell below lvldn
-%                             if p(end,3) < lvldn(end) || hh(end-1) ~= hh(end)
-%                                 condentrusts2remove.push(condentrust);
-%                                 if p(end,3) < lvldn(end)
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as highest price fell below lvldn...');
-%                                 elseif hh(end-1) ~= hh(end)
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as hh value updated...');
-%                                 end
-%                             else
-%                                 [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
-%                                 if isteethjawcrossed && ss(end) >= 8
-%                                     maxpx = max(p(end-ss(end)+1:end-1,5));
-%                                     maxpxidx = find(p(end-ss(end)+1:end-1,5)==maxpx,1,'last')+size(p,1)-ss(end);
-%                                     if wad(maxpxidx) >= wad(end)
-%                                         condentrusts2remove.push(condentrust);
-%                                         fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as teeth jaw crossed..');
-%                                     end
-%                                 end
-%                             end
-%                         elseif strcmpi(signalinfo.mode,'conditional-breachdnlvldn')
-%                             %cancel the entrust once the lowest price as of
-%                             %the latest candle rallies above lvlup
-%                             if p(end,4) > lvlup(end) || ll(end-1) ~= ll(end)
-%                                 condentrusts2remove.push(condentrust);
-%                                 if p(end,4) > lvlup(end)
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as lowest price rallied above lvlup...');
-%                                 elseif ll(end-1) ~= ll(end)
-%                                     fprintf('\t%6s:%s:%s\n',instruments{i}.code_ctp,signalinfo.mode, 'canceled as ll value updated...');
-%                                 end
-%                                     
-%                             end
-%                         else
-%                             continue;
-%                         end                        
-%                     end
-%                     stratfractal.removecondentrusts(condentrusts2remove);
-%                 end
                 %
                 %
                 %1a.there are 2*nfactal candles above alligator's teeth
