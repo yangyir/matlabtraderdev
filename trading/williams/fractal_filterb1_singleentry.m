@@ -1,4 +1,4 @@
-function [output] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize)
+function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize)
     if nargin < 4
         ticksize = 0;
     end
