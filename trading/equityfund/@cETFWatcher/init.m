@@ -16,7 +16,7 @@ function obj = init(obj,varargin)
         '159915.SZ';...%创业板ETF
         '588000.SH';...%科创50ETF
         '588400.SH';...%双创50ETF
-        '159782.SZ';...%双创50ETF基金
+        '512100.SH';...%中证1000
     };
     %
     obj.codes_sector_ = {'512880.SH';'512000.SH';...%证券ETF
