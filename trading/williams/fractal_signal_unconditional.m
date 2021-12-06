@@ -64,16 +64,17 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             else
                 signal = zeros(1,6);
                 if ~flag1
-                    op.comment = [op.comment,'-invalid long as close dumps'];
+                    op.comment = [op.comment,'-invalid long as close dumps from high'];
                 end
                 if ~flag2
                     op.comment = [op.comment,'-invalid long as close moves too high'];
                 end
                 if ~flag3
-                    op.comment = [op.comment,'-invalid long close below alligator lips'];
+                    op.comment = [op.comment,'-invalid long as close below alligator lips'];
                 end
             end
         else
+            %~useflag
             signal = zeros(1,6); 
         end
         return
@@ -128,7 +129,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             else
                 signal = zeros(1,6);
                 if ~flag1
-                    op.comment = [op.comment,'-invalid short as close rallied'];
+                    op.comment = [op.comment,'-invalid short as close rallied from low'];
                 end
                 if ~flag2
                     op.comment = [op.comment,'-invalid short as close moves too low'];
