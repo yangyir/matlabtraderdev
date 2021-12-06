@@ -125,127 +125,153 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 'lips',lips,'teeth',teeth,'jaw',jaw,...
                 'wad',wad);
             
+            tick = stratfractal.mde_fut_.getlasttick(instruments{i});
+            
+            [signal_i,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,'lasttick',tick);
+            if ~isempty(signal_i)
+                if signal_i(1) == 0
+                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
+                elseif signal_i(1) == 1
+                    if signal_i(4) == 3
+                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:closetolvlup');
+                    else
+                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
+                    end
+                elseif signal_i(1) == -1
+                    if signal_i(4) == -3
+                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:closetolvldn');
+                    else
+                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
+                    end
+                else
+                    %do nothing
+                end
+                signals{i,1} = signal_i;
+            else
+                %neither a valid breachhh nor a valid breachll
+            end
+            
             [validbreachhh,validbreachll,b1type,s1type] = fractal_validbreach(extrainfo,ticksize);
                         
             if validbreachhh && ~validbreachll
-                op = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize);
-                useflag = op.use;
-                if ~useflag
-                    %special treatment when market jumps
-                    tick = stratfractal.mde_fut_.getlasttick(instruments{i});
-                    if ~isempty(tick)
-                        ask = tick(3);
-                        if ask>lvlup(end) && p(end,5)<lvlup(end)
-                            useflag = 1;
-                            op.comment = 'breachup-lvlup';
-                        end
-                    end
-                end
-                if ~useflag
-                    %special treatment when market moves close to lvlup,
-                    %i.e.the market breached up HH but still stayed below
-                    %lvlup closely, we shall here place a conditional
-                    %entrust just one tick above lvlup
-                    status = fractal_b1_status(nfractal,extrainfo,ticksize);
-                    if status.isclose2lvlup
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = 1;
-                        this_signal(1,2) = lvlup(end);                          %here replace HH with lvlup
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = 3;                                   %special key for closetolvlup
-                        signals{i,1} = this_signal;
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:closetolvlup');
-                    else
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
-                    end
-                else
-                    validlongopen = p(end,5) > p(end,3)-0.382*(p(end,3)-ll(end)) & ...
-                        p(end,5) < hh(end)+1.618*(hh(end)-ll(end)) & ...
-                        p(end,5) > lips(end);
-                    if validlongopen
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = 1;                                   %breach hh buy
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        switch op.comment
-                            %TODO
-                            case 'breachup-lvlup'
-                                this_signal(1,4) = 1;
-                            case 'volblowup'
-                                this_signal(1,4) = 1;
-                            otherwise
-                                this_signal(1,4) = 1;
-                        end
-                        signals{i,1} = this_signal;
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
-                        continue;
-                    end
-                end
+%                 op = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize);
+%                 useflag = op.use;
+%                 if ~useflag
+%                     %special treatment when market jumps
+%                     tick = stratfractal.mde_fut_.getlasttick(instruments{i});
+%                     if ~isempty(tick)
+%                         ask = tick(3);
+%                         if ask>lvlup(end) && p(end,5)<lvlup(end)
+%                             useflag = 1;
+%                             op.comment = 'breachup-lvlup';
+%                         end
+%                     end
+%                 end
+%                 if ~useflag
+%                     %special treatment when market moves close to lvlup,
+%                     %i.e.the market breached up HH but still stayed below
+%                     %lvlup closely, we shall here place a conditional
+%                     %entrust just one tick above lvlup
+%                     status = fractal_b1_status(nfractal,extrainfo,ticksize);
+%                     if status.isclose2lvlup
+%                         this_signal = zeros(1,6);
+%                         this_signal(1,1) = 1;
+%                         this_signal(1,2) = lvlup(end);                          %here replace HH with lvlup
+%                         this_signal(1,3) = ll(end);
+%                         this_signal(1,5) = p(end,3);
+%                         this_signal(1,6) = p(end,4);
+%                         this_signal(1,4) = 3;                                   %special key for closetolvlup
+%                         signals{i,1} = this_signal;
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:closetolvlup');
+%                     else
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
+%                     end
+%                 else
+%                     validlongopen = p(end,5) > p(end,3)-0.382*(p(end,3)-ll(end)) & ...
+%                         p(end,5) < hh(end)+1.618*(hh(end)-ll(end)) & ...
+%                         p(end,5) > lips(end);
+%                     if validlongopen
+%                         this_signal = zeros(1,6);
+%                         this_signal(1,1) = 1;                                   %breach hh buy
+%                         this_signal(1,2) = hh(end);
+%                         this_signal(1,3) = ll(end);
+%                         this_signal(1,5) = p(end,3);
+%                         this_signal(1,6) = p(end,4);
+%                         switch op.comment
+%                             %TODO
+%                             case 'breachup-lvlup'
+%                                 this_signal(1,4) = 1;
+%                             case 'volblowup'
+%                                 this_signal(1,4) = 1;
+%                             otherwise
+%                                 this_signal(1,4) = 1;
+%                         end
+%                         signals{i,1} = this_signal;
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
+%                         continue;
+%                     end
+%                 end
             end
             %    
             if ~validbreachhh && validbreachll
-                op = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksize);
-                useflag = op.use;
-                if ~useflag
-                    %special treatment when market jumps
-                    tick = stratfractal.mde_fut_.getlasttick(instruments{i});
-                    if ~isempty(tick)
-                        bid = tick(2);
-                        if bid < lvldn(end) && p(end,5)>lvldn(end)
-                            useflag = 1;
-                            op.comment = 'breachdn-lvldn';
-                        end
-                    end
-                end
-                if ~useflag
-                    %special treatment when market moves close to
-                    %lvldn,i.e.the market breached down LL but still stayed
-                    %above lvldn closely, we shall here place an conditonal
-                    %entrust just one tick below lvldn
-                    status = fractal_s1_status(nfractal,extrainfo,ticksize);
-                    if status.isclose2lvldn
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = -1;
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = lvldn(end);                          %here replace LL with lvldn
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = -3;                                  %special key for closetolvldn
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:closetolvldn');
-                        signals{i,2} = this_signal;
-                    else
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
-                    end                    
-                else
-                    validshortopen = p(end,5)<p(end,4)+0.382*(hh(end)-p(end,4)) & ...
-                        p(end,5)>ll(end)-1.618*(hh(end)-ll(end)) & ...
-                        p(end,5)<lips(end);
-                    if validshortopen
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = -1;                                          %breach ll sell
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        switch op.comment
-                            %TODO
-                            case 'breachdn-lvldn'
-                                this_signal(1,4) = 1;
-                            case 'volblowup'
-                                this_signal(1,4) = 1;
-                            case 'breachdn-bshighvalue'
-                                this_signal(1,4) = 1;
-                            otherwise
-                                this_signal(1,4) = 1;
-                        end
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
-                        signals{i,2} = this_signal;
-                    end
-                end
+%                 op = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksize);
+%                 useflag = op.use;
+%                 if ~useflag
+%                     %special treatment when market jumps
+%                     tick = stratfractal.mde_fut_.getlasttick(instruments{i});
+%                     if ~isempty(tick)
+%                         bid = tick(2);
+%                         if bid < lvldn(end) && p(end,5)>lvldn(end)
+%                             useflag = 1;
+%                             op.comment = 'breachdn-lvldn';
+%                         end
+%                     end
+%                 end
+%                 if ~useflag
+%                     %special treatment when market moves close to
+%                     %lvldn,i.e.the market breached down LL but still stayed
+%                     %above lvldn closely, we shall here place an conditonal
+%                     %entrust just one tick below lvldn
+%                     status = fractal_s1_status(nfractal,extrainfo,ticksize);
+%                     if status.isclose2lvldn
+%                         this_signal = zeros(1,6);
+%                         this_signal(1,1) = -1;
+%                         this_signal(1,2) = hh(end);
+%                         this_signal(1,3) = lvldn(end);                          %here replace LL with lvldn
+%                         this_signal(1,5) = p(end,3);
+%                         this_signal(1,6) = p(end,4);
+%                         this_signal(1,4) = -3;                                  %special key for closetolvldn
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:closetolvldn');
+%                         signals{i,2} = this_signal;
+%                     else
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
+%                     end                    
+%                 else
+%                     validshortopen = p(end,5)<p(end,4)+0.382*(hh(end)-p(end,4)) & ...
+%                         p(end,5)>ll(end)-1.618*(hh(end)-ll(end)) & ...
+%                         p(end,5)<lips(end);
+%                     if validshortopen
+%                         this_signal = zeros(1,6);
+%                         this_signal(1,1) = -1;                                          %breach ll sell
+%                         this_signal(1,2) = hh(end);
+%                         this_signal(1,3) = ll(end);
+%                         this_signal(1,5) = p(end,3);
+%                         this_signal(1,6) = p(end,4);
+%                         switch op.comment
+%                             %TODO
+%                             case 'breachdn-lvldn'
+%                                 this_signal(1,4) = 1;
+%                             case 'volblowup'
+%                                 this_signal(1,4) = 1;
+%                             case 'breachdn-bshighvalue'
+%                                 this_signal(1,4) = 1;
+%                             otherwise
+%                                 this_signal(1,4) = 1;
+%                         end
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
+%                         signals{i,2} = this_signal;
+%                     end
+%                 end
             end
             %
             if ~validbreachhh && ~validbreachll

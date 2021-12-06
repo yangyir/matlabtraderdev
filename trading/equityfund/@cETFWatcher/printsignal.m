@@ -13,12 +13,55 @@ function [] = printsignal(obj,varargin)
     
     ticksize = 0.001;
     candlebucket = 1/48;%intraday 30m bucket
+    nfractal = 4;
     
+    fprintf('\n');
     if strcmpi(code2print,'all')
         for i = 1:n_index
+            extrainfo_i = obj.intradaybarstruct_index_{i};
+            [ret,direction,breachtime,breachidx] = fractal_hasintradaybreach(timet,extrainfo_i,ticksize);
+            if ret
+                ei_breach = struct('px',extrainfo_i.px(1:breachidx,:),...
+                    'ss',extrainfo_i.ss(1:breachidx),'sc',extrainfo_i.sc(1:breachidx),...
+                    'bs',extrainfo_i.bs(1:breachidx),'bc',extrainfo_i.bc(1:breachidx),...
+                    'idxhh',extrainfo_i.idxhh(1:breachidx),'idxll',extrainfo_i.idxll(1:breachidx),...
+                    'lvlup',extrainfo_i.lvlup(1:breachidx),'lvldn',extrainfo_i.lvldn(1:breachidx),...
+                    'hh',extrainfo_i.hh(1:breachidx),'ll',extrainfo_i.ll(1:breachidx),...
+                    'lips',extrainfo_i.lips(1:breachidx),'teeth',extrainfo_i.teeth(1:breachidx),'jaw',extrainfo_i.jaw(1:breachidx),...
+                    'wad',extrainfo_i.wad(1:breachidx));
+                [signal,op] = fractal_signal_unconditional(ei_breach,ticksize,nfractal);
+                if direction == 1
+                    fprintf('%s:BreachUP:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),obj.codes_index_{i}(1:6));
+                    fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_index_{i});
+                else
+                    
+                    fprintf('%s:BreachDN:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),obj.codes_index_{i}(1:6));
+                    fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_index_{i});
+                end
+            end
         end
         %
         for i = 1:n_sector
+            extrainfo_i = obj.intradaybarstruct_sector_{i};
+            [ret,direction,breachtime,breachidx] = fractal_hasintradaybreach(timet,extrainfo_i,ticksize);
+            if ret
+                ei_breach = struct('px',extrainfo_i.px(1:breachidx,:),...
+                    'ss',extrainfo_i.ss(1:breachidx),'sc',extrainfo_i.sc(1:breachidx),...
+                    'bs',extrainfo_i.bs(1:breachidx),'bc',extrainfo_i.bc(1:breachidx),...
+                    'idxhh',extrainfo_i.idxhh(1:breachidx),'idxll',extrainfo_i.idxll(1:breachidx),...
+                    'lvlup',extrainfo_i.lvlup(1:breachidx),'lvldn',extrainfo_i.lvldn(1:breachidx),...
+                    'hh',extrainfo_i.hh(1:breachidx),'ll',extrainfo_i.ll(1:breachidx),...
+                    'lips',extrainfo_i.lips(1:breachidx),'teeth',extrainfo_i.teeth(1:breachidx),'jaw',extrainfo_i.jaw(1:breachidx),...
+                    'wad',extrainfo_i.wad(1:breachidx));
+                [signal,op] = fractal_signal_unconditional(ei_breach,ticksize,nfractal);
+                if direction == 1
+                    fprintf('%s:BreachUP:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),obj.codes_sector_{i}(1:6));
+                    fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_sector_{i});
+                else
+                    fprintf('%s:BreachDN:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),obj.codes_sector_{i}(1:6));
+                    fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_sector_{i});
+                end
+            end
         end
         %
         return

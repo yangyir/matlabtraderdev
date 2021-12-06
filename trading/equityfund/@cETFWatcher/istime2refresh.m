@@ -35,13 +35,14 @@ function [ret] = istime2refresh(obj,varargin)
         ret = true;
         return
     end
-    
+        
     minutespassed = 60*hh+mm;
     
     %when market refreshes every 10 mins
     if hh >= 9 && hh <= 14 && mod(mm,10) == 0 && ss <= 1
         if minutespassed > 690 && minutespassed < 780
             fprintf('%s %s sleeps......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'),obj.timer_.Name);
+            return
         end
         ret = true;
         return
