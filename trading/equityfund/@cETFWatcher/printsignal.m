@@ -34,16 +34,19 @@ function [] = printsignal(obj,varargin)
                     fprintf('%s:BreachUP:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),obj.codes_index_{i}(1:6));
                     fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_index_{i});
                 else
-                    
                     fprintf('%s:BreachDN:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),obj.codes_index_{i}(1:6));
                     fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_index_{i});
                 end
             end
+%             firstidx = 
+            
+            
         end
         %
         for i = 1:n_sector
             extrainfo_i = obj.intradaybarstruct_sector_{i};
             [ret,direction,breachtime,breachidx] = fractal_hasintradaybreach(timet,extrainfo_i,ticksize);
+            [ret2,signal2,op2] = fractal_hasintradaybreach_conditional(timet,extrainfo_i,ticksize);
             if ret
                 ei_breach = struct('px',extrainfo_i.px(1:breachidx,:),...
                     'ss',extrainfo_i.ss(1:breachidx),'sc',extrainfo_i.sc(1:breachidx),...
@@ -60,6 +63,17 @@ function [] = printsignal(obj,varargin)
                 else
                     fprintf('%s:BreachDN:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),obj.codes_sector_{i}(1:6));
                     fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_sector_{i});
+                end
+            end
+            
+            if ret2 && ~ret
+                if ~isempty(signal2{1})
+                    fprintf('%s:BreachUP:%s:\t%2d\t%s-up:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
+                        obj.codes_sector_{i}(1:6),signal2{1}(1),op2{1},signal2{1}(2),obj.names_sector_{i});
+                end
+                if ~isempty(signal2{2})
+                    fprintf('%s:BreachDN:%s:\t%2d\t%s-dn:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
+                        obj.codes_sector_{i}(1:6),signal2{2}(1),op2{2},signal2{2}(3),obj.names_sector_{i});
                 end
             end
         end
