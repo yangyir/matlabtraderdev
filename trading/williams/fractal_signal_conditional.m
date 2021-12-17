@@ -53,7 +53,7 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
                             extrainfo.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
                         lflag2 = lflag2 & ...
                             extrainfo.px(end,5)-extrainfo.lips(end)-2*ticksize>0;
-                        lflag2 = lflag2 && extrinfo.ss(end)>=1;
+                        lflag2 = lflag2 && extrainfo.ss(end)>=1;
                     end
                 end
             end
@@ -147,7 +147,7 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
                             extrainfo.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
                         sflag2 = sflag2 & ...
                             extrainfo.px(end,5)-extrainfo.lips(end)+2*ticksize<0;
-                        sflag2 = sflag2 && extrinfo.bs(end)>=1;
+                        sflag2 = sflag2 && extrainfo.bs(end)>=1;
                     end
                 end
             end
