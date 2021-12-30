@@ -93,7 +93,7 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
         idx_sc13_last = find(extrainfo.sc==13,1,'last');
         idx_ss_last = find(extrainfo.ss >= 9, 1,'last');
         if ~isempty(idx_sc13_last) && ~isempty(idx_ss_last)
-            ss_last = ss(idx_ss_last);
+            ss_last = extrainfo.ss(idx_ss_last);
             idx_ss_start = idx_ss_last-ss_last+1;
             if size(extrainfo.sc,1) - idx_sc13_last <= 12 && ...
                     ss_last >= 22 && ...
