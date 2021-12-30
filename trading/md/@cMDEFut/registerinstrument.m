@@ -272,7 +272,11 @@ function [] = registerinstrument(mdefut,instrument)
     end  
     
     % init categories_
-    category = getfutcategory(instrument);
+    if isa(instrument,'cStock')
+        category = 1;
+    else
+        category = getfutcategory(instrument);
+    end
     if isempty(mdefut.categories_)
         mdefut.categories_ = zeros(ns,1);
         mdefut.categories_(ns,1) = category;

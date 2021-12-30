@@ -28,10 +28,12 @@ function [] = saveticks2mem(mdefut)
             mdefut.ticksquick_(i,2) = qs{i}.bid1;
             mdefut.ticksquick_(i,3) = qs{i}.ask1;
             mdefut.ticksquick_(i,4) = qs{i}.last_trade;
-            if ~isempty(qs{i}.yield_last_trade)
-                mdefut.ticksquick_(i,5) = qs{i}.yield_last_trade;
-                mdefut.ticksquick_(i,6) = qs{i}.yield_bid1;
-                mdefut.ticksquick_(i,7) = qs{i}.yield_ask1;
+            if ~isa(qs{i},'cQuoteStock')
+                if ~isempty(qs{i}.yield_last_trade)
+                    mdefut.ticksquick_(i,5) = qs{i}.yield_last_trade;
+                    mdefut.ticksquick_(i,6) = qs{i}.yield_bid1;
+                    mdefut.ticksquick_(i,7) = qs{i}.yield_ask1;
+                end
             end
             mdefut.ticks_count_(i) = count;
         end

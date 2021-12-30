@@ -18,6 +18,24 @@ classdef cStock < cInstrument
 
     end
     
+    properties (GetAccess = public, Dependent = true)
+        break_interval@cell;
+    end
+    
+    methods
+        function break_interval = get.break_interval(obj)
+            nlength = length(obj.trading_hours);
+            % 09:00-11:30; which length is 12
+            M= round(nlength/12);
+            break_interval =cell(M,2);
+            for i = 1:M
+                break_interval{i,1} = [obj.trading_hours(1+(i-1)*12:5+(i-1)*12),':00'];
+                break_interval{i,2} = [obj.trading_hours(7+(i-1)*12:11+(i-1)*12),':00'];
+            end
+        end
+        %
+    end
+    
     methods
         function [] = delete(obj)
             obj.code_ctp = '';

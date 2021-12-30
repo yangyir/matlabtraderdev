@@ -12,12 +12,12 @@ function [ret] = login(obj,varargin)
     
     ret = 0;
     
-    if isempty(conn)
+    if isempty(conn) 
         fprintf('cMDEFut:login:empty connection entry!!!\n');
         return
     end
     
-    if isempty(countername)
+    if isempty(countername) && strcmpi(conn,'CTP')
         fprintf('cMDEFut:login:empty countername entry!!!\n');
     end
     
@@ -32,7 +32,13 @@ function [ret] = login(obj,varargin)
     elseif strcmpi(conn,'Bloomberg')
         error('cMDEFut:login:Bloomberg login not implemented')
     elseif strcmpi(conn,'Wind')
-        error('cMDEFut:login:Wind login not implemented')
+%         error('cMDEFut:login:Wind login not implemented')
+        try
+            obj.qms_.setdatasource('wind');
+            ret = 1;
+        catch
+            ret = 0;
+        end
     elseif strcmpi(conn,'Local')
         error('cMDEFut:login:Local login not implemented')
     else

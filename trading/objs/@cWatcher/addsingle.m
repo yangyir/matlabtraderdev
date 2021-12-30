@@ -20,9 +20,23 @@ function [] = addsingle(watcher,singlestr)
             s_b{n} = ctp2bbg(s_ctp{n});
         catch
             s_ctp{n} = singlestr;
-            s_w{n} = singlestr;
-            s_b{n} = singlestr;
-            isstock = true;
+            if ~isempty(strfind(singlestr,'.SH')) || ...
+                    ~isempty(strfind(singlestr,'.SZ')) || ...
+                    ~isempty(strfind(singlestr,'.HK')) 
+                s_w{n} = singlestr;
+            else
+                if length(singlestr) == 6
+                    if strcmpi(singlestr(1),'5') || strcmpi(singlestr(1),'6')
+                        s_w{n} = [singlestr,'.SH'];
+                    elseif strcmpi(singlestr(1),'0') || strcmpi(singlestr(1),'3')
+                        s_w{n} = [singlestr,'.SZ'];
+                    end
+                elseif length(singlestr) == 4
+                    s_w{n} = [singlestr,'.HK'];
+                end
+                s_b{n} = singlestr;
+                isstock = true;
+            end
         end
         if n > 1
             for i = 1:n-1
