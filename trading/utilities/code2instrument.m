@@ -7,7 +7,11 @@ function instrument = code2instrument(codestr)
     if isopt
         instrument = cOption(codestr);
     else
-        instrument = cFutures(codestr);
+        try
+            instrument = cFutures(codestr);
+        catch
+            instrument = cStock(codestr);
+        end
     end
     instrument.loadinfo([codestr,'_info.txt']);
 end

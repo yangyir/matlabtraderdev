@@ -12,7 +12,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
     if ~isnumeric(interval), error('cWind:intradaybar:interval must be scalar'); end
     if isempty(interval), interval = 1; end
 
-    if isa(instrument,'cFutures')
+    if isa(instrument,'cFutures') || isa(instrument,'cStock')
         code_wind = instrument.code_wind;
 
         category = getfutcategory(instrument);
