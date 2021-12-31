@@ -49,6 +49,7 @@ function [macdvec,sig,data] = calc_macd_(mdefut,instrument,varargin)
     
     macdvec = leadvec - lagvec;
     
+    warning('off');
     [~,sig] = movavg(macdvec,1,naverage,'e');
     
 %     diffbar = macdvec - sig;
