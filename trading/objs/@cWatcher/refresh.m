@@ -1,10 +1,19 @@
 function [] = refresh(watcher,timestr)
     if isempty(watcher), return; end
-    if nargin <= 1
-        data = watcher.getquotes;
-    else
-        data = watcher.getquotes(timestr);
+    try
+        if nargin <= 1
+            data = watcher.getquotes;
+        else
+            data = watcher.getquotes(timestr);
+        end
+    catch e
+        error('cWatcher:refresh:error in cWather:getquotes:%s',e.message);
     end
+    
+    if isempty(data)
+        return
+    end
+    
     ns = watcher.countsingles;
     nu = watcher.countunderliers;
     watcher.init_quotes;
