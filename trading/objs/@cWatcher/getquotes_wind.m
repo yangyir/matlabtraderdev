@@ -22,18 +22,25 @@ function quotes = getquotes_wind(watcher)
     %rt_date is in the format of yyyymmdd
     %rt_time is in the format of hhmmss
     for i = 1:ns
-        tstr = num2str(data(i,2));
-        if length(tstr) == 5
-            hhstr = ['0',tstr(1)];
-        else
-            hhstr = tstr(1:2);
+        try
+            %bad quality of data from wind
+            tstr = num2str(data(i,2));
+            if length(tstr) == 5
+                hhstr = ['0',tstr(1)];
+            else
+                hhstr = tstr(1:2);
+            end
+            mmstr = tstr(end-3:end-2);
+            ddstr = tstr(end-1:end);
+            tstr = [hhstr,':',mmstr,':',ddstr];
+            quotes(i,1) = datenum(num2str(data(i,1)),'yyyymmdd');
+            quotes(i,2) = datenum([datestr(quotes(i,1)),' ',tstr]);
+            quotes(i,3:end) = data(i,3:end);
+        catch
+%             disp(data);
+            quotes = [];
+            return
         end
-        mmstr = tstr(end-3:end-2);
-        ddstr = tstr(end-1:end);
-        tstr = [hhstr,':',mmstr,':',ddstr];
-        quotes(i,1) = datenum(num2str(data(i,1)),'yyyymmdd');
-        quotes(i,2) = datenum([datestr(quotes(i,1)),' ',tstr]);
-        quotes(i,3:end) = data(i,3:end);
     end
 
 end

@@ -11,9 +11,21 @@ function [] = init(obj,codestr)
     code_bbg_ = cell(nleg,1);
 
     for i = 1:nleg
-        code_ctp_{i} = codestr;
-        code_wind_{i} = codestr;
-        code_bbg_{i} = codestr;
+        code_ctp_{i} = codestr{i};
+        if length(codestr{i}) == 6
+            if strcmpi(codestr{i}(1),'6') || strcmpi(codestr{i}(1),'5')
+                code_wind_{i} = [codestr{i},'.SH'];
+            elseif strcmpi(codestr{i}(1),'0') || strcmpi(codestr{i}(1),'3') || strcmpi(codestr{i}(1),'1')
+                code_wind_{i} = [codestr{i},'.SZ'];
+            else
+                error('cQuoteStock:unknown code......');
+            end
+        elseif length(codestr{i}) == 4
+            code_wind_{i} = [codestr{i},'.HK'];
+        else
+            error('cQuoteStock:unknown or unsupported territory......');
+        end
+        code_bbg_{i} = 'n/a';
     end
 
     if nleg == 1
