@@ -10,9 +10,9 @@ function [] = analysis_printeodinfo(codes_list,names_list)
     
     if ncodes > 0
         fprintf('\neod info:\n');
-        fprintf('%10s %8s %8s %9s %12s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
+        fprintf('%10s %8s %8s %9s %12s %10s %10s %4s %4s %10s %10s %10s %10s %10s %15s\n',...
         'code','latest','close','change','date','hh','ll','bs','ss','levelup','leveldn','jaw','teeth','lips','name');
-        dataformat = '%10s %8s %8s %8.2f%% %12s %10s %10s %4s %4s %10s %10s %10.3f %10.3f %10.3f %10s\n';
+        dataformat = '%10s %8s %8s %8.2f%% %12s %10s %10s %4s %4s %10s %10s %10.3f %10.3f %10.3f %15s\n';
     else
         return
     end
