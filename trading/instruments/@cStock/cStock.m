@@ -6,7 +6,9 @@ classdef cStock < cInstrument
         code_bbg@char
         code_H5@char
         
+        contract_size@double = 100
         tick_size@double
+        tick_value@double
         asset_name@char
         exchange@char
         ipo_date1@double
@@ -74,6 +76,8 @@ classdef cStock < cInstrument
             else
                 obj.tick_size = 0.01;
             end
+            
+            obj.tick_value = obj.tick_size * obj.contract_size;
 
             obj.trading_hours = '09:30-11:30;13:00-15:00';
             obj.trading_break = '';      

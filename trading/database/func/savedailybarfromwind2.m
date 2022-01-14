@@ -27,6 +27,19 @@ else
     end 
 end
 
+stock = cStock(code_wind);
+if isempty(stock.ipo_date1)
+    try
+        stock.init(w);
+        fn_info_ = [getenv('DATAPATH'),'info_stock\',code_wind,'_info.txt'];
+        stock.saveinfo(fn_info_);
+    catch
+        %the security cannot initiate from wind
+        fprintf('%s:invaid_security......\n',code_wind);
+        return
+    end
+end
+
 
 % idx = strfind(code_wind_,'.SH');
 % if isempty(idx)
