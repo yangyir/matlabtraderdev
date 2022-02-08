@@ -63,18 +63,26 @@ classdef cStock < cInstrument
             end
             
             obj.code_ctp = codestr;
-            if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
-                obj.code_wind = [codestr,'.SH'];
+            if strcmpi(codestr,'000001.SH')
+                obj.code_wind = codestr;
             else
-                obj.code_wind = [codestr,'.SZ'];
+                if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
+                    obj.code_wind = [codestr,'.SH'];
+                else
+                    obj.code_wind = [codestr,'.SZ'];
+                end
             end
             obj.code_bbg = 'n/a';
             obj.code_H5 = 'n/a';
             
-            if strcmpi(codestr(1),'1') || strcmpi(codestr(1),'5')
-                obj.tick_size = 0.001;
-            else
+            if strcmpi(codestr,'000001.SH')
                 obj.tick_size = 0.01;
+            else
+                if strcmpi(codestr(1),'1') || strcmpi(codestr(1),'5')
+                    obj.tick_size = 0.001;
+                else
+                    obj.tick_size = 0.01;
+                end
             end
             
             obj.tick_value = obj.tick_size * obj.contract_size;
