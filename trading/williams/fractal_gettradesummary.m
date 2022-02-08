@@ -1,4 +1,4 @@
-function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess] = fractal_gettradesummary(code)
+function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess] = fractal_gettradesummary(code,varargin)
 %
 [isequity,equitytype] = isinequitypool(code);
 
@@ -21,10 +21,23 @@ else
     end
 end
 
-[tblb,~,tradesb,~,resstruct] = fractal_intraday_checker(code,...
-        'type','all','direction',1,'plot',false);
-[~,tbls,tradess,~,~] = fractal_intraday_checker(code,...
-        'type','all','direction',-1,'plot',false);
+if nargin > 1
+    check_freq = varargin{1};
+else
+    check_freq = 'intraday';
+end
+
+if strcmpi(check_freq,'intraday')
+    [tblb,~,tradesb,~,resstruct] = fractal_intraday_checker(code,...
+            'type','all','direction',1,'plot',false);
+    [~,tbls,tradess,~,~] = fractal_intraday_checker(code,...
+            'type','all','direction',-1,'plot',false);
+else
+    [tblb,~,tradesb,~,resstruct] = fractal_daily_checker(code,...
+            'type','all','direction',1,'plot',false);
+    [~,tbls,tradess,~,~] = fractal_daily_checker(code,...
+            'type','all','direction',-1,'plot',false);
+end
     
 data = resstruct{1};
 
