@@ -83,13 +83,17 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                         else
                             try
 %                                 ds2 = cBloomberg;
-                                ds2 = cWind;
-                                candles = ds2.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),mdefut.candle_freq_(i),'trade');
+                                if strcmpi(mdefut.qms_.watcher_.conn,'wind') &&  mdefut.qms_.watcher_.isconnect
+                                     candles = mdefut.qms_.watcher_.ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                                else
+                                    ds2 = cWind;
+                                    candles = ds2.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),mdefut.candle_freq_(i),'trade');
+                                    ds2.close;
+                                end
                             catch e
                                 fprintf('%s\n',e.message);
                                 return
-                            end
-                            ds2.close;
+                            end                            
                         end
                         %
                         if size(candles,1) < idx
@@ -189,13 +193,17 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                         else
                             try
 %                                 ds2 = cBloomberg;
-                                ds2 = cWind;
-                                candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                                if strcmpi(mdefut.qms_.watcher_.conn,'wind') &&  mdefut.qms_.watcher_.isconnect
+                                    candles = mdefut.qms_.watcher_.ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                                else
+                                    ds2 = cWind;
+                                    candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                                    ds2.close;
+                                end
                             catch e
                                 fprintf('%s\n',e.message);
                                 return
-                            end
-                            ds2.close;
+                            end                           
                         end
                         if size(candles,1) < idx
                             tmp = [candles;mdefut.candles_{i}(idx+1:end,:)];
