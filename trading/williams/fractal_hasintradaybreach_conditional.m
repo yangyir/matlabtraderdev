@@ -31,7 +31,7 @@ function [ret,signal,op] = fractal_hasintradaybreach_conditional(t,extrainfo,tic
     
     nfractal = 4;
     
-    for i = idx2:idx2
+    for i = idx2:-1:idx1
         %time moves backwards to find the latest intraday breach
         extrainfo_i = struct('px',extrainfo.px(1:i,:),...
             'ss',extrainfo.ss(1:i),'sc',extrainfo.sc(1:i),...
