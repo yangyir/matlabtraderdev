@@ -1,38 +1,9 @@
-function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_intraday,filterstr,direction,doplot)
-if length(codes) ~= size(data_intraday,1)
+function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot)
+if length(codes) ~= size(data_in,1)
     error('fractal_filter:invalid codes and data_intraday inputs')
 end
 
-if ~(strcmpi(filterstr,'breachup-lvlup') || ...
-        strcmpi(filterstr,'breachup-lvldn') || ...
-        strcmpi(filterstr,'breachup-highsc13') || ...
-        strcmpi(filterstr,'breachup-highsc13-negative') || ...
-        strcmpi(filterstr,'breachdn-lowbc13') || ...
-        strcmpi(filterstr,'breachdn-lvldn') || ...
-        strcmpi(filterstr,'breachdn-lvlup') || ...
-        strcmpi(filterstr,'volblowup') || ...
-        strcmpi(filterstr,'volblowup-alligatorfailed') || ...
-        strcmpi(filterstr,'volblowup2-alligatorfailed') || ...
-        strcmpi(filterstr,'volblowup2') || ...
-        strcmpi(filterstr,'volblowup2-ss1') || ...
-        strcmpi(filterstr,'volblowup2-bs1') || ...
-        strcmpi(filterstr,'strongbreach-trendbreak') ||...
-        strcmpi(filterstr,'strongbreach-trendconfirmed') ||...
-        strcmpi(filterstr,'strongbreach-sshighvalue') ||...
-        strcmpi(filterstr,'strongbreach-bshighvalue') ||...
-        strcmpi(filterstr,'breachup-sshighvalue') ||...
-        strcmpi(filterstr,'mediumbreach-trendbreak') ||...
-        strcmpi(filterstr,'mediumbreach-trendconfirmed') ||...
-        strcmpi(filterstr,'mediumbreach-sshighvalue') ||...
-        strcmpi(filterstr,'mediumbreach-bshighvalue') ||...
-        strcmpi(filterstr,'teethjawcrossed') || ...
-        strcmpi(filterstr,'breachdn-bshighvalue') ||...
-        strcmpi(filterstr,'closetolvlup') ||...
-        strcmpi(filterstr,'closetolvldn') ||...
-        strcmpi(filterstr,'weakbreach') || ...
-        strcmpi(filterstr,'sc13') || ...
-        strcmpi(filterstr,'bc13') || ...
-        strcmpi(filterstr,'all')) 
+if ~(fractal_isvalidstr(filterstr) || strcmpi(filterstr,'all')) 
     error('fractal_filter:invalid filterstr input')
 end
 
@@ -79,7 +50,7 @@ for i = 1:n
             end
         end
     end
-    p = data_intraday{i};
+    p = data_in{i};
     if p(2,1) - p(1,1) < 1
         freqstr = '30m';
         nfractal = 4;
@@ -106,6 +77,7 @@ for i = 1:n
     useflagb_i = zeros(nb_i,1);useflags_i = zeros(ns_i,1);
     commentsb1_i = cell(nb_i,3);commentss1_i = cell(ns_i,3);
     for j = 1:nb_i
+        if direction == -1, continue;end
         %double check whether the open price on the next candle is still valid
         %for a breach as per trading code
         k = idxb1{i}(j,1);
@@ -152,13 +124,14 @@ for i = 1:n
         end
         
         if (strcmpi(op.comment,filterstr) || strcmpi(filterstr,'all')) && direction == 1
-            iplot = iplot + 1;
-            for jj = k:size(p,1)
-                if p(jj,5)-resstruct{i}.teeth(jj) < -2*ticksize
-                    break
-                end
-            end
+            %
             if doplot
+                iplot = iplot + 1;
+                for jj = k:size(p,1)
+                    if p(jj,5)-resstruct{i}.teeth(jj) < -2*ticksize
+                        break
+                    end
+                end
                 if strcmpi(op.comment,'breachup-highsc13') || strcmpi(op.comment,'breachup-highsc13-negative')
                     lastsc13 = find(extrainfo.sc(1:k) == 13,1,'last');
                     tools_technicalplot2(resmat{i}(min(lastsc13,k-nkfromhh_i(j)+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
@@ -171,25 +144,27 @@ for i = 1:n
             end
             trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,1,freqstr);
             trades.push(trade);
-        end
-        
+        end 
     end
-    idx = idxb1{i}(:,1);
-    breachtype = idxb1{i}(:,2);
-    nabovelips1 = nabovelips1_i;
-    naboveteeth1 = naboveteeth1_i;
-    nabovelips2 = nabovelips2_i;
-    nkaboveteeth2 = nkaboveteeth2_i;
-    nkfromhh = nkfromhh_i;
-    teethjawcrossed = teethjawcrossed_b_i;
-    useflag = useflagb_i;
-    commentsb1 = commentsb1_i(:,1);
-    commentsb2 = commentsb1_i(:,2);
-    commentsb3 = commentsb1_i(:,3);
-    tblb1{i,1} = table(idx,breachtype,nabovelips1,naboveteeth1,nabovelips2,nkaboveteeth2,nkfromhh,teethjawcrossed,useflag,commentsb1,commentsb2,commentsb3);
+    if direction == 1
+        idx = idxb1{i}(:,1);
+        breachtype = idxb1{i}(:,2);
+        nabovelips1 = nabovelips1_i;
+        naboveteeth1 = naboveteeth1_i;
+        nabovelips2 = nabovelips2_i;
+        nkaboveteeth2 = nkaboveteeth2_i;
+        nkfromhh = nkfromhh_i;
+        teethjawcrossed = teethjawcrossed_b_i;
+        useflag = useflagb_i;
+        commentsb1 = commentsb1_i(:,1);
+        commentsb2 = commentsb1_i(:,2);
+        commentsb3 = commentsb1_i(:,3);
+        tblb1{i,1} = table(idx,breachtype,nabovelips1,naboveteeth1,nabovelips2,nkaboveteeth2,nkfromhh,teethjawcrossed,useflag,commentsb1,commentsb2,commentsb3);
+    end
     %
     %
     for j = 1:ns_i
+        if direction == 1, continue;end
         %double check whether the open price on the next candle is still valid
         %for a breach as per trading code
         k = idxs1{i}(j,1);
@@ -230,13 +205,14 @@ for i = 1:n
         end
         
         if (strcmpi(op.comment,filterstr) || strcmpi(filterstr,'all')) && direction == -1
-            iplot = iplot + 1;
-            for jj = k:size(p,1)
-                if p(jj,5)-resstruct{i}.teeth(jj) > 2*ticksize
-                    break
-                end
-            end
+            %
             if doplot
+                iplot = iplot + 1;
+                for jj = k:size(p,1)
+                    if p(jj,5)-resstruct{i}.teeth(jj) > 2*ticksize
+                        break
+                    end
+                end
                 if strcmpi(op.comment,'breachdn-lowbc13')
                     lastbc13 = find(extrainfo.bc(1:k) == 13,1,'last');
                     tools_technicalplot2(resmat{i}(min(lastbc13,k-nkfromll_i(j)+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
@@ -252,19 +228,21 @@ for i = 1:n
         end
         
     end
-    idx = idxs1{i}(:,1);
-    breachtype = idxs1{i}(:,2);
-    nbelowlips1 = nbelowlips1_i;
-    nbelowteeth1 = nbelowteeth1_i;
-    nbelowlips2 = nbelowlips2_i;
-    nkbelowteeth2 = nkbelowteeth2_i;
-    nkfromll = nkfromll_i;
-    teethjawcrossed = teethjawcrossed_s_i;
-    useflags = useflags_i;
-    commentss1 = commentss1_i(:,1);
-    commentss2 = commentss1_i(:,2);
-    commentss3 = commentss1_i(:,3);
-    tbls1{i,1} = table(idx,breachtype,nbelowlips1,nbelowteeth1,nbelowlips2,nkbelowteeth2,nkfromll,teethjawcrossed,useflags,commentss1,commentss2,commentss3);
+    if direction == -1
+        idx = idxs1{i}(:,1);
+        breachtype = idxs1{i}(:,2);
+        nbelowlips1 = nbelowlips1_i;
+        nbelowteeth1 = nbelowteeth1_i;
+        nbelowlips2 = nbelowlips2_i;
+        nkbelowteeth2 = nkbelowteeth2_i;
+        nkfromll = nkfromll_i;
+        teethjawcrossed = teethjawcrossed_s_i;
+        useflags = useflags_i;
+        commentss1 = commentss1_i(:,1);
+        commentss2 = commentss1_i(:,2);
+        commentss3 = commentss1_i(:,3);
+        tbls1{i,1} = table(idx,breachtype,nbelowlips1,nbelowteeth1,nbelowlips2,nkbelowteeth2,nkfromll,teethjawcrossed,useflags,commentss1,commentss2,commentss3);
+    end
 end
     
 
