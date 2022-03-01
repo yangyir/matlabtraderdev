@@ -11,7 +11,7 @@ function [ret,direction,breachtime,breachidx] = fractal_hasintradaybreach(t,extr
     end
     
     ret = false;
-    direction = 0;
+    direction = [];
     breachtime = [];
     breachidx = [];
     
@@ -28,28 +28,23 @@ function [ret,direction,breachtime,breachidx] = fractal_hasintradaybreach(t,extr
     
     for i = idx2:-1:idx1
         %time moves backwards to find the latest intraday breach
-        extrainfo_i = struct('px',extrainfo.px(1:i,:),...
-            'ss',extrainfo.ss(1:i),'sc',extrainfo.sc(1:i),...
-            'bs',extrainfo.bs(1:i),'bc',extrainfo.bc(1:i),...
-            'lvlup',extrainfo.lvlup(1:i),'lvldn',extrainfo.lvldn(1:i),...
-            'hh',extrainfo.hh(1:i),'ll',extrainfo.ll(1:i),...
-            'lips',extrainfo.lips(1:i),'teeth',extrainfo.teeth(1:i),'jaw',extrainfo.jaw(1:i),...
-            'wad',extrainfo.wad(1:i));
-       [validbreachhh,validbreachll,~,~] = fractal_validbreach(extrainfo_i,ticksize);
-       if validbreachhh
-           ret = true;
-           direction = 1;
-           breachtime = tvec(i);
-           breachidx = i;
-           break
-       end
-       if validbreachll
-           ret = true;
-           direction = -1;
-           breachtime = tvec(i);
-           breachidx = i;
-           break
-       end
+        extrainfo_i = fractal_truncate(extrainfo,i);
+        
+        [validbreachhh,validbreachll,~,~] = fractal_validbreach(extrainfo_i,ticksize);
+        if validbreachhh
+            ret = true;
+            direction = 1;
+            breachtime = tvec(i);
+            breachidx = i;
+            break
+        end
+        if validbreachll
+            ret = true;
+            direction = -1;
+            breachtime = tvec(i);
+            breachidx = i;
+            break
+        end
     end
        
     

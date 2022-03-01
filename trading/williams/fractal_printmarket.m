@@ -30,6 +30,21 @@ if ~isempty(intradaybarstruct)
         num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
         jaw,teeth,lips,...
         stock.asset_name);
+    
+    [ret,direction,breachtime,breachidx] = fractal_hasintradaybreach(intradaybarstruct.px(end,1)+1/48,intradaybarstruct,stock.tick_size);
+%     [ret2,signal2,op2] = fractal_hasintradaybreach_conditional(timet,extrainfo_i,ticksize);
+    if ret
+        ei_breach = fractal_truncate(intradaybarstruct,breachidx);
+        [signal,op] = fractal_signal_unconditional(ei_breach,stock.tick_size,4);
+        if direction == 1
+            fprintf('%s:BreachUP:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),code);
+            fprintf('%2d\t%s(%s)\n',signal(1),op.comment,stock.asset_name);
+        else
+            fprintf('%s:BreachDN:%s:\t',datestr(breachtime+1/48,'yyyy-mm-dd HH:MM'),code);
+            fprintf('%2d\t%s(%s)\n',signal(1),op.comment,stock.asset_name);
+        end
+    end
+    
 end
 
 if ~isempty(dailybarstruct)
