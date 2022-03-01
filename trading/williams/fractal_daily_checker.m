@@ -34,8 +34,10 @@ for i = 1:n
         extrainfo = fractal_genextrainfo(d,k);
         if k == size(d.px,1)
             extrainfo.latestopen = d.px(k,5);
+            extrainfo.latestdt = d.px(k,1);
         else
             extrainfo.latestopen = d.px(k+1,2);
+            extrainfo.latestdt = d.px(k+1,1);
         end
         if strcmpi(trade.status_,'closed'),break;end
         tradeout = trade.riskmanager_.riskmanagementwithcandle([],...

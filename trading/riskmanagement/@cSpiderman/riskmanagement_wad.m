@@ -20,7 +20,9 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
     if direction == 1
         if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
             if extrainfo.latestopen < obj.cphigh_
-%                 closeflag = ret.inconsistence;
+                if strcmpi(trade.opensignal_.frequency_,'daily')
+                    closeflag = ret.inconsistence;
+                end
                 obj.pxstoploss_ = max(extrainfo.p(end,4),extrainfo.lips(end));
                 obj.closestr_ = ['wad:',ret.reason];
             else
@@ -88,7 +90,9 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
 %         ret = obj.riskmanagement_wadupdate('extrainfo',extrainfo);
         if ret.inconsistence && strcmpi(ret.reason,'new low wad w/o price being lower')
             if extrainfo.latestopen > obj.cplow_
-%                 closeflag = ret.inconsistence;
+                if strcmpi(trade.opensignal_.frequency_,'daily')
+                    closeflag = ret.inconsistence;
+                end
                 obj.pxstoploss_ =  min(extrainfo.p(end,3),extrainfo.lips(end));
                 obj.closestr_ = ['wad:',ret.reason];
             else
@@ -159,12 +163,16 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             trade.status_ = 'closed';
             trade.runningpnl_ = 0;
             if isempty(trade.instrument_)
-                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_);
+%                 trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_);
+                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
             else
-                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+%                 trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
             end
-            trade.closedatetime1_ = extrainfo.p(end,1);
-            trade.closeprice_ = extrainfo.p(end,5);
+%             trade.closedatetime1_ = extrainfo.p(end,1);
+%             trade.closeprice_ = extrainfo.p(end,5);
+            trade.closedatetime1_ = extrainfo.latestdt;
+            trade.closeprice_ = extrainfo.latestopen;
         end
     end
 
