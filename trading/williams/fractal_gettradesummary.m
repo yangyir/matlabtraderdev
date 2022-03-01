@@ -43,8 +43,8 @@ data = resstruct{1};
 
 nbtrades = tradesb.latest_;
 nstrades = tradess.latest_;
-tblbtrades = cell(nbtrades,25);
-tblstrades = cell(nstrades,25);
+tblbtrades = cell(nbtrades,26);
+tblstrades = cell(nstrades,26);
 
 for i = 1:tradesb.latest_
     trade_i = tradesb.node_(i);
@@ -59,22 +59,23 @@ for i = 1:tradesb.latest_
     tblbtrades{i,2} = trade_i.code_;            %code
     tblbtrades{i,3} = trade_i.id_;              %id
     tblbtrades{i,4} = 1;                        %direction
+    tblbtrades{i,5} = trade_i.openprice_;       %open price
     %pnl:use running pnl if closed pnl is not available
     if ~isempty(trade_i.closepnl_)
-        tblbtrades{i,5} = trade_i.closepnl_;
+        tblbtrades{i,6} = trade_i.closepnl_;
     else
-        tblbtrades{i,5} = trade_i.runningpnl_;
+        tblbtrades{i,6} = trade_i.runningpnl_;
     end
-    tblbtrades{i,6} = trade_i.closestr_;        %closestr
+    tblbtrades{i,7} = trade_i.closestr_;        %closestr
     try
-        tblbtrades{i,7} = find(resstruct{1}.px(:,1)>=trade_i.closedatetime1_,1,'first');
+        tblbtrades{i,8} = find(resstruct{1}.px(:,1)>=trade_i.closedatetime1_,1,'first');
     catch
-        tblbtrades{i,7} = [];
+        tblbtrades{i,8} = [];
     end
-    tblbtrades{i,8} = tdsqmomentum;             %TDSQ-Momentum
+    tblbtrades{i,9} = tdsqmomentum;             %TDSQ-Momentum
     fldnamesb = fieldnames(status);
     for k = 1:length(fldnamesb)
-        tblbtrades{i,8+k} = status.(fldnamesb{k});
+        tblbtrades{i,9+k} = status.(fldnamesb{k});
     end
 end
 %
@@ -91,22 +92,23 @@ for i = 1:tradess.latest_
     tblstrades{i,2} = trade_i.code_;            %code
     tblstrades{i,3} = trade_i.id_;              %id
     tblstrades{i,4} = -1;                       %direction
+    tblstrades{i,5} = trade_i.openprice_;
     %pnl:use running pnl if closed pnl is not available
     if ~isempty(trade_i.closepnl_)
-        tblstrades{i,5} = trade_i.closepnl_;
+        tblstrades{i,6} = trade_i.closepnl_;
     else
-        tblstrades{i,5} = trade_i.runningpnl_;
+        tblstrades{i,6} = trade_i.runningpnl_;
     end
-    tblstrades{i,6} = trade_i.closestr_;        %closestr
+    tblstrades{i,7} = trade_i.closestr_;        %closestr
     try
-        tblstrades{i,7} = find(resstruct{1}.px(:,1)>=trade_i.closedatetime1_,1,'first');
+        tblstrades{i,8} = find(resstruct{1}.px(:,1)>=trade_i.closedatetime1_,1,'first');
     catch
-        tblstrades{i,7} = [];
+        tblstrades{i,8} = [];
     end
-    tblstrades{i,8} = tdsqmomentum;             %TDSQ-Momentum
+    tblstrades{i,9} = tdsqmomentum;             %TDSQ-Momentum
     fldnamess = fieldnames(status);
     for k = 1:length(fldnamess)
-        tblstrades{i,8+k} = status.(fldnamess{k});
+        tblstrades{i,9+k} = status.(fldnamess{k});
     end
 end
 %
@@ -161,14 +163,15 @@ tblb_headers{1,n1+1} = 'time';tbls_headers{1,n1+1} = 'time';
 tblb_headers{1,n1+2} = 'code';tbls_headers{1,n1+2} = 'code';
 tblb_headers{1,n1+3} = 'id';tbls_headers{1,n1+3} = 'id';
 tblb_headers{1,n1+4} = 'direction';tbls_headers{1,n1+4} = 'direction';
-tblb_headers{1,n1+5} = 'closepnl';tbls_headers{1,n1+5} = 'closepnl';
-tblb_headers{1,n1+6} = 'closestr';tbls_headers{1,n1+6} = 'closestr';
-tblb_headers{1,n1+7} = 'idclose';tbls_headers{1,n1+7} = 'idclose';
-tblb_headers{1,n1+8} = 'tdsqmomentum';tbls_headers{1,n1+8} = 'tdsqmomentum';
-for i = 1:n2-8
+tblb_headers{1,n1+5} = 'openprice';tbls_headers{1,n1+5} = 'openprice';
+tblb_headers{1,n1+6} = 'closepnl';tbls_headers{1,n1+6} = 'closepnl';
+tblb_headers{1,n1+7} = 'closestr';tbls_headers{1,n1+7} = 'closestr';
+tblb_headers{1,n1+8} = 'idclose';tbls_headers{1,n1+8} = 'idclose';
+tblb_headers{1,n1+9} = 'tdsqmomentum';tbls_headers{1,n1+9} = 'tdsqmomentum';
+for i = 1:n2-9
     try
-        tblb_headers{1,i+n1+8} = fldnamesb{i};
-        tbls_headers{1,i+n1+8} = fldnamess{i};
+        tblb_headers{1,i+n1+9} = fldnamesb{i};
+        tbls_headers{1,i+n1+9} = fldnamess{i};
     catch
     end
 end
