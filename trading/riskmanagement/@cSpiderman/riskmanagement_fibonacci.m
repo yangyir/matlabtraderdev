@@ -38,7 +38,8 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
             else
                 trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
             end
-            trade.closedatetime1_ = extrainfo.p(end,1);
+%             trade.closedatetime1_ = extrainfo.p(end,1);
+            trade.closedatetime1_ = extrainfo.latestdt;
             trade.closeprice_ = extrainfo.latestopen;
         end
         return
