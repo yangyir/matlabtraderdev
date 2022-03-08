@@ -176,67 +176,70 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 end
                 
                 %
+                [signal_cond_i,op_cond_i] = fractal_signal_conditional(extrainfo,ticksize,nfractal);
                 %
-                %1a.there are 2*nfactal candles above alligator's teeth
-                %continuously with HH being above alligator's teeth
-                %the latest close price should be still below HH
-                %the latest HH shall be above the previous HH, indicating
-                %an upper trend
-                %in case the latest HH is below the previous HH, i.e. the
-                %previous was formed given higher price volatility, we
-                %shall still regard the up-trend as valid if and only if
-                %there are 2*nfractal candles above alligator's lips
+                %
+                %
+%                 %1a.there are 2*nfactal candles above alligator's teeth
+%                 %continuously with HH being above alligator's teeth
+%                 %the latest close price should be still below HH
+%                 %the latest HH shall be above the previous HH, indicating
+%                 %an upper trend
+%                 %in case the latest HH is below the previous HH, i.e. the
+%                 %previous was formed given higher price volatility, we
+%                 %shall still regard the up-trend as valid if and only if
+%                 %there are 2*nfractal candles above alligator's lips
                 last2hhidx = find(idxHH(1:end)==1,2,'last');
                 last2hh = hh(last2hhidx);
-                if size(p,1)-(last2hhidx(end)-nfractal)+1 >= 2*nfractal
-                    aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-                    aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
-                    aboveteeth = aboveteeth & p(end,5)<hh(end);                    
-                    if size(last2hhidx,1) == 2 && aboveteeth
-                        if last2hh(2) - last2hh(1) >= ticksize
-                            aboveteeth = true;
-                        else
-                            %there are 2*nfractal candles above alligator's lips
-                            aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-                            if ~aboveteeth
-                                %weak condition:1)there are 2*nfracal 
-                                %candles's low above alligator's teeth;
-                                %2)the last close above lips
-                                flag1 = isempty(find(p(end-2*nfractal+1:end,4)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-                                flag2 = p(end,5)-lips(end)-2*ticksize>0;
-                                flag3 = ss(end) >= 1;
-                                aboveteeth = flag1 & flag2 & flag3;
-                            end
-                        end
-                    end
-                else
-                    aboveteeth = false;
-                end
-                if aboveteeth
-                    [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
-                    %DO NOT place any order if alligator's teeth and jaw
-                    %crossed
-                    aboveteeth = aboveteeth & ~isteethjawcrossed;
-                end
-                %20210603?special case:
-                %the upper-trend might be too strong and about to exhausted
-                %1)the latest candle stick is within 12 sticks(inclusive) from
-                %the latest sell count 13
-                %2)the latest sell sequential is greater than or equal 22(9+13)
-                %3)the latest sell count 13 is included in the latest sell sequential
-                %DO N0T place any order if the above 3 conditions hold
-                if aboveteeth
-                    idx_sc13_last = find(sc==13,1,'last');
-                    idx_ss_last = find(ss >= 9, 1,'last');
-                    if ~isempty(idx_sc13_last) && ~isempty(idx_ss_last)
-                        ss_last = ss(idx_ss_last);
-                        idx_ss_start = idx_ss_last-ss_last+1;
-                        if size(sc,1) - idx_sc13_last <= 12 && ss_last >= 22 ...
-                                && idx_ss_start +9 < idx_sc13_last
-                            aboveteeth = false;
-                        end
-                    end
-                end
+%                 if size(p,1)-(last2hhidx(end)-nfractal)+1 >= 2*nfractal
+%                     aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+%                     aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
+%                     aboveteeth = aboveteeth & p(end,5)<hh(end);                    
+%                     if size(last2hhidx,1) == 2 && aboveteeth
+%                         if last2hh(2) - last2hh(1) >= ticksize
+%                             aboveteeth = true;
+%                         else
+%                             %there are 2*nfractal candles above alligator's lips
+%                             aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+%                             if ~aboveteeth
+%                                 %weak condition:1)there are 2*nfracal 
+%                                 %candles's low above alligator's teeth;
+%                                 %2)the last close above lips
+%                                 flag1 = isempty(find(p(end-2*nfractal+1:end,4)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+%                                 flag2 = p(end,5)-lips(end)-2*ticksize>0;
+%                                 flag3 = ss(end) >= 1;
+%                                 aboveteeth = flag1 & flag2 & flag3;
+%                             end
+%                         end
+%                     end
+%                 else
+%                     aboveteeth = false;
+%                 end
+%                 if aboveteeth
+%                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
+%                     %DO NOT place any order if alligator's teeth and jaw
+%                     %crossed
+%                     aboveteeth = aboveteeth & ~isteethjawcrossed;
+%                 end
+%                 %20210603?special case:
+%                 %the upper-trend might be too strong and about to exhausted
+%                 %1)the latest candle stick is within 12 sticks(inclusive) from
+%                 %the latest sell count 13
+%                 %2)the latest sell sequential is greater than or equal 22(9+13)
+%                 %3)the latest sell count 13 is included in the latest sell sequential
+%                 %DO N0T place any order if the above 3 conditions hold
+%                 if aboveteeth
+%                     idx_sc13_last = find(sc==13,1,'last');
+%                     idx_ss_last = find(ss >= 9, 1,'last');
+%                     if ~isempty(idx_sc13_last) && ~isempty(idx_ss_last)
+%                         ss_last = ss(idx_ss_last);
+%                         idx_ss_start = idx_ss_last-ss_last+1;
+%                         if size(sc,1) - idx_sc13_last <= 12 && ss_last >= 22 ...
+%                                 && idx_ss_start +9 < idx_sc13_last
+%                             aboveteeth = false;
+%                         end
+%                     end
+%                 end
                 %
                 %1b.HH is above TDST level-up
                 %HH is also above alligator's teeth
@@ -288,7 +291,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & hh(end)>teeth(end) ...
                     & lips(end)>teeth(end) ...
                     & p(end,5)<=hh(end);
-                if aboveteeth
+%                 if aboveteeth
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1
                     %TREND has priority over TDST breakout
                     %note:20211118
                     %it is necessary to withdraw pending conditional
@@ -309,19 +313,21 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             stratfractal.removecondentrusts(condentrusts2remove);
                         end
                     end
-                    this_signal = zeros(1,6);
-                    this_signal(1,1) = 1;
-                    this_signal(1,2) = hh(end);
-                    this_signal(1,3) = ll(end);
-                    this_signal(1,5) = p(end,3);
-                    this_signal(1,6) = p(end,4);
-                    this_signal(1,4) = 2;
-                    if teeth(end)>jaw(end)
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:strongbreach-trendconfirmed');
-                    else
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:mediumbreach-trendconfirmed');
-                    end
-                    signals{i,1} = this_signal;
+%                     this_signal = zeros(1,6);
+%                     this_signal(1,1) = 1;
+%                     this_signal(1,2) = hh(end);
+%                     this_signal(1,3) = ll(end);
+%                     this_signal(1,5) = p(end,3);
+%                     this_signal(1,6) = p(end,4);
+%                     this_signal(1,4) = 2;
+%                     if teeth(end)>jaw(end)
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:strongbreach-trendconfirmed');
+%                     else
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:mediumbreach-trendconfirmed');
+%                     end
+%                     signals{i,1} = this_signal;
+                    signals{i,1} = signal_cond_i{1,1};
+                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1});
                 else
                     %NOT ABOVE TEETH
 %                     if hhabovelvlup && p(end,3)>lvldn(end)
@@ -349,57 +355,57 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 end
                 %
                 %
-                %2a.there are 2*nfactal candles below alligator's teeth
-                %continuously with LL being below alligator's teeth
-                %the latest close price should be still above LL
-                %the latest LL shall be below the previous LL, indicating
-                %a down trend
-                %in case the latest LL is above the previous LL, i.e. the
-                %previous was formed given higher price volatility, we
-                %shall still regard the down-trend as valid if and only if
-                %there are 2*nfractal candles below alligator's lips
+%                 %2a.there are 2*nfactal candles below alligator's teeth
+%                 %continuously with LL being below alligator's teeth
+%                 %the latest close price should be still above LL
+%                 %the latest LL shall be below the previous LL, indicating
+%                 %a down trend
+%                 %in case the latest LL is above the previous LL, i.e. the
+%                 %previous was formed given higher price volatility, we
+%                 %shall still regard the down-trend as valid if and only if
+%                 %there are 2*nfractal candles below alligator's lips
                 last2llidx = find(idxLL(1:end)==-1,2,'last');
-                if size(p,1)-(last2llidx(end)-nfractal)+1 >= 2*nfractal
-                    belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-                    belowteeth = belowteeth & ll(end)-teeth(end)<=-ticksize;
-                    belowteeth = belowteeth & p(end,5)>ll(end);
-                    last2ll = ll(last2llidx);
-                    if size(last2ll,1) == 2 && belowteeth
-                        if last2ll(2) - last2ll(1) <= -ticksize
-                            belowteeth = true;
-                        else
-                            %there are 2*nfractal candles below alligator's lips
-                            belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-                        end
-                    end
-                else
-                    belowteeth = false;
-                end
-                if belowteeth
-                    [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
-                    %DO NOT place any order if alligator's tteh and jaw
-                    %crossed
-                    belowteeth = belowteeth & ~isteethjawcrossed;
-                end
-                %20210603?special case:
-                %the down-trend might be too strong and about to exhausted
-                %1)the latest candle stick is within 12 sticks(inclusive)
-                %from the latest buy count 13
-                %2)the latest buy sequential is greater than or equal 22(9+13)
-                %3)the latest buy count 13 is included in the latest buy sequential
-                %DO NOT place any order if the above 3 conditions hold
-                if belowteeth
-                    idx_bc13_last = find(bc==13,1,'last');
-                    idx_bs_last = find(bs>=9,1,'last');
-                    if ~isempty(idx_bc13_last) && ~isempty(idx_bs_last)
-                        bs_last = bs(idx_bs_last);
-                        idx_bs_start = idx_bs_last-bs_last+1;
-                        if size(bc,1)-idx_bc13_last <= 12 && bs_last >= 12 ...
-                                &&idx_bs_start + 9 < idx_bc13_last
-                            belowteeth = false;
-                        end
-                    end
-                end
+%                 if size(p,1)-(last2llidx(end)-nfractal)+1 >= 2*nfractal
+%                     belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+%                     belowteeth = belowteeth & ll(end)-teeth(end)<=-ticksize;
+%                     belowteeth = belowteeth & p(end,5)>ll(end);
+%                     last2ll = ll(last2llidx);
+%                     if size(last2ll,1) == 2 && belowteeth
+%                         if last2ll(2) - last2ll(1) <= -ticksize
+%                             belowteeth = true;
+%                         else
+%                             %there are 2*nfractal candles below alligator's lips
+%                             belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+%                         end
+%                     end
+%                 else
+%                     belowteeth = false;
+%                 end
+%                 if belowteeth
+%                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
+%                     %DO NOT place any order if alligator's tteh and jaw
+%                     %crossed
+%                     belowteeth = belowteeth & ~isteethjawcrossed;
+%                 end
+%                 %20210603?special case:
+%                 %the down-trend might be too strong and about to exhausted
+%                 %1)the latest candle stick is within 12 sticks(inclusive)
+%                 %from the latest buy count 13
+%                 %2)the latest buy sequential is greater than or equal 22(9+13)
+%                 %3)the latest buy count 13 is included in the latest buy sequential
+%                 %DO NOT place any order if the above 3 conditions hold
+%                 if belowteeth
+%                     idx_bc13_last = find(bc==13,1,'last');
+%                     idx_bs_last = find(bs>=9,1,'last');
+%                     if ~isempty(idx_bc13_last) && ~isempty(idx_bs_last)
+%                         bs_last = bs(idx_bs_last);
+%                         idx_bs_start = idx_bs_last-bs_last+1;
+%                         if size(bc,1)-idx_bc13_last <= 12 && bs_last >= 12 ...
+%                                 &&idx_bs_start + 9 < idx_bc13_last
+%                             belowteeth = false;
+%                         end
+%                     end
+%                 end
                 %
                 %2b.LL is below TDST level-dn
                 %LL is also below alligator's teeth
@@ -458,7 +464,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     llabovelvldn = llabovelvldn & p(end,4)<lvlup(end);
                 end
                 
-                if belowteeth
+%                 if belowteeth
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1
                     %TREND has priority over TDST breakout
                     %note:20211118
                     %it is necessary to withdraw pending conditional
@@ -479,19 +486,21 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             stratfractal.removecondentrusts(condentrusts2remove);
                         end
                     end
-                    this_signal = zeros(1,6);
-                    this_signal(1,1) = -1;
-                    this_signal(1,2) = hh(end);
-                    this_signal(1,3) = ll(end);
-                    this_signal(1,5) = p(end,3);
-                    this_signal(1,6) = p(end,4);
-                    this_signal(1,4) = -2;
-                    if teeth(end)<jaw(end)
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
-                    else
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
-                    end
-                    signals{i,2} = this_signal;
+%                     this_signal = zeros(1,6);
+%                     this_signal(1,1) = -1;
+%                     this_signal(1,2) = hh(end);
+%                     this_signal(1,3) = ll(end);
+%                     this_signal(1,5) = p(end,3);
+%                     this_signal(1,6) = p(end,4);
+%                     this_signal(1,4) = -2;
+%                     if teeth(end)<jaw(end)
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
+%                     else
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
+%                     end
+%                     signals{i,2} = this_signal;
+                    signals{i,2} = signal_cond_i{1,2};
+                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op_cond_i{1,2});
                 else
                     %NOT BELOW TEETH
                     if llbelowlvldn
