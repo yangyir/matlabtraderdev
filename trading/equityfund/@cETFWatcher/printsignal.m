@@ -52,8 +52,8 @@ function [] = printsignal(obj,varargin)
         %
         fprintf('\n');
         for i = 1:n_sector
-            if strcmpi(obj.codes_sector_{i}(1:6),'512000') || ...
-                    strcmpi(obj.codes_sector_{i}(1:6),'515290')
+            if strcmpi(obj.codes_sector_{i}(1:6),'512800') || ...
+                    strcmpi(obj.codes_sector_{i}(1:6),'512880')
                 %省略证券ETF和银行ETF基金
                 continue;
             end
