@@ -29,11 +29,11 @@ function [] = updatestoploss(spiderman,varargin)
 %             spiderman.pxtarget_ = ceil(spiderman.pxtarget_/ticksize)*ticksize;
 %         end
 %         
-%         if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
-%             if spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_) > spiderman.pxstoploss_
-%                 spiderman.pxstoploss_ = spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_);
-%             end
-%         end
+        if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
+            if spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_) > spiderman.pxstoploss_
+                spiderman.pxstoploss_ = spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_);
+            end
+        end
         
     elseif strcmpi(spiderman.type_,'reverse-B')
         error('cSpiderman:updatestoploss:reverse-B not implemented...')
@@ -58,11 +58,11 @@ function [] = updatestoploss(spiderman,varargin)
 %             spiderman.pxtarget_ = floor(spiderman.pxtarget_/ticksize)*ticksize;
 %         end
 %         
-%         if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
-%             if spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_) < spiderman.pxstoploss_
-%                 spiderman.pxstoploss_ = spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_);
-%             end
-%         end
+        if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
+            if spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_) < spiderman.pxstoploss_
+                spiderman.pxstoploss_ = spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_);
+            end
+        end
     elseif strcmpi(spiderman.type_,'reverse-S')
         error('cSpiderman:updatestoploss:reverse-S not implemented...')
     else
