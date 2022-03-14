@@ -146,7 +146,11 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 else
                     %do nothing
                 end
-                signals{i,1} = signal_i;
+                if signal_i(1) == 1
+                    signals{i,1} = signal_i;
+                else
+                    signals{i,2} = signal_i;
+                end
             else
                 %neither a valid breachhh nor a valid breachll
 %             end
