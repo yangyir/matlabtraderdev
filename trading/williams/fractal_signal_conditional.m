@@ -74,13 +74,33 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
     %further check whether alligator's teeth and jaw are crossed or not
     %DO NOT place any conditional order if they are crossed
     if longtrend
-        [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(extrainfo.px,...
+        [~,~,~,~,nkfromhh,isteethjawcrossed,~] = fractal_countb(extrainfo.px,...
             extrainfo.idxhh,...
             nfractal,...
             extrainfo.lips,...
             extrainfo.teeth,...
             extrainfo.jaw,...
             ticksize);
+        if isteethjawcrossed
+            exceptionflag = false;
+            lastssidx = find(extrainfo.ss >= 9,1,'last');
+            if ~isempty(lastssidx) && size(extrainfo.ss,1)-lastssidx+1 <= nkfromhh
+                lastssval = extrainfo.ss(lastssidx);
+                pxhigh = max(extrainfo.px(lastssidx-lastssval+1:lastssidx,3));
+                exceptionflag = extrainfo.hh(end) >= pxhigh;
+            end
+            lastscidx = find(extrainfo.sc == 13,1,'last');
+            if ~isempty(lastscidx) && ~exceptionflag
+                nkfromsc13 = size(extrainfo.sc,1)-lastscidx;
+                exceptionflag = nkfromsc13 < 12 & ...
+                    extrainfo.hh(end)>=max(extrainfo.px(lastscidx:end,3));
+            end
+            if exceptionflag
+                longtrend = true;
+            else
+                longtrend = false;
+            end          
+        end
         longtrend = longtrend & ~isteethjawcrossed;
     end
     %special case:
@@ -168,14 +188,33 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
     %further check whether alligator's teeth and jaw are crossed or not
     %DO NOT place any conditional order if they are crossed
     if shorttrend
-        [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(extrainfo.px,...
+        [~,~,~,~,nkfromll,isteethjawcrossed,~] = fractal_counts(extrainfo.px,...
             extrainfo.idxll,...
             nfractal,...
             extrainfo.lips,...
             extrainfo.teeth,...
             extrainfo.jaw,...
             ticksize);
-        shorttrend = shorttrend & ~isteethjawcrossed;
+        if isteethjawcrossed
+            exceptionflag = false;
+            lastbsidx = find(extrainfo.bs >= 9,1,'last');
+            if ~isempty(lastbsidx) && size(extrainfo.bs,1)-lastbsidx+1 <= nkfromll
+                lastbsval = extrainfo.bs(lastbsidx);
+                pxlow = min(extrainfo.px(lastbsidx-lastbsval+1:lastbsidx,4));
+                exceptionflag = extrainfo.ll(end) <= pxlow;
+            end
+            lastbcidx = find(extrainfo.bc == 13,1,'last');
+            if ~isempty(lastbcidx) && ~exceptionflag
+                nkfrombc13 = size(extrainfo.bc,1)-lastbcidx;
+                exceptionflag = nkfrombc13 < 12 & ...
+                    extrainfo.ll(end)<=min(extrainfo.px(lastbcidx:end,4));
+            end
+            if exceptionflag
+                shorttrend = true;
+            else
+                shorttrend = false;
+            end
+        end
     end
     %special case:
     %the down-trend might be too strong and about to exhausted
