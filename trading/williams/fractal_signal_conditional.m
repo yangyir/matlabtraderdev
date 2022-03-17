@@ -101,7 +101,6 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
                 longtrend = false;
             end          
         end
-        longtrend = longtrend & ~isteethjawcrossed;
     end
     %special case:
     %the upper-trend might be too strong and about to exhausted
