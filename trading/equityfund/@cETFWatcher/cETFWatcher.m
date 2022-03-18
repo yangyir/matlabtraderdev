@@ -29,6 +29,9 @@ classdef cETFWatcher < handle
         dailybarstruct_index_@cell
         dailybarstruct_sector_@cell
         dailybarstruct_stock_@cell
+        dailybarriers_conditional_index_@double
+        dailybarriers_conditional_sector_@double
+        dailybarriers_conditional_stock_@double
         %
         intradaybarmat_index_@cell
         intradaybarmat_sector_@cell
@@ -36,6 +39,9 @@ classdef cETFWatcher < handle
         intradaybarstruct_index_@cell
         intradaybarstruct_sector_@cell
         intradaybarstruct_stock_@cell
+        intradaybarriers_conditional_index_@double
+        intradaybarriers_conditional_sector_@double
+        intradaybarriers_conditional_stock_@double
         
     end
     
@@ -87,7 +93,7 @@ classdef cETFWatcher < handle
         [] = refresh(obj,varargin)
         [] = print(obj, varargin)
         %
-        [] = showfigures(obj,varargin)
+        [dailystruct,intradaystruct] = showfigures(obj,varargin)
         [] = reload(obj,varargin)
         [] = savedata(obj,varargin)
         %
