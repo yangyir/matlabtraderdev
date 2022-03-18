@@ -6,14 +6,14 @@ function [] = printmarket(obj,varargin)
     tnum = p.Results.Time;
     tstr = datestr(tnum,'yyyy-mm-dd HH:MM:SS');
   
-    dataformat = '%10s %8s %8s %8.2f%% %11s %10s %10s %4s %4s %10s %10s %10.3f %10.3f %10.3f %10s\n';
+    dataformat = '%10s %8s %10s %8.2f%% %11s %10s %10s %4s %4s %10s %10s %10.3f %10.3f %10.3f %10s\n';
     n_index = size(obj.codes_index_,1);
     n_sector = size(obj.codes_sector_,1);
 %     n_stock = size(obj.codes_stock_,1);
     
     fprintf('\nlatest market quotes of indices on %s:\n',tstr);
-    fprintf('%10s %8s %8s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
-        'code','latest','close','change','Ktime','hh','ll','bs','ss','levelup','leveldn','jaw','teeth','lips','name');
+    fprintf('%10s %8s %10s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
+        'code','latest','preclose','change','Ktime','hh','ll','bs','ss','levelup','leveldn','teeth','lips','barrier','name');
     for i = 1:n_index
         code = obj.codes_index_{i}(1:end-3);
         if strcmpi(code,'159781') || strcmpi(code,'159782'), continue;end
@@ -25,23 +25,30 @@ function [] = printmarket(obj,varargin)
         sellsetup = obj.intradaybarstruct_index_{i}.ss(end);
         levelup = obj.intradaybarstruct_index_{i}.lvlup(end);
         leveldn = obj.intradaybarstruct_index_{i}.lvldn(end);
-        jaw = obj.intradaybarstruct_index_{i}.jaw(end);
         teeth = obj.intradaybarstruct_index_{i}.teeth(end);
         lips = obj.intradaybarstruct_index_{i}.lips(end);
         HH = obj.intradaybarstruct_index_{i}.hh(end);
         LL = obj.intradaybarstruct_index_{i}.ll(end);
+        
+        if ~isnan(obj.intradaybarriers_conditional_index_(i,1))
+            barrier = obj.intradaybarriers_conditional_index_(i,1);
+        elseif ~isnan(obj.intradaybarriers_conditional_index_(i,2))
+            barrier = obj.intradaybarriers_conditional_index_(i,2);
+        else
+            barrier = NaN;
+        end
             
         fprintf(dataformat,code,num2str(latest),num2str(lastclose),...
             delta,timet,...
             num2str(HH),num2str(LL),...
             num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
-            jaw,teeth,lips,...
+            teeth,lips,barrier,...
             obj.names_index_{i});
     end
     
     fprintf('\nlatest market quotes of sectors on %s:\n',tstr);
-    fprintf('%10s %8s %8s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
-        'code','latest','close','change','Ktime','hh','ll','bs','ss','levelup','leveldn','jaw','teeth','lips','name');
+    fprintf('%10s %8s %10s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
+        'code','latest','preclose','change','Ktime','hh','ll','bs','ss','levelup','leveldn','teeth','lips','barrier','name');
     for i = 1:n_sector
         code = obj.codes_sector_{i}(1:end-3);
         if strcmpi(code,'512800') || strcmpi(code, '512880'),continue;end
@@ -53,17 +60,24 @@ function [] = printmarket(obj,varargin)
         sellsetup = obj.intradaybarstruct_sector_{i}.ss(end);
         levelup = obj.intradaybarstruct_sector_{i}.lvlup(end);
         leveldn = obj.intradaybarstruct_sector_{i}.lvldn(end);
-        jaw = obj.intradaybarstruct_sector_{i}.jaw(end);
         teeth = obj.intradaybarstruct_sector_{i}.teeth(end);
         lips = obj.intradaybarstruct_sector_{i}.lips(end);
         HH = obj.intradaybarstruct_sector_{i}.hh(end);
         LL = obj.intradaybarstruct_sector_{i}.ll(end);
+        
+        if ~isnan(obj.intradaybarriers_conditional_sector_(i,1))
+            barrier = obj.intradaybarriers_conditional_sector_(i,1);
+        elseif ~isnan(obj.intradaybarriers_conditional_sector_(i,2))
+            barrier = obj.intradaybarriers_conditional_sector_(i,2);
+        else
+            barrier = NaN;
+        end
             
         fprintf(dataformat,code,num2str(latest),num2str(lastclose),...
             delta,timet,...
             num2str(HH),num2str(LL),...
             num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
-            jaw,teeth,lips,...
+            teeth,lips,barrier,...
             obj.names_sector_{i});
     end
     % not to print information for single stocks for now    
