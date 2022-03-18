@@ -10,6 +10,9 @@ function [] = reload(obj,varargin)
     obj.dailybarstruct_index_ = cell(n_index,1);
     obj.dailybarstruct_sector_ = cell(n_sector,1);
     obj.dailybarstruct_stock_ = cell(n_stock,1);
+    obj.dailybarriers_conditional_index_ = nan(n_index,2);
+    obj.dailybarriers_conditional_sector_ = nan(n_sector,2);
+    obj.dailybarriers_conditional_stock_ = nan(n_stock,2);
     
     nfractal = 2;
     doplot = 0;
@@ -42,6 +45,9 @@ function [] = reload(obj,varargin)
     obj.intradaybarstruct_index_ = cell(n_index,1);
     obj.intradaybarstruct_sector_ = cell(n_sector,1);
     obj.intradaybarstruct_stock_ = cell(n_stock,1);
+    obj.intradaybarriers_conditional_index_ = nan(n_index,2);
+    obj.intradaybarriers_conditional_sector_ = nan(n_sector,2);
+    obj.intradaybarriers_conditional_stock_ = nan(n_stock,2);
     
     nfractalintraday = 4;
     for i = 1:n_index
@@ -49,6 +55,15 @@ function [] = reload(obj,varargin)
         data = load(fn_i);
         [obj.intradaybarmat_index_{i},obj.intradaybarstruct_index_{i}] = tools_technicalplot1(data.data,nfractalintraday,doplot);
         obj.intradaybarmat_index_{i}(:,1) = x2mdate(obj.intradaybarmat_index_{i}(:,1));
+        [signal,~] = fractal_signal_conditional(obj.intradaybarstruct_index_{i},0.001,nfractalintraday);
+        if ~isempty(signal)
+            if ~isempty(signal{1,1})
+                obj.intradaybarriers_conditional_index_(i,1) = signal{1,1}(1,2);
+            end
+            if ~isempty(signal{1,2})
+                obj.intradaybarriers_conditional_index_(i,2) = signal{1,2}(1,3);
+            end
+        end
     end
     fprintf('cETFWatcher:init:intraday bar of index:technical indicators calculated......\n');
     for i = 1:n_sector
@@ -56,6 +71,15 @@ function [] = reload(obj,varargin)
         data = load(fn_i);
         [obj.intradaybarmat_sector_{i},obj.intradaybarstruct_sector_{i}] = tools_technicalplot1(data.data,nfractalintraday,doplot);
         obj.intradaybarmat_sector_{i}(:,1) = x2mdate(obj.intradaybarmat_sector_{i}(:,1));
+        [signal,~] = fractal_signal_conditional(obj.intradaybarstruct_sector_{i},0.001,nfractalintraday);
+        if ~isempty(signal)
+            if ~isempty(signal{1,1})
+                obj.intradaybarriers_conditional_sector_(i,1) = signal{1,1}(1,2);
+            end
+            if ~isempty(signal{1,2})
+                obj.intradaybarriers_conditional_sector_(i,2) = signal{1,2}(1,3);
+            end
+        end
     end
     fprintf('cETFWatcher:init:intraday bar of sector:technical indicators calculated......\n');
     for i = 1:n_stock
