@@ -1,5 +1,14 @@
 function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,varargin)
 %return a signal in case there is neither valid breachup or valid breachdn
+    p = inputParser;
+    p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('UseLastCandle',true,@islogical);
+    p.parse(varargin{:});
+    uselastcandle = p.Results.UseLastCandle;
+    if ~uselastcandle
+        extrainfo = fractal_truncate(extrainfo,size(extrainfo.px,1)-1);
+    end
+
     signal = {};
     op = {};
     
@@ -32,7 +41,7 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
             lflag1 = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-...
                 extrainfo.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
             lflag1 = lflag1 & extrainfo.hh(end)-extrainfo.teeth(end)>=ticksize;
-            lflag1 = lflag1 & extrainfo.px(end,5)<extrainfo.hh(end);
+            lflag1 = lflag1 & extrainfo.px(end,5)<extrainfo.hh(end)+ticksize;
             %
             % ************* determine flag2 *****************************
             if size(last2hhidx,1) == 1
@@ -67,7 +76,7 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
             longtrend = isempty(find(extrainfo.px(end-2*nfractal+1:end,4)-...
                 extrainfo.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
             longtrend = longtrend & extrainfo.hh(end)-extrainfo.teeth(end)>=ticksize;
-            longtrend = longtrend & extrainfo.px(end,5)<extrainfo.hh(end);
+            longtrend = longtrend & extrainfo.px(end,5)<extrainfo.hh(end)+ticksize;
         end
     end
     %
@@ -145,7 +154,7 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
             sflag1 = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-...
                 extrainfo.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
             sflag1 = sflag1 & extrainfo.ll(end)-extrainfo.teeth(end)<=-ticksize;
-            sflag1 = sflag1 & extrainfo.px(end,5)>extrainfo.ll(end);
+            sflag1 = sflag1 & extrainfo.px(end,5)>extrainfo.ll(end)-ticksize;
             %
             % ************* determine flag2 *****************************
             if size(last2llidx,1) == 1
@@ -180,7 +189,7 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
             shorttrend = isempty(find(extrainfo.px(end-2*nfractal+1:end,3)-...
                 extrainfo.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
             shorttrend = shorttrend & extrainfo.ll(end)-extrainfo.teeth(end)<=-ticksize;
-            shorttrend = shorttrend & extrainfo.px(end,5)>extrainfo.ll(end);
+            shorttrend = shorttrend & extrainfo.px(end,5)>extrainfo.ll(end)-ticksize;
         end
     end
     %

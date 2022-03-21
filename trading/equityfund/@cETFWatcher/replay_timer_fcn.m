@@ -25,24 +25,24 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             latest_index = mytimerobj.conn_.ds_.wsq(mytimerobj.codes_index_,'rt_latest');
             latest_sector = mytimerobj.conn_.ds_.wsq(mytimerobj.codes_sector_,'rt_latest');
             for i = 1:n_index
-                if isnan(mytimerobj.intradaybarriers_conditional_index_(i,1)) && ...
+                if ~isnan(mytimerobj.intradaybarriers_conditional_index_(i,1)) && ...
                         latest_index(i) >= mytimerobj.intradaybarriers_conditional_index_(i,1) + 0.001
-                    fprintf('%s:index breachup\n',mytimerobj.codes_index_{i}(1:end-3));
+                    fprintf('%s:BreachUP\n',mytimerobj.codes_index_{i}(1:end-3));
                 end
-                if isnan(mytimerobj.intradaybarriers_conditional_index_(i,2)) && ...
+                if ~isnan(mytimerobj.intradaybarriers_conditional_index_(i,2)) && ...
                         latest_index(i) <= mytimerobj.intradaybarriers_conditional_index_(i,2) - 0.001
-                    fprintf('%s:index breachdn\n',mytimerobj.codes_index_{i}(1:end-3));
+                    fprintf('%s:BreachDN\n',mytimerobj.codes_index_{i}(1:end-3));
                 end
             end
             %
             for i = 1:n_sector
-                if isnan(mytimerobj.intradaybarriers_conditional_sector_(i,1)) && ...
+                if ~isnan(mytimerobj.intradaybarriers_conditional_sector_(i,1)) && ...
                         latest_sector(i) >= mytimerobj.intradaybarriers_conditional_sector_(i,1) + 0.001
-                    fprintf('%s:sector breachup\n',mytimerobj.codes_sector_{i}(1:end-3));
+                    fprintf('%s:BreachUP\n',mytimerobj.codes_sector_{i}(1:end-3));
                 end
-                if isnan(mytimerobj.intradaybarriers_conditional_sector_(i,2)) && ...
+                if ~isnan(mytimerobj.intradaybarriers_conditional_sector_(i,2)) && ...
                         latest_sector(i) <= mytimerobj.intradaybarriers_conditional_sector_(i,2) - 0.001
-                    fprintf('%s:sector breachdn\n',mytimerobj.codes_sector_{i}(1:end-3));
+                    fprintf('%s:BreachDN\n',mytimerobj.codes_sector_{i}(1:end-3));
                 end
             end
         end

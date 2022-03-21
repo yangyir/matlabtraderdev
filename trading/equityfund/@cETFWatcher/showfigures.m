@@ -25,7 +25,7 @@ function [dailystruct,intradaystruct] = showfigures(obj,varargin)
                 fractal_printmarket(obj.codes_index_{i}(1:6),obj.dailybarstruct_index_{i},obj.intradaybarstruct_index_{i});
             end
             dailystruct = obj.dailybarstruct_index_{i};
-            intradaystruct = obj.intradaybarmat_index_{i};
+            intradaystruct = obj.intradaybarstruct_index_{i};
             break
         end
     end
@@ -43,7 +43,7 @@ function [dailystruct,intradaystruct] = showfigures(obj,varargin)
                     fractal_printmarket(obj.codes_sector_{i}(1:6),obj.dailybarstruct_sector_{i},obj.intradaybarstruct_sector_{i});
                 end
                 dailystruct = obj.dailybarstruct_sector_{i};
-                intradaystruct = obj.intradaybarmat_sector_{i};
+                intradaystruct = obj.intradaybarstruct_sector_{i};
                 break
             end
         end
@@ -62,7 +62,7 @@ function [dailystruct,intradaystruct] = showfigures(obj,varargin)
                     fractal_printmarket(obj.codes_stock_{i}(1:6),obj.dailybarstruct_stock_{i},obj.intradaybarstruct_stock_{i});
                 end
                 dailystruct = obj.dailybarstruct_stock_{i};
-                intradaystruct = obj.intradaybarmat_stock_{i};
+                intradaystruct = obj.intradaybarstruct_stock_{i};
                 break
             end
         end

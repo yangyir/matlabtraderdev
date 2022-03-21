@@ -39,7 +39,7 @@ function [] = printsignal(obj,varargin)
                 obj.intradaybarriers_conditional_index_(i,1) = NaN;
                 obj.intradaybarriers_conditional_index_(i,2) = NaN;
             else
-                [signal2,op2] = fractal_signal_conditional(extrainfo_i,ticksize,nfractal);
+                [signal2,op2] = fractal_signal_conditional(extrainfo_i,ticksize,nfractal,'uselastcandle',false);
                 if ~isempty(signal2)
                     if ~isempty(signal2{1})
 %                         fprintf('%s:BreachUP:%s:\t%2d\t%s-up:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
@@ -80,7 +80,7 @@ function [] = printsignal(obj,varargin)
                 obj.intradaybarriers_conditional_sector_(i,1) = NaN;
                 obj.intradaybarriers_conditional_sector_(i,2) = NaN;
             else
-                [signal2,op2] = fractal_signal_conditional(extrainfo_i,ticksize,nfractal);
+                [signal2,op2] = fractal_signal_conditional(extrainfo_i,ticksize,nfractal,'uselastcandle',false);
                 if ~isempty(signal2)
                     if ~isempty(signal2{1})
 %                         fprintf('%s:BreachUP:%s:\t%2d\t%s-up:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
