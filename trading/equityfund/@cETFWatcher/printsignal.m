@@ -38,24 +38,29 @@ function [] = printsignal(obj,varargin)
                 end
                 obj.intradaybarriers_conditional_index_(i,1) = NaN;
                 obj.intradaybarriers_conditional_index_(i,2) = NaN;
+            end
+            
+            if timet - extrainfo_i.px(end,1) >= candlebucket
+                [signal2,op2] = fractal_signal_conditional(extrainfo_i,ticksize,nfractal,'uselastcandle',true);
             else
                 [signal2,op2] = fractal_signal_conditional(extrainfo_i,ticksize,nfractal,'uselastcandle',false);
-                if ~isempty(signal2)
-                    if ~isempty(signal2{1})
-%                         fprintf('%s:BreachUP:%s:\t%2d\t%s-up:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
-%                             obj.codes_index_{i}(1:6),signal2{1}(1),op2{1},signal2{1}(2),obj.names_index_{i});
-                        obj.intradaybarriers_conditional_index_(i,1) = signal2{1}(1,2);
-                    end
-                    if ~isempty(signal2{2})
-%                         fprintf('%s:BreachDN:%s:\t%2d\t%s-dn:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
-%                             obj.codes_index_{i}(1:6),signal2{2}(1),op2{2},signal2{2}(3),obj.names_index_{i});
-                        obj.intradaybarriers_conditional_index_(i,2) = signal2{2}(1,3);
-                    end
-                else
-                    obj.intradaybarriers_conditional_index_(i,1) = NaN;
-                    obj.intradaybarriers_conditional_index_(i,2) = NaN;
-                end
             end
+            if ~isempty(signal2)
+                if ~isempty(signal2{1})
+                    %                         fprintf('%s:BreachUP:%s:\t%2d\t%s-up:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
+                    %                             obj.codes_index_{i}(1:6),signal2{1}(1),op2{1},signal2{1}(2),obj.names_index_{i});
+                    obj.intradaybarriers_conditional_index_(i,1) = signal2{1}(1,2);
+                end
+                if ~isempty(signal2{2})
+                    %                         fprintf('%s:BreachDN:%s:\t%2d\t%s-dn:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
+                    %                             obj.codes_index_{i}(1:6),signal2{2}(1),op2{2},signal2{2}(3),obj.names_index_{i});
+                    obj.intradaybarriers_conditional_index_(i,2) = signal2{2}(1,3);
+                end
+            else
+                obj.intradaybarriers_conditional_index_(i,1) = NaN;
+                obj.intradaybarriers_conditional_index_(i,2) = NaN;
+            end
+            
         end
         %
         fprintf('\n');
@@ -79,23 +84,26 @@ function [] = printsignal(obj,varargin)
                 end
                 obj.intradaybarriers_conditional_sector_(i,1) = NaN;
                 obj.intradaybarriers_conditional_sector_(i,2) = NaN;
+            end
+            if timet - extrainfo_i.px(end,1) >= candlebucket
+                [signal2,op2] = fractal_signal_conditional(extrainfo_i,ticksize,nfractal,'uselastcandle',true);
             else
                 [signal2,op2] = fractal_signal_conditional(extrainfo_i,ticksize,nfractal,'uselastcandle',false);
-                if ~isempty(signal2)
-                    if ~isempty(signal2{1})
-%                         fprintf('%s:BreachUP:%s:\t%2d\t%s-up:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
-%                             obj.codes_sector_{i}(1:6),signal2{1}(1),op2{1},signal2{1}(2),obj.names_sector_{i});
-                        obj.intradaybarriers_conditional_sector_(i,1) = signal2{1}(1,2);
-                    end
-                    if ~isempty(signal2{2})
-%                         fprintf('%s:BreachDN:%s:\t%2d\t%s-dn:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
-%                             obj.codes_sector_{i}(1:6),signal2{2}(1),op2{2},signal2{2}(3),obj.names_sector_{i});
-                        obj.intradaybarriers_conditional_sector_(i,2) = signal2{2}(1,3);
-                    end
-                else
-                    obj.intradaybarriers_conditional_sector_(i,1) = NaN;
-                    obj.intradaybarriers_conditional_sector_(i,2) = NaN;
+            end
+            if ~isempty(signal2)
+                if ~isempty(signal2{1})
+                    %                         fprintf('%s:BreachUP:%s:\t%2d\t%s-up:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
+                    %                             obj.codes_sector_{i}(1:6),signal2{1}(1),op2{1},signal2{1}(2),obj.names_sector_{i});
+                    obj.intradaybarriers_conditional_sector_(i,1) = signal2{1}(1,2);
                 end
+                if ~isempty(signal2{2})
+                    %                         fprintf('%s:BreachDN:%s:\t%2d\t%s-dn:%4.3f(%s)\n',datestr(timet,'yyyy-mm-dd HH:MM'),...
+                    %                             obj.codes_sector_{i}(1:6),signal2{2}(1),op2{2},signal2{2}(3),obj.names_sector_{i});
+                    obj.intradaybarriers_conditional_sector_(i,2) = signal2{2}(1,3);
+                end
+            else
+                obj.intradaybarriers_conditional_sector_(i,1) = NaN;
+                obj.intradaybarriers_conditional_sector_(i,2) = NaN;
             end
         end
         %

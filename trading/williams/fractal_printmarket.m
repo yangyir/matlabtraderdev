@@ -9,7 +9,7 @@ if ~isempty(intradaybarstruct)
     %intraday info
     fprintf('\nlatest intraday quotes of %s:\n',code);
     fprintf('%10s %8s %8s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
-        'code','latest','close','change','Ktime','hh','ll','bs','ss','levelup','leveldn','jaw','teeth','lips','name');
+        'code','latest','close','change','Ktime','hh','ll','bs','ss','levelup','leveldn','teeth','lips','barrier','name');
     latest = intradaybarstruct.px(end,5);
     lastclose = dailybarstruct.px(end-1,5);
     timet = datestr(intradaybarstruct.px(end,1),'HH:MM:SS');
@@ -18,21 +18,30 @@ if ~isempty(intradaybarstruct)
     sellsetup = intradaybarstruct.ss(end);
     levelup = intradaybarstruct.lvlup(end);
     leveldn = intradaybarstruct.lvldn(end);
-    jaw = intradaybarstruct.jaw(end);
     teeth = intradaybarstruct.teeth(end);
     lips = intradaybarstruct.lips(end);
     HH = intradaybarstruct.hh(end);
     LL = intradaybarstruct.ll(end);
     
+    barrier = NaN;
+    [signal,~] = fractal_signal_conditional(intradaybarstruct,stock.tick_size,4,'uselastcandle',true);
+    if ~isempty(signal)
+        if ~isempty(signal{1})
+            barrier = signal{1}(2);
+        end
+        if ~isempty(signal{2})
+            barrier = signal{2}(3);
+        end
+    end
+        
     fprintf(dataformat,code,num2str(latest),num2str(lastclose),...
         delta,timet,...
         num2str(HH),num2str(LL),...
         num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
-        jaw,teeth,lips,...
+        teeth,lips,barrier,...
         stock.asset_name);
     
     [ret,direction,breachtime,breachidx] = fractal_hasintradaybreach(intradaybarstruct.px(end,1)+1/48,intradaybarstruct,stock.tick_size);
-%     [ret2,signal2,op2] = fractal_hasintradaybreach_conditional(timet,extrainfo_i,ticksize);
     if ret
         ei_breach = fractal_truncate(intradaybarstruct,breachidx);
         [signal,op] = fractal_signal_unconditional(ei_breach,stock.tick_size,4);
@@ -50,7 +59,7 @@ end
 if ~isempty(dailybarstruct)
     fprintf('\nlatest daily quotes of %s:\n',code);
     fprintf('%10s %8s %8s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
-        'code','latest','close','change','Ktime','hh','ll','bs','ss','levelup','leveldn','jaw','teeth','lips','name');
+        'code','latest','close','change','Ktime','hh','ll','bs','ss','levelup','leveldn','teeth','lips','barrier','name');
     latest = dailybarstruct.px(end,5);
     lastclose = dailybarstruct.px(end-1,5);
     timet = datestr(dailybarstruct.px(end,1),'yy-mm-dd');
@@ -59,17 +68,27 @@ if ~isempty(dailybarstruct)
     sellsetup = dailybarstruct.ss(end);
     levelup = dailybarstruct.lvlup(end);
     leveldn = dailybarstruct.lvldn(end);
-    jaw = dailybarstruct.jaw(end);
     teeth = dailybarstruct.teeth(end);
     lips = dailybarstruct.lips(end);
     HH = dailybarstruct.hh(end);
     LL = dailybarstruct.ll(end);
+    barrier = NaN;
+    
+    [signal,~] = fractal_signal_conditional(dailybarstruct,stock.tick_size,2,'uselastcandle',true);
+    if ~isempty(signal)
+        if ~isempty(signal{1})
+            barrier = signal{1}(2);
+        end
+        if ~isempty(signal{2})
+            barrier = signal{2}(3);
+        end
+    end
     
     fprintf(dataformat,code,num2str(latest),num2str(lastclose),...
         delta,timet,...
         num2str(HH),num2str(LL),...
         num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
-        jaw,teeth,lips,...
+        teeth,lips,barrier,...
         stock.asset_name);
 end
 
