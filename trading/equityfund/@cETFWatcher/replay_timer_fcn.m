@@ -44,6 +44,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             %
             for i = 1:n_sector
                 if strcmpi(mytimerobj.codes_sector_{i}(1:end-3),'512800'),continue;end
+                if strcmpi(mytimerobj.codes_sector_{i}(1:end-3),'512000'),continue;end
                 if ~isnan(mytimerobj.intradaybarriers_conditional_sector_(i,1)) && ...
                         latest_sector(i,3) >= mytimerobj.intradaybarriers_conditional_sector_(i,1) + 0.001
                     dtnum = datenum([num2str(latest_sector(i,1)),' ',num2str(latest_sector(i,2))],'yyyymmdd HHMMSS');
