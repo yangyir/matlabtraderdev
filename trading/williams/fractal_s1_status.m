@@ -106,7 +106,7 @@ if ~istrendconfirmed
     %less than 2*nfractal+1 candles since then, we include candles before
     %the ll formed and double check
     if nkbelowteeth == nkfromll
-        istrendconfirmed = isempty(find(px(end-2*nfractal:end,5)>teeth(end-2*nfractal:end),1,'first'));
+        istrendconfirmed = isempty(find(px(end-2*nfractal:end,5)-teeth(end-2*nfractal:end)>2*ticksize,1,'first'));
     end
 end
 
