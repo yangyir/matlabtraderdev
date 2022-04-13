@@ -35,6 +35,8 @@ function [ret] = istime2refresh(obj,varargin)
         if mod(mm,MM_INTERVAL2PRINT) == 0 && ss <= 1
             fprintf('%s %s sleeps......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'),obj.timer_.Name);
                 return
+        else
+            return
         end
     end
     
