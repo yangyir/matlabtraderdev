@@ -109,9 +109,9 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     runningmm = hour(runningt)*60+minute(runningt);
     runriskmanagementbeforemktclose = false;
     
-    if runningmm == trade.oneminb4close1_ && second(runningt) > 56
+    if runningmm == trade.oneminb4close1_ && second(runningt) >= 59 && second(ticktime) >= 59
         runriskmanagementbeforemktclose = true;
-    elseif runningmm == trade.oneminb4close2_ && second(runningt) > 56
+    elseif runningmm == trade.oneminb4close2_ && second(runningt) >= 59 && second(ticktime) >= 59
         runriskmanagementbeforemktclose = true;
     end
     
@@ -168,6 +168,13 @@ function [unwindtrade] = riskmanagement(obj,varargin)
             [jaw,teeth,lips] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
 %             candlepoped = px(end,:);
             wad = mdefut.calc_wad_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+            
+            oldtick = lasttick;
+            lasttick = mdefut.getlasttick(instrument);
+            if isempty(lasttick)
+                lasttick = oldtick;
+            end
+            px(end,5) = lasttick(4);
             extrainfo = struct('p',px,'hh',hh,'ll',ll,...
                 'jaw',jaw,'teeth',teeth,'lips',lips,...
                 'bs',bs,'ss',ss,'bc',bc,'sc',sc,...
