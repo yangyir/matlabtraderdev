@@ -27,7 +27,7 @@ tbls1 = cell(n,1);
 
 trades = cTradeOpenArray;
 
-iplot = 0;
+iplot = 1;
 for i = 1:n
     instrument = codes{i};
     [isequity,equitytype] = isinequitypool(codes{i});
@@ -138,6 +138,45 @@ for i = 1:n
                 elseif strcmpi(op.comment,'breachup-sshighvalue')
                     lastss9 = find(extrainfo.ss(1:k) == 9,1,'last');
                     tools_technicalplot2(resmat{i}(min(lastss9-8,k-nkfromhh_i(j)+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
+                elseif strcmpi(op.comment,'strongbreach-trendbreak');
+                    tools_technicalplot2(resmat{i}(max(1,k-max(13,nkfromhh_i(j))+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
+                elseif strcmpi(op.comment,'mediumbreach-trendbreak')
+                    lastbs_index = find(extrainfo.bs(1:k) >= 9,1,'last');
+                    lastbc_index = find(extrainfo.bc(1:k) == 13,1,'last');
+                    if ~isempty(lastbs_index) || ~isempty(lastbc_index)
+                        if ~isempty(lastbs_index)
+                            %check whether there has been any further breach
+                            %dn of ll since last bs
+                            hasbreacheddn = false;
+                            for jjj = lastbs_index:k-1
+                                if extrainfo.px(jjj,5) > extrainfo.ll(jjj-1) && extrainfo.px(jjj+1,5) < extrainfo.ll(jjj) && extrainfo.ll(jjj-1) == extrainfo.ll(jjj)
+                                    hasbreacheddn = true;
+                                    break
+                                end
+                            end
+                            if hasbreacheddn
+                                tools_technicalplot2(resmat{i}(k-max(9,nkfromhh_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
+                            else
+                                lastbs9 = find(extrainfo.bs(1:k) == 9,1,'last');
+                                tools_technicalplot2(resmat{i}(min(lastbs9-8,k-nkfromhh_i(j)+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
+                            end
+                        elseif isempty(lastbs_index) && ~isempty(lastbc_index)
+                            hasbreacheddn = false;
+                            for jjj = lastbc_index:k-1
+                                if extrainfo.px(jjj,5) > extrainfo.ll(jjj-1) && extrainfo.px(jjj+1,5) < extrainfo.ll(jjj) && extrainfo.ll(jjj-1) == extrainfo.ll(jjj)
+                                    hasbreacheddn = true;
+                                    break
+                                end
+                            end
+                            if hasbreacheddn
+                                tools_technicalplot2(resmat{i}(k-max(9,nkfromhh_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
+                            else
+                                tools_technicalplot2(resmat{i}(min(lastbc_index-8,k-nkfromhh_i(j)+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
+                            end
+                        end
+                    else
+                        tools_technicalplot2(resmat{i}(k-max(9,nkfromhh_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
+                    end
                 else
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromhh_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 end
@@ -219,6 +258,8 @@ for i = 1:n
                 elseif strcmpi(op.comment,'breachdn-bshighvalue')
                     lastbs9 = find(extrainfo.bs(1:k) == 9,1,'last');
                     tools_technicalplot2(resmat{i}(min(lastbs9-8,k-nkfromll_i(j)+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
+                elseif strcmpi(op.comment,'strongbreach-trendbreak');
+                    tools_technicalplot2(resmat{i}(max(k-max(13,nkfromll_i(j))+1,1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 else
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromll_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 end
