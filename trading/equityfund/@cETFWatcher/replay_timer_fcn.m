@@ -15,10 +15,16 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                 mytimerobj.refresh('time',dtnum);
             catch e
                 fprintf('%s error when run refresh methods:%s\n',mytimerobj.name_,e.message);
-                if strcmpi(mytimerobj.onerror_,'stop')
-                    mytimerobj.stop;
-                end
+                if strcmpi(mytimerobj.onerror_,'stop'),mytimerobj.stop;end
             end
+            %
+%             try
+%                 mytimerobj.riskmanagement;
+%             catch e
+%                 fprintf('%s error when run riskmanagement methods:%s\n',mytimerobj.name_,e.message);
+%                 if strcmpi(mytimerobj.onerror_,'stop'), mytimerobj.stop;end
+%             end
+            %
         elseif flag == 2
             hasbreach = false;
             n_index = size(mytimerobj.codes_index_,1);

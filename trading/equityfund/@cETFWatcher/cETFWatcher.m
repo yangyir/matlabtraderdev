@@ -42,6 +42,10 @@ classdef cETFWatcher < handle
         intradaybarriers_conditional_index_@double
         intradaybarriers_conditional_sector_@double
         intradaybarriers_conditional_stock_@double
+        %
+        pos_index_@cell
+        pos_sector_@cell
+        pos_stock_@cell
         
     end
     
@@ -100,6 +104,11 @@ classdef cETFWatcher < handle
         [] = printsignal(obj,varargin)
         %
         [] = eodanalysis(obj,varargin)
+        %
+        [] = setposition(obj,varargin)
+        [res] = getposition(obj,varargin)
+        %
+        [ret] = riskmanagement(obj,varargin)
     end
     
     methods (Access = private)
@@ -107,6 +116,15 @@ classdef cETFWatcher < handle
         [] = printmarket(obj,varargin)
         [] = printtrade(obj,varargin)
         [ret] = istime2refresh(obj,varargin)
+        %
+        [ret] = istime2riskmanagement(obj,varargin)                         %not to implement for now
+        [ret] = riskmanagementdailyend(obj,varargin)
+        [ret] = riskmanagementintradayend(obj,varargin)
+%         [ret] = riskmanagementfibonacci(obj,varargin)
+%         [ret] = riskmanagementfractal(obj,varargin)
+%         [ret] = riskmanagementtdsq(obj,varargin)
+%         [ret] = riskmanagementwad(obj,varargin)
+        %
     end
     
     
