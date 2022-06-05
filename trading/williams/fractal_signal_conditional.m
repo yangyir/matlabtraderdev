@@ -1,4 +1,4 @@
-function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,varargin)
+function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
 %return a signal in case there is neither valid breachup or valid breachdn
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
@@ -6,18 +6,18 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
     p.parse(varargin{:});
     uselastcandle = p.Results.UseLastCandle;
     if ~uselastcandle
-        extrainfo = fractal_truncate(extrainfo,size(extrainfo.px,1)-1);
+        ei = fractal_truncate(ei,size(ei.px,1)-1);
     end
 
     signal = {};
     op = {};
     
-    [validbreachhh,validbreachll] = fractal_validbreach(extrainfo,ticksize);
+    [validbreachhh,validbreachll] = fractal_validbreach(ei,ticksize);
     if validbreachhh || validbreachll
         return
     end
     
-    np = size(extrainfo.px,1);
+    np = size(ei.px,1);
     
     %LONG TREND:
     %1a.1.there are 2*nfractal candles close ABOVE alligator's teeth
@@ -28,89 +28,141 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
     %was formed given higher price volatility, we shall still regard the
     %up-trend as valid if and only if there are 2*nfracal candles close
     %above alligator's lips
-    last2hhidx = find(extrainfo.idxhh==1,2,'last');
+    [~,~,~,nkaboveteeth,nkfromhh,isteethjawcrossed,isteethlipscrossed] = fractal_countb(ei.px,...
+            ei.idxhh,...
+            nfractal,...
+            ei.lips,...
+            ei.teeth,...
+            ei.jaw,...
+            ticksize);
+    last2hhidx = find(ei.idxhh==1,2,'last');
     if isempty(last2hhidx)
-        %long trend cannot be identified as there is not hh formed yet!!!
-        longtrend = false;
+        hhupward = false;
     else
-        last2hh = extrainfo.hh(last2hhidx);
-        if np - (last2hhidx(end)-nfractal) + 1 >= 2*nfractal
-            %there have been enough candles formed since the last hh
-            % ************* determine flag1 *****************************
-            %condition 1a.1 (2*ticksize as buffer zone)
-            lflag1 = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-...
-                extrainfo.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-            lflag1 = lflag1 & extrainfo.hh(end)-extrainfo.teeth(end)>=ticksize;
-            lflag1 = lflag1 & extrainfo.px(end,5)<extrainfo.hh(end)+ticksize;
-            %
-            % ************* determine flag2 *****************************
-            if size(last2hhidx,1) == 1
-                lflag2 = true;
-            elseif size(last2hhidx,1) == 2
-                if last2hh(2) - last2hh(1) >= ticksize
-                    %condition 1a.2a
-                    lflag2 = true;
-                else
-                    %condition 1a.2b (2*ticksize as buffer zone)
-                    lflag2 = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-...
-                        extrainfo.lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-                    if ~lflag2
+        if size(last2hhidx,1) == 1
+            hhupward = true;
+        elseif size(last2hhidx,1) == 2
+            last2hh = ei.hh(last2hhidx);
+            if last2hh(2) - last2hh(1) >= -2*ticksize
+                hhupward = true;
+            else
+                hhupward = false;
+            end
+        end
+    end
+    %
+    %as long as there are 1) at least 2*nfractal candles close above teeth
+    %2)the lips,teeth and jaws are not crossed
+    %3)the fractal hh moves upward or (breachup-lvlup case)
+    %then the long trend shall be confirmed
+    lflag1 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+        ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+    lflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
+    lflag3 = hhupward;
+    lflag4 = (~hhupward&&ei.hh(end)>=ei.lvlup(end)&&ei.px(end,5)<=ei.lvlup(end));
+    longtrend = lflag1 & lflag2 & (lflag3 | lflag4);
+    %
+    %if not all of the above 3 conditions hold
+    if ~longtrend 
+        if nkaboveteeth >= 2*nfractal
+            %there are enough candles formed since the last hh
+            if hhupward
+                %longtrend is valid if fractal hh moves upward
+                %TODO:
+                %NO MATTER WHETHER ANY LIPS,TEETH OR JAWS CROSSED
+                longtrend = true;
+            else
+                %special cases if fractal hh moves downward
+                if ~isteethlipscrossed
+                    %strong condition that all close are above lips IF THEY
+                    %ARE NOT CROSSED
+                    longtrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                        ei.lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                    if ~longtrend
                         %weak condition:1)there are 2*nfracal candles low
                         %above alligator's teeth
                         %2)the last close WELL above lips
-                        lflag2 = isempty(find(extrainfo.px(end-2*nfractal+1:end,4)-...
-                            extrainfo.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-                        lflag2 = lflag2 & ...
-                            extrainfo.px(end,5)-extrainfo.lips(end)-2*ticksize>0;
-                        lflag2 = lflag2 && extrainfo.ss(end)>=1;
+                        longtrend = isempty(find(ei.px(end-2*nfractal+1:end,4)-...
+                            ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                        longtrend = longtrend & ...
+                            ei.px(end,5)-ei.lips(end)-2*ticksize>0;
+                        longtrend = longtrend && ei.ss(end)>=1;
                     end
+                else
+                    %strong condition that all close are above max of lips and
+                    %teeth IF THERY ARE CROSSED
+                    longtrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                        max(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
                 end
             end
-            %
-            % ************* combine flag1 & flag2 ***********************
-            longtrend = lflag1 & lflag2;
         else
-            %there are not enough candles formed since the last hh
-            %but long trend can be identified as long as there are
-            %2*nfracal candles'low above alligator's teeth
-            longtrend = isempty(find(extrainfo.px(end-2*nfractal+1:end,4)-...
-                extrainfo.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-            longtrend = longtrend & extrainfo.hh(end)-extrainfo.teeth(end)>=ticksize;
-            longtrend = longtrend & extrainfo.px(end,5)<extrainfo.hh(end)+ticksize;
+            %in case all candles are above teeth since hh formed but there are
+            %less than 2*nfractal candles since then, we include candles before
+            %the hh and check
+            if nkaboveteeth == nkfromhh
+                %long trend can be identified as long as there are
+                %2*nfracal candles'low above alligator's teeth
+                longtrend = isempty(find(ei.px(end-2*nfractal+1:end,4)-...
+                    ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first')) || ...
+                    isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                    max(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+            else
+                longtrend = false;
+            end
         end
     end
     %
     %further check whether alligator's teeth and jaw are crossed or not
     %DO NOT place any conditional order if they are crossed
-    if longtrend
-        [~,~,~,~,nkfromhh,isteethjawcrossed,~] = fractal_countb(extrainfo.px,...
-            extrainfo.idxhh,...
-            nfractal,...
-            extrainfo.lips,...
-            extrainfo.teeth,...
-            extrainfo.jaw,...
-            ticksize);
-        if isteethjawcrossed
-            exceptionflag = false;
-            lastssidx = find(extrainfo.ss >= 9,1,'last');
-            if ~isempty(lastssidx) && size(extrainfo.ss,1)-lastssidx+1 <= nkfromhh
-                lastssval = extrainfo.ss(lastssidx);
-                pxhigh = max(extrainfo.px(lastssidx-lastssval+1:lastssidx,3));
-                exceptionflag = extrainfo.hh(end) >= pxhigh;
-            end
-            lastscidx = find(extrainfo.sc == 13,1,'last');
-            if ~isempty(lastscidx) && ~exceptionflag
-                nkfromsc13 = size(extrainfo.sc,1)-lastscidx;
-                exceptionflag = nkfromsc13 < 12 & ...
-                    extrainfo.hh(end)>=max(extrainfo.px(lastscidx:end,3));
-            end
-            if exceptionflag
-                longtrend = true;
-            else
-                longtrend = false;
-            end          
+    if longtrend && isteethjawcrossed
+        exceptionflag = false;
+        %breachup-sshighvalue
+        lastssidx = find(ei.ss >= 9,1,'last');
+        if ~isempty(lastssidx) && size(ei.ss,1)-lastssidx+1 <= nkfromhh
+            lastssval = ei.ss(lastssidx);
+            pxhigh = max(ei.px(lastssidx-lastssval+1:lastssidx,3));
+            exceptionflag = ei.hh(end) >= pxhigh;
+        end
+        %breachup-schighvalue
+        lastscidx = find(ei.sc == 13,1,'last');
+        if ~isempty(lastscidx) && ~exceptionflag
+            nkfromsc13 = size(ei.sc,1)-lastscidx;
+            exceptionflag = nkfromsc13 < 12 & ...
+                ei.hh(end)>=max(ei.px(lastscidx:end,3));
+        end
+        %exception in case lips are well above teeth without
+        %intersection and also candles are well above teeth even if
+        %teeth and jaw are crossed
+        if ~exceptionflag
+            exceptionflag = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                        ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first')) && ...
+                        isempty(find(ei.lips(end-2*nfractal+1:end)-...
+                        ei.teeth(end-2*nfractal+1:end)-2*ticksize<0, 1,'first'));
+        end
+        %exception in case fractal hhs are upwards and lastest hh is
+        %above lvlup with candles are above teeth
+        %breachup-lvlup
+        if ~exceptionflag
+            exceptionflag = hhupward && ...
+                isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first')) && ...
+                last2hh(end)-ei.lvlup(end)>=0;
+        end
+        %exception in case fractal hhs are upwards and candles close
+        %above maximum of teeth and lips
+        if ~exceptionflag
+            exceptionflag = hhupward && ...
+                isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                max(ei.teeth(end-2*nfractal+1:end),ei.lips(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+        end
+        %
+        if exceptionflag
+            longtrend = true;
+        else
+            longtrend = false;
         end
     end
+    %
     %special case:
     %the upper-trend might be too strong and about to exhausted
     %1)the latest candle is within 12 candles(inclusive) from the last sc13
@@ -118,12 +170,12 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
     %3)the latest sc13 is included in the latest sell sequential
     %DO N0T place any order if the above 3 conditions hold
     if longtrend
-        idx_sc13_last = find(extrainfo.sc==13,1,'last');
-        idx_ss_last = find(extrainfo.ss >= 9, 1,'last');
+        idx_sc13_last = find(ei.sc==13,1,'last');
+        idx_ss_last = find(ei.ss >= 9, 1,'last');
         if ~isempty(idx_sc13_last) && ~isempty(idx_ss_last)
-            ss_last = extrainfo.ss(idx_ss_last);
+            ss_last = ei.ss(idx_ss_last);
             idx_ss_start = idx_ss_last-ss_last+1;
-            if size(extrainfo.sc,1) - idx_sc13_last <= 12 && ...
+            if size(ei.sc,1) - idx_sc13_last <= 12 && ...
                     ss_last >= 22 && ...
                     idx_ss_start + 9 < idx_sc13_last
                 longtrend = false;
@@ -131,7 +183,7 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
         end
     end
     if longtrend
-        longtrend = ~(extrainfo.px(end,5)-extrainfo.ll(end-1)<=-ticksize);
+        longtrend = ~(ei.px(end,5)-ei.ll(end-1)<=-ticksize);
     end
     %
     %
@@ -144,87 +196,135 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
     %was formed given higher price volatility, we shall still regard the
     %down-trend as valid if and only if there are 2*nfracal candles close
     %below alligator's lips
-    last2llidx = find(extrainfo.idxll==-1,2,'last');
-    if isempty(last2hhidx)
-        %short trend cannot be identified as there is not ll formed yet!!!
-        shorttrend = false;
+    [~,~,~,nkbelowteeth,nkfromll,isteethjawcrossed,isteethlipscrossed] = fractal_counts(ei.px,...
+            ei.idxll,...
+            nfractal,...
+            ei.lips,...
+            ei.teeth,...
+            ei.jaw,...
+            ticksize);
+    last2llidx = find(ei.idxll==-1,2,'last');
+    if isempty(last2llidx)
+        lldnward = true;
     else
-        last2ll = extrainfo.ll(last2llidx);
-        if np - (last2llidx(end)-nfractal) + 1 >= 2*nfractal
-            %there have been enough candles formed since the last ll
-            % ************* determine flag1 *****************************
-            %condition 2a.1 (2*ticksize as buffer zone)
-            sflag1 = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-...
-                extrainfo.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-            sflag1 = sflag1 & extrainfo.ll(end)-extrainfo.teeth(end)<=-ticksize;
-            sflag1 = sflag1 & extrainfo.px(end,5)>extrainfo.ll(end)-ticksize;
-            %
-            % ************* determine flag2 *****************************
-            if size(last2llidx,1) == 1
-                sflag2 = true;
-            elseif size(last2llidx,1) == 2
-                if last2ll(2) - last2ll(1) <= -ticksize
-                    %condition 2a.2a
-                    sflag2 = true;
-                else
-                    %condition 2a.2b (2*ticksize as buffer zone)
-                    sflag2 = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-...
-                        extrainfo.lips(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-                    if ~sflag2
+        if size(last2llidx,1) == 1
+            lldnward = true;
+        elseif size(last2llidx,1) == 2
+            last2ll = ei.ll(last2llidx);
+            if last2ll(2) - last2ll(1) <= 2*ticksize
+                lldnward = true;
+            else
+                lldnward = false;
+            end
+        end
+    end
+    %
+    %as long as there are 1) at least 2*nfractal candles close below teeth
+    %2)the lips,teeth and jaws are not crossed
+    %3)the fractal ll moves dnward or (breachdn-lvldn case)
+    %then the short trend shall be confirmed
+    sflag1 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+        ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+    sflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
+    sflag3 = lldnward;
+    sflag4 = (~lldnward && ei.ll(end)<=ei.lvldn(end)&&ei.px(end,5)>=ei.lvldn(end));
+    shorttrend = sflag1 & sflag2 & (sflag3 | sflag4);
+    %
+    %if not all the above 3 conditions hold
+    if ~shorttrend
+        if nkbelowteeth >= 2*nfractal
+            %there are enough candles formed since last hh
+            if lldnward
+                %shorttrend is valid if fractal ll moves dnward
+                %TODO:
+                %NO MATTER WHETHER ANY LIPS,TEETH OR JAWS CROSSED
+                shorttrend = true;
+            else
+                %special cases if ll moves upward
+                if ~isteethlipscrossed
+                    %strong condition that all close are below lips IF THEY
+                    %ARE NOT CROSSED
+                    shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                        ei.lips(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+                    if ~shorttrend
                         %weak condition:1)there are 2*nfracal candles high
                         %below alligator's teeth
                         %2)the last close WELL below lips
-                        sflag2 = isempty(find(extrainfo.px(end-2*nfractal+1:end,3)-...
-                            extrainfo.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-                        sflag2 = sflag2 & ...
-                            extrainfo.px(end,5)-extrainfo.lips(end)+2*ticksize<0;
-                        sflag2 = sflag2 && extrainfo.bs(end)>=1;
+                        shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,3)-...
+                            ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+                        shorttrend = shorttrend & ...
+                            ei.px(end,5)-ei.lips(end)+2*ticksize<0;
+                        shorttrend = shorttrend && ei.bs(end)>=1;
                     end
+                else
+                    %strong condition that all close are below min of lips
+                    %and teeth IF THEY ARE MIXED
+                    shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                        min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
                 end
             end
-            %
-            % ************* combine flag1 & flag2 ***********************
-            shorttrend = sflag1 & sflag2;
         else
-            %there are not enough candles formed since the last ll
-            %but short trend can be identified as long as there are
-            %2*nfracal candles high below alligator's teeth
-            shorttrend = isempty(find(extrainfo.px(end-2*nfractal+1:end,3)-...
-                extrainfo.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-            shorttrend = shorttrend & extrainfo.ll(end)-extrainfo.teeth(end)<=-ticksize;
-            shorttrend = shorttrend & extrainfo.px(end,5)>extrainfo.ll(end)-ticksize;
+            %in case all candles are below teeth since ll formed but there are
+            %less than 2*nfractal candles since then, we include candles before
+            %the ll and check
+            if nkbelowteeth == nkfromll
+                %short trend can be identified as long as there are
+                %2*nfracal candles' high below alligator's teeth
+                shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,3)-...
+                    ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first')) || ...
+                    isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                    min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
+            else
+                shorttrend = false;
+            end
         end
     end
     %
     %further check whether alligator's teeth and jaw are crossed or not
     %DO NOT place any conditional order if they are crossed
-    if shorttrend
-        [~,~,~,~,nkfromll,isteethjawcrossed,~] = fractal_counts(extrainfo.px,...
-            extrainfo.idxll,...
-            nfractal,...
-            extrainfo.lips,...
-            extrainfo.teeth,...
-            extrainfo.jaw,...
-            ticksize);
-        if isteethjawcrossed
-            exceptionflag = false;
-            lastbsidx = find(extrainfo.bs >= 9,1,'last');
-            if ~isempty(lastbsidx) && size(extrainfo.bs,1)-lastbsidx+1 <= nkfromll
-                lastbsval = extrainfo.bs(lastbsidx);
-                pxlow = min(extrainfo.px(lastbsidx-lastbsval+1:lastbsidx,4));
-                exceptionflag = extrainfo.ll(end) <= pxlow;
-            end
-            lastbcidx = find(extrainfo.bc == 13,1,'last');
-            if ~isempty(lastbcidx) && ~exceptionflag
-                nkfrombc13 = size(extrainfo.bc,1)-lastbcidx;
-                exceptionflag = nkfrombc13 < 12 & ...
-                    extrainfo.ll(end)<=min(extrainfo.px(lastbcidx:end,4));
-            end
-            if exceptionflag
-                shorttrend = true;
-            else
-                shorttrend = false;
-            end
+    if shorttrend && isteethjawcrossed
+        exceptionflag = false;
+        lastbsidx = find(ei.bs >= 9,1,'last');
+        if ~isempty(lastbsidx) && size(ei.bs,1)-lastbsidx+1 <= nkfromll
+            lastbsval = ei.bs(lastbsidx);
+            pxlow = min(ei.px(lastbsidx-lastbsval+1:lastbsidx,4));
+            exceptionflag = ei.ll(end) <= pxlow;
+        end
+        lastbcidx = find(ei.bc == 13,1,'last');
+        if ~isempty(lastbcidx) && ~exceptionflag
+            nkfrombc13 = size(ei.bc,1)-lastbcidx;
+            exceptionflag = nkfrombc13 < 12 & ...
+                ei.ll(end)<=min(ei.px(lastbcidx:end,4));
+        end
+        %exception in case lips are well below teeth without
+        %intersection and also candles are well below lips even if
+        %teeth and jaw are crossed
+        if ~exceptionflag
+            exceptionflag = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                    ei.lips(end-2*nfractal+1:end)-2*ticksize>0,1,'first')) && ...
+                    isempty(find(ei.lips(end-2*nfractal+1:end)-...
+                    ei.teeth(end-2*nfractal+1:end)+2*ticksize>0, 1,'first'));
+        end
+        %exception in case fractal lls are downwards and lastest ll is
+        %below lvldn with candles are below teeth
+        if ~exceptionflag
+            exceptionflag = lldnward && ...
+                isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first')) && ...
+                last2ll(end)-ei.lvldn(end)<=0;
+        end
+        %exception in case fractal lls are dnwards and candles close
+        %below minimum of teeth and lips
+        if ~exceptionflag
+            exceptionflag = lldnward && ...
+                isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                min(ei.teeth(end-2*nfractal+1:end),ei.lips(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
+        end
+
+        if exceptionflag
+            shorttrend = true;
+        else
+            shorttrend = false;
         end
     end
     %special case:
@@ -235,12 +335,12 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
     %3)the latest buy count 13 is included in the latest buy sequential
     %DO NOT place any order if the above 3 conditions hold
     if shorttrend
-        idx_bc13_last = find(extrainfo.bc==13,1,'last');
-        idx_bs_last = find(extrainfo.bs>=9,1,'last');
+        idx_bc13_last = find(ei.bc==13,1,'last');
+        idx_bs_last = find(ei.bs>=9,1,'last');
         if ~isempty(idx_bc13_last) && ~isempty(idx_bs_last)
-            bs_last = extrainfo.bs(idx_bs_last);
+            bs_last = ei.bs(idx_bs_last);
             idx_bs_start = idx_bs_last-bs_last+1;
-            if size(extrainfo.bc,1)-idx_bc13_last <= 12 && ...
+            if size(ei.bc,1)-idx_bc13_last <= 12 && ...
                     bs_last >= 22 &&...
                     idx_bs_start + 9 < idx_bc13_last
                 shorttrend = false;
@@ -248,40 +348,40 @@ function [signal,op] = fractal_signal_conditional(extrainfo,ticksize,nfractal,va
         end
     end
     if shorttrend
-        shorttrend = ~(extrainfo.px(end,5)-extrainfo.hh(end-1)>=ticksize);
+        shorttrend = ~(ei.px(end,5)-ei.hh(end-1)>=ticksize);
     end
         
     if longtrend || shorttrend
         signal = cell(1,2);
         op = cell(1,2);
         if longtrend
-            if extrainfo.teeth(end)>extrainfo.jaw(end)
+            if ei.teeth(end)>ei.jaw(end)
                 op{1,1} = 'conditional:strongbreach-trendconfirmed';
             else
                 op{1,1} = 'conditional:mediumbreach-trendconfirmed';
             end
             this_signal = zeros(1,6);
             this_signal(1,1) = 1;
-            this_signal(1,2) = extrainfo.hh(end);
-            this_signal(1,3) = extrainfo.ll(end);
-            this_signal(1,5) = extrainfo.px(end,3);
-            this_signal(1,6) = extrainfo.px(end,4);
+            this_signal(1,2) = ei.hh(end);
+            this_signal(1,3) = ei.ll(end);
+            this_signal(1,5) = ei.px(end,3);
+            this_signal(1,6) = ei.px(end,4);
             this_signal(1,4) = 2;
             signal{1,1} = this_signal;
         end
         %
         if shorttrend
-            if extrainfo.teeth(end)<extrainfo.jaw(end)
+            if ei.teeth(end)<ei.jaw(end)
                 op{1,2} = 'conditional:strongbreach-trendconfirmed';
             else
                 op{1,2} = 'conditional:mediumbreach-trendconfirmed';
             end
             this_signal = zeros(1,6);
             this_signal(1,1) = -1;
-            this_signal(1,2) = extrainfo.hh(end);
-            this_signal(1,3) = extrainfo.ll(end);
-            this_signal(1,5) = extrainfo.px(end,3);
-            this_signal(1,6) = extrainfo.px(end,4);
+            this_signal(1,2) = ei.hh(end);
+            this_signal(1,3) = ei.ll(end);
+            this_signal(1,5) = ei.px(end,3);
+            this_signal(1,6) = ei.px(end,4);
             this_signal(1,4) = -2;
             signal{1,2} = this_signal;
         end
