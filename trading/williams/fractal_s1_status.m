@@ -104,9 +104,26 @@ istrendconfirmed = nkbelowteeth>=2*nfractal+1;
 if ~istrendconfirmed
     %1.in case all candles are below teeth since ll formed but there are
     %less than 2*nfractal+1 candles since then, we include candles before
-    %the ll formed and double check
+    %the ll formed and double check with candle's high
     if nkbelowteeth == nkfromll
-        istrendconfirmed = isempty(find(px(end-2*nfractal:end,5)-teeth(end-2*nfractal:end)>2*ticksize,1,'first'));
+        istrendconfirmed = isempty(find(px(end-2*nfractal:end-1,3)-teeth(end-2*nfractal:end-1)>2*ticksize,1,'first')) ||...
+            isempty(find(px(end-2*nfractal:end-1,5)-min(lips(end-2*nfractal:end-1),teeth(end-2*nfractal:end-1))>2*ticksize,1,'first'));
+        if ~istrendconfirmed
+            %in case not all candle's high are below teeth, check:
+            %1.close are below;
+            %2.lips,teeth and jaws are not crossed
+            %3.fractal ll moves downward
+            flag1 = isempty(find(px(end-2*nfractal:end-1,5)-teeth(end-2*nfractal:end-1)>2*ticksize,1,'first'));
+            flag2 = ~isteethjawcrossed & ~isteethlipscrossed;
+            last2llidx = find(idxLL==-1,2,'last');
+            if ~isempty(last2llidx)
+                flag3 = LL(last2llidx(end))<=LL(last2llidx(1));
+            else
+                flag3 = false;
+            end
+            istrendconfirmed = flag1 & flag2 & flag3;
+        end
+        istrendconfirmed = istrendconfirmed & px(end,5)-teeth(end)<=2*ticksize;
     end
 end
 
