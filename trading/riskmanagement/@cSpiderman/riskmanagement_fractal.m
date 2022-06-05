@@ -25,9 +25,11 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
     ll = extrainfo.ll(end);
        
     if direction == 1
-        if extrainfo.p(end,5) < extrainfo.lips(end)-ticksize
-            closeflag = 1;
-            obj.closestr_ = 'fractal:lips';
+        if extrainfo.p(end,5) < extrainfo.lips(end)-2*ticksize
+            if extrainfo.latestopen < extrainfo.lips(end)-2*ticksize
+                closeflag = 1;
+                obj.closestr_ = 'fractal:lips';
+            end
         else
             if hh > obj.hh1_
                 obj.hh0_ = obj.hh1_;
@@ -38,8 +40,10 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
                 obj.ll1_ = ll;
             end
             if extrainfo.p(end,5) < 1.382*obj.hh0_-0.382*obj.hh1_ && obj.hh1_ - obj.hh0_ > 2*ticksize
-                closeflag = 1;
-                obj.closestr_ = 'fractal:update';
+                if extrainfo.latestopen < 1.382*obj.hh0_-0.382*obj.hh1_
+                    closeflag = 1;
+                    obj.closestr_ = 'fractal:update';
+                end
             else
 %                 obj.pxtarget_ = obj.hh1_ + 1.618*(obj.hh1_-obj.ll1_);
 %                 if ~isempty(trade.instrument_)
@@ -57,9 +61,11 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
         end
         %
     else
-        if extrainfo.p(end,5) > extrainfo.lips(end)+ticksize
-            closeflag = 1;
-            obj.closestr_ = 'fractal:lips';
+        if extrainfo.p(end,5) > extrainfo.lips(end)+2*ticksize
+            if extrainfo.latestopen > extrainfo.lips(end)+2*ticksize
+                closeflag = 1;
+                obj.closestr_ = 'fractal:lips';
+            end
         else
             if ll < obj.ll1_
                 obj.ll0_ = obj.ll1_;
@@ -70,8 +76,10 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
                 obj.hh1_ = hh;
             end
             if extrainfo.p(end,5) > 1.382*obj.ll0_-0.382*obj.ll1_ && obj.ll1_ - obj.ll0_ <-2*ticksize
-                closeflag = 1;
-                obj.closestr_ = 'fractal:update';
+                if extrainfo.latestopen > 1.382*obj.ll0_-0.382*obj.ll1_
+                    closeflag = 1;
+                    obj.closestr_ = 'fractal:update';
+                end
             else
 %                 obj.pxtarget_ = obj.ll1_ - 1.618*(obj.hh1_-obj.ll1_);
 %                 if ~isempty(trade.instrument_)
