@@ -66,10 +66,14 @@ classdef cStock < cInstrument
             if strcmpi(codestr,'000001.SH')
                 obj.code_wind = codestr;
             else
-                if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
-                    obj.code_wind = [codestr,'.SH'];
-                else
-                    obj.code_wind = [codestr,'.SZ'];
+                if length(codestr) == 6
+                    if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
+                        obj.code_wind = [codestr,'.SH'];
+                    else
+                        obj.code_wind = [codestr,'.SZ'];
+                    end
+                elseif length(codestr) == 4
+                    obj.code_wind = [codestr,'.HK'];
                 end
             end
             obj.code_bbg = 'n/a';
