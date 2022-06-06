@@ -185,6 +185,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     if longtrend
         longtrend = ~(ei.px(end,5)-ei.ll(end-1)<=-ticksize);
     end
+    longtrend = longtrend & ei.px(end,5)<ei.hh(end);
     %
     %
     %SHORT TREND:
@@ -350,6 +351,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     if shorttrend
         shorttrend = ~(ei.px(end,5)-ei.hh(end-1)>=ticksize);
     end
+    shorttrend = shorttrend & ei.px(end,5)>ei.ll(end);
         
     if longtrend || shorttrend
         signal = cell(1,2);
