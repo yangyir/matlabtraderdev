@@ -51,6 +51,102 @@ function obj = init(obj,varargin)
     obj.pos_stock_ = pos_stock;
     %
     obj.reload;
+    %
+    %generate daily-frequency trades
+    nfractal = 2;
+    for i = 1:n_index
+        if strcmpi(codes_index{i},'159781') || strcmpi(codes_index{i},'159782'), continue;end
+        etf = code2instrument(codes_index{i});
+        d = obj.dailybarstruct_index_{i};
+        [idxb1,~] = fractal_genindicators1(d.px,...
+            d.hh,d.ll,...
+            d.jaw,d.teeth,d.lips,...
+            'instrument',etf);
+        b1type = idxb1(end,2);
+        if b1type == 1, continue;end
+        j = idxb1(end,1);
+        ei = fractal_truncate(d,j);
+        op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
+        if op.use
+            trade = fractal_gentrade(d,codes_index{i},j,op.comment,1,'daily');
+        else
+            continue;
+        end
+        %
+        for k = j+1:size(d.px,1)
+            ei = fractal_genextrainfo(d,k);
+            if k == size(d.px,1)
+                ei.latestopen = d.px(k,5);
+                ei.latestdt = d.px(k,1);
+            else
+                ei.latestopen = d.px(k+1,2);
+                ei.latestdt = d.px(k+1,1);
+            end
+            if strcmpi(trade.status_,'closed'),break;end
+            tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
+                'usecandlelastonly',false,...
+                'debug',false,...
+                'updatepnlforclosedtrade',true,...
+                'extrainfo',ei);
+        end
+    
+        if isempty(tradeout)
+            fprintf('%s:live.\n',trade.code_);
+            obj.pos_index_{i} = trade;
+        else
+            if k == size(d.px,1)
+                fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+            end
+        end
+    end
+    
+    fprintf('\n');
+    
+    for i = 1:n_sector
+        if strcmpi(codes_sector{i},'512880') || strcmpi(codes_sector{i},'512800'), continue;end
+        etf = code2instrument(codes_sector{i});
+        d = obj.dailybarstruct_sector_{i};
+        [idxb1,~] = fractal_genindicators1(d.px,...
+            d.hh,d.ll,...
+            d.jaw,d.teeth,d.lips,...
+            'instrument',etf);
+        b1type = idxb1(end,2);
+        if b1type == 1, continue;end
+        j = idxb1(end,1);
+        ei = fractal_truncate(d,j);
+        op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
+        if op.use
+            trade = fractal_gentrade(d,codes_sector{i},j,op.comment,1,'daily');
+        else
+            continue;
+        end
+        %
+        for k = j+1:size(d.px,1)
+            ei = fractal_genextrainfo(d,k);
+            if k == size(d.px,1)
+                ei.latestopen = d.px(k,5);
+                ei.latestdt = d.px(k,1);
+            else
+                ei.latestopen = d.px(k+1,2);
+                ei.latestdt = d.px(k+1,1);
+            end
+            if strcmpi(trade.status_,'closed'),break;end
+            tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
+                'usecandlelastonly',false,...
+                'debug',false,...
+                'updatepnlforclosedtrade',true,...
+                'extrainfo',ei);
+        end
+    
+        if isempty(tradeout)
+            obj.pos_sector_{i} = trade;
+            fprintf('%s:live.\n',trade.code_);
+        else
+            if k == size(d.px,1)
+                fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+            end
+        end
+    end
     
     
 end 
