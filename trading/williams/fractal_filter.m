@@ -94,8 +94,8 @@ for i = 1:n
         
         if p(k+1,2) < resstruct{i}.hh(k)
             commentsb1_i{j,1} = 'breachb1 break:next open below HH';
-            useflagb_i(j) = 0;
-            continue
+            useflagb_i(j) = 1;
+%             continue
         end
         if p(k,5) <= p(k,3)-0.382*(p(k,3)-resstruct{i}.ll(k))
             commentsb1_i{j,1} = 'breachb1 break:below initial stoploss';
@@ -119,8 +119,8 @@ for i = 1:n
 %         end
         if p(k+1,2) - resstruct{i}.hh(k) < 0 && k ~= size(p,1)
             commentsb1_i{j,1} = 'breachb1 break:open less than  HH';
-            useflagb_i(j) = 0;
-            continue
+            useflagb_i(j) = 1;
+%             continue
         end
         
         if (strcmpi(op.comment,filterstr) || strcmpi(filterstr,'all')) && direction == 1

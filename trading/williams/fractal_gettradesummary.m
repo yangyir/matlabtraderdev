@@ -139,7 +139,8 @@ for i = 1:n1
 end
 itrade = 0;
 for i = 1:length(tblb{1}.idx)
-    if isempty(tblb{1}.commentsb1{i})
+    if isempty(tblb{1}.commentsb1{i}) || ...
+            (~isempty(tblb{1}.commentsb1{i}) && tblb{1}.useflag(i))
         itrade = itrade+1;
         if itrade > size(tblbtrades,1), break;end
         for j = 1:n2
