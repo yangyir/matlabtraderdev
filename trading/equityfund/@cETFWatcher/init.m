@@ -73,6 +73,7 @@ function obj = init(obj,varargin)
             continue;
         end
         %
+        tradeout = {};
         for k = j+1:size(d.px,1)
             ei = fractal_genextrainfo(d,k);
             if k == size(d.px,1)
@@ -90,11 +91,11 @@ function obj = init(obj,varargin)
                 'extrainfo',ei);
         end
     
-        if isempty(tradeout)
+        if isempty(tradeout) || trade.id_ == size(d.px,1)
             fprintf('%s:live.\n',trade.code_);
             obj.pos_index_{i} = trade;
         else
-            if k == size(d.px,1)
+            if tradeout.closedatetime1_ >= d.px(end,1)
                 fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
             end
         end
@@ -121,6 +122,7 @@ function obj = init(obj,varargin)
             continue;
         end
         %
+        tradeout = {};
         for k = j+1:size(d.px,1)
             ei = fractal_genextrainfo(d,k);
             if k == size(d.px,1)
@@ -138,7 +140,7 @@ function obj = init(obj,varargin)
                 'extrainfo',ei);
         end
     
-        if isempty(tradeout)
+        if isempty(tradeout) || trade.id_ == size(d.px,1)
             obj.pos_sector_{i} = trade;
             fprintf('%s:live.\n',trade.code_);
         else
