@@ -47,7 +47,8 @@ for i = 1:n
     %
     for k = j+1:size(d.px,1)
         extrainfo = fractal_genextrainfo(d,k);
-        if k == size(d.px,1)
+        if k == size(d.px,1) || ...
+                (hour(d.px(k,1)) == 14 && minute(d.px(k,1)) == 30)          %avoid market jump between 15:00 and 21:00 for comdty
             extrainfo.latestopen = d.px(k,5);
             extrainfo.latestdt = d.px(k,1);
         else
