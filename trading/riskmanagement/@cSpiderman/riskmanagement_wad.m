@@ -154,7 +154,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             end
         else
             closeflag = ret.inconsistence;
-            obj.closestr_ = ret.reason;
+%             obj.closestr_ = ret.reason;
         end
     end
     
