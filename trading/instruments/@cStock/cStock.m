@@ -76,6 +76,9 @@ classdef cStock < cInstrument
                     obj.code_wind = [codestr,'.HK'];
                 end
             end
+            if isempty(obj.code_wind) && ~isempty(strfind(obj.code_ctp,'.WI'))
+                obj.code_wind = obj.code_ctp;
+            end
             obj.code_bbg = 'n/a';
             obj.code_H5 = 'n/a';
             
