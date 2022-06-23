@@ -7,26 +7,40 @@ function [] = eodanalysis(obj,varargin)
     for i = 1:n_index
         if strcmpi(obj.codes_index_{i}(1:6),'159781') || strcmpi(obj.codes_index_{i}(1:6),'159782'), continue;end
         trade = obj.pos_index_{i};
-        if isempty(trade),continue;end
-        extrainfo = obj.dailybarstruct_index_{i};
-        extrainfo.p = extrainfo.px;
-        extrainfo.latestopen = extrainfo.px(end,5);
-        extrainfo.latestdt = extrainfo.px(end,1);
-        tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
-            'usecandlelastonly',false,...
-            'debug',false,...
-            'updatepnlforclosedtrade',true,...
-            'extrainfo',extrainfo);
-        if ~isempty(tradeout)
-             fprintf('%s:closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+        if ~isempty(trade)
+            trade.status_ = 'set';
+            trade.riskmanager_.status_ = 'set';
+            extrainfo = obj.dailybarstruct_index_{i};
+            extrainfo.p = extrainfo.px;
+            extrainfo.latestopen = extrainfo.px(end,5);
+            extrainfo.latestdt = extrainfo.px(end,1);
+            tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
+                'usecandlelastonly',false,...
+                'debug',false,...
+                'updatepnlforclosedtrade',true,...
+                'extrainfo',extrainfo);
+            if ~isempty(tradeout)
+                fprintf('%s:closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+            else
+                fprintf('%s:live.',trade.code_);
+            end
+            [~,op] = fractal_signal_unconditional(extrainfo,0.001,2);
+            if ~isempty(op) && op.use == 1
+                fprintf('%s:%s.',obj.codes_index_{i}(1:6),op.comment);
+            end
+            fprintf('\n');
         else
-            fprintf('%s:live.',trade.code_);
+            extrainfo = obj.dailybarstruct_index_{i};
+            [~,op] = fractal_signal_unconditional(extrainfo,0.001,2);
+            if ~isempty(op) && op.use == 1
+                fprintf('%s:breachup:%s.\n',obj.codes_index_{i}(1:6),op.comment);
+            else
+                [~,op] = fractal_signal_conditional(extrainfo,0.001,2);
+                if ~isempty(op) && ~isempty(op{1})
+                    fprintf('%s:%s.\n',obj.codes_index_{i}(1:6),op{1});
+                end
+            end
         end
-        [~,op] = fractal_signal_unconditional(extrainfo,0.001,2);
-        if ~isempty(op) && op.use == 1
-            fprintf('%s:%s.',obj.codes_index_{i}(1:6),op.comment);
-        end
-        fprintf('\n');        
     end
     %
     %
@@ -35,6 +49,8 @@ function [] = eodanalysis(obj,varargin)
         if strcmpi(obj.codes_sector_{i}(1:6),'512880') || strcmpi(obj.codes_sector_{i}(1:6),'512800'), continue;end
         trade = obj.pos_sector_{i};
         if ~isempty(trade)
+            trade.status_ = 'set';
+            trade.riskmanager_.status_ = 'set';
             extrainfo = obj.dailybarstruct_sector_{i};
             extrainfo.p = extrainfo.px;
             extrainfo.latestopen = extrainfo.px(end,5);
