@@ -75,11 +75,19 @@ if longshort == 1
         openpx = max(resstruct.px(idx,2),resstruct.hh(idx-1)+2*ticksize);
     else
         if strcmpi(freq,'daily')
-            opendt = resstruct.px(idx+1,1);
+            try
+                opendt = resstruct.px(idx+1,1);
+            catch
+                opendt = resstruct.px(idx,1);
+            end
         else
             opendt = resstruct.px(idx+1,1)+1/86400;
         end
-        openpx = resstruct.px(idx+1,2);
+        try
+            openpx = resstruct.px(idx+1,2);
+        catch
+            openpx = resstruct.px(idx,5);
+        end
     end
     
     trade = cTradeOpen('id',idx,'code',code,...
