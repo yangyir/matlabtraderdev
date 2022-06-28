@@ -50,6 +50,10 @@ function obj = init(obj,varargin)
     obj.pos_sector_ = pos_sector;
     obj.pos_stock_ = pos_stock;
     %
+    obj.dailystatus_index_ = zeros(n_index,1);
+    obj.dailystatus_sector_ = zeros(n_sector,1);
+    obj.dailystatus_stock_ = zeros(n_stock,1);
+    %
     obj.reload;
     %
     %generate daily-frequency trades

@@ -46,7 +46,11 @@ classdef cETFWatcher < handle
         pos_index_@cell
         pos_sector_@cell
         pos_stock_@cell
-        
+        %
+        dailystatus_index_@double                                        %-2:conditional bearish;-1:bearish;0:neutral;1:bullish;2:conditional bullish
+        dailystatus_sector_@double                                       %-2:conditional bearish;-1:bearish;0:neutral;1:bullish;2:conditional bullish
+        dailystatus_stock_@double                                        %-2:conditional bearish;-1:bearish;0:neutral;1:bullish;2:conditional bullish
+                
     end
     
     properties (GetAccess = public, SetAccess = private)
