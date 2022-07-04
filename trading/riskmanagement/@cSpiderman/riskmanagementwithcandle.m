@@ -12,11 +12,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     p.addParameter('Debug',false,@islogical)
     p.addParameter('UpdatePnLForClosedTrade',false,@islogical);
     p.addParameter('ExtraInfo',{},@isstruct);
+    p.addParameter('RunHighLowOnly',false,@islogical);
     p.parse(varargin{:});
     usecandlelastonly = p.Results.UseCandleLastOnly;
     doprint = p.Results.Debug;
     updatepnlforclosedtrade = p.Results.UpdatePnLForClosedTrade;
     extrainfo = p.Results.ExtraInfo;
+    runhighlowonly = p.Results.RunHighLowOnly;
     
     candleTime = extrainfo.p(end,1);
     candleOpen = extrainfo.p(end,2);
@@ -39,6 +41,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             return
         end  
     end
+    % for cETFWatcher useage only
+    if runhighlowonly, return;end
     
     if strcmpi(trade.opensignal_.frequency_,'daily')
         idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first')+1;
