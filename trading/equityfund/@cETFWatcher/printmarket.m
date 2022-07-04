@@ -6,14 +6,14 @@ function [] = printmarket(obj,varargin)
     tnum = p.Results.Time;
     tstr = datestr(tnum,'yyyy-mm-dd HH:MM:SS');
   
-    dataformat = '%10s %8s %10s %8.2f%% %11s %10s %10s %4s %4s %10s %10s %10.3f %10.3f %10.3f %10s\n';
+    dataformat = '%10s %8s %10s %8.2f%% %11s %10s %10s %4s %4s %10s %10s %10.3f %10.3f %10.3f %10s %10s\n';
     n_index = size(obj.codes_index_,1);
     n_sector = size(obj.codes_sector_,1);
 %     n_stock = size(obj.codes_stock_,1);
     
     fprintf('\nlatest market quotes of indices on %s:\n',tstr);
-    fprintf('%10s %8s %10s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
-        'code','latest','preclose','change','Ktime','hh','ll','bs','ss','levelup','leveldn','teeth','lips','barrier','name');
+    fprintf('%10s %8s %10s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s %10s\n',...
+        'code','latest','preclose','change','Ktime','hh','ll','bs','ss','levelup','leveldn','teeth','lips','barrier','status-d','name');
     for i = 1:n_index
         code = obj.codes_index_{i}(1:end-3);
         if strcmpi(code,'159781') || strcmpi(code,'159782'), continue;end
@@ -43,12 +43,13 @@ function [] = printmarket(obj,varargin)
             num2str(HH),num2str(LL),...
             num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
             teeth,lips,barrier,...
+            num2str(obj.dailystatus_index_(i)),...
             obj.names_index_{i});
     end
     
     fprintf('\nlatest market quotes of sectors on %s:\n',tstr);
-    fprintf('%10s %8s %10s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s\n',...
-        'code','latest','preclose','change','Ktime','hh','ll','bs','ss','levelup','leveldn','teeth','lips','barrier','name');
+    fprintf('%10s %8s %10s %9s %11s %10s %10s %4s %4s %10s %10s %10s %10s %10s %10s %10s\n',...
+        'code','latest','preclose','change','Ktime','hh','ll','bs','ss','levelup','leveldn','teeth','lips','barrier','status-d','name');
     for i = 1:n_sector
         code = obj.codes_sector_{i}(1:end-3);
         if strcmpi(code,'512800') || strcmpi(code, '512880'),continue;end
@@ -78,6 +79,7 @@ function [] = printmarket(obj,varargin)
             num2str(HH),num2str(LL),...
             num2str(buysetup),num2str(sellsetup),num2str(levelup),num2str(leveldn),...
             teeth,lips,barrier,...
+            num2str(obj.dailystatus_sector_(i)),...
             obj.names_sector_{i});
     end
     % not to print information for single stocks for now    

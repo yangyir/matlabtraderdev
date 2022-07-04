@@ -25,9 +25,11 @@ function [] = reload(obj,varargin)
         if ~isempty(signal)
             if ~isempty(signal{1,1})
                 obj.dailybarriers_conditional_index_(i,1) = signal{1,1}(1,2);
+                obj.dailystatus_index_(i,1) = 2;                            %conditional bullish
             end
             if ~isempty(signal{1,2})
                 obj.dailybarriers_conditional_index_(i,2) = signal{1,2}(1,3);
+                obj.dailystatus_index_(i,1) = -2;                           %conditional bearish
             end
         end
     end
@@ -41,9 +43,11 @@ function [] = reload(obj,varargin)
         if ~isempty(signal)
             if ~isempty(signal{1,1})
                  obj.dailybarriers_conditional_sector_(i,1) = signal{1,1}(1,2);
+                 obj.dailystatus_sector_(i,1) = 2;                          %conditional bullish
             end
             if ~isempty(signal{1,2})
                  obj.dailybarriers_conditional_sector_(i,2) = signal{1,2}(1,3);
+                 obj.dailystatus_sector_(i,1) = -2;                         %conditional bearish
             end
         end 
     end
@@ -57,9 +61,11 @@ function [] = reload(obj,varargin)
         if ~isempty(signal)
             if ~isempty(signal{1,1})
                  obj.dailybarriers_conditional_stock_(i,1) = signal{1,1}(1,2);
+                 obj.dailystatus_stock_(i,1) = 2;                          %conditional bullish
             end
             if ~isempty(signal{1,2})
                  obj.dailybarriers_conditional_stock_(i,2) = signal{1,2}(1,3);
+                 obj.dailystatus_stock_(i,1) = -2;                         %conditional bearish
             end
         end 
     end

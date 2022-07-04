@@ -27,10 +27,16 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             %
         elseif flag == 2
             hasbreach = false;
+            hasclosed = false;
             n_index = size(mytimerobj.codes_index_,1);
             n_sector = size(mytimerobj.codes_sector_,1);
             latest_index = mytimerobj.conn_.ds_.wsq(mytimerobj.codes_index_,'rt_date,rt_time,rt_latest');
             latest_sector = mytimerobj.conn_.ds_.wsq(mytimerobj.codes_sector_,'rt_date,rt_time,rt_latest');
+            if hour(dtnum) == 14 && minute(dtnum) >= 55
+                runhighlowonly = false;
+            else
+                runhighlowonly = true;
+            end
             for i = 1:n_index
                 if strcmpi(mytimerobj.codes_index_{i}(1:end-3),'159781'),continue;end
                 if strcmpi(mytimerobj.codes_index_{i}(1:end-3),'159782'),continue;end
@@ -51,6 +57,25 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                     end
                 catch
                     fprintf('cETFWatcher:error in loop of index......\n');
+                end
+                trade = mytimerobj.pos_index_{i};
+                if ~isempty(trade)
+                    trade.status_ = 'set';
+                    trade.riskmanager_.status_ = 'set';
+                    extrainfo = mytimerobj.dailybarstruct_index_{i};
+                    extrainfo.p = extrainfo.px;
+                    extrainfo.latestopen = extrainfo.px(end,5);
+                    extrainfo.latestdt = extrainfo.px(end,1);                              
+                    tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
+                        'usecandlelastonly',false,...
+                        'debug',false,...
+                        'updatepnlforclosedtrade',true,...
+                        'extrainfo',extrainfo,...
+                        'runhighlowonly',runhighlowonly);
+                    if ~isempty(tradeout)
+                        fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                        hasclosed = true;
+                    end
                 end
             end
             %
@@ -75,8 +100,28 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                 catch
                     fprintf('cETFWatcher:error in loop of sector......\n');
                 end
+                trade = mytimerobj.pos_sector_{i};
+                if ~isempty(trade)
+                    trade.status_ = 'set';
+                    trade.riskmanager_.status_ = 'set';
+                    extrainfo = mytimerobj.dailybarstruct_sector_{i};
+                    extrainfo.p = extrainfo.px;
+                    extrainfo.latestopen = extrainfo.px(end,5);
+                    extrainfo.latestdt = extrainfo.px(end,1);
+                    tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
+                        'usecandlelastonly',false,...
+                        'debug',false,...
+                        'updatepnlforclosedtrade',true,...
+                        'extrainfo',extrainfo,...
+                        'runhighlowonly',runhighlowonly);
+                    if ~isempty(tradeout)
+                        fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                        hasclosed = true;
+                    end
+                end
             end
             if hasbreach, fprintf('\n'); end
+            if hasclosed, fprintf('\n'); end
         end
         
     else

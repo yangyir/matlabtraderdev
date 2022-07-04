@@ -56,9 +56,9 @@ function obj = init(obj,varargin)
     obj.pos_sector_ = pos_sector;
     obj.pos_stock_ = pos_stock;
     %
-    obj.dailystatus_index_ = zeros(n_index,1);
-    obj.dailystatus_sector_ = zeros(n_sector,1);
-    obj.dailystatus_stock_ = zeros(n_stock,1);
+    obj.dailystatus_index_ = nan(n_index,1);
+    obj.dailystatus_sector_ = nan(n_sector,1);
+    obj.dailystatus_stock_ = nan(n_stock,1);
     %
     obj.reload;
     %
@@ -68,45 +68,63 @@ function obj = init(obj,varargin)
         if strcmpi(codes_index{i},'159781') || strcmpi(codes_index{i},'159782'), continue;end
         etf = code2instrument(codes_index{i});
         d = obj.dailybarstruct_index_{i};
-        [idxb1,~] = fractal_genindicators1(d.px,...
+        [idxb1,idxs1] = fractal_genindicators1(d.px,...
             d.hh,d.ll,...
             d.jaw,d.teeth,d.lips,...
             'instrument',etf);
-        b1type = idxb1(end,2);
-        if b1type == 1, continue;end
-        j = idxb1(end,1);
-        ei = fractal_truncate(d,j);
-        op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
-        if op.use
-            trade = fractal_gentrade(d,codes_index{i},j,op.comment,1,'daily');
-        else
-            continue;
-        end
-        %
-        tradeout = {};
-        for k = j+1:size(d.px,1)
-            ei = fractal_genextrainfo(d,k);
-            if k == size(d.px,1)
-                ei.latestopen = d.px(k,5);
-                ei.latestdt = d.px(k,1);
-            else
-                ei.latestopen = d.px(k+1,2);
-                ei.latestdt = d.px(k+1,1);
+        if idxb1(end,1) > idxs1(end,1)                                      %last bullish
+            b1type = idxb1(end,2);
+            if b1type == 1                                                  %weak breach
+                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+                    obj.dailystatus_index_(i) = 0;
+                end
+                continue;
             end
-            if strcmpi(trade.status_,'closed'),break;end
-            tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
-                'usecandlelastonly',false,...
-                'debug',false,...
-                'updatepnlforclosedtrade',true,...
-                'extrainfo',ei);
-        end
+            j = idxb1(end,1);
+            ei = fractal_truncate(d,j);
+            op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
+            if op.use
+                trade = fractal_gentrade(d,codes_index{i},j,op.comment,1,'daily');
+            else
+                %not a valid signal
+                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+                    obj.dailystatus_index_(i) = 0;
+                end
+                continue;
+            end
+            %
+            unwindtrade = {};
+            for k = j+1:size(d.px,1)
+                if strcmpi(trade.status_,'closed'),break;end
+                ei = fractal_genextrainfo(d,k);
+                if k == size(d.px,1)
+                    ei.latestopen = d.px(k,5);
+                    ei.latestdt = d.px(k,1);
+                else
+                    ei.latestopen = d.px(k+1,2);
+                    ei.latestdt = d.px(k+1,1);
+                end
+                unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
+                    'usecandlelastonly',false,...
+                    'debug',false,...
+                    'updatepnlforclosedtrade',true,...
+                    'extrainfo',ei);
+            end
     
-        if isempty(tradeout) || trade.id_ == size(d.px,1)
-            fprintf('%s:live.\n',trade.code_);
-            obj.pos_index_{i} = trade;
-        else
-            if tradeout.closedatetime1_ >= d.px(end,1)
-                fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+            if isempty(unwindtrade) || trade.id_ == size(d.px,1)
+                fprintf('%s:live.\n',trade.code_);
+                obj.pos_index_{i} = trade;
+                obj.dailystatus_index_(i) = 1;                              %bullish
+            else
+                if unwindtrade.closedatetime1_ >= d.px(end,1)
+                    fprintf('%s:closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
+                end
+                obj.dailystatus_index_(i) = 0;                              %neutral
+            end
+        elseif idxb1(end,1) < idxs1(end,1)                                  %last bearish
+            %TODO
+            s1type = idxs1(end,2);
+            if s1type == 1
             end
         end
     end
@@ -117,48 +135,62 @@ function obj = init(obj,varargin)
         if strcmpi(codes_sector{i},'512880') || strcmpi(codes_sector{i},'512800'), continue;end
         etf = code2instrument(codes_sector{i});
         d = obj.dailybarstruct_sector_{i};
-        [idxb1,~] = fractal_genindicators1(d.px,...
+        [idxb1,idxs1] = fractal_genindicators1(d.px,...
             d.hh,d.ll,...
             d.jaw,d.teeth,d.lips,...
             'instrument',etf);
-        b1type = idxb1(end,2);
-        if b1type == 1, continue;end
-        j = idxb1(end,1);
-        ei = fractal_truncate(d,j);
-        op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
-        if op.use
-            trade = fractal_gentrade(d,codes_sector{i},j,op.comment,1,'daily');
-        else
-            continue;
-        end
-        %
-        tradeout = {};
-        for k = j+1:size(d.px,1)
-            ei = fractal_genextrainfo(d,k);
-            if k == size(d.px,1)
-                ei.latestopen = d.px(k,5);
-                ei.latestdt = d.px(k,1);
+        if idxb1(end,1) > idxs1(end,1)                                      %last bullish
+            b1type = idxb1(end,2);
+            if b1type == 1                                                  %weak breach
+                if ~(obj.dailystatus_sector_(i) == 2  || obj.dailystatus_sector_(i) == -2)
+                    obj.dailystatus_sector_(i) = 0;
+                end
+                continue;
+            end
+            j = idxb1(end,1);
+            ei = fractal_truncate(d,j);
+            op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
+            if op.use
+                trade = fractal_gentrade(d,codes_sector{i},j,op.comment,1,'daily');
             else
-                ei.latestopen = d.px(k+1,2);
-                ei.latestdt = d.px(k+1,1);
+                %not a valid signal
+                if ~(obj.dailystatus_sector_(i) == 2  || obj.dailystatus_sector_(i) == -2)
+                    obj.dailystatus_sector_(i) = 0;
+                end
+                continue;
             end
-            if strcmpi(trade.status_,'closed'),break;end
-            tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
-                'usecandlelastonly',false,...
-                'debug',false,...
-                'updatepnlforclosedtrade',true,...
-                'extrainfo',ei);
-        end
+            %
+            unwindtrade = {};
+            for k = j+1:size(d.px,1)
+                if strcmpi(trade.status_,'closed'),break;end
+                ei = fractal_genextrainfo(d,k);
+                if k == size(d.px,1)
+                    ei.latestopen = d.px(k,5);
+                    ei.latestdt = d.px(k,1);
+                else
+                    ei.latestopen = d.px(k+1,2);
+                    ei.latestdt = d.px(k+1,1);
+                end
+                unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
+                    'usecandlelastonly',false,...
+                    'debug',false,...
+                    'updatepnlforclosedtrade',true,...
+                    'extrainfo',ei);
+            end
     
-        if isempty(tradeout) || trade.id_ == size(d.px,1)
-            obj.pos_sector_{i} = trade;
-            fprintf('%s:live.\n',trade.code_);
-        else
-            if k == size(d.px,1)
-                fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+            if isempty(unwindtrade) || trade.id_ == size(d.px,1)
+                obj.pos_sector_{i} = trade;
+                fprintf('%s:live.\n',trade.code_);
+                obj.dailystatus_sector_(i) = 1;                             %bullish
+            else
+                if unwindtrade.closedatetime1_ >= d.px(end,1)
+                    fprintf('%s:closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
+                end
+                obj.dailystatus_sector_(i) = 0;                             %neutral
             end
+        elseif idxb1(end,1) < idxs1(end,1)                                  %last bearish
+            %TODO
         end
     end
-    
     
 end 
