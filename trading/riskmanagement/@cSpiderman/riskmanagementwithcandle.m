@@ -20,7 +20,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     extrainfo = p.Results.ExtraInfo;
     runhighlowonly = p.Results.RunHighLowOnly;
     
-    candleTime = extrainfo.p(end,1);
+    try
+        candleTime = extrainfo.p(end,1);
+    catch
+        extrainfo.p = extrainfo.px;
+        candleTime = extrainfo.p(end,1);
+    end
     candleOpen = extrainfo.p(end,2);
     candleHigh = extrainfo.p(end,3);
     candleLow = extrainfo.p(end,4);

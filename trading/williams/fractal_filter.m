@@ -138,7 +138,7 @@ for i = 1:n
                 elseif strcmpi(op.comment,'breachup-sshighvalue')
                     lastss9 = find(extrainfo.ss(1:k) == 9,1,'last');
                     tools_technicalplot2(resmat{i}(min(lastss9-8,k-nkfromhh_i(j)+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
-                elseif strcmpi(op.comment,'strongbreach-trendbreak');
+                elseif strcmpi(op.comment,'strongbreach-trendbreak')
                     tools_technicalplot2(resmat{i}(max(1,k-max(13,nkfromhh_i(j))+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 elseif strcmpi(op.comment,'mediumbreach-trendbreak')
                     lastbs_index = find(extrainfo.bs(1:k) >= 9,1,'last');
@@ -258,7 +258,7 @@ for i = 1:n
                 elseif strcmpi(op.comment,'breachdn-bshighvalue')
                     lastbs9 = find(extrainfo.bs(1:k) == 9,1,'last');
                     tools_technicalplot2(resmat{i}(min(lastbs9-8,k-nkfromll_i(j)+1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
-                elseif strcmpi(op.comment,'strongbreach-trendbreak');
+                elseif strcmpi(op.comment,'strongbreach-trendbreak')
                     tools_technicalplot2(resmat{i}(max(k-max(13,nkfromll_i(j))+1,1):jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 else
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromll_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);

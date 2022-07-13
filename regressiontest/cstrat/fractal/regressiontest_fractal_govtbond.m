@@ -5,14 +5,14 @@ try
 catch
 end
 %
-codes = {'T2109'};
+codes = {'T2209'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
 end
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'govtbond';
+bookname = 'govtbond_t';
 strategyname = 'fractal';
 riskconfigfilename = 'config_govtbond.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
@@ -28,7 +28,7 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2021-06-04','replaytodate','2021-06-04');
+    'replayfromdate','2022-07-11','replaytodate','2022-07-12');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
@@ -49,4 +49,5 @@ end
 %%
 combo.ops.condentrustspending_.latest
 %%
+set(0,'DefaultFigureWindowStyle','docked');
 mde_fin_plot(combo.mdefut);

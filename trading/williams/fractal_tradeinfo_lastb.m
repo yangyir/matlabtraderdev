@@ -34,9 +34,10 @@ statusstruct = fractal_b1_status(nfractal,d,asset.tick_size);
 statusstr = fractal_b1_status2str(statusstruct);
 
 if op.use || (~op.use && statusstruct.istrendconfirmed)
-    trade = fractal_gentrade(ei,j,op.comment,1,'daily');
+    trade = fractal_gentrade(ei,code,j,op.comment,1,'daily');
     ret.opensignal = statusstr;
 else
+    ret = {};
     return
 end
 % run trade with historical data
@@ -59,10 +60,10 @@ for k = j+1:size(ei.px,1)
     if ~isempty(unwindtrade), break;end
 end
 
-if ~isempty(unwindtrade)
+if isempty(unwindtrade)
     ret.status = 'live';
 else
-    ret.status = trade.riskmanager_.closestr;
+    ret.status = ['closed:',trade.riskmanager_.closestr_];
 end
 
 ret.trade = trade;
