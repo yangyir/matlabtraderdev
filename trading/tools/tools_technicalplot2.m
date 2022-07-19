@@ -1,12 +1,27 @@
 function [] = tools_technicalplot2(inputmat,figureidx,titlestr,usedatelabel,shift)
 
-p = inputmat(:,1:5);
-%idx = inputmat(:,6);
-HH = inputmat(:,8);LL = inputmat(:,9);
-jaw = inputmat(:,10);teeth = inputmat(:,11);lips = inputmat(:,12);
-bs = inputmat(:,13);ss = inputmat(:,14);
-lvlup = inputmat(:,15);lvldn = inputmat(:,16);
-bc = inputmat(:,17);sc = inputmat(:,18);
+if isnumeric(inputmat)
+    p = inputmat(:,1:5);
+    %idx = inputmat(:,6);
+    HH = inputmat(:,8);LL = inputmat(:,9);
+    jaw = inputmat(:,10);teeth = inputmat(:,11);lips = inputmat(:,12);
+    bs = inputmat(:,13);ss = inputmat(:,14);
+    lvlup = inputmat(:,15);lvldn = inputmat(:,16);
+    bc = inputmat(:,17);sc = inputmat(:,18);
+elseif isstruct(inputmat)
+    try
+        p = inputmat.p;
+    catch
+        p = inputmat.px;
+    end
+    HH = inputmat.hh;LL = inputmat.ll;
+    jaw = inputmat.jaw;teeth = inputmat.teeth;lips = inputmat.lips;
+    bs = inputmat.bs;ss = inputmat.ss;
+    lvlup = inputmat.lvlup;lvldn = inputmat.lvldn;
+    bc = inputmat.bc;sc = inputmat.sc;
+else
+    error('not implemented...')
+end
 
 if nargin < 2, figureidx = 1;end
 
@@ -74,6 +89,7 @@ end
 if bs(length(p)) ~= 0
     i = length(p);
     for k = 1:bs(length(p))
+        if i-k+1 <= 0, continue;end
         if bs(i-k+1) ~= 0
             text(i-1+2-k,p(i+1-k,4)-shift,num2str(bs(i+1-k) ),'color','r','fontweight','bold','fontsize',7);
         else
@@ -85,6 +101,7 @@ end
 if ss(length(p)) ~= 0
     i = length(p);
     for k = 1:ss(length(p))
+        if i-k+1 <= 0, continue;end
         if ss(i-k+1) ~= 0
             text(i-1+2-k,p(i+1-k,3)+shift,num2str(ss(i+1-k) ),'color','g','fontweight','bold','fontsize',7);
         else
