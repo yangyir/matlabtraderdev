@@ -32,6 +32,7 @@ function [] = updatestoploss(spiderman,varargin)
         if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
             if spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_) > spiderman.pxstoploss_
                 spiderman.pxstoploss_ = spiderman.tdlow_ - (spiderman.tdhigh_-spiderman.tdlow_);
+                spiderman.closestr_ = 'tdsq:ssbreak';
             end
         end
         
@@ -61,6 +62,7 @@ function [] = updatestoploss(spiderman,varargin)
         if ~isnan(spiderman.tdlow_) && ~isnan(spiderman.tdhigh_)
             if spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_) < spiderman.pxstoploss_
                 spiderman.pxstoploss_ = spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_);
+                spiderman.closestr_ = 'tdsq:bsbreak';
             end
         end
     elseif strcmpi(spiderman.type_,'reverse-S')
