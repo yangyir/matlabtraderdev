@@ -49,7 +49,7 @@ for k = j+1:size(ei.px,1)
         ei_k.latestopen = ei.px(k,5);
         ei_k.latestdt = ei.px(k,1);
     else
-        ei_k.latestopen = ei.px(k+1,5);
+        ei_k.latestopen = ei.px(k+1,2);
         ei_k.latestdt = ei.px(k+1,1);
     end
     unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
