@@ -10,6 +10,8 @@ function [newtrade] = copy(obj)
             continue
         elseif strcmpi(propnames{i},'instrument_')
             continue
+        elseif strcmpi(propnames{i},'closestr_')
+            continue
         else
             newtrade.(propnames{i}) = obj.(propnames{i});
         end
