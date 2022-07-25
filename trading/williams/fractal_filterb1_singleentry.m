@@ -13,9 +13,9 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
     sc = extrainfo.sc;
     lvlup = extrainfo.lvlup;
     lvldn = extrainfo.lvldn;
-    idxHH = extrainfo.idxhh;
-    HH = extrainfo.hh;
-    LL = extrainfo.ll;
+    idxhh = extrainfo.idxhh;
+    hh = extrainfo.hh;
+    ll = extrainfo.ll;
     lips = extrainfo.lips;
     teeth = extrainfo.teeth;
     jaw = extrainfo.jaw;
@@ -23,7 +23,7 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
        
     status = fractal_b1_status(nfractal,extrainfo,ticksize);
     
-    if sc(end) == 13 && ~status.istrendconfirmed
+    if sc(end) == 13 && ~status.istrendconfirmed && ~status.isvolblowup && ~status.isvolblowup2 
         output = struct('use',0,'comment','sc13');
         return
     end
@@ -40,9 +40,8 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             output = struct('use',0,'comment','closetolvlup');
             return
         end
-        %exclude perfect TDST-sellsetup
-%         if ss(end) >= 9 && px(end,5) >= max(px(end-ss(end)+1:end,5)) && px(end,3) >= max(px(end-ss(end)+1:end,3))       
-        if status.issshighvalue
+        %
+        if status.issshighvalue && ~status.istrendconfirmed
             output = struct('use',0,'comment','mediumbreach-sshighvalue');
             return
         end
@@ -62,18 +61,26 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
         end
         %
         if status.isvolblowup
-            if lips(end) > teeth(end)
+            if status.istrendconfirmed
                 output = struct('use',1,'comment','volblowup');
             else
-                output = struct('use',0,'comment','volblowup-alligatorfailed');
+                if lips(end) - teeth(end) > -5*ticksize                    %introducing a buffer zone
+                    output = struct('use',1,'comment','volblowup');
+                else
+                    output = struct('use',0,'comment','volblowup-alligatorfailed');
+                end
             end
-            return
+            return       
         else
             if status.isvolblowup2
-                if lips(end) > teeth(end)
+                if status.istrendconfirmed
                     output = struct('use',1,'comment','volblowup2');
                 else
-                    output = struct('use',0,'comment','volblowup2-alligatorfailed');
+                    if lips(end) - teeth(end) > -5*ticksize                %introducing a buffer zone
+                        output = struct('use',1,'comment','volblowup2');
+                    else
+                        output = struct('use',0,'comment','volblowup2-alligatorfailed');
+                    end
                 end
                 return
             end
@@ -84,81 +91,89 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             output = struct('use',1,'comment','mediumbreach-trendconfirmed');
             return
         else
-            output = struct('use',0,'comment','mediumbreach-trendbreak');
+            %special treatment for up-mediumbreach-trendbreak
+            last2hhidx = find(idxhh==1,2,'last');
+            if isempty(last2hhidx)
+                hhupward = true;
+            else
+                if size(last2hhidx,1) == 1
+                    hhupward = true;
+                elseif size(last2hhidx,1) == 2
+                    last2hh = hh(last2hhidx);
+                    if last2hh(2) == last2hh(1)
+                        last3hhidx = find(idxhh==1,3,'last');
+                        try
+                            if last2hh(1) - hh(last3hhidx(1)) >= -5*ticksize
+                                hhupward = true;
+                            else
+                                hhupward = false;
+                            end
+                        catch
+                            hhupward = true;
+                        end
+                    else
+                        if last2hh(2) - last2hh(1) >= -5*ticksize
+                            hhupward = true;
+                        else
+                            hhupward = false;
+                        end
+                    end
+                end
+            end
+            %
+            if hhupward
+                %further check whether there are any breach-up of hh since
+                %the last fractal points
+                nonbreachhhflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-hh(last2hhidx(end)-2*nfractal:end-1)-2*ticksize>0,1,'last'));
+                %further check whether last price is above teeth
+                aboveteeth = px(end,5)-teeth(end)-2*ticksize>0;
+                %further check whether there is any breach dn of ll between
+                nonbreachllflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-ll(last2hhidx(end)-2*nfractal:end-1)+2*ticksize<0,1,'last'));
+                %extra check
+                extraflag = px(end,5)-jaw(end)-2*ticksize>0;
+                if ~extraflag
+                    sslast = ss(end);
+                    abovelipsflag = isempty(find(lips(end-sslast+1:end)-px(end-sslast+1:end,5)-2*ticksize>0,1,'last'));
+                    extraflag = sslast >= 5 & abovelipsflag;
+                end
+                if nonbreachhhflag && aboveteeth && nonbreachllflag && extraflag 
+                    output = struct('use',1,'comment','mediumbreach-trendbreak-s');
+                else
+                    output = struct('use',0,'comment','mediumbreach-trendbreak');
+                end
+            else
+                %if the price were below lvldn and it breached up lvldn
+                belowlvldnflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-lvldn(last2hhidx(end)-2*nfractal:end-1)-2*ticksize>0 ,1,'last'));
+                breachlvldnflag = px(end,5)-lvldn(end)-2*ticksize>0;
+                aboveteeth = px(end,5)-teeth(end)-2*ticksize>0;
+                if belowlvldnflag && breachlvldnflag && aboveteeth
+                    output = struct('use',1,'comment','mediumbreach-trendbreak-s');
+                else
+                    sslast = ss(end);
+                    abovelipsflag = isempty(find(lips(end-sslast+1:end)-px(end-sslast+1:end,5)-2*ticksize>0,1,'last'));
+                    %sslast breached 4 indicates the trend might continue
+                    if sslast >= 5 && abovelipsflag && aboveteeth
+                        output = struct('use',1,'comment','mediumbreach-trendbreak-s');
+                    else
+                        output = struct('use',0,'comment','mediumbreach-trendbreak');
+                    end
+                end
+            end
             return
         end
-%         if nkaboveteeth >= 2*nfractal+1
-%             if lips(end) > teeth(end)
-%                 output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-%                 return
-%             else
-%                 output = struct('use',0,'comment','mediumbreach-trendbreak');
-%                 return
-%             end
-%         else
-%             if (nkabovelips == nkfromhh || nkaboveteeth == nkfromhh) && nkfromhh == nfractal+2
-%                 if lips(end) > teeth(end)
-%                     output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-%                     return
-%                 else
-%                     output = struct('use',0,'comment','mediumbreach-trendbreak');
-%                     return
-%                 end
-%             end
-%             %
-%             if nkfromhh == nfractal+2
-%                 last2hhidx = find(idxHH(1:end)== 1,2,'last');
-%                 if size(last2hhidx,1) < 2
-%                     output = struct('use',0,'comment','mediumbreach-trendbreak');
-%                     return
-%                 end
-%                 last2hh = HH(last2hhidx);
-%                 %check whether a new higher HH is formed or not
-%                 if last2hh(2)>last2hh(1) && ss(end)<9
-%                     output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-%                 elseif last2hh(2)<last2hh(1)&&px(end,5)>last2hh(1)&&ss(end)<9
-%                     output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-%                 else
-%                     output = struct('use',0,'comment','mediumbreach-trendbreak');
-%                 end
-%                 return
-%             end
-%             %     
-%             if nkabovelips >= 2*nfractal+1 && nkaboveteeth >= 2*nfractal+1
-%                 output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-%                 return
-%             end
-%             %
-%             if nkabovelips >= 2*nfractal+1 && nkfromhh-nkabovelips<nfractal && nkaboveteeth >= nfractal+1
-%                 output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-%                 return
-%             end
-%             %
-%             hasbreachedll = ~isempty(find(px(end-nkfromhh+1:end-1,5)-LL(end-nkfromhh+1:end-1)<0,1,'first'));
-%             if ~hasbreachedll && status.istrendconfirmed
-%                 output = struct('use',1,'comment','mediumbreach-trendconfirmed');
-%                 return
-%             end
-%             %
-%             output = struct('use',0,'comment','mediumbreach-trendbreak');
-%             return
-%                      
-%         end
     end
-        
+    %    
     if b1type == 3
         %exclude when the market is extremely bullish
         if ss(end) >= 15
-            if ~status.isschighbreach
+            if ~status.isschighbreach && ~status.istrendconfirmed
                 output = struct('use',0,'comment','strongbreach-sshighvalue');
                 return
             end
         end
         %
-%         [~,~,~,nkaboveteeth2,nkfromhh,teethjawcrossed] = fractal_countb(px,idxHH,nfractal,lips,teeth,jaw,ticksize);
-        %
         %keep if it breach-up TDST-lvlup
-        if status.islvlupbreach ~= 0
+        if status.islvlupbreach
             if status.isteethjawcrossed && ss(end) >= 9
                 %check whether WAD is consistent with the price move
                 maxpx = max(px(end-ss(end)+1:end-1,5));
@@ -175,29 +190,14 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             end
         end
         %keep if it breach-up high of a previous sell sequential
-%         if ss(end-nkfromhh+1) >= 9
-%             lastss = ss(end-nkfromhh+1);
-% %             if (px(end-nkfromhh+1,5) >= max(px(end-nkfromhh-lastss+2:end-nkfromhh+1,5)) && ...
-% %                     px(end-nkfromhh+1,3) >= max(px(end-nkfromhh-lastss+2:end-nkfromhh+1,3)))
-%             if px(end-nkfromhh+1,3) >= max(px(end-nkfromhh-lastss+2:end-nkfromhh+1,3))
-%                 output = struct('use',1,'comment','breachup-sshighvalue');
-%                 return
-%             end
-%         end
         if status.issshighbreach
             output = struct('use',1,'comment','breachup-sshighvalue');
             return
         end
-%         if ss(end) > 9
-%             if px(end,5) > max(px(end-ss(end):end-1,3))
-%                 output = struct('use',1,'comment','breachup-sshighvalue');
-%                 return
-%             end
-%         end
         %
         if status.isteethjawcrossed
             if status.isvolblowup
-                if lips(end) > teeth(end)
+                if lips(end) - teeth(end) > -5*ticksize                    %introducing a buffer zone
                     output = struct('use',1,'comment','volblowup');
                 else
                     output = struct('use',0,'comment','volblowup-alligatorfailed');
@@ -206,7 +206,7 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             end
             %
             if status.isvolblowup2
-                if lips(end) > teeth(end)
+                if lips(end) - teeth(end) > -5*ticksize                    %introducing a buffer zone
                     output = struct('use',1,'comment','volblowup2');
                 else
                     output = struct('use',0,'comment','volblowup2-alligatorfailed');
@@ -221,24 +221,7 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                 output = struct('use',0,'comment','teethjawcrossed');
                 return
             end
-            
-%             if nkaboveteeth2 >= 2*nfractal+1 && ss(end) < 9
-%                 output = struct('use',1,'comment','strongbreach-trendconfirmed');
-%                 return
-%             end
-%             %
-%             hasbreachedll = ~isempty(find(px(end-nkfromhh+1:end-1,5)-LL(end-nkfromhh+1:end-1)<0,1,'first'));
-%             if ~hasbreachedll && nkaboveteeth2 > nfractal+1
-%                 if ss(end) >= 9 && px(end,5) >= max(px(end-ss(end)+1:end,5)) && px(end,3) >= max(px(end-ss(end)+1:end,3))
-%                       output = struct('use',0,'comment','strongbreach-sshighvalue');
-%                 else
-%                       output = struct('use',1,'comment','strongbreach-trendconfirmed');
-%                 end
-%                 return
-%             end
-%             output = struct('use',0,'comment','teethjawcrossed');
-%                 
-%             return
+            %
         else
             %exclude if it is too close to TDST-lvlup
             isclose2lvlup = px(end,5)<lvlup(end) && (lvlup(end)-px(end,5))/(lvlup(end)-lvldn(end))<0.1&&lvlup(end)>lvldn(end);
@@ -247,8 +230,6 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                 return
             end
             %keep if it breachs the hh after sc13
-%             lastsc13 = find(sc(1:end-1)==13,1,'last');
-%             if ~isempty(lastsc13) && size(px,1)-lastsc13<12 &&px(end,5)>=max(px(lastsc13:end-1,3))
             if status.isschighbreach
                 if ss(end) < 9
                     if px(end,5)<px(end,2) 
@@ -267,49 +248,31 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             end
             %
             if status.isvolblowup
-                if lips(end) > teeth(end)
+                if status.istrendconfirmed
                     output = struct('use',1,'comment','volblowup');
                 else
-                    output = struct('use',0,'comment','volblowup-alligatorfailed');
+                    if lips(end) - teeth(end) > -5*ticksize                %introducing a buffer zone
+                        output = struct('use',1,'comment','volblowup');
+                    else
+                        output = struct('use',0,'comment','volblowup-alligatorfailed');
+                    end
                 end
                 return
             else
                 if status.isvolblowup2
-                    if lips(end) > teeth(end)
+                    if status.istrendconfirmed
                         output = struct('use',1,'comment','volblowup2');
                     else
-                        output = struct('use',0,'comment','volblowup2-alligatorfailed');
+                        if lips(end) - teeth(end) > -5*ticksize            %introducing a buffer zone
+                            output = struct('use',1,'comment','volblowup2');
+                        else
+                            output = struct('use',0,'comment','volblowup2-alligatorfailed');
+                        end
                     end
                     return
                 end
             end
             %
-            %INVESTIGATE AND RESEARCH FURTHER
-%             if nkaboveteeth2 >= 2*nfractal+1 && ((~isempty(lastsc13) && size(px,1)-lastsc13>8)||isempty(lastsc13))
-%                 output = struct('use',1,'comment','strongbreach-trendconfirmed');
-%                 return
-%             else
-%                 if nkfromhh == nfractal+2 &&  nkaboveteeth2 == nkfromhh
-%                     last2hhidx = find(idxHH(1:end)==1,2,'last');
-%                     if size(last2hhidx,1) < 2
-%                         output = struct('use',0,'comment','strongbreach-trendbreak');
-%                         return
-%                     end
-%                     last2hh = HH(last2hhidx);
-%                     %check whether a new higher HH is formed or not
-%                     if isempty(find(px(last2hhidx(1)-nfractal:end,5)-teeth(last2hhidx(1)-nfractal:end)<0,1,'first')) ...
-%                             && last2hh(2)>=last2hh(1) ...
-%                             && ss(end) < 9
-%                         output = struct('use',1,'comment','strongbreach-trendconfirmed');
-%                     else
-%                         output = struct('use',0,'comment','strongbreach-trendbreak');
-%                     end
-%                     return
-%                 else
-%                     output = struct('use',0,'comment','strongbreach-trendbreak');
-%                     return
-%                 end
-%             end
             if status.istrendconfirmed
                 output = struct('use',1,'comment','strongbreach-trendconfirmed');
                 return
