@@ -92,35 +92,27 @@ for i = 1:n
         
         if k == size(p,1), continue;end
         
-        if p(k+1,2) < resstruct{i}.hh(k)
-            commentsb1_i{j,1} = 'breachb1 break:next open below HH';
-            useflagb_i(j) = 1;
-%             continue
-        end
-        if p(k,5) <= p(k,3)-0.382*(p(k,3)-resstruct{i}.ll(k))
-            commentsb1_i{j,1} = 'breachb1 break:below initial stoploss';
-            useflagb_i(j) = 0;
-            continue
-        end
-%         if p(k,5) > resstruct{i}.hh(k)+1.618*(resstruct{i}.hh(k)-resstruct{i}.ll(k))
-%             commentsb1_i{j,1} = 'breachb1 break:above initial target';
-%             useflagb_i(j) = 0;
-%             continue
-%         end
-        if p(k+1,2) < resstruct{i}.lips(k)
-            commentsb1_i{j,1} = 'breachb1 break:next open below lips';
-            useflagb_i(j) = 0;
-            continue
-        end
-%         if p(k,5) - resstruct{i}.hh(k) < 2*instrument.tick_size
-%             commentsb1_i{j,1} = 'breachb1 break:close less than 2 ticks above HH';
-%             useflagb_i(j) = 0;
-%             continue
-%         end
-        if p(k+1,2) - resstruct{i}.hh(k) < 0 && k ~= size(p,1)
-            commentsb1_i{j,1} = 'breachb1 break:open less than  HH';
-            useflagb_i(j) = 1;
-%             continue
+        if ~status.istrendconfirmed
+%             if p(k+1,2) - resstruct{i}.hh(k) + 2*ticksize < 0
+%                 commentsb1_i{j,1} = 'breachb1 break:next open below HH';
+%                 useflagb_i(j) = 0;
+%                 continue
+%             end
+            if p(k,5) <= p(k,3)-0.382*(p(k,3)-resstruct{i}.ll(k))
+                commentsb1_i{j,1} = 'breachb1 break:below initial stoploss';
+                useflagb_i(j) = 0;
+                continue
+            end
+    %         if p(k,5) > resstruct{i}.hh(k)+1.618*(resstruct{i}.hh(k)-resstruct{i}.ll(k))
+    %             commentsb1_i{j,1} = 'breachb1 break:above initial target';
+    %             useflagb_i(j) = 0;
+    %             continue
+    %         end
+            if p(k+1,2) < resstruct{i}.lips(k)
+                commentsb1_i{j,1} = 'breachb1 break:next open below lips';
+                useflagb_i(j) = 0;
+                continue
+            end
         end
         
         if (strcmpi(op.comment,filterstr) || strcmpi(filterstr,'all')) && direction == 1
@@ -217,30 +209,32 @@ for i = 1:n
         useflags_i(j) = op.use;
         
         if k == size(p,1), continue;end
-        if p(k+1,2) >  resstruct{i}.ll(k)
-            commentss1_i{j,1} = 'breach break:next open above LL';
-            useflags_i(j) = 0;
-            continue;
-        end
-        if p(k,5) >= p(k,4)+0.382*(resstruct{i}.hh(k)-p(k,4))
-            commentss1_i{j,1} = 'breach break:above initial stoploss';
-            useflags_i(j) = 0;
-            continue;
-        end
-%         if p(k,5) < resstruct{i}.ll(k)-1.618*(resstruct{i}.hh(k)-resstruct{i}.ll(k))
-%             commentss1_i{j,1} = 'breach break:below initial target';
-%             useflags_i(j) = 0;
-%             continue;
-%         end
-%         if p(k,5) - resstruct{i}.ll(k) > -2*instrument.tick_size
-%             commentss1_i{j,1} = 'breach break:close less than 2 ticks below LL';
-%             useflags_i(j) = 0;
-%             continue;
-%         end
-        if p(k+1,2) - resstruct{i}.ll(k) > 0
-            commentss1_i{j,1} = 'breach break:open above LL';
-            useflags_i(j) = 0;
-            continue;
+        if ~status.istrendconfirmed
+            if p(k+1,2) - resstruct{i}.ll(k)-2*ticksize > 0
+                commentss1_i{j,1} = 'breachs1 break:next open above LL';
+                useflags_i(j) = 0;
+                continue;
+            end
+            if p(k,5) >= p(k,4)+0.382*(resstruct{i}.hh(k)-p(k,4))
+                commentss1_i{j,1} = 'breachs1 break:above initial stoploss';
+                useflags_i(j) = 0;
+                continue;
+            end
+    %         if p(k,5) < resstruct{i}.ll(k)-1.618*(resstruct{i}.hh(k)-resstruct{i}.ll(k))
+    %             commentss1_i{j,1} = 'breach break:below initial target';
+    %             useflags_i(j) = 0;
+    %             continue;
+    %         end
+    %         if p(k,5) - resstruct{i}.ll(k) > -2*instrument.tick_size
+    %             commentss1_i{j,1} = 'breach break:close less than 2 ticks below LL';
+    %             useflags_i(j) = 0;
+    %             continue;
+    %         end
+            if p(k+1,2) > resstruct{i}.lips(k) > 0
+                commentss1_i{j,1} = 'breachs1 break:next open above lips';
+                useflags_i(j) = 0;
+                continue;
+            end
         end
         
         if (strcmpi(op.comment,filterstr) || strcmpi(filterstr,'all')) && direction == -1
