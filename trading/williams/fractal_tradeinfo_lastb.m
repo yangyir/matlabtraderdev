@@ -26,7 +26,10 @@ asset = code2instrument(code);
             'instrument',asset);
 b1type = idxb1(end,2);
 %do nothing if it was a weak breach
-if b1type == 1, return;end
+if b1type == 1
+    ret = {};
+    return;
+end
 j = idxb1(end,1);
 d = fractal_truncate(ei,j);
 op = fractal_filterb1_singleentry(b1type,nfractal,d,asset.tick_size); 
