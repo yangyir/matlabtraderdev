@@ -1,5 +1,6 @@
-function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess] = fractal_gettradesummary(code,varargin)
-%
+function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess,validtradesb,validtradess] = fractal_gettradesummary(code,varargin)
+%20220725 £ºadd outputs validtradesb and validtradess for long/short 
+%trades with useflag 1 only
 [isequity,equitytype] = isinequitypool(code);
 
 if isequity
@@ -174,6 +175,36 @@ for i = 1:n2-9
         tblb_headers{1,i+n1+9} = fldnamesb{i};
         tbls_headers{1,i+n1+9} = fldnamess{i};
     catch
+    end
+end
+%
+%
+nb = size(tblb_data,1);ns = size(tbls_data,1);
+tradebidx = 0;tradesidx = 0;
+nvalidltrade = 0;nvalidstrade = 0;
+validtradesb = cTradeOpenArray;validtradess = cTradeOpenArray;
+
+for i = 1:nb
+    if isempty(tblb_data{i,10})
+        tradebidx = tradebidx + 1;
+    else
+        continue;
+    end
+    if tblb_data{i,9} == 1
+        nvalidltrade = nvalidltrade + 1;
+        validtradesb.push(tradesb.node_(tradebidx));
+    end
+end
+%
+for i = 1:ns
+    if isempty(tbls_data{i,10})
+        tradesidx = tradesidx + 1;
+    else
+        continue;
+    end
+    if tbls_data{i,9} == 1
+        nvalidstrade = nvalidstrade + 1;
+        validtradess.push(tradess.node_(tradesidx));
     end
 end
 
