@@ -35,7 +35,7 @@ function [outputstr] = fractal_b1_status2str(status)
     end
     
     if status.isclose2lvlup
-        outputstr = 'closetolvlup';
+        outputstr = [outputstr,'-closetolvlup'];
         return
     end
     
