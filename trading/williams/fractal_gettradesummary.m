@@ -187,6 +187,7 @@ validtradesb = cTradeOpenArray;validtradess = cTradeOpenArray;
 for i = 1:nb
     if isempty(tblb_data{i,10})
         tradebidx = tradebidx + 1;
+        if tradebidx > tradesb.latest_, break;end
     else
         continue;
     end
@@ -199,6 +200,7 @@ end
 for i = 1:ns
     if isempty(tbls_data{i,10})
         tradesidx = tradesidx + 1;
+        if tradesidx > tradess.latest_, break;end
     else
         continue;
     end
