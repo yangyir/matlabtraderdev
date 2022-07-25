@@ -19,10 +19,10 @@ jaw = extrainfo.jaw;
 
 % if LL(end-1) > teeth(end-1)
 %     s1type = 1;
-if LL(end-1) - teeth(end-1) < ticksize
-    if teeth(end-1) < jaw(end-1)
+if LL(end) - teeth(end) < ticksize
+    if teeth(end) < jaw(end)
         s1type = 3;
-    elseif teeth(end-1) > jaw(end-1)
+    elseif teeth(end) > jaw(end)
         s1type = 2;
     end
 else
