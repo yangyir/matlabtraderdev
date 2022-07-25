@@ -40,6 +40,12 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
     catch
         ticksize = 0;
     end
+    
+    if strcmpi(trade.opensignal_.frequency_,'daily')
+        openidx = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
+    else
+        openidx = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
+    end
        
     if direction == 1
         if ~isnan(trade.riskmanager_.tdlow_)
@@ -77,6 +83,18 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
             trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
         end
+        %STOP the trade if it opened below lvldn and breached up lvldn
+        %afterwards but then fell back above lvldn
+        lvldn = extrainfo.lvldn;
+        if p(idxopen,5)<lvldn(idxopen) && ~isempty(find(p(idxopen:end-1,5)>lvldn(idxopen:end-1),1,'first'))
+            if p(end,3)<lvldn(end)
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach(up) TDST lvldn';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+        end
+        %STOP the trade i
         %IF TDST-lvlup exists and is higher then HH at open
         %then one of the candle's high price has breached TDST-lvlup but
         %its close price is below TDST-lvlup,STOP the trade is the close
@@ -113,28 +131,48 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     close9>close8 && ....
                     close9<extrainfo.lvlup(end) &&...
                     extrainfo.wad(end)-extrainfo.wad(end-1)>close9-close8
-                closeflag = 1;
-                trade.riskmanager_.closestr_ = 'tdsq:perfectss9';
-                closestr = trade.riskmanager_.closestr_;
-                return
+                %add another condition after carefully restudy the perfect
+                %ss9 case, i.e. the market was below lvldn as the market
+                %firstly rallied
+                if extrainfo.lvldn(openidx) > extrainfo.hh(openidx)
+                    closeflag = 1;
+                    trade.riskmanager_.closestr_ = 'tdsq:perfectss9';
+                    closestr = trade.riskmanager_.closestr_;
+                    return
+                end
             end
             %
             if (high8 > max(high6,high7) || ...
                     high9 > max(high6,high7)) && ...
                     close9>=close8 && ...
-                    strcmpi(trade.opensignal_.mode_,'breachup-highsc13')
-                closeflag = 1;
-                trade.riskmanager_.closestr_ = 'tdsq:9139';
-                closestr = trade.riskmanager_.closestr_;
-                return
+                    strcmpi(trade.opensignal_.mode_,'breachup-highsc13') && ...
+                    ~(extrainfo.p(end-1,5)<extrainfo.hh(end-1) && extrainfo.p(end,5)>extrainfo.hh(end-1))
+                %need to make sure the sc13 is well before the sell-setup
+                lastsc13 = find(extrainfo.sc == 13,1,'last');
+                sslast = extrainfo.ss(openidx);
+                if lastsc13 < openidx-sslast+1
+                    closeflag = 1;
+                    trade.riskmanager_.closestr_ = 'tdsq:9139';
+                    closestr = trade.riskmanager_.closestr_;
+                    return
+                end
             end
         end
-%         if ss(end) >= 16
-%             closeflag = 1;
-%             trade.riskmanager_.closestr_ = 'tdsq:ss16';
-%             closestr = trade.riskmanager_.closestr_;
-%             return
-%         end
+        if ss(end) >= 16 && ...
+                (strcmpi(trade.opensignal_.mode_,'breachup-highsc13') ||...
+                (~isempty(find(extrainfo.sc==13,1,'last')) && find(extrainfo.sc==13,1,'last') >= openidx))
+            %no more than ss16 in case it breached sc13
+            closeflag = 1;
+            trade.riskmanager_.closestr_ = 'tdsq:ss16';
+            closestr = trade.riskmanager_.closestr_;
+            return
+        end
+        if ss(end) >= 21
+            closeflag = 1;
+            trade.riskmanager_.closestr_ = 'tdsq:ss21';
+            closestr = trade.riskmanager_.closestr_;
+            return
+        end
         sc = extrainfo.sc;
         if sc(end) == 13
             if isnan(trade.riskmanager_.td13low_)
@@ -149,9 +187,17 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             trade.riskmanager_.tdlow_ = extrainfo.p(tdidx,4);
         end
         if ~isnan(trade.riskmanager_.tdlow_) && ss(end) >= 9
-            if extrainfo.p(end,3) > trade.riskmanager_.tdhigh_ + 2*ticksize
-                trade.riskmanager_.tdhigh_ = extrainfo.p(end,3);
-                trade.riskmanager_.tdlow_ = extrainfo.p(end,4);
+            if ss(end) == 9
+                %it must be a new sell-setup
+                highpx = max(extrainfo.p(end-8:end,3));
+                highidx = find(extrainfo.p(end-8:end,3)==highpx,1,'last')+size(extrainfo.p,1)-9;
+            else
+                highpx = extrainfo.p(end,3);
+                highidx = size(extrainfo.p,1);
+            end
+            if highpx > trade.riskmanager_.tdhigh_ + 2*ticksize
+                trade.riskmanager_.tdhigh_ = highpx;
+                trade.riskmanager_.tdlow_ = extrainfo.p(highidx,4);
             end
         end
     elseif direction == -1
@@ -189,6 +235,17 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.pxstoploss_ = ceil(trade.riskmanager_.pxstoploss_/ticksize)*ticksize;
             end
             trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
+        end
+        %STOP the trade if it opened above lvlup and breached down lvlup
+        %afterwards but then rallied back above lvlup
+        lvlup = extrainfo.lvlup;
+        if p(idxopen,5)>lvlup(idxopen) && ~isempty(find(p(idxopen:end-1,5)<lvlup(idxopen:end-1),1,'first'))
+            if p(end,4)>lvlup(end)
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach(dn) TDST lvlup';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
         end
         %IF TDST-lvldn exists and is lower then LL at open
         %then one of the candle's low price has breached TDST-lvldn but

@@ -26,8 +26,16 @@ function [ unwindtrade ] = riskmanagement_tdsq( obj,varargin )
             else
                 trade.closepnl_ = trade.opendirection_*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
             end
-            trade.closedatetime1_ = extrainfo.p(end,1);
-            trade.closeprice_ = extrainfo.p(end,5);
+            if strcmpi(trade.riskmanager_.closestr_,'tdsq:perfectss9') || ...
+                    strcmpi(trade.riskmanager_.closestr_,'tdsq:perfectbs9') || ...
+                    strcmpi(trade.riskmanager_.closestr_,'tdsq:ssbreak') || ...
+                    strcmpi(trade.riskmanager_.closestr_,'tdsq:bsbreak')
+                trade.closedatetime1_ = extrainfo.p(end,1);
+                trade.closeprice_ = extrainfo.p(end,5);
+            else
+                trade.closedatetime1_ = extrainfo.latestdt;
+                trade.closeprice_ = extrainfo.latestopen;
+            end
         end
     end
     

@@ -23,10 +23,18 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
 
     hh = extrainfo.hh(end);
     ll = extrainfo.ll(end);
+    
+    openid = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
        
     if direction == 1
         if extrainfo.p(end,5) < extrainfo.lips(end)-2*ticksize
-            if extrainfo.latestopen < extrainfo.lips(end)-2*ticksize
+            %backtests indicate that when market trades above lvlup, it
+            %tends to rally even market temporially falls below alligator
+            %lips
+            abovelvlupflag = isempty(find(extrainfo.p(openid:end,4)-extrainfo.lvlup(openid:end)+2*ticksize<0,1,'first'));
+            updatefailedflag = extrainfo.p(end,5) < 1.382*obj.hh0_-0.382*obj.hh1_ & obj.hh1_ - obj.hh0_ > 2*ticksize;
+            updatefailedflag = updatefailedflag & extrainfo.latestopen < 1.382*obj.hh0_-0.382*obj.hh1_;
+            if extrainfo.latestopen < extrainfo.lips(end)-2*ticksize && (~abovelvlupflag || updatefailedflag)
                 closeflag = 1;
                 obj.closestr_ = 'fractal:lips';
             end
@@ -45,11 +53,6 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
                     obj.closestr_ = 'fractal:update';
                 end
             else
-%                 obj.pxtarget_ = obj.hh1_ + 1.618*(obj.hh1_-obj.ll1_);
-%                 if ~isempty(trade.instrument_)
-%                     ticksize = trade.instrument_.tick_size;
-%                     obj.pxtarget_ = ceil(obj.pxtarget_/ticksize)*ticksize;
-%                 end
                 if extrainfo.teeth(end) > obj.pxstoploss_
                     if ~isempty(trade.instrument_)
                         ticksize = trade.instrument_.tick_size;
@@ -81,11 +84,6 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
                     obj.closestr_ = 'fractal:update';
                 end
             else
-%                 obj.pxtarget_ = obj.ll1_ - 1.618*(obj.hh1_-obj.ll1_);
-%                 if ~isempty(trade.instrument_)
-%                     ticksize = trade.instrument_.tick_size;
-%                     obj.pxtarget_ = floor(obj.pxtarget_/ticksize)*ticksize;
-%                 end
                 if extrainfo.teeth(end) < obj.pxstoploss_
                     obj.pxstoploss_ = extrainfo.teeth(end);
                     if ~isempty(trade.instrument_)

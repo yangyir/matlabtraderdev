@@ -35,6 +35,15 @@ function [] = updatestoploss(spiderman,varargin)
                 spiderman.closestr_ = 'tdsq:ssbreak';
             end
         end
+        %
+        if extrainfo.teeth(end) > spiderman.pxstoploss_
+            spiderman.pxstoploss_ = extrainfo.teeth(end);
+            if ~isempty(spiderman.trade_.instrument_)
+                ticksize = spiderman.trade_.instrument_.tick_size;
+                spiderman.pxstoploss_ = floor(extrainfo.teeth(end)/ticksize)*ticksize;                
+            end
+            spiderman.closestr_ = 'fractal:teeth';
+        end 
         
     elseif strcmpi(spiderman.type_,'reverse-B')
         error('cSpiderman:updatestoploss:reverse-B not implemented...')
@@ -64,6 +73,15 @@ function [] = updatestoploss(spiderman,varargin)
                 spiderman.pxstoploss_ = spiderman.tdhigh_ + (spiderman.tdhigh_-spiderman.tdlow_);
                 spiderman.closestr_ = 'tdsq:bsbreak';
             end
+        end
+        %
+        if extrainfo.teeth(end) < spiderman.pxstoploss_
+            spiderman.pxstoploss_ = extrainfo.teeth(end);
+            if ~isempty(spiderman.trade_.instrument_)
+                ticksize = spiderman.trade_.instrument_.tick_size;
+                spiderman.pxstoploss_ = ceil(extrainfo.teeth(end)/ticksize)*ticksize;
+            end
+            spiderman.closestr_ = 'fractal:teeth';
         end
     elseif strcmpi(spiderman.type_,'reverse-S')
         error('cSpiderman:updatestoploss:reverse-S not implemented...')

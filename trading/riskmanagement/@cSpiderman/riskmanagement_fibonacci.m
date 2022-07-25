@@ -15,8 +15,21 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
     direction = trade.opendirection_;
     closeflag = 0;
     
+    %backtesting indicates there shall be exclusion for breachup-lvlup
+    %trades without alligator's lips being breached but fibonacci:0.618 is
+    %triggered.
+    
+    if direction == -1
+        return
+    end
+    
+    exceptionflag = direction == 1 & ...
+        strcmpi(trade.opensignal_.mode_,'breachup-lvlup') & ...
+        extrainfo.p(end,5) > extrainfo.lips(end);
+    
     if direction == 1
-        if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_)
+        if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_) && ...
+                ~exceptionflag
             closeflag = 1;
             obj.closestr_ = 'fibonacci:0.618';
         end
@@ -38,7 +51,6 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
             else
                 trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
             end
-%             trade.closedatetime1_ = extrainfo.p(end,1);
             trade.closedatetime1_ = extrainfo.latestdt;
             trade.closeprice_ = extrainfo.latestopen;
         end
@@ -51,7 +63,9 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                 hh = hh + 0.382*(phigh-hh);
             end
             ll = extrainfo.ll(end);
-            if ll > obj.fibonacci0_, obj.fibonacci0_ = ll;end
+            if ll > obj.fibonacci0_ && ll == extrainfo.ll(end-1)
+                obj.fibonacci0_ = ll;
+            end
             if hh > obj.fibonacci1_
                 obj.fibonacci1_ = hh;
 %                 pstop = phigh - 0.618*(phigh-obj.fibonacci0_);
@@ -68,7 +82,26 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                 if ptarget > obj.pxtarget_
                     obj.pxtarget_ = ptarget;
                 end
-            end            
+            end
+            if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_) && ...
+                    ~exceptionflag
+                obj.status_ = 'closed';
+                obj.closestr_ = 'fibonacci:0.618';
+                unwindtrade = obj.trade_;
+                if updatepnlforclosedtrade
+                    trade.status_ = 'closed';
+                    trade.runningpnl_ = 0;
+                    if isempty(trade.instrument_)
+                        trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
+                    else
+                        trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                    end
+                    trade.closedatetime1_ = extrainfo.latestdt;
+                    trade.closeprice_ = extrainfo.latestopen;
+                end
+                return
+            end
+            %
         elseif strcmpi(obj.type_,'breachdn-S')
             plow = extrainfo.p(end,4);
             ll = extrainfo.ll(end);
@@ -93,6 +126,23 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                 if ptarget < obj.pxtarget_
                     obj.pxtarget_ = ptarget;
                 end
+            end
+            if extrainfo.p(end,5) > obj.fibonacci0_+0.618*(obj.fibonacci1_-obj.fibonacci0_)
+                obj.status_ = 'closed';
+                obj.closestr_ = 'fibonacci:0.618';
+                unwindtrade = obj.trade_;
+                if updatepnlforclosedtrade
+                    trade.status_ = 'closed';
+                    trade.runningpnl_ = 0;
+                    if isempty(trade.instrument_)
+                        trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
+                    else
+                        trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                    end
+                    trade.closedatetime1_ = extrainfo.latestdt;
+                    trade.closeprice_ = extrainfo.latestopen;
+                end
+                return
             end
         else 
             error('cSpiderman:riskmanagement_fibonacci:%s not implemented',obj.type_)

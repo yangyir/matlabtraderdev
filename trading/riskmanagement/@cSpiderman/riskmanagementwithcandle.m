@@ -55,8 +55,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
     end
     if isempty(idxstart2check), return; end
-        
-    [ unwindtrade ] = obj.riskmanagement_fibonacci('extrainfo',extrainfo,...
+    
+    [ unwindtrade ] = obj.riskmanagement_tdsq('extrainfo',extrainfo,...
         'updatepnlforclosedtrade',updatepnlforclosedtrade);
     if ~isempty(unwindtrade)
         return
@@ -67,8 +67,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if ~isempty(unwindtrade)
         return
     end
-    
-    [ unwindtrade ] = obj.riskmanagement_tdsq('extrainfo',extrainfo,...
+        
+    [ unwindtrade ] = obj.riskmanagement_fibonacci('extrainfo',extrainfo,...
         'updatepnlforclosedtrade',updatepnlforclosedtrade);
     if ~isempty(unwindtrade)
         return

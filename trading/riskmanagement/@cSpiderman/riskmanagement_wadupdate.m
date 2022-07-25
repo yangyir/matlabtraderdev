@@ -58,7 +58,7 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
 %         end
         %
     elseif direction == -1
-        if p(end,5) < obj.cplow_
+        if p(end,5) < obj.cplow_-ticksize
             obj.cplow_ = p(end,5);
             if wad(end) > obj.wadlow_ + 2*ticksize
                 ret = struct('inconsistence',1,...
