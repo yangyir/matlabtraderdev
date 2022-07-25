@@ -59,7 +59,7 @@ function [] = setriskmanager_spiderman(obj,varargin)
                 riskmanager.tdhigh_ = info.tdhigh_;
             end
         else
-            riskmanager.pxstoploss_ = riskmanager.fibonacci1_ - 0.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            riskmanager.pxstoploss_ = riskmanager.fibonacci0_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
 %           riskmanager.pxstoploss2_ = riskmanager.fibonacci1_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             riskmanager.pxtarget_ = riskmanager.fibonacci1_ + 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             riskmanager.closestr_ = 'fibonacci:0.618';
@@ -93,7 +93,7 @@ function [] = setriskmanager_spiderman(obj,varargin)
             end
         else
         
-            riskmanager.pxstoploss_ = riskmanager.fibonacci0_ + 0.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            riskmanager.pxstoploss_ = riskmanager.fibonacci1_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
     %         riskmanager.pxstoploss2_ = riskmanager.fibonacci0_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             riskmanager.pxtarget_ = riskmanager.fibonacci0_ - 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             riskmanager.closestr_ = 'fibonacci:0.618';
