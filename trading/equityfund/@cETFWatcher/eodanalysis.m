@@ -20,20 +20,36 @@ function [] = eodanalysis(obj,varargin)
                 'updatepnlforclosedtrade',true,...
                 'extrainfo',extrainfo);
             if ~isempty(tradeout)
-                fprintf('%s:closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                if tradeout.opendirection_ == 1
+                    fprintf('%s:bullish closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                else
+                    fprintf('%s:bearish closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                end
             else
-                fprintf('%s:live.',trade.code_);
+                if trade.opendirection_ == 1
+                    fprintf('%s:bullish live.',trade.code_);
+                else
+                    fprintf('%s:bearish live.',trade.code_);
+                end
             end
-            [~,op] = fractal_signal_unconditional(extrainfo,0.001,2);
+            [signal,op] = fractal_signal_unconditional(extrainfo,0.001,2);
             if ~isempty(op) && op.use == 1
-                fprintf('%s:%s.',obj.codes_index_{i}(1:6),op.comment);
+                if signal(1) == 1
+                    fprintf('%s:breachup:%s.',obj.codes_index_{i}(1:6),op.comment);
+                else
+                    fprintf('%s:breachdn:%s.',obj.codes_index_{i}(1:6),op.comment);
+                end
             end
             fprintf('\n');
         else
             extrainfo = obj.dailybarstruct_index_{i};
-            [~,op] = fractal_signal_unconditional(extrainfo,0.001,2);
+            [signal,op] = fractal_signal_unconditional(extrainfo,0.001,2);
             if ~isempty(op) && op.use == 1
-                fprintf('%s:breachup:%s.\n',obj.codes_index_{i}(1:6),op.comment);
+                if signal(1) == 1
+                    fprintf('%s:breachup:%s.\n',obj.codes_index_{i}(1:6),op.comment);
+                else
+                    fprintf('%s:breachdn:%s.\n',obj.codes_index_{i}(1:6),op.comment);
+                end
             else
                 [~,op] = fractal_signal_conditional(extrainfo,0.001,2);
                 if ~isempty(op) && ~isempty(op{1})
@@ -57,28 +73,48 @@ function [] = eodanalysis(obj,varargin)
             extrainfo.latestdt = extrainfo.px(end,1);
             tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
                 'usecandlelastonly',false,...
-            'debug',false,...
-            'updatepnlforclosedtrade',true,...
-            'extrainfo',extrainfo);
+                'debug',false,...
+                'updatepnlforclosedtrade',true,...
+                'extrainfo',extrainfo);
             if ~isempty(tradeout)
-                fprintf('%s:closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                if tradeout.opendirection_ == 1
+                    fprintf('%s:bullish closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                else
+                    fprintf('%s:bearish closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                end
             else
-                fprintf('%s:live.',trade.code_);
+                if trade.opendirection_ == 1
+                    fprintf('%s:bullish live.',trade.code_);
+                else
+                    fprintf('%s:bearish live.',trade.code_);
+                end
             end
-            [~,op] = fractal_signal_unconditional(extrainfo,0.001,2);
+            [signal,op] = fractal_signal_unconditional(extrainfo,0.001,2);
             if ~isempty(op) && op.use == 1
-                fprintf('%s:%s.',obj.codes_sector_{i}(1:6),op.comment);
+                if signal(1) == 1
+                    fprintf('%s:breachup:%s.',obj.codes_sector_{i}(1:6),op.comment);
+                else
+                    fprintf('%s:breachdn:%s.',obj.codes_sector_{i}(1:6),op.comment);
+                end
             end
             fprintf('\n'); 
         else
             extrainfo = obj.dailybarstruct_sector_{i};
-            [~,op] = fractal_signal_unconditional(extrainfo,0.001,2);
+            [signal,op] = fractal_signal_unconditional(extrainfo,0.001,2);
             if ~isempty(op) && op.use == 1
-                fprintf('%s:breachup:%s.\n',obj.codes_sector_{i}(1:6),op.comment);
+                if signal(1) == 1
+                    fprintf('%s:breachup:%s.\n',obj.codes_sector_{i}(1:6),op.comment);
+                else
+                    fprintf('%s:breachdn:%s.\n',obj.codes_sector_{i}(1:6),op.comment);
+                end
             else
                 [~,op] = fractal_signal_conditional(extrainfo,0.001,2);
-                if ~isempty(op) && ~isempty(op{1})
-                    fprintf('%s:%s.\n',obj.codes_sector_{i}(1:6),op{1});
+                if ~isempty(op) 
+                    if ~isempty(op{1})
+                        fprintf('%s:breachup:%s.\n',obj.codes_sector_{i}(1:6),op{1});
+                    elseif ~isempty(op{2})
+%                         fprintf('%s:breachdn:%s.\n',obj.codes_sector_{i}(1:6),op{2});
+                    end 
                 end
             end
         end

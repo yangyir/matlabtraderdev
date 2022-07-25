@@ -112,19 +112,64 @@ function obj = init(obj,varargin)
             end
     
             if isempty(unwindtrade) || trade.id_ == size(d.px,1)
-                fprintf('%s:live.\n',trade.code_);
+                fprintf('%s:bullish live.\n',trade.code_);
                 obj.pos_index_{i} = trade;
                 obj.dailystatus_index_(i) = 1;                              %bullish
             else
                 if unwindtrade.closedatetime1_ >= d.px(end,1)
-                    fprintf('%s:closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
+                    fprintf('%s:bullish closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
                 end
                 obj.dailystatus_index_(i) = 0;                              %neutral
             end
+            %
         elseif idxb1(end,1) < idxs1(end,1)                                  %last bearish
-            %TODO
             s1type = idxs1(end,2);
-            if s1type == 1
+            if s1type == 1                                                  %weak breach
+                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+                    obj.dailystatus_index_(i) = 0;
+                end
+                continue;
+            end
+            j = idxs1(end,1);
+            ei = fractal_truncate(d,j);
+            op = fractal_filters1_singleentry(s1type,nfractal,ei,etf.tick_size);
+            if op.use
+                trade = fractal_gentrade(d,codes_index{i},j,op.comment,-1,'daily');
+            else
+                %not a valid signal
+                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+                    obj.dailystatus_index_(i) = 0;
+                end
+                continue;
+            end
+            %
+            unwindtrade = {};
+            for k = j+1:size(d.px,1)
+                if strcmpi(trade.status_,'closed'),break;end
+                ei = fractal_genextrainfo(d,k);
+                if k == size(d.px,1)
+                    ei.latestopen = d.px(k,5);
+                    ei.latestdt = d.px(k,1);
+                else
+                    ei.latestopen = d.px(k+1,2);
+                    ei.latestdt = d.px(k+1,1);
+                end
+                unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
+                    'usecandlelastonly',false,...
+                    'debug',false,...
+                    'updatepnlforclosedtrade',true,...
+                    'extrainfo',ei);
+            end
+            
+            if isempty(unwindtrade) || trade.id_ == size(d.px,1)
+                fprintf('%s:bearish live.\n',trade.code_);
+                obj.pos_index_{i} = trade;
+                obj.dailystatus_index_(i) = -1;                              %beaish
+            else
+                if unwindtrade.closedatetime1_ >= d.px(end,1)
+                    fprintf('%s:bearish closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
+                end
+                obj.dailystatus_index_(i) = 0;                              %neutral
             end
         end
     end
@@ -180,16 +225,63 @@ function obj = init(obj,varargin)
     
             if isempty(unwindtrade) || trade.id_ == size(d.px,1)
                 obj.pos_sector_{i} = trade;
-                fprintf('%s:live.\n',trade.code_);
+                fprintf('%s:bullish live.\n',trade.code_);
                 obj.dailystatus_sector_(i) = 1;                             %bullish
             else
                 if unwindtrade.closedatetime1_ >= d.px(end,1)
-                    fprintf('%s:closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
+                    fprintf('%s:bullish closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
                 end
                 obj.dailystatus_sector_(i) = 0;                             %neutral
             end
         elseif idxb1(end,1) < idxs1(end,1)                                  %last bearish
-            %TODO
+            s1type = idxs1(end,2);
+            if s1type == 1                                                  %weak breach
+                if ~(obj.dailystatus_sector_(i) == 2  || obj.dailystatus_sector_(i) == -2)
+                    obj.dailystatus_sector_(i) = 0;
+                end
+                continue;
+            end
+            j = idxs1(end,1);
+            ei = fractal_truncate(d,j);
+            op = fractal_filters1_singleentry(s1type,nfractal,ei,etf.tick_size);
+            if op.use
+                trade = fractal_gentrade(d,codes_sector{i},j,op.comment,-1,'daily');
+            else
+                %not a valid signal
+                if ~(obj.dailystatus_sector_(i) == 2  || obj.dailystatus_sector_(i) == -2)
+                    obj.dailystatus_sector_(i) = 0;
+                end
+                continue;
+            end
+            %
+            unwindtrade = {};
+            for k = j+1:size(d.px,1)
+                if strcmpi(trade.status_,'closed'),break;end
+                ei = fractal_genextrainfo(d,k);
+                if k == size(d.px,1)
+                    ei.latestopen = d.px(k,5);
+                    ei.latestdt = d.px(k,1);
+                else
+                    ei.latestopen = d.px(k+1,2);
+                    ei.latestdt = d.px(k+1,1);
+                end
+                unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
+                    'usecandlelastonly',false,...
+                    'debug',false,...
+                    'updatepnlforclosedtrade',true,...
+                    'extrainfo',ei);
+            end
+            
+            if isempty(unwindtrade) || trade.id_ == size(d.px,1)
+                fprintf('%s:bearish live.\n',trade.code_);
+                obj.pos_sector_{i} = trade;
+                obj.dailystatus_sector_(i) = -1;                              %beaish
+            else
+                if unwindtrade.closedatetime1_ >= d.px(end,1)
+                    fprintf('%s:bearish closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
+                end
+                obj.dailystatus_sector_(i) = 0;                              %neutral
+            end
         end
     end
     
