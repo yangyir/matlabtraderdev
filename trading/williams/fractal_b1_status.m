@@ -77,7 +77,8 @@ end
 
 %does it breach-up high of a previous sell sequential
 issshighbreach = 0;
-if size(ss,1)-lastss9+1<=nkfromhh
+lastss = find(ss>=9,1,'last');
+if size(ss,1)-lastss+1<=nkfromhh
     lastssval = ss(lastss);
     issshighbreach = px(end,5) > max(px(lastss-lastssval+1:min(lastss,size(px,1)-1),3));
 end
