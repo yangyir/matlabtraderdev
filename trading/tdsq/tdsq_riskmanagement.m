@@ -160,9 +160,10 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         end
         if ss(end) >= 16 && ...
                 (strcmpi(trade.opensignal_.mode_,'breachup-highsc13') ||...
-                (~isempty(find(extrainfo.sc==13,1,'last')) && find(extrainfo.sc==13,1,'last') >= openidx))
+                (~isempty(find(extrainfo.sc==13,1,'last')) && find(extrainfo.sc==13,1,'last') >= openidx-1))
             %no more than ss16 in case it breached sc13
-            closeflag = 1;
+%             closeflag = 1;
+            trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss_,extrainfo.px(end,4));
             trade.riskmanager_.closestr_ = 'tdsq:ss16';
             closestr = trade.riskmanager_.closestr_;
             return
