@@ -14,6 +14,7 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
     lvlup = extrainfo.lvlup;
     lvldn = extrainfo.lvldn;
     idxhh = extrainfo.idxhh;
+    idxll = extrainfo.idxll;
     hh = extrainfo.hh;
     ll = extrainfo.ll;
     lips = extrainfo.lips;
@@ -142,6 +143,13 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                 end
                 if nonbreachhhflag && aboveteeth && nonbreachllflag && extraflag 
                     output = struct('use',1,'comment','mediumbreach-trendbreak-s');
+                elseif ~nonbreachhhflag && aboveteeth && ~nonbreachllflag && extraflag
+                    %market moves volatile with price breached-up and down
+                    if status.isteethlipscrossed && lips(end) - teeth(end) + 2*ticksize > 0
+                        output = struct('use',1,'comment','mediumbreach-trendbreak-s');
+                    else
+                        output = struct('use',0,'comment','mediumbreach-trendbreak');
+                    end
                 else
                     output = struct('use',0,'comment','mediumbreach-trendbreak');
                 end
@@ -152,16 +160,29 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                 aboveteeth = px(end,5)-teeth(end)-2*ticksize>0;
                 if belowlvldnflag && breachlvldnflag && aboveteeth
                     output = struct('use',1,'comment','mediumbreach-trendbreak-s');
-                else
-                    sslast = ss(end);
-                    abovelipsflag = isempty(find(lips(end-sslast+1:end)-px(end-sslast+1:end,5)-2*ticksize>0,1,'last'));
-                    %sslast breached 4 indicates the trend might continue
-                    if sslast >= 5 && abovelipsflag && aboveteeth
-                        output = struct('use',1,'comment','mediumbreach-trendbreak-s');
-                    else
-                        output = struct('use',0,'comment','mediumbreach-trendbreak');
-                    end
+                    return
                 end
+                sslast = ss(end);
+                abovelipsflag = isempty(find(lips(end-sslast+1:end)-px(end-sslast+1:end,5)-2*ticksize>0,1,'last'));
+                %sslast breached 4 indicates the trend might continue
+                if sslast >= 5 && abovelipsflag && aboveteeth
+                    output = struct('use',1,'comment','mediumbreach-trendbreak-s');
+                    return
+                end
+                nonbreachhhflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-hh(last2hhidx(end)-2*nfractal:end-1)-2*ticksize>0,1,'last'));
+                nonbreachllflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-ll(last2hhidx(end)-2*nfractal:end-1)+2*ticksize<0,1,'last'));
+                last2llidx = find(idxll==-1,2,'last');
+                llupward = false;
+                if ~isempty(last2llidx) && size(last2llidx,1) == 2
+                    llupward = ll(last2llidx(2))-ll(last2llidx(1))-2*ticksize>0;
+                end
+                if ~hhupward && llupward && nonbreachhhflag && nonbreachllflag && sslast > 0
+                    %not sure here
+%                     output = struct('use',1,'comment','mediumbreach-trendbreak-s1');
+%                     return
+                end    
+                output = struct('use',0,'comment','mediumbreach-trendbreak');
+                
             end
             return
         end
@@ -330,8 +351,24 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                         abovelipsflag = isempty(find(lips(end-sslast+1:end)-px(end-sslast+1:end,5)-2*ticksize>0,1,'last'));
                         extraflag = sslast >= 4 & abovelipsflag;
                     end
-                    if nonbreachhhflag && aboveteeth && nonbreachllflag && extraflag 
-                        output = struct('use',1,'comment','strongbreach-trendbreak-s');
+                    if nonbreachhhflag && aboveteeth && extraflag
+                        if nonbreachllflag
+                            output = struct('use',1,'comment','strongbreach-trendbreak-s');
+                        else
+                            sslast = ss(end);
+                            abovelipsflag = isempty(find(lips(end-sslast+1:end)-px(end-sslast+1:end,5)-2*ticksize>0,1,'last'));
+                            if sslast >= 3 && abovelipsflag
+                                output = struct('use',1,'comment','strongbreach-trendbreak-s');
+                            else
+                                output = struct('use',0,'comment','strongbreach-trendbreak');
+                            end
+                        end
+                    elseif ~nonbreachhhflag && nonbreachllflag && aboveteeth && extraflag
+                        if ~status.isteethjawcrossed && ~status.isteethlipscrossed && lips(end)-teeth(end)+ticksize>0
+                            output = struct('use',1,'comment','strongbreach-trendbreak-s');
+                        else
+                            output = struct('use',0,'comment','strongbreach-trendbreak');
+                        end
                     else
                         output = struct('use',0,'comment','strongbreach-trendbreak');
                     end
