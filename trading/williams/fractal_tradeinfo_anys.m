@@ -50,7 +50,11 @@ op = fractal_filters1_singleentry(s1type,nfractal,d,asset.tick_size);
 statusstruct = fractal_s1_status(nfractal,d,asset.tick_size);
 statusstr = fractal_s1_status2str(statusstruct);
 if op.use || (~op.use && statusstruct.istrendconfirmed)
-    trade = fractal_gentrade(ei,code,openid,op.comment,-1,'daily');
+    if strcmpi(freq,'daily')
+        trade = fractal_gentrade(ei,code,openid,op.comment,-1,'daily');
+    else
+        trade = fractal_gentrade(ei,code,openid,op.comment,-1,'30m');
+    end
     ret.opensignal = statusstr;
     ret.trade = trade;
 else
