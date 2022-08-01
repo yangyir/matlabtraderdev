@@ -39,7 +39,11 @@ else
 end
 for i = 1:validtradesb.latest_
     trade = validtradesb.node_(i);
-    idx = find(data.px(:,1) == trade.opendatetime1_,1,'first');
+    if trade.opendatetime1_ > floor(trade.opendatetime1_)
+        idx = find(data.px(:,1) <= trade.opendatetime1_,1,'last')-1;
+    else
+        idx = find(data.px(:,1) == trade.opendatetime1_,1,'first');    
+    end
     tblalltrades(i,1) = idx;
     tblalltrades(i,2) = 1;
     tblalltrades(i,3) = i;
@@ -47,7 +51,11 @@ end
 if ~longonly
     for i = 1:validtradess.latest_
         trade = validtradess.node_(i);
-        idx = find(data.px(:,1) == trade.opendatetime1_,1,'first');
+        if trade.opendatetime1_ > floor(trade.opendatetime1_)
+            idx = find(data.px(:,1) <= trade.opendatetime1_,1,'last')-1;
+        else
+            idx = find(data.px(:,1) == trade.opendatetime1_,1,'first');
+        end
         tblalltrades(i+validtradesb.latest_,1) = idx;
         tblalltrades(i+validtradesb.latest_,2) = -1;
         tblalltrades(i+validtradesb.latest_,3) = i;
@@ -81,7 +89,11 @@ else
     trade = validtradess.node_(tblalltrades(firsttradeidx,3));
 end
 opendate = trade.opendatetime1_;
-idxstart = find(strategyprofile(:,1) == opendate,1,'first');
+if trade.opendatetime1_ > floor(trade.opendatetime1_)
+    idxstart = find(strategyprofile(:,1) <= opendate,1,'last')-1;
+else
+    idxstart = find(strategyprofile(:,1) == opendate,1,'first');
+end
 strategyprofile(istart:idxstart-1,3) = initfund;
 if strcmpi(trade.status_,'closed')
     idxend = find(strategyprofile(:,1) == trade.closedatetime1_,1,'first');
@@ -112,7 +124,11 @@ if selffinancing
             trade = validtradess.node_(tblalltrades(i,3));
         end
         if i > firsttradeidx
-            idxstart = find(strategyprofile(:,1) == trade.opendatetime1_,1,'first');
+            if trade.opendatetime1_ > floor(trade.opendatetime1_)
+                idxstart = find(strategyprofile(:,1) <= trade.opendatetime1_,1,'last')-1;
+            else
+                idxstart = find(strategyprofile(:,1) == trade.opendatetime1_,1,'first');
+            end
             if idxstart > iend
                 break
             end
@@ -197,7 +213,7 @@ for i = 1:numoftrades
     end
     trade = backtesttrades.node_(i);
     tradetemp = trade.copy;
-    tradetemp.closepnl_ = tradetemp.closepnl_/tradetemp.openprice_/100;
+    tradetemp.closepnl_ = tradetemp.closepnl_/tradetemp.openprice_/tradetemp.instrument_.contract_size;
     tradestemp.push(tradetemp);
 end
 numoftradess = numoftrades - numoftradesb;

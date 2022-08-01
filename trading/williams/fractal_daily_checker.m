@@ -2,7 +2,12 @@ function [tblb,tbls,trades,pnl,resstruct] = fractal_daily_checker(code,varargin)
 
 isequity = isinequitypool(code);
 if ~isequity
-    error('fractal_daily_checker:invalid code input:only equity is supported')
+%     error('fractal_daily_checker:invalid code input:only equity is supported')
+    instrument = code2instrument(code);
+    assetinfo = getassetinfo(instrument.asset_name);
+    if ~strcmpi(assetinfo.AssetType,'agriculture')
+        error('fractal_daily_checker:invalid code input:%s not supported',assetinfo.AssetType);
+    end
 end
 
 p = inputParser;
