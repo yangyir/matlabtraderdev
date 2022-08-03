@@ -30,10 +30,10 @@ function [] = printsignal(obj,varargin)
                 ei_breach = fractal_truncate(extrainfo_i,breachidx);
                 [signal,op] = fractal_signal_unconditional(ei_breach,ticksize,nfractal);
                 if direction == 1
-                    fprintf('%s:BreachUP:%s:\t',datestr(breachtime+candlebucket,'yyyy-mm-dd HH:MM'),obj.codes_index_{i}(1:6));
+                    fprintf('%s:intraday breachUP:%s:\t',datestr(breachtime+candlebucket,'yyyy-mm-dd HH:MM'),obj.codes_index_{i}(1:6));
                     fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_index_{i});
                 else
-                    fprintf('%s:BreachDN:%s:\t',datestr(breachtime+candlebucket,'yyyy-mm-dd HH:MM'),obj.codes_index_{i}(1:6));
+                    fprintf('%s:intraday breachDN:%s:\t',datestr(breachtime+candlebucket,'yyyy-mm-dd HH:MM'),obj.codes_index_{i}(1:6));
                     fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_index_{i});
                 end
                 obj.intradaybarriers_conditional_index_(i,1) = NaN;
@@ -76,10 +76,10 @@ function [] = printsignal(obj,varargin)
                 ei_breach = fractal_truncate(extrainfo_i,breachidx);
                 [signal,op] = fractal_signal_unconditional(ei_breach,ticksize,nfractal);
                 if direction == 1
-                    fprintf('%s:BreachUP:%s:\t',datestr(breachtime+candlebucket,'yyyy-mm-dd HH:MM'),obj.codes_sector_{i}(1:6));
+                    fprintf('%s:intraday breachUP:%s:\t',datestr(breachtime+candlebucket,'yyyy-mm-dd HH:MM'),obj.codes_sector_{i}(1:6));
                     fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_sector_{i});
                 else
-                    fprintf('%s:BreachDN:%s:\t',datestr(breachtime+candlebucket,'yyyy-mm-dd HH:MM'),obj.codes_sector_{i}(1:6));
+                    fprintf('%s:intraday breachDN:%s:\t',datestr(breachtime+candlebucket,'yyyy-mm-dd HH:MM'),obj.codes_sector_{i}(1:6));
                     fprintf('%2d\t%s(%s)\n',signal(1),op.comment,obj.names_sector_{i});
                 end
                 obj.intradaybarriers_conditional_sector_(i,1) = NaN;

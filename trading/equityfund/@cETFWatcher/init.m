@@ -119,7 +119,9 @@ function obj = init(obj,varargin)
                 if unwindtrade.closedatetime1_ >= d.px(end,1)
                     fprintf('%s:bullish closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
                 end
-                obj.dailystatus_index_(i) = 0;                              %neutral
+                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+                    obj.dailystatus_index_(i) = 0;                         %neutral
+                end
             end
             %
         elseif idxb1(end,1) < idxs1(end,1)                                  %last bearish
@@ -169,7 +171,9 @@ function obj = init(obj,varargin)
                 if unwindtrade.closedatetime1_ >= d.px(end,1)
                     fprintf('%s:bearish closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
                 end
-                obj.dailystatus_index_(i) = 0;                              %neutral
+                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+                    obj.dailystatus_index_(i) = 0;                          %neutral
+                end
             end
         end
     end
@@ -231,7 +235,9 @@ function obj = init(obj,varargin)
                 if unwindtrade.closedatetime1_ >= d.px(end,1)
                     fprintf('%s:bullish closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
                 end
-                obj.dailystatus_sector_(i) = 0;                             %neutral
+                if ~(obj.dailystatus_sector_(i) == 2  || obj.dailystatus_sector_(i) == -2)
+                    obj.dailystatus_sector_(i) = 0;                         %neutral
+                end
             end
         elseif idxb1(end,1) < idxs1(end,1)                                  %last bearish
             s1type = idxs1(end,2);
@@ -280,7 +286,9 @@ function obj = init(obj,varargin)
                 if unwindtrade.closedatetime1_ >= d.px(end,1)
                     fprintf('%s:bearish closed:%s\n',unwindtrade.code_,unwindtrade.riskmanager_.closestr_);
                 end
-                obj.dailystatus_sector_(i) = 0;                              %neutral
+                if ~(obj.dailystatus_sector_(i) == 2  || obj.dailystatus_sector_(i) == -2)
+                    obj.dailystatus_sector_(i) = 0;                         %neutral
+                end
             end
         end
     end

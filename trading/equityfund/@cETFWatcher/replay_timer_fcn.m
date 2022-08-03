@@ -45,14 +45,14 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                             latest_index(i,3) >= mytimerobj.intradaybarriers_conditional_index_(i,1) + 0.001
                         dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
                         dtstr = datestr(dtnum,'yyyy-mm-dd:HH:MM');
-                        fprintf('%s:BreachUP:%s:%4.3f (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),mytimerobj.names_index_{i});
+                        fprintf('%s:intraday breachUP:%s:%4.3f (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),mytimerobj.names_index_{i});
                         hasbreach = true;
                     end
                     if ~isnan(mytimerobj.intradaybarriers_conditional_index_(i,2)) && ...
                             latest_index(i,3) <= mytimerobj.intradaybarriers_conditional_index_(i,2) - 0.001
                         dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
                         dtstr = datestr(dtnum,'yyyy-mm-dd:HH:MM');
-                        fprintf('%s:BreachDN:%s:%4.3f (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),mytimerobj.names_index_{i});
+                        fprintf('%s:intraday breachDN:%s:%4.3f (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),mytimerobj.names_index_{i});
                         hasbreach = true;
                     end
                 catch
@@ -87,14 +87,14 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                             latest_sector(i,3) >= mytimerobj.intradaybarriers_conditional_sector_(i,1) + 0.001
                         dtnum = datenum([num2str(latest_sector(i,1)),' ',num2str(latest_sector(i,2))],'yyyymmdd HHMMSS');
                         dtstr = datestr(dtnum,'yyyy-mm-dd:HH:MM');
-                        fprintf('%s:BreachUP:%s:%4.3f (%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),latest_sector(i,3),mytimerobj.names_sector_{i});
+                        fprintf('%s:intraday breachUP:%s:%4.3f (%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),latest_sector(i,3),mytimerobj.names_sector_{i});
                         hasbreach = true;
                     end
                     if ~isnan(mytimerobj.intradaybarriers_conditional_sector_(i,2)) && ...
                             latest_sector(i,3) <= mytimerobj.intradaybarriers_conditional_sector_(i,2) - 0.001
                         dtnum = datenum([num2str(latest_sector(i,1)),' ',num2str(latest_sector(i,2))],'yyyymmdd HHMMSS');
                         dtstr = datestr(dtnum,'yyyy-mm-dd:HH:MM');
-                        fprintf('%s:BreachDN:%s:%4.3f (%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),latest_sector(i,3),mytimerobj.names_sector_{i});
+                        fprintf('%s:intraday breachDN:%s:%4.3f (%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),latest_sector(i,3),mytimerobj.names_sector_{i});
                         hasbreach = true;
                     end
                 catch

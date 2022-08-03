@@ -73,6 +73,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
                     op.comment = [op.comment,'-invalid long as close below alligator lips'];
                 end
             end
+            op.direction = 1;
         else
             %~useflag
             signal = zeros(1,6); 
@@ -138,6 +139,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
                     op.comment = [op.comment,'-invalid short as close above alligator lips'];
                 end
             end
+            op.direction = -1;
         else
             signal = zeros(1,6);
         end
