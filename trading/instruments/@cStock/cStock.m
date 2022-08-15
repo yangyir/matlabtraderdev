@@ -65,6 +65,9 @@ classdef cStock < cInstrument
             obj.code_ctp = codestr;
             if strcmpi(codestr,'000001.SH')
                 obj.code_wind = codestr;
+            elseif strcmpi(codestr,'SPX') || strcmpi(codestr,'DJI') || strcmpi(codestr,'IXIC') || ...
+                    strcmpi(codestr,'N225') || strcmpi(codestr,'FTSE') || strcmpi(codestr,'GDAXI')
+                obj.code_wind = [codestr,'.GI'];
             else
                 if length(codestr) == 6
                     if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
@@ -95,8 +98,24 @@ classdef cStock < cInstrument
             obj.tick_value = obj.tick_size * obj.contract_size;
 
             obj.trading_hours = '09:30-11:30;13:00-15:00';
-            obj.trading_break = '';      
+            obj.trading_break = '';
             obj.holidays = 'shanghai';
+            if strcmpi(codestr,'SPX') || strcmpi(codestr,'DJI') || strcmpi(codestr,'IXIC')
+                obj.holidays = 'new york';
+                obj.trading_hours = '';
+            end
+            if strcmpi(codestr,'N225')
+                obj.holidays = 'tokyo';
+                obj.trading_hours = '';
+            end
+            if strcmpi(codestr,'FTSE')
+                obj.holidays = 'london';
+                obj.trading_hours = '';
+            end
+            if strcmpi(codestr,'GDAXI')
+                obj.holidays = 'frankfurt';
+                obj.trading_hours = '';
+            end
             
         end
         %end of constructor
