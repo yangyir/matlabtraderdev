@@ -73,7 +73,11 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                         'extrainfo',extrainfo,...
                         'runhighlowonly',runhighlowonly);
                     if ~isempty(tradeout)
-                        fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                        if tradeout.opendirection_ == 1
+                            fprintf('%s:bullish closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                        else
+                            fprintf('%s:bearish closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                        end
                         hasclosed = true;
                     end
                 end
@@ -115,7 +119,11 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                         'extrainfo',extrainfo,...
                         'runhighlowonly',runhighlowonly);
                     if ~isempty(tradeout)
-                        fprintf('%s:closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                        if tradeout.opendirection_ == 1
+                            fprintf('%s:bullish closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                        else
+                            fprintf('%s:bearish closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                        end
                         hasclosed = true;
                     end
                 end
