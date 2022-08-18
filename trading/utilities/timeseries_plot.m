@@ -17,6 +17,7 @@ datenum_to = NaN;
 date_format = [];
 date_label = [];
 title_label = [];
+figure_idx = [];
 
 if nargin == 1
     results = data;
@@ -32,6 +33,8 @@ else
             date_label = varargin{i+1};
         elseif strcmpi(varargin{i},'Title')
             title_label = varargin{i+1};
+        elseif strcmpi(varargin{i},'FigureIndex')
+            figure_idx = varargin{i+1};
         end
     end
     %
@@ -54,7 +57,11 @@ else
         
 end
 
-figure;
+if isempty(figure_idx)
+    figure;
+else
+    figure(figure_idx);
+end
 plot(results(:,2),'b');
 
 if isempty(date_label)
