@@ -1,5 +1,6 @@
 function savedailybarfromwind(w,code_ctp,override)
-
+%utility function to save data from wind
+%for options and futures traded in SHFE,DCE,CZC and CFE only
 if ~isa(w,'cWind')
     error('saveintradaybarfromwind;invalid wind instance input')
 end
