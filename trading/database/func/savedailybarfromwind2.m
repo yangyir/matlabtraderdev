@@ -1,5 +1,6 @@
 function savedailybarfromwind2(w,code_wind)
-%download equity data from WIND
+%utility function to save data from wind
+%for stocks only
 if ~isa(w,'cWind')
     error('saveintradaybarfromwind2;invalid wind instance input')
 end
