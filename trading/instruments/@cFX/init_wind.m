@@ -19,8 +19,16 @@ function [] = init_wind(obj,w)
         error('cStock:init_wind failed')
     end
 
-    obj.asset_name = wdata{1};
-    obj.exchange = wdata{2};
+    if isnan(wdata{1})
+        obj.asset_name = 'n/a';
+    else
+        obj.asset_name = wdata{1};
+    end
+    if isnan(wdata{2})
+        obj.exchange = 'n/a';
+    else
+        obj.exchange = wdata{2};
+    end
     
 end
 %end of init_wind
