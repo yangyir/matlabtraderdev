@@ -27,7 +27,9 @@ asset = code2instrument(code);
 b1type = idxb1(end,2);
 %do nothing if it was a weak breach
 if b1type == 1
-    ret = {};
+    ret.status = 'n/a';
+    ret.opensignal = 'invalid weak breach';
+    ret.trade = [];
     return;
 end
 j = idxb1(end,1);

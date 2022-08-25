@@ -115,6 +115,8 @@ classdef cETFWatcher < handle
         [ret] = riskmanagement(obj,varargin)
         %
         [ret] = calcspread(obj,varargin)
+        %
+        [ret] = getvariables(obj,varargin)
     end
     
     methods (Access = private)

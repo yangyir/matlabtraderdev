@@ -21,19 +21,19 @@ function [] = printmarket(obj,varargin)
         lastclose = obj.dailybarmat_index_{i}(end-1,5);
         timet = datestr(obj.intradaybarmat_index_{i}(end,1),'HH:MM:SS');
         delta = (latest/lastclose-1)*100;
-        buysetup = obj.intradaybarstruct_index_{i}.bs(end);
-        sellsetup = obj.intradaybarstruct_index_{i}.ss(end);
-        levelup = obj.intradaybarstruct_index_{i}.lvlup(end);
-        leveldn = obj.intradaybarstruct_index_{i}.lvldn(end);
-        teeth = obj.intradaybarstruct_index_{i}.teeth(end);
-        lips = obj.intradaybarstruct_index_{i}.lips(end);
-        HH = obj.intradaybarstruct_index_{i}.hh(end);
-        LL = obj.intradaybarstruct_index_{i}.ll(end);
+        buysetup = obj.dailybarstruct_index_{i}.bs(end);
+        sellsetup = obj.dailybarstruct_index_{i}.ss(end);
+        levelup = obj.dailybarstruct_index_{i}.lvlup(end);
+        leveldn = obj.dailybarstruct_index_{i}.lvldn(end);
+        teeth = obj.dailybarstruct_index_{i}.teeth(end);
+        lips = obj.dailybarstruct_index_{i}.lips(end);
+        HH = obj.dailybarstruct_index_{i}.hh(end);
+        LL = obj.dailybarstruct_index_{i}.ll(end);
         
-        if ~isnan(obj.intradaybarriers_conditional_index_(i,1))
-            barrier = obj.intradaybarriers_conditional_index_(i,1);
-        elseif ~isnan(obj.intradaybarriers_conditional_index_(i,2))
-            barrier = obj.intradaybarriers_conditional_index_(i,2);
+        if ~isnan(obj.dailybarriers_conditional_index_(i,1))
+            barrier = obj.dailybarriers_conditional_index_(i,1);
+        elseif ~isnan(obj.dailybarriers_conditional_index_(i,2))
+            barrier = obj.dailybarriers_conditional_index_(i,2);
         else
             barrier = NaN;
         end
@@ -57,19 +57,19 @@ function [] = printmarket(obj,varargin)
         lastclose = obj.dailybarmat_sector_{i}(end-1,5);
         timet = datestr(obj.intradaybarmat_sector_{i}(end,1),'HH:MM:SS');
         delta = (latest/lastclose-1)*100;
-        buysetup = obj.intradaybarstruct_sector_{i}.bs(end);
-        sellsetup = obj.intradaybarstruct_sector_{i}.ss(end);
-        levelup = obj.intradaybarstruct_sector_{i}.lvlup(end);
-        leveldn = obj.intradaybarstruct_sector_{i}.lvldn(end);
-        teeth = obj.intradaybarstruct_sector_{i}.teeth(end);
-        lips = obj.intradaybarstruct_sector_{i}.lips(end);
-        HH = obj.intradaybarstruct_sector_{i}.hh(end);
-        LL = obj.intradaybarstruct_sector_{i}.ll(end);
+        buysetup = obj.dailybarstruct_sector_{i}.bs(end);
+        sellsetup = obj.dailybarstruct_sector_{i}.ss(end);
+        levelup = obj.dailybarstruct_sector_{i}.lvlup(end);
+        leveldn = obj.dailybarstruct_sector_{i}.lvldn(end);
+        teeth = obj.dailybarstruct_sector_{i}.teeth(end);
+        lips = obj.dailybarstruct_sector_{i}.lips(end);
+        HH = obj.dailybarstruct_sector_{i}.hh(end);
+        LL = obj.dailybarstruct_sector_{i}.ll(end);
         
-        if ~isnan(obj.intradaybarriers_conditional_sector_(i,1))
-            barrier = obj.intradaybarriers_conditional_sector_(i,1);
-        elseif ~isnan(obj.intradaybarriers_conditional_sector_(i,2))
-            barrier = obj.intradaybarriers_conditional_sector_(i,2);
+        if ~isnan(obj.dailybarriers_conditional_sector_(i,1))
+            barrier = obj.dailybarriers_conditional_sector_(i,1);
+        elseif ~isnan(obj.dailybarriers_conditional_sector_(i,2))
+            barrier = obj.dailybarriers_conditional_sector_(i,2);
         else
             barrier = NaN;
         end

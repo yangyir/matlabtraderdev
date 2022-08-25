@@ -53,7 +53,7 @@ function [] = eodanalysis(obj,varargin)
             else
                 [~,op] = fractal_signal_conditional(extrainfo,0.001,2);
                 if ~isempty(op) && ~isempty(op{1})
-                    fprintf('%s:%s.\n',obj.codes_index_{i}(1:6),op{1});
+                    fprintf('%s:bullish:%s.\n',obj.codes_index_{i}(1:6),op{1});
                 end
             end
         end
@@ -111,7 +111,7 @@ function [] = eodanalysis(obj,varargin)
                 [~,op] = fractal_signal_conditional(extrainfo,0.001,2);
                 if ~isempty(op) 
                     if ~isempty(op{1})
-                        fprintf('%s:breachup:%s.\n',obj.codes_sector_{i}(1:6),op{1});
+                        fprintf('%s:bullish:%s.\n',obj.codes_sector_{i}(1:6),op{1});
                     elseif ~isempty(op{2})
 %                         fprintf('%s:breachdn:%s.\n',obj.codes_sector_{i}(1:6),op{2});
                     end 
