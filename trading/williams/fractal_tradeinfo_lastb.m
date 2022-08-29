@@ -42,7 +42,9 @@ if op.use || (~op.use && statusstruct.istrendconfirmed)
     trade = fractal_gentrade(ei,code,j,op.comment,1,'daily');
     ret.opensignal = statusstr;
 else
-    ret = {};
+    ret.status = 'n/a';
+    ret.opensignal = ['invalid ',op.comment];
+    ret.trade = [];
     return
 end
 % run trade with historical data
