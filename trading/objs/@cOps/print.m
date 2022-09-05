@@ -11,7 +11,11 @@ function [] = print(obj,varargin)
     if strcmpi(obj.status_,'sleep')
         fprintf('%s:ops sleeps......\n',datestr(time,'yyyy-mm-dd HH:MM:SS'));
     elseif strcmpi(obj.status_,'working')
-        ismarketopen = sum(obj.mdefut_.ismarketopen('time',time));
+        if strcmpi(obj.mode_,'replay')
+            ismarketopen = sum(obj.mdefut_.ismarketopen('time',obj.replay_time1_));
+        else
+            ismarketopen = sum(obj.mdefut_.ismarketopen('time',time));
+        end
         try
             if ismarketopen
                 obj.printrunningpnl('mdefut',obj.mdefut_);

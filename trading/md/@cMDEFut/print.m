@@ -12,6 +12,9 @@ function [] = print(obj,varargin)
     elseif strcmpi(obj.status_,'working')
         isanyinstrumenttrading = false;
         n = obj.qms_.instruments_.count;
+        if strcmpi(obj.mode_,'replay')
+            time = obj.replay_time1_;
+        end
         for i = 1:n
             dtnum_open = obj.datenum_open_{i};
             dtnum_close = obj.datenum_close_{i};
