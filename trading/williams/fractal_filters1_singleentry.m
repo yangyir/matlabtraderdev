@@ -152,8 +152,9 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
                 else
                     bslast = bs(end);
                     belowlipsflag = isempty(find(lips(end-bslast+1:end)-px(end-bslast+1:end,5)+2*ticksize<0,1,'last'));
+                    nonbreachhhflag = isempty(find(px(last2llidx(end)-2*nfractal:end-1,5)-hh(last2llidx(end)-2*nfractal:end-1)-2*ticksize>0,1,'last'));
                     %bslast breached 4 indicates the trend might continue
-                    if bslast >= 5 && belowlipsflag && belowteeth
+                    if bslast >= 5 && belowlipsflag && belowteeth && nonbreachhhflag
                         output = struct('use',1,'comment','mediumbreach-trendbreak-s');
                     else
                         output = struct('use',0,'comment','mediumbreach-trendbreak');
