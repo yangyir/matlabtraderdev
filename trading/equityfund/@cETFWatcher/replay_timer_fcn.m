@@ -51,43 +51,64 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                 catch e
                     fprintf('cETFWatcher:replay_timer_fcn:error in update index candles;%s\n',e.message);
                 end
-                [signal,op] = fractal_signal_unconditional(ei_d,0.001,2);
-                if ~isempty(op) && op.use
-                    
+                dtnum = datenum([num2str(latest_sector(i,1)),' ',num2str(latest_sector(i,2))],'yyyymmdd HHMMSS');
+                dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
+                [signal_d,op_d] = fractal_signal_unconditional(ei_d,0.001,2);
+                if ~isempty(op_d) && op_d.use
+                    if signal_d(1) == 1
+                        fprintf('%s:d-breachup:%s:%4.3f with barrier_d at %4.3f (%s)(%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),ei_d.px(end,5),signal_d(2),op_d.comment,mytimerobj.names_index_{i});
+                    elseif signal_d(1) == -1
+                        fprintf('%s:d-breachdn:%s:%4.3f with barrier_d at %4.3f (%s)(%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),ei_d.px(end,5),signal_d(3),op_d.comment,mytimerobj.names_index_{i});
+                    end
+                    hasbreach = true;
+                else
+                    [signal_i,op_i] = fractal_signal_unconditional(ei_i,0.001,4);
+                    if ~isempty(op_i) && op_i.use
+                        if signal_i(1) == 1
+                            fprintf('%s:i-breachup:%s:%4.3f with barrier_i at %4.3f (%s)(%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),ei_i.px(end,5),signal_i(2),op_i.comment,mytimerobj.names_index_{i});
+                        elseif signal_i(1) == -1
+                            fprintf('%s:i-breachdn:%s:%4.3f with barrier_i at %4.3f (%s)(%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),ei_i.px(end,5),signal_i(3),op_i.comment,mytimerobj.names_index_{i});
+                        end
+                        hasbreach = true;
+                    end           
                 end
+%                 [signal,op] = fractal_signal_unconditional(ei_d,0.001,2);
+%                 if ~isempty(op) && op.use
+%                     
+%                 end
                 %
-                try
-                    if variables.status_d == 2 && ~isnan(variables.cb_d(1)) &&...
-                            latest_index(i,3) >= variables.cb_d(1) + 0.001
-                        dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
-                        dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
-                        fprintf('%s:daily breachUP:%s:%4.3f with barrier_d at (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),variables.cb_d(1),mytimerobj.names_index_{i});
-                        hasbreach = true;
-                    end
-                    if variables.status_d == 1 && ~isnan(variables.cb_i(1)) && ...
-                            latest_index(i,3) >= variables.cb_i(1) + 0.001
-                        dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
-                        dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
-                        fprintf('%s:intraday breachUP:%s:%4.3f with barrier_i at (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),variables.cb_i(1),mytimerobj.names_index_{i});
-                        hasbreach = true;
-                    end
-                    if variables.status_d == -2 && ~isnan(variables.cb_d(2)) &&...
-                            latest_index(i,3) <= variables.cb_d(2) - 0.001
-                        dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
-                        dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
-                        fprintf('%s:daily breachDN:%s:%4.3f with barrier_d at %4.3f (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),variables.cb_d(2),mytimerobj.names_index_{i});
-                        hasbreach = true;
-                    end
-                    if  variables.status_d == -1 && ~isnan(variables.cb_i(2)) && ...
-                            latest_index(i,3) <= variables.cb_i(2) - 0.001
-                        dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
-                        dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
-                        fprintf('%s:intraday breachDN:%s:%4.3f with barrier_i at %4.3f (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),variables.cb_d(1),mytimerobj.names_index_{i});
-                        hasbreach = true;
-                    end
-                catch
-                    fprintf('cETFWatcher:error in loop of index......\n');
-                end
+%                 try
+%                     if variables.status_d == 2 && ~isnan(variables.cb_d(1)) &&...
+%                             latest_index(i,3) >= variables.cb_d(1) + 0.001
+%                         dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
+%                         dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
+%                         fprintf('%s:daily breachUP:%s:%4.3f with barrier_d at (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),variables.cb_d(1),mytimerobj.names_index_{i});
+%                         hasbreach = true;
+%                     end
+%                     if variables.status_d == 1 && ~isnan(variables.cb_i(1)) && ...
+%                             latest_index(i,3) >= variables.cb_i(1) + 0.001
+%                         dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
+%                         dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
+%                         fprintf('%s:intraday breachUP:%s:%4.3f with barrier_i at (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),variables.cb_i(1),mytimerobj.names_index_{i});
+%                         hasbreach = true;
+%                     end
+%                     if variables.status_d == -2 && ~isnan(variables.cb_d(2)) &&...
+%                             latest_index(i,3) <= variables.cb_d(2) - 0.001
+%                         dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
+%                         dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
+%                         fprintf('%s:d-breachdn:%s:%4.3f with barrier_d at %4.3f (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),variables.cb_d(2),mytimerobj.names_index_{i});
+%                         hasbreach = true;
+%                     end
+%                     if  variables.status_d == -1 && ~isnan(variables.cb_i(2)) && ...
+%                             latest_index(i,3) <= variables.cb_i(2) - 0.001
+%                         dtnum = datenum([num2str(latest_index(i,1)),' ',num2str(latest_index(i,2))],'yyyymmdd HHMMSS');
+%                         dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
+%                         fprintf('%s:i-breachdn:%s:%4.3f with barrier_i at %4.3f (%s)\n',dtstr,mytimerobj.codes_index_{i}(1:end-3),latest_index(i,3),variables.cb_i(2),mytimerobj.names_index_{i});
+%                         hasbreach = true;
+%                     end
+%                 catch
+%                     fprintf('cETFWatcher:error in loop of index......\n');
+%                 end
                 trade = mytimerobj.pos_index_{i};
                 if ~isempty(trade)
                     trade.status_ = 'set';
@@ -137,18 +158,18 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                 [signal_d,op_d] = fractal_signal_unconditional(ei_d,0.001,2);
                 if ~isempty(op_d) && op_d.use
                     if signal_d(1) == 1
-                        fprintf('%s:daily breachUP:%s:%4.3f with barrier_d at %4.3f (%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),ei_d.px(end,5),signal_d(2),op_d.comment);
+                        fprintf('%s:d-breachup:%s:%4.3f with barrier_d at %4.3f (%s)(%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),ei_d.px(end,5),signal_d(2),op_d.comment,mytimerobj.names_sector_{i});
                     elseif signal_d(1) == -1
-                        fprintf('%s:daily breachDN:%s:%4.3f with barrier_d at %4.3f (%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),ei_d.px(end,5),signal_d(3),op_d.comment);
+                        fprintf('%s:d-breachdn:%s:%4.3f with barrier_d at %4.3f (%s)(%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),ei_d.px(end,5),signal_d(3),op_d.comment,mytimerobj.names_sector_{i});
                     end
                     hasbreach = true;
                 else
                     [signal_i,op_i] = fractal_signal_unconditional(ei_i,0.001,4);
                     if ~isempty(op_i) && op_i.use
                         if signal_i(1) == 1
-                            fprintf('%s:intraday breachUP:%s:%4.3f with barrier_i at %4.3f (%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),ei_i.px(end,5),signal_i(2),op_i.comment);
+                            fprintf('%s:i-breachup:%s:%4.3f with barrier_i at %4.3f (%s)(%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),ei_i.px(end,5),signal_i(2),op_i.comment,mytimerobj.names_sector_{i});
                         elseif signal_i(1) == -1
-                            fprintf('%s:intraday breachDN:%s:%4.3f with barrier_d at %4.3f (%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),ei_i.px(end,5),signal_i(3),op_i.comment);
+                            fprintf('%s:i-breachdn:%s:%4.3f with barrier_i at %4.3f (%s)(%s)\n',dtstr,mytimerobj.codes_sector_{i}(1:end-3),ei_i.px(end,5),signal_i(3),op_i.comment,mytimerobj.names_sector_{i});
                         end
                         hasbreach = true;
                     end           
