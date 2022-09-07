@@ -129,7 +129,8 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             if hhupward
                 %further check whether there are any breach-up of hh since
                 %the last fractal points
-                nonbreachhhflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-hh(last2hhidx(end)-2*nfractal:end-1)-2*ticksize>0,1,'last'));
+%                 nonbreachhhflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-hh(last2hhidx(end)-2*nfractal:end-1)-2*ticksize>0,1,'last'));
+                nonbreachhhflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-hh(end-1)-2*ticksize>0,1,'last'));
                 %further check whether last price is above teeth
                 aboveteeth = px(end,5)-teeth(end)-2*ticksize>0;
                 %further check whether there is any breach dn of ll between
