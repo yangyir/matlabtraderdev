@@ -32,7 +32,7 @@ end
 
 %islvlupbreach
 islvlupbreach = 0;
-if px(end,5)>lvlup(end) && px(end-1,5)<lvlup(end)
+if px(end,5)>=lvlup(end) && px(end-1,5)<lvlup(end)
     islvlupbreach = 1;
 end
 if ~islvlupbreach && (px(end,5)>lvlup(end) && px(end,4)<lvlup(end))
