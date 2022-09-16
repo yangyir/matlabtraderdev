@@ -109,9 +109,13 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     runningmm = hour(runningt)*60+minute(runningt);
     runriskmanagementbeforemktclose = false;
     
-    if runningmm == trade.oneminb4close1_ && second(runningt) >= 59 && second(ticktime) >= 59
+    if runningmm == trade.oneminb4close1_
+        fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
+    end
+    
+    if runningmm == trade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
         runriskmanagementbeforemktclose = true;
-    elseif runningmm == trade.oneminb4close2_ && second(runningt) >= 59 && second(ticktime) >= 59
+    elseif runningmm == trade.oneminb4close2_ && (second(runningt) >= 59 || second(ticktime) >= 59)
         runriskmanagementbeforemktclose = true;
     end
     
