@@ -65,6 +65,17 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             if flag1 && flag2 && flag3
                 return
             end
+            %note:20220915
+            %there is one exception that 2)the new price is a valid breach
+            %of tdsq lvlup with tdsq lvlup being above fractal hh
+            flag1 = extrainfo.p(end,5)>=extrainfo.lvlup(end-1)&&...
+                extrainfo.p(end-1,5)<extrainfo.lvlup(end-1)&&...
+                extrainfo.lvlup(end-1)==extrainfo.lvlup(end)&&...
+                extrainfo.lvlup(end-1)>extrainfo.hh(end-1)&&...
+                extrainfo.hh(end-1)==extrainfo.hh(end);
+            if flag1
+                return
+            end
             %
             %use the lastest open to recalculate wad
             if extrainfo.latestopen > extrainfo.p(end-1,5)
