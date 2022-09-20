@@ -33,7 +33,11 @@ function [obj] = table2tradeopen2(obj,headers,data)
                 continue;
             end
             if ~isempty(strfind(headers{i},'oneminb4close2_'))
-                obj.(headers{i}) = NaN;
+                if ~isempty(data{i}) || ~isnan(data{i})
+                    obj.(headers{i}) = data{i};
+                else
+                    obj.(headers{i}) = NaN;
+                end
                 continue;
             end
             if isempty(data{i})
