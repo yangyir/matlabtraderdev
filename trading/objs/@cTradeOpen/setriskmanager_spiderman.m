@@ -59,10 +59,22 @@ function [] = setriskmanager_spiderman(obj,varargin)
                 riskmanager.tdhigh_ = info.tdhigh_;
             end
         else
-            riskmanager.pxstoploss_ = riskmanager.fibonacci0_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            if ~strcmpi(info.pxstoploss_,'NaN')
+                riskmanager.pxstoploss_ = info.pxstoploss_;
+            else
+                riskmanager.pxstoploss_ = riskmanager.fibonacci0_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            end
 %           riskmanager.pxstoploss2_ = riskmanager.fibonacci1_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
-            riskmanager.pxtarget_ = riskmanager.fibonacci1_ + 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
-            riskmanager.closestr_ = 'fibonacci:0.618';
+            if ~strcmpi(info.pxtarget_,'NaN')
+                riskmanager.pxtarget_ = info.pxtarget_;
+            else
+                riskmanager.pxtarget_ = riskmanager.fibonacci1_ + 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            end
+            if ~strcmpi(info.closestr_,'NaN')
+                riskmanager.closestr_ = info.closestr_;
+            else
+                riskmanager.closestr_ = 'fibonacci:0.618';
+            end
         
             if ~isempty(obj.instrument_)
                 ticksize = obj.instrument_.tick_size;
@@ -92,11 +104,22 @@ function [] = setriskmanager_spiderman(obj,varargin)
                 riskmanager.tdhigh_ = info.tdhigh_;
             end
         else
-        
-            riskmanager.pxstoploss_ = riskmanager.fibonacci1_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            if ~strcmpi(info.pxstoploss_,'NaN')
+                riskmanager.pxstoploss_ = info.pxstoploss_;
+            else
+                riskmanager.pxstoploss_ = riskmanager.fibonacci1_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            end
     %         riskmanager.pxstoploss2_ = riskmanager.fibonacci0_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
-            riskmanager.pxtarget_ = riskmanager.fibonacci0_ - 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
-            riskmanager.closestr_ = 'fibonacci:0.618';
+            if ~strcmpi(info.pxtarget_,'NaN')
+                riskmanager.pxtarget_ = info.pxtarget_;
+            else
+                riskmanager.pxtarget_ = riskmanager.fibonacci0_ - 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            end
+            if ~strcmpi(info.closestr_,'NaN')
+                riskmanager.closestr_ = info.closestr_;
+            else
+                riskmanager.closestr_ = 'fibonacci:0.618';
+            end
 
             if ~isempty(obj.instrument_)
                 ticksize = obj.instrument_.tick_size;
