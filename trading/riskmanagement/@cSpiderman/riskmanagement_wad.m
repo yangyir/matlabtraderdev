@@ -23,7 +23,8 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 if strcmpi(trade.opensignal_.frequency_,'daily')
                     closeflag = ret.inconsistence;
                 end
-                obj.pxstoploss_ = max(extrainfo.p(end,4),extrainfo.lips(end));
+%                 obj.pxstoploss_ = max(extrainfo.p(end,4),extrainfo.lips(end));
+                obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
                 obj.closestr_ = ['wad:',ret.reason];
             else
                 %if latest open jumps and moves higher than the highest
@@ -145,6 +146,15 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             end
             flag3 = extrainfo.teeth(end) < extrainfo.jaw(end);
             if flag1 && flag2 && flag3
+                return
+            end
+            %note:20220929
+            %there is another exception that 2)the new price is a valid
+            %breach of lvldn
+            flag1_ = extrainfo.p(end,5)<extrainfo.lvldn(end-1)&&...
+                extrainfo.p(end-1,5)>extrainfo.lvldn(end-1)&&...
+                extrainfo.lvldn(end-1)==extrainfo.lvldn(end);
+            if flag1_ && flag2
                 return
             end
             %use the lastest open to recalculate wad
