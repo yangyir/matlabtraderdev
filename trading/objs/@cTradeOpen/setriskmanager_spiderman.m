@@ -59,20 +59,32 @@ function [] = setriskmanager_spiderman(obj,varargin)
                 riskmanager.tdhigh_ = info.tdhigh_;
             end
         else
-            if ~strcmpi(info.pxstoploss_,'NaN')
-                riskmanager.pxstoploss_ = info.pxstoploss_;
-            else
+            try
+                if ~strcmpi(info.pxstoploss_,'NaN') && isnumeric(info.pxstoploss_) && abs(info.pxstoploss_+9.99)>1e-6
+                    riskmanager.pxstoploss_ = info.pxstoploss_;
+                else
+                    riskmanager.pxstoploss_ = riskmanager.fibonacci0_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+                end
+            catch
                 riskmanager.pxstoploss_ = riskmanager.fibonacci0_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             end
 %           riskmanager.pxstoploss2_ = riskmanager.fibonacci1_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
-            if ~strcmpi(info.pxtarget_,'NaN')
-                riskmanager.pxtarget_ = info.pxtarget_;
-            else
+            try
+                if ~strcmpi(info.pxtarget_,'NaN') && isnumeric(info.pxtarget_) && abs(info.pxtarget_+9.99)>1e-6
+                    riskmanager.pxtarget_ = info.pxtarget_;
+                else
+                    riskmanager.pxtarget_ = riskmanager.fibonacci1_ + 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+                end
+            catch
                 riskmanager.pxtarget_ = riskmanager.fibonacci1_ + 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             end
-            if ~strcmpi(info.closestr_,'NaN')
-                riskmanager.closestr_ = info.closestr_;
-            else
+            try
+                if ~strcmpi(info.closestr_,'NaN')
+                    riskmanager.closestr_ = info.closestr_;
+                else
+                    riskmanager.closestr_ = 'fibonacci:0.618';
+                end
+            catch
                 riskmanager.closestr_ = 'fibonacci:0.618';
             end
         
@@ -104,20 +116,32 @@ function [] = setriskmanager_spiderman(obj,varargin)
                 riskmanager.tdhigh_ = info.tdhigh_;
             end
         else
-            if ~strcmpi(info.pxstoploss_,'NaN')
-                riskmanager.pxstoploss_ = info.pxstoploss_;
-            else
+            try
+                if ~strcmpi(info.pxstoploss_,'NaN') && isnumeric(info.pxstoploss_) && abs(info.pxstoploss_+9.99)>1e-6 
+                    riskmanager.pxstoploss_ = info.pxstoploss_;
+                else
+                    riskmanager.pxstoploss_ = riskmanager.fibonacci1_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+                end
+            catch
                 riskmanager.pxstoploss_ = riskmanager.fibonacci1_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             end
     %         riskmanager.pxstoploss2_ = riskmanager.fibonacci0_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
-            if ~strcmpi(info.pxtarget_,'NaN')
-                riskmanager.pxtarget_ = info.pxtarget_;
-            else
+            try
+                if ~strcmpi(info.pxtarget_,'NaN') && isnumeric(info.pxtarget_) && abs(info.pxtarget_+9.99)>1e-6
+                    riskmanager.pxtarget_ = info.pxtarget_;
+                else
+                    riskmanager.pxtarget_ = riskmanager.fibonacci0_ - 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+                end
+            catch
                 riskmanager.pxtarget_ = riskmanager.fibonacci0_ - 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             end
-            if ~strcmpi(info.closestr_,'NaN')
-                riskmanager.closestr_ = info.closestr_;
-            else
+            try
+                if ~strcmpi(info.closestr_,'NaN')
+                    riskmanager.closestr_ = info.closestr_;
+                else
+                    riskmanager.closestr_ = 'fibonacci:0.618';
+                end
+            catch
                 riskmanager.closestr_ = 'fibonacci:0.618';
             end
 
