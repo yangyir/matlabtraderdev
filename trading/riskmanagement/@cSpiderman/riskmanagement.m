@@ -73,6 +73,18 @@ function [unwindtrade] = riskmanagement(obj,varargin)
                 end
             end
             %
+            [~,teeth,~] = mdefut.calc_alligator_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+            if trade.opendirection_ == 1
+                if obj.pxstoploss_ < teeth(end)
+                    obj.pxstoploss_ = floor(teeth(end)/instrument.tick_size)*instrument.tick_size;
+                    obj.closestr_ = 'fractal:teeth';
+                end
+            elseif trade.opendirection_ == -1
+                if obj.pxstoploss_ > teeth(end)
+                    obj.pxstoploss_ = ceil(teeth(end)/instrument.tick_size)*instrument.tick_size;
+                    obj.closestr_ = 'fractal:teeth';
+                end
+            end
             if trade.opendirection_ == 1
                 [wad,px] = mdefut.calc_wad_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
                 obj.wadopen_ = wad(end);
@@ -109,9 +121,17 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     runningmm = hour(runningt)*60+minute(runningt);
     runriskmanagementbeforemktclose = false;
     
+    %for DEBUG
     if runningmm == trade.oneminb4close1_
         fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
     end
+    
+    %for DEBUG
+    if runningmm == trade.oneminb4close2_
+        fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
+    end
+    
+%     fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
     
     if runningmm == trade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
         runriskmanagementbeforemktclose = true;
@@ -155,7 +175,8 @@ function [unwindtrade] = riskmanagement(obj,varargin)
             'jaw',jaw,'teeth',teeth,'lips',lips,...
             'bs',bs,'ss',ss,'bc',bc,'sc',sc,...
             'lvlup',lvlup,'lvldn',lvldn,'wad',wad,...
-            'latestopen',lasttick(4));
+            'latestopen',lasttick(4),...
+            'latestdt',lasttick(1));
         
         unwindtrade = obj.riskmanagementwithcandle([],...
             'debug',debug,...
@@ -183,7 +204,8 @@ function [unwindtrade] = riskmanagement(obj,varargin)
                 'jaw',jaw,'teeth',teeth,'lips',lips,...
                 'bs',bs,'ss',ss,'bc',bc,'sc',sc,...
                 'lvlup',lvlup,'lvldn',lvldn,'wad',wad,...
-                'latestopen',lasttick(4));
+                'latestopen',lasttick(4),...
+                'latestdt',lasttick(1));
              unwindtrade = obj.riskmanagementwithcandle([],...
                  'debug',debug,...
                  'usecandlelastonly',true,...
