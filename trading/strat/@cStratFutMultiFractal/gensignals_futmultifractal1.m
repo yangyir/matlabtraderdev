@@ -284,6 +284,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         %we regard the upper trend is valid if nfractal+1
                         %candle close above the alligator's lips
                         hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
+                        %also need at least nfractal+1 alligator's lips
+                        %above teeth
+                        hhabovelvlup = hhabovelvlup & isempty(find(lips(end-nfractal)-teeth(end-nfractal:end)+2*ticksize<0,1,'first'));
                     end
                 end
                 %
