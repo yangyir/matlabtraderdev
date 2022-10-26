@@ -170,6 +170,10 @@ function [rtt_output] = rtt_setup(varargin)
         rtt_mdefut.mode_ = 'replay';
         rtt_helper.mode_ = 'replay';
         rtt_strategy.mode_ = 'replay';
+        rtt_helper.replay_date1_ = rtt_mdefut.replay_date1_;
+        rtt_helper.replay_date2_ = rtt_mdefut.replay_date2_;
+        rtt_helper.replay_time1_ = rtt_mdefut.replay_time1_;
+        rtt_helper.replay_time2_ = rtt_mdefut.replay_time2_;
     elseif strcmpi(mode,'demo')
         rtt_mdefut.mode_ = 'demo';
         rtt_helper.mode_ = 'demo';
