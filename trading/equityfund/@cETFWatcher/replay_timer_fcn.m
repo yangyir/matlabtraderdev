@@ -49,7 +49,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                     ei_d.px(end,:) = [ei_d.px(end,1),ei_d.px(end,2),max(ei_d.px(end,3),latest_index(i,3)),min(ei_d.px(end,4),latest_index(i,3)),latest_index(i,3)];
                     ei_i.px(end,:) = [ei_i.px(end,1),ei_i.px(end,2),max(ei_i.px(end,3),latest_index(i,3)),min(ei_i.px(end,4),latest_index(i,3)),latest_index(i,3)];
                 catch e
-                    fprintf('cETFWatcher:replay_timer_fcn:error in update index candles;%s\n',e.message);
+                    fprintf('cETFWatcher:replay_timer_fcn:error in update index candles of %s;%s\n',mytimerobj.names_index_{i},e.message);
                 end
                 dtnum = datenum([num2str(latest_sector(i,1)),' ',num2str(latest_sector(i,2))],'yyyymmdd HHMMSS');
                 dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
@@ -151,7 +151,7 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                     ei_d.px(end,:) = [ei_d.px(end,1),ei_d.px(end,2),max(ei_d.px(end,3),latest_sector(i,3)),min(ei_d.px(end,4),latest_sector(i,3)),latest_sector(i,3)];
                     ei_i.px(end,:) = [ei_i.px(end,1),ei_i.px(end,2),max(ei_i.px(end,3),latest_sector(i,3)),min(ei_i.px(end,4),latest_sector(i,3)),latest_sector(i,3)];
                 catch e
-                    fprintf('cETFWatcher:replay_timer_fcn:error in update sector candles;%s\n',e.message);
+                    fprintf('cETFWatcher:replay_timer_fcn:error in update sector candles of %s;%s\n',mytimerobj.names_sector_{i},e.message);
                 end
                 dtnum = datenum([num2str(latest_sector(i,1)),' ',num2str(latest_sector(i,2))],'yyyymmdd HHMMSS');
                 dtstr = datestr(dtnum,'yy-mm-dd:HH:MM');
