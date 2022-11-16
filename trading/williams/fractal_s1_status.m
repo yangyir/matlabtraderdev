@@ -117,7 +117,7 @@ if ~istrendconfirmed
             flag2 = ~isteethjawcrossed & ~isteethlipscrossed;
             last2llidx = find(idxLL==-1,2,'last');
             if ~isempty(last2llidx)
-                flag3 = LL(last2llidx(end))<=LL(last2llidx(1));
+                flag3 = LL(last2llidx(end))-LL(last2llidx(1))<=2*ticksize;
             else
                 flag3 = false;
             end
