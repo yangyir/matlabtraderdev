@@ -72,7 +72,7 @@ classdef cStock < cInstrument
                     strcmpi(codestr,'N225') || strcmpi(codestr,'FTSE') || strcmpi(codestr,'GDAXI')
                 obj.code_wind = [codestr,'.GI'];
             else
-                if length(codestr) == 6
+                if length(codestr) == 6 && isempty(strfind(obj.code_ctp,'.WI'))
                     if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
                         obj.code_wind = [codestr,'.SH'];
                     else
