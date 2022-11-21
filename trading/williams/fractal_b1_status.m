@@ -118,7 +118,7 @@ if ~istrendconfirmed
             flag2 = ~isteethjawcrossed & ~isteethlipscrossed;
             last2hhidx = find(idxHH==-1,2,'last');
             if ~isempty(last2hhidx)
-                flag3 = HH(last2hhidx(end))>=HH(last2hhidx(1));
+                flag3 = HH(last2hhidx(end))-HH(last2hhidx(1))>=-2*ticksize;
             else
                 flag3 = false;
             end

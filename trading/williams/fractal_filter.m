@@ -57,9 +57,9 @@ for i = 1:n
     else
         freqstr = 'daily';
         nfractal = 2;
-        if strcmpi(codes{i},'gzhy')
-            nfractal = 4;
-        end
+%         if strcmpi(codes{i},'gzhy')
+%             nfractal = 4;
+%         end
     end
     [resmat{i},resstruct{i}] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
     [idxb1{i},idxs1{i}] = fractal_genindicators1(resstruct{i}.px,...
