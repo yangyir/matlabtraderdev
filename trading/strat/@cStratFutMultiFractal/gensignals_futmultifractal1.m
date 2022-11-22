@@ -259,7 +259,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & p(end,5)<=hh(end) ...
                     & (lips(end)>teeth(end) || (lips(end)<=teeth(end) && hh(end)>jaw(end))) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first')) ...
-                    & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)-2*ticksize<0,1,'first'));
+                    & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)+2*ticksize<0,1,'first'));
                 if hhabovelvlup
                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
                     %in case alligator's teeth and jaw is crossed and also
@@ -287,6 +287,11 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         %also need at least nfractal+1 alligator's lips
                         %above teeth
                         hhabovelvlup = hhabovelvlup & isempty(find(lips(end-nfractal)-teeth(end-nfractal:end)+2*ticksize<0,1,'first'));
+                    end
+                end
+                if hhabovelvlup
+                    if lvlup(end) > lvldn(end)
+                        hhabovelvlup = p(end,3) >= lvldn(end);
                     end
                 end
                 %
@@ -424,7 +429,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & ll(end)<teeth(end) ...
                     & p(end,5)>ll(end) ...
                     & lips(end)<teeth(end) ...
-                    & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'));
+                    & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'))...
+                    & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,5)+2*ticksize<0,1,'first'));
                 if llbelowlvldn
                     %not to place conditional order in
                     %mediumbreach-bshighvalue
@@ -456,6 +462,11 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         %we regard the down trend is valid if nfractal+1
                         %candle close below the alligator's lips
                         llbelowlvldn = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)-2*ticksize>0,1,'first'));
+                    end
+                end
+                if llbelowlvldn
+                    if lvlup(end) > lvldn(end)
+                        llbelowlvldn = p(end,4) <= lvlup(end);
                     end
                 end
                 %
