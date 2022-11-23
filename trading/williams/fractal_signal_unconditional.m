@@ -23,7 +23,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             ask = tick(3);
             if ask>extrainfo.lvlup(end) && extrainfo.px(end,5)<extrainfo.lvlup(end)
                 useflag = 1;
-                op.useflag = 1;
+                op.use = 1;
                 op.comment = 'breachup-lvlup';
             end
         end
@@ -65,12 +65,15 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
                 signal = zeros(1,6);
                 if ~flag1
                     op.comment = [op.comment,'-invalid long as close dumps from high'];
+                    op.use = 0;
                 end
                 if ~flag2
                     op.comment = [op.comment,'-invalid long as close moves too high'];
+                    op.use = 0;
                 end
                 if ~flag3
                     op.comment = [op.comment,'-invalid long as close below alligator lips'];
+                    op.use = 0;
                 end
             end
             op.direction = 1;
@@ -89,7 +92,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             bid = tick(2);
             if bid<extrainfo.lvldn(end) && extrainfo.px(end,5)>extrainfo.lvldn(end)
                 useflag = 1;
-                op.useflag = 1;
+                op.use = 1;
                 op.comment = 'breachdn-lvldn';
             end
         end
@@ -131,12 +134,15 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
                 signal = zeros(1,6);
                 if ~flag1
                     op.comment = [op.comment,'-invalid short as close rallied from low'];
+                    op.use = 0;
                 end
                 if ~flag2
                     op.comment = [op.comment,'-invalid short as close moves too low'];
+                    op.use = 0;
                 end
                 if ~flag3
                     op.comment = [op.comment,'-invalid short as close above alligator lips'];
+                    op.use = 0;
                 end
             end
             op.direction = -1;
@@ -144,7 +150,6 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             signal = zeros(1,6);
         end
         return
-        
-    
+    end 
     
 end
