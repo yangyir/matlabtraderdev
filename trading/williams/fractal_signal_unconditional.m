@@ -18,6 +18,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
     if validbreachhh && ~validbreachll
         [op,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize);
         useflag = op.use;
+        op.direction = 1;
         if ~useflag && ~isempty(tick)
             %special treatment when market jumps high above lvlup
             ask = tick(3);
@@ -76,7 +77,6 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
                     op.use = 0;
                 end
             end
-            op.direction = 1;
         else
             %~useflag
             signal = zeros(1,6); 
@@ -87,6 +87,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
     if ~validbreachhh && validbreachll
         [op,status] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksize);
         useflag = op.use;
+        op.direction = -1;
         if ~useflag && ~isempty(tick)
             %special treatment when market jumps low below lvldn
             bid = tick(2);
@@ -145,7 +146,6 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
                     op.use = 0;
                 end
             end
-            op.direction = -1;
         else
             signal = zeros(1,6);
         end
