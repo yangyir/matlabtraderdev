@@ -82,10 +82,17 @@ function obj = init(obj,varargin)
             end
             j = idxb1(end,1);
             ei = fractal_truncate(d,j);
-            op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
+%             op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
+            [~,op] = fractal_signal_unconditional(ei,etf.tick_size,nfractal);
             if op.use
                 trade = fractal_gentrade(d,codes_index{i},j,op.comment,1,'daily');
             else
+                if ~isempty(op) && op.direction == 1 && j == size(d.px,1)
+                    fprintf('%s:bullish invalid:%s\n',codes_index{i},op.comment);
+                end
+                if ~isempty(op) && op.direction == -1 && j == size(d.px,1)
+                    fprintf('%s:bearish invalid:%s\n',codes_index{i},op.comment);
+                end
                 %not a valid signal
                 if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
                     obj.dailystatus_index_(i) = 0;
@@ -198,10 +205,17 @@ function obj = init(obj,varargin)
             end
             j = idxb1(end,1);
             ei = fractal_truncate(d,j);
-            op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
+%             op = fractal_filterb1_singleentry(b1type,nfractal,ei,etf.tick_size);
+            [~,op] = fractal_signal_unconditional(ei,etf.tick_size,nfractal);
             if op.use
                 trade = fractal_gentrade(d,codes_sector{i},j,op.comment,1,'daily');
             else
+                if ~isempty(op) && op.direction == 1 && j == size(d.px,1)
+                    fprintf('%s:bullish invalid:%s\n',codes_sector{i},op.comment);
+                end
+                if ~isempty(op) && op.direction == -1 && j == size(d.px,1)
+                    fprintf('%s:bearish invalid:%s\n',codes_sector{i},op.comment);
+                end
                 %not a valid signal
                 if ~(obj.dailystatus_sector_(i) == 2  || obj.dailystatus_sector_(i) == -2)
                     obj.dailystatus_sector_(i) = 0;
