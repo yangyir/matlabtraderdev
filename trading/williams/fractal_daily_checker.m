@@ -1,7 +1,8 @@
 function [tblb,tbls,trades,pnl,resstruct] = fractal_daily_checker(code,varargin)
 
 isequity = isinequitypool(code);
-if ~isequity
+iscomdtyindex = isincomdtyindex(code);
+if ~isequity && ~iscomdtyindex
 %     error('fractal_daily_checker:invalid code input:only equity is supported')
     instrument = code2instrument(code);
     assetinfo = getassetinfo(instrument.asset_name);
