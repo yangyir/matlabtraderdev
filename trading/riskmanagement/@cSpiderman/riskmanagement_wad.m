@@ -108,7 +108,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                     closeflag = ret.inconsistence;
                 end
 %                 obj.pxstoploss_ =  min(extrainfo.p(end,3),extrainfo.lips(end));
-                obj.pxstoploss_ =  min(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
+                obj.pxstoploss_ =  min(2*extrainfo.p(end,3)-extrainfo.p(end,4),extrainfo.lips(end));
                 obj.closestr_ = ['wad:',ret.reason];
             else
                 %if latest open jumps and moves lower than the lowest close
