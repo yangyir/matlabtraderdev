@@ -55,7 +55,11 @@ if op.use || (~op.use && statusstruct.istrendconfirmed)
     else
         trade = fractal_gentrade(ei,code,openid,op.comment,1,'30m');
     end
-    ret.opensignal = statusstr;
+    if strcmpi(op.comment,'mediumbreach-trendbreak-s') || strcmpi(op.comment,'strongbreach-trendbreak-s')
+        ret.opensignal = op.comment;
+    else
+        ret.opensignal = statusstr;
+    end
     ret.trade = trade;
 else
     ret.opensignal = statusstr;
