@@ -137,7 +137,7 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                 nonbreachllflag = true;
                 for k = last2hhidx(end)-2*nfractal:size(px,1)
                     ei_k = fractal_truncate(extrainfo,k);
-                    [~,validbreachll,~,~] = fractal_validbreach(ei_k,ticksize);
+                    [~,validbreachll,~,~] = fractal_validbreach(ei_k,ticksize,false);
                     if validbreachll
                         nonbreachllflag = false;
                         break
@@ -349,11 +349,11 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                 if hhupward
                     %further check whether there are any breach-up of hh since
                     %the last fractal points
-                    nonbreachhhflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-hh(last2hhidx(end)-2*nfractal:end-1)-2*ticksize>0,1,'last'));
+                    nonbreachhhflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-hh(last2hhidx(end)-2*nfractal:end-1)-2*ticksize>1e-6,1,'last'));
                     %further check whether last price is above teeth
                     aboveteeth = px(end,5)-teeth(end)-2*ticksize>0;
                     %further check whether there is any breach dn of ll between
-                    nonbreachllflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-ll(last2hhidx(end)-2*nfractal:end-1)+2*ticksize<0,1,'last'));
+                    nonbreachllflag = isempty(find(px(last2hhidx(end)-2*nfractal:end-1,5)-ll(last2hhidx(end)-2*nfractal:end-1)+2*ticksize<-1e-6,1,'last'));
                     %extra check
                     extraflag = px(end,5)-jaw(end)-2*ticksize>0;
                     if ~extraflag
