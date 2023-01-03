@@ -12,6 +12,8 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
     [validbreachhh,validbreachll,b1type,s1type] = fractal_validbreach(extrainfo,ticksize);
     if ~validbreachhh && ~validbreachll
         %no signal if there is either breachhh or breachll
+        op.use = 0;
+        op.direction = 0;
         return
     end
     
