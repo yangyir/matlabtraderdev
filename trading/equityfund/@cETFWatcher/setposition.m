@@ -4,7 +4,9 @@ function [] = setposition(obj,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('Code','',@ischar);
-    p.addParameter('Position',[],@isstruct);
+    p.addParameter('Position',[],...
+        @(x) validateattributes(x,{'struct','cTradeOpen'},{},'','Position'));
+   
     p.parse(varargin{:});
     code = p.Results.Code;
     pos = p.Results.Position;
@@ -19,6 +21,7 @@ function [] = setposition(obj,varargin)
         if strcmpi(code,obj.codes_index_{i}(1:end-3)) || strcmpi(code,obj.codes_index_{i})
             foundflag = true;
             obj.pos_index_{i} = pos;
+            obj.dailystatus_index_(i)= pos.opendirection_;
             break
         end
     end
@@ -28,6 +31,7 @@ function [] = setposition(obj,varargin)
             if strcmpi(code,obj.codes_sector_{i}(1:end-3)) || strcmpi(code,obj.codes_sector_{i})
                 foundflag = true;
                 obj.pos_sector_{i} = pos;
+                obj.dailystatus_sector_(i)= pos.opendirection_;
                 break
             end
         end
@@ -38,6 +42,7 @@ function [] = setposition(obj,varargin)
             if strcmpi(code,obj.codes_stock_{i}(1:end-3)) || strcmpi(code,obj.codes_stock_{i})
                 foundflag = true;
                 obj.pos_stock_{i} = pos;
+                obj.dailystatus_stock_(i)= pos.opendirection_;
                 break
             end
         end
