@@ -19,20 +19,28 @@ function [] = setposition(obj,varargin)
     
     for i = 1:n_index
         if strcmpi(code,obj.codes_index_{i}(1:end-3)) || strcmpi(code,obj.codes_index_{i})
-            foundflag = true;
-            obj.pos_index_{i} = pos;
-            obj.dailystatus_index_(i)= pos.opendirection_;
-            break
+            if strcmpi(pos.code_,code)
+                foundflag = true;
+                obj.pos_index_{i} = pos;
+                obj.dailystatus_index_(i)= pos.opendirection_;
+                break
+            else
+                error('cETFWatcher:setposition:invaid input:code and position mismatch')
+            end
         end
     end
     
     if ~foundflag
         for i = 1:n_sector
             if strcmpi(code,obj.codes_sector_{i}(1:end-3)) || strcmpi(code,obj.codes_sector_{i})
-                foundflag = true;
-                obj.pos_sector_{i} = pos;
-                obj.dailystatus_sector_(i)= pos.opendirection_;
-                break
+                if strcmpi(pos.code_,code)
+                    foundflag = true;
+                    obj.pos_sector_{i} = pos;
+                    obj.dailystatus_sector_(i)= pos.opendirection_;
+                    break
+                end
+            else
+                error('cETFWatcher:setposition:invaid input:code and position mismatch')
             end
         end
     end
@@ -40,10 +48,14 @@ function [] = setposition(obj,varargin)
     if ~foundflag
         for i = 1:n_stock
             if strcmpi(code,obj.codes_stock_{i}(1:end-3)) || strcmpi(code,obj.codes_stock_{i})
-                foundflag = true;
-                obj.pos_stock_{i} = pos;
-                obj.dailystatus_stock_(i)= pos.opendirection_;
-                break
+                if strcmpi(pos.code_,code)
+                    foundflag = true;
+                    obj.pos_stock_{i} = pos;
+                    obj.dailystatus_stock_(i)= pos.opendirection_;
+                    break
+                end
+            else
+                error('cETFWatcher:setposition:invaid input:code and position mismatch')
             end
         end
     end
