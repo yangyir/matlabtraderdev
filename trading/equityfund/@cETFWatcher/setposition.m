@@ -38,9 +38,9 @@ function [] = setposition(obj,varargin)
                     obj.pos_sector_{i} = pos;
                     obj.dailystatus_sector_(i)= pos.opendirection_;
                     break
+                else
+                    error('cETFWatcher:setposition:invaid input:code and position mismatch')
                 end
-            else
-                error('cETFWatcher:setposition:invaid input:code and position mismatch')
             end
         end
     end
@@ -53,9 +53,9 @@ function [] = setposition(obj,varargin)
                     obj.pos_stock_{i} = pos;
                     obj.dailystatus_stock_(i)= pos.opendirection_;
                     break
-                end
-            else
-                error('cETFWatcher:setposition:invaid input:code and position mismatch')
+                else
+                    error('cETFWatcher:setposition:invaid input:code and position mismatch')
+                end                
             end
         end
     end
