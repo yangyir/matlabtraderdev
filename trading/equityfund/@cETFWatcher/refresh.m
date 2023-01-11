@@ -64,10 +64,13 @@ function [] = refresh(obj,varargin)
         intraday_sector{i} = obj.conn_.intradaybar(obj.codes_sector_{i}(1:end-3),dtstr,dtstr,30,'trade');
     end
     
-    for i = 1:n_stock
-        fprintf('cETFWatcher:refresh:update intraday bar of %s...\n',obj.names_stock_{i});
-        intraday_stock{i} = obj.conn_.intradaybar(obj.codes_stock_{i}(1:end-3),dtstr,dtstr,30,'trade');
-    end
+    %yangyir:20230109
+    %from onwards, we switch off intraday update for individual stocks
+    %however,we shall update the graph when 'showfigures' method is called
+%     for i = 1:n_stock
+%         fprintf('cETFWatcher:refresh:update intraday bar of %s...\n',obj.names_stock_{i});
+%         intraday_stock{i} = obj.conn_.intradaybar(obj.codes_stock_{i}(1:end-3),dtstr,dtstr,30,'trade');
+%     end
     
     
     nfractalintraday = 4;
@@ -93,16 +96,16 @@ function [] = refresh(obj,varargin)
         obj.intradaybarmat_sector_{i}(:,1) = x2mdate(obj.intradaybarmat_sector_{i}(:,1));
     end
     
-    for i = 1:n_stock
-        if obj.intradaybarmat_stock_{i}(end,1) > today
-            idx = find(obj.intradaybarmat_stock_{i}(:,1) < today,1,'last');
-            data_new = [obj.intradaybarmat_stock_{i}(1:idx,1:5);intraday_stock{i}];
-        else
-            data_new = [obj.intradaybarmat_stock_{i}(:,1:5);intraday_stock{i}];
-        end
-        [obj.intradaybarmat_stock_{i},obj.intradaybarstruct_stock_{i}] = tools_technicalplot1(data_new,nfractalintraday,doplot);
-        obj.intradaybarmat_stock_{i}(:,1) = x2mdate(obj.intradaybarmat_stock_{i}(:,1));
-    end
+%     for i = 1:n_stock
+%         if obj.intradaybarmat_stock_{i}(end,1) > today
+%             idx = find(obj.intradaybarmat_stock_{i}(:,1) < today,1,'last');
+%             data_new = [obj.intradaybarmat_stock_{i}(1:idx,1:5);intraday_stock{i}];
+%         else
+%             data_new = [obj.intradaybarmat_stock_{i}(:,1:5);intraday_stock{i}];
+%         end
+%         [obj.intradaybarmat_stock_{i},obj.intradaybarstruct_stock_{i}] = tools_technicalplot1(data_new,nfractalintraday,doplot);
+%         obj.intradaybarmat_stock_{i}(:,1) = x2mdate(obj.intradaybarmat_stock_{i}(:,1));
+%     end
     
     
 

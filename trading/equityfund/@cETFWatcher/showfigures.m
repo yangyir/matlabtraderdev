@@ -55,7 +55,20 @@ function [dailystruct,intradaystruct] = showfigures(obj,varargin)
                 foundflag = true;
                 dailybarmat_ = obj.dailybarmat_stock_{i};
                 idx1 = find(dailybarmat_(:,1)>=datenum(dateadd(dailybarmat_(end,1),'-6m')),1,'first');
-                tools_technicalplot2(dailybarmat_(idx1:end,:),2,[obj.codes_stock_{i},'-',obj.names_stock_{i},'-日线'],true,0.02);    
+                tools_technicalplot2(dailybarmat_(idx1:end,:),2,[obj.codes_stock_{i},'-',obj.names_stock_{i},'-日线'],true,0.02);
+                %yangyir:20230109
+                %update is called here rather than refresh methods
+                dtstr = datestr(today,'yyyy-mm-dd');
+                intraday_stock = obj.conn_.intradaybar(obj.codes_stock_{i}(1:end-3),dtstr,dtstr,30,'trade');
+                if obj.intradaybarmat_stock_{i}(end,1) > today
+                    idx = find(obj.intradaybarmat_stock_{i}(:,1) < today,1,'last');
+                    data_new = [obj.intradaybarmat_stock_{i}(1:idx,1:5);intraday_stock];
+                else
+                    data_new = [obj.intradaybarmat_stock_{i}(:,1:5);intraday_stock];
+                end
+                [obj.intradaybarmat_stock_{i},obj.intradaybarstruct_stock_{i}] = tools_technicalplot1(data_new,4,false);
+                obj.intradaybarmat_stock_{i}(:,1) = x2mdate(obj.intradaybarmat_stock_{i}(:,1));
+                
                 idx2 = find(obj.intradaybarmat_stock_{i}(:,1)>=today-14,1,'first');
                 tools_technicalplot2(obj.intradaybarmat_stock_{i}(idx2:end,:),3,[obj.codes_stock_{i},'-',obj.names_stock_{i},'-30分钟线'],true,0.02);
                 if printflag
