@@ -5,6 +5,7 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
     
     if s1type == 1
         output = struct('use',0,'comment','weakbreach');
+        status = fractal_s1_status(nfractal,extrainfo,ticksize);
         return
     end
     %
