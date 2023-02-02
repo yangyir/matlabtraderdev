@@ -13,28 +13,28 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
     
     trade = obj.trade_;
     direction = trade.opendirection_;
-    closeflag = 0;
-    
+    closeflag = 0;    
+
     %backtesting indicates there shall be exclusion for breachup-lvlup
     %trades without alligator's lips being breached but fibonacci:0.618 is
     %triggered.
-    
-    if direction == -1
-        return
-    end
-    
-    exceptionflag = direction == 1 & ...
+    exceptionflagb = direction == 1 & ...
         strcmpi(trade.opensignal_.mode_,'breachup-lvlup') & ...
         extrainfo.p(end,5) > extrainfo.lips(end);
+    %not sure about breachdn-lvldn case but we shall leave it as exception
+    exceptionflags = direction == -1 & ...
+        strcmpi(trade.opensignal_.mode_,'breachdn-lvldn') & ...
+        extrainfo.p(end,5) < extrainfo.lips(end);
     
     if direction == 1
         if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_) && ...
-                ~exceptionflag
+                ~exceptionflagb && obj.usefibonacci_
             closeflag = 1;
             obj.closestr_ = 'fibonacci:0.618';
         end
     else
-        if extrainfo.p(end,5) > obj.fibonacci0_+0.618*(obj.fibonacci1_-obj.fibonacci0_)
+        if extrainfo.p(end,5) > obj.fibonacci0_+0.618*(obj.fibonacci1_-obj.fibonacci0_) && ...
+                ~exceptionflags && obj.usefibonacci_
             closeflag = 1;
             obj.closestr_ = 'fibonacci:0.618';
         end
@@ -84,7 +84,7 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                 end
             end
             if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_) && ...
-                    ~exceptionflag
+                    ~exceptionflagb && obj.usefibonacci_
                 obj.status_ = 'closed';
                 obj.closestr_ = 'fibonacci:0.618';
                 unwindtrade = obj.trade_;
@@ -127,7 +127,8 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                     obj.pxtarget_ = ptarget;
                 end
             end
-            if extrainfo.p(end,5) > obj.fibonacci0_+0.618*(obj.fibonacci1_-obj.fibonacci0_)
+            if extrainfo.p(end,5) > obj.fibonacci0_+0.618*(obj.fibonacci1_-obj.fibonacci0_) && ...
+                    ~exceptionflags && obj.usefibonacci_
                 obj.status_ = 'closed';
                 obj.closestr_ = 'fibonacci:0.618';
                 unwindtrade = obj.trade_;

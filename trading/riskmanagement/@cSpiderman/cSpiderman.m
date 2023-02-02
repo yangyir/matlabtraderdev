@@ -30,6 +30,11 @@ classdef cSpiderman < cTradeRiskManager
     properties (Access = private)
         bucket_count_@double = -1
     end
+    
+    properties (GetAccess = public, SetAccess = private)
+        usefractalupdate_@logical = true
+        usefibonacci_@logical = true
+    end
        
     methods
         function obj = cSpiderman
@@ -45,6 +50,8 @@ classdef cSpiderman < cTradeRiskManager
         [unwindtrade] = riskmanagement_tdsq(obj,varargin)
         [unwindtrade] = riskmanagement_fractal(obj,varargin)
         [unwindtrade] = riskmanagement_fibonacci(obj,varargin)
+        [] = setusefractalupdateflag(obj,flagin)
+        [] = setusefibonacciflag(obj,flagin)
     end
     
     methods (Access = private)
