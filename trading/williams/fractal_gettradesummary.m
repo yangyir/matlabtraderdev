@@ -22,22 +22,40 @@ else
     end
 end
 
-if nargin > 1
-    check_freq = varargin{1};
-else
-    check_freq = 'intraday';
-end
+% if nargin > 1
+%     check_freq = varargin{1};
+% else
+%     check_freq = 'intraday';
+% end
 
-if strcmpi(check_freq,'intraday')
+p = inputParser;
+p.CaseSensitive = false;p.KeepUnmatched = true;
+p.addParameter('frequency','daily',@ischar);
+p.addParameter('usefractalupdate',true,@islogical);
+p.addParameter('usefibonacci',true,@islogical);
+p.parse(varargin{:});
+checkfreq = p.Results.frequency;
+usefractalupdateflag = p.Results.usefractalupdate;
+usefibonacciflag = p.Results.usefibonacci;
+
+if strcmpi(checkfreq,'intraday')
     [tblb,~,tradesb,~,resstruct] = fractal_intraday_checker(code,...
-            'type','all','direction',1,'plot',false);
+            'type','all','direction',1,'plot',false,...
+            'usefractalupdate',usefractalupdateflag,...
+            'usefibonacci',usefibonacciflag);
     [~,tbls,tradess,~,~] = fractal_intraday_checker(code,...
-            'type','all','direction',-1,'plot',false);
+            'type','all','direction',-1,'plot',false,...
+            'usefractalupdate',usefractalupdateflag,...
+            'usefibonacci',usefibonacciflag);
 else
     [tblb,~,tradesb,~,resstruct] = fractal_daily_checker(code,...
-            'type','all','direction',1,'plot',false);
+            'type','all','direction',1,'plot',false,...
+            'usefractalupdate',usefractalupdateflag,...
+            'usefibonacci',usefibonacciflag);
     [~,tbls,tradess,~,~] = fractal_daily_checker(code,...
-            'type','all','direction',-1,'plot',false);
+            'type','all','direction',-1,'plot',false,...
+            'usefractalupdate',usefractalupdateflag,...
+            'usefibonacci',usefibonacciflag);
 end
     
 data = resstruct{1};

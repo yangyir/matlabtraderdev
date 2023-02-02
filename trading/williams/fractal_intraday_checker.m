@@ -4,10 +4,15 @@ p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('type','',@ischar);
 p.addParameter('plot',false,@islogical);
 p.addParameter('direction',[],@isnumeric);
+p.addParameter('usefractalupdate',true,@islogical);
+p.addParameter('usefibonacci',true,@islogical);
+
 p.parse(varargin{:});
 type = p.Results.type;
 doplot = p.Results.plot;
 direction = p.Results.direction;
+usefracalupdateflag = p.Results.usefractalupdate;
+usefibonacciflag = p.Results.usefibonacci;
 
 %load the data
 isequity = isinequitypool(code);
@@ -45,6 +50,8 @@ for i = 1:n
     j = trade.id_;
     d = resstruct{1};
     %
+    trade.riskmanager_.setusefractalupdateflag(usefracalupdateflag);
+    trade.riskmanager_.setusefibonacciflag(usefibonacciflag);
     for k = j+1:size(d.px,1)
         extrainfo = fractal_genextrainfo(d,k);
         if k == size(d.px,1) || ...
