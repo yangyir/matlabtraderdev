@@ -7,10 +7,12 @@ p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('code','',@ischar);
 p.addParameter('extrainfo','',@isstruct);
 p.addParameter('frequency','daily',@ischar);
+p.addParameter('repeat',true,@islogical);
 p.parse(varargin{:});
 code = p.Results.code;
 ei = p.Results.extrainfo;
 freq = p.Results.frequency;
+repeatflag = p.Results.repeat;
 
 if strcmpi(freq,'daily')
     nfractal = 2;
@@ -24,18 +26,22 @@ asset = code2instrument(code);
             ei.hh,ei.ll,...
             ei.jaw,ei.teeth,ei.lips,...
             'instrument',asset);
-lastbidx = idxb1(end,1);
-lastsidx = idxs1(end,1);
+idxb1 = [idxb1,ones(size(idxb1,1),1)];
+idxs1 = [idxs1,-ones(size(idxs1,1),1)];
+idx = [idxb1;idxs1];
+idx = sortrows(idx);
+lastbidx = find(idx(:,end) == 1,1,'last');
+lastsidx = find(idx(:,end) == -1,1,'last');
 if lastbidx > lastsidx
     ret.opendirection = 'long';
-    b1type = idxb1(end,2);
+    b1type = idx(lastbidx,2);
     if b1type == 1
         ret.status = 'n/a';
         ret.opensignal = 'invalid weak long breach';
         ret.trade = [];
         return
     end
-    j = lastbidx;
+    j = idx(lastbidx,1);
     d = fractal_truncate(ei,j);
     op = fractal_filterb1_singleentry(b1type,nfractal,d,asset.tick_size); 
     statusstruct = fractal_b1_status(nfractal,d,asset.tick_size);
@@ -82,14 +88,14 @@ if lastbidx > lastsidx
     ret.trade = trade;
 elseif lastbidx < lastsidx
     ret.opendirection = 'short';
-    s1type = idxs1(end,2);
+    s1type = idx(lastsidx,2);
     if s1type == 1
         ret.status = 'n/a';
         ret.opensignal = 'invalid weak short breach';
         ret.trade = [];
         return
     end
-    j = lastsidx;
+    j = idx(lastsidx,1);
     d = fractal_truncate(ei,j);
     op = fractal_filters1_singleentry(s1type,nfractal,d,asset.tick_size); 
     statusstruct = fractal_s1_status(nfractal,d,asset.tick_size);

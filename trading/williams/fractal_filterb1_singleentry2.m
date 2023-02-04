@@ -45,7 +45,7 @@ function [output] = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,tick
                 llupward = true;
             elseif size(last2llidx,1) == 2
                 last2ll = extrainfo.ll(last2llidx);
-                if last2ll(2) == last2hh(1)
+                if last2ll(2) == last2ll(1)
                     last3llidx = find(extrainfo.idxll==-1,3,'last');
                     try
                         llupward = last2ll(1) - extrainfo.ll(last3llidx(1)) > -5*ticksize;

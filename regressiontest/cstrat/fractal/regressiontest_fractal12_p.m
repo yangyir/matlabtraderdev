@@ -5,7 +5,7 @@ try
 catch
 end
 %
-codes = {'p2209'};
+codes = {'p2301'};
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'\intradaybar\',codes{i},'\']);
@@ -28,7 +28,7 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2022-07-11','replaytodate','2022-07-15');
+    'replayfromdate','2022-11-15','replaytodate','2022-11-15');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;combo.ops.print_timeinterval_ = 30*60;
