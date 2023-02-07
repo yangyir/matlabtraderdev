@@ -78,11 +78,35 @@ for i = 1:n
         resstruct{i}.jaw,resstruct{i}.teeth,resstruct{i}.lips,...
         'instrument',instrument);
     if ~isempty(dt1)
+        idxstart_i = find(resstruct{i}.px(:,1)>=dt1,1,'first');
+        if isempty(idxstart_i)
+            fprintf('fractal_filter:input start date is beyond input data...\n')
+            idxstart_i = 1;
+        end
+    else
+        idxstart_i = 1;
     end
     if ~isempty(dt2)
+        idxend_i = find(resstruct{i}.px(:,1)<=dt2,1,'last');
+        if isempty(idxend_i)
+            fprintf('fractal_filter:input end date is before input data...\n')
+            idxend_i = size(resstruct{i}.px,1);
+        end
+    else
+        idxend_i = size(resstruct{i}.px,1);
     end
     
-    nb_i = size(idxb1{i},1);ns_i = size(idxs1{i},1);
+    idxb1_i = idxb1{i};
+    idx1_b = find(idxb1_i(:,1)>=idxstart_i,1,'first');
+    idx2_b = find(idxb1_i(:,1)<=idxend_i,1,'last');
+    idxb1_i = idxb1_i(idx1_b:idx2_b,:);
+    %
+    idxs1_i = idxs1{i};
+    idx1_s = find(idxs1_i(:,1)>=idxstart_i,1,'first');
+    idx2_s = find(idxs1_i(:,1)<=idxend_i,1,'last');
+    idxs1_i = idxs1_i(idx1_s:idx2_s,:);
+    
+    nb_i = size(idxb1_i,1);ns_i = size(idxs1_i,1);
     nabovelips1_i = zeros(nb_i,1);nbelowlips1_i = zeros(ns_i,1);
     naboveteeth1_i = zeros(nb_i,1);nbelowteeth1_i = zeros(ns_i,1);
     nabovelips2_i = zeros(nb_i,1);nbelowlips2_i = zeros(ns_i,1);
@@ -95,8 +119,8 @@ for i = 1:n
         if direction == -1, continue;end
         %double check whether the open price on the next candle is still valid
         %for a breach as per trading code
-        k = idxb1{i}(j,1);
-        b1type = idxb1{i}(j,2);
+        k = idxb1_i(j,1);
+        b1type = idxb1_i(j,2);
         extrainfo = fractal_genextrainfo(resstruct{i},k);
         [nabovelips1_i(j),naboveteeth1_i(j),nabovelips2_i(j),nkaboveteeth2_i(j),nkfromhh_i(j),teethjawcrossed_b_i(j)] = fractal_countb(p(1:k,:),extrainfo.idxhh,nfractal,extrainfo.lips,extrainfo.teeth,extrainfo.jaw,ticksize);
         [op,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize);
@@ -193,8 +217,8 @@ for i = 1:n
         end 
     end
     if direction == 1
-        idx = idxb1{i}(:,1);
-        breachtype = idxb1{i}(:,2);
+        idx = idxb1_i(:,1);
+        breachtype = idxb1_i(:,2);
         nabovelips1 = nabovelips1_i;
         naboveteeth1 = naboveteeth1_i;
         nabovelips2 = nabovelips2_i;
@@ -213,8 +237,8 @@ for i = 1:n
         if direction == 1, continue;end
         %double check whether the open price on the next candle is still valid
         %for a breach as per trading code
-        k = idxs1{i}(j,1);
-        s1type = idxs1{i}(j,2);
+        k = idxs1_i(j,1);
+        s1type = idxs1_i(j,2);
         extrainfo = fractal_genextrainfo(resstruct{i},k);
         [nbelowlips1_i(j),nbelowteeth1_i(j),nbelowlips2_i(j),nkbelowteeth2_i(j),nkfromll_i(j),teethjawcrossed_s_i(j)] = fractal_counts(p(1:k,:),extrainfo.idxll,nfractal,extrainfo.lips,extrainfo.teeth,extrainfo.jaw,ticksize);
         [op,status] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksize);
@@ -279,8 +303,8 @@ for i = 1:n
         
     end
     if direction == -1
-        idx = idxs1{i}(:,1);
-        breachtype = idxs1{i}(:,2);
+        idx = idxs1_i(:,1);
+        breachtype = idxs1_i(:,2);
         nbelowlips1 = nbelowlips1_i;
         nbelowteeth1 = nbelowteeth1_i;
         nbelowlips2 = nbelowlips2_i;

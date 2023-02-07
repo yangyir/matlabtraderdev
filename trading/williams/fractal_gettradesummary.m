@@ -37,9 +37,9 @@ usefibonacciflag = p.Results.usefibonacci;
 directionin = p.Results.direction;
 if strcmpi(directionin,'long')
     flag = 1;
-elseif strcmpi(direction,'short')
+elseif strcmpi(directionin,'short')
     flag = -1;
-elseif strcmpi(direction,'both')
+elseif strcmpi(directionin,'both')
     flag = 0;
 else
     error('fractal_gettradesummary:invalid direction input')
