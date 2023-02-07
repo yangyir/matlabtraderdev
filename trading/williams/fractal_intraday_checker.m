@@ -4,8 +4,8 @@ p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('type','',@ischar);
 p.addParameter('plot',false,@islogical);
 p.addParameter('direction',[],@isnumeric);
-p.addParameter('usefractalupdate',true,@islogical);
-p.addParameter('usefibonacci',true,@islogical);
+p.addParameter('usefractalupdate',1,@isnumeric);
+p.addParameter('usefibonacci',1,@isnumeric);
 
 p.parse(varargin{:});
 type = p.Results.type;

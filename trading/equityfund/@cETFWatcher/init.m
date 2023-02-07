@@ -86,8 +86,8 @@ function obj = init(obj,varargin)
             [~,op] = fractal_signal_unconditional(ei,etf.tick_size,nfractal);
             if op.use
                 trade = fractal_gentrade(d,codes_index{i},j,op.comment,1,'daily');
-                trade.riskmanager_.setusefractalupdateflag(false);
-                trade.riskmanager_.setusefibonacciflag(false);
+                trade.riskmanager_.setusefractalupdateflag(0);
+                trade.riskmanager_.setusefibonacciflag(0);
             else
                 if ~isempty(op) && op.direction == 1 && j == size(d.px,1)
                     fprintf('%s:bullish invalid:%s\n',codes_index{i},op.comment);
@@ -211,8 +211,8 @@ function obj = init(obj,varargin)
             [~,op] = fractal_signal_unconditional(ei,etf.tick_size,nfractal);
             if op.use
                 trade = fractal_gentrade(d,codes_sector{i},j,op.comment,1,'daily');
-                trade.riskmanager_.setusefractalupdateflag(false);
-                trade.riskmanager_.setusefibonacciflag(false);
+                trade.riskmanager_.setusefractalupdateflag(0);
+                trade.riskmanager_.setusefibonacciflag(0);
             else
                 if ~isempty(op) && op.direction == 1 && j == size(d.px,1)
                     fprintf('%s:bullish invalid:%s\n',codes_sector{i},op.comment);

@@ -1,4 +1,4 @@
-function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot)
+function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot,dt1,dt2)
 if length(codes) ~= size(data_in,1)
     error('fractal_filter:invalid codes and data_intraday inputs')
 end
@@ -11,8 +11,19 @@ if ~(direction == 1 || direction == -1)
     error('fractal_filter:invalid direction input')
 end
 
-if nargin < 5
+if nargin == 4
     doplot = 0;
+    dt1 = [];
+    dt2 = [];
+end
+
+if nargin == 5
+    dt1 = [];
+    dt2 = [];
+end
+
+if nargin == 6
+    dt2 = [];
 end
 
 n = length(codes);
@@ -66,6 +77,10 @@ for i = 1:n
         resstruct{i}.hh,resstruct{i}.ll,...
         resstruct{i}.jaw,resstruct{i}.teeth,resstruct{i}.lips,...
         'instrument',instrument);
+    if ~isempty(dt1)
+    end
+    if ~isempty(dt2)
+    end
     
     nb_i = size(idxb1{i},1);ns_i = size(idxs1{i},1);
     nabovelips1_i = zeros(nb_i,1);nbelowlips1_i = zeros(ns_i,1);

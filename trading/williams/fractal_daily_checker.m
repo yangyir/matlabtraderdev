@@ -16,8 +16,10 @@ p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('type','',@ischar);
 p.addParameter('plot',false,@islogical);
 p.addParameter('direction',[],@isnumeric);
-p.addParameter('usefractalupdate',true,@islogical);
-p.addParameter('usefibonacci',true,@islogical);
+p.addParameter('usefractalupdate',1,@isnumeric);
+p.addParameter('usefibonacci',1,@isnumeric);
+p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
+p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
 
 p.parse(varargin{:});
 type = p.Results.type;
@@ -25,13 +27,17 @@ doplot = p.Results.plot;
 direction = p.Results.direction;
 usefracalupdateflag = p.Results.usefractalupdate;
 usefibonacciflag = p.Results.usefibonacci;
+dt1 = p.Results.fromdate;
+if ~isempty(dt1) && ischar(dt1), dt1 = datenum(dt1);end
+dt2 = p.Results.todate;
+if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
 
 %load the data
 fn = [code,'_daily.txt'];
 cp = cDataFileIO.loadDataFromTxtFile(fn);
 if isempty(cp), error('fractal_daily_checker:invalid code input or data not stored');end
 
-[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot);
+[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2);
 
 %backtest trade performance
 n = trades.latest_;

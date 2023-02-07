@@ -74,7 +74,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             'tradingbreak',instrument.trading_break,...
             'frequency',[num2str(interval),'m']);
     elseif ischar(instrument)
-        if strcmpi(instrument(1),'5') || strcmpi(instrument(1),'6')
+        if strcmpi(instrument(1),'5') || strcmpi(instrument(1),'6') || strcmpi(instrument(1),'0')
             code_wind = [instrument,'.SH'];
         else
             code_wind = [instrument,'.SZ'];

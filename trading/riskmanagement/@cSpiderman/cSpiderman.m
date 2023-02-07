@@ -32,8 +32,8 @@ classdef cSpiderman < cTradeRiskManager
     end
     
     properties (GetAccess = public, SetAccess = private)
-        usefractalupdate_@logical = true
-        usefibonacci_@logical = true
+        usefractalupdate_@double = 1
+        usefibonacci_@double = 1
     end
        
     methods

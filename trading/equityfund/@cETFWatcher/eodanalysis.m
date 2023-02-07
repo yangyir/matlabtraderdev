@@ -14,8 +14,8 @@ function [] = eodanalysis(obj,varargin)
             extrainfo.p = extrainfo.px;
             extrainfo.latestopen = extrainfo.px(end,5);
             extrainfo.latestdt = extrainfo.px(end,1);
-            trade.riskmanager_.setusefractalupdateflag(false);
-            trade.riskmanager_.setusefibonacciflag(false);
+            trade.riskmanager_.setusefractalupdateflag(0);
+            trade.riskmanager_.setusefibonacciflag(0);
             tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
                 'usecandlelastonly',false,...
                 'debug',false,...
@@ -73,8 +73,8 @@ function [] = eodanalysis(obj,varargin)
             extrainfo.p = extrainfo.px;
             extrainfo.latestopen = extrainfo.px(end,5);
             extrainfo.latestdt = extrainfo.px(end,1);
-            trade.riskmanager_.setusefractalupdateflag(false);
-            trade.riskmanager_.setusefibonacciflag(false);
+            trade.riskmanager_.setusefractalupdateflag(0);
+            trade.riskmanager_.setusefibonacciflag(0);
             tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
                 'usecandlelastonly',false,...
                 'debug',false,...

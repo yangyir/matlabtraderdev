@@ -40,6 +40,12 @@ function [data,headers] = tradeopen2table2(obj)
                         propnames = tmp;
                         if isnumeric(val)
                             tmp = [propvalues,num2str(val),';'];
+                        elseif islogical(val)
+                            if val
+                                tmp = [propvalues,num2str(1),';'];
+                            else
+                                tmp = [propvalues,num2str(0),';'];
+                            end
                         else
                             tmp = [propvalues,val,';'];
                         end

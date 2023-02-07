@@ -21,41 +21,100 @@ else
         end
     end
 end
-
-% if nargin > 1
-%     check_freq = varargin{1};
-% else
-%     check_freq = 'intraday';
-% end
-
+%
 p = inputParser;
 p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('frequency','daily',@ischar);
-p.addParameter('usefractalupdate',true,@islogical);
-p.addParameter('usefibonacci',true,@islogical);
+p.addParameter('usefractalupdate',1,@isnumeric);
+p.addParameter('usefibonacci',1,@isnumeric);
+p.addParameter('direction','both',@ischar);
+p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
+p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
 p.parse(varargin{:});
 checkfreq = p.Results.frequency;
 usefractalupdateflag = p.Results.usefractalupdate;
 usefibonacciflag = p.Results.usefibonacci;
+directionin = p.Results.direction;
+if strcmpi(directionin,'long')
+    flag = 1;
+elseif strcmpi(direction,'short')
+    flag = -1;
+elseif strcmpi(direction,'both')
+    flag = 0;
+else
+    error('fractal_gettradesummary:invalid direction input')
+end
+dt1 = p.Results.fromdate;
+dt2 = p.Results.todate;
+if isempty(dt1), dt1 = '';end
+if isempty(dt2), dt2 = '';end
 
 if strcmpi(checkfreq,'intraday')
-    [tblb,~,tradesb,~,resstruct] = fractal_intraday_checker(code,...
+    if flag == 0
+        [tblb,~,tradesb,~,resstruct] = fractal_intraday_checker(code,...
             'type','all','direction',1,'plot',false,...
             'usefractalupdate',usefractalupdateflag,...
-            'usefibonacci',usefibonacciflag);
-    [~,tbls,tradess,~,~] = fractal_intraday_checker(code,...
+            'usefibonacci',usefibonacciflag,...
+            'fromdate',dt1,...
+            'todate',dt2);
+        [~,tbls,tradess,~,~] = fractal_intraday_checker(code,...
             'type','all','direction',-1,'plot',false,...
             'usefractalupdate',usefractalupdateflag,...
-            'usefibonacci',usefibonacciflag);
+            'usefibonacci',usefibonacciflag,...
+            'fromdate',dt1,...
+            'todate',dt2);
+    elseif flag == 1
+        [tblb,~,tradesb,~,resstruct] = fractal_intraday_checker(code,...
+            'type','all','direction',1,'plot',false,...
+            'usefractalupdate',usefractalupdateflag,...
+            'usefibonacci',usefibonacciflag,...
+            'fromdate',dt1,...
+            'todate',dt2);
+        tbls = {};
+        tradess = cTradeOpenArray;
+    elseif flag == -1
+        tblb = {};
+        tradesb = cTradeOpenArray;
+         [~,tbls,tradess,~,resstruct] = fractal_intraday_checker(code,...
+            'type','all','direction',-1,'plot',false,...
+            'usefractalupdate',usefractalupdateflag,...
+            'usefibonacci',usefibonacciflag,...
+            'fromdate',dt1,...
+            'todate',dt2);
+    end
 else
-    [tblb,~,tradesb,~,resstruct] = fractal_daily_checker(code,...
-            'type','all','direction',1,'plot',false,...
-            'usefractalupdate',usefractalupdateflag,...
-            'usefibonacci',usefibonacciflag);
-    [~,tbls,tradess,~,~] = fractal_daily_checker(code,...
-            'type','all','direction',-1,'plot',false,...
-            'usefractalupdate',usefractalupdateflag,...
-            'usefibonacci',usefibonacciflag);
+    if flag == 0
+        [tblb,~,tradesb,~,resstruct] = fractal_daily_checker(code,...
+                'type','all','direction',1,'plot',false,...
+                'usefractalupdate',usefractalupdateflag,...
+                'usefibonacci',usefibonacciflag,...
+                'fromdate',dt1,...
+                'todate',dt2);
+        [~,tbls,tradess,~,~] = fractal_daily_checker(code,...
+                'type','all','direction',-1,'plot',false,...
+                'usefractalupdate',usefractalupdateflag,...
+                'usefibonacci',usefibonacciflag,...
+                'fromdate',dt1,...
+                'todate',dt2);
+    elseif flag == 1
+        [tblb,~,tradesb,~,resstruct] = fractal_daily_checker(code,...
+                'type','all','direction',1,'plot',false,...
+                'usefractalupdate',usefractalupdateflag,...
+                'usefibonacci',usefibonacciflag,...
+                'fromdate',dt1,...
+                'todate',dt2);
+        tbls = {};
+        tradess = cTradeOpenArray;
+    elseif flag == -1
+        tblb = {};
+        tradesb = cTradeOpenArray;
+        [~,tbls,tradess,~,resstruct] = fractal_daily_checker(code,...
+                'type','all','direction',-1,'plot',false,...
+                'usefractalupdate',usefractalupdateflag,...
+                'usefibonacci',usefibonacciflag,...
+                'fromdate',dt1,...
+                'todate',dt2);
+    end
 end
     
 data = resstruct{1};
@@ -132,66 +191,117 @@ for i = 1:tradess.latest_
 end
 %
 %ouput
-n1 = length(tblb{1}.Properties.VariableNames);
-n2 = size(tblbtrades,2);
-tblb_headers = cell(1,n1+n2);tbls_headers = cell(1,n1+n2);
-tblb_data = cell(length(tblb{1}.idx),n1+n2);tbls_data = cell(length(tbls{1}.idx),n1+n2);
+if ~isempty(tblb)
+    n1 = length(tblb{1}.Properties.VariableNames);
+    n2 = size(tblbtrades,2);
+    tblb_headers = cell(1,n1+n2);
+    if ~isempty(tbls)
+        tbls_headers = cell(1,n1+n2);
+    else
+        tbls_headers = {};
+    end
+    tblb_data = cell(length(tblb{1}.idx),n1+n2);
+    if ~isempty(tbls)
+        tbls_data = cell(length(tbls{1}.idx),n1+n2);
+    else
+        tbls_data = {};
+    end
+else
+    n1 = length(tbls{1}.Properties.VariableNames);
+    n2 = size(tblstrades,2);
+    tblb_headers = {};
+    tbls_headers = cell(1,n1+n2);
+    tblb_data = {};
+    tbls_data = cell(length(tbls{1}.idx),n1+n2);
+end
+
 
 for i = 1:n1
-    tblb_headers{1,i} = tblb{1}.Properties.VariableNames{i};
-    tbls_headers{1,i} = tbls{1}.Properties.VariableNames{i};
-    for j = 1:length(tblb{1}.idx)
-        try
-            tblb_data{j,i} = tblb{1}.(tblb{1}.Properties.VariableNames{i}){j,1};
-        catch
-            tblb_data{j,i} = tblb{1}.(tblb{1}.Properties.VariableNames{i})(j,1);
+    if ~isempty(tblb)
+        tblb_headers{1,i} = tblb{1}.Properties.VariableNames{i};
+    end
+    if ~isempty(tbls)
+        tbls_headers{1,i} = tbls{1}.Properties.VariableNames{i};
+    end
+    if ~isempty(tblb)
+        for j = 1:length(tblb{1}.idx)
+            try
+                tblb_data{j,i} = tblb{1}.(tblb{1}.Properties.VariableNames{i}){j,1};
+            catch
+                tblb_data{j,i} = tblb{1}.(tblb{1}.Properties.VariableNames{i})(j,1);
+            end
         end
     end
     %
-    for j = 1:length(tbls{1}.idx)
-        try
-            tbls_data{j,i} = tbls{1}.(tbls{1}.Properties.VariableNames{i}){j,1};
-        catch
-            tbls_data{j,i} = tbls{1}.(tbls{1}.Properties.VariableNames{i})(j,1);
+    if ~isempty(tbls)
+        for j = 1:length(tbls{1}.idx)
+            try
+                tbls_data{j,i} = tbls{1}.(tbls{1}.Properties.VariableNames{i}){j,1};
+            catch
+                tbls_data{j,i} = tbls{1}.(tbls{1}.Properties.VariableNames{i})(j,1);
+            end
         end
     end
 end
-itrade = 0;
-for i = 1:length(tblb{1}.idx)
-    if isempty(tblb{1}.commentsb1{i}) || ...
-            (~isempty(tblb{1}.commentsb1{i}) && tblb{1}.useflag(i))
-        itrade = itrade+1;
-        if itrade > size(tblbtrades,1), break;end
-        for j = 1:n2
-            tblb_data{i,j+n1} = tblbtrades{itrade,j};
-        end
-    end
-end
-%
-itrade = 0;
-for i = 1:length(tbls{1}.idx)
-    if isempty(tbls{1}.commentss1{i})
-        itrade = itrade+1;
-        if itrade > size(tblstrades,1), break;end
-        for j = 1:n2
-            tbls_data{i,j+n1} = tblstrades{itrade,j};
+
+if ~isempty(tblb)
+    itrade = 0;
+    for i = 1:length(tblb{1}.idx)
+        if isempty(tblb{1}.commentsb1{i}) || ...
+                (~isempty(tblb{1}.commentsb1{i}) && tblb{1}.useflag(i))
+            itrade = itrade+1;
+            if itrade > size(tblbtrades,1), break;end
+            for j = 1:n2
+                tblb_data{i,j+n1} = tblbtrades{itrade,j};
+            end
         end
     end
 end
 %
-tblb_headers{1,n1+1} = 'time';tbls_headers{1,n1+1} = 'time';
-tblb_headers{1,n1+2} = 'code';tbls_headers{1,n1+2} = 'code';
-tblb_headers{1,n1+3} = 'id';tbls_headers{1,n1+3} = 'id';
-tblb_headers{1,n1+4} = 'direction';tbls_headers{1,n1+4} = 'direction';
-tblb_headers{1,n1+5} = 'openprice';tbls_headers{1,n1+5} = 'openprice';
-tblb_headers{1,n1+6} = 'closepnl';tbls_headers{1,n1+6} = 'closepnl';
-tblb_headers{1,n1+7} = 'closestr';tbls_headers{1,n1+7} = 'closestr';
-tblb_headers{1,n1+8} = 'idclose';tbls_headers{1,n1+8} = 'idclose';
-tblb_headers{1,n1+9} = 'tdsqmomentum';tbls_headers{1,n1+9} = 'tdsqmomentum';
+if ~isempty(tbls)
+    itrade = 0;
+    for i = 1:length(tbls{1}.idx)
+        if isempty(tbls{1}.commentss1{i})
+            itrade = itrade+1;
+            if itrade > size(tblstrades,1), break;end
+            for j = 1:n2
+                tbls_data{i,j+n1} = tblstrades{itrade,j};
+            end
+        end
+    end
+end
+%
+if ~isempty(tblb)
+    tblb_headers{1,n1+1} = 'time';
+    tblb_headers{1,n1+2} = 'code';
+    tblb_headers{1,n1+3} = 'id';
+    tblb_headers{1,n1+4} = 'direction';
+    tblb_headers{1,n1+5} = 'openprice';
+    tblb_headers{1,n1+6} = 'closepnl';
+    tblb_headers{1,n1+7} = 'closestr';
+    tblb_headers{1,n1+8} = 'idclose';
+    tblb_headers{1,n1+9} = 'tdsqmomentum';
+end
+if ~isempty(tbls)
+    tbls_headers{1,n1+1} = 'time';
+    tbls_headers{1,n1+2} = 'code';
+    tbls_headers{1,n1+3} = 'id';
+    tbls_headers{1,n1+4} = 'direction';
+    tbls_headers{1,n1+5} = 'openprice';
+    tbls_headers{1,n1+6} = 'closepnl';
+    tbls_headers{1,n1+7} = 'closestr';
+    tbls_headers{1,n1+8} = 'idclose';
+    tbls_headers{1,n1+9} = 'tdsqmomentum';
+end
+
 for i = 1:n2-9
     try
-        tblb_headers{1,i+n1+9} = fldnamesb{i};
-        tbls_headers{1,i+n1+9} = fldnamess{i};
+        if ~isempty(tblb)
+            tblb_headers{1,i+n1+9} = fldnamesb{i};
+        end
+        if ~isempty(tbls)
+            tbls_headers{1,i+n1+9} = fldnamess{i};
+        end
     catch
     end
 end

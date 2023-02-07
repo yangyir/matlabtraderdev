@@ -1,6 +1,6 @@
 function [] = setusefractalupdateflag(obj,flagin)
 % a cSpiderman method
-    if ~islogical(flagin)
+    if ~(flagin == 0 || flagin == 1)
         error('cSpiderman:setusefractalupdateflag:invalid input')
     end
 
