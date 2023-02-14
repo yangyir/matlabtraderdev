@@ -22,6 +22,8 @@ else
             code_wind_ = [code_wind,'.SH'];
         elseif strcmpi(code_wind(1),'0') || strcmpi(code_wind(1),'3') || strcmpi(code_wind(1),'1')
             code_wind_ = [code_wind,'.SZ'];
+        elseif strcmpi(code_wind(1),'4') || strcmpi(code_wind(1),'8')
+            code_wind_ = [code_wind,'.BJ'];
         end
     elseif length(code_wind) == 4
         code_wind_ = [code_wind,'.HK'];
