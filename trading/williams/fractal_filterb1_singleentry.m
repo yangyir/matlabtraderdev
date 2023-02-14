@@ -73,7 +73,10 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                 if lips(end) - teeth(end) > -5*ticksize                    %introducing a buffer zone
                     output = struct('use',1,'comment','volblowup');
                 else
-                    output = struct('use',0,'comment','volblowup-alligatorfailed');
+                    output = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,ticksize);
+                    if ~output.use
+                        output = struct('use',0,'comment','volblowup-alligatorfailed');
+                    end
                 end
             end
             return       

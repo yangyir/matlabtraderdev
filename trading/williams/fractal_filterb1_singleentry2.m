@@ -107,7 +107,7 @@ function [output] = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,tick
             sslast = extrainfo.ss(end);
             abovelipsflag = isempty(find(extrainfo.lips(end-sslast+1:end)-extrainfo.px(end-sslast+1:end,5)-2*ticksize>0,1,'last'));
             %sslast breached 4 indicates the trend might continue
-            if sslast >= 5 && abovelipsflag && aboveteeth
+            if sslast >= 5 && abovelipsflag && aboveteeth && nonbreachllflag
                 output = struct('use',1,'comment','mediumbreach-trendbreak-s');%here we go
                 return
             end
