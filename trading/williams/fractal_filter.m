@@ -129,7 +129,7 @@ for i = 1:n
         commentsb1_i{j,2} = op.comment;
         useflagb_i(j) = op.use;
         
-        if k == size(p,1), continue;end
+%         if k == size(p,1), continue;end
         
         if ~status.istrendconfirmed
 %             if p(k+1,2) - resstruct{i}.hh(k) + 2*ticksize < 0

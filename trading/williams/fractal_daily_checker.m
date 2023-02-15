@@ -49,6 +49,15 @@ for i = 1:n
     %
     trade.riskmanager_.setusefractalupdateflag(usefracalupdateflag);
     trade.riskmanager_.setusefibonacciflag(usefibonacciflag);
+    if j == size(d.px,1)
+        trade.riskmanager_.riskmanagementwithcandle([],...
+            'usecandlelastonly',true,...
+            'debug',false,...
+            'updatepnlforclosedtrade',true,...
+            'extrainfo',d);
+        pnl{i,1} = trade.runningpnl_;
+        continue;
+    end
     for k = j+1:size(d.px,1)
         extrainfo = fractal_genextrainfo(d,k);
         if k == size(d.px,1)
