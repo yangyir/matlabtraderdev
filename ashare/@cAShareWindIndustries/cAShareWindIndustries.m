@@ -74,7 +74,7 @@ classdef cAShareWindIndustries < handle
         [] = refresh(obj,varargin)
         [] = print(obj, varargin)
         %
-        [dailystruct,intradaystruct] = showfigures(obj,varargin)
+        [dailystruct] = showfigures(obj,varargin)
         [] = reload(obj,varargin)
         [] = savedata(obj,varargin)
         %
