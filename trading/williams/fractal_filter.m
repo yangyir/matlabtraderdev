@@ -247,7 +247,7 @@ for i = 1:n
         commentss1_i{j,2} = op.comment;
         useflags_i(j) = op.use;
         
-        if k == size(p,1), continue;end
+%         if k == size(p,1), continue;end
         if ~status.istrendconfirmed
             if p(k+1,2) - resstruct{i}.ll(k)-2*ticksize > 0
                 commentss1_i{j,1} = 'breachs1 break:next open above LL';
