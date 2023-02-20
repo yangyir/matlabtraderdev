@@ -131,7 +131,7 @@ for i = 1:n
         
 %         if k == size(p,1), continue;end
         
-        if ~status.istrendconfirmed
+        if ~status.istrendconfirmed && k < size(p,1)
 %             if p(k+1,2) - resstruct{i}.hh(k) + 2*ticksize < 0
 %                 commentsb1_i{j,1} = 'breachb1 break:next open below HH';
 %                 useflagb_i(j) = 0;
@@ -248,7 +248,7 @@ for i = 1:n
         useflags_i(j) = op.use;
         
 %         if k == size(p,1), continue;end
-        if ~status.istrendconfirmed
+        if ~status.istrendconfirmed && k < size(p,1)
             if p(k+1,2) - resstruct{i}.ll(k)-2*ticksize > 0
                 commentss1_i{j,1} = 'breachs1 break:next open above LL';
                 useflags_i(j) = 0;
