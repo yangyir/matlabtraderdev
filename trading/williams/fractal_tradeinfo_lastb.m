@@ -7,10 +7,14 @@ p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('code','',@ischar);
 p.addParameter('extrainfo','',@isstruct);
 p.addParameter('frequency','daily',@ischar);
+p.addParameter('usefractalupdate',1,@isnumeric);
+p.addParameter('usefibonacci',1,@isnumeric);
 p.parse(varargin{:});
 code = p.Results.code;
 ei = p.Results.extrainfo;
 freq = p.Results.frequency;
+usefracalupdateflag = p.Results.usefractalupdate;
+usefibonacciflag = p.Results.usefibonacci;
 
 if strcmpi(freq,'daily')
     nfractal = 2;
@@ -40,6 +44,8 @@ statusstr = fractal_b1_status2str(statusstruct);
 
 if op.use || (~op.use && statusstruct.istrendconfirmed)
     trade = fractal_gentrade(ei,code,j,op.comment,1,'daily');
+    trade.riskmanager_.setusefractalupdateflag(usefracalupdateflag);
+    trade.riskmanager_.setusefibonacciflag(usefibonacciflag);
     ret.opensignal = statusstr;
 else
     ret.status = 'n/a';
