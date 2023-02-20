@@ -56,7 +56,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 return
             end
         end
-        if ~isnan(trade.riskmanager_.td13low_)
+        if ~isnan(trade.riskmanager_.td13low_) && extrainfo.sc(end) ~= 13
             if p(end,5) < trade.riskmanager_.td13low_-ticksize
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:sc13break';
@@ -178,6 +178,10 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         if sc(end) == 13
             if isnan(trade.riskmanager_.td13low_)
                 trade.riskmanager_.td13low_ = extrainfo.p(end,4);
+            else
+                if extrainfo.p(end,4) < trade.riskmanager_.td13low_
+                    trade.riskmanager_.td13low_ = extrainfo.p(end,4);
+                end
             end
         end
         %
