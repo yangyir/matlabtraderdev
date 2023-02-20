@@ -44,126 +44,149 @@ function obj = init(obj,varargin)
     obj.reload;
     %
     %generate daily-frequency trades
-    nfractal = 2;
+%     nfractal = 2;
     for i = 1:n_index
-        stock = code2instrument(obj.codes_index_{i});
+%         stock = code2instrument(obj.codes_index_{i});
         d = obj.dailybarstruct_index_{i};
-        [idxb1,idxs1] = fractal_genindicators1(d.px,...
-            d.hh,d.ll,...
-            d.jaw,d.teeth,d.lips,...
-            'instrument',stock);
-        lastb = idxb1(end,1);
-        lasts = idxs1(end,1);
-        if lastb > lasts                                                   %last bullish
-            b1type = idxb1(end,2);
-            if b1type == 1                                                  %weak breach
-                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
-                    obj.dailystatus_index_(i) = 0;
-                end
-                continue;
-            end
-            j = idxb1(end,1);
-            ei = fractal_truncate(d,j);
-            [~,op] = fractal_signal_unconditional(ei,stock.tick_size,nfractal);
-            if op.use
-%                 trade = fractal_gentrade(d,obj.codes_index_{i},j,op.comment,1,'daily');
-%                 trade.riskmanager_.setusefractalupdateflag(0);
-%                 trade.riskmanager_.setusefibonacciflag(0);
+        trade = fractal_latestposition('code',obj.codes_index_{i},...
+            'extrainfo',d,...
+            'frequency','daily',...
+            'usefractalupdate',0,...
+            'usefibonacci',1);
+        if ~isempty(trade)
+            if strcmpi(trade.status_,'set')
+                obj.pos_index_{i} = trade;
+                obj.dailystatus_index_(i) = trade.opendirection_;
             else
-                if ~isempty(op) && op.direction == 1 && j == size(d.px,1)
-                    fprintf('%s:bullish invalid:%s\n',obj.codes_index_{i},op.comment);
-                end
-                if ~isempty(op) && op.direction == -1 && j == size(d.px,1)
-                    fprintf('%s:bearish invalid:%s\n',obj.codes_index_{i},op.comment);
-                end
-                %not a valid signal
                 if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
                     obj.dailystatus_index_(i) = 0;
                 end
-                continue;
             end
-            %
-            firstbuysincelastsell = idxb1(find(idxb1(:,1)>lasts,1,'first'),1);
-            [~,~,~,~,~,~,~,validtradesb,~] = fractal_gettradesummary(obj.codes_index_{i},...
-                'frequency','daily',...
-                'direction','long',...
-                'fromdate',d.px(firstbuysincelastsell,1),...
-                'usefractalupdate',0,...
-                'usefibonacci',0);
-            for j = 1:validtradesb.latest_
-                trade = validtradesb.node_(j);
-                if strcmpi(trade.status_,'set')
-                    if trade.id_ == size(d.px,1)
-                        fprintf('%s:bullish live-newly open.\n',trade.code_);
-                    else
-                        fprintf('%s:bullish live.\n',trade.code_);
-                    end
-                    obj.pos_index_{i} = trade;
-                    obj.dailystatus_index_(i) = 1;                          %bullish
-                    break
-                elseif strcmpi(trade.status_,'closed') && trade.closedatetime1_ >= d.px(end,1)
-                    fprintf('%s:bullish closed:%s\n',trade.code_,trade.riskmanager_.closestr_);
-                    if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
-                        obj.dailystatus_index_(i) = 0;                      %neutral
-                    end
-                    break
-                end
-            end
-            %
-        elseif lastb < lasts                                                %last bearish
-            s1type = idxs1(end,2);
-            if s1type == 1                                                  %weak breach
-                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
-                    obj.dailystatus_index_(i) = 0;
-                end
-                continue;
-            end
-            j = idxs1(end,1);
-            ei = fractal_truncate(d,j);
-            [~,op] = fractal_signal_unconditional(ei,stock.tick_size,nfractal);
-            if op.use
-%                 trade = fractal_gentrade(d,obj.codes_index_{i},j,op.comment,-1,'daily');
-            else
-                if ~isempty(op) && op.direction == 1 && j == size(d.px,1)
-                    fprintf('%s:bullish invalid:%s\n',obj.codes_index_{i},op.comment);
-                end
-                if ~isempty(op) && op.direction == -1 && j == size(d.px,1)
-                    fprintf('%s:bearish invalid:%s\n',obj.codes_index_{i},op.comment);
-                end
-                %not a valid signal
-                if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
-                    obj.dailystatus_index_(i) = 0;
-                end
-                continue;
-            end
-            %
-            firstsellsincelastbuy = idxs1(find(idxs1(:,1)>lastb,1,'first'),1);
-            [~,~,~,~,~,~,~,~,validtradess] = fractal_gettradesummary(obj.codes_index_{i},...
-                'frequency','daily',...
-                'direction','short',...
-                'fromdate',d.px(firstsellsincelastbuy,1),...
-                'usefractalupdate',0,...
-                'usefibonacci',0);
-            for j = 1:validtradess.latest_
-                trade = validtradess.node_(j);
-                if strcmpi(trade.status_,'set')
-                    if trade.id_ == size(d.px,1)
-                        fprintf('%s:bearish live-newly open.\n',trade.code_);
-                    else
-                        fprintf('%s:bearish live.\n',trade.code_);
-                    end
-                    obj.pos_index_{i} = trade;
-                    obj.dailystatus_index_(i) = -1;                         %bearish
-                    break
-                elseif strcmpi(trade.status_,'closed') && trade.closedatetime1_ >= d.px(end,1)
-                    fprintf('%s:bearish closed:%s\n',trade.code_,trade.riskmanager_.closestr_);
-                    if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
-                        obj.dailystatus_index_(i) = 0;                      %neutral
-                    end
-                    break
-                end
+        else
+            if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+                obj.dailystatus_index_(i) = 0;
             end
         end
+        
+%         [idxb1,idxs1] = fractal_genindicators1(d.px,d.hh,d.ll,d.jaw,d.teeth,d.lips,'instrument',stock);
+%         lastb = idxb1(end,1);
+%         lasts = idxs1(end,1);
+%         if lastb > lasts                                                   %last bullish
+%             b1type = idxb1(end,2);
+%             if b1type == 1                                                  %weak breach
+%                 if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+%                     obj.dailystatus_index_(i) = 0;
+%                 end
+%                 continue;
+%             end
+%             j = idxb1(end,1);
+%             ei = fractal_truncate(d,j);
+%             [~,op] = fractal_signal_unconditional(ei,stock.tick_size,nfractal);
+%             if op.use
+%             else
+%                 if ~isempty(op) && op.direction == 1 && j == size(d.px,1)
+%                     fprintf('%s:bullish invalid:%s\n',obj.codes_index_{i},op.comment);
+%                 end
+%                 if ~isempty(op) && op.direction == -1 && j == size(d.px,1)
+%                     fprintf('%s:bearish invalid:%s\n',obj.codes_index_{i},op.comment);
+%                 end
+%                 %not a valid signal
+%                 if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+%                     obj.dailystatus_index_(i) = 0;
+%                 end
+%                 continue;
+%             end
+%             %
+%             firstbuysincelastsell = idxb1(find(idxb1(:,1)>lasts,1,'first'),1);
+%             [~,~,~,~,~,~,~,validtradesb,~] = fractal_gettradesummary(obj.codes_index_{i},...
+%                 'frequency','daily',...
+%                 'direction','long',...
+%                 'fromdate',d.px(firstbuysincelastsell,1),...
+%                 'usefractalupdate',0,...
+%                 'usefibonacci',0);
+%             for j = 1:validtradesb.latest_
+%                 trade = validtradesb.node_(j);
+%                 if strcmpi(trade.status_,'set')
+%                     if trade.id_ == size(d.px,1)
+%                         fprintf('%s:bullish live-newly open.\n',trade.code_);
+%                     else
+%                         fprintf('%s:bullish live.\n',trade.code_);
+%                     end
+%                     obj.pos_index_{i} = trade;
+%                     obj.dailystatus_index_(i) = 1;                          %bullish
+%                     break
+%                 elseif strcmpi(trade.status_,'closed') && trade.closedatetime1_ >= d.px(end,1)
+%                     fprintf('%s:bullish closed:%s\n',trade.code_,trade.riskmanager_.closestr_);
+%                     if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+%                         obj.dailystatus_index_(i) = 0;                      %neutral
+%                     end
+%                     break
+%                 end
+%                 if j == validtradesb.latest_ && strcmpi(trade.status_,'closed') && trade.closedatetime1_ < d.px(end,1)
+%                     if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+%                         obj.dailystatus_index_(i) = 0;                      %neutral
+%                     end
+%                 end
+%             end
+%             %
+%         elseif lastb < lasts                                                %last bearish
+%             s1type = idxs1(end,2);
+%             if s1type == 1                                                  %weak breach
+%                 if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+%                     obj.dailystatus_index_(i) = 0;
+%                 end
+%                 continue;
+%             end
+%             j = idxs1(end,1);
+%             ei = fractal_truncate(d,j);
+%             [~,op] = fractal_signal_unconditional(ei,stock.tick_size,nfractal);
+%             if op.use
+%             else
+%                 if ~isempty(op) && op.direction == 1 && j == size(d.px,1)
+%                     fprintf('%s:bullish invalid:%s\n',obj.codes_index_{i},op.comment);
+%                 end
+%                 if ~isempty(op) && op.direction == -1 && j == size(d.px,1)
+%                     fprintf('%s:bearish invalid:%s\n',obj.codes_index_{i},op.comment);
+%                 end
+%                 %not a valid signal
+%                 if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+%                     obj.dailystatus_index_(i) = 0;
+%                 end
+%                 continue;
+%             end
+%             %
+%             firstsellsincelastbuy = idxs1(find(idxs1(:,1)>lastb,1,'first'),1);
+%             [~,~,~,~,~,~,~,~,validtradess] = fractal_gettradesummary(obj.codes_index_{i},...
+%                 'frequency','daily',...
+%                 'direction','short',...
+%                 'fromdate',d.px(firstsellsincelastbuy,1),...
+%                 'usefractalupdate',0,...
+%                 'usefibonacci',0);
+%             for j = 1:validtradess.latest_
+%                 trade = validtradess.node_(j);
+%                 if strcmpi(trade.status_,'set')
+%                     if trade.id_ == size(d.px,1)
+%                         fprintf('%s:bearish live-newly open.\n',trade.code_);
+%                     else
+%                         fprintf('%s:bearish live.\n',trade.code_);
+%                     end
+%                     obj.pos_index_{i} = trade;
+%                     obj.dailystatus_index_(i) = -1;                         %bearish
+%                     break
+%                 elseif strcmpi(trade.status_,'closed') && trade.closedatetime1_ >= d.px(end,1)
+%                     fprintf('%s:bearish closed:%s\n',trade.code_,trade.riskmanager_.closestr_);
+%                     if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+%                         obj.dailystatus_index_(i) = 0;                      %neutral
+%                     end
+%                     break
+%                 end
+%                 if j == validtradesb.latest_ && strcmpi(trade.status_,'closed') && trade.closedatetime1_ < d.px(end,1)
+%                     if ~(obj.dailystatus_index_(i) == 2  || obj.dailystatus_index_(i) == -2)
+%                         obj.dailystatus_index_(i) = 0;                      %neutral
+%                     end
+%                 end
+%             end
+%         end
     end
     
     fprintf('\n');
