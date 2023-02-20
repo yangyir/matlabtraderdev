@@ -65,9 +65,9 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
                         'runhighlowonly',runhighlowonly);
                     if ~isempty(tradeout)
                         if tradeout.opendirection_ == 1
-                            fprintf('%s:bullish closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                            fprintf('%s:bullish closed:%s(%s)\n',tradeout.code_,tradeout.riskmanager_.closestr_,mytimerobj.names_index_{i});
                         else
-                            fprintf('%s:bearish closed:%s\n',tradeout.code_,tradeout.riskmanager_.closestr_);
+                            fprintf('%s:bearish closed:%s(%s)\n',tradeout.code_,tradeout.riskmanager_.closestr_,mytimerobj.names_index_{i});
                         end
                         hasclosed = true;
                     end
