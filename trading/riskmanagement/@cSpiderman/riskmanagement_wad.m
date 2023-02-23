@@ -16,6 +16,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
     
     ret = obj.riskmanagement_wadupdate('extrainfo',extrainfo);
     closeflag = 0;
+    ticksize = obj.trade_.instrument_.tick_size;
     
     if direction == 1
         if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
@@ -89,7 +90,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 pmove = 0;
             end
             wadadj = extrainfo.wad(end-1)+pmove;
-            if wadadj < obj.wadhigh_
+            if wadadj - obj.wadhigh_ <= -2*ticksize
                 closeflag = ret.inconsistence;
                 obj.closestr_ = ['wad:',ret.reason];
             else
