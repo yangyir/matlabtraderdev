@@ -11,6 +11,8 @@ p.addParameter('extrainfo','',@isstruct);
 p.addParameter('frequency','daily',@ischar);
 p.addParameter('debug',false,@islogical)
 p.addParameter('plot',false,@islogical);
+p.addParameter('usefractalupdate',1,@isnumeric);
+p.addParameter('usefibonacci',1,@isnumeric);
 p.parse(varargin{:});
 code = p.Results.code;
 openid = p.Results.openid;
@@ -18,6 +20,8 @@ ei = p.Results.extrainfo;
 freq = p.Results.frequency;
 debugflag = p.Results.debug;
 plotflag = p.Results.plot;
+usefracalupdateflag = p.Results.usefractalupdate;
+usefibonacciflag = p.Results.usefibonacci;
 
 if strcmpi(freq,'daily')
     nfractal = 2;
@@ -55,6 +59,8 @@ if op.use || (~op.use && statusstruct.istrendconfirmed)
     else
         trade = fractal_gentrade(ei,code,openid,op.comment,1,'30m');
     end
+    trade.riskmanager_.setusefractalupdateflag(usefracalupdateflag);
+    trade.riskmanager_.setusefibonacciflag(usefibonacciflag);
     if strcmpi(op.comment,'mediumbreach-trendbreak-s') || strcmpi(op.comment,'strongbreach-trendbreak-s')
         ret.opensignal = op.comment;
     else
