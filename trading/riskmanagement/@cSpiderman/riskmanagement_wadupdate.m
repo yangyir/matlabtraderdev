@@ -30,7 +30,9 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
                     'reason','new high price w/o wad being higher');
                 return
             else
-                obj.wadhigh_ = wad(end);
+                if wad(end) >  obj.wadhigh_
+                    obj.wadhigh_ = wad(end);
+                end
             end
         end
         %
@@ -41,7 +43,9 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
                     'reason','new high wad w/o price being higher');
                 return
             else
-                obj.cphigh_ = p(end,5);
+                if p(end,5) > obj.cphigh_
+                    obj.cphigh_ = p(end,5);
+                end
             end
         end
         %
@@ -65,7 +69,9 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
                     'reason','new low price w/o wad being lower');
                 return
             else
-                obj.wadlow_ = wad(end);
+                if wad(end) <= obj.wadlow_
+                    obj.wadlow_ = wad(end);
+                end
             end
         end
         
@@ -76,7 +82,9 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
                     'reason','new low wad w/o price being lower');
                 return
             else
-                obj.cplow_ = p(end,5);
+                if p(end,5) <= obj.cplow_
+                    obj.cplow_ = p(end,5);
+                end
             end
         end
         %
