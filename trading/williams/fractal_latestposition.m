@@ -22,32 +22,62 @@ function [ret] = fractal_latestposition(varargin)
 
     stock = code2instrument(code);
     [idxb1,idxs1] = fractal_genindicators1(ei.px,ei.hh,ei.ll,ei.jaw,ei.teeth,ei.lips,'instrument',stock);
-    lastb = idxb1(end,1);
-    lasts = idxs1(end,1);
+    try
+        lastb = idxb1(end,1);
+    catch
+        lastb = NaN;
+    end
+    try
+        lasts = idxs1(end,1);
+    catch
+        lasts = NaN;
+    end
     lastentry = size(ei.px,1);
     
     ret = {};
     
     %1.the lastest entry is a bullish breach (not sure whether it is valid)
     if lastb == lastentry
-        %need to check whether the latest short trade is closed on the same
-        %date
-        lastsinfo = fractal_tradeinfo_lasts('code',code,'extrainfo',ei,'frequency',freq,...
-            'usefractalupdate',usefracalupdateflag,...
-            'usefibonacci',usefibonacciflag);
-        if ~isempty(lastsinfo.trade)
-            if lastsinfo.trade.closedatetime1_ == ei.px(end,1)
-                %close on the last entry date
-                ret = lastsinfo.trade;
+        try
+            previousb = idxb1(end-1,1);
+        catch
+            previousb = NaN;
+        end
+        if previousb > lasts &&  idxb1(end-1,2) ~= 1
+            previousbinfo = fractal_tradeinfo_anyb('code',code,'openid',previousb,...
+                'extrainfo',ei,'frequency',freq,...
+                'usefractalupdate',usefracalupdateflag,...
+                'usefibonacci',usefibonacciflag);
+            if ~isempty(previousbinfo.trade)
+                if strcmpi(previousbinfo.trade.status_,'set')
+                    %the previous long trade is still alive
+                    ret = previousbinfo.trade;
+                end
+            end
+            lastsinfo.trade = {};
+        else
+             %need to check whether the latest short trade is closed on 
+             %the same date
+             lastsinfo = fractal_tradeinfo_lasts('code',code,'extrainfo',ei,'frequency',freq,...
+                 'usefractalupdate',usefracalupdateflag,...
+                 'usefibonacci',usefibonacciflag);
+             if ~isempty(lastsinfo.trade)
+                if lastsinfo.trade.closedatetime1_ == ei.px(end,1)
+                    %close on the last entry date
+                    ret = lastsinfo.trade;
+                end
             end
         end
+        %
         [~,op] = fractal_signal_unconditional(ei,stock.tick_size,nfractal);
         if op.use
-            if ~isempty(ret)
+            if ~isempty(ret) && ret.opendirection_ == -1
                 %very rare case here,short close and long open at the same
                 %time
                 %not implemented for now
                 error('not done yet for short close and long open at the same time')
+            elseif ~isempty(ret) && ret.opendirection_ == 1
+                fprintf('%s:bullish live with newly added open:%s(%s)\n',code,op.comment,stock.asset_name);
             else
                 trade = fractal_gentrade(ei,code,lastb,op.comment,1,freq);
                 trade.riskmanager_.riskmanagementwithcandle([],...
@@ -63,7 +93,7 @@ function [ret] = fractal_latestposition(varargin)
                 ret = lastsinfo.trade;
                 if strcmpi(lastsinfo.trade.status_,'set')
                     this_direction = -1;
-                elseif strcmpi(lastsinfo.trade.status_,'closed')
+                elseif strcmpi(lastsinfo.trade.status_,'closed') && lastsinfo.trade.closedatetime1_ == ei.px(end,1)
                     this_direction = -0.5;
                 else
                     this_direction = 0;
@@ -95,24 +125,46 @@ function [ret] = fractal_latestposition(varargin)
     
     %2.the latest entry is a bearish breach (not sure whether it is valid)
     if lasts == lastentry
-        %need to check whether the latest long trade is closed on the same
-        %date
-        lastbinfo = fractal_tradeinfo_lastb('code',code,'extrainfo',ei,'frequency',freq,...
-            'usefractalupdate',usefracalupdateflag,...
-            'usefibonacci',usefibonacciflag);
-        if ~isempty(lastbinfo.trade)
-            if lastbinfo.trade.closedatetime1_ == ei.px(end,1)
-                %close on the last entry date
-                ret = lastbinfo.trade;
+        try
+            previouss = idxs1(end-1,1);
+        catch
+            previouss = NaN;
+        end
+        if previouss > lastb && idxs1(end-1,2) ~= 1
+            previoussinfo = fractal_tradeinfo_anys('code',code,'openid',previouss,...
+                'extrainfo',ei,'frequency',freq,...
+                'usefractalupdate',usefracalupdateflag,...
+                'usefibonacci',usefibonacciflag);
+            if ~isempty(previoussinfo.trade)
+                if strcmpi(previoussinfo.trade.status_,'set')
+                    %the previous short trade is still alive
+                    ret = previoussinfo.trade;
+                end
+            end
+            lastbinfo.trade = {};
+        else
+            %need to check whether the latest long trade is closed 
+            %on the same date
+            lastbinfo = fractal_tradeinfo_lastb('code',code,'extrainfo',ei,'frequency',freq,...
+                'usefractalupdate',usefracalupdateflag,...
+                'usefibonacci',usefibonacciflag);
+            if ~isempty(lastbinfo.trade)
+                if lastbinfo.trade.closedatetime1_ == ei.px(end,1)
+                    %close on the last entry date
+                    ret = lastbinfo.trade;
+                end
             end
         end
+        %
         [~,op] = fractal_signal_unconditional(ei,stock.tick_size,nfractal);
         if op.use
-            if ~isempty(ret)
+            if ~isempty(ret) && ret.opendirection_ == 1
                 %very rare case here,long close and short open at the same
                 %time
                 %not implemented for now
                 error('not done yet for long close and short open at the same time')
+            elseif ~isempty(ret) && ret.opendirection_ == -1
+                fprintf('%s:bearish live with newly added open:%s(%s)\n',code,op.comment,stock.asset_name);
             else
                 trade = fractal_gentrade(ei,code,lasts,op.comment,-1,freq);
                 trade.riskmanager_.riskmanagementwithcandle([],...
@@ -128,7 +180,7 @@ function [ret] = fractal_latestposition(varargin)
                 ret = lastbinfo.trade;
                 if strcmpi(lastbinfo.trade.status_,'set')
                     this_direction = 1;
-                elseif strcmpi(lastbinfo.trade.status_,'closed')
+                elseif strcmpi(lastbinfo.trade.status_,'closed') && lastbinfo.trade.closedatetime1_ == ei.px(end,1)	
                     this_direction = 0.5;
                 else
                     this_direction = 0;
