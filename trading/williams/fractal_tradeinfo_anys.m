@@ -38,14 +38,18 @@ asset = code2instrument(code);
 idx = find(idxs1(:,1) == openid, 1);
 if isempty(idx)
     ret = {};
-    fprintf('invalid input openid as no open short signal was found then....\n');
+    if debugflag
+        fprintf('%s:invalid input openid as no open short signal was found then....\n',code);
+    end
     return
 end
 
 s1type = idxs1(idx,2);
 if s1type == 1
     ret = {};
-    fprintf('invalid input openid as weak short signal was found then...\n');
+    if debugflag
+        fprintf('%s:invalid input openid as weak short signal was found then...\n',code);
+    end
     return
 end
 
@@ -66,7 +70,9 @@ if op.use || (~op.use && statusstruct.istrendconfirmed)
 else
     ret.opensignal = statusstr;
     ret.trade = {};
-    fprintf('invalid input openid as invalid breach signal was found then...\n');
+    if debugflag
+        fprintf('%s:invalid input openid as invalid breach signal was found then...\n',code);
+    end
     return
 end
 % run the trade with historical data
