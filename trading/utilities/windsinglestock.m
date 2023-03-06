@@ -57,6 +57,15 @@ function [ei,info,trade] = windsinglestock(w,code,varargin)
         return
     end
     
+    trade = fractal_latestposition('code',code,'extrainfo',ei,'usefractalupdate',0);
+    if ~isempty(trade)
+        if trade.opendirection_ == 1
+            fractal_tradeinfo_anyb('code',code,'openid',trade.id_,'extrainfo',ei,'debug',true,'plot',true,'usefractalupdate',0);
+        else
+            fractal_tradeinfo_anys('code',code,'openid',trade.id_,'extrainfo',ei,'debug',true,'plot',true,'usefractalupdate',0);
+        end
+    end
+    
     
     
 end
