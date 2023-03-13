@@ -23,23 +23,23 @@ function [] = eodanalysis(obj,varargin)
                 'extrainfo',extrainfo);
             if ~isempty(tradeout)
                 if tradeout.opendirection_ == 1
-                    fprintf('%s:bullish closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                    fprintf('%s:bullish closed:%s(%s)',tradeout.code_,tradeout.riskmanager_.closestr_,obj.names_index_{i});
                 else
-                    fprintf('%s:bearish closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                    fprintf('%s:bearish closed:%s(%s)',tradeout.code_,tradeout.riskmanager_.closestr_,obj.names_index_{i});
                 end
             else
                 if trade.opendirection_ == 1
-                    fprintf('%s:bullish live.',trade.code_);
+                    fprintf('%s:bullish live.(%s)',trade.code_,obj.names_index_{i});
                 else
-                    fprintf('%s:bearish live.',trade.code_);
+                    fprintf('%s:bearish live.(%s)',trade.code_,obj.names_index_{i});
                 end
             end
             [signal,op] = fractal_signal_unconditional(extrainfo,0.001,2);
             if ~isempty(op) && op.use == 1
                 if signal(1) == 1
-                    fprintf('%s:breachup:%s.',obj.codes_index_{i}(1:6),op.comment);
+                    fprintf('%s:breachup:%s.(%s)',obj.codes_index_{i}(1:6),op.comment,obj.names_index_{i});
                 else
-                    fprintf('%s:breachdn:%s.',obj.codes_index_{i}(1:6),op.comment);
+                    fprintf('%s:breachdn:%s.(%s)',obj.codes_index_{i}(1:6),op.comment,obj.names_index_{i});
                 end
             end
             fprintf('\n');
@@ -48,9 +48,9 @@ function [] = eodanalysis(obj,varargin)
             [signal,op] = fractal_signal_unconditional(extrainfo,0.001,2);
             if ~isempty(op) && op.use == 1
                 if signal(1) == 1
-                    fprintf('%s:breachup:%s.\n',obj.codes_index_{i}(1:6),op.comment);
+                    fprintf('%s:breachup:%s.(%s)\n',obj.codes_index_{i}(1:6),op.comment,obj.names_index_{i});
                 else
-                    fprintf('%s:breachdn:%s.\n',obj.codes_index_{i}(1:6),op.comment);
+                    fprintf('%s:breachdn:%s.(%s)\n',obj.codes_index_{i}(1:6),op.comment,obj.names_index_{i});
                 end
             else
 %                 [~,op] = fractal_signal_conditional(extrainfo,0.001,2);
@@ -82,23 +82,23 @@ function [] = eodanalysis(obj,varargin)
                 'extrainfo',extrainfo);
             if ~isempty(tradeout)
                 if tradeout.opendirection_ == 1
-                    fprintf('%s:bullish closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                    fprintf('%s:bullish closed:%s(%s)',tradeout.code_,tradeout.riskmanager_.closestr_,obj.names_sector_{i});
                 else
-                    fprintf('%s:bearish closed:%s',tradeout.code_,tradeout.riskmanager_.closestr_);
+                    fprintf('%s:bearish closed:%s(%s)',tradeout.code_,tradeout.riskmanager_.closestr_,obj.names_sector_{i});
                 end
             else
                 if trade.opendirection_ == 1
-                    fprintf('%s:bullish live.',trade.code_);
+                    fprintf('%s:bullish live.(%s)',trade.code_,obj.names_sector_{i});
                 else
-                    fprintf('%s:bearish live.',trade.code_);
+                    fprintf('%s:bearish live.(%s)',trade.code_,obj.names_sector_{i});
                 end
             end
             [signal,op] = fractal_signal_unconditional(extrainfo,0.001,2);
             if ~isempty(op) && op.use == 1
                 if signal(1) == 1
-                    fprintf('%s:breachup:%s.',obj.codes_sector_{i}(1:6),op.comment);
+                    fprintf('%s:breachup:%s.(%s)',obj.codes_sector_{i}(1:6),op.comment,obj.names_sector_{i});
                 else
-                    fprintf('%s:breachdn:%s.',obj.codes_sector_{i}(1:6),op.comment);
+                    fprintf('%s:breachdn:%s.(%s)',obj.codes_sector_{i}(1:6),op.comment,obj.names_sector_{i});
                 end
             end
             fprintf('\n'); 
@@ -107,9 +107,9 @@ function [] = eodanalysis(obj,varargin)
             [signal,op] = fractal_signal_unconditional(extrainfo,0.001,2);
             if ~isempty(op) && op.use == 1
                 if signal(1) == 1
-                    fprintf('%s:breachup:%s.\n',obj.codes_sector_{i}(1:6),op.comment);
+                    fprintf('%s:breachup:%s.(%s)\n',obj.codes_sector_{i}(1:6),op.comment,obj.names_sector_{i});
                 else
-                    fprintf('%s:breachdn:%s.\n',obj.codes_sector_{i}(1:6),op.comment);
+                    fprintf('%s:breachdn:%s.(%s)\n',obj.codes_sector_{i}(1:6),op.comment,obj.names_sector_{i});
                 end
             else
                 [~,op] = fractal_signal_conditional(extrainfo,0.001,2);
