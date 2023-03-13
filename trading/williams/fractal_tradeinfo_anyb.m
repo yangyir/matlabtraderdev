@@ -150,7 +150,7 @@ if plotflag
     else
         ei_plot = fractal_truncate(ei,min(closeid+5,size(ei.px,1)),openid-5);
     end
-    tools_technicalplot2(ei_plot,2,code,true);
+    tools_technicalplot2(ei_plot,2,[code,'-',asset.asset_name],true);
 end
 
 
