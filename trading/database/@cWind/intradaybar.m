@@ -74,10 +74,12 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             'tradingbreak',instrument.trading_break,...
             'frequency',[num2str(interval),'m']);
     elseif ischar(instrument)
-        if strcmpi(instrument(1),'5') || strcmpi(instrument(1),'6') || strcmpi(instrument(1),'0')
+        if strcmpi(instrument(1),'5') || strcmpi(instrument(1),'6')
             code_wind = [instrument,'.SH'];
-        else
+        elseif strcmpi(instrument(1),'0') || strcmpi(instrument(1),'1') || strcmpi(instrument(1),'3')
             code_wind = [instrument,'.SZ'];
+        elseif strcmpi(instrument(1),'4') || strcmpi(instrument(1),'8') 
+            code_wind = [instrument,'.BJ'];
         end
         bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...
             'todate',datenum(enddate,'yyyy-mm-dd'));
