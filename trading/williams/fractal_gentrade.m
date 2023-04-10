@@ -64,7 +64,11 @@ if longshort == 1
         if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
         else
-            opendt = resstruct.px(idx+1,1);
+            if idx < size(resstruct.px,1)
+                opendt = resstruct.px(idx+1,1);
+            else
+                opendt = resstruct.px(idx,1);
+            end
         end
         openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksize);
     elseif cond2 && strcmpi(mode,'breachup-lvlup') && resstruct.lips(idx) > resstruct.teeth(idx)
@@ -156,7 +160,11 @@ elseif longshort == -1
         if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
         else
-            opendt = resstruct.px(idx+1,1);
+            try
+                opendt = resstruct.px(idx+1,1);
+            catch
+                opendt = resstruct.px(idx,1);
+            end
         end
         openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksize);
     elseif cond2 && strcmpi(mode,'breachdn-lvldn')
@@ -181,7 +189,11 @@ elseif longshort == -1
                 opendt = resstruct.px(idx,1);
             end
         else
-            opendt = resstruct.px(idx+1,1)+1/86400;
+            try
+                opendt = resstruct.px(idx+1,1)+1/86400;
+            catch
+                opendt = resstruct.px(idx,1);
+            end
         end
         try
             openpx = resstruct.px(idx+1,2);
