@@ -5,9 +5,15 @@ iscomdtyindex = isincomdtyindex(code);
 if ~isequity && ~iscomdtyindex
 %     error('fractal_daily_checker:invalid code input:only equity is supported')
     instrument = code2instrument(code);
-    assetinfo = getassetinfo(instrument.asset_name);
-    if ~strcmpi(assetinfo.AssetType,'agriculture')
-        error('fractal_daily_checker:invalid code input:%s not supported',assetinfo.AssetType);
+    if ~isempty(instrument.asset_name) && isa(instrument,'cStock')
+        isequity = true;
+    else
+        if ~strcmpi(code,'gzhy')
+            assetinfo = getassetinfo(instrument.asset_name);
+            if ~strcmpi(assetinfo.AssetType,'agriculture')
+                error('fractal_daily_checker:invalid code input:%s not supported',assetinfo.AssetType);
+            end
+        end
     end
 end
 

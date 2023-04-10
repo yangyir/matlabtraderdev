@@ -14,8 +14,12 @@ function [ei,info,trade] = windsinglestock(w,code,varargin)
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('direction','long',@ischar);
     p.addParameter('lasttrade',true,@islogical);
+    p.addParameter('plot',true,@islogical);
+    p.addParameter('debug',true,@islogical);
     p.parse(varargin{:});
     direction = p.Results.direction;
+    plotflag = p.Results.plot;
+    debugflag = p.Results.debug;
     if ~(strcmpi(direction,'long') ...
             || strcmpi(direction,'short') ...
             || strcmpi(direction,'both'))
@@ -64,9 +68,9 @@ function [ei,info,trade] = windsinglestock(w,code,varargin)
     trade = fractal_latestposition('code',code,'extrainfo',ei,'usefractalupdate',0);
     if ~isempty(trade)
         if trade.opendirection_ == 1
-            fractal_tradeinfo_anyb('code',code,'openid',trade.id_,'extrainfo',ei,'debug',true,'plot',true,'usefractalupdate',0);
+            fractal_tradeinfo_anyb('code',code,'openid',trade.id_,'extrainfo',ei,'debug',debugflag,'plot',plotflag,'usefractalupdate',0);
         else
-            fractal_tradeinfo_anys('code',code,'openid',trade.id_,'extrainfo',ei,'debug',true,'plot',true,'usefractalupdate',0);
+            fractal_tradeinfo_anys('code',code,'openid',trade.id_,'extrainfo',ei,'debug',debugflag,'plot',plotflag,'usefractalupdate',0);
         end
     end
     
