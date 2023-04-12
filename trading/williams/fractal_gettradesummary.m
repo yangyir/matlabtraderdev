@@ -1,6 +1,9 @@
-function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess,validtradesb,validtradess] = fractal_gettradesummary(code,varargin)
-%20220725 £ºadd outputs validtradesb and validtradess for long/short 
+function [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary(code,varargin)
+%20220725:add outputs validtradesb and validtradess for long/short 
 %trades with useflag 1 only
+%
+%20230412:add outpust kellyb and kellys for Kelly Criterion of long/short
+%trades with all open signal modes
 [isequity,equitytype] = isinequitypool(code);
 
 if isequity
@@ -336,6 +339,125 @@ for i = 1:ns
         nvalidstrade = nvalidstrade + 1;
         validtradess.push(tradess.node_(tradesidx));
     end
+end
+%
+% calculate kellyb and kellys
+instrument = code2instrument(code);
+if isempty(instrument.contract_size)
+    contractsize = 100;
+else
+    contractsize = instrument.contract_size;
+end
+%
+if ~isempty(tblb_data)
+    opensignal_mode = tblb_data(:,11);
+    opensignal_mode_unique = unique(opensignal_mode);
+    outputstats = cell(length(opensignal_mode_unique),7);
+    for j = 1:length(opensignal_mode_unique)
+        this_mode = opensignal_mode_unique{j};
+        idx = strcmpi(opensignal_mode,this_mode);
+        tbl_this_mode = tblb_data(idx,:);
+        wincount = 0;
+        losscount = 0;
+        wintotalpnl = 0;
+        losstotalpnl = 0;
+        for k = 1:size(tbl_this_mode,1)
+            if tbl_this_mode{k,18} >= 0
+                wincount = wincount + 1;
+                wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+            elseif tbl_this_mode{k,18} < 0
+                losscount = losscount + 1;
+                losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+            end
+        end
+        winprob = wincount / (wincount + losscount);
+        if wincount == 0
+            winavgpnl = 0;
+        else
+            winavgpnl = wintotalpnl / wincount;
+        end
+        lossavgpnl = losstotalpnl / losscount;
+        R = abs(winavgpnl/lossavgpnl);
+        if winprob == 1
+            kratio = 1;
+            lossavgpnl = 0;
+        else
+            kratio = winprob - (1 - winprob)/R;
+        end
+        outputstats{j,1} = this_mode;
+        outputstats{j,2} = wincount + losscount;
+        outputstats{j,3} = winprob;
+        outputstats{j,4} = winavgpnl;
+        outputstats{j,5} = lossavgpnl;
+        outputstats{j,6} = kratio;
+        outputstats{j,7} = code;
+    end
+    OpenSignal = outputstats(:,1);
+    NumOfTrades = outputstats(:,2);
+    WinProb = outputstats(:,3);
+    WinAvgPnL = outputstats(:,4);
+    LossAvgPnL = outputstats(:,5);
+    KellyRatio = outputstats(:,6);
+    Code = outputstats(:,7);
+    kellyb = table(OpenSignal,NumOfTrades,WinProb,WinAvgPnL,LossAvgPnL,KellyRatio,Code);
+else
+    kellyb = {};
+end
+%
+%
+if ~isempty(tbls_data)
+    opensignal_mode = tbls_data(:,11);
+    opensignal_mode_unique = unique(opensignal_mode);
+    outputstats = cell(length(opensignal_mode_unique),7);
+    for j = 1:length(opensignal_mode_unique)
+        this_mode = opensignal_mode_unique{j};
+        idx = strcmpi(opensignal_mode,this_mode);
+        tbl_this_mode = tbls_data(idx,:);
+        wincount = 0;
+        losscount = 0;
+        wintotalpnl = 0;
+        losstotalpnl = 0;
+        for k = 1:size(tbl_this_mode,1)
+            if tbl_this_mode{k,18} >= 0
+                wincount = wincount + 1;
+                wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+            elseif tbl_this_mode{k,18} < 0
+                losscount = losscount + 1;
+                losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+            end
+        end
+        winprob = wincount / (wincount + losscount);
+        if wincount == 0
+            winavgpnl = 0;
+        else
+            winavgpnl = wintotalpnl / wincount;
+        end
+        lossavgpnl = losstotalpnl / losscount;
+        R = abs(winavgpnl/lossavgpnl);
+        if winprob == 1
+            kratio = 1;
+            lossavgpnl = 0;
+        else
+            kratio = winprob - (1 - winprob)/R;
+        end
+        outputstats{j,1} = this_mode;
+        outputstats{j,2} = wincount + losscount;
+        outputstats{j,3} = winprob;
+        outputstats{j,4} = winavgpnl;
+        outputstats{j,5} = lossavgpnl;
+        outputstats{j,6} = kratio;
+        outputstats{j,7} = code;
+    end
+    OpenSignal = outputstats(:,1);
+    NumOfTrades = outputstats(:,2);
+    WinProb = outputstats(:,3);
+    WinAvgPnL = outputstats(:,4);
+    LossAvgPnL = outputstats(:,5);
+    KellyRatio = outputstats(:,6);
+    Code = outputstats(:,7);
+    kellys = table(OpenSignal,NumOfTrades,WinProb,WinAvgPnL,LossAvgPnL,KellyRatio,Code);
+else
+    kellys = {};
 end
 
 
