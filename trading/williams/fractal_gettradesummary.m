@@ -371,12 +371,17 @@ if ~isempty(tblb_data)
             end
         end
         winprob = wincount / (wincount + losscount);
+        if wincount + losscount == 0, winprob = 0;end
         if wincount == 0
             winavgpnl = 0;
         else
             winavgpnl = wintotalpnl / wincount;
         end
-        lossavgpnl = losstotalpnl / losscount;
+        if losscount == 0
+            lossavgpnl = 0;
+        else
+            lossavgpnl = losstotalpnl / losscount;
+        end
         R = abs(winavgpnl/lossavgpnl);
         if winprob == 1
             kratio = 1;
@@ -427,12 +432,17 @@ if ~isempty(tbls_data)
             end
         end
         winprob = wincount / (wincount + losscount);
+        if wincount + losscount == 0, winprob = 0;end
         if wincount == 0
             winavgpnl = 0;
         else
             winavgpnl = wintotalpnl / wincount;
         end
-        lossavgpnl = losstotalpnl / losscount;
+        if losscount == 0
+            lossavgpnl = 0;
+        else
+            lossavgpnl = losstotalpnl / losscount;
+        end
         R = abs(winavgpnl/lossavgpnl);
         if winprob == 1
             kratio = 1;
