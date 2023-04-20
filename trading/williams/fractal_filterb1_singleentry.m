@@ -38,9 +38,14 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
         end
         %exclude if it is too close to TDST-lvlup
         isclose2lvlup = status.isclose2lvlup;
-        if isclose2lvlup
-            if status.istrendconfirmed
-                output = struct('use',1,'comment','closetolvlup');
+        if isclose2lvlup && ~status.istrendconfirmed
+            if (status.isvolblowup || status.isvolblowup2) && ...
+                    lips(end) - teeth(end) > -5*ticksize
+                if status.isvolblowup
+                    output = struct('use',1,'comment','volblowup');
+                else
+                    output = struct('use',1,'comment','volblowup2');
+                end
             else
                 output = struct('use',0,'comment','closetolvlup');
             end
@@ -264,10 +269,14 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             %
 %         else
             %exclude if it is too close to TDST-lvlup
-            if status.isclose2lvlup
+            if status.isclose2lvlup && ~status.istrendconfirmed
                 if (status.isvolblowup || status.isvolblowup2) && ...
                         lips(end) - teeth(end) > -5*ticksize
-                    output = struct('use',1,'comment','closetolvlup');
+                    if status.isvolblowup
+                        output = struct('use',1,'comment','volblowup');
+                    elseif status.isvolblowup2
+                        output = struct('use',1,'comment','volblowup2');
+                    end
                 else
                     output = struct('use',0,'comment','closetolvlup');
                 end
