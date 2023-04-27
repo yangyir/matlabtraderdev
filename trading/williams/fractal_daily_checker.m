@@ -7,6 +7,13 @@ if ~isequity && ~iscomdtyindex
     instrument = code2instrument(code);
     if ~isempty(instrument.asset_name) && isa(instrument,'cStock')
         isequity = true;
+    elseif ~isempty(instrument.asset_name) && isa(instrument,'cFutures')
+        assetinfo = getassetinfo(instrument.asset_name);
+        if ~strcmpi(assetinfo.AssetType,'eqindex')
+            isequity = true;
+        else
+            iscomdtyindex = true;
+        end
     else
         if ~strcmpi(code,'gzhy')
             assetinfo = getassetinfo(instrument.asset_name);
