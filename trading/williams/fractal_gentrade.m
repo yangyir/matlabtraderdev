@@ -101,7 +101,11 @@ if longshort == 1
                 opendt = resstruct.px(idx,1);
             end
         else
-            opendt = resstruct.px(idx+1,1)+1/86400;
+            try
+                opendt = resstruct.px(idx+1,1)+1/86400;
+            catch
+                opendt = resstruct.px(idx,1);
+            end
         end
         try
             openpx = resstruct.px(idx+1,2);
