@@ -119,12 +119,17 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
         end
         return
     end
+    %
     %exclude if it is too close to TDST-lvlup
     if status.isclose2lvlup && ~status.istrendconfirmed
         output = struct('use',0,'comment','closetolvlup');
         return
     end
-    
+    %
+%     if sc(end) == 13 && ~status.istrendconfirmed
+%         output = struct('use',0,'comment','sc13');
+%         return
+%     end
     %
     if b1type == 2    
         if status.issshighvalue && ~status.istrendconfirmed
