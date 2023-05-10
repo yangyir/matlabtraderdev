@@ -124,8 +124,8 @@ data = resstruct{1};
 
 nbtrades = tradesb.latest_;
 nstrades = tradess.latest_;
-tblbtrades = cell(nbtrades,26);
-tblstrades = cell(nstrades,26);
+tblbtrades = cell(nbtrades,28);
+tblstrades = cell(nstrades,28);
 
 for i = 1:tradesb.latest_
     trade_i = tradesb.node_(i);
