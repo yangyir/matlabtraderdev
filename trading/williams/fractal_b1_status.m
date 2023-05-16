@@ -42,7 +42,7 @@ end
 if ~islvlupbreach && (px(end,5)>=lvlup(end) && px(end,4)<lvlup(end))
     islvlupbreach = 2;
 end
-if ~islvlupbreach && ss(end) <= 9
+if ~islvlupbreach && ss(end) <= 9 && px(end,5) >= lvlup(end)
     idx1 = find(px(end-ss(end):end,5)>lvlup(end),1,'first');
     if ~isempty(idx1)
         idx2 = find(px(end-ss(end):end-ss(end)+idx1-1,5)<lvlup(end),1,'first');
