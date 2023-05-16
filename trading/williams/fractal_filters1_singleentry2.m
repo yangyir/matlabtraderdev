@@ -39,6 +39,7 @@ function [output] = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,tick
     end
     %2.further check whether last price is above teeth
     belowteeth = extrainfo.px(end,5)-extrainfo.teeth(end)+2*ticksize<0;
+    belowjaw = extrainfo.px(end,5)-extrainfo.jaw(end)+2*ticksize<0;
     %3.
     bslast = extrainfo.bs(end);
     %bslast breached 4 indicates the trend might continue
@@ -47,10 +48,7 @@ function [output] = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,tick
     %
     if lldnward
         %extra check
-        extraflag = extrainfo.px(end,5)-extrainfo.jaw(end)+2*ticksize<0;
-        if ~extraflag
-            extraflag = potentialdntrend;
-        end
+        extraflag = belowjaw | potentialdntrend;
         %
         if nonbreachhhflag && belowteeth && nonbreachllflag && extraflag
             if s1type == 2
@@ -69,7 +67,7 @@ function [output] = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,tick
         %if the price were above lvlup and it breached-dn lvlup
         abovelvlupflag = isempty(find(extrainfo.px(last2llidx(end)-nfractal:end-1,5)-extrainfo.lvlup(last2llidx(end)-nfractal:end-1)+2*ticksize<0 ,1,'last'));
         breachlvlupflag = extrainfo.px(end,5)-extrainfo.lvlup(end)+2*ticksize<0;
-        if abovelvlupflag && breachlvlupflag && belowteeth
+        if abovelvlupflag && breachlvlupflag && belowteeth && (belowjaw || potentialdntrend)
             if s1type == 2
                 output = struct('use',1,'comment','mediumbreach-trendbreak-s2');
             else
