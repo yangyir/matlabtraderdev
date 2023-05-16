@@ -4,12 +4,8 @@ function [outputstr] = fractal_s1_status2str(status)
     elseif status.s1type == 3
         outputstr = 'strongbreach';
     else
-        if ~status.islvldnbreach
-            outputstr = 'weakbreach';
-            return
-        else
-            outputstr = 'weakbreach';
-        end
+        outputstr = 'weakbreach';
+        return
     end
     
     if status.isvolblowup
