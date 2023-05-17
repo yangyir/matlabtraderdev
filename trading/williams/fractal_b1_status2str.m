@@ -21,11 +21,11 @@ function [outputstr] = fractal_b1_status2str(status)
     end
     
     if status.issshighbreach
-        outputstr = [outputstr,'-sshighvalue'];
+        outputstr = [outputstr,'-sshighbreach'];
     end
     
     if status.isschighbreach
-        outputstr = [outputstr,'-highsc13'];
+        outputstr = [outputstr,'-highsc13breach'];
     end
     
     if status.istrendconfirmed
