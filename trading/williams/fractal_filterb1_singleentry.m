@@ -44,8 +44,15 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
     %
     %keep if it breaches the hh of the previous sell sequential
     if status.issshighbreach
-        output = struct('use',1,'comment','breachup-sshighvalue');
-        return
+        if ~status.issshighvalue && ~status.istrendconfirmed
+            %to comment:
+        elseif status.isclose2lvlup && ~status.istrendconfirmed
+            %to comment:
+        else
+            output = struct('use',1,'comment','breachup-sshighvalue');
+            return
+        end
+        
     end
     %
     %keep if it breaches the hh after sc13
