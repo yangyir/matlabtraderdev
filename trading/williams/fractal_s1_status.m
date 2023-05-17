@@ -39,16 +39,17 @@ islvldnbreach = 0;
 if px(end,5)<=lvldn(end) && px(end-1,5)>lvldn(end)
     islvldnbreach = 1;
 end
-if ~islvldnbreach && (px(end,5)<=lvldn(end) && px(end,3)>lvldn(end))
-    islvldnbreach = 2;
-end
-if ~islvldnbreach && bs(end) <= 9 && px(end,5)<=lvldn(end)
-    idx1 = find(px(end-bs(end):end,5)<lvldn(end),1,'first');
-    if ~isempty(idx1)
-        idx2 = find(px(end-bs(end):end-bs(end)+idx1-1,5)>lvldn(end),1,'first');
-        if ~isempty(idx2),islvldnbreach = 3;end
-    end
-end
+% 20230517:case 2 and case 3 may be removed
+% if ~islvldnbreach && (px(end,5)<=lvldn(end) && px(end,3)>lvldn(end))
+%     islvldnbreach = 2;
+% end
+% if ~islvldnbreach && bs(end) <= 9 && px(end,5)<=lvldn(end)
+%     idx1 = find(px(end-bs(end):end,5)<lvldn(end),1,'first');
+%     if ~isempty(idx1)
+%         idx2 = find(px(end-bs(end):end-bs(end)+idx1-1,5)>lvldn(end),1,'first');
+%         if ~isempty(idx2),islvldnbreach = 3;end
+%     end
+% end
 
 %isclose2lvldn
 isclose2lvldn = ~isnan(lvlup(end)) && ~isnan(lvldn(end)) && ...
