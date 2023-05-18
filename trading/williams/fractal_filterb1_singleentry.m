@@ -142,9 +142,9 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
                     if ~isempty(strfind(output.comment,'s1'))
                         output = struct('use',1,'comment','volblowup2-s1');
                     elseif ~isempty(strfind(output.comment,'s2'))
-                        output = struct('use',1,'comment','volblowup-s2');
+                        output = struct('use',1,'comment','volblowup2-s2');
                     elseif ~isempty(strfind(output.comment,'s3'))
-                        output = struct('use',1,'comment','volblowup-s3');
+                        output = struct('use',1,'comment','volblowup2-s3');
                     else
                     end
                 end
