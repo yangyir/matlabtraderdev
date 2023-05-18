@@ -59,18 +59,30 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
     if status.isschighbreach
         if ss(end) < 9
             if px(end,5)<px(end,2)
-                if status.issshighbreach || status.istrendconfirmed
+                if status.istrendconfirmed
                     output = struct('use',1,'comment','breachup-highsc13');
                 else
                     output = struct('use',0,'comment','breachup-highsc13-negative');
                 end
+                return
+            else
+                if ~status.istrendconfirmed && status.issshighbreach
+                    %to comment:
+                elseif ~status.istrendconfirmed
+                    %to comment:
+                else
+                    output = struct('use',1,'comment','breachup-highsc13');
+                    return
+                end
+            end
+        else
+            if ~status.istrendconfirmed
+                output = struct('use',0,'comment','breachup-highsc13-highssvalue');
             else
                 output = struct('use',1,'comment','breachup-highsc13');
             end
-        else
-            output = struct('use',0,'comment','breachup-highsc13-highssvalue');
+            return
         end
-        return
     end
     %
     %keep if its vol blows up
@@ -78,21 +90,28 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
         if status.istrendconfirmed
             output = struct('use',1,'comment','volblowup');
         else
-            if lips(end) - teeth(end) > -5*ticksize                    %introducing a buffer zone
-                output = struct('use',1,'comment','volblowup');
+            if status.isfirstbreachsincelastbs && ~status.isfirstbreachsincelastbc13
+                output = struct('use',1,'comment','volblowup-bsreverse');
+            elseif ~status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
+                output = struct('use',1,'comment','volblowup-bcreverse');
+            elseif status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
+                output = struct('use',1,'comment','volblowup-bsbcdoublereverse');
             else
-                if status.isfirstbreachsincelastbs && ~status.isfirstbreachsincelastbc13
-                    output = struct('use',1,'comment','volblowup-bsreverse');
-                elseif ~status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
-                    output = struct('use',1,'comment','volblowup-bcreverse');
-                elseif status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
-                    output = struct('use',1,'comment','volblowup-bsbcdoublereverse');
-                else             
-                    output = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,ticksize);
-                    if ~output.use
+                output = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,ticksize);
+                if ~output.use
+                    if lips(end) - teeth(end) < -2*ticksize                    %introducing a buffer zone
                         output = struct('use',0,'comment','volblowup-alligatorfailed');
                     else
-                        output = struct('use',1,'comment','volblowup-s');
+                        output = struct('use',0,'comment','volblowup-trendbreak');
+                    end
+                else
+                    if ~isempty(strfind(output.comment,'s1'))
+                        output = struct('use',1,'comment','volblowup-s1');
+                    elseif ~isempty(strfind(output.comment,'s2'))
+                        output = struct('use',1,'comment','volblowup-s2');
+                    elseif ~isempty(strfind(output.comment,'s3'))
+                        output = struct('use',1,'comment','volblowup-s3');
+                    else
                     end
                 end
             end
@@ -105,21 +124,28 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
         if status.istrendconfirmed
             output = struct('use',1,'comment','volblowup2');
         else
-            if lips(end) - teeth(end) > -5*ticksize                    %introducing a buffer zone
-                output = struct('use',1,'comment','volblowup2');
+            if status.isfirstbreachsincelastbs && ~status.isfirstbreachsincelastbc13
+                output = struct('use',1,'comment','volblowup2-bsreverse');
+            elseif ~status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
+                output = struct('use',1,'comment','volblowup2-bcreverse');
+            elseif status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
+                output = struct('use',1,'comment','volblowup2-bsbcdoublereverse');
             else
-                if status.isfirstbreachsincelastbs && ~status.isfirstbreachsincelastbc13
-                    output = struct('use',1,'comment','volblowup2-bsreverse');
-                elseif ~status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
-                    output = struct('use',1,'comment','volblowup2-bcreverse');
-                elseif status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
-                    output = struct('use',1,'comment','volblowup2-bsbcdoublereverse');
-                else
-                    output = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,ticksize);
-                    if ~output.use
+                output = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,ticksize);
+                if ~output.use
+                    if lips(end) - teeth(end) < -2*ticksize                    %introducing a buffer zone
                         output = struct('use',0,'comment','volblowup2-alligatorfailed');
                     else
-                        output = struct('use',1,'comment','volblowup2-s');
+                        output = struct('use',0,'comment','volblowup2-trendbreak');
+                    end
+                else
+                    if ~isempty(strfind(output.comment,'s1'))
+                        output = struct('use',1,'comment','volblowup2-s1');
+                    elseif ~isempty(strfind(output.comment,'s2'))
+                        output = struct('use',1,'comment','volblowup-s2');
+                    elseif ~isempty(strfind(output.comment,'s3'))
+                        output = struct('use',1,'comment','volblowup-s3');
+                    else
                     end
                 end
             end
