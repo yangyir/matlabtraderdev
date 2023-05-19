@@ -27,20 +27,8 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
     
     %keep if it breaches-down TDST-lvldn
     if status.islvldnbreach
-        if status.isteethjawcrossed && bs(end) >= 9
-            %check whether WAD is consitent with the price move
-            minpx = min(px(end-bs(end)+1:end-1,5));
-            minpxidx = find(px(end-bs(end)+1:end-1,5)==minpx,1,'last')+size(px,1)-bs(end);
-            if wad(minpxidx) > wad(end)
-                output = struct('use',1,'comment','breachdn-lvldn');
-            else
-                output = struct('use',0,'comment','breachdn-lvldn-teethjawcrossed');
-            end
-            return
-        else
-            output = struct('use',1,'comment','breachdn-lvldn');
-            return
-        end
+        output = struct('use',1,'comment','breachdn-lvldn');
+        return
     end
     %keep if it breach-dn low of a previous buy sequential
     if status.isbslowbreach
@@ -63,35 +51,54 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
                 else
                     output = struct('use',0,'comment','breachdn-lowbc13-positive');
                 end
+                return
+            else
+                if ~status.istrendconfirmed && status.isbslowbreach
+                    %to comment:
+                elseif ~status.istrendconfirmed
+                    %to comment
+                else
+                    output = struct('use',1,'comment','breachdn-lowbc13');
+                    return
+                end
+            end
+        else
+            if ~status.istrendconfirmed
+                output = struct('use',0,'comment','breachdn-lowbc13-highbsvalue');
             else
                 output = struct('use',1,'comment','breachdn-lowbc13');
             end
-        else
-            output = struct('use',0,'comment','breachdn-lowbc13-highbsvalue');
+            return
         end
-        return
     end
     %
     %keep if its vol blows up
     if status.isvolblowup
         if status.istrendconfirmed
             output = struct('use',1,'comment','volblowup');
-        else
-            if lips(end) - teeth(end) < 5*ticksize                     %introducing a buffer zone
-                output = struct('use',1,'comment','volblowup');
+        else 
+            if status.isfirstbreachsincelastss && ~status.isfirstbreachsincelastsc13
+                output = struct('use',1,'comment','volblowup-ssreverse');
+            elseif ~status.isfirstbreachsincelastss && status.isfirstbreachsincelastsc13
+                output = struct('use',1,'comment','volblowup-screverse');
+            elseif status.isfirstbreachsincelastss && status.isfirstbreachsincelastsc13
+                output = struct('use',1,'comment','volblowup-ssscdoublereverse');
             else
-                if status.isfirstbreachsincelastss && ~status.isfirstbreachsincelastsc13
-                    output = struct('use',1,'comment','volblowup-ssreverse');
-                elseif ~status.isfirstbreachsincelastss && status.isfirstbreachsincelastsc13
-                    output = struct('use',1,'comment','volblowup-screverse');
-                elseif status.isfirstbreachsincelastss && status.isfirstbreachsincelastsc13
-                    output = struct('use',1,'comment','volblowup-ssscdoublereverse');
-                else
-                    output = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,ticksize);
-                    if ~output.use
+                output = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,ticksize);
+                if ~output.use
+                    if lips(end) - teeth(end) < 2*ticksize                 %introducing a buffer zone
                         output = struct('use',0,'comment','volblowup-alligatorfailed');
                     else
-                        output = struct('use',1,'comment','volblowup-s');
+                        output = struct('use',0,'comment','volblowup-trendbreak');
+                    end
+                else
+                    if ~isempty(strfind(output.comment,'s1'))
+                        output = struct('use',1,'comment','volblowup-s1');
+                    elseif ~isempty(strfind(output.comment,'s2'))
+                        output = struct('use',1,'comment','volblowup-s2');
+                    elseif ~isempty(strfind(output.comment,'s3'))
+                        output = struct('use',1,'comment','volblowup-s3');
+                    else
                     end
                 end
             end
@@ -103,22 +110,29 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
     if status.isvolblowup2
         if status.istrendconfirmed
             output = struct('use',1,'comment','volblowup2');
-        else
-            if lips(end) - teeth(end) < 5*ticksize                 %introducing a buffer zone
-                output = struct('use',1,'comment','volblowup2');
+        else 
+            if status.isfirstbreachsincelastss && ~status.isfirstbreachsincelastsc13
+                output = struct('use',1,'comment','volblowup2-ssreverse');
+            elseif ~status.isfirstbreachsincelastss && status.isfirstbreachsincelastsc13
+                output = struct('use',1,'comment','volblowup2-screverse');
+            elseif status.isfirstbreachsincelastss && status.isfirstbreachsincelastsc13
+                output = struct('use',1,'comment','volblowup2-ssscdoublereverse');
             else
-                if status.isfirstbreachsincelastss && ~status.isfirstbreachsincelastsc13
-                    output = struct('use',1,'comment','volblowup2-ssreverse');
-                elseif ~status.isfirstbreachsincelastss && status.isfirstbreachsincelastsc13
-                    output = struct('use',1,'comment','volblowup2-screverse');
-                elseif status.isfirstbreachsincelastss && status.isfirstbreachsincelastsc13
-                    output = struct('use',1,'comment','volblowup2-ssscdoublereverse');
-                else                        
-                    output = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,ticksize);
-                    if ~output.use
+                output = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,ticksize);
+                if ~output.use
+                    if lips(end) - teeth(end) < 2*ticksize                 %introducing a buffer zone
                         output = struct('use',0,'comment','volblowup2-alligatorfailed');
                     else
-                        output = struct('use',1,'comment','volblowup2-s');
+                        output = struct('use',0,'comment','volblowup2-trendbreak');
+                    end
+                else
+                    if ~isempty(strfind(output.comment,'s1'))
+                        output = struct('use',1,'comment','volblowup2-s1');
+                    elseif ~isempty(strfind(output.comment,'s2'))
+                        output = struct('use',1,'comment','volblowup2-s2');
+                    elseif ~isempty(strfind(output.comment,'s3'))
+                        output = struct('use',1,'comment','volblowup2-s3');
+                    else
                     end
                 end
             end
