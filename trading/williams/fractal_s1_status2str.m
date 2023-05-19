@@ -34,7 +34,7 @@ function [outputstr] = fractal_s1_status2str(status)
     end
     
     if status.isclose2lvldn
-        outputstr = 'closetolvldn';
+        outputstr = [outputstr,'-closetolvldn'];
         return
     end
 end
