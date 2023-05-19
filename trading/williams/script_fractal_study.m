@@ -7,20 +7,25 @@ fprintf('output_comdtyfut loaded...\n');
 for i = 1:size(data.output_comdtyfut.tblb,1) 
     if i == 1
         tblb_data_combo = data.output_comdtyfut.tblb{i};
-        tbls_data_combo = data.output_comdtyfut.tblb{i};
+        tbls_data_combo = data.output_comdtyfut.tbls{i};
     else
         tempnew = [tblb_data_combo;data.output_comdtyfut.tblb{i}];
         tblb_data_combo = tempnew;
-        tempnew = [tbls_data_combo;data.output_comdtyfut.tblb{i}];
+        tempnew = [tbls_data_combo;data.output_comdtyfut.tbls{i}];
         tbls_data_combo = tempnew;
     end
 end
 fprintf('data consolidated...\n');
 %%
-% specific long signal
-signal2check = 'breachup-lvlup';
-idx2check = strcmpi(tblb_data_combo(:,11),signal2check);
-tblb2check = tblb_data_combo(idx2check,:); 
+direction2check = -1;
+signal2check = 'breachdn-lvldn';
+if direction2check == 1
+    idx2check = strcmpi(tblb_data_combo(:,11),signal2check);
+    tblb2check = tblb_data_combo(idx2check,:);
+else
+    idx2check = strcmpi(tbls_data_combo(:,11),signal2check);
+    tblb2check = tbls_data_combo(idx2check,:);
+end
 %1.check whether the win probability converges with the Law of Large Numbers
 winp_running = zeros(size(tblb2check,1),1);
 winflag = winp_running;
@@ -73,14 +78,14 @@ figure(2);
 subplot(311);plot(winp_running,'r');title(signal2check);xlabel('number of trades');ylabel('win prob');grid on;
 subplot(312);plot(R_running,'b');title(signal2check);xlabel('number of trades');ylabel('win/loss');grid on;
 subplot(313);plot(kelly_running,'g');title(signal2check);xlabel('number of trades');ylabel('kelly criteria');grid on;
-tblb_output = tblb2check;
-for i = 1:size(tblb_output,1)
-    tblb_output{i,18} = pnl_ret(i);
+tbl_output = tblb2check;
+for i = 1:size(tbl_output,1)
+    tbl_output{i,18} = pnl_ret(i);
 end
 %%
 % regress with dummy variables
-y = tblb_output(:,18);
-isvolup1 = zeros(size(tblb_output,1),1);
+y = tbl_output(:,18);
+isvolup1 = zeros(size(tbl_output,1),1);
 isvolup2 = isvolup1;
 isalligatorfailed = isvolup1;
 issshighvalue = isvolup1;
@@ -90,40 +95,78 @@ istrend = isvolup1;
 isbsreverse = isvolup1;
 isbcreverse = isvolup1;
 
-for i = 1:size(tblb_output,1)
-    if tblb_output{i,25}
+for i = 1:size(tbl_output,1)
+    if tbl_output{i,25}
         isvolup1(i) = 1;
     end
-    if tblb_output{i,26}
+    if tbl_output{i,26}
         isvolup2(i) = 1;
     end
-    if strcmpi(tblb_output{i,29}, 'jaw<teeth<lips') ||...
-            strcmpi(tblb_output{i,29}, 'teeth<jaw<lips') || ...
-            strcmpi(tblb_output{i,29}, 'teeth<lips<jaw')
+    if strcmpi(tbl_output{i,29}, 'jaw<teeth<lips') ||...
+            strcmpi(tbl_output{i,29}, 'teeth<jaw<lips') || ...
+            strcmpi(tbl_output{i,29}, 'teeth<lips<jaw')
         isalligatorfailed(i) = 0;
     else
         isalligatorfailed(i) = 1;
     end
-    if tblb_output{i,32}
+    if tbl_output{i,32}
         issshighvalue(i) = 1;
     end
-    if tblb_output{i,33}
+    if tbl_output{i,33}
         issshighbreach(i) = 1;
     end
-    if tblb_output{i,36}
+    if tbl_output{i,36}
         isschighbreach(i) = 1;
     end
-    if tblb_output{i,37}
+    if tbl_output{i,37}
         istrend(i) = 1;
     end
-    if tblb_output{i,38}
+    if tbl_output{i,38}
         isbsreverse(i) = 1;
     end
-    if tblb_output{i,39}
+    if tbl_output{i,39}
         isbcreverse(i) = 1;
     end
 end
 %%
 y = pnl_ret;
-X = [ones(size(tblb_output,1),1),isvolup1,isvolup2,isalligatorfailed,issshighvalue,issshighbreach,isschighbreach,istrend,isbsreverse,isbcreverse];
-[b,bint,r,rint,stats] = regress(y,X);
+X = [isvolup1,isvolup2,isalligatorfailed,issshighvalue,issshighbreach,isschighbreach,istrend,isbsreverse,isbcreverse];
+mdl = fitlm(X,y,'linear')
+%%
+code = 'j2205';
+openid_l = 440;
+idx_code = -1;
+for i = 1:length(codes_all)
+    if strcmpi(codes_all{i},code)
+        idx_code = i;break
+    end
+end
+code_data = data.output_comdtyfut.data{idx_code};
+ret_anyb = fractal_tradeinfo_anyb('code',code,...
+    'openid',openid_l,...
+    'extrainfo',code_data,...
+    'frequency','intraday',...
+    'debug',true,...
+    'plot',true,...
+    'usefractalupdate',0,...
+    'usefibonacci',1);
+display(ret_anyb);
+%%
+code = 'cu2208';
+openid_l = 86;
+idx_code = -1;
+for i = 1:length(codes_all)
+    if strcmpi(codes_all{i},code)
+        idx_code = i;break
+    end
+end
+code_data = data.output_comdtyfut.data{idx_code};
+ret_anys = fractal_tradeinfo_anys('code',code,...
+    'openid',openid_l,...
+    'extrainfo',code_data,...
+    'frequency','intraday',...
+    'debug',true,...
+    'plot',true,...
+    'usefractalupdate',0,...
+    'usefibonacci',1);
+display(ret_anys);
