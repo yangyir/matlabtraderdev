@@ -57,7 +57,7 @@ d = fractal_truncate(ei,openid);
 op = fractal_filters1_singleentry(s1type,nfractal,d,asset.tick_size);
 statusstruct = fractal_s1_status(nfractal,d,asset.tick_size);
 statusstr = fractal_s1_status2str(statusstruct);
-if op.use || (~op.use && statusstruct.istrendconfirmed)
+% if op.use || (~op.use && statusstruct.istrendconfirmed)
     if strcmpi(freq,'daily')
         trade = fractal_gentrade(ei,code,openid,op.comment,-1,'daily');
     else
@@ -67,14 +67,14 @@ if op.use || (~op.use && statusstruct.istrendconfirmed)
     trade.riskmanager_.setusefibonacciflag(usefibonacciflag);
     ret.opensignal = statusstr;
     ret.trade = trade;
-else
-    ret.opensignal = statusstr;
-    ret.trade = {};
-    if debugflag
-        fprintf('%s:invalid input openid as invalid breach signal was found then...\n',code);
-    end
-    return
-end
+% else
+%     ret.opensignal = statusstr;
+%     ret.trade = {};
+%     if debugflag
+%         fprintf('%s:invalid input openid as invalid breach signal was found then...\n',code);
+%     end
+%     return
+% end
 % run the trade with historical data
 if debugflag
     fprintf('debug starts...\n');
@@ -142,9 +142,9 @@ end
 if plotflag
     set(0,'DefaultFigureWindowStyle','docked');
     if isempty(closeid)
-        ei_plot = fractal_truncate(ei,size(ei.px,1),openid-5);
+        ei_plot = fractal_truncate(ei,size(ei.px,1),openid-9);
     else
-        ei_plot = fractal_truncate(ei,min(closeid+5,size(ei.px,1)),openid-5);
+        ei_plot = fractal_truncate(ei,min(closeid+5,size(ei.px,1)),openid-9);
     end
     tools_technicalplot2(ei_plot,2,code,true);
 end
