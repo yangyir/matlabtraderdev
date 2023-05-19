@@ -27,18 +27,7 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
     
     %keep if it breaches-up TDST-lvlup
     if status.islvlupbreach
-        if status.isteethjawcrossed && ss(end) >= 9
-            %check whether WAD is consistent with the price move
-            maxpx = max(px(end-ss(end)+1:end-1,5));
-            maxpxidx = find(px(end-ss(end)+1:end-1,5)==maxpx,1,'last')+size(px,1)-ss(end);
-            if wad(maxpxidx) < wad(end)
-                output = struct('use',1,'comment','breachup-lvlup');
-            else
-                output = struct('use',0,'comment','breachup-lvlup-teethjawcrossed');
-            end
-        else
-            output = struct('use',1,'comment','breachup-lvlup');
-        end
+        output = struct('use',1,'comment','breachup-lvlup');    
         return
     end
     %
@@ -198,4 +187,5 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
     end
     
     error('fractal_filterb1_singleentry:invalid b1type input')
+    
 end
