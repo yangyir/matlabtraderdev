@@ -7,15 +7,23 @@ function [tblb_data_combo,tbls_data_combo] = fractal_comdtyweeklyreport(varargin
     p.addParameter('usefractalupdate',1,@isnumeric);
     p.addParameter('usefibonacci',1,@isnumeric);
     p.addParameter('frequency','intraday',@ischar);
+    p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
     p.parse(varargin{:});
     checkfreq = p.Results.frequency;
     usefractalupdateflag = p.Results.usefractalupdate;
     usefibonacciflag = p.Results.usefibonacci;
     dt1 = p.Results.fromdate;
-    
-    lastbd = getlastbusinessdate;
+    dt2 = p.Results.todate;
+    if isempty(dt2)
+        dt2 = getlastbusinessdate;
+    else
+        dt2 = getlastbusinessdate(datenum(dt2,'yyyy-mm-dd'));
+    end
+    if strcmpi(checkfreq,'intraday')
+        dt2 = dateadd(dt2,'1b');
+    end
     activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
-    futfile = ['activefutures_',datestr(lastbd,'yyyymmdd'),'.txt'];
+    futfile = ['activefutures_',datestr(dt2,'yyyymmdd'),'.txt'];
     futlist = cDataFileIO.loadDataFromTxtFile([activefuturesdir,futfile]);
     
     nfut = size(futlist,1);
@@ -31,7 +39,8 @@ function [tblb_data_combo,tbls_data_combo] = fractal_comdtyweeklyreport(varargin
             'direction','both',...
             'usefractalupdate',usefractalupdateflag,...
             'usefibonacci',usefibonacciflag,...
-            'fromdate',dt1);
+            'fromdate',dt1,...
+            'todate',dt2);
         tblsb_data{i} = tblb_data;
         tblss_data{i} = tbls_data;
     end
