@@ -17,8 +17,8 @@ for i = 1:size(data.output_comdtyfut.tblb,1)
 end
 fprintf('data consolidated...\n');
 %%
-direction2check = -1;
-signal2check = 'strongbreach-trendbreak-s3';
+direction2check = 1;
+signal2check = 'breachup-sshighvalue';
 if direction2check == 1
     idx2check = strcmpi(tblb_data_combo(:,11),signal2check);
     tblb2check = tblb_data_combo(idx2check,:);
@@ -36,7 +36,7 @@ for i = 1:size(tblb2check,1)
         winflag(i,1) = 0;
     else
         nvalidtrade = nvalidtrade + 1;
-        if tblb2check{i,18} > 0
+        if tblb2check{i,18} >= 0
             winflag(i,1) = 1;
             nwintrade = nwintrade + 1;
         else
@@ -60,7 +60,7 @@ for i = 1:size(tblb2check,1)
     if ~isempty(tblb2check{i,18})
         fut = code2instrument(tblb2check{i,14});
         pnl_ret(i) = tblb2check{i,18}/tblb2check{i,17}/fut.contract_size;
-        if pnl_ret(i) > 0
+        if pnl_ret(i) >= 0
             wintotalpnl = wintotalpnl + pnl_ret(i);
         else
             losstotalpnl = losstotalpnl + pnl_ret(i);
@@ -75,13 +75,60 @@ R_running = abs(winavgpnl_running./lossavgpnl_running);
 %3.check whether Kelly Criteria converges
 kelly_running = winp_running - (1-winp_running)./R_running;
 figure(2);
-subplot(311);plot(winp_running,'r');title(signal2check);xlabel('number of trades');ylabel('win prob');grid on;
-subplot(312);plot(R_running,'b');title(signal2check);xlabel('number of trades');ylabel('win/loss');grid on;
-subplot(313);plot(kelly_running,'g');title(signal2check);xlabel('number of trades');ylabel('kelly criteria');grid on;
+if direction2check == 1
+    titlestr = ['long-',signal2check];
+else
+    titlestr = ['short-',signal2check];
+end
+subplot(311);plot(winp_running,'r');title(titlestr);ylabel('win prob');grid on;
+subplot(312);plot(R_running,'b');ylabel('win/loss');grid on;
+subplot(313);plot(kelly_running,'g');xlabel('number of trades');ylabel('kelly criteria');grid on;
 tbl_output = tblb2check;
 for i = 1:size(tbl_output,1)
     tbl_output{i,18} = pnl_ret(i);
 end
+%%
+if direction2check == 1
+    tbl2check = data.output_comdtyfut.kellyb(strcmpi(data.output_comdtyfut.kellyb.OpenSignal_L,signal2check),:);
+else
+    tbl2check = data.output_comdtyfut.kellys(strcmpi(data.output_comdtyfut.kellys.OpenSignal_S,signal2check),:);
+end
+assets = cell(size(tbl2check,1),1);
+for i = 1:size(tbl2check,1)
+    code_i = tbl2check.Code_L{i};
+    asset_i = code2instrument(code_i);
+    assets{i} = asset_i.asset_name;
+end
+assetunique = unique(assets);
+winavgunique = zeros(size(assetunique,1),1);
+lossavgunique = winavgunique;
+runique = winavgunique;
+kunique = winavgunique;
+wpunique = winavgunique;
+nunqiue = winavgunique;
+for i = 1:size(assetunique,1)
+    idx = strcmpi(assets,assetunique{i});
+    tbl_i = tbl2check(idx,:);
+    nwin_i = 0;
+    ntotal_i = 0;
+    wintotalpnl_i = 0;
+    losstotalpnl_i = 0;
+    for j = 1:size(tbl_i,1)
+        ntotal_i = ntotal_i + tbl_i.NumOfTrades_L{j};
+        nwin_i = nwin_i + tbl_i.NumOfTrades_L{j}*tbl_i.WinProb_L{j};
+        wintotalpnl_i = wintotalpnl_i + tbl_i.NumOfTrades_L{j}*tbl_i.WinProb_L{j}*tbl_i.WinAvgPnL_L{j};
+        losstotalpnl_i = losstotalpnl_i + tbl_i.NumOfTrades_L{j}*(1-tbl_i.WinProb_L{j})*tbl_i.LossAvgPnL_L{j};
+    end
+    winavgunique(i) = wintotalpnl_i/nwin_i;
+    lossavgunique(i) = losstotalpnl_i/(ntotal_i-nwin_i);
+    runique(i) = abs(winavgunique(i)/lossavgunique(i));
+    wpunique(i) = nwin_i/ntotal_i;
+    kunique(i) = wpunique(i) - (1-wpunique(i))/runique(i);
+    nunqiue(i) = ntotal_i;
+end
+tblbyasset = table(assetunique,nunqiue,wpunique,winavgunique,lossavgunique,runique,kunique);
+
+
 %%
 % regress with dummy variables
 y = tbl_output(:,18);
