@@ -1,4 +1,4 @@
-path = 'C:\Users\yy\OneDrive\fractal backtest\';
+path = [getenv('onedrive'),'\fractal backtest\'];
 filename = 'output_comdtyfut.mat';
 data = load([path,filename]);
 fprintf('output_comdtyfut loaded...\n');
@@ -18,7 +18,7 @@ end
 fprintf('data consolidated...\n');
 %%
 direction2check = -1;
-signal2check = 'breachdn-lvldn';
+signal2check = 'strongbreach-trendbreak-s3';
 if direction2check == 1
     idx2check = strcmpi(tblb_data_combo(:,11),signal2check);
     tblb2check = tblb_data_combo(idx2check,:);
@@ -133,8 +133,8 @@ y = pnl_ret;
 X = [isvolup1,isvolup2,isalligatorfailed,issshighvalue,issshighbreach,isschighbreach,istrend,isbsreverse,isbcreverse];
 mdl = fitlm(X,y,'linear')
 %%
-code = 'j2205';
-openid_l = 440;
+code = 'sc2304';
+openid_l = 427;
 idx_code = -1;
 for i = 1:length(codes_all)
     if strcmpi(codes_all{i},code)
@@ -152,8 +152,8 @@ ret_anyb = fractal_tradeinfo_anyb('code',code,...
     'usefibonacci',1);
 display(ret_anyb);
 %%
-code = 'cu2208';
-openid_l = 86;
+code = 'c2005';
+openid_l = 266;
 idx_code = -1;
 for i = 1:length(codes_all)
     if strcmpi(codes_all{i},code)
