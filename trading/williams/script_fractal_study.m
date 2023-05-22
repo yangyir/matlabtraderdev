@@ -17,8 +17,8 @@ for i = 1:size(data.output_comdtyfut.tblb,1)
 end
 fprintf('data consolidated...\n');
 %%
-direction2check = 1;
-signal2check = 'breachup-sshighvalue';
+direction2check = -1;
+signal2check = 'breachdn-lowbc13';
 if direction2check == 1
     idx2check = strcmpi(tblb_data_combo(:,11),signal2check);
     tblb2check = tblb_data_combo(idx2check,:);
@@ -95,7 +95,11 @@ else
 end
 assets = cell(size(tbl2check,1),1);
 for i = 1:size(tbl2check,1)
-    code_i = tbl2check.Code_L{i};
+    if direction2check == 1
+        code_i = tbl2check.Code_L{i};
+    else
+        code_i = tbl2check.Code_S{i};
+    end
     asset_i = code2instrument(code_i);
     assets{i} = asset_i.asset_name;
 end
@@ -114,10 +118,17 @@ for i = 1:size(assetunique,1)
     wintotalpnl_i = 0;
     losstotalpnl_i = 0;
     for j = 1:size(tbl_i,1)
-        ntotal_i = ntotal_i + tbl_i.NumOfTrades_L{j};
-        nwin_i = nwin_i + tbl_i.NumOfTrades_L{j}*tbl_i.WinProb_L{j};
-        wintotalpnl_i = wintotalpnl_i + tbl_i.NumOfTrades_L{j}*tbl_i.WinProb_L{j}*tbl_i.WinAvgPnL_L{j};
-        losstotalpnl_i = losstotalpnl_i + tbl_i.NumOfTrades_L{j}*(1-tbl_i.WinProb_L{j})*tbl_i.LossAvgPnL_L{j};
+        if direction2check == 1
+            ntotal_i = ntotal_i + tbl_i.NumOfTrades_L{j};
+            nwin_i = nwin_i + tbl_i.NumOfTrades_L{j}*tbl_i.WinProb_L{j};
+            wintotalpnl_i = wintotalpnl_i + tbl_i.NumOfTrades_L{j}*tbl_i.WinProb_L{j}*tbl_i.WinAvgPnL_L{j};
+            losstotalpnl_i = losstotalpnl_i + tbl_i.NumOfTrades_L{j}*(1-tbl_i.WinProb_L{j})*tbl_i.LossAvgPnL_L{j};
+        else
+            ntotal_i = ntotal_i + tbl_i.NumOfTrades_S{j};
+            nwin_i = nwin_i + tbl_i.NumOfTrades_S{j}*tbl_i.WinProb_S{j};
+            wintotalpnl_i = wintotalpnl_i + tbl_i.NumOfTrades_S{j}*tbl_i.WinProb_S{j}*tbl_i.WinAvgPnL_S{j};
+            losstotalpnl_i = losstotalpnl_i + tbl_i.NumOfTrades_S{j}*(1-tbl_i.WinProb_S{j})*tbl_i.LossAvgPnL_S{j};
+        end
     end
     winavgunique(i) = wintotalpnl_i/nwin_i;
     lossavgunique(i) = losstotalpnl_i/(ntotal_i-nwin_i);
