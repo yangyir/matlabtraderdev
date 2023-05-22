@@ -46,7 +46,7 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
     if status.isbclowbreach
         if bs(end) < 9
             if px(end,5)>px(end,2)
-                if status.isbslowbreach || status.istrendconfirmed
+                if status.istrendconfirmed
                     output = struct('use',1,'comment','breachdn-lowbc13');
                 else
                     output = struct('use',0,'comment','breachdn-lowbc13-positive');
