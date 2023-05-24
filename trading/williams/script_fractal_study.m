@@ -17,14 +17,22 @@ for i = 1:size(data.output_comdtyfut.tblb,1)
 end
 fprintf('data consolidated...\n');
 %%
-direction2check = -1;
-signal2check = 'breachdn-lowbc13';
+direction2check = 1;
+signal2check = 'all';
 if direction2check == 1
-    idx2check = strcmpi(tblb_data_combo(:,11),signal2check);
-    tblb2check = tblb_data_combo(idx2check,:);
+    if ~strcmpi(signal2check,'all')
+        idx2check = strcmpi(tblb_data_combo(:,11),signal2check);
+        tblb2check = tblb_data_combo(idx2check,:);
+    else
+        tblb2check = tblb_data_combo;
+    end
 else
-    idx2check = strcmpi(tbls_data_combo(:,11),signal2check);
-    tblb2check = tbls_data_combo(idx2check,:);
+    if ~strcmpi(signal2check,'all')
+        idx2check = strcmpi(tbls_data_combo(:,11),signal2check);
+        tblb2check = tbls_data_combo(idx2check,:);
+    else
+        tblb2check = tbls_data_combo;
+    end
 end
 %1.check whether the win probability converges with the Law of Large Numbers
 winp_running = zeros(size(tblb2check,1),1);
@@ -138,7 +146,7 @@ for i = 1:size(assetunique,1)
     nunqiue(i) = ntotal_i;
 end
 tblbyasset = table(assetunique,nunqiue,wpunique,winavgunique,lossavgunique,runique,kunique);
-
+tblbyasset = sortrows(tblbyasset,'kunique','descend');
 
 %%
 % regress with dummy variables
