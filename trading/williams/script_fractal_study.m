@@ -236,3 +236,68 @@ ret_anys = fractal_tradeinfo_anys('code',code,...
     'usefractalupdate',0,...
     'usefibonacci',1);
 display(ret_anys);
+%%
+signal_l = {'volblowup',0.25;'breachup-lvlup',0.25;'breachup-highsc13',0.25;...
+    'breachup-sshighvalue',0.25;'strongbreach-trendconfirmed',0.25;...
+    'mediumbreach-trendconfirmed',0.25;'volblowup2',0.25};
+signal_s = {'volblowup',0.25;'breachdn-lvldn',0.25;'breachdn-lowbc13',0.25;...
+    'breachdn-bshighvalue',0.25;'strongbreach-trendconfirmed',0.25;...
+    'mediumbreach-trendconfirmed',0.25;'volblowup2',0.25};
+for i = 1:size(signal_l,1)
+    if i == 1
+        idx_l = strcmpi(tblb_data_combo(:,11),signal_l{i,1});
+    else
+        idx_l = idx_l | strcmpi(tblb_data_combo(:,11),signal_l{i,1});
+    end    
+end
+tblb_used = tblb_data_combo(idx_l,:);
+for i = 1:size(signal_s,1)
+    if i == 1
+        idx_s = strcmpi(tbls_data_combo(:,11),signal_s{i,1});
+    else
+        idx_s = idx_s | strcmpi(tbls_data_combo(:,11),signal_s{i,1});
+    end    
+end
+tbls_used = tbls_data_combo(idx_s,:);
+tbl_used = [tblb_used;tbls_used];
+%
+signalname = tbl_used(:,11);
+opentime = tbl_used(:,13);
+codename = tbl_used(:,14);
+openid = tbl_used(:,15);
+opendirection = tbl_used(:,16);
+openprice = tbl_used(:,17);
+pnlabs = tbl_used(:,18);
+pnlret = zeros(size(tbl_used,1),1);
+opennotional = pnlret;
+
+idxkeep = ones(size(tbl_used,1),1);
+
+for i = 1:size(tbl_used,1)
+    if isempty(codename{i}) || isempty(pnlabs{i})
+        idxkeep(i) = 0;
+    else
+        fut = code2instrument(codename{i});
+        if ~isempty(pnlabs{i})
+            pnlret(i) = pnlabs{i}/openprice{i}/fut.contract_size;
+            opennotional(i) = openprice{i}*fut.contract_size;
+        else
+            opennotional(i) = openprice{i}*fut.contract_size;
+        end
+    end
+end
+idxkeep = logical(idxkeep);
+signalname = signalname(idxkeep);
+opentime = opentime(idxkeep);opentime = cell2mat(opentime);
+codename = codename(idxkeep);
+openid = openid(idxkeep);openid = cell2mat(openid);
+opendirection = opendirection(idxkeep);opendirection = cell2mat(opendirection);
+openprice = openprice(idxkeep);openprice = cell2mat(openprice);
+pnlabs = pnlabs(idxkeep);pnlabs = cell2mat(pnlabs);
+pnlret = pnlret(idxkeep);
+opennotional = opennotional(idxkeep);
+
+tblused = table(signalname,opentime,codename,openid,opendirection,openprice,pnlabs,pnlret,opennotional);
+tblused = sortrows(tblused,'opentime','ascend');
+
+
