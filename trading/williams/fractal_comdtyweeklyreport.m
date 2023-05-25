@@ -19,12 +19,13 @@ function [tblb_data_combo,tbls_data_combo] = fractal_comdtyweeklyreport(varargin
     else
         dt2 = getlastbusinessdate(datenum(dt2,'yyyy-mm-dd'));
     end
-    if strcmpi(checkfreq,'intraday')
-        dt2 = dateadd(dt2,'1b');
-    end
     activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
     futfile = ['activefutures_',datestr(dt2,'yyyymmdd'),'.txt'];
     futlist = cDataFileIO.loadDataFromTxtFile([activefuturesdir,futfile]);
+    
+    if strcmpi(checkfreq,'intraday')
+        dt2 = dateadd(dt2,'1b');
+    end
     
     nfut = size(futlist,1);
     tblsb_data = cell(nfut,1);

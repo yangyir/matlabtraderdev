@@ -17,8 +17,8 @@ for i = 1:size(data.output_comdtyfut.tblb,1)
 end
 fprintf('data consolidated...\n');
 %%
-direction2check = 1;
-signal2check = 'all';
+direction2check = -1;
+signal2check = 'mediumbreach-trendconfirmed';
 if direction2check == 1
     if ~strcmpi(signal2check,'all')
         idx2check = strcmpi(tblb_data_combo(:,11),signal2check);
