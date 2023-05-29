@@ -152,26 +152,6 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals{i,2} = signal_i;
                 end
             else
-                %neither a valid breachhh nor a valid breachll
-%             end
-            
-%             [validbreachhh,validbreachll] = fractal_validbreach(extrainfo,ticksize);
-%                         
-%             if validbreachhh && ~validbreachll
-% 
-%             end
-%             %    
-%             if ~validbreachhh && validbreachll
-% 
-%             end
-            %
-%             if ~validbreachhh && ~validbreachll
-                %neither a validbreachhh nor a validbreachll
-                %special code for conditional entrust (sign indicates
-                %direction)
-                %code 2:trendconfirmed
-                %code 3:closetolvlup(-3:closetolvldn)
-                %code 4:breachup-lvlup(-4:breachdn-lvldn)
                 try
                     stratfractal.processcondentrust(instruments{i},'techvar',techvar);
                 catch e
@@ -182,69 +162,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %
                 [signal_cond_i,op_cond_i] = fractal_signal_conditional(extrainfo,ticksize,nfractal);
                 %
-                %
-                %
-%                 %1a.there are 2*nfactal candles above alligator's teeth
-%                 %continuously with HH being above alligator's teeth
-%                 %the latest close price should be still below HH
-%                 %the latest HH shall be above the previous HH, indicating
-%                 %an upper trend
-%                 %in case the latest HH is below the previous HH, i.e. the
-%                 %previous was formed given higher price volatility, we
-%                 %shall still regard the up-trend as valid if and only if
-%                 %there are 2*nfractal candles above alligator's lips
-                last2hhidx = find(idxHH(1:end)==1,2,'last');
-                last2hh = hh(last2hhidx);
-%                 if size(p,1)-(last2hhidx(end)-nfractal)+1 >= 2*nfractal
-%                     aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-%                     aboveteeth = aboveteeth & hh(end)-teeth(end)>=ticksize;
-%                     aboveteeth = aboveteeth & p(end,5)<hh(end);                    
-%                     if size(last2hhidx,1) == 2 && aboveteeth
-%                         if last2hh(2) - last2hh(1) >= ticksize
-%                             aboveteeth = true;
-%                         else
-%                             %there are 2*nfractal candles above alligator's lips
-%                             aboveteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-%                             if ~aboveteeth
-%                                 %weak condition:1)there are 2*nfracal 
-%                                 %candles's low above alligator's teeth;
-%                                 %2)the last close above lips
-%                                 flag1 = isempty(find(p(end-2*nfractal+1:end,4)-teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
-%                                 flag2 = p(end,5)-lips(end)-2*ticksize>0;
-%                                 flag3 = ss(end) >= 1;
-%                                 aboveteeth = flag1 & flag2 & flag3;
-%                             end
-%                         end
-%                     end
-%                 else
-%                     aboveteeth = false;
-%                 end
-%                 if aboveteeth
-%                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
-%                     %DO NOT place any order if alligator's teeth and jaw
-%                     %crossed
-%                     aboveteeth = aboveteeth & ~isteethjawcrossed;
-%                 end
-%                 %20210603?special case:
-%                 %the upper-trend might be too strong and about to exhausted
-%                 %1)the latest candle stick is within 12 sticks(inclusive) from
-%                 %the latest sell count 13
-%                 %2)the latest sell sequential is greater than or equal 22(9+13)
-%                 %3)the latest sell count 13 is included in the latest sell sequential
-%                 %DO N0T place any order if the above 3 conditions hold
-%                 if aboveteeth
-%                     idx_sc13_last = find(sc==13,1,'last');
-%                     idx_ss_last = find(ss >= 9, 1,'last');
-%                     if ~isempty(idx_sc13_last) && ~isempty(idx_ss_last)
-%                         ss_last = ss(idx_ss_last);
-%                         idx_ss_start = idx_ss_last-ss_last+1;
-%                         if size(sc,1) - idx_sc13_last <= 12 && ss_last >= 22 ...
-%                                 && idx_ss_start +9 < idx_sc13_last
-%                             aboveteeth = false;
-%                         end
-%                     end
-%                 end
-                %
+                [hhstatus,llstatus] = fractal_barrier_status(extrainfo,ticksize);
+                hhupward = strcmpi(hhstatus,'upward');
+                lldnward = strcmpi(llstatus,'dnward');
+                
                 %1b.HH is above TDST level-up
                 %HH is also above alligator's teeth
                 %the latest close price is still below HH
@@ -257,30 +178,15 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 hhabovelvlup = hh(end)>=lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & p(end,5)<=hh(end) ...
+                    & p(end,5)<=lvlup(end) ...
                     & (lips(end)>teeth(end) || (lips(end)<=teeth(end) && hh(end)>jaw(end))) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first')) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)+2*ticksize<0,1,'first'));
-                if hhabovelvlup
-                    [~,~,~,~,~,isteethjawcrossed,~] = fractal_countb(p,idxHH,nfractal,lips,teeth,jaw,ticksize);
-                    %in case alligator's teeth and jaw is crossed and also
-                    %sell sequential is above 8, if wad distracts from the
-                    %price movement
-                    if isteethjawcrossed && ss(end) >= 8
-                        maxpx = max(p(end-ss(end)+1:end-1,5));
-                        maxpxidx = find(p(end-ss(end)+1:end-1,5)==maxpx,1,'last')+size(p,1)-ss(end);
-                        if wad(maxpxidx) >= wad(end)
-                            fprintf('hhabovelvlup failed because inconsistence of wad\n');
-                            hhabovelvlup = false;
-                        end
-                    end
-                end
+                
                 %the latest HH is above the previous, indicating an
                 %upper-trend
-                if size(last2hhidx,1) == 2 && hhabovelvlup
-                    if last2hh(2) >= last2hh(1)
-%                         hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
-                        hhabovelvlup = true;
-                    else
+                if hhabovelvlup    
+                    if ~hhupward
                         %we regard the upper trend is valid if nfractal+1
                         %candle close above the alligator's lips
                         hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
@@ -302,8 +208,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 hhbelowlvlup = hh(end)<lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & lips(end)>teeth(end) ...
-                    & p(end,5)<=hh(end);
-%                 if aboveteeth
+                    & p(end,5)<hh(end);
+
                 if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1
                     %TREND has priority over TDST breakout
                     %note:20211118
@@ -325,24 +231,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             stratfractal.removecondentrusts(condentrusts2remove);
                         end
                     end
-%                     this_signal = zeros(1,6);
-%                     this_signal(1,1) = 1;
-%                     this_signal(1,2) = hh(end);
-%                     this_signal(1,3) = ll(end);
-%                     this_signal(1,5) = p(end,3);
-%                     this_signal(1,6) = p(end,4);
-%                     this_signal(1,4) = 2;
-%                     if teeth(end)>jaw(end)
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:strongbreach-trendconfirmed');
-%                     else
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:mediumbreach-trendconfirmed');
-%                     end
-%                     signals{i,1} = this_signal;
                     signals{i,1} = signal_cond_i{1,1};
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1});
                 else
-                    %NOT ABOVE TEETH
-%                     if hhabovelvlup && p(end,3)>lvldn(end)
                     if hhabovelvlup
                         this_signal = zeros(1,6);
                         this_signal(1,1) = 1;
@@ -354,70 +245,18 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
                         signals{i,1} = this_signal;
                     elseif hhbelowlvlup && p(end,3)>lvldn(end)
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = 1;
-                        this_signal(1,2) = lvlup(end);                          %HH is still below TDST-lvlup
-                        this_signal(1,3) = ll(end);
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = 4;
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
-                        signals{i,1} = this_signal;
+%                         this_signal = zeros(1,6);
+%                         this_signal(1,1) = 1;
+%                         this_signal(1,2) = lvlup(end);                          %HH is still below TDST-lvlup
+%                         this_signal(1,3) = ll(end);
+%                         this_signal(1,5) = p(end,3);
+%                         this_signal(1,6) = p(end,4);
+%                         this_signal(1,4) = 4;
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
+%                         signals{i,1} = this_signal;
                     end
                 end
                 %
-                %
-%                 %2a.there are 2*nfactal candles below alligator's teeth
-%                 %continuously with LL being below alligator's teeth
-%                 %the latest close price should be still above LL
-%                 %the latest LL shall be below the previous LL, indicating
-%                 %a down trend
-%                 %in case the latest LL is above the previous LL, i.e. the
-%                 %previous was formed given higher price volatility, we
-%                 %shall still regard the down-trend as valid if and only if
-%                 %there are 2*nfractal candles below alligator's lips
-                last2llidx = find(idxLL(1:end)==-1,2,'last');
-%                 if size(p,1)-(last2llidx(end)-nfractal)+1 >= 2*nfractal
-%                     belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-%                     belowteeth = belowteeth & ll(end)-teeth(end)<=-ticksize;
-%                     belowteeth = belowteeth & p(end,5)>ll(end);
-%                     last2ll = ll(last2llidx);
-%                     if size(last2ll,1) == 2 && belowteeth
-%                         if last2ll(2) - last2ll(1) <= -ticksize
-%                             belowteeth = true;
-%                         else
-%                             %there are 2*nfractal candles below alligator's lips
-%                             belowteeth = isempty(find(p(end-2*nfractal+1:end,5)-lips(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
-%                         end
-%                     end
-%                 else
-%                     belowteeth = false;
-%                 end
-%                 if belowteeth
-%                     [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
-%                     %DO NOT place any order if alligator's tteh and jaw
-%                     %crossed
-%                     belowteeth = belowteeth & ~isteethjawcrossed;
-%                 end
-%                 %20210603?special case:
-%                 %the down-trend might be too strong and about to exhausted
-%                 %1)the latest candle stick is within 12 sticks(inclusive)
-%                 %from the latest buy count 13
-%                 %2)the latest buy sequential is greater than or equal 22(9+13)
-%                 %3)the latest buy count 13 is included in the latest buy sequential
-%                 %DO NOT place any order if the above 3 conditions hold
-%                 if belowteeth
-%                     idx_bc13_last = find(bc==13,1,'last');
-%                     idx_bs_last = find(bs>=9,1,'last');
-%                     if ~isempty(idx_bc13_last) && ~isempty(idx_bs_last)
-%                         bs_last = bs(idx_bs_last);
-%                         idx_bs_start = idx_bs_last-bs_last+1;
-%                         if size(bc,1)-idx_bc13_last <= 12 && bs_last >= 12 ...
-%                                 &&idx_bs_start + 9 < idx_bc13_last
-%                             belowteeth = false;
-%                         end
-%                     end
-%                 end
                 %
                 %2b.LL is below TDST level-dn
                 %LL is also below alligator's teeth
@@ -428,40 +267,21 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 llbelowlvldn = ll(end)<=lvldn(end) ...
                     & ll(end)<teeth(end) ...
                     & p(end,5)>ll(end) ...
+                    & p(end,5)>=lvldn(end) ...
                     & lips(end)<teeth(end) ...
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'))...
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,5)+2*ticksize<0,1,'first'));
-                if llbelowlvldn
-                    %not to place conditional order in
-                    %mediumbreach-bshighvalue
-                    isbshighvalue = bs(end)>=9 & teeth(end)-jaw(end)>=-2*ticksize;
-                    if isbshighvalue
-                        llbelowlvldn = false;
-                    end                    
-                    [~,~,~,~,~,isteethjawcrossed,~] = fractal_counts(p,idxLL,nfractal,lips,teeth,jaw,ticksize);
-                    %in case alligator's teeth and jaw is crossed and also
-                    %buy sequential is above 8, if wad distracts from the
-                    %price movement
-                    if isteethjawcrossed && bs(end) >= 8 && llbelowlvldn
-                        minpx = min(p(end-bs(end)+1:end-1,5));
-                        minpxid = find(p(end-bs(end)+1:end-1,5) == minpx,1,'last')+size(p,1)-bs(end);
-                        allabovell = isempty(find(p(end-bs(end)+1:end,5)-ll(end)-2*ticksize<0,1,'first'));
-                        if wad(minpxid) <= wad(end) && allabovell
-                            fprintf('%s:llbelowlvldn failed because inconsistence of wad\n',instruments{i}.code_ctp);
-                            llbelowlvldn = false;
-                        end
-                    end
-                end
+                
                 %the latest LL is below the previous, indicating a
                 %down-trend
-                if size(last2llidx,1) == 2 && llbelowlvldn
-                    last2ll = ll(last2llidx);
-                    if last2ll(2) < last2ll(1)
-                        llbelowlvldn = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)-2*ticksize>0,1,'first'));
-                    else
+                if llbelowlvldn
+                    if ~lldnward
                         %we regard the down trend is valid if nfractal+1
                         %candle close below the alligator's lips
                         llbelowlvldn = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)-2*ticksize>0,1,'first'));
+                        %also need at least nfractal+1 alligator's lips
+                        %below teeth
+                        llbelowlvldn = llbelowlvldn & isempty(find(lips(end-nfractal)-teeth(end-nfractal:end)-2*ticksize>0,1,'first'));
                     end
                 end
                 if llbelowlvldn
@@ -478,11 +298,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & ll(end)<teeth(end) ...
                     & lips(end)<teeth(end) -2*ticksize...
                     & p(end,5)>ll(end);
-                if llabovelvldn && ~isnan(lvlup(end))
-                    llabovelvldn = llabovelvldn & p(end,4)<lvlup(end);
-                end
                 
-%                 if belowteeth
                 if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1
                     %TREND has priority over TDST breakout
                     %note:20211118
@@ -504,19 +320,6 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             stratfractal.removecondentrusts(condentrusts2remove);
                         end
                     end
-%                     this_signal = zeros(1,6);
-%                     this_signal(1,1) = -1;
-%                     this_signal(1,2) = hh(end);
-%                     this_signal(1,3) = ll(end);
-%                     this_signal(1,5) = p(end,3);
-%                     this_signal(1,6) = p(end,4);
-%                     this_signal(1,4) = -2;
-%                     if teeth(end)<jaw(end)
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:strongbreach-trendconfirmed');
-%                     else
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:mediumbreach-trendconfirmed');
-%                     end
-%                     signals{i,2} = this_signal;
                     signals{i,2} = signal_cond_i{1,2};
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op_cond_i{1,2});
                 else
@@ -533,15 +336,15 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');
 %                     elseif llabovelvldn && p(end,4)<lvlup(end)
                       elseif llabovelvldn
-                        this_signal = zeros(1,6);
-                        this_signal(1,1) = -1;
-                        this_signal(1,2) = hh(end);
-                        this_signal(1,3) = lvldn(end);                      %LL is still above TDST-lvldn
-                        this_signal(1,5) = p(end,3);
-                        this_signal(1,6) = p(end,4);
-                        this_signal(1,4) = -4;
-                        signals{i,2} = this_signal;
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');
+%                         this_signal = zeros(1,6);
+%                         this_signal(1,1) = -1;
+%                         this_signal(1,2) = hh(end);
+%                         this_signal(1,3) = lvldn(end);                      %LL is still above TDST-lvldn
+%                         this_signal(1,5) = p(end,3);
+%                         this_signal(1,6) = p(end,4);
+%                         this_signal(1,4) = -4;
+%                         signals{i,2} = this_signal;
+%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');
                     end   
                 end
             end
