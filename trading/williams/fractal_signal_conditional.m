@@ -29,27 +29,15 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     %up-trend as valid if and only if there are 2*nfracal candles close
     %above alligator's lips
     [~,~,~,nkaboveteeth,nkfromhh,isteethjawcrossed,isteethlipscrossed] = fractal_countb(ei.px,...
-            ei.idxhh,...
-            nfractal,...
-            ei.lips,...
-            ei.teeth,...
-            ei.jaw,...
-            ticksize);
-    last2hhidx = find(ei.idxhh==1,2,'last');
-    if isempty(last2hhidx)
-        hhupward = false;
-    else
-        if size(last2hhidx,1) == 1
-            hhupward = true;
-        elseif size(last2hhidx,1) == 2
-            last2hh = ei.hh(last2hhidx);
-            if last2hh(2) - last2hh(1) >= -2*ticksize
-                hhupward = true;
-            else
-                hhupward = false;
-            end
-        end
-    end
+        ei.idxhh,...
+        nfractal,...
+        ei.lips,...
+        ei.teeth,...
+        ei.jaw,...
+        ticksize);
+   
+    [hhstatus,llstatus] = fractal_barrier_status(ei,ticksize);
+    hhupward = strcmpi(hhstatus,'upward');
     %
     %as long as there are 1) at least 2*nfractal candles close above teeth
     %2)the lips,teeth and jaws are not crossed
@@ -60,7 +48,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     lflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
     lflag3 = hhupward;
     lflag4 = (~hhupward&&ei.hh(end)>=ei.lvlup(end)&&ei.px(end,5)<=ei.lvlup(end));
-    longtrend = lflag1 & lflag2 & (lflag3 | lflag4);
+    longtrend = lflag1 & (lflag2 | lflag4) & (lflag3 | lflag4);
     %
     %if not all of the above 3 conditions hold
     if ~longtrend 
@@ -114,7 +102,8 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     %
     %further check whether alligator's teeth and jaw are crossed or not
     %DO NOT place any conditional order if they are crossed
-    if longtrend && isteethjawcrossed
+    if longtrend && isteethjawcrossed && ...
+            ~(ei.hh(end)>=ei.lvlup(end)&&ei.px(end,5)<=ei.lvlup(end))
         exceptionflag = false;
         %breachup-sshighvalue
         lastssidx = find(ei.ss >= 9,1,'last');
@@ -204,21 +193,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             ei.teeth,...
             ei.jaw,...
             ticksize);
-    last2llidx = find(ei.idxll==-1,2,'last');
-    if isempty(last2llidx)
-        lldnward = true;
-    else
-        if size(last2llidx,1) == 1
-            lldnward = true;
-        elseif size(last2llidx,1) == 2
-            last2ll = ei.ll(last2llidx);
-            if last2ll(2) - last2ll(1) <= 2*ticksize
-                lldnward = true;
-            else
-                lldnward = false;
-            end
-        end
-    end
+    lldnward = strcmpi(llstatus,'dnward');
     %
     %as long as there are 1) at least 2*nfractal candles close below teeth
     %2)the lips,teeth and jaws are not crossed
@@ -229,7 +204,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     sflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
     sflag3 = lldnward;
     sflag4 = (~lldnward && ei.ll(end)<=ei.lvldn(end)&&ei.px(end,5)>=ei.lvldn(end));
-    shorttrend = sflag1 & sflag2 & (sflag3 | sflag4);
+    shorttrend = sflag1 & (sflag2 | sflag4) & (sflag3 | sflag4);
     %
     %if not all the above 3 conditions hold
     if ~shorttrend
@@ -283,7 +258,8 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     %
     %further check whether alligator's teeth and jaw are crossed or not
     %DO NOT place any conditional order if they are crossed
-    if shorttrend && isteethjawcrossed
+    if shorttrend && isteethjawcrossed && ...
+            ~(ei.ll(end)<=ei.lvldn(end)&&ei.px(end,5)>=ei.lvldn(end))
         exceptionflag = false;
         lastbsidx = find(ei.bs >= 9,1,'last');
         if ~isempty(lastbsidx) && size(ei.bs,1)-lastbsidx+1 <= nkfromll
