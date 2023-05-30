@@ -26,8 +26,11 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
     
     if validbreachhh && ~validbreachll
         [op,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize);
-%         useflag = op.use;
-        useflag = fractal_getkellywithsignal(1,op.comment,freq);
+        if strcmpi(freq,'daily')
+            useflag = op.use;
+        else
+            useflag = fractal_getkellywithsignal(1,op.comment,freq);
+        end
         op.direction = 1;
         if ~useflag && ~isempty(tick)
             %special treatment when market jumps high above lvlup
@@ -96,8 +99,11 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
     %
     if ~validbreachhh && validbreachll
         [op,status] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksize);
-%         useflag = op.use;
-        useflag = fractal_getkellywithsignal(-1,op.comment,freq);
+        if strcmpi(freq,'daily')
+            useflag = op.use;
+        else
+            useflag = fractal_getkellywithsignal(-1,op.comment,freq);
+        end
         op.direction = -1;
         if ~useflag && ~isempty(tick)
             %special treatment when market jumps low below lvldn
