@@ -235,22 +235,24 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1});
                 else
                     if hhabovelvlup
-                        this_signal = zeros(1,6);
+                        this_signal = zeros(1,7);
                         this_signal(1,1) = 1;
                         this_signal(1,2) = hh(end);                             %HH is already above TDST-lvlup
                         this_signal(1,3) = ll(end);
                         this_signal(1,5) = p(end,3);
                         this_signal(1,6) = p(end,4);
+                        this_signal(1,7) = lips(end);
                         this_signal(1,4) = 4;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
                         signals{i,1} = this_signal;
                     elseif hhbelowlvlup && p(end,3)>lvldn(end)
-%                         this_signal = zeros(1,6);
+%                         this_signal = zeros(1,7);
 %                         this_signal(1,1) = 1;
 %                         this_signal(1,2) = lvlup(end);                          %HH is still below TDST-lvlup
 %                         this_signal(1,3) = ll(end);
 %                         this_signal(1,5) = p(end,3);
 %                         this_signal(1,6) = p(end,4);
+%                         this_signal(1,7) = lips(end);
 %                         this_signal(1,4) = 4;
 %                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
 %                         signals{i,1} = this_signal;
@@ -325,12 +327,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 else
                     %NOT BELOW TEETH
                     if llbelowlvldn
-                        this_signal = zeros(1,6);
+                        this_signal = zeros(1,7);
                         this_signal(1,1) = -1;
                         this_signal(1,2) = hh(end);
                         this_signal(1,3) = ll(end);                         %LL is already below TDST-lvldn
                         this_signal(1,5) = p(end,3);
                         this_signal(1,6) = p(end,4);
+                        this_signal(1,7) = lips(end);
                         this_signal(1,4) = -4;
                         signals{i,2} = this_signal;
                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');
@@ -342,6 +345,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
 %                         this_signal(1,3) = lvldn(end);                      %LL is still above TDST-lvldn
 %                         this_signal(1,5) = p(end,3);
 %                         this_signal(1,6) = p(end,4);
+%                         this_signal(1,7) = lips(end);
 %                         this_signal(1,4) = -4;
 %                         signals{i,2} = this_signal;
 %                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');

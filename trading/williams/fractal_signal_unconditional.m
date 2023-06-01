@@ -47,13 +47,14 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             %market breached up HH but still stayed below lvlup closely.we
             %shall, in this case, place a conditional entrust just one tick
             %above lvlup
-            signal = zeros(1,6);
+            signal = zeros(1,7);
             signal(1) = 1;                                                 %direction
             signal(2) = extrainfo.lvlup(end);                              %replace HH with lvlup
             signal(3) = extrainfo.ll(end);                                 %LL
             signal(4) = 3;                                                 %special key for close2lvlup
             signal(5) = extrainfo.px(end,3);                               %candle high
             signal(6) = extrainfo.px(end,4);                               %candle low
+            signal(7) = extrainfo.lips(end);
             return
         end
         %    
@@ -68,13 +69,14 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             flag3 = extrainfo.px(end,5)>extrainfo.lips(end);
             validlongopen = flag1&flag2&flag3;
             if validlongopen
-                signal = zeros(1,6);
+                signal = zeros(1,7);
                 signal(1) = 1;
                 signal(2) = extrainfo.hh(end);
                 signal(3) = extrainfo.ll(end);
                 signal(4) = 1;
                 signal(5) = extrainfo.px(end,3);
                 signal(6) = extrainfo.px(end,4);
+                signal(7) = extrainfo.lips(end);
             else
                 signal = zeros(1,6);
                 if ~flag1
@@ -92,7 +94,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             end
         else
             %~useflag
-            signal = zeros(1,6); 
+            signal = zeros(1,7); 
         end
         return
     end
@@ -120,13 +122,14 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             %market breached dn LL but still stayed above lvldn closely.we
             %shall, in this case, place a conditional entrust just one tick
             %below lvldn
-            signal = zeros(1,6);
+            signal = zeros(1,7);
             signal(1) = -1;                                                 %direction
             signal(2) = extrainfo.hh(end);                                 %HH
             signal(3) = extrainfo.lvldn(end);                              %replace LL with lvldn
             signal(4) = -3;                                                %special key for close2lvldn
             signal(5) = extrainfo.px(end,3);                               %candle high
             signal(6) = extrainfo.px(end,4);                               %candle low
+            signal(7) = extrainfo.lips(end);
             return
         end
         %
@@ -141,15 +144,16 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             flag3 = extrainfo.px(end,5)<extrainfo.lips(end);
             validshortopen = flag1&flag2&flag3;
             if validshortopen
-                signal = zeros(1,6);
+                signal = zeros(1,7);
                 signal(1) = -1;
                 signal(2) = extrainfo.hh(end);
                 signal(3) = extrainfo.ll(end);
                 signal(4) = -1;
                 signal(5) = extrainfo.px(end,3);
                 signal(6) = extrainfo.px(end,4);
+                signal(7) = extrainfo.lips(end);
             else
-                signal = zeros(1,6);
+                signal = zeros(1,7);
                 if ~flag1
                     op.comment = [op.comment,'-invalid short as close rallied from low'];
                     op.use = 0;
@@ -164,7 +168,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
                 end
             end
         else
-            signal = zeros(1,6);
+            signal = zeros(1,7);
         end
         return
     end 

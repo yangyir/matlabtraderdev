@@ -338,12 +338,13 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             else
                 op{1,1} = 'conditional:mediumbreach-trendconfirmed';
             end
-            this_signal = zeros(1,6);
+            this_signal = zeros(1,7);
             this_signal(1,1) = 1;
             this_signal(1,2) = ei.hh(end);
             this_signal(1,3) = ei.ll(end);
             this_signal(1,5) = ei.px(end,3);
             this_signal(1,6) = ei.px(end,4);
+            this_signal(1,7) = ei.lips(end);
             this_signal(1,4) = 2;
             signal{1,1} = this_signal;
         end
@@ -354,12 +355,13 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             else
                 op{1,2} = 'conditional:mediumbreach-trendconfirmed';
             end
-            this_signal = zeros(1,6);
+            this_signal = zeros(1,7);
             this_signal(1,1) = -1;
             this_signal(1,2) = ei.hh(end);
             this_signal(1,3) = ei.ll(end);
             this_signal(1,5) = ei.px(end,3);
             this_signal(1,6) = ei.px(end,4);
+            this_signal(1,7) = ei.lips(end);
             this_signal(1,4) = -2;
             signal{1,2} = this_signal;
         end
