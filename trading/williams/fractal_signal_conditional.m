@@ -340,7 +340,15 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             end
             this_signal = zeros(1,7);
             this_signal(1,1) = 1;
-            this_signal(1,2) = ei.hh(end);
+            %speical treatment here in case of close fractal hh and tdst
+            %lvlup
+            if ei.lvlup(end)-ei.hh(end) <= 4*ticksize && ...
+                    ei.lvlup(end)>ei.hh(end) && ...
+                    ei.lvlup(end)>ei.lvldn(end)
+                this_signal(1,2) = ei.lvlup(end);
+            else
+                this_signal(1,2) = ei.hh(end);
+            end
             this_signal(1,3) = ei.ll(end);
             this_signal(1,5) = ei.px(end,3);
             this_signal(1,6) = ei.px(end,4);
@@ -358,7 +366,13 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             this_signal = zeros(1,7);
             this_signal(1,1) = -1;
             this_signal(1,2) = ei.hh(end);
-            this_signal(1,3) = ei.ll(end);
+            if ei.ll(end)-ei.lvldn(end) <= 4*ticksize && ...
+                    ei.lvldn(end)<ei.ll(end) && ...
+                    ei.lvldn(end)<ei.lvlup(end)
+                this_signal(1,3) = ei.lvldn(end);
+            else
+                this_signal(1,3) = ei.ll(end);
+            end
             this_signal(1,5) = ei.px(end,3);
             this_signal(1,6) = ei.px(end,4);
             this_signal(1,7) = ei.lips(end);
