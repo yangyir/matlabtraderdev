@@ -192,7 +192,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         hhabovelvlup = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)+2*ticksize<0,1,'first'));
                         %also need at least nfractal+1 alligator's lips
                         %above teeth
-                        hhabovelvlup = hhabovelvlup & isempty(find(lips(end-nfractal)-teeth(end-nfractal:end)+2*ticksize<0,1,'first'));
+                        hhabovelvlup = hhabovelvlup & isempty(find(lips(end-nfractal:end)-teeth(end-nfractal:end)+ticksize<0,1,'first'));
                     end
                 end
                 if hhabovelvlup
@@ -265,7 +265,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %the latest close price is still above LL
                 %the alligator's lips is below alligator's teeth
                 %some of the latest 2*nfractal candle's high price was
-                %above TDST level-up
+                %above TDST level-dn
                 llbelowlvldn = ll(end)<=lvldn(end) ...
                     & ll(end)<teeth(end) ...
                     & p(end,5)>ll(end) ...
@@ -283,7 +283,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         llbelowlvldn = isempty(find(p(end-nfractal:end,5)-lips(end-nfractal:end)-2*ticksize>0,1,'first'));
                         %also need at least nfractal+1 alligator's lips
                         %below teeth
-                        llbelowlvldn = llbelowlvldn & isempty(find(lips(end-nfractal)-teeth(end-nfractal:end)-2*ticksize>0,1,'first'));
+                        llbelowlvldn = llbelowlvldn & isempty(find(lips(end-nfractal:end)-teeth(end-nfractal:end)-ticksize>0,1,'first'));
                     end
                 end
                 if llbelowlvldn
