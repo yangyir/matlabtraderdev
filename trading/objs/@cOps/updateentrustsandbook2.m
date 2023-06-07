@@ -159,7 +159,7 @@ function [] = updateentrustsandbook2(obj)
             
             if f0 && f1 && f2
                 entrusts.push(e);
-                fprintf('executed entrust: %d at %s......\n',e.entrustNo,datestr(e.complete_time_,'yyyy-mm-dd HH:MM:SS'));
+                fprintf('executed entrust: %d at %s on %s......\n',e.entrustNo,num2str(e.dealPrice),datestr(e.complete_time_,'yyyy-mm-dd HH:MM:SS'));
 
                 % update trades as well
                 if e.offsetFlag == 1
