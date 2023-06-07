@@ -152,7 +152,7 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
         else
             if overridepx > bidpx
                 entrusttype = 'limit';
-            elseif overridepx == bidpx;
+            elseif overridepx == bidpx
                 entrusttype = 'market';
             else
                 entrusttype = 'stop';
