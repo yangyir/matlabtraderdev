@@ -10,9 +10,6 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
         %to check whether there is a valid signal
         if isempty(signal_long) && isempty(signal_short), continue; end
         
-%         if ~isempty(signal_long) && ~isempty(signal_short)
-%            fprintf('found\n'); 
-%         end
         sum_direction = 0;
         if ~isempty(signal_long), sum_direction = sum_direction + abs(signal_long(1));end
         if ~isempty(signal_short), sum_direction = sum_direction + abs(signal_short(1));end
@@ -42,15 +39,6 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
         ismarketopen = istrading(runningt,instrument.trading_hours,'tradingbreak',instrument.trading_break);    
         if ~ismarketopen, continue;end
 
-        %to check whether there is a valid tick price
-        tick = stratfractal.mde_fut_.getlasttick(instrument);
-        if isempty(tick),continue;end
-        bid = tick(2);
-        ask = tick(3);
-        %in case the market is stopped when the upper or lower limit is breached
-        if abs(bid) > 1e10 || abs(ask) > 1e10, continue; end
-        if bid <= 0 || ask <= 0, continue;end
-
         %to check whether position for the instrument exists,
         try
             [flag,idx] = stratfractal.helper_.book_.hasposition(instrument);
@@ -69,25 +57,37 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
         if volume_exist >= maxvolume, continue;end
 
         %here below we are about to place an order
-        %but we shall withdraw any pending entrust with the same direction
+        %but we shall withdraw any pending entrust with opening
         ne = stratfractal.helper_.entrustspending_.latest;
         for jj = 1:ne
             e = stratfractal.helper_.entrustspending_.node(jj);
             if e.offsetFlag ~= 1, continue; end
             if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
-%             if e.direction ~= direction, continue;end %the same direction
-%             if e.volume ~= volume,continue;end  %the same volume
             %if the code reaches here, the existing entrust shall be canceled
-            stratfractal.helper_.getcounter.withdrawEntrust(e);
+            if strcmpi(stratfractal.mode_,'realtime')
+                stratfractal.helper_.getcounter.withdrawEntrust(e);
+            else
+                 stratfractal.withdrawentrusts(instrument,'offset',1);
+            end
         end
-
+        
+        ticksize = instrument.tick_size;
+        nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
+        
+        %to check whether there is a valid tick price
+        tick = stratfractal.mde_fut_.getlasttick(instrument);
+        if isempty(tick),continue;end
+        bid = tick(2);
+        ask = tick(3);
+        %in case the market is stopped when the upper or lower limit is breached
+        if abs(bid) > 1e10 || abs(ask) > 1e10, continue; end
+        if bid <= 0 || ask <= 0, continue;end
+        
         if ~isempty(signal_short) && signal_short(1) == -1
             type = 'breachdn-S';
             if signal_short(4) == -2 || signal_short(4) == -3 || signal_short(4) == -4
                 %here we place conditional entrust or an entrust directly
-                %if the price is below LL already
-                ticksize = instrument.tick_size;
-                nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
+                %if the price is below LL already        
                 if signal_short(4) == -2
                     mode = 'conditional-dntrendconfirmed';
                 elseif signal_short(4) == -3
@@ -122,7 +122,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     end
                 end
             else
-                if signal_short(4) == 1
+                if signal_short(4) == -1
                     mode = 'breachdn-lvldn';
                 else
                     mode = 'unset';
@@ -130,7 +130,6 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 if bid <= signal_short(7) && ...
                         bid < signal_short(6) + 0.382*(signal_short(2)-signal_short(6)) && ...
                         bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
-                    nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                     info = struct('name','fractal','type',type,...
                         'hh',signal_short(2),'ll',signal_short(3),'mode',mode,'nfractal',nfractals,...
                         'hh1',signal_short(5),'ll1',signal_short(6));
@@ -144,8 +143,6 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
             if signal_long(4) == 2 || signal_long(4) == 3 || signal_long(4) == 4
                 %here we place conditional entrust or an entrust directly
                 %if the price is above HH already
-                ticksize = instrument.tick_size;
-                nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                 if signal_long(4) == 2
                     mode = 'conditional-uptrendconfirmed';
                 elseif signal_long(4) == 3
