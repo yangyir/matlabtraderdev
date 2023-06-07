@@ -42,7 +42,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             end
         end
         
-        if ~useflag && status.isclose2lvlup
+        if ~useflag && status.istrendconfirmed && status.isclose2lvlup
             %special treatment when market moves close to lvlup, i.e. the
             %market breached up HH but still stayed below lvlup closely.we
             %shall, in this case, place a conditional entrust just one tick
@@ -117,7 +117,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
             end
         end
         
-        if ~useflag && status.isclose2lvldn
+        if ~useflag && status.istrendconfirmed && status.isclose2lvldn
             %special treatment when market moves close to lvldn, i.e. the
             %market breached dn LL but still stayed above lvldn closely.we
             %shall, in this case, place a conditional entrust just one tick
