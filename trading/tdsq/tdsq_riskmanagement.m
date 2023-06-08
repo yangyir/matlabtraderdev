@@ -10,7 +10,11 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
     if strcmpi(trade.opensignal_.frequency_,'daily')
         idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last');
     else
-        idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last')-1;
+        if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+            idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last')-1;
+        else
+            idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last');
+        end
     end
     
     if isempty(idxopen)
@@ -44,7 +48,11 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
     if strcmpi(trade.opensignal_.frequency_,'daily')
         openidx = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
     else
-        openidx = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
+        if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+            openidx = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
+        else
+            openidx = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
+        end
     end
        
     if direction == 1
@@ -82,6 +90,16 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.pxstoploss_ = floor(trade.riskmanager_.pxstoploss_/ticksize)*ticksize;
             end
             trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
+        end
+        %
+        if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) && ...
+                p(idxopen,5)<hh(idxopen-1) && p(idxopen,3)>lvlup(idxopen-1) && p(idxopen-1,5)<lvlup(idxopen-1)
+            if p(end,3) < lvlup(idxopen-1)
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
         end
         %STOP the trade if it opened below lvldn and breached up lvldn
         %afterwards but then fell back above lvldn
@@ -184,6 +202,14 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     trade.riskmanager_.td13low_ = extrainfo.p(end,4);
                 end
             end
+            if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) && ...
+                p(idxopen,5)<hh(idxopen-1) && p(idxopen,3)>hh(idxopen-1) && ...
+                p(end,5)<p(end,2)      
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
         end
         %
         if ss(end) >= 9 && isnan(trade.riskmanager_.tdlow_)
@@ -241,6 +267,16 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.pxstoploss_ = ceil(trade.riskmanager_.pxstoploss_/ticksize)*ticksize;
             end
             trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
+        end
+        %
+        if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) && ...
+                p(idxopen,5)>ll(idxopen-1) && p(idxopen,4)<lvldn(idxopen-1) && p(idxopen-1,5)>lvldn(idxopen-1)
+            if p(end,4) > lvldn(idxopen-1)
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
         end
         %STOP the trade if it opened above lvlup and breached down lvlup
         %afterwards but then rallied back above lvlup
