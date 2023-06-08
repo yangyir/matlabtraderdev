@@ -24,7 +24,16 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
     hh = extrainfo.hh(end);
     ll = extrainfo.ll(end);
     
-    openid = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
+    
+    if strcmpi(trade.opensignal_.frequency_,'daily')
+        openid = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
+    else
+        if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+            openid = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
+        else
+            openid = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
+        end
+    end
        
     if direction == 1
         if extrainfo.p(end,5) < extrainfo.lips(end)-2*ticksize
