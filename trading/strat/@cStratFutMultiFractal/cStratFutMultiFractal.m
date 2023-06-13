@@ -19,11 +19,24 @@ classdef cStratFutMultiFractal < cStrat
         targetportfolio_@double
         %
         displaysignalonly_@logical = false
+        %
+        tbl_all_intraday_@cell
+        tbl_tc_intraday_@cell
+        tbl_tb_intraday_@cell
+        tbl_exotics_intraday_@cell
+        %
+        tbl_all_daily_@cell
+        tbl_tc_daily_@cell
+        tbl_tb_daily_@cell
+        tbl_exotics_daily_@cell
+        
     end
     
     methods
         function obj = cStratFutMultiFractal
             obj.name_ = 'multifractal';
+            obj.load_kelly_intraday;
+            obj.load_kelly_daily;
         end
     end
     
@@ -71,5 +84,8 @@ classdef cStratFutMultiFractal < cStrat
         [techvar] = calctechnicalvariable(obj,instrument,varargin)
         [] = processcondentrust(obj, instrument, varargin)
         signals = gencondsignals__futmultifractal(obj, instrument, varargin)
+        %
+        [] = load_kelly_intraday(obj,varargin)
+        [] = load_kelly_daily(obj,varargin)
     end
 end

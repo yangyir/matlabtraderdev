@@ -116,6 +116,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 ticksize = 0;
             end
             
+            try
+                assetname = instruments{i}.asset_name;
+            catch
+                assetname = 'unknown';
+            end
+            
             extrainfo = struct('px',p,...
                 'ss',ss,'sc',sc,...
                 'bs',bs,'bc',bc,...
@@ -127,22 +133,87 @@ function signals = gensignals_futmultifractal1(stratfractal)
             
             tick = stratfractal.mde_fut_.getlasttick(instruments{i});
             
-            [signal_i,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,'lasttick',tick);
+            [signal_i,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,'lasttick',tick);
             if ~isempty(signal_i)
                 if signal_i(1) == 0
                     fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),op.comment);
                 elseif signal_i(1) == 1
-                    if signal_i(4) == 3
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:closetolvlup');
+                    %20230613:further check of signals
+                    if strcmpi(op.comment,'volblowup') || strcmpi(op.comment,'volblowup2') || ...
+                            strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed') || ...
+                            strcmpi(op.comment,'breachup-highsc13')
+                        %do nothing as this is for sure trending trades
                     else
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op.comment);
+                        if strcmpi(op.comment,'breachup-lvlup') && ~status.istrendconfirmed
+                            vlookuptbl = stratfractal.tbl_tb_intraday_{1}.table;
+                        elseif strcmpi(op.comment,'breachup-sshighvalue') && ~status.istrendconfirmed
+                            vlookuptbl = stratfractal.tbl_tb_intraday_{3}.table;
+                        else
+                            for isignal = 1:size(stratfractal.tbl_exotics_intraday_,1)
+                                if strcmpi(op.comment,stratfractal.tbl_exotics_intraday_{isignal}.signalname) && ...
+                                        strcmpi('b',stratfractal.tbl_exotics_intraday_{isignal}.direction)
+                                    vlookuptbl = stratfractal.tbl_exotics_intraday_{isignal}.table;
+                                    break
+                                end
+                            end
+                        end
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_{1}.table.opensignal_l_unique);
+                            kelly = stratfractal.tbl_all_intraday_{1}.table.kelly_unique_l(idx);
+                            wprob = stratfractal.tbl_all_intraday_{1}.table.winprob_unique_l(idx);
+                            if kelly >= 0.15 && wprob >= 0.43
+                                signal_i(1) = 1;
+                            else
+                                signal_i(1) = 0;
+                            end
+                        else
+                            if kelly < 0.08 || wprob < 0.43, signal_i(1) = 0;end
+                        end
                     end
+                    %
+                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
+                    %
                 elseif signal_i(1) == -1
-                    if signal_i(4) == -3
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:closetolvldn');
+                    %20230613:further check of signals
+                    if strcmpi(op.comment,'volblowup') || strcmpi(op.comment,'volblowup2') || ...
+                            strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed') || ...
+                            strcmpi(op.comment,'breachdn-lowbc13')
+                        %do nothing as this is for sure trending trades
                     else
-                        fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op.comment);
+                        if strcmpi(op.comment,'breachdn-lvldn') && ~status.istrendconfirmed
+                            vlookuptbl = stratfractal.tbl_tb_intraday_{2}.table;
+                        elseif strcmpi(op.comment,'breachdn-bshighvalue') && ~status.istrendconfirmed
+                            vlookuptbl = stratfractal.tbl_tb_intraday_{4}.table;
+                        else
+                            for isignal = 1:size(stratfractal.tbl_exotics_intraday_,1)
+                                if strcmpi(op.comment,stratfractal.tbl_exotics_intraday_{isignal}.signalname) && ...
+                                        strcmpi('s',stratfractal.tbl_exotics_intraday_{isignal}.direction)
+                                    vlookuptbl = stratfractal.tbl_exotics_intraday_{isignal}.table;
+                                    break
+                                end
+                            end
+                        end
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_{2}.table.opensignal_s_unique);
+                            kelly = stratfractal.tbl_all_intraday_{2}.table.kelly_unique_s(idx);
+                            wprob = stratfractal.tbl_all_intraday_{2}.table.winprob_unique_s(idx);
+                            if kelly >= 0.15 && wprob >= 0.43
+                                signal_i(1) = -1;
+                            else
+                                signal_i(1) = 0;
+                            end
+                        else
+                            if kelly < 0.08 || wprob < 0.43, signal_i(1) = 0;end
+                        end
                     end
+                    %
+                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                 else
                     %do nothing
                 end
@@ -161,6 +232,47 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 
                 %
                 [signal_cond_i,op_cond_i] = fractal_signal_conditional(extrainfo,ticksize,nfractal);
+                %20230613:further check of conditional signals
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1
+                    if strcmpi(op_cond_i{1,1},'conditional:mediumbreach-trendconfirmed')
+                        vlookuptbl = stratfractal.tbl_tc_intraday_{1}.table;
+                    elseif strcmpi(op_cond_i{1,1},'conditional:strongbreach-trendconfirmed')
+                        vlookuptbl = stratfractal.tbl_tc_intraday_{2}.table;
+                    else
+                        %internal errror
+                    end
+                    idx = strcmpi(vlookuptbl.asset,assetname);
+                    kelly = vlookuptbl.K(idx);
+                    wprob = vlookuptbl.W(idx);
+                    if isempty(kelly)
+                    else
+                        if kelly >= 0.15 && wprob >= 0.43
+                            signal_cond_i{1,1}(1) = 1;
+                        else
+                            signal_cond_i{1,1}(1) = 0;
+                        end
+                    end
+                end
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1
+                    if strcmpi(op_cond_i{1,2},'conditional:mediumbreach-trendconfirmed')
+                        vlookuptbl = stratfractal.tbl_tc_intraday_{3}.table;
+                    elseif strcmpi(op_cond_i{1,2},'conditional:strongbreach-trendconfirmed')
+                        vlookuptbl = stratfractal.tbl_tc_intraday_{4}.table;
+                    else
+                        %internal error
+                    end
+                    idx = strcmpi(vlookuptbl.asset,assetname);
+                    kelly = vlookuptbl.K(idx);
+                    wprob = vlookuptbl.W(idx);
+                    if isempty(kelly)
+                    else
+                        if kelly >= 0.15 && wprob >= 0.43
+                            signal_cond_i{1,2}(1) = -1;
+                        else
+                            signal_cond_i{1,2}(1) = 0;
+                        end
+                    end
+                end               
                 %
                 [hhstatus,llstatus] = fractal_barrier_status(extrainfo,ticksize);
                 hhupward = strcmpi(hhstatus,'upward');
@@ -232,7 +344,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                     end
                     signals{i,1} = signal_cond_i{1,1};
-                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1});
+                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
                 else
                     if hhabovelvlup
                         this_signal = zeros(1,7);
@@ -323,7 +435,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                     end
                     signals{i,2} = signal_cond_i{1,2};
-                    fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),op_cond_i{1,2});
+                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),op_cond_i{1,2},100*kelly,100*wprob);
                 else
                     %NOT BELOW TEETH
                     if llbelowlvldn

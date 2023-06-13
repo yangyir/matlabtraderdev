@@ -1,4 +1,4 @@
-function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,varargin)
+function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,varargin)
 %signal in case there is valid breachup or valid breachdn
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
@@ -8,6 +8,7 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
 
     signal = [];
     op = [];
+    status = [];
     
     tdiff = extrainfo.px(end,1) - extrainfo.px(end-1,1);
     if tdiff < 1
@@ -29,7 +30,8 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
         if strcmpi(freq,'daily')
             useflag = op.use;
         else
-            useflag = fractal_getkellywithsignal(1,op.comment,freq);
+%             useflag = fractal_getkellywithsignal(1,op.comment,freq);
+            useflag = op.use;
         end
         op.direction = 1;
         if ~useflag && ~isempty(tick)
@@ -104,7 +106,8 @@ function [signal,op] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,
         if strcmpi(freq,'daily')
             useflag = op.use;
         else
-            useflag = fractal_getkellywithsignal(-1,op.comment,freq);
+            useflag = op.use;
+%             useflag = fractal_getkellywithsignal(-1,op.comment,freq);
         end
         op.direction = -1;
         if ~useflag && ~isempty(tick)
