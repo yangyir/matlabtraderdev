@@ -181,14 +181,14 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 (~isempty(find(extrainfo.sc==13,1,'last')) && find(extrainfo.sc==13,1,'last') >= openidx-1))
             %no more than ss16 in case it breached sc13
 %             closeflag = 1;
-            trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss_,extrainfo.px(end,4)-(extrainfo.px(end,3)-extrainfo.px(end,4)));
+            trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss_,extrainfo.p(end,4)-(extrainfo.p(end,3)-extrainfo.p(end,4)));
             trade.riskmanager_.closestr_ = 'tdsq:ss16';
             closestr = trade.riskmanager_.closestr_;
             return
         end
         if ss(end) >= 21
 %             closeflag = 1;
-            trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss_,extrainfo.px(end,4));
+            trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss_,extrainfo.p(end,4));
             trade.riskmanager_.closestr_ = ['tdsq:ss',num2str(ss(end))];
             closestr = trade.riskmanager_.closestr_;
             return
