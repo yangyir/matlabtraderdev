@@ -5,11 +5,13 @@ function [new] = filterby(obj,varargin)
     p.addParameter('BookName','',@ischar);
     p.addParameter('Code','',@ischar);
     p.addParameter('Status','all',@ischar);
+    p.addParameter('Time',now,@isnumeric);
     p.parse(varargin{:});
     counterName = p.Results.CounterName;
     bookName = p.Results.BookName;
     code = p.Results.Code;
     status = p.Results.Status;
+    t = p.Results.Time;
     
     if ~(strcmpi(status,'live') || strcmpi(status,'closed') || strcmpi(status,'all'))
         error('cTradeOpenArray:filterby:invalid status input, shall be live, closed or all only');
@@ -42,6 +44,9 @@ function [new] = filterby(obj,varargin)
                     useFlag = 1;
                 end
             end
+        end
+        if useFlag
+            useFlag = trade_i.opendatetime1_ < t;
         end
         if useFlag, new.push(trade_i);end
             

@@ -73,7 +73,7 @@ function [] = loadtrades(obj,varargin)
         %note 20190218
         %from 20190218 onwards, we will save/load trades in the new format
         trades.fromtxt2(filename);
-        livetrades = trades.filterby('CounterName',countername,'BookName',bookname,'Status','live');
+        livetrades = trades.filterby('CounterName',countername,'BookName',bookname,'Status','live','Time',t);
         positions = livetrades.convert2positions;
         if ~isempty(positions), newBook.setpositions(positions);end
 
