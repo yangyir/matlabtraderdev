@@ -37,19 +37,37 @@ function [] = savemktdata(obj,varargin)
             cDataFileIO.saveDataToTxtFile(fn_,obj.candles4save_{i},coldefs,'w',true);
         end
         fprintf('cMDEFut:savemktdata on %s......\n',datestr(dtnum,'yyyy-mm-dd HH:MM:SS'));
+        %
+        if obj.savetick_
+            coldefs = {'datetime','trade'};
+            for i = 1:ns
+                code_ctp = instruments{i}.code_ctp;
+                bd = obj.candles4save_{i}(1,1);
+                dir_data_ = [dir_,'ticks\',code_ctp,'\'];
+                try
+                    cd(dir_data_);
+                catch
+                    mkdir(dir_data_);
+                end
+                fn_ = [dir_data_,code_ctp,'_',datestr(bd,'yyyymmdd'),'_tick.txt'];
+                ticks = obj.ticks_{i}(1:obj.ticks_count_(i),:);
+                cDataFileIO.saveDataToTxtFile(fn_,ticks,coldefs,'w',true);
+            end
+            fprintf('cMDEFut:savemktdata(ticks) on %s......\n',datestr(dtnum,'yyyy-mm-dd HH:MM:SS'));
+        end
     end
     
     %2.we might not clear candles_ and hist_candles_ at this stage as we
     %need them for the next day trading
     
 
-%     if ~isempty(obj.ticks_)
-%         obj.ticks_ = {};
-%     end
+    if ~isempty(obj.ticks_)
+        obj.ticks_ = {};
+    end
       
-      if ~isempty(obj.ticksquick_)
-          obj.ticksquick_ = [];
-      end
+    if ~isempty(obj.ticksquick_)
+        obj.ticksquick_ = [];
+    end
     
 %     if ~isempty(obj.candles_), obj.candles_ = {};end
     if ~isempty(obj.candles4save_)

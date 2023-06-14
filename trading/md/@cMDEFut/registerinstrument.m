@@ -229,21 +229,23 @@ function [] = registerinstrument(mdefut,instrument)
         end
     end
 
-%     % init ticks_
-%     if isempty(mdefut.ticks_)
-%         n = 1e5;%note:this size shall be enough for day trading
-%         d = cell(ns,1);
-%         for i = 1:ns, d{i} = zeros(n,7);end
-%         mdefut.ticks_ = d;
-%     else
-%         ns_ = size(mdefut.ticks_,1);
-%         if ns_ ~= ns
-%             ticks = cell(ns,1);
-%             for i = 1:ns_, ticks{i} = mdefut.ticks_{i}; end
-%             ticks{ns} = zeros(1e5,7);
-%             mdefut.ticks_ = ticks;
-%         end
-%     end
+    % init ticks_
+    if mdefut.savetick_
+        if isempty(mdefut.ticks_)
+            n = 1e5;%note:this size shall be enough for day trading
+            d = cell(ns,1);
+            for i = 1:ns, d{i} = zeros(n,2);end
+            mdefut.ticks_ = d;
+        else
+            ns_ = size(mdefut.ticks_,1);
+            if ns_ ~= ns
+                ticks = cell(ns,1);
+                for i = 1:ns_, ticks{i} = mdefut.ticks_{i}; end
+                ticks{ns} = zeros(1e5,2);
+                mdefut.ticks_ = ticks;
+            end
+        end
+    end
 
     % init ticks_count_
     if isempty(mdefut.ticks_count_)

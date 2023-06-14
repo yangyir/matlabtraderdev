@@ -28,6 +28,10 @@ function [] = saveticks2mem(mdefut)
             mdefut.ticksquick_(i,2) = qs{i}.bid1;
             mdefut.ticksquick_(i,3) = qs{i}.ask1;
             mdefut.ticksquick_(i,4) = qs{i}.last_trade;
+            if mdefut.savetick_
+                 mdefut.ticks_{i}(count,1) = qs{i}.update_time1;
+                 mdefut.ticks_{i}(count,2) = qs{i}.last_trade;
+            end
             if ~isa(qs{i},'cQuoteStock')
                 if ~isempty(qs{i}.yield_last_trade)
                     mdefut.ticksquick_(i,5) = qs{i}.yield_last_trade;
@@ -62,6 +66,10 @@ function [] = saveticks2mem(mdefut)
             mdefut.ticksquick_(i,1) = mdefut.replayer_.tickdata_{i}(idx,1);
             mdefut.ticksquick_(i,2:4) = mdefut.replayer_.tickdata_{i}(idx,2);
             mdefut.ticks_count_(i) = count;
+            if mdefut.savetick_
+                mdefut.ticks_{i}(count,1) = mdefut.ticksquick_(i,1);
+                mdefut.ticks_{i}(count,2) = mdefut.ticksquick_(i,4);
+            end
         end
     end
 end

@@ -16,10 +16,7 @@ function [] = printmarket(obj)
         
         %todo:
         %enrich printed information with last close and change
-        
-        fprintf('\nlatest market quotes:\n');
-        fprintf('%10s%8s%8s%8s%9s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s%10s\n',...
-            'contract','bid','ask','close','change','time','wr','max','min','bs','ss','levelup','leveldn','jaw','teeth','lips');
+        rowcount = 0;
         for i = 1:n
             code = quotes{i}.code_ctp;
             bid = quotes{i}.bid1;
@@ -40,28 +37,47 @@ function [] = printmarket(obj)
             elseif lasttrade == 0
                 lasttrade = obj.lastclose_(i);
             end
+            rowcount = rowcount + 1;
+            if rowcount == 1
+                fprintf('\nlatest market quotes:\n');
+                if ~isempty(obj.hist_candles_) && ~isempty(obj.hist_candles_{i})
+                    fprintf('%10s%8s%8s%8s%9s%11s%10s%10s%10s%8s%8s%10s%10s%10s%10s%10s\n',...
+                        'contract','bid','ask','close','change','time','wr','max','min','bs','ss','levelup','leveldn','jaw','teeth','lips');
+                    dataformat = '%10s%8s%8s%8s%8.1f%%%11s%10.1f%10s%10s%8s%8s%10s%10s%10.2f%10.2f%10.2f\n';
+                else
+                    fprintf('%10s%8s%8s%8s%9s%11s\n',...
+                        'contract','bid','ask','close','change','time');
+                    dataformat = '%10s%8s%8s%8s%8.1f%%%11s\n';
+                end
+            end
             timet = datestr(quotes{i}.update_time1,'HH:MM:SS');
             delta = ((lasttrade/obj.lastclose_(i))-1)*100;
             instr = code2instrument(code);
-%             wrinfo = obj.calc_wr_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-            [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+
+            if ~isempty(obj.hist_candles_) && ~isempty(obj.hist_candles_{i})
+%                 wrinfo = obj.calc_wr_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+                [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
 %             [macdvec,sig] = obj.calc_macd_(instr,'IncludeLastCandle',1);
-            [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
-            [~,~,HH,LL] = obj.calc_fractal_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
-            dataformat = '%10s%8s%8s%8s%8.1f%%%11s%10.1f%10s%10s%8s%8s%10s%10s%10.2f%10.2f%10.2f\n';
-            if obj.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
-                adj = obj.hist_candles_{i}(end,5)/obj.lastclose_(i);
-                bid = bid*adj; 
-                ask = ask*adj; 
+                [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
+                [~,~,HH,LL] = obj.calc_fractal_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
+            
+                if obj.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+                    adj = obj.hist_candles_{i}(end,5)/obj.lastclose_(i);
+                    bid = bid*adj; 
+                    ask = ask*adj; 
+                end
+                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
+                    delta,timet,...
+                    NaN,num2str(HH(end)),num2str(LL(end)),...
+                    num2str(buysetup(end)),num2str(sellsetup(end)),num2str(levelup(end)),num2str(leveldn(end)),...
+                    jaw(end),teeth(end),lips(end));
+            else
+                fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
+                    delta,timet);
             end
-            fprintf(dataformat,code,num2str(bid),num2str(ask),num2str(obj.lastclose_(i)),...
-                delta,timet,...
-                NaN,num2str(HH(end)),num2str(LL(end)),...
-                num2str(buysetup(end)),num2str(sellsetup(end)),num2str(levelup(end)),num2str(leveldn(end)),...
-                jaw(end),teeth(end),lips(end));
         end
         %
-        mde_fin_plot(obj);
+        if obj.showfigures_, mde_fin_plot(obj);end
         %
     else
         %replay mode
@@ -124,7 +140,7 @@ function [] = printmarket(obj)
             end
         end
         
-        mde_fin_plot(obj);
+        if obj.showfigures_, mde_fin_plot(obj);end
         
     end
 

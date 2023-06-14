@@ -39,6 +39,10 @@ classdef cMDEFut < cMyTimerObj
         datenum_close_@cell
         %
         lastclose_@double
+        %
+        savetick_@logical = false
+        %
+        showfigures_@logical = true
     end
     
     properties (Hidden = true)

@@ -28,10 +28,12 @@ function [] = move2cobdate(obj,cobdate)
     ns = size(instruments,1);
     
     %ticks_
-%     n = 1e5;%note:this size shall be enough for day trading
-%     d = cell(ns,1);
-%     for i = 1:ns, d{i} = zeros(n,7);end
-%     obj.ticks_ = d;
+    if obj.savetick_
+        n = 1e5;%note:this size shall be enough for day trading
+        d = cell(ns,1);
+        for i = 1:ns, d{i} = zeros(n,2);end
+        obj.ticks_ = d;
+    end
     
     obj.ticksquick_ = zeros(ns,7);
     
