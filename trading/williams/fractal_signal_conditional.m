@@ -79,8 +79,13 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
                 else
                     %strong condition that all close are above max of lips and
                     %teeth IF THERY ARE CROSSED
-                    longtrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-                        max(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+                    if ~lflag1
+                        longtrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                            max(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+                    else
+                        longtrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                            max(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+4*ticksize<0,1,'first'));
+                    end
                 end
             end
         else
@@ -234,9 +239,14 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
                     end
                 else
                     %strong condition that all close are below min of lips
-                    %and teeth IF THEY ARE MIXED
-                    shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-                        min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
+                    %and teeth IF THEY ARE 
+                    if ~sflag1
+                        shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                            min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
+                    else
+                        shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                            min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))-4*ticksize>0,1,'first'));
+                    end
                 end
             end
         else
