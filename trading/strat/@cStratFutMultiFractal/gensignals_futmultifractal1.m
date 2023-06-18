@@ -179,7 +179,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 signal_i(1) = 0;
                             end
                         else
-                            if kelly < 0.08 || wprob < 0.43, signal_i(1) = 0;end
+                            if kelly < 0.1, signal_i(1) = 0;end
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     end
@@ -226,7 +226,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 signal_i(1) = 0;
                             end
                         else
-                            if kelly < 0.08 || wprob < 0.43, signal_i(1) = 0;end
+                            if kelly < 0.1, signal_i(1) = 0;end
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     end
@@ -310,8 +310,25 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & p(end,5)<=lvlup(end) ...
                     & (lips(end)>teeth(end) || (lips(end)<=teeth(end) && hh(end)>jaw(end))) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first')) ...
-                    & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)+2*ticksize<0,1,'first'));
-                
+                    & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)+2*ticksize<0,1,'first')) ...
+                    & tick(4) >= min(lips(end),teeth(end));
+                if ~hhabovelvlup
+                    sslast = find(ss==9,1,'last');
+                    if ~isempty(sslast)
+                        sslastval = ss(sslast);
+                        for kk = sslastval+1:size(ss,1)
+                            if ss(kk) == 0
+                                sslast = kk-1;
+                                sslastval = ss(sslast);
+                                break
+                            end
+                        end
+                        sshigh = max(p(sslast-sslastval+1:sslast,3));
+                        if hh(end)>=sshigh && hh(end)>=lvlup(end) && tick(4) >= min(lips(end),teeth(end))
+                            hhabovelvlup = true;
+                        end
+                    end
+                end
                 %the latest HH is above the previous, indicating an
                 %upper-trend
                 if hhabovelvlup    
@@ -368,7 +385,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
                         wprob = vlookuptbl.W(idx);
-                        if kelly >= 0.15 && wprob >= 0.43
+                        if kelly > 0.1
                             this_signal = zeros(1,7);
                             this_signal(1,1) = 1;
                             this_signal(1,2) = hh(end);                             %HH is already above TDST-lvlup
@@ -407,7 +424,25 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & p(end,5)>=lvldn(end) ...
                     & lips(end)<teeth(end) ...
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'))...
-                    & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,5)+2*ticksize<0,1,'first'));
+                    & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,5)+2*ticksize<0,1,'first')) ...
+                    & tick(4) <= max(lips(end),teeth(end));
+                if ~llbelowlvldn
+                    bslast = find(bs==9,1,'last');
+                    if ~isempty(bslast)
+                        bslastval = bs(bslast);
+                        for kk = bslast+1:size(bs,1)
+                            if bs(kk) == 0
+                                bslast = kk-1;
+                                bslastval = bs(bslast);
+                                break
+                            end
+                        end
+                        bslow = min(p(bslast-bslastval+1:bslast,4));
+                        if ll(end) <= bslow && ll(end)<=lvldn(end) && tick(4) <= max(lips(end),teeth(end))
+                            llbelowlvldn = true;
+                        end
+                    end
+                end
                 
                 %the latest LL is below the previous, indicating a
                 %down-trend
@@ -466,7 +501,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
                         wprob = vlookuptbl.W(idx);
-                        if kelly >= 0.15 && wprob >= 0.43
+                        if kelly > 0.1
                             this_signal = zeros(1,7);
                             this_signal(1,1) = -1;
                             this_signal(1,2) = hh(end);
