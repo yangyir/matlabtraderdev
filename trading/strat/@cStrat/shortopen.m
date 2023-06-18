@@ -50,7 +50,7 @@ function [ret,e,msg] = shortopen(strategy,ctp_code,lots,varargin)
     if ~instrument.isable2trade(ordertime)
         ret = 0;
         e = [];
-        msg = sprintf('%s:shortopen:non-trableable time for %s...',class(strategy),ctp_code);
+        msg = sprintf('%s:shortopen:non-trableable time for %s on %s...',class(strategy),ctp_code,datestr(ordertime));
         fprintf('%s\n',msg);
         return
     end

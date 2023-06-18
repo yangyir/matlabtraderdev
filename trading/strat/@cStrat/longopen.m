@@ -49,7 +49,7 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
     if ~instrument.isable2trade(ordertime)
         ret = 0;
         e = [];
-        msg = sprintf('%s:longopen:non-trableable time for %s...',class(strategy),ctp_code);
+        msg = sprintf('%s:longopen:non-trableable time for %s on %s...',class(strategy),ctp_code,datestr(ordertime,'yy-mm-dd HH:MM:SS'));
         fprintf('%s\n',msg);
         return
     end

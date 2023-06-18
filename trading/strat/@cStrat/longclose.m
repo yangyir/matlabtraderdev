@@ -52,7 +52,7 @@ function [ret,e,msg] = longclose(strategy,ctp_code,lots,closetodayFlag,varargin)
     if ~instrument.isable2trade(ordertime)
         ret = 0;
         e = [];
-        msg = sprintf('%s:longclose:non-trableable time for %s...',class(strategy),ctp_code);
+        msg = sprintf('%s:longclose:non-trableable time for %s on %s...',class(strategy),ctp_code,datestr(ordertime,'yy-mm-dd HH:MM:SS'));
         fprintf('%s\n',msg);
         return
     end
