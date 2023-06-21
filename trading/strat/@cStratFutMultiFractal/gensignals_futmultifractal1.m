@@ -316,7 +316,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     sslast = find(ss==9,1,'last');
                     if ~isempty(sslast)
                         sslastval = ss(sslast);
-                        for kk = sslastval+1:size(ss,1)
+                        for kk = sslast+1:size(ss,1)
                             if ss(kk) == 0
                                 sslast = kk-1;
                                 sslastval = ss(sslast);
