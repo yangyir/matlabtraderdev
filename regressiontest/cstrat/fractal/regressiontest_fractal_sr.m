@@ -5,21 +5,22 @@ try
 catch
 end
 %
-codes = {'al2307'};
-for i = 1:length(codes)
-    addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
-    addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
-end
+codes = {'SR309'};
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'aluminium';
+for i = 1:size(codes,1)
+    addpath([getenv('DATAPATH'),'intradaybar\',codes{i},'\']);
+    addpath([getenv('DATAPATH'),'ticks\',codes{i},'\']);
+end
+cd(path_);
+bookname = 'sugar';
 strategyname = 'fractal';
-riskconfigfilename = 'config_aluminium.txt';
+riskconfigfilename = 'config_sugar.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
-    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'bidclosespread'},...
-    'propvalues',{4;'30m';1;1;'spiderman';1;0});
+    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade'},...
+    'propvalues',{4;'30m';1;1;'spiderman';1});
 end
 %
 combo = rtt_setup('countername','ccb_ly_fut',...
@@ -28,14 +29,13 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-06-16','replaytodate','2023-06-16');
+    'replayfromdate','2023-06-12','replaytodate','2023-06-12');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-set(0,'DefaultFigureWindowStyle','docked');
-mde_fin_plot(combo.mdefut);
+
 %%
 combo.mdefut.start;
 combo.ops.start;
@@ -51,4 +51,7 @@ end
 %%
 combo.ops.condentrustspending_.latest
 %%
+mde_fin_plot(combo.mdefut);
+%%
+set(0,'DefaultFigureWindowStyle','docked');
 mde_fin_plot(combo.mdefut);

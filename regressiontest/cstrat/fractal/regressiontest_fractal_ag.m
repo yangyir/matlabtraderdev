@@ -5,7 +5,7 @@ try
 catch
 end
 %
-codes = {'ag2212'};
+codes = {'ag2308'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
@@ -28,14 +28,13 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2022-10-13','replaytodate','2022-10-14');
+    'replayfromdate','2023-06-15','replaytodate','2023-06-15');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-set(0,'DefaultFigureWindowStyle','docked');
-mde_fin_plot(combo.mdefut);
+combo.mdefut.showfigures_ = false;
 %%
 combo.mdefut.start;
 combo.ops.start;
@@ -51,4 +50,5 @@ end
 %%
 combo.ops.condentrustspending_.latest
 %%
+set(0,'DefaultFigureWindowStyle','docked');
 mde_fin_plot(combo.mdefut);
