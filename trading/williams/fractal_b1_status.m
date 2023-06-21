@@ -36,7 +36,7 @@ end
 %islvlupbreach = 3 indicates that the latest TDST sell sequential has
 %breached up lvlup;
 islvlupbreach = 0;
-if px(end,5)>=lvlup(end) && px(end-1,5)<lvlup(end)
+if px(end,5)>=lvlup(end) && px(end-1,5)<=lvlup(end)+ticksize
     islvlupbreach = 1;
 end
 % 20230517:case 2 and case 3 may be removed
