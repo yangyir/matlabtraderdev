@@ -173,7 +173,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_{1}.table.opensignal_l_unique);
                             kelly = stratfractal.tbl_all_intraday_{1}.table.kelly_unique_l(idx);
                             wprob = stratfractal.tbl_all_intraday_{1}.table.winprob_unique_l(idx);
-                            if kelly >= 0.15 && wprob >= 0.43
+                            if kelly >= 0.15
                                 signal_i(1) = 1;
                             else
                                 signal_i(1) = 0;
@@ -220,7 +220,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_{2}.table.opensignal_s_unique);
                             kelly = stratfractal.tbl_all_intraday_{2}.table.kelly_unique_s(idx);
                             wprob = stratfractal.tbl_all_intraday_{2}.table.winprob_unique_s(idx);
-                            if kelly >= 0.15 && wprob >= 0.43
+                            if kelly >= 0.15
                                 signal_i(1) = -1;
                             else
                                 signal_i(1) = 0;
@@ -263,7 +263,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     wprob = vlookuptbl.W(idx);
                     if isempty(kelly)
                     else
-                        if kelly >= 0.15 && wprob >= 0.43
+                        if kelly >= 0.15
                             signal_cond_i{1,1}(1) = 1;
                         else
                             signal_cond_i{1,1}(1) = 0;
@@ -283,7 +283,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     wprob = vlookuptbl.W(idx);
                     if isempty(kelly)
                     else
-                        if kelly >= 0.15 && wprob >= 0.43
+                        if kelly >= 0.15
                             signal_cond_i{1,2}(1) = -1;
                         else
                             signal_cond_i{1,2}(1) = 0;
