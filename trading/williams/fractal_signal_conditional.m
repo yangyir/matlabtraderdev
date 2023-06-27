@@ -17,7 +17,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
         return
     end
     
-    np = size(ei.px,1);
+%     np = size(ei.px,1);
     
     %LONG TREND:
     %1a.1.there are 2*nfractal candles close ABOVE alligator's teeth
@@ -132,6 +132,17 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
                         ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first')) && ...
                         isempty(find(ei.lips(end-nfractal:end)-...
                         ei.teeth(end-nfractal:end)-2*ticksize<0, 1,'first'));
+            if exceptionflag && ~hhupward
+                exceptionflag = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                max(ei.teeth(end-2*nfractal+1:end),ei.lips(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+            end
+        end
+        %exception in case close is well above the maximum of lips,teeth
+        %and jaws
+        if ~exceptionflag
+            exceptionflag = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                max([ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end),ei.jaw(end-2*nfractal+1:end)],[],2)+...
+                2*ticksize<0,1,'first'));
         end
         %exception in case fractal hhs are upwards and lastest hh is
         %above lvlup with candles are above teeth
@@ -291,6 +302,13 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
                     ei.lips(end-2*nfractal+1:end)-2*ticksize>0,1,'first')) && ...
                     isempty(find(ei.lips(end-nfractal:end)-...
                     ei.teeth(end-nfractal:end)+2*ticksize>0, 1,'first'));
+        end
+        %exception in case close is well below the minimum of lips,teeth
+        %and jaws
+        if ~exceptionflag
+            exceptionflag = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                min([ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end),ei.jaw(end-2*nfractal+1:end)],[],2)-...
+                2*ticksize>0,1,'first'));
         end
         %exception in case fractal lls are downwards and lastest ll is
         %below lvldn with candles are below teeth
