@@ -179,7 +179,11 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 signal_i(1) = 0;
                             end
                         else
-                            if kelly < 0.1, signal_i(1) = 0;end
+                            if strcmpi(op.comment,'breachup-lvlup')
+                                if kelly <= 0, signal_i(1) = 0;end
+                            else
+                                if kelly < 0.1, signal_i(1) = 0;end
+                            end
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     end
@@ -312,7 +316,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first')) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)+2*ticksize<0,1,'first')) ...
                     & tick(4) >= min(lips(end),teeth(end));
-                if ~hhabovelvlup
+                if ~hhabovelvlup && p(end,5) <= hh(end) && p(end,5)<=lvlup(end)
                     sslast = find(ss==9,1,'last');
                     if ~isempty(sslast)
                         sslastval = ss(sslast);
@@ -344,6 +348,23 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if hhabovelvlup
                     if lvlup(end) > lvldn(end)
                         hhabovelvlup = p(end,3) >= lvldn(end);
+                    end
+                end
+                if ~hhabovelvlup
+                    %we shall withdraw any pending conditional entrsut with
+                    %mode 'conditional-breachup'
+                    ne = stratfractal.helper_.condentrustspending_.latest;
+                    condentrusts2remove = EntrustArray;
+                    for jj = 1:ne
+                        e = stratfractal.helper_.condentrustspending_.node(jj);
+                        if e.offsetFlag ~= 1, continue; end
+                        if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
+                        if ~strcmpi(e.signalinfo_.mode,'conditional-breachuplvlup'),continue;end
+                        condentrusts2remove.push(e);
+                    end
+                    if condentrusts2remove.latest > 0
+                        stratfractal.removecondentrusts(condentrusts2remove);
+                        fprintf('\t%s:conditional-breachuplvlup cancled as it is not valid anymore....\n',instruments{i}.code_ctp);
                     end
                 end
                 %
@@ -385,7 +406,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
                         wprob = vlookuptbl.W(idx);
-                        if kelly > 0.1
+                        %here we change rule for breachup-lvlup
+                        %generally we take it as kelly is greater than 0
+                        if kelly > 0
                             this_signal = zeros(1,7);
                             this_signal(1,1) = 1;
                             this_signal(1,2) = hh(end);                             %HH is already above TDST-lvlup
@@ -426,7 +449,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,3)+2*ticksize<0,1,'first'))...
                     & ~isempty(find(lvldn(end)-p(end-2*nfractal+1:end,5)+2*ticksize<0,1,'first')) ...
                     & tick(4) <= max(lips(end),teeth(end));
-                if ~llbelowlvldn
+                if ~llbelowlvldn && p(end,5) > ll(end) && p(end,5)>=lvldn(end)
                     bslast = find(bs==9,1,'last');
                     if ~isempty(bslast)
                         bslastval = bs(bslast);
@@ -459,6 +482,23 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if llbelowlvldn
                     if lvlup(end) > lvldn(end)
                         llbelowlvldn = p(end,4) <= lvlup(end);
+                    end
+                end
+                if ~llbelowlvldn
+                    %we shall withdraw any pending conditional entrust with
+                    %mode 'conditional-breachdn'
+                    ne = stratfractal.helper_.condentrustspending_.latest;
+                    condentrusts2remove = EntrustArray;
+                    for jj = 1:ne
+                        e = stratfractal.helper_.condentrustspending_.node(jj);
+                        if e.offsetFlag ~= 1, continue; end
+                        if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
+                        if ~strcmpi(e.signalinfo_.mode,'conditional-breachdnlvldn'),continue;end
+                        condentrusts2remove.push(e);
+                    end
+                    if condentrusts2remove.latest > 0
+                        stratfractal.removecondentrusts(condentrusts2remove);
+                        fprintf('\t%s:conditional-breachdnlvldn cancled as it is not valid anymore....\n',instruments{i}.code_ctp);
                     end
                 end
                 %
