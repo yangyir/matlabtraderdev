@@ -120,14 +120,18 @@ function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,va
             ret = false;
             msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d failed to place',...
                 datestr(ordertime,'yyyymmdd HH:MM:SS'),...
-                entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
+                entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
             fprintf('%s\n',msg);
             ops.entrusts_.push(entrust);
             ops.entrustspending_.push(entrust);
         else
             ret = false;
-            msg = 'unknown error!!!';
+            msg = sprintf('%s entrust:%2d,code:%8s,direct:%2d,offset:%2d,price:%6s,volume:%3d unknown error!!!',...
+                datestr(ordertime,'yyyymmdd HH:MM:SS'),...
+                entrust.entrustNo,entrust.instrumentCode,entrust.direction,entrust.offsetFlag,num2str(entrust.price),entrust.volume);
             fprintf('%s\n',msg);
+            ops.entrusts_.push(entrust);
+            ops.entrustspending_.push(entrust);
         end
     end
     
