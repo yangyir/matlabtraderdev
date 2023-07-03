@@ -27,7 +27,7 @@ function [] = printpositions(obj)
         if p.position_total_ == 0, continue;end
         isopt = isoptchar(p.code_ctp_);
         if ~isopt
-            dataformat = '%10s%11s%11s%11s%15s\n';
+            dataformat = '%10s%12s%11s%11s%15s\n';
         else
             dataformat = '%s%5s%11s%11s%15s\n';
         end
