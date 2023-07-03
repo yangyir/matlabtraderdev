@@ -121,15 +121,15 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     runningmm = hour(runningt)*60+minute(runningt);
     runriskmanagementbeforemktclose = false;
     
-    %for DEBUG
-    if runningmm == trade.oneminb4close1_
-        fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
-    end
-    
-    %for DEBUG
-    if runningmm == trade.oneminb4close2_
-        fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
-    end
+%     %for DEBUG
+%     if runningmm == trade.oneminb4close1_
+%         fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
+%     end
+%     
+%     %for DEBUG
+%     if runningmm == trade.oneminb4close2_
+%         fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
+%     end
     
 %     fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
     
