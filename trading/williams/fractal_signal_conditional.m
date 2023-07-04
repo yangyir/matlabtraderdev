@@ -18,6 +18,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     end
     
 %     np = size(ei.px,1);
+    isdaily = ei.px(end,1)-ei.px(end-1,1) >= 1;
     
     %LONG TREND:
     %1a.1.there are 2*nfractal candles close ABOVE alligator's teeth
@@ -48,7 +49,11 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     lflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
     lflag3 = hhupward;
     lflag4 = (~hhupward&&ei.hh(end)>=ei.lvlup(end)&&ei.px(end,5)<=ei.lvlup(end));
-    longtrend = lflag1 & (lflag2 | lflag4) & (lflag3 | lflag4);
+    if isdaily
+        longtrend = lflag1 &  lflag2;
+    else
+        longtrend = lflag1 & (lflag2 | lflag4) & (lflag3 | lflag4);
+    end
     %
     %if not all of the above 3 conditions hold
     if ~longtrend 
