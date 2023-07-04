@@ -85,14 +85,14 @@ function [] = updatecandleinmem(mdefut)
                 newset = false;
                 mdefut.newset_(i) = newset;
             end
-            if mdefut.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+            if mdefut.candle_freq_(i) == 1440 && ~isempty(strfind(instruments{i}.asset_name,'eqindex'))
                 adj = mdefut.hist_candles_{i}(end,5)/mdefut.lastclose_(i);
                 mdefut.candles_{i}(this_count,5) = px_trade*adj;
             else
                 mdefut.candles_{i}(this_count,5) = px_trade;
             end
             if newset
-                if mdefut.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+                if mdefut.candle_freq_(i) == 1440 && ~isempty(strfind(instruments{i}.asset_name,'eqindex'))
                     adj = mdefut.hist_candles_{i}(end,5)/mdefut.lastclose_(i);
                     mdefut.candles_{i}(this_count,2) = px_trade*adj;   %px_open
                     mdefut.candles_{i}(this_count,3) = px_trade*adj;   %px_high
@@ -119,7 +119,7 @@ function [] = updatecandleinmem(mdefut)
             else
                 high = mdefut.candles_{i}(this_count,3);
                 low = mdefut.candles_{i}(this_count,4);
-                if mdefut.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+                if mdefut.candle_freq_(i) == 1440 && ~isempty(strfind(instruments{i}.asset_name,'eqindex'))
                     adj = mdefut.hist_candles_{i}(end,5)/mdefut.lastclose_(i);
                     if px_trade*adj > high, mdefut.candles_{i}(this_count,3) = px_trade*adj; end
                     if px_trade*adj < low, mdefut.candles_{i}(this_count,4) = px_trade*adj;end

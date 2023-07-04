@@ -61,7 +61,7 @@ function [] = printmarket(obj)
                 [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
                 [~,~,HH,LL] = obj.calc_fractal_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
             
-                if obj.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+                if obj.candle_freq_(i) == 1440 && ~isempty(strfind(instruments{i}.asset_name,'eqindex'))
                     adj = obj.hist_candles_{i}(end,5)/obj.lastclose_(i);
                     bid = bid*adj; 
                     ask = ask*adj; 
@@ -119,7 +119,7 @@ function [] = printmarket(obj)
             timet = datestr(lasttick(1),'HH:MM:SS');
             
             delta = ((lasttrade/obj.lastclose_(i))-1)*100;
-            if obj.candle_freq_(i) == 1440 && strfind(instruments{i}.asset_name,'eqindex')
+            if obj.candle_freq_(i) == 1440 && ~isempty(strfind(instruments{i}.asset_name,'eqindex'))
                 adj = obj.hist_candles_{i}(end,5)/obj.lastclose_(i);
                 lasttrade = lasttrade*adj; 
             end
