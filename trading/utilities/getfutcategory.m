@@ -38,14 +38,16 @@ function [category,extrainfo,instrument] = getfutcategory(varinput)
     end
     
     break_interval = instrument.break_interval;
-    if strcmpi(break_interval{1,1},'09:30:00') && size(break_interval,1) == 2
+    if strcmpi(break_interval{1,1},'09:30:00') && ...
+            strcmpi(break_interval{end,end},'15:00:00') && ...
+            size(break_interval,1) == 2
         category = 1;
         extrainfo = 'equityindex';
         return
     end
     
-    if strcmpi(break_interval{1,1},'09:15:00') && ...
-            strcmpi(break_interval{end,end},'15:15:00') && ...
+    if (strcmpi(break_interval{1,1},'09:15:00') || ...
+            strcmpi(break_interval{end,end},'15:15:00')) && ...
             size(break_interval,1) == 2
         category = 2;
         extrainfo = 'govtbond';
