@@ -13,13 +13,14 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     p.addParameter('UpdatePnLForClosedTrade',false,@islogical);
     p.addParameter('ExtraInfo',{},@isstruct);
     p.addParameter('RunHighLowOnly',false,@islogical);
+    p.addParameter('RunRiskManagementBeforeMktClose',false,@islogical);
     p.parse(varargin{:});
     usecandlelastonly = p.Results.UseCandleLastOnly;
     doprint = p.Results.Debug;
     updatepnlforclosedtrade = p.Results.UpdatePnLForClosedTrade;
     extrainfo = p.Results.ExtraInfo;
     runhighlowonly = p.Results.RunHighLowOnly;
-    
+    runriskmanagementbeforemktclose = p.Results.RunRiskManagementBeforeMktClose;
     try
         candleTime = extrainfo.p(end,1);
     catch
@@ -63,8 +64,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if isa(signalinfo,'cFractalInfo')
         if extrainfo.p(end,1) <= trade.opendatetime1_
             val = signalinfo.mode_;
-            if strcmpi(val,'conditional-uptrendconfirmed')
-                if extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1) && extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))         
+            if strcmpi(val,'conditional-uptrendconfirmed') && extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1) 
+                if runriskmanagementbeforemktclose || ...
+                        extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))         
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
                     obj.trade_.closeprice_ = extrainfo.latestopen;
                     volume = trade.openvolume_;
@@ -80,8 +82,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     unwindtrade = obj.trade_;
                     return
                 end
-            elseif strcmpi(val,'conditional-dntrendconfirmed')
-                if extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1) && extrainfo.p(end,5) > min(extrainfo.teeth(end),extrainfo.lips(end))         
+            elseif strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1)
+                if runriskmanagementbeforemktclose || ...
+                        extrainfo.p(end,5) > min(extrainfo.teeth(end),extrainfo.lips(end))         
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
                     obj.trade_.closeprice_ = extrainfo.latestopen;
                     volume = trade.openvolume_;
