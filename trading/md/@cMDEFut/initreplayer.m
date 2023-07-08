@@ -54,11 +54,42 @@ function [] = initreplayer(obj,varargin)
     if ~f2, error('cMDEFut:initreplayer:code not registered!');end
     instruments = obj.qms_.instruments_.getinstrument;
 
-    buckets = getintradaybuckets2('date',obj.replay_date1_,...
-        'frequency',[num2str(obj.candle_freq_(idx2)),'m'],...
-        'tradinghours',instruments{idx2}.trading_hours,...
-        'tradingbreak',instruments{idx2}.trading_break);
-    candle_ = [buckets,zeros(size(buckets,1),4)];
+    if obj.candle_freq_(idx2) ~= 1440
+        buckets = getintradaybuckets2('date',obj.replay_date1_,...
+            'frequency',[num2str(obj.candle_freq_(idx2)),'m'],...
+            'tradinghours',instruments{idx2}.trading_hours,...
+            'tradingbreak',instruments{idx2}.trading_break);
+        candle_ = [buckets,zeros(size(buckets,1),4)];
+    else
+        category = getfutcategory(instruments{idx2});
+        if category == 1 || category == 2 || category == 3
+            buckets = getintradaybuckets2('date',obj.replay_date1_,...
+            'frequency',[num2str(obj.candle_freq_(idx2)),'m'],...
+            'tradinghours',instruments{idx2}.trading_hours,...
+            'tradingbreak',instruments{idx2}.tradingbreak);
+            candle_ = [buckets,zeros(size(buckets,1),4)];
+        else
+            prevbusdate = businessdate(obj.replay_date1_,-1);
+            buckets = [prevbusdate+0.875;obj.replay_date1_+0.875];
+            %as the replay ticks start from 09:00 (or 09:30am) on
+            %replay_date1, we shall fill the first row of buckets with
+            %existing open,high,low,close from 21:00 until market close
+            ds = cLocal;
+            if category == 4
+                candles = ds.intradaybar(instruments{idx2},...
+                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                    [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
+            elseif category == 5
+                candles = ds.intradaybar(instruments{idx2},...
+                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                    [datestr(obj.replay_date1_,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
+            end
+            row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+            row2 = [buckets(2),zeros(1,4)];
+            candle_ = [row1,row2];
+        end
+    end
+    
     obj.candles_{idx2} = candle_;
 
     buckets = getintradaybuckets2('date',obj.replay_date1_,...
