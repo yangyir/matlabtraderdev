@@ -48,12 +48,27 @@ function [] = move2cobdate(obj,cobdate)
             idxkeep = ~idxremove;
             candles = candles(idxkeep,:);
             if ~isempty(candles)
-                if datenuminput ~= floor(candles(1))
-                    ncandle = size(candles,1);
-                    %here we move the historical candle one day
-                    %forward to save memory usage
-                    histcandles = [histcandles(ncandle+1:end,:);candles];
-                    obj.hist_candles_{i} = histcandles;
+                if obj.candle_freq_(i) ~= 1440
+                    if datenuminput ~= floor(candles(1))
+                        ncandle = size(candles,1);
+                        %here we move the historical candle one day
+                        %forward to save memory usage
+                        histcandles = [histcandles(ncandle+1:end,:);candles];
+                        obj.hist_candles_{i} = histcandles;
+                    end
+                else
+                    hh = hour(candles(1));
+                    if hh == 21
+                        if datenuminput ~= floor(candles(1))
+                            histcandles = [histcandles(2:end,:);candles(1,:)];
+                            obj.hist_candles_{i} = histcandles;
+                        end
+                    else
+                        if datenuminput ~= floor(candles(1))
+                            histcandles = [histcandles(2:end,:);candles];
+                            obj.hist_candles_{i} = histcandles;
+                        end
+                    end
                 end
             else
                 %do nothing
@@ -62,7 +77,7 @@ function [] = move2cobdate(obj,cobdate)
     end
     
     %candles_
-    obj.candles_ = cell(ns,1);
+%     obj.candles_ = cell(ns,1);
     for i = 1:ns
         fut = instruments{i};
         if obj.candle_freq_(i) ~= 1440
@@ -70,6 +85,7 @@ function [] = move2cobdate(obj,cobdate)
                     'frequency',[num2str(obj.candle_freq_(i)),'m'],...
                     'tradinghours',fut.trading_hours,...
                     'tradingbreak',fut.trading_break);
+            obj.candles_{i} = [buckets,zeros(size(buckets,1),4)];
         else
             category = getfutcategory(fut);
             if category == 1 || category == 2 || category == 3
@@ -77,12 +93,16 @@ function [] = move2cobdate(obj,cobdate)
                     'frequency',[num2str(obj.candle_freq_(i)),'m'],...
                     'tradinghours',fut.trading_hours,...
                     'tradingbreak',fut.trading_break);
+                obj.candles_{i} = [buckets,zeros(size(buckets,1),4)];
             else
-                prevbusdate = businessdate(obj.datenuminput,-1);
-                buckets = [prevbusdate+0.875;obj.replay_date1_+0.875];
+%                 prevbusdate = businessdate(datenuminput,-1);
+%                 buckets = [prevbusdate+0.875;obj.replay_date1_+0.875];
+                buckets = [obj.candles_{i}(end,:);[obj.replay_date1_+0.875,0,0,0,0]];
+                obj.candles_{i} = buckets;
+                obj.candles_count_(i) = 1;
             end
         end
-        obj.candles_{i} = [buckets,zeros(size(buckets,1),4)];
+        
     end
      
     %candles4save_

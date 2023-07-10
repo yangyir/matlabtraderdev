@@ -86,7 +86,8 @@ function [] = initreplayer(obj,varargin)
             end
             row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
             row2 = [buckets(2),zeros(1,4)];
-            candle_ = [row1,row2];
+            candle_ = [row1;row2];
+            obj.candles_count_(idx2) = 1;
         end
     end
     

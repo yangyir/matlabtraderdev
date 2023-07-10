@@ -60,9 +60,20 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                 else
                     hd = cDataFileIO.loadDataFromTxtFile([instruments{i}.code_ctp,'_daily.txt']);
                 end
-                candles = hd(hd(:,1)<date2,1:5);
+                category = getfutcategory(instruments{i});
+                if category == 1 || category == 2 || category == 3
+                    candles = hd(hd(:,1)<date2,1:5);
+                else
+                    %as the instrument trades in the evening session
+                    candles = hd(hd(:,1)<=date2,1:5);
+                end
                 if length(candles) > 252, candles = candles(end-251:end,:);end
-                candles(:,1) = candles(:,1)+(mdefut.candles_{i}(1,1)-date2);
+                if category == 1 || category == 2 || category == 3
+                    candles(:,1) = candles(:,1)+(mdefut.candles_{i}(1,1)-date2);
+                else
+                    candles(2:end,1) = candles(1:end-1,1)+(mdefut.candles_{i}(1,1)-date2);
+                    candles = candles(2:end,:);
+                end
                 mdefut.hist_candles_{i} = candles;
             end
             
@@ -171,9 +182,19 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                 else
                     hd = cDataFileIO.loadDataFromTxtFile([instruments{i}.code_ctp,'_daily.txt']);
                 end
-                candles = hd(hd(:,1)<date2,1:5);
+                category = getfutcategory(instruments{i});
+                if category == 1 || category == 2 || category == 3
+                    candles = hd(hd(:,1)<date2,1:5);
+                else
+                    candles = hd(hd(:,1)<=date2,1:5);
+                end
                 if length(candles) > 252, candles = candles(end-251:end,:);end
-                candles(:,1) = candles(:,1)+(mdefut.candles_{i}(1,1)-date2);
+                if category == 1 || category == 2 || category == 3
+                    candles(:,1) = candles(:,1)+(mdefut.candles_{i}(1,1)-date2);
+                else
+                    candles(2:end,1) = candles(1:end-1,1)+(mdefut.candles_{i}(1,1)-date2);
+                    candles = candles(2:end,:);
+                end
                 mdefut.hist_candles_{i} = candles;
             end
             

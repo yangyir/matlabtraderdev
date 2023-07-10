@@ -50,7 +50,18 @@ function [] = updatecandleinmem(mdefut)
             end
             this_bucket = buckets(idx);
         else
-            this_bucket = buckets;
+            if size(buckets,1) == 1
+                this_bucket = buckets;
+            else
+                hh = hour(t);
+                if hh >= 9 && hh <= 15
+                    idx = 1;
+                else
+                    idx = 2;
+                    
+                end
+                this_bucket = buckets(idx);
+            end
         end
         %
         equalorNot4save = (round(buckets4save(2:end) *10e+07) == round(t*10e+07));
@@ -81,6 +92,9 @@ function [] = updatecandleinmem(mdefut)
                 %candles_count moves to the idx of the current
                 %candle to be feeded in. As a result, the previous
                 %candle has been fully feeded in.
+                if mdefut.candle_freq_(i) == 1440 && this_count > 1
+                    mdefut.lastclose_(i) = mdefut.candles_{i}(1,5);                    
+                end
             else
                 newset = false;
                 mdefut.newset_(i) = newset;
