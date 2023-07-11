@@ -149,6 +149,12 @@ function [] = move2cobdate(obj,cobdate)
     
     %candles_count_
     obj.candles_count_ = zeros(ns,1);
+    for i = 1:ns
+        category = getfutcategory(instruments{i});
+        if obj.candle_freq_(i) == 1440 && (category == 4 || category == 5)
+            obj.candles_count_(i) = 1;
+        end
+    end
     
     %candles4save_count_
     obj.candles4save_count_ = zeros(ns,1);
