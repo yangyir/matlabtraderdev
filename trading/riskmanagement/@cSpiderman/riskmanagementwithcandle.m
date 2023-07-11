@@ -61,6 +61,10 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     %entrust executed but in fact the close price did not breach the
     %relevant barrier and etc
     signalinfo = trade.opensignal_;
+    if strcmpi(signalinfo.frequency_,'1440m')
+        %todo:avoid for long public holidays
+        runriskmanagementbeforemktclose = false;
+    end
     if isa(signalinfo,'cFractalInfo')
         if extrainfo.p(end,1) <= trade.opendatetime1_
             val = signalinfo.mode_;
