@@ -133,10 +133,10 @@ classdef cStrat < cMyTimerObj
             variablenotused(obj);
         end
         
-        function [] = loadtrades(obj,varargin)
-            %cStrat doesn't run loadtrades,cOps runs it
-            variablenotused(obj);
-        end
+%         function [] = loadtrades(obj,varargin)
+%             %cStrat doesn't run loadtrades,cOps runs it
+%             variablenotused(obj);
+%         end
         
         [] = riskmanagement(obj,dtnum)
         

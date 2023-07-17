@@ -100,6 +100,10 @@ function [] = riskmanagement(obj,dtnum)
                 error('ERROR:%s;riskmanagement:unsupported risk manger name for FRACTAL...',class(obj))
             end
             trade_i.setriskmanager('name',riskmanagername,'extrainfo',extrainfo);
+            usefracalupdateflag = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','usefractalupdate');
+            usefibonacciflag = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','usefibonacci');
+            trade_i.riskmanager_.setusefractalupdateflag(usefracalupdateflag);
+            trade_i.riskmanager_.setusefibonacciflag(usefibonacciflag);
             %    
         else
             %other opensignal

@@ -8,6 +8,8 @@ classdef cStratConfigFractal < cStratConfig
         tdsqconsecutive_@double = 9
         nfractals_@double = 2
         includelastcandle_@double = 0
+        usefractalupdate_@double = 1
+        usefibonacci_@double = 1
     end
     
     methods
