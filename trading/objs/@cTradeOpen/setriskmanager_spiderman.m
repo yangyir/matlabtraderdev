@@ -45,6 +45,17 @@ function [] = setriskmanager_spiderman(obj,varargin)
         riskmanager.fibonacci0_ = info.ll1_;
         riskmanager.fibonacci1_ = info.hh1_;
     end
+    %
+    try
+        riskmanager.setusefractalupdateflag(info.usefractalupdate_);
+    catch
+    end
+    %
+    try
+        riskmanager.setusefibonacciflag(info.usefibonacci_)
+    catch
+    end
+    %
     riskmanager.trade_ = obj;
 
     if strcmpi(riskmanager.type_,'breachup-B')
