@@ -118,7 +118,9 @@ function [unwindtrade] = riskmanagement(obj,varargin)
           return;
     end
     
+    freq = mdefut.getcandlefreq(instrument);
     runningmm = hour(runningt)*60+minute(runningt);
+    tickm = hour(ticktime)*60+minute(ticktime);
     runriskmanagementbeforemktclose = false;
     
 %     %for DEBUG
@@ -133,10 +135,16 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     
 %     fprintf('%s\t%s\n',datestr(runningt),datestr(ticktime));
     
-    if runningmm == trade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
-        runriskmanagementbeforemktclose = true;
-    elseif runningmm == trade.oneminb4close2_ && (second(runningt) >= 59 || second(ticktime) >= 59)
-        runriskmanagementbeforemktclose = true;
+    if freq ~= 1440
+        if runningmm == trade.oneminb4close1_ && tickm == trade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+            runriskmanagementbeforemktclose = true;
+        elseif runningmm == trade.oneminb4close2_ && tickm == trade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+            runriskmanagementbeforemktclose = true;
+        end
+    else
+        if runningmm == trade.oneminb4close1_ && tickm == trade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+            runriskmanagementbeforemktclose = true;
+        end
     end
     
     
