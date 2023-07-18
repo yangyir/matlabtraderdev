@@ -23,7 +23,7 @@ function [] = loadtrades(strategy,varargin)
             end
         elseif category == 4 || 5
             if hh > 15 && hh < 21
-%                 strategy.calsignal_bucket_(i) = 0;
+                strategy.calsignal_bucket_(i);
             end
         end
             
