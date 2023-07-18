@@ -41,6 +41,8 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 pmove = 0;
             elseif extrainfo.latestopen < extrainfo.p(end-1,5)
                 pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+            else
+                pmove = 0;
             end
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj < obj.wadopen_
@@ -125,6 +127,8 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 pmove = 0;
             elseif extrainfo.latestopen < extrainfo.p(end-1,5)
                 pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+            else
+                pmove = 0;
             end
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj > obj.wadopen_
@@ -166,6 +170,8 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 pmove = 0;
             elseif extrainfo.latestopen < extrainfo.p(end-1,5)
                 pmove = extrainfo.latestopen - max(extrainfo.p(end,3),extrainfo.p(end-1,5));
+            else
+                pmove = 0;
             end
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj > obj.wadlow_
