@@ -160,16 +160,69 @@ function [] = registerinstrument(mdefut,instrument)
         end
     end
 
+    % init categories_
+    if isa(instrument,'cStock')
+        category = 1;
+    else
+        category = getfutcategory(instrument);
+    end
+    if isempty(mdefut.categories_)
+        mdefut.categories_ = zeros(ns,1);
+        mdefut.categories_(ns,1) = category;
+    else
+        ns_ = size(mdefut.categories_,1);
+        if ns_ ~= ns
+            categories = zeros(ns,1);
+            categories(1:ns_,:) = mdefut.categories_;
+            categories(ns_+1:ns) = getfutcategory(instrument);
+            mdefut.categories_ = categories;
+        end
+    end
+    
     if isempty(mdefut.candles_)
         mdefut.candles_ = cell(ns,1);
         for i = 1:ns
             fut = instruments{i};
-            buckets = getintradaybuckets2('date',cobdate,...
-                'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
-                'tradinghours',fut.trading_hours,...
-                'tradingbreak',fut.trading_break);
-            candle_ = [buckets,zeros(size(buckets,1),4)];
-            mdefut.candles_{i} = candle_;
+            if mdefut.candle_freq_(i) ~= 1440
+                buckets = getintradaybuckets2('date',cobdate,...
+                    'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
+                    'tradinghours',fut.trading_hours,...
+                    'tradingbreak',fut.trading_break);
+                candle_ = [buckets,zeros(size(buckets,1),4)];
+                mdefut.candles_{i} = candle_;
+            else
+                if isa(fut,'cStock')
+                    category = 1;
+                else
+                    category = getfutcategory(fut);
+                end
+                if category == 1 || category == 2 || category == 3
+                    buckets = getintradaybuckets2('date',cobdate,...
+                        'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
+                        'tradinghours',fut.trading_hours,...
+                        'tradingbreak',fut.trading_break);
+                    candle_ = [buckets,zeros(size(buckets,1),4)];
+                    mdefut.candles_{i} = candle_;
+                else
+                    prevbusdate = businessdate(cobdate,-1);
+                    buckets = [prevbusdate+0.875;cobdate+0.875];
+                    ds = cLocal;
+                    if category == 4
+                        candles = ds.intradaybar(fut,...
+                            datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                            [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
+                    elseif category == 5
+                        candles = ds.intradaybar(fut,...
+                            datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                            [datestr(cobdate,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
+                    end
+                    row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+                    row2 = [buckets(2),zeros(1,4)];
+                    candle_ = [row1;row2];
+                    mdefut.candles_{i} = candle_;
+                    mdefut.candles_count_(i) = 1;
+                end
+            end        
         end
     else
         ns_ = size(mdefut.candles_,1);
@@ -178,11 +231,44 @@ function [] = registerinstrument(mdefut,instrument)
             for i = 1:ns_, candles{i} = mdefut.candles_{i};end
             for i = ns_+1:ns
                 fut = instruments{i};
-                buckets = getintradaybuckets2('date',cobdate,...
-                    'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
-                    'tradinghours',fut.trading_hours,...
-                    'tradingbreak',fut.trading_break);
-                candles{i} = [buckets,zeros(size(buckets,1),4)];
+                if mdefut.candle_freq_(i) ~= 1440
+                    buckets = getintradaybuckets2('date',cobdate,...
+                        'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
+                        'tradinghours',fut.trading_hours,...
+                        'tradingbreak',fut.trading_break);
+                    candles{i} = [buckets,zeros(size(buckets,1),4)];
+                else
+                    if isa(fut,'cStock')
+                        category = 1;
+                    else
+                        category = getfutcategory(fut);
+                    end
+                    if category == 1 || category == 2 || category == 3
+                        buckets = getintradaybuckets2('date',cobdate,...
+                            'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
+                            'tradinghours',fut.trading_hours,...
+                            'tradingbreak',fut.trading_break);
+                        candles{i} = [buckets,zeros(size(buckets,1),4)];
+                    else
+                        prevbusdate = businessdate(cobdate,-1);
+                        buckets = [prevbusdate+0.875;cobdate+0.875];
+                        ds = cLocal;
+                        if category == 4
+                            candles = ds.intradaybar(fut,...
+                                datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                                [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
+                        elseif category == 5
+                            candles = ds.intradaybar(fut,...
+                                datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                                [datestr(cobdate,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
+                        end
+                        row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+                        row2 = [buckets(2),zeros(1,4)];
+                        candle_ = [row1;row2];
+                        candles{i} = candle_;
+                        mdefut.candles_count_(i) = 1;
+                    end
+                end
             end
             mdefut.candles_ = candles;
         end
@@ -273,24 +359,7 @@ function [] = registerinstrument(mdefut,instrument)
         end
     end  
     
-    % init categories_
-    if isa(instrument,'cStock')
-        category = 1;
-    else
-        category = getfutcategory(instrument);
-    end
-    if isempty(mdefut.categories_)
-        mdefut.categories_ = zeros(ns,1);
-        mdefut.categories_(ns,1) = category;
-    else
-        ns_ = size(mdefut.categories_,1);
-        if ns_ ~= ns
-            categories = zeros(ns,1);
-            categories(1:ns_,:) = mdefut.categories_;
-            categories(ns_+1:ns) = getfutcategory(instrument);
-            mdefut.categories_ = categories;
-        end
-    end
+
     
     % compute num21_00_00_; num21_00_0_5_;num00_00_00_;num00_00_0_5_ if it
     % is required

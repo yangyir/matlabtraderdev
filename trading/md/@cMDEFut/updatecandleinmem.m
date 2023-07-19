@@ -17,6 +17,7 @@ function [] = updatecandleinmem(mdefut)
 %         px_trade = mdefut.ticks_{i}(count(i),4);
         t = mdefut.ticksquick_(i,1);
         px_trade = mdefut.ticksquick_(i,4);
+        if px_trade <= 0, continue;end
 
         %note:Bloomberg rule
         %open bracket on the left hand side and close bracket on the right

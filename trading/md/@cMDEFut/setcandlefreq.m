@@ -19,11 +19,43 @@ function [] = setcandlefreq(mdefut,freq,instrument)
             if mdefut.candle_freq_(i) ~= freq
                 mdefut.candle_freq_(i) = freq;
                 fut = instruments{i};
-                buckets = getintradaybuckets2('date',cobdate,...
-                    'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
-                    'tradinghours',fut.trading_hours,...
-                    'tradingbreak',fut.trading_break);
-                mdefut.candles_{i} = [buckets,zeros(size(buckets,1),4)];
+                if mdefut.candle_freq_(i) ~= 1440
+                    buckets = getintradaybuckets2('date',cobdate,...
+                        'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
+                        'tradinghours',fut.trading_hours,...
+                        'tradingbreak',fut.trading_break);
+                    mdefut.candles_{i} = [buckets,zeros(size(buckets,1),4)];
+                else
+                    if isa(fut,'cStock')
+                        category = 1;
+                    else
+                        category = getfutcategory(fut);
+                    end
+                    if category == 1 || category == 2 || category == 3
+                        buckets = getintradaybuckets2('date',cobdate,...
+                            'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
+                            'tradinghours',fut.trading_hours,...
+                            'tradingbreak',fut.trading_break);
+                        mdefut.candles_{i} = [buckets,zeros(size(buckets,1),4)];
+                    else
+                        prevbusdate = businessdate(cobdate,-1);
+                        buckets = [prevbusdate+0.875;cobdate+0.875];
+                        ds = cLocal;
+                        if category == 4
+                            candles = ds.intradaybar(fut,...
+                                datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                                [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
+                        elseif category == 5
+                            candles = ds.intradaybar(fut,...
+                                datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                                [datestr(cobdate,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
+                        end
+                        row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+                        row2 = [buckets(2),zeros(1,4)];
+                        mdefut.candles_{i} = [row1;row2];
+                        mdefut.candles_count_(i) = 1;
+                    end
+                end
             end
         end
 
@@ -44,11 +76,43 @@ function [] = setcandlefreq(mdefut,freq,instrument)
             if mdefut.candle_freq_(i) ~= freq
                 mdefut.candle_freq_(i) =  freq;
                 fut = instruments{i};
-                buckets = getintradaybuckets2('date',cobdate,...
-                    'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
-                    'tradinghours',fut.trading_hours,...
-                    'tradingbreak',fut.trading_break);
-                mdefut.candles_{i} = [buckets,zeros(size(buckets,1),4)];
+                if mdefut.candle_freq_(i) ~= 1440
+                    buckets = getintradaybuckets2('date',cobdate,...
+                        'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
+                        'tradinghours',fut.trading_hours,...
+                        'tradingbreak',fut.trading_break);
+                    mdefut.candles_{i} = [buckets,zeros(size(buckets,1),4)];
+                else
+                    if isa(fut,'cStock')
+                        category = 1;
+                    else
+                        category = getfutcategory(fut);
+                    end
+                    if category == 1 || category == 2 || category == 3
+                        buckets = getintradaybuckets2('date',cobdate,...
+                            'frequency',[num2str(mdefut.candle_freq_(i)),'m'],...
+                            'tradinghours',fut.trading_hours,...
+                            'tradingbreak',fut.trading_break);
+                        mdefut.candles_{i} = [buckets,zeros(size(buckets,1),4)];
+                    else
+                        prevbusdate = businessdate(cobdate,-1);
+                        buckets = [prevbusdate+0.875;cobdate+0.875];
+                        ds = cLocal;
+                        if category == 4
+                            candles = ds.intradaybar(fut,...
+                                datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                                [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
+                        elseif category == 5
+                            candles = ds.intradaybar(fut,...
+                                datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+                                [datestr(cobdate,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
+                        end
+                        row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+                        row2 = [buckets(2),zeros(1,4)];
+                        mdefut.candles_{i} = [row1;row2];
+                        mdefut.candles_count_(i) = 1;
+                    end
+                end
             end
             break
         end
