@@ -1,5 +1,5 @@
 %% all long with strong / medium breach and it is trending
-n = size(tblb_data_combo,1);
+n = size(tbls_data_combo,1);
 idx = zeros(n,1);
 codes = cell(n,1);
 assetname = cell(n,1);
@@ -11,20 +11,20 @@ pnlrel = zeros(n,1);
 notional = zeros(n,1);
 openprice = zeros(n,1);
 for i = 1:n
-    if isempty(tblb_data_combo{i,14}),continue;end
-    if isempty(tblb_data_combo{i,20}),continue;end
-    if tblb_data_combo{i,2} == 3 && tblb_data_combo{i,37} == 1
+    if isempty(tbls_data_combo{i,14}),continue;end
+    if isempty(tbls_data_combo{i,20}),continue;end
+    if tbls_data_combo{i,2} == 2 && tbls_data_combo{i,37} == 1
         idx(i) = 1;
-        codes{i} = tblb_data_combo{i,14};
+        codes{i} = tbls_data_combo{i,14};
         fut = code2instrument(codes{i});
         assetname{i} = fut.asset_name;
-        openid(i) = tblb_data_combo{i,15};
-        closeid(i) = tblb_data_combo{i,20};
-        opendatetime(i) = tblb_data_combo{i,13};
+        openid(i) = tbls_data_combo{i,15};
+        closeid(i) = tbls_data_combo{i,20};
+        opendatetime(i) = tbls_data_combo{i,13};
         opendate(i) = getlastbusinessdate(opendatetime(i));
-        pnlrel(i) = tblb_data_combo{i,18}/tblb_data_combo{i,17}/fut.contract_size;
-        notional(i) = tblb_data_combo{i,17}*fut.contract_size;
-        openprice(i) = tblb_data_combo{i,17};
+        pnlrel(i) = tbls_data_combo{i,18}/tbls_data_combo{i,17}/fut.contract_size;
+        notional(i) = tbls_data_combo{i,17}*fut.contract_size;
+        openprice(i) = tbls_data_combo{i,17};
     end
 end
 %
@@ -78,7 +78,7 @@ for i = 1:size(assetlist,1)
     kellyresults{i} = output_i;
 end
 %%
-i = 31;
+i = 30;
 winp_running = kellyresults{i}.winp_running;
 r_running = kellyresults{i}.r_running;
 kelly_running = kellyresults{i}.kelly_running;

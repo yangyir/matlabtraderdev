@@ -338,6 +338,75 @@ end
 fprintf('report of trendbreak transactions by asset generated...\n');
 save([getenv('onedrive'),'\fractal backtest\','rp_tb.mat'],'reportbyasset_tb');
 %%
+% report of non-exotics transactions by asset
+idx_nonexotics_b = zeros(nb,1); 
+for i = 1:nb
+    if tbl_extractedinfo_b.trendflag_b(i) == 1
+        idx_nonexotics_b(i) = 1;
+    else
+        if strcmpi(tbl_extractedinfo_b.opensignal_b{i},'breachup-lvlup') || ...
+                strcmpi(tbl_extractedinfo_b.opensignal_b{i},'breachup-sshighvalue')
+            idx_nonexotics_b(i) = 1;
+        end     
+    end
+end
+idx_nonexotics_b = logical(idx_nonexotics_b);
+%
+idx_nonexotics_s = zeros(ns,1);
+for i = 1:ns
+    if tbl_extractedinfo_s.trendflag_s(i) == 1
+        idx_nonexotics_s(i) = 1;
+    else
+        if strcmpi(tbl_extractedinfo_s.opensignal_s{i},'breachdn-lvldn') || ...
+                strcmpi(tbl_extractedinfo_s.opensignal_s{i},'breachdn-bshighvalue')
+            idx_nonexotics_s(i) = 1;
+        end
+    end
+end
+idx_nonexotics_s = logical(idx_nonexotics_s);
+pnl_nonexotics_b = tbl_extractedinfo_b.pnlrel_b(idx_nonexotics_b);
+asset_nonexotics_b = tbl_extractedinfo_b.assetnam_b(idx_nonexotics_b);
+pnl_nonexotics_s = tbl_extractedinfo_s.pnlrel_s(idx_nonexotics_s);
+asset_nonexotics_s = tbl_extractedinfo_s.assetnam_s(idx_nonexotics_s);
+%
+for i = 1:2
+    if i == 1
+        asset = unique(asset_nonexotics_b);
+    else
+        asset = unique(asset_nonexotics_s);
+    end
+    nasset = size(asset,1);
+    N = zeros(nasset,1);
+    W = zeros(nasset,1);
+    R = zeros(nasset,1);
+    K = zeros(nasset,1);
+    for j = 1:nasset
+        if i == 1
+            idx_j = strcmpi(asset_nonexotics_b,asset{j});
+            pnl_j = pnl_nonexotics_b(idx_j);
+        else
+            idx_j = strcmpi(asset_nonexotics_s,asset{j});
+            pnl_j = pnl_nonexotics_s(idx_j);
+        end
+        [w_j,r_j,k_j] = calcrunningkelly(pnl_j);
+        N(j) = size(w_j,1);
+        W(j) = w_j(end);
+        R(j) = r_j(end);
+        K(j) = k_j(end);
+    end
+    if i == 1
+        tblreport_nonexotics_b = table(asset,N,W,R,K);
+        tblreport_nonexotics_b = sortrows(tblreport_nonexotics_b,'K','descend');
+    else
+        tblreport_nonexotics_s = table(asset,N,W,R,K);
+        tblreport_nonexotics_s = sortrows(tblreport_nonexotics_s,'K','descend');
+    end
+end
+fprintf('report of non-exotics transactions by asset generated...\n');
+save([getenv('onedrive'),'\fractal backtest\','rp_nonexotics_b.mat'],'tblreport_nonexotics_b');
+save([getenv('onedrive'),'\fractal backtest\','rp_nonexotics_s.mat'],'tblreport_nonexotics_s');
+
+%%
 %USED SIGNAL MODES WITH CONFIRMED TREND:
 % volblowup,breachup-lvlup,breachup-sshighvalue,breachup-highsc13,strongbreach-trendconfirmed,mediumbreach-trendconfirmed,volblowup2
 %USED SIGNAL MODES WITH UN-CONFIRMED TREND:
