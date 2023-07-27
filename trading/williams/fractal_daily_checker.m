@@ -9,7 +9,7 @@ if ~isequity && ~iscomdtyindex
         isequity = true;
     elseif ~isempty(instrument.asset_name) && isa(instrument,'cFutures')
         assetinfo = getassetinfo(instrument.asset_name);
-        if ~strcmpi(assetinfo.AssetType,'eqindex')
+        if strcmpi(assetinfo.AssetType,'eqindex')
             isequity = true;
         else
             iscomdtyindex = true;
@@ -47,7 +47,15 @@ if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
 
 %load the data
 fn = [code,'_daily.txt'];
-cp = cDataFileIO.loadDataFromTxtFile(fn);
+if isequity
+    if strcmpi(code(1),'5') || strcmpi(code(1),'1')
+        cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',fn]);
+    else
+        cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\SingleStock\',fn]);
+    end
+else
+    cp = cDataFileIO.loadDataFromTxtFile(fn);
+end
 if isempty(cp), error('fractal_daily_checker:invalid code input or data not stored');end
 
 [tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2);
