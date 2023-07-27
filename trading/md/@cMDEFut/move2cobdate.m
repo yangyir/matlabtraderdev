@@ -97,7 +97,7 @@ function [] = move2cobdate(obj,cobdate)
             else
 %                 prevbusdate = businessdate(datenuminput,-1);
 %                 buckets = [prevbusdate+0.875;obj.replay_date1_+0.875];
-                buckets = [obj.candles_{i}(end,:);[obj.replay_date1_+0.875,0,0,0,0]];
+                buckets = [obj.candles_{i}(end,:);[datenuminput+0.875,0,0,0,0]];
                 obj.candles_{i} = buckets;
                 obj.candles_count_(i) = 1;
             end
