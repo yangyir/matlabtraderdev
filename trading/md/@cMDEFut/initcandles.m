@@ -209,7 +209,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     idx = idx(end);
                     if idx <= size(buckets,1)
                         hh = hour(t);
-                        if hh < 21 && hh >= 16
+                        if (hh < 21 && hh >= 16) || (hh > 2 && hh < 9)
                             candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                         else
                             try
