@@ -50,6 +50,10 @@ fn = [code,'_daily.txt'];
 if isequity
     if strcmpi(code(1),'5') || strcmpi(code(1),'1')
         cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',fn]);
+    elseif strcmpi(code,'000300.SH') || strcmpi(code,'000016.SH') || strcmpi(code,'000905.SH') || ...
+            strcmpi(code,'000852.SH') || strcmpi(code, '399006.SZ') || strcmpi(code, '000688.SH') || ...
+            strcmpi(code,'000015.SH')
+        cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\Index\',fn]);
     else
         cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\SingleStock\',fn]);
     end
