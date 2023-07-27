@@ -78,7 +78,7 @@ function [ret] = fractal_latestposition(varargin)
                 fprintf('not done yet for short close and long open at the same time')
                 return
             elseif ~isempty(ret) && ret.opendirection_ == 1
-                fprintf('%s:bullish live with newly added open:%s(%s)\n',code,op.comment,stock.asset_name);
+                fprintf('%7s:bullish live with newly added open:%s(%s)\n',code,op.comment,stock.asset_name);
             else
                 trade = fractal_gentrade(ei,code,lastb,op.comment,1,freq);
                 ei.latestdt = ei.px(end,1);
@@ -89,7 +89,7 @@ function [ret] = fractal_latestposition(varargin)
                     'updatepnlforclosedtrade',true,...
                     'extrainfo',ei);
                 ret = trade;
-                fprintf('%s:bullish open:%s(%s)\n',code,op.comment,stock.asset_name);
+                fprintf('%7s:bullish open:%s(%s)\n',code,op.comment,stock.asset_name);
             end
         else
             if ~isempty(lastsinfo.trade)
@@ -106,19 +106,19 @@ function [ret] = fractal_latestposition(varargin)
             end
             if op.direction == 1
                 if this_direction == 0
-                    fprintf('%s:bullish invalid:%s(%s)\n',code,op.comment,stock.asset_name);
+                    fprintf('%7s:bullish invalid:%s(%s)\n',code,op.comment,stock.asset_name);
                 elseif this_direction == -0.5
-                    fprintf('%s:bearish closed:%s with bullish invalid:%s(%s)\n',code,lastsinfo.trade.riskmanager_.closestr_,op.comment,stock.asset_name);
+                    fprintf('%7s:bearish closed:%s with bullish invalid:%s(%s)\n',code,lastsinfo.trade.riskmanager_.closestr_,op.comment,stock.asset_name);
                 elseif this_direction == -1
-                    fprintf('%s:bearish live with bullish invalid:%s(%s)\n',code,op.comment,stock.asset_name);
+                    fprintf('%7s:bearish live with bullish invalid:%s(%s)\n',code,op.comment,stock.asset_name);
                 end
             else
                 if this_direction == 0
-                    fprintf('%s:bullish invalid:%s(%s)\n',code,'barrier below alligator teeth....',stock.asset_name);
+                    fprintf('%7s:bullish invalid:%s(%s)\n',code,'barrier below alligator teeth....',stock.asset_name);
                 elseif this_direction == -0.5
-                    fprintf('%s:bearish closed:%s with bullish invalid:%s(%s)\n',code,lastsinfo.trade.riskmanager_.closestr_,'barrier below alligator teeth....',stock.asset_name);
+                    fprintf('%7s:bearish closed:%s with bullish invalid:%s(%s)\n',code,lastsinfo.trade.riskmanager_.closestr_,'barrier below alligator teeth....',stock.asset_name);
                 elseif this_direction == -1
-                    fprintf('%s:bearish live with bullish invalid:%s(%s)\n',code,'barrier below alligator teeth....',stock.asset_name);
+                    fprintf('%7s:bearish live with bullish invalid:%s(%s)\n',code,'barrier below alligator teeth....',stock.asset_name);
                 end
             end
             
@@ -195,19 +195,19 @@ function [ret] = fractal_latestposition(varargin)
             end
             if op.direction == -1
                 if this_direction == 0
-                    fprintf('%s:bearish invalid:%s(%s)\n',code,op.comment,stock.asset_name);
+                    fprintf('%7s:bearish invalid:%s(%s)\n',code,op.comment,stock.asset_name);
                 elseif this_direction == 0.5
-                    fprintf('%s:bullish closed:%s with bearish invalid:%s(%s)\n',code,lastbinfo.trade.riskmanager_.closestr_,op.comment,stock.asset_name);
+                    fprintf('%7s:bullish closed:%s with bearish invalid:%s(%s)\n',code,lastbinfo.trade.riskmanager_.closestr_,op.comment,stock.asset_name);
                 elseif this_direction == 1
-                    fprintf('%s:bullish live with bearish invalid:%s(%s)\n',code,op.comment,stock.asset_name);
+                    fprintf('%7s:bullish live with bearish invalid:%s(%s)\n',code,op.comment,stock.asset_name);
                 end
             else
                 if this_direction == 0
-                    fprintf('%s:bearish invalid:%s(%s)\n',code,'barrier above alligator teeth....',stock.asset_name);
+                    fprintf('%7s:bearish invalid:%s(%s)\n',code,'barrier above alligator teeth....',stock.asset_name);
                 elseif this_direction == 0.5
-                    fprintf('%s:bullish closed:%s with bearish invalid:%s(%s)\n',code,lastbinfo.trade.riskmanager_.closestr_,'barrier above alligator teeth....',stock.asset_name);
+                    fprintf('%7s:bullish closed:%s with bearish invalid:%s(%s)\n',code,lastbinfo.trade.riskmanager_.closestr_,'barrier above alligator teeth....',stock.asset_name);
                 else
-                    fprintf('%s:bullish live bearish invalid:%s(%s)\n',code,'barrier above alligator teeth....',stock.asset_name);
+                    fprintf('%7s:bullish live bearish invalid:%s(%s)\n',code,'barrier above alligator teeth....',stock.asset_name);
                 end
             end
         end
@@ -229,14 +229,14 @@ function [ret] = fractal_latestposition(varargin)
             trade = validtradesb.node_(j);
             if strcmpi(trade.status_,'set')
                 if trade.id_ == size(ei.px,1)
-                    fprintf('%s:bullish live-newly open(%s).\n',code,stock.asset_name);
+                    fprintf('%7s:bullish live-newly open(%s).\n',code,stock.asset_name);
                 else
-                    fprintf('%s:bullish live(%s).\n',code,stock.asset_name);
+                    fprintf('%7s:bullish live(%s).\n',code,stock.asset_name);
                 end
                 ret = trade;
                 break
             elseif strcmpi(trade.status_,'closed') && trade.closedatetime1_ >= ei.px(end,1)
-                fprintf('%s:bullish closed:%s(%s)\n',trade.code_,trade.riskmanager_.closestr_,stock.asset_name);
+                fprintf('%7s:bullish closed:%s(%s)\n',trade.code_,trade.riskmanager_.closestr_,stock.asset_name);
                 ret = trade;
                 break
             end
@@ -265,14 +265,14 @@ function [ret] = fractal_latestposition(varargin)
             trade = validtradess.node_(j);
             if strcmpi(trade.status_,'set')
                 if trade.id_ == size(ei.px,1)
-                    fprintf('%s:bearish live-newly open(%s).\n',code,stock.asset_name);
+                    fprintf('%7s:bearish live-newly open(%s).\n',code,stock.asset_name);
                 else
-                    fprintf('%s:bearish live(%s).\n',code,stock.asset_name);
+                    fprintf('%7s:bearish live(%s).\n',code,stock.asset_name);
                 end
                 ret = trade;
                 break
             elseif strcmpi(trade.status_,'closed') && trade.closedatetime1_ >= ei.px(end,1)
-                fprintf('%s:bearish closed:%s(%s)\n',trade.code_,trade.riskmanager_.closestr_,stock.asset_name);
+                fprintf('%7s:bearish closed:%s(%s)\n',trade.code_,trade.riskmanager_.closestr_,stock.asset_name);
                 ret = trade;
                 break
             end
