@@ -105,7 +105,7 @@ function [] = setcandlefreq(mdefut,freq,instrument)
                         elseif category == 5
                             candles = ds.intradaybar(fut,...
                                 datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                [datestr(cobdate,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
+                                [datestr(prevbusdate+1,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
                         end
                         row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
                         row2 = [buckets(2),zeros(1,4)];
