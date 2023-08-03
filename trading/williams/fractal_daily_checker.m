@@ -52,7 +52,7 @@ if isequity
         cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',fn]);
     elseif strcmpi(code,'000300.SH') || strcmpi(code,'000016.SH') || strcmpi(code,'000905.SH') || ...
             strcmpi(code,'000852.SH') || strcmpi(code, '399006.SZ') || strcmpi(code, '000688.SH') || ...
-            strcmpi(code,'000015.SH')
+            strcmpi(code,'000015.SH') || strcmpi(code,'000001.SH')
         cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\Index\',fn]);
     elseif isa(instrument,'cFutures')
         cp = cDataFileIO.loadDataFromTxtFile(fn);
