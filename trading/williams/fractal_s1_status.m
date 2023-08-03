@@ -102,7 +102,7 @@ end
 
 %does it breach-dn low of a previous buy sequential
 isbslowbreach = 0;
-if size(bs,1)-lastbs9+1<=nkfromll
+if size(bs,1)-lastbs+1<=nkfromll
 %case1:the latest buy sequential finished within the fractal
     lastbsval = bs(lastbs);
     isbslowbreach = px(end,5) < min(px(lastbs-lastbsval+1:min(lastbs,size(px,1)-1),4));
