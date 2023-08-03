@@ -165,7 +165,8 @@ function [ret] = fractal_latestposition(varargin)
                 %very rare case here,long close and short open at the same
                 %time
                 %not implemented for now
-                error('not done yet for long close and short open at the same time')
+                warning('not done yet for long close and short open at the same time')
+                return
             elseif ~isempty(ret) && ret.opendirection_ == -1
                 fprintf('%s:bearish live with newly added open:%s(%s)\n',code,op.comment,stock.asset_name);
             else
