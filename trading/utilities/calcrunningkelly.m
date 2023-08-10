@@ -1,6 +1,12 @@
 function [winp_running,R_running,kelly_running] = calcrunningkelly(pnl2check)
 %calculate running win prob, R and kelly criterion
     nn = size(pnl2check,1);
+    if nn == 0
+        winp_running = 0;
+        R_running = 0;
+        kelly_running = 0;
+        return;
+    end
     winflag = zeros(nn,3);
     nwintrade = 0;
     wintotalpnl = 0;
