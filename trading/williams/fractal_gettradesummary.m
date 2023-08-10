@@ -364,10 +364,18 @@ if ~isempty(tblb_data)
         for k = 1:size(tbl_this_mode,1)
             if tbl_this_mode{k,18} >= 0
                 wincount = wincount + 1;
-                wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+                if ~strcmpi(code,'gzhy')
+                    wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+                else
+                    wintotalpnl = wintotalpnl + tbl_this_mode{k,18};
+                end
             elseif tbl_this_mode{k,18} < 0
                 losscount = losscount + 1;
-                losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+                if ~strcmpi(code,'gzhy')
+                    losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+                else
+                    losstotalpnl = losstotalpnl + tbl_this_mode{k,18};
+                end
             end
         end
         winprob = wincount / (wincount + losscount);
@@ -425,10 +433,18 @@ if ~isempty(tbls_data)
         for k = 1:size(tbl_this_mode,1)
             if tbl_this_mode{k,18} >= 0
                 wincount = wincount + 1;
-                wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+                if ~strcmpi(code,'gzhy')
+                    wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+                else
+                    wintotalpnl = wintotalpnl + tbl_this_mode{k,18};
+                end
             elseif tbl_this_mode{k,18} < 0
                 losscount = losscount + 1;
-                losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+                if ~strcmpi(code,'gzhy')
+                    losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
+                else
+                    losstotalpnl = losstotalpnl + tbl_this_mode{k,18};
+                end
             end
         end
         winprob = wincount / (wincount + losscount);
