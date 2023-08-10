@@ -138,7 +138,7 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     if freq ~= 1440
         if runningmm == trade.oneminb4close1_ && tickm == trade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
             runriskmanagementbeforemktclose = true;
-        elseif runningmm == trade.oneminb4close2_ && tickm == trade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+        elseif runningmm == trade.oneminb4close2_ && tickm == trade.oneminb4close2_ && (second(runningt) >= 59 || second(ticktime) >= 59)
             runriskmanagementbeforemktclose = true;
         end
     else
