@@ -2,23 +2,27 @@ function [tblb,tbls,trades,pnl,resstruct] = fractal_daily_checker(code,varargin)
 
 isequity = isinequitypool(code);
 iscomdtyindex = isincomdtyindex(code);
-if ~isequity && ~iscomdtyindex
-%     error('fractal_daily_checker:invalid code input:only equity is supported')
-    instrument = code2instrument(code);
-    if ~isempty(instrument.asset_name) && isa(instrument,'cStock')
-        isequity = true;
-    elseif ~isempty(instrument.asset_name) && isa(instrument,'cFutures')
-        assetinfo = getassetinfo(instrument.asset_name);
-        if strcmpi(assetinfo.AssetType,'eqindex')
+isglobalmacro = isinglobalmacro(code);
+
+if ~isglobalmacro
+    if ~isequity && ~iscomdtyindex
+        %     error('fractal_daily_checker:invalid code input:only equity is supported')
+        instrument = code2instrument(code);
+        if ~isempty(instrument.asset_name) && isa(instrument,'cStock')
             isequity = true;
-        else
-            iscomdtyindex = true;
-        end
-    else
-        if ~strcmpi(code,'gzhy')
+        elseif ~isempty(instrument.asset_name) && isa(instrument,'cFutures')
             assetinfo = getassetinfo(instrument.asset_name);
-            if ~strcmpi(assetinfo.AssetType,'agriculture')
-                error('fractal_daily_checker:invalid code input:%s not supported',assetinfo.AssetType);
+            if strcmpi(assetinfo.AssetType,'eqindex')
+                isequity = true;
+            else
+                iscomdtyindex = true;
+            end
+        else
+            if ~strcmpi(code,'gzhy')
+                assetinfo = getassetinfo(instrument.asset_name);
+                if ~strcmpi(assetinfo.AssetType,'agriculture')
+                    error('fractal_daily_checker:invalid code input:%s not supported',assetinfo.AssetType);
+                end
             end
         end
     end
@@ -46,21 +50,27 @@ dt2 = p.Results.todate;
 if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
 
 %load the data
-fn = [code,'_daily.txt'];
-if isequity
-    if strcmpi(code(1),'5') || strcmpi(code(1),'1')
-        cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',fn]);
-    elseif strcmpi(code,'000300.SH') || strcmpi(code,'000016.SH') || strcmpi(code,'000905.SH') || ...
-            strcmpi(code,'000852.SH') || strcmpi(code, '399006.SZ') || strcmpi(code, '000688.SH') || ...
-            strcmpi(code,'000015.SH') || strcmpi(code,'000001.SH')
-        cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\Index\',fn]);
-    elseif isa(instrument,'cFutures')
-        cp = cDataFileIO.loadDataFromTxtFile(fn);
+if ~isglobalmacro
+    fn = [code,'_daily.txt'];
+    if isequity
+        if strcmpi(code(1),'5') || strcmpi(code(1),'1')
+            cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',fn]);
+        elseif strcmpi(code,'000300.SH') || strcmpi(code,'000016.SH') || strcmpi(code,'000905.SH') || ...
+                strcmpi(code,'000852.SH') || strcmpi(code, '399006.SZ') || strcmpi(code, '000688.SH') || ...
+                strcmpi(code,'000015.SH') || strcmpi(code,'000001.SH')
+            cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\Index\',fn]);
+        elseif isa(instrument,'cFutures')
+            cp = cDataFileIO.loadDataFromTxtFile(fn);
+        else
+            cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\SingleStock\',fn]);
+        end
     else
-        cp = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\SingleStock\',fn]);
+        cp = cDataFileIO.loadDataFromTxtFile(fn);
     end
 else
-    cp = cDataFileIO.loadDataFromTxtFile(fn);
+    fn = [code,'_daily.txt'];
+    datadir_ = [getenv('datapath'),'globalmacro\'];
+    cp = cDataFileIO.loadDataFromTxtFile([datadir_,fn]);
 end
 if isempty(cp), error('fractal_daily_checker:invalid code input or data not stored');end
 
