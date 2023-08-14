@@ -97,9 +97,23 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 if strcmpi(mdefut.qms_.watcher_.conn,'wind') &&  mdefut.qms_.watcher_.isconnect
                                      candles = mdefut.qms_.watcher_.ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                                 else
-                                    ds2 = cWind;
-                                    candles = ds2.intradaybar(instruments{i},datestr(buckets(1)),datestr(buckets(idx+1)),mdefut.candle_freq_(i),'trade');
-                                    ds2.close;
+                                    if mdefut.candle_freq_(i) ~= 1440
+                                        ds2 = cWind;
+                                        candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx+1),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                                        ds2.close;
+                                    else
+                                        try
+                                            if ~mdefut.qms_.isconnect
+                                                mdefut.login('connection','ctp','countername','ccb_ly_fut');
+                                                mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+                                            end
+                                            data = mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+                                            mkt = data{1}.mkt;
+                                            candles = [buckets(idx),mkt(2),mkt(3),mkt(4),mkt(1)];
+                                        catch
+                                            error('CTP error')
+                                        end
+                                    end
                                 end
                             catch e
                                 fprintf('%s\n',e.message);
@@ -107,14 +121,19 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                             end                            
                         end
                         %
-                        if size(candles,1) < idx
-                            tmp = [candles;mdefut.candles_{i}(idx+1:end,:)];
-                            mdefut.candles_{i} = tmp;
-                            mdefut.candles_count_(i) = size(candles,1);
-                        else
-                            for j = 1:size(candles,1)
-                                mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                        if mdefut.candle_freq_(i) ~= 1440
+                            if size(candles,1) < idx
+                                tmp = [candles;mdefut.candles_{i}(idx+1:end,:)];
+                                mdefut.candles_{i} = tmp;
+                                mdefut.candles_count_(i) = size(candles,1);
+                            else
+                                for j = 1:size(candles,1)
+                                    mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                                end
+                                mdefut.candles_count_(i) = idx;
                             end
+                        else
+                            mdefut.candles_{i}(idx,:) = candles;
                             mdefut.candles_count_(i) = idx;
                         end
                     end
@@ -240,14 +259,19 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 return
                             end                           
                         end
-                        if size(candles,1) < idx
-                            tmp = [candles;mdefut.candles_{i}(idx+1:end,:)];
-                            mdefut.candles_{i} = tmp;
-                            mdefut.candles_count_(i) = size(candles,1);
-                        else
-                            for j = 1:size(candles,1)
-                                mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                        if mdefut.candle_freq_(i) ~= 1440
+                            if size(candles,1) < idx
+                                tmp = [candles;mdefut.candles_{i}(idx+1:end,:)];
+                                mdefut.candles_{i} = tmp;
+                                mdefut.candles_count_(i) = size(candles,1);
+                            else
+                                for j = 1:size(candles,1)
+                                    mdefut.candles_{i}(j,2:end) = candles(j,2:end);
+                                end
+                                mdefut.candles_count_(i) = idx;
                             end
+                        else
+                            mdefut.candles_{i}(idx,:) = candles;
                             mdefut.candles_count_(i) = idx;
                         end
                     end
