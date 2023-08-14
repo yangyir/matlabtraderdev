@@ -26,9 +26,20 @@ else
         'll1',resstruct.px(idx,4));
 end
 
-try
-    instrument = code2instrument(code);
-    ticksize = instrument.tick_size;
+try   
+    if strcmpi(code,'audusd') || strcmpi(code,'eurusd') || strcmpi(code,'gbpusd') || ...
+            strcmpi(code,'usdcad') || strcmpi(code,'usdchf') || strcmpi(code,'eurchf') || ...
+            strcmpi(code,'gbpeur') || strcmpi(code,'usdcnh')
+        ticksize = 0.0001;%1bp
+    elseif strcmpi(code,'usdjpy') || strcmpi(code,'eurjpy') || strcmpi(code,'gbpjpy') || strcmpi(code,'audjpy')
+        ticksize = 0.01;
+    elseif strcmpi(code,'usdx')
+        ticksize = 0.01;
+    else
+        instrument = code2instrument(code);
+        ticksize = instrument.tick_size;
+    end
+    
 catch
     ticksize = 0;
 end
