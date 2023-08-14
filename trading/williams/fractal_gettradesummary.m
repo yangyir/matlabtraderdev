@@ -15,6 +15,10 @@ if isequity
 else
     if strcmpi(code,'gzhy')
         ticksize = 0.0001;
+    elseif strcmpi(code,'audusd') || strcmpi(code,'eurusd') || strcmpi(code,'gbpusd') || ...
+                strcmpi(code,'usdcad') || strcmpi(code,'usdchf') || strcmpi(code,'eurchf') || ...
+                strcmpi(code,'gbpeur') || strcmpi(code,'usdcnh')
+        ticksize = 0.0001;%1bp
     else
         try
             fut = code2instrument(code);
