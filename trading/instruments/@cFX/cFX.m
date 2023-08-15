@@ -46,6 +46,24 @@ classdef cFX < cInstrument
                 obj.code_wind = [upper(codestr),'.FX'];
                 obj.code_ctp = lower(codestr);
             end
+            
+            if strcmpi(codestr,'usdx') 
+                obj.contract_size = 100;
+                obj.tick_size = 0.01;
+                obj.tick_value = 1;
+            elseif strcmpi(codestr,'eurusd') || strcmpi(codestr,'gbpusd') || ...
+                    strcmpi(codestr,'audusd') || strcmpi(codestr,'usdcad') || ...
+                    strcmpi(codestr,'usdchf') || strcmpi(codestr,'eurchf') || ...
+                    strcmpi(codestr,'gbpeur') || strcmpi(codestr,'usdcnh')
+                obj.contract_size = 10000;
+                obj.tick_size = 0.0001;
+                obj.tick_value = 1;
+            elseif strcmpi(codestr,'usdjpy') || strcmpi(codestr,'eurjpy') || ...
+                    strcmpi(codestr,'gbpjpy') || strcmpi(codestr,'audjpy')
+                obj.contract_size = 100;
+                obj.tick_size = 0.01;
+                obj.tick_value = 1;
+            end
         end
         %end of constructor
         

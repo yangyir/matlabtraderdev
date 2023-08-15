@@ -10,7 +10,11 @@ function instrument = code2instrument(codestr)
         try
             instrument = cFutures(codestr);
         catch
-            instrument = cStock(codestr);
+            if sum(strcmpi({'usdx';'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'eurjpy';'eurchf';'gbpeur';'gbpjpy';'audjpy';'usdcnh'},codestr))
+                instrument = cFX(codestr);
+            else
+                instrument = cStock(codestr);
+            end
         end
     end
     instrument.loadinfo([codestr,'_info.txt']);
