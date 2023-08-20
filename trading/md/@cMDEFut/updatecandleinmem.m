@@ -93,9 +93,9 @@ function [] = updatecandleinmem(mdefut)
                 %candles_count moves to the idx of the current
                 %candle to be feeded in. As a result, the previous
                 %candle has been fully feeded in.
-                if mdefut.candle_freq_(i) == 1440 && this_count > 1
-                    mdefut.lastclose_(i) = mdefut.candles_{i}(1,5);                    
-                end
+%                 if mdefut.candle_freq_(i) == 1440 && this_count > 1
+%                     mdefut.lastclose_(i) = mdefut.candles_{i}(1,5);                    
+%                 end
             else
                 newset = false;
                 mdefut.newset_(i) = newset;

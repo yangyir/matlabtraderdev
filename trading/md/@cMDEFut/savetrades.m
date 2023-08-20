@@ -16,6 +16,16 @@ function [] = savetrades(obj,varargin)
         p.parse(varargin{:});
     t = p.Results.Time;
     
+    hh = hour(t);
+    if hh == 15
+        ns = size(obj.ticksquick_,1);
+        for i = 1:ns
+            if obj.candle_freq_(i) == 1440
+                obj.lastclose_(i) = obj.candles_{i}(1,5);
+            end
+        end
+    end
+    
     obj.logoff;
     fprintf('cMDEFut:logoff from MD on %s......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'));
     
