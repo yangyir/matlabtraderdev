@@ -23,8 +23,15 @@ function [] = replay_timer_fcn(mytimerobj,~,event)
             hasclosed = false;
             n_index = size(mytimerobj.codes_index_,1);
             n_sector = size(mytimerobj.codes_sector_,1);
-            latest_index = mytimerobj.conn_.ds_.wsq(mytimerobj.codes_index_,'rt_date,rt_time,rt_latest');
-            latest_sector = mytimerobj.conn_.ds_.wsq(mytimerobj.codes_sector_,'rt_date,rt_time,rt_latest');
+            if mytimerobj.iswind_
+                latest_index = mytimerobj.conn_.ds_.wsq(mytimerobj.codes_index_,'rt_date,rt_time,rt_latest');
+                latest_sector = mytimerobj.conn_.ds_.wsq(mytimerobj.codes_sector_,'rt_date,rt_time,rt_latest');
+            else
+                latest_index = THS_RQ(mytimerobj.codes_index_,'tradeDate;tradeTime;latest','','format:table');
+                latest_index = [datenum(latest_index.tradeDate,'yyyy-mm-dd'),datenum(latest_index.time,'yyyy-mm-dd HH:MM:SS'),latest_index.latest];
+                latest_sector = THS_RQ(mytimerobj.codes_sector_,'tradeDate;tradeTime;latest','','format:table');
+                latest_sector = [datenum(latest_sector.tradeDate,'yyyy-mm-dd'),datenum(latest_sector.time,'yyyy-mm-dd HH:MM:SS'),latest_sector.latest];
+            end
             if hour(dtnum) == 14 && minute(dtnum) >= 55
                 runhighlowonly = false;
             else

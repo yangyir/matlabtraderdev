@@ -13,6 +13,9 @@ classdef cETFWatcher < handle
        
     properties (SetAccess = private, GetAccess = private)
         conn_@cWind
+        conn2_@cTHS
+        iswind_@logical = false;
+        isths_@logical = false;
         %
         codes_index_@cell
         codes_sector_@cell

@@ -3,7 +3,8 @@ function obj = init(obj,varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('Name','etfwatcher',@ischar);
-    p.addParameter('InitiateWind',true,@islogical);
+    p.addParameter('InitiateWind',false,@islogical);
+    p.addParameter('InitiateTHS',true,@islogical);
     p.parse(varargin{:});
     obj.name_ = p.Results.Name;
     %
@@ -11,8 +12,17 @@ function obj = init(obj,varargin)
     initiatewind = p.Results.InitiateWind;
     if initiatewind
         obj.conn_ = cWind;
+        obj.iswind_ = true;
     else
         fprintf('cETFWatcher:init:wind not initiated!!!\n');
+    end
+    %
+    intiateTHS = p.Results.InitiateTHS;
+    if intiateTHS
+        obj.conn2_ = cTHS;
+        obj.isths_ = true;
+    else
+        fprintf('cETFWatcher:init:ths not initiated!!!\n');
     end
     obj.settimerinterval(1);
     %

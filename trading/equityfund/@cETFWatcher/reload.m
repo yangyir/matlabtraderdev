@@ -18,7 +18,7 @@ function [] = reload(obj,varargin)
     doplot = 0;
     for i = 1:n_index
         fn_i = [obj.codes_index_{i}(1:end-3),'_daily.txt'];
-        dailybar_i = cDataFileIO.loadDataFromTxtFile(fn_i);
+        dailybar_i = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',fn_i]);
         dailybar_i = dailybar_i(:,1:5);
         [obj.dailybarmat_index_{i},obj.dailybarstruct_index_{i}] = tools_technicalplot1(dailybar_i,nfractal,doplot);
         obj.dailybarmat_index_{i}(:,1) = x2mdate(obj.dailybarmat_index_{i}(:,1));
@@ -37,7 +37,7 @@ function [] = reload(obj,varargin)
     fprintf('cETFWatcher:init:daily bar of index:technical indicators calculated......\n');
     for i = 1:n_sector
         fn_i = [obj.codes_sector_{i}(1:end-3),'_daily.txt'];
-        dailybar_i = cDataFileIO.loadDataFromTxtFile(fn_i);
+        dailybar_i = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',fn_i]);
         dailybar_i = dailybar_i(:,1:5);
         [obj.dailybarmat_sector_{i},obj.dailybarstruct_sector_{i}] = tools_technicalplot1(dailybar_i,nfractal,doplot);
         obj.dailybarmat_sector_{i}(:,1) = x2mdate(obj.dailybarmat_sector_{i}(:,1));
@@ -56,7 +56,7 @@ function [] = reload(obj,varargin)
     fprintf('cETFWatcher:init:daily bar of sector:technical indicators calculated......\n');
     for i = 1:n_stock
         fn_i = [obj.codes_stock_{i}(1:end-3),'_daily.txt'];
-        dailybar_i = cDataFileIO.loadDataFromTxtFile(fn_i);
+        dailybar_i = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\SingleStock\',fn_i]);
         dailybar_i = dailybar_i(:,1:5);
         [obj.dailybarmat_stock_{i},obj.dailybarstruct_stock_{i}] = tools_technicalplot1(dailybar_i,nfractal,doplot);
         obj.dailybarmat_stock_{i}(:,1) = x2mdate(obj.dailybarmat_stock_{i}(:,1));
