@@ -168,7 +168,7 @@ function [ret] = fractal_latestposition(varargin)
                 warning('not done yet for long close and short open at the same time')
                 return
             elseif ~isempty(ret) && ret.opendirection_ == -1
-                fprintf('%s:bearish live with newly added open:%s(%s)\n',code,op.comment,stock.asset_name);
+                fprintf('%7s:bearish live with newly added open:%s(%s)\n',code,op.comment,stock.asset_name);
             else
                 trade = fractal_gentrade(ei,code,lasts,op.comment,-1,freq);
                 ei.latestdt = ei.px(end,1);
@@ -179,7 +179,7 @@ function [ret] = fractal_latestposition(varargin)
                     'updatepnlforclosedtrade',true,...
                     'extrainfo',ei);
                 ret = trade;
-                fprintf('%s:bearish open:%s(%s)\n',code,op.comment,stock.asset_name);
+                fprintf('%7s:bearish open:%s(%s)\n',code,op.comment,stock.asset_name);
             end
         else
             if ~isempty(lastbinfo.trade)
