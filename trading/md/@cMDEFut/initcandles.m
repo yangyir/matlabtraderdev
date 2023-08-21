@@ -89,8 +89,33 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     mdefut.candles_count_(i) = idx;
                     if idx < size(buckets,1)
                         hh = hour(t);
-                        if hh < 21 && hh >= 16
-                            candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx+1),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                        if (hh < 21 && hh >= 15) || (hh > 2 && hh < 9)
+                            if  mdefut.candle_freq_(i) ~= 1440
+                                candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx+1),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                            else
+                                category = getfutcategory(instruments{i});
+                                if category <= 3
+                                    %do nothing
+                                elseif category == 4
+                                    dt1 = datestr(buckets(1),'yyyy-mm-dd HH:MM:SS');
+                                    if hh > 2 && hh < 9
+                                        dt2 = datestr(floor(buckets(1)) + 23/24,'yyyy-mm-dd HH:MM:SS');
+                                    else
+                                        dt2 = datestr(floor(buckets(2)) + 15/24,'yyyy-mm-dd HH:MM:SS');
+                                    end
+                                    kc = ds.intradaybar(instruments{i},dt1,dt2,1,'trade');
+                                    candles = [buckets(idx),kc(1,2),max(kc(:,3)),min(kc(:,4)),kc(end,5)];
+                                elseif category == 5
+                                    dt1 = datestr(buckets(1),'yyyy-mm-dd HH:MM:SS');
+                                    if hh > 2 && hh < 9
+                                        dt2 = datestr(floor(buckets(1)) + 26.5/24,'yyyy-mm-dd HH:MM:SS');
+                                    else
+                                        dt2 = datestr(floor(buckets(2)) + 15/24,'yyyy-mm-dd HH:MM:SS');
+                                    end
+                                    kc = ds.intradaybar(instruments{i},dt1,dt2,1,'trade');
+                                    candles = [buckets(idx),kc(1,2),max(kc(:,3)),min(kc(:,4)),kc(end,5)];
+                                end
+                            end
                         else
                             try
 %                                 ds2 = cBloomberg;
@@ -228,7 +253,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     idx = idx(end);
                     if idx <= size(buckets,1)
                         hh = hour(t);
-                        if (hh < 21 && hh >= 16) || (hh > 2 && hh < 9)
+                        if (hh < 21 && hh >= 15) || (hh > 2 && hh < 9)
                             if  mdefut.candle_freq_(i) ~= 1440
                                 candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                             else
@@ -238,21 +263,27 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 elseif category == 4
                                     dt1 = datestr(buckets(1),'yyyy-mm-dd HH:MM:SS');
                                     if hh > 2 && hh < 9
-                                        dt2 = datestr(floor(dt1) + 23/24,'yyyy-mm-dd HH:MM:SS');
+                                        dt2 = datestr(floor(buckets(1)) + 23/24,'yyyy-mm-dd HH:MM:SS');
                                     else
-                                        dt2 = datestr(floor(dt1) + 15/24,'yyyy-mm-dd HH:MM:SS');
+                                        dt2 = datestr(floor(buckets(2)) + 15/24,'yyyy-mm-dd HH:MM:SS');
                                     end
                                     kc = ds.intradaybar(instruments{i},dt1,dt2,1,'trade');
-                                    mdefut.candles_{i}(idx,:) = [buckets(idx),kc(1,2),max(kc(:,3)),min(kc(:,4)),candles(kc,5)];
+                                    candles = [buckets(idx),kc(1,2),max(kc(:,3)),min(kc(:,4)),kc(end,5)];
+                                    if hh < 21 && hh >= 15
+                                        mdefut.lastclose_(i) = kc(end,5);
+                                    end
                                 elseif category == 5
                                     dt1 = datestr(buckets(1),'yyyy-mm-dd HH:MM:SS');
                                     if hh > 2 && hh < 9
-                                        dt2 = datestr(floor(dt1) + 26.5/24,'yyyy-mm-dd HH:MM:SS');
+                                        dt2 = datestr(floor(buckets(1)) + 26.5/24,'yyyy-mm-dd HH:MM:SS');
                                     else
-                                        dt2 = datestr(floor(dt1) + 15/24,'yyyy-mm-dd HH:MM:SS');
+                                        dt2 = datestr(floor(buckets(2)) + 15/24,'yyyy-mm-dd HH:MM:SS');
                                     end
                                     kc = ds.intradaybar(instruments{i},dt1,dt2,1,'trade');
-                                    mdefut.candles_{i}(idx,:) = [buckets(idx),kc(1,2),max(kc(:,3)),min(kc(:,4)),candles(kc,5)];
+                                    candles = [buckets(idx),kc(1,2),max(kc(:,3)),min(kc(:,4)),kc(end,5)];
+                                    if hh < 21 && hh >= 15
+                                        mdefut.lastclose_(i) = kc(end,5);
+                                    end
                                 end
                             end
                         else
@@ -296,7 +327,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 mdefut.candles_count_(i) = idx;
                             end
                         else
-%                             mdefut.candles_{i}(idx,:) = candles;
+                            mdefut.candles_{i}(idx,:) = candles;
                             mdefut.candles_count_(i) = idx;
                         end
                     end

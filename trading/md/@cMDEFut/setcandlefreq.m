@@ -40,32 +40,33 @@ function [] = setcandlefreq(mdefut,freq,instrument)
                     else
                         prevbusdate = businessdate(cobdate,-1);
                         buckets = [prevbusdate+0.875;cobdate+0.875];
-                        ds = cLocal;
-                        if category == 4
-                            if hh > 15 || hh < 3
-                                candles = ds.intradaybar(fut,...
-                                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                    [datestr(cobdate,'yyyy-mm-dd'),' 15:15:00'],1,'trade');
-                            else
-                                candles = ds.intradaybar(fut,...
-                                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                    [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
-                            end
-                        elseif category == 5
-                            if hh > 15 || hh < 3
-                                candles = ds.intradaybar(fut,...
-                                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                    [datestr(cobdate,'yyyy-mm-dd'),' 15:15:00'],1,'trade');
-                            else
-                                candles = ds.intradaybar(fut,...
-                                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                    [datestr(cobdate,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
-                            end
-                        end
-                        row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+%                         ds = cLocal;
+%                         if category == 4
+%                             if hh > 15 || hh < 3
+%                                 candles = ds.intradaybar(fut,...
+%                                     datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+%                                     [datestr(cobdate,'yyyy-mm-dd'),' 15:15:00'],1,'trade');
+%                             else
+%                                 candles = ds.intradaybar(fut,...
+%                                     datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+%                                     [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
+%                             end
+%                         elseif category == 5
+%                             if hh > 15 || hh < 3
+%                                 candles = ds.intradaybar(fut,...
+%                                     datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+%                                     [datestr(cobdate,'yyyy-mm-dd'),' 15:15:00'],1,'trade');
+%                             else
+%                                 candles = ds.intradaybar(fut,...
+%                                     datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+%                                     [datestr(cobdate,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
+%                             end
+%                         end
+%                         row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+                        row1 = [buckets(1),zeros(1,4)];
                         row2 = [buckets(2),zeros(1,4)];
                         mdefut.candles_{i} = [row1;row2];
-                        mdefut.candles_count_(i) = 1;
+%                         mdefut.candles_count_(i) = 1;
                     end
                 end
             end
@@ -109,32 +110,33 @@ function [] = setcandlefreq(mdefut,freq,instrument)
                     else
                         prevbusdate = businessdate(cobdate,-1);
                         buckets = [prevbusdate+0.875;cobdate+0.875];
-                        ds = cLocal;
-                        if category == 4
-                            if hh > 15 || hh < 3
-                                candles = ds.intradaybar(fut,...
-                                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                    [datestr(cobdate,'yyyy-mm-dd'),' 15:15:00'],1,'trade');
-                            else
-                                candles = ds.intradaybar(fut,...
-                                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                    [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
-                            end
-                        elseif category == 5
-                            if hh > 15 || hh < 3
-                                candles = ds.intradaybar(fut,...
-                                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                    [datestr(cobdate,'yyyy-mm-dd'),' 15:15:00'],1,'trade');
-                            else
-                                candles = ds.intradaybar(fut,...
-                                    datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
-                                    [datestr(prevbusdate+1,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
-                            end
-                        end
-                        row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+%                         ds = cLocal;
+%                         if category == 4
+%                             if hh > 15 || hh < 3
+%                                 candles = ds.intradaybar(fut,...
+%                                     datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+%                                     [datestr(cobdate,'yyyy-mm-dd'),' 15:15:00'],1,'trade');
+%                             else
+%                                 candles = ds.intradaybar(fut,...
+%                                     datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+%                                     [datestr(prevbusdate,'yyyy-mm-dd'),' 23:00:00'],1,'trade');
+%                             end
+%                         elseif category == 5
+%                             if hh > 15 || hh < 3
+%                                 candles = ds.intradaybar(fut,...
+%                                     datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+%                                     [datestr(cobdate,'yyyy-mm-dd'),' 15:15:00'],1,'trade');
+%                             else
+%                                 candles = ds.intradaybar(fut,...
+%                                     datestr(prevbusdate+0.875,'yyyy-mm-dd HH:MM:SS'),...
+%                                     [datestr(prevbusdate+1,'yyyy-mm-dd'),' 02:30:00'],1,'trade');
+%                             end
+%                         end
+%                         row1 = [buckets(1),candles(1,2),max(candles(:,3)),min(candles(:,4)),candles(end,5)];
+                        row1 = [buckets(1),zeros(1,4)];
                         row2 = [buckets(2),zeros(1,4)];
                         mdefut.candles_{i} = [row1;row2];
-                        mdefut.candles_count_(i) = 1;
+%                         mdefut.candles_count_(i) = 1;
                     end
                 end
             end
