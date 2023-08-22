@@ -87,8 +87,17 @@ function [] = loadtrades(obj,varargin)
             for i = 1:ntrades
                 trade_i = obj.trades_.node_(i);
                 if isa(trade_i.opensignal_,'cFractalInfo') && isa(trade_i.riskmanager_,'cSpiderman')
-                    [wad,px] = obj.mdefut_.calc_wad_(trade_i.instrument_,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                    iopen = find(px(:,1) <= trade_i.opendatetime1_,1,'last')-1;
+                    if ~strcmpi(trade_i.opensignal_.frequency_,'1440m')
+                        [wad,px] = obj.mdefut_.calc_wad_(trade_i.instrument_,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+                        iopen = find(px(:,1) <= trade_i.opendatetime1_,1,'last')-1;
+                    else
+                        if hour(t) < 9
+                            [wad,px] = obj.mdefut_.calc_wad_(trade_i.instrument_,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                        else
+                            [wad,px] = obj.mdefut_.calc_wad_(trade_i.instrument_,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+                        end
+                        iopen = find(px(:,1) <= trade_i.opendatetime1_,1,'last');
+                    end
                     if isempty(iopen)
                         error('cOps:loadtrades:trade and historical data not matched')
                     else
