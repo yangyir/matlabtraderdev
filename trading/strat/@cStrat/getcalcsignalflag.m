@@ -22,11 +22,18 @@ function calcflag = getcalcsignalflag(strategy,instrument)
         %with the strategy and mdefut
         if isempty(tick)
             strategy.calcsignal_(idx_instrument) = 0;
-            calcflag = strategy.calcsignal_(idx_instrument);
+            calcflag = 0;
             return
         end
             
         t = tick(1);
+        hh = hour(t);
+        if (hh > 2 && hh < 9) || (hh > 15 && hh < 21)
+            strategy.calcsignal_(idx_instrument) = 0;
+            calcflag = 0;
+            return
+        end
+        
         equalorNot = (round(buckets(2:end) *10e+07) == round(t*10e+07));
         if sum(sum(equalorNot)) == 0
             idx = buckets(1:end-1) < t & buckets(2:end) >= t;
