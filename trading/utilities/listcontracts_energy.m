@@ -95,7 +95,7 @@ while i<=n
     mm = mod(mm,12);
     if mm==0
         mm = 12;
-    end;
+    end
     if mm<10
         mm_str = ['0',num2str(mm)];
     else
