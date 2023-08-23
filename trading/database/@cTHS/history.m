@@ -12,6 +12,9 @@ function data = history(obj,instrument,fields,fromdate,todate)
             code_ths = [instrument,'.SZ'];
         elseif strcmpi(instrument(1),'4') || strcmpi(instrument(1),'8') 
             code_ths = [instrument,'.BJ'];
+        else
+            inst = code2instrument(instrument);
+            code_ths = inst.code_wind;
         end
         [d,~,~,~,~,~,~,~,~] = THS_HQ(code_ths,fields,'',fromdate,todate,'format:table');
     end
