@@ -1,6 +1,6 @@
 function [] = print(obj,varargin)
 %cAShareWindIndustries
     %
-    obj.printmarket(varargin{:});
+    obj.printmarket('sortbychange',true);
 
 end
