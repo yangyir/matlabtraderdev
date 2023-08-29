@@ -38,6 +38,8 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
             elseif strcmpi(instrument,'usdjpy') || strcmpi(instrument,'eurjpy') || strcmpi(instrument,'gbpjpy') || strcmpi(instrument,'audjpy') ||...
                     strcmpi(instrument,'usdx')
                 ticksize = 0.01;
+            elseif strcmpi(instrument,'gzhy')
+                ticksize = 0.0001;
             else
                 ticksize = 0;
             end
