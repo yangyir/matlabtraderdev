@@ -10,117 +10,81 @@ function [] = init_ths(obj,ths)
         error('cFutures:init_ths:invalid THS connection')
     end
     
-    wind_fields = {'contractmultiplier',...
-    'mfprice',...
-    'ftdate',...
-    'lasttrade_date',...
-    'lastdelivery_date',...
-    'thours',...
-    'margin'};
-    THS_BD('RB2401.SHF','ths_contract_multiplier_future;ths_mini_chg_price_future;ths_start_trade_date_future;ths_last_td_date_future;ths_last_delivery_date_future;ths_close_time_am_future;ths_open_time_pm_future;ths_open_time_night_future;ths_close_time_night_future;ths_open_time_day_future;ths_close_time_day_future;ths_rest_start_time_future;ths_rest_end_time_future',';;;2023-08-23;;;;;;;;;','format:table')
-
-    [wdata,~,~,~,errorid,~] = w.wss(obj.code_wind,wind_fields);
-
-    if errorid ~= 0
-        error('cFutures:init_wind failed')
+%     ths_fields = {'ths_contract_multiplier_future';...
+%         'ths_mini_chg_price_future';...
+%         'ths_start_trade_date_future';...
+%         'ths_last_td_date_future';...
+%         'ths_last_delivery_date_future';...
+%         'ths_initial_td_deposit_future';...
+%         'ths_open_time_day_future';...
+%         'ths_close_time_am_future';...
+%         'ths_open_time_pm_future';...
+%         'ths_close_time_day_future';...
+%         'ths_open_time_night_future';...
+%         'ths_close_time_night_future';...
+%         'ths_rest_start_time_future';...
+%         'ths_rest_end_time_future'};
+    if ~isempty(strfind(obj.code_wind,'.INE'))
+        obj.code_wind = [obj.code_wind(1:end-4),'.SHF'];
     end
-
-    ticksizeStr = wdata{1,2};
-    for i = length(ticksizeStr):-1:1
-        if ~isnan(str2double(ticksizeStr(i)))
-            idxStr = i;
-            break
-        end
-    end
-    tickSize = str2double(ticksizeStr(1:idxStr));
-
-    obj.contract_size = wdata{1,1};
-    obj.tick_size = tickSize;
+    
+    ths_data = THS_BD(obj.code_wind,'ths_contract_multiplier_future','','format:table');
+    obj.contract_size = ths_data.ths_contract_multiplier_future;
+    %
+    ths_data = THS_BD(obj.code_wind,'ths_mini_chg_price_future','','format:table');
+    obj.tick_size = ths_data.ths_mini_chg_price_future;
+    %
     obj.tick_value = obj.contract_size*obj.tick_size;
-    
-    obj.first_trade_date1 = datenum(wdata{1,3});
+    %
+    ths_data = THS_BD(obj.code_wind,'ths_start_trade_date_future','','format:table');
+    obj.first_trade_date1 = datenum(ths_data.ths_start_trade_date_future,'yyyymmdd');
     obj.first_trade_date2 = datestr(obj.first_trade_date1,'yyyy-mm-dd');
-    obj.last_trade_date1 = datenum(wdata{1,4});
+    %
+    ths_data = THS_BD(obj.code_wind,'ths_last_td_date_future','','format:table');
+    obj.last_trade_date1 = datenum(ths_data.ths_last_td_date_future,'yyyymmdd');
     obj.last_trade_date2 = datestr(obj.last_trade_date1,'yyyy-mm-dd');
-    
+    %
     obj.first_notice_date1 = obj.last_trade_date1;
     obj.first_notice_date2 = datestr(obj.first_notice_date1,'yyyy-mm-dd');
-    
+    %
     obj.first_dlv_date1 = dateadd(obj.last_trade_date1,'1b');
     obj.first_dlv_date2 = datestr(obj.first_dlv_date1,'yyyy-mm-dd');
-    obj.last_dlv_date1 = datenum(wdata{1,5});
+    %
+    ths_data = THS_BD(obj.code_wind,'ths_last_delivery_date_future','','format:table');
+    obj.last_dlv_date1 = datenum(ths_data.ths_last_delivery_date_future,'yyyymmdd');
     obj.last_dlv_date2 = datestr(obj.last_dlv_date1,'yyyy-mm-dd');
-    
-    try
-        obj.init_margin_rate = wdata{1,end}/100;
-    catch
-        obj.init_margin_rate = [];
-    end
-    
-    th = wdata{1,6};
-    th_ = regexp(th,',','split');
-    
-    n1 = length(th_{1,1});
-    try
-        n2 = length(th_{1,2});
-        if n1 == 12
-            str1 = ['0',th_{1,1}(3:end)];
-        else
-            str1 = ['0',th_{1,1}];
-        end
-        if n2 == 13
-            str2 = th_{1,2}(3:end);
-        else
-            str2 = th_{1,2};
-        end
-    catch e
-        if strcmpi(obj.asset_name,'crude oil')
-            str1 = '09:00-11:30';
-            str2 = '13:30-15:00';
-            str3 = '21:00-02:30';
-            obj.trading_hours = [str1,';',str2,';',str3];
-            obj.trading_break = '10:15-10:30';
-            return
-        elseif strcmpi(obj.asset_name,'apple') || strcmpi(obj.asset_name,'live hog') || strcmpi(obj.asset_name,'egg')
-            str1 = '09:00-11:30';
-            str2 = '13:30-15:00';
-            obj.trading_hours = [str1,';',str2];
-            obj.trading_break = '10:15-10:30';
-        else
-            error('cFutures:init_wind:%s',e.message)
-        end
-    end
-    
-    if size(th_,2) == 3
-        if strcmpi(obj.asset_name,'copper') || ...
-                strcmpi(obj.asset_name,'aluminum') || ...
-                strcmpi(obj.asset_name,'zinc') || ...
-                strcmpi(obj.asset_name,'lead') || ...
-                strcmpi(obj.asset_name,'nickel') || ...
-                strcmpi(obj.asset_name,'tin')
-            str3 = '21:00-01:00';
-        elseif strcmpi(obj.asset_name,'gold') || ...
-                strcmpi(obj.asset_name,'silver') || ...
-                strcmpi(obj.asset_name,'crude oil')
-            str3 = '21:00-02:30';
-        else
-            str3 = '21:00-23:00';
-        end
-        obj.trading_hours = [str1,';',str2,';',str3];
-        obj.trading_break = '10:15-10:30';
+    %
+    ths_data = THS_BD(obj.code_wind,'ths_initial_td_deposit_future','','format:table');
+    obj.init_margin_rate = ths_data.ths_initial_td_deposit_future/100;
+    %
+    ths_data = THS_BD(obj.code_wind,'ths_open_time_day_future','','format:table');
+    open_am_cell = ths_data.ths_open_time_day_future;
+    ths_data = THS_BD(obj.code_wind,'ths_close_time_am_future','','format:table');
+    close_am_cell = ths_data.ths_close_time_am_future;
+    ths_data = THS_BD(obj.code_wind,'ths_open_time_pm_future','','format:table');
+    open_pm_cell = ths_data.ths_open_time_pm_future;
+    ths_data = THS_BD(obj.code_wind,'ths_close_time_day_future','','format:table');
+    close_pm_cell = ths_data.ths_close_time_day_future;
+    %
+    ths_data = THS_BD(obj.code_wind,'ths_open_time_night_future','','format:table');
+    open_night_cell = ths_data.ths_open_time_night_future;
+    ths_data = THS_BD(obj.code_wind,'ths_close_time_night_future','','format:table');
+    close_night_cell = ths_data.ths_close_time_night_future;
+    %
+    if ~isempty(open_night_cell{1})
+        obj.trading_hours = [open_am_cell{1}(1:5),'-',close_am_cell{1}(1:5),';',...
+            open_pm_cell{1}(1:5),'-',close_pm_cell{1}(1:5),';'...
+            open_night_cell{1}(1:5),'-',close_night_cell{1}(1:5)];
     else
-        obj.trading_hours = [str1,';',str2];
-        if strcmpi(obj.asset_name,'eqindex_300') || ...
-                strcmpi(obj.asset_name,'eqindex_50') || ...
-                strcmpi(obj.asset_name,'eqindex_500') || ...
-                strcmpi(obj.asset_name,'eqindex_1000') || ...
-                strcmpi(obj.asset_name,'govtbond_5y') || ...
-                strcmpi(obj.asset_name,'govtbond_10y')
-            obj.trading_break = '';
-        else
-            obj.trading_break = '10:15-10:30';
-        end
+        obj.trading_hours = [open_am_cell{1}(1:5),'-',close_am_cell{1}(1:5),';',...
+            open_pm_cell{1}(1:5),'-',close_pm_cell{1}(1:5)];
     end
-
+    %
+    ths_data = THS_BD(obj.code_wind,'ths_rest_start_time_future','','format:table');
+    rest_start_cell = ths_data.ths_rest_start_time_future;
+    ths_data = THS_BD(obj.code_wind,'ths_rest_end_time_future','','format:table');
+    rest_end_cell = ths_data.ths_rest_end_time_future;
+    obj.trading_break = [rest_start_cell{1}(1:5),'-',rest_end_cell{1}(1:5)];
+    
 end
-%end of init_wind
+%end of init_ths
