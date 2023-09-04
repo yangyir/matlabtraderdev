@@ -47,12 +47,26 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
             trade.status_ = 'closed';
             trade.runningpnl_ = 0;
             if isempty(trade.instrument_)
-                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
+                try
+                    trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
+                catch
+                    trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_);
+                end
             else
-                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                try
+                    trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                catch
+                    trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                end
             end
-            trade.closedatetime1_ = extrainfo.latestdt;
-            trade.closeprice_ = extrainfo.latestopen;
+            try
+                trade.closedatetime1_ = extrainfo.latestdt;
+                trade.closeprice_ = extrainfo.latestopen;
+            catch
+                trade.closedatetime1_ = extrainfo.p(end,1);
+                trade.closeprice_ = extrainfo.p(end,5);
+            end
+            
         end
         return
     else
@@ -92,12 +106,25 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                     trade.status_ = 'closed';
                     trade.runningpnl_ = 0;
                     if isempty(trade.instrument_)
-                        trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
+                        try
+                            trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
+                        catch
+                            trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_);
+                        end
                     else
-                        trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                        try
+                            trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                        catch
+                            trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                        end
                     end
-                    trade.closedatetime1_ = extrainfo.latestdt;
-                    trade.closeprice_ = extrainfo.latestopen;
+                    try
+                        trade.closedatetime1_ = extrainfo.latestdt;
+                        trade.closeprice_ = extrainfo.latestopen;
+                    catch
+                        trade.closedatetime1_ = extrainfo.p(end,1);
+                        trade.closeprice_ = extrainfo.p(end,5);
+                    end
                 end
                 return
             end
@@ -136,12 +163,25 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                     trade.status_ = 'closed';
                     trade.runningpnl_ = 0;
                     if isempty(trade.instrument_)
-                        trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
+                        try
+                            trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
+                        catch
+                            trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_);
+                        end
                     else
-                        trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                        try
+                            trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                        catch
+                            trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                        end
                     end
-                    trade.closedatetime1_ = extrainfo.latestdt;
-                    trade.closeprice_ = extrainfo.latestopen;
+                    try
+                        trade.closedatetime1_ = extrainfo.latestdt;
+                        trade.closeprice_ = extrainfo.latestopen;
+                    catch
+                        trade.closedatetime1_ = extrainfo.p(end,1);
+                        trade.closeprice_ = extrainfo.p(end,5);
+                    end
                 end
                 return
             end
