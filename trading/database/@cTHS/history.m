@@ -4,7 +4,11 @@ function data = history(obj,instrument,fields,fromdate,todate)
     if ~obj.isconnect,return;end
     
     if isa(instrument,'cInstrument')
-        [d,~,~,~,~,~,~,~,~] = THS_HQ(instrument.code_wind,fields,'',fromdate,todate,'format:table');
+        if strcmpi(instrument.code_wind,'USDX.FX')
+            [d,~,~,~,~,~,~,~,~] = THS_HQ('DINI.FX',fields,'',fromdate,todate,'format:table');
+        else
+            [d,~,~,~,~,~,~,~,~] = THS_HQ(instrument.code_wind,fields,'',fromdate,todate,'format:table');
+        end
     else
         if strcmpi(instrument(1),'5') || strcmpi(instrument(1),'6')
             code_ths = [instrument,'.SH'];
@@ -15,6 +19,12 @@ function data = history(obj,instrument,fields,fromdate,todate)
         else
             inst = code2instrument(instrument);
             code_ths = inst.code_wind;
+            if isempty(code_ths)
+                code_ths = instrument;
+            end
+            if strcmpi(code_ths,'USDX.FX')
+                code_ths = 'DINI.FX';
+            end
         end
         [d,~,~,~,~,~,~,~,~] = THS_HQ(code_ths,fields,'',fromdate,todate,'format:table');
     end
