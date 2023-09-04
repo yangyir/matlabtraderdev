@@ -5,6 +5,9 @@ function data = tickdata(obj,instrument,startdate,enddate)
     
     if isa(instrument,'cFutures')
         code_wind = instrument.code_wind;
+        if strcmpi(code_wind(1:2),'SC')
+            code_wind = [code_wind(1:end-3),'INE'];
+        end
         category = getfutcategory(instrument);
 
         bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...
@@ -48,6 +51,9 @@ function data = tickdata(obj,instrument,startdate,enddate)
         end
     elseif ischar(instrument)
         code_wind = instrument;
+        if strcmpi(code_wind(1:2),'SC')
+            code_wind = [code_wind(1:end-3),'INE'];
+        end
         bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...
             'todate',datenum(enddate,'yyyy-mm-dd'));
         n = size(bds,1);
