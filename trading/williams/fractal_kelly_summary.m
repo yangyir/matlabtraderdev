@@ -67,13 +67,48 @@ function [output] = fractal_kelly_summary(varargin)
                 KellyRatio_L = kellyb.KellyRatio;
                 Code_L = kellyb.Code;
             else
-                temp = [OpenSignal_L;kellyb.OpenSignal];OpenSignal_L = temp;
-                temp = [NumOfTrades_L;kellyb.NumOfTrades];NumOfTrades_L = temp;
-                temp = [WinProb_L;kellyb.WinProb];WinProb_L = temp;
-                temp = [WinAvgPnL_L;kellyb.WinAvgPnL];WinAvgPnL_L = temp;
-                temp = [LossAvgPnL_L;kellyb.LossAvgPnL];LossAvgPnL_L = temp;
-                temp = [KellyRatio_L;kellyb.KellyRatio];KellyRatio_L = temp;
-                temp = [Code_L;kellyb.Code];Code_L = temp;
+                try
+                    temp = [OpenSignal_L;kellyb.OpenSignal];
+                    OpenSignal_L = temp;
+                catch
+                    OpenSignal_L = kellyb.OpenSignal;
+                end
+                try
+                    temp = [NumOfTrades_L;kellyb.NumOfTrades];
+                    NumOfTrades_L = temp;
+                catch
+                    NumOfTrades_L = kellyb.NumOfTrades;
+                end
+                try
+                    temp = [WinProb_L;kellyb.WinProb];
+                    WinProb_L = temp;
+                catch
+                    WinProb_L = kellyb.WinProb;
+                end
+                try
+                    temp = [WinAvgPnL_L;kellyb.WinAvgPnL];
+                    WinAvgPnL_L = temp;
+                catch
+                    WinAvgPnL_L = kellyb.WinAvgPnL;
+                end
+                try
+                    temp = [LossAvgPnL_L;kellyb.LossAvgPnL];
+                    LossAvgPnL_L = temp;
+                catch
+                    LossAvgPnL_L = kellyb.LossAvgPnL;
+                end
+                try
+                    temp = [KellyRatio_L;kellyb.KellyRatio];
+                    KellyRatio_L = temp;
+                catch
+                    KellyRatio_L = kellyb.KellyRatio;
+                end
+                try
+                    temp = [Code_L;kellyb.Code];
+                    Code_L = temp;
+                catch
+                    Code_L = kellyb.Code;
+                end
             end
         end
         if ~isempty(kellyscell{i})
@@ -87,13 +122,48 @@ function [output] = fractal_kelly_summary(varargin)
                 KellyRatio_S = kellys.KellyRatio;
                 Code_S = kellys.Code;
             else
-                temp = [OpenSignal_S;kellys.OpenSignal];OpenSignal_S = temp;
-                temp = [NumOfTrades_S;kellys.NumOfTrades];NumOfTrades_S = temp;
-                temp = [WinProb_S;kellys.WinProb];WinProb_S = temp;
-                temp = [WinAvgPnL_S;kellys.WinAvgPnL];WinAvgPnL_S = temp;
-                temp = [LossAvgPnL_S;kellys.LossAvgPnL];LossAvgPnL_S = temp;
-                temp = [KellyRatio_S;kellys.KellyRatio];KellyRatio_S = temp;
-                temp = [Code_S;kellys.Code];Code_S = temp;
+                try
+                    temp = [OpenSignal_S;kellys.OpenSignal];
+                    OpenSignal_S = temp;
+                catch
+                    OpenSignal_S = kellys.OpenSignal;
+                end
+                try
+                    temp = [NumOfTrades_S;kellys.NumOfTrades];
+                    NumOfTrades_S = temp;
+                catch
+                    NumOfTrades_S = kellys.NumOfTrades;
+                end
+                try
+                    temp = [WinProb_S;kellys.WinProb];
+                    WinProb_S = temp;
+                catch
+                    WinProb_S = kellys.WinProb;
+                end
+                try
+                    temp = [WinAvgPnL_S;kellys.WinAvgPnL];
+                    WinAvgPnL_S = temp;
+                catch
+                    WinAvgPnL_S = kellys.WinAvgPnL;
+                end
+                try
+                    temp = [LossAvgPnL_S;kellys.LossAvgPnL];
+                    LossAvgPnL_S = temp;
+                catch
+                    LossAvgPnL_S = kellys.LossAvgPnL;
+                end
+                try
+                    temp = [KellyRatio_S;kellys.KellyRatio];
+                    KellyRatio_S = temp;
+                catch
+                    KellyRatio_S = kellys.KellyRatio;
+                end
+                try
+                    temp = [Code_S;kellys.Code];
+                    Code_S = temp;
+                catch
+                    Code_S = kellys.Code;
+                end
             end
         end
     end
@@ -106,6 +176,7 @@ function [output] = fractal_kelly_summary(varargin)
         winprob_unique_l = zeros(nunique_l,1);
         winavgpnl_unique_l  = zeros(nunique_l,1);
         lossavgpnl_unique_l = zeros(nunique_l,1);
+        r_unique_l = zeros(nunique_l,1);
         kelly_unique_l = zeros(nunique_l,1);
         for i = 1:nunique_l
             this_mode = opensignal_l_unique{i};
@@ -132,9 +203,19 @@ function [output] = fractal_kelly_summary(varargin)
             winprob_unique_l(i) = winprob;
             winavgpnl_unique_l(i) = winavgpnl;
             lossavgpnl_unique_l(i) = lossavgpnl;
-            kelly_unique_l(i) = winprob - (1-winprob)/(abs(winavgpnl/lossavgpnl));
+            if lossavgpnl == 0
+                r_unique_l(i) = 9.99;
+            else
+                r_unique_l(i) = abs(winavgpnl/lossavgpnl);
+            end
+            if winavgpnl == 0
+                kelly_unique_l(i) = -9.99;
+            else
+                kelly_unique_l(i) = winprob - (1-winprob)/(abs(winavgpnl/lossavgpnl));
+            end
         end
-        kellyltbl_unique = table(opensignal_l_unique,ntrades_unique_l,winprob_unique_l,winavgpnl_unique_l,lossavgpnl_unique_l,kelly_unique_l);
+        kellyltbl_unique = table(opensignal_l_unique,ntrades_unique_l,winprob_unique_l,winavgpnl_unique_l,lossavgpnl_unique_l,r_unique_l,kelly_unique_l);
+        kellyltbl_unique = sortrows(kellyltbl_unique,'kelly_unique_l','descend');
         output.kellyb = kellyltbl;
         output.kellyb_unique = kellyltbl_unique;
     end
@@ -147,6 +228,7 @@ function [output] = fractal_kelly_summary(varargin)
         winprob_unique_s = zeros(nunique_s,1);
         winavgpnl_unique_s  = zeros(nunique_s,1);
         lossavgpnl_unique_s = zeros(nunique_s,1);
+        r_unique_s = zeros(nunique_s,1);
         kelly_unique_s = zeros(nunique_s,1);
         for i = 1:nunique_s
             this_mode = opensignal_s_unique{i};
@@ -173,9 +255,19 @@ function [output] = fractal_kelly_summary(varargin)
             winprob_unique_s(i) = winprob;
             winavgpnl_unique_s(i) = winavgpnl;
             lossavgpnl_unique_s(i) = lossavgpnl;
-            kelly_unique_s(i) = winprob - (1-winprob)/(abs(winavgpnl/lossavgpnl));
+            if lossavgpnl == 0
+                r_unique_s(i) = 9.99;
+            else
+                r_unique_s(i) = abs(winavgpnl/lossavgpnl);
+            end
+            if winavgpnl == 0
+                kelly_unique_s(i) = -9.99;
+            else
+                kelly_unique_s(i) = winprob - (1-winprob)/(abs(winavgpnl/lossavgpnl));
+            end
         end
-        kellystbl_unique = table(opensignal_s_unique,ntrades_unique_s,winprob_unique_s,winavgpnl_unique_s,lossavgpnl_unique_s,kelly_unique_s);
+        kellystbl_unique = table(opensignal_s_unique,ntrades_unique_s,winprob_unique_s,winavgpnl_unique_s,lossavgpnl_unique_s,r_unique_s,kelly_unique_s);
+        kellystbl_unique = sortrows(kellystbl_unique,'kelly_unique_s','descend');
         output.kellys = kellystbl;
         output.kellys_unique = kellystbl_unique;
     end
