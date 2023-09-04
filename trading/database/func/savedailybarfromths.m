@@ -19,14 +19,22 @@ end
 
 f = code2instrument(code_ctp);
 fn = [getenv('DATAPATH'),'info_futures\',code_ctp,'_info.txt'];
-fn_dailybar = [getenv('DATAPATH'),'dailybar\',code_ctp,'_daily.txt'];
+if isa(f,'cFX')
+    fn_dailybar = [getenv('DATAPATH'),'globalmacro\',code_ctp,'_daily.txt'];
+else
+    fn_dailybar = [getenv('DATAPATH'),'dailybar\',code_ctp,'_daily.txt'];
+end
 if isempty(f.contract_size)
     f.init(ths);
     f.saveinfo(fn);
 end
 
 lbd = getlastbusinessdate;
-dt2 = min(lbd,f.last_trade_date1);
+if isa(f,'cFX')
+    dt2 = min(lbd,today-1);
+else
+    dt2 = min(lbd,f.last_trade_date1);
+end
 
 try
     dailybar_old = cDataFileIO.loadDataFromTxtFile(fn_dailybar);
@@ -38,7 +46,15 @@ catch
 end
 
 if dt1 < dt2
-    dailybar_new = ths.history(f,'open;high;low;close;volume',datestr(dt1,'yyyy-mm-dd'),datestr(dt2,'yyyy-mm-dd'));
+    if ~isempty(dailybar_old)
+       if size(dailybar_old,2) == 5
+           dailybar_new = ths.history(f,'open;high;low;close',datestr(dt1,'yyyy-mm-dd'),datestr(dt2,'yyyy-mm-dd'));
+       else
+           dailybar_new = ths.history(f,'open;high;low;close;volume',datestr(dt1,'yyyy-mm-dd'),datestr(dt2,'yyyy-mm-dd'));
+       end
+    else
+        dailybar_new = ths.history(f,'open;high;low;close;volume',datestr(dt1,'yyyy-mm-dd'),datestr(dt2,'yyyy-mm-dd'));
+    end
 else
     dailybar_new = [];
 end
@@ -56,8 +72,15 @@ else
     end
 end
 
+ncols = size(dailybar,2);
+if ncols > 5
+    titledefs = {'date','open','high','low','close','volume'};
+else
+    titledefs = {'date','open','high','low','close'};
+end
+
 if ~isempty(dailybar_new)
-    cDataFileIO.saveDataToTxtFile(fn_dailybar,dailybar(:,1:6),{'date','open','high','low','close','volume'},'w',false);
+    cDataFileIO.saveDataToTxtFile(fn_dailybar,dailybar(:,1:length(titledefs)),titledefs,'w',false);
 end
 
 fprintf('done daily bar with %s\n',code_ctp);
