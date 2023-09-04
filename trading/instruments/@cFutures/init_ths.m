@@ -51,7 +51,11 @@ function [] = init_ths(obj,ths)
     obj.first_dlv_date2 = datestr(obj.first_dlv_date1,'yyyy-mm-dd');
     %
     ths_data = THS_BD(obj.code_wind,'ths_last_delivery_date_future','','format:table');
-    obj.last_dlv_date1 = datenum(ths_data.ths_last_delivery_date_future,'yyyymmdd');
+    try
+        obj.last_dlv_date1 = datenum(ths_data.ths_last_delivery_date_future,'yyyymmdd');
+    catch
+        obj.last_dlv_date1 = dateadd(obj.first_dlv_date1,'1b');
+    end
     obj.last_dlv_date2 = datestr(obj.last_dlv_date1,'yyyy-mm-dd');
     %
     ths_data = THS_BD(obj.code_wind,'ths_initial_td_deposit_future','','format:table');
