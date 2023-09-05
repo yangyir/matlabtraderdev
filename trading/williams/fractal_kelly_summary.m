@@ -273,3 +273,67 @@ function [output] = fractal_kelly_summary(varargin)
     end
 
 end
+
+% %%
+% kellyb_unique = comdty_domestic_daily_.kellyb_unique;
+% nkellyb = size(kellyb_unique,1);
+% use_l = nan(nkellyb,1);
+% kelly_l = kellyb_unique.kelly_unique_l;
+% winp_l = kellyb_unique.winprob_unique_l;
+% winavgpnl_l = kellyb_unique.winavgpnl_unique_l;
+% lossavgpnl_l = kellyb_unique.lossavgpnl_unique_l;
+% expectedpnl_l = winp_l.*winavgpnl_l+(1-winp_l).*lossavgpnl_l;
+% stdevpnl_l = sqrt(winp_l.*winavgpnl_l.^2+(1-winp_l).*lossavgpnl_l.^2-expectedpnl_l.^2);
+% sharp_l = expectedpnl_l./stdevpnl_l;
+% 
+% for i = 1:nkellyb
+%     signal_i = kellyb_unique.opensignal_l_unique{i};
+%     if strcmpi(signal_i,'mediumbreach-sshighvalue') || strcmpi(signal_i,'breachup-highsc13-negative') || ...
+%             strcmpi(signal_i,'weakbreach') || strcmpi(signal_i,'strongbreach-trendbreak') || ...
+%             strcmpi(signal_i,'mediumbreach-trendbreak') || strcmpi(signal_i,'closetolvlup')
+%         use_l(i) = 0;
+%     elseif strcmpi(signal_i,'volblowup') || strcmpi(signal_i,'volblowup2') || ...
+%             strcmpi(signal_i,'breachup-lvlup') || strcmpi(signal_i,'breachup-sshighvalue') || ...
+%             strcmpi(signal_i,'breachup-highsc13') || strcmpi(signal_i,'strongbreach-trendconfirmed') || ...
+%             strcmpi(signal_i,'mediumbreach-trendconfirmed')
+%         use_l(i) = 1;
+%     else
+%         if kelly_l(i) >= 0.15 && sharp_l(i) >= 0.2 && winp_l(i) >= 0.4
+%             use_l(i) = 1;
+%         else
+%             use_l(i) = 0;
+%         end
+%     end
+% end
+% %
+% %
+% kellys_unique = comdty_domestic_daily_.kellys_unique;
+% nkellys = size(kellys_unique,1);
+% use_s = nan(nkellys,1);
+% kelly_s = kellys_unique.kelly_unique_s;
+% winp_s = kellys_unique.winprob_unique_s;
+% winavgpnl_s = kellys_unique.winavgpnl_unique_s;
+% lossavgpnl_s = kellys_unique.lossavgpnl_unique_s;
+% expectedpnl_s = winp_s.*winavgpnl_s+(1-winp_s).*lossavgpnl_s;
+% stdevpnl_s = sqrt(winp_s.*winavgpnl_s.^2+(1-winp_s).*lossavgpnl_s.^2-expectedpnl_s.^2);
+% sharp_s = expectedpnl_s./stdevpnl_s;
+% 
+% for i = 1:nkellys
+%     signal_i = kellys_unique.opensignal_s_unique{i};
+%     if strcmpi(signal_i,'mediumbreach-bshighvalue') || strcmpi(signal_i,'breachup-lowbc13-positive') || ...
+%             strcmpi(signal_i,'weakbreach') || strcmpi(signal_i,'strongbreach-trendbreak') || ...
+%             strcmpi(signal_i,'mediumbreach-trendbreak') || strcmpi(signal_i,'closetolvldn')
+%         use_s(i) = 0;
+%     elseif strcmpi(signal_i,'volblowup') || strcmpi(signal_i,'volblowup2') || ...
+%             strcmpi(signal_i,'breachdn-lvldn') || strcmpi(signal_i,'breachdn-bshighvalue') || ...
+%             strcmpi(signal_i,'breachup-lowbc13') || strcmpi(signal_i,'strongbreach-trendconfirmed') || ...
+%             strcmpi(signal_i,'mediumbreach-trendconfirmed')
+%         use_s(i) = 1;
+%     else
+%         if kelly_s(i) >= 0.15 && sharp_s(i) >= 0.2 && winp_s(i) >= 0.4
+%             use_s(i) = 1;
+%         else
+%             use_s(i) = 0;
+%         end
+%     end
+% end
