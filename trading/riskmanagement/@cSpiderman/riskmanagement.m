@@ -39,7 +39,11 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     
     if strcmpi(trade.status_,'unset')
 %         openBucket = gettradeopenbucket(trade,trade.opensignal_.frequency_);
-        idxopen = find(candleK(:,1) <= trade.opendatetime1_,1,'last')-1;
+        if ~strcmpi(trade.opensignal_.frequency_,'1440m')
+            idxopen = find(candleK(:,1) <= trade.opendatetime1_,1,'last')-1;
+        else
+            idxopen = find(candleK(:,1) <= trade.opendatetime1_,1,'last');
+        end
         if idxopen > 0
             openBucket = candleK(idxopen,1);
             setflag = openBucket <= candleK(end,1);
