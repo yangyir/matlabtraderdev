@@ -14,6 +14,9 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
 
     if isa(instrument,'cFutures') || isa(instrument,'cStock')
         code_wind = instrument.code_wind;
+        if strcmpi(code_wind(1:2),'sc')
+            code_wind = [code_wind(1:end-3),'INE'];
+        end
 
         category = getfutcategory(instrument);
         
