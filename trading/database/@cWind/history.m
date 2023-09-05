@@ -4,7 +4,11 @@ function data = history(obj,instrument,fields,fromdate,todate)
         if isa(instrument,'cFX')
             [wdata,~,~,wtime] = obj.ds_.wsd(instrument.code_wind,fields,fromdate,todate,'TradingCalendar=AMEX');
         else
-            [wdata,~,~,wtime] = obj.ds_.wsd(instrument.code_wind,fields,fromdate,todate,'PriceAdj=F');
+            if strcmpi(instrument.code_wind(1:2),'sc')
+                [wdata,~,~,wtime] = obj.ds_.wsd([instrument.code_wind(1:end-3),'INE'],fields,fromdate,todate,'PriceAdj=F');
+            else
+                [wdata,~,~,wtime] = obj.ds_.wsd(instrument.code_wind,fields,fromdate,todate,'PriceAdj=F');
+            end
         end
         data = [wtime,wdata];
     else
