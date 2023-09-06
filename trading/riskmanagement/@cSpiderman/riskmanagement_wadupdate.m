@@ -23,28 +23,35 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
     end
     
     if direction == 1
-        if p(end,5) > obj.cphigh_ + ticksize
+        if p(end,1) < trade.opendatetime1_ && ~isempty(strfind(trade.opensignal_.mode_,'conditional'))
             obj.cphigh_ = p(end,5);
-            if wad(end) < obj.wadhigh_ - 2*ticksize
-                ret = struct('inconsistence',1,...
-                    'reason','new high price w/o wad being higher');
-                return
-            else
-                if wad(end) >  obj.wadhigh_
-                    obj.wadhigh_ = wad(end);
+            obj.cpopen_ = p(end,5);
+            obj.wadhigh_ = wad(end);
+            obj.wadopen_ = wad(end);
+        else
+            if p(end,5) > obj.cphigh_ + ticksize
+                obj.cphigh_ = p(end,5);
+                if wad(end) < obj.wadhigh_ - 2*ticksize
+                    ret = struct('inconsistence',1,...
+                        'reason','new high price w/o wad being higher');
+                    return
+                else
+                    if wad(end) >  obj.wadhigh_
+                        obj.wadhigh_ = wad(end);
+                    end
                 end
             end
-        end
-        %
-        if wad(end) >= obj.wadhigh_
-            obj.wadhigh_ = wad(end);
-            if p(end,5) < obj.cphigh_ - 2*ticksize
-                ret = struct('inconsistence',1,...
-                    'reason','new high wad w/o price being higher');
-                return
-            else
-                if p(end,5) > obj.cphigh_
-                    obj.cphigh_ = p(end,5);
+            %
+            if wad(end) >= obj.wadhigh_
+                obj.wadhigh_ = wad(end);
+                if p(end,5) < obj.cphigh_ - 2*ticksize
+                    ret = struct('inconsistence',1,...
+                        'reason','new high wad w/o price being higher');
+                    return
+                else
+                    if p(end,5) > obj.cphigh_
+                        obj.cphigh_ = p(end,5);
+                    end
                 end
             end
         end
@@ -62,28 +69,35 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
 %         end
         %
     elseif direction == -1
-        if p(end,5) < obj.cplow_- ticksize
+        if p(end,1) < trade.opendatetime1_ && ~isempty(strfind(trade.opensignal_.mode_,'conditional'))
             obj.cplow_ = p(end,5);
-            if wad(end) > obj.wadlow_ + 2*ticksize
-                ret = struct('inconsistence',1,...
-                    'reason','new low price w/o wad being lower');
-                return
-            else
-                if wad(end) <= obj.wadlow_
-                    obj.wadlow_ = wad(end);
+            obj.cpopen_ = p(end,5);
+            obj.wadlow_ = wad(end);
+            obj.wadlow_ = wad(end);
+        else
+            if p(end,5) < obj.cplow_- ticksize
+                obj.cplow_ = p(end,5);
+                if wad(end) > obj.wadlow_ + 2*ticksize
+                    ret = struct('inconsistence',1,...
+                        'reason','new low price w/o wad being lower');
+                    return
+                else
+                    if wad(end) <= obj.wadlow_
+                        obj.wadlow_ = wad(end);
+                    end
                 end
             end
-        end
-        
-        if wad(end) <= obj.wadlow_
-            obj.wadlow_ = wad(end);
-            if p(end,5) > obj.cplow_ + 2*ticksize
-                ret = struct('inconsistence',1,...
-                    'reason','new low wad w/o price being lower');
-                return
-            else
-                if p(end,5) <= obj.cplow_
-                    obj.cplow_ = p(end,5);
+            
+            if wad(end) <= obj.wadlow_
+                obj.wadlow_ = wad(end);
+                if p(end,5) > obj.cplow_ + 2*ticksize
+                    ret = struct('inconsistence',1,...
+                        'reason','new low wad w/o price being lower');
+                    return
+                else
+                    if p(end,5) <= obj.cplow_
+                        obj.cplow_ = p(end,5);
+                    end
                 end
             end
         end
