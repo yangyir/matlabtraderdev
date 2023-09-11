@@ -86,7 +86,10 @@ if strcmpi(assetshortcode,'IO')
     bcode = ['SHSN300 ',datestr(opt_expiry,'mm/dd/yy'),' ',opt_type,opt_strike,' Index'];
 else
     for i = 1:size(codelist1)
-        if strcmpi(assetshortcode,codelist2{i})
+        if strcmpi(assetshortcode,codelist2{i}) || ...
+            (strcmpi(assetshortcode,'ME') && strcmpi(codelist2{i},'MA')) || ...
+                (strcmpi(assetshortcode,'TC') && strcmpi(codelist2{i},'ZC')) || ...
+                (strcmpi(assetshortcode,'RO') && strcmpi(codelist2{i},'OI'))
             if ~opt
                 if strcmpi(assetshortcode,'IF') || strcmpi(assetshortcode,'IC') || strcmpi(assetshortcode,'IH')
                     bcode = [codelist1{i},fcode,byystr,' Index'];

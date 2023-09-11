@@ -13,7 +13,10 @@ function [assetname,exch] = getexchangestr(obj)
     assetshortcode = ctpstr(1:idx);
     [assetlist,~,~,codelist,exlist]=getassetmaptable;
     for i = 1:size(codelist)
-        if strcmpi(assetshortcode,codelist{i})
+        if strcmpi(assetshortcode,codelist{i}) || ...
+                (strcmpi(assetshortcode,'ME') && strcmpi(codelist{i},'MA')) || ...
+                (strcmpi(assetshortcode,'TC') && strcmpi(codelist{i},'ZC')) || ...
+                (strcmpi(assetshortcode,'RO') && strcmpi(codelist{i},'OI'))
             assetname = assetlist{i};
             exch = exlist{i};
             return
