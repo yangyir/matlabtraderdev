@@ -56,10 +56,20 @@ function [] = printmarket(obj)
 
             if ~isempty(obj.hist_candles_) && ~isempty(obj.hist_candles_{i})
 %                 wrinfo = obj.calc_wr_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr,'IncludeLastCandle',1,'RemoveLimitPrice',1);
+                freq = obj.getcandlefreq(instruments{i});
+                if freq == 1440
+                    if hour(quotes{i}.update_time1) == 14 && minute(quotes{i}.update_time1) == 59
+                        includelastk = 1;
+                    else
+                        includelastk = 0;
+                    end
+                else
+                    includelastk = 1;
+                end
+                [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instr,'IncludeLastCandle',includelastk,'RemoveLimitPrice',1);
 %             [macdvec,sig] = obj.calc_macd_(instr,'IncludeLastCandle',1);
-                [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
-                [~,~,HH,LL] = obj.calc_fractal_(instr,'includelastcandle',1,'RemoveLimitPrice',1);
+                [jaw,teeth,lips] = obj.calc_alligator_(instr,'includelastcandle',includelastk,'RemoveLimitPrice',1);
+                [~,~,HH,LL] = obj.calc_fractal_(instr,'includelastcandle',includelastk,'RemoveLimitPrice',1);
             
                 if obj.candle_freq_(i) == 1440 && ~isempty(strfind(instruments{i}.asset_name,'eqindex'))
                     adj = obj.hist_candles_{i}(end,5)/obj.lastclose_(i);
@@ -126,9 +136,19 @@ function [] = printmarket(obj)
             
             if ~isempty(obj.hist_candles_) && ~isempty(obj.hist_candles_{i})
 %                 wrinfo = obj.calc_wr_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instruments{i},'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                [jaw,teeth,lips] = obj.calc_alligator_(instruments{i},'includelastcandle',1,'RemoveLimitPrice',1);
-                [~,~,HH,LL] = obj.calc_fractal_(instruments{i},'includelastcandle',1,'RemoveLimitPrice',1);
+                freq = obj.getcandlefreq(instruments{i});
+                if freq == 1440
+                    if hour(lasttick(1)) == 14 && minute(lasttick(1)) == 59
+                        includelastk = 1;
+                    else
+                        includelastk = 0;
+                    end
+                else
+                    includelastk = 1;
+                end
+                [buysetup,sellsetup,levelup,leveldn] = obj.calc_tdsq_(instruments{i},'IncludeLastCandle',includelastk,'RemoveLimitPrice',1);
+                [jaw,teeth,lips] = obj.calc_alligator_(instruments{i},'includelastcandle',includelastk,'RemoveLimitPrice',1);
+                [~,~,HH,LL] = obj.calc_fractal_(instruments{i},'includelastcandle',includelastk,'RemoveLimitPrice',1);
                 fprintf(dataformat,code,num2str(lasttrade),num2str(lasttrade),num2str(obj.lastclose_(i)),...
                     delta,timet,...
                     NaN,num2str(HH(end)),num2str(LL(end)),...
