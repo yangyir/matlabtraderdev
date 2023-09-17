@@ -81,14 +81,19 @@ function [] = updatecondentrusts(strategy)
                     end
                 end
                 %
+                direction = condentrust.direction;
+                if direction == 1
+                    sprd = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','bidopenspread');
+                else
+                    sprd = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','askopenspread');
+                end
+                ticksize = instrument.tick_size;
                 lasttick = strategy.mde_fut_.getlasttick(codestr);
                 bid = lasttick(3);
                 ask = lasttick(4);
-                direction = condentrust.direction;
-                ticksize = instrument.tick_size;
                 
                 if direction == 1 && bid >= condpx && abs(condpx+9.99) > 1e-5
-                    [ret,~,errmsg] = strategy.longopen(codestr,volume,'overrideprice',bid+4*ticksize,...
+                    [ret,~,errmsg] = strategy.longopen(codestr,volume,'overrideprice',bid+sprd*ticksize,...
                         'signalinfo',condentrust.signalinfo_);
                     if ret
                         condentrusts2remove.push(condentrust);
@@ -98,7 +103,7 @@ function [] = updatecondentrusts(strategy)
                         end
                     end
                 elseif direction == -1 && ask <= condpx && abs(condpx+9.99) > 1e-5                    
-                    [ret,~,errmsg] = strategy.shortopen(codestr,volume,'overrideprice',ask-4*ticksize,...
+                    [ret,~,errmsg] = strategy.shortopen(codestr,volume,'overrideprice',ask-sprd*ticksize,...
                         'signalinfo',condentrust.signalinfo_);
                     if ret
                         condentrusts2remove.push(condentrust);
