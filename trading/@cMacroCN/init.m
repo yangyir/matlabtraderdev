@@ -20,14 +20,20 @@ function macrocn = init(macrocn,varargin)
     %refresh every minute
     macrocn.settimerinterval(1);
     %
-    macrocn.dailybar_dr007_ = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\dr007_daily.txt']);
+    try
+        macrocn.dailybar_dr007_ = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\dr007_daily.txt']);
+    catch
+    end
     
     nfut = size(macrocn.codes_govtbondfut_,1);
     macrocn.dailybar_govtbondfut_ = cell(nfut,1);
     macrocn.mat_govtbondfut_ = cell(nfut,1);
     macrocn.struct_govtbondfut_ = cell(nfut,1);
     for i = 1:nfut
-        macrocn.dailybar_govtbondfut_{i} = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\',macrocn.codes_govtbondfut_{i},'_daily.txt']);
+        try
+            macrocn.dailybar_govtbondfut_{i} = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\',macrocn.codes_govtbondfut_{i},'_daily.txt']);
+        catch
+        end
     end
     
     for i = 1:nfut
@@ -40,11 +46,21 @@ function macrocn = init(macrocn,varargin)
     macrocn.mat_govtbondyields_ = cell(nbond,1);
     macrocn.struct_govtbondyields_ = cell(nbond,1);
     codes = {'tb01y';'tb03y';'tb05y';'tb07y';'tb10y';'tb30y'};
-    for i = 1:length(codes);
-        macrocn.dailybar_govtbondyields_{i} = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\',codes{i},'_daily.txt']);
+    for i = 1:length(codes)
+        try
+            macrocn.dailybar_govtbondyields_{i} = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\',codes{i},'_daily.txt']);
+        catch
+        end
     end
     
-    macrocn.dailybar_fx_ = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\usdcnh_daily.txt']);
-    macrocn.dailybar_eqindex_ = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\csi300_daily.txt']);
+    try
+        macrocn.dailybar_fx_ = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\usdcnh_daily.txt']);
+    catch
+    end
+    %
+    try
+        macrocn.dailybar_eqindex_ = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'macrochina\csi300_daily.txt']);
+    catch
+    end
     %
 end 
