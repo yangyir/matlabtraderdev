@@ -111,7 +111,7 @@ function [ret,e,msg] = placecondentrust(obj,instrument,varargin)
         end
     elseif directionnum == -1
         if strcmpi(offsetstr,'open')
-            [ret,e,msg] = obj.shortopen(instrument.code_ctp,price,abs(lots),...
+            [ret,e,msg] = obj.condshortopen(instrument.code_ctp,price,abs(lots),...
                 'signalinfo',signalinfo);
         else
             error('condshortclose not implemented')
