@@ -56,7 +56,12 @@ function [reportbyasset_tc,reportbyasset_tb] = kellydistrubitionsummary(inputstr
         opentype_b(i) = tblb_data_consolidated{i,2};
         opensignal_b{i} = tblb_data_consolidated{i,11};
         code_b{i} = tblb_data_consolidated{i,14};
-        fut = code2instrument(code_b{i});
+        try
+            fut = code2instrument(code_b{i});
+        catch
+            fprintf('error in code2instrument of %s\n',code_b{i});
+            return
+        end
         assetnam_b{i} = fut.asset_name;
         if isempty(fut.asset_name),assetnam_b{i} = code_b{i};end
         openprice_b(i) = tblb_data_consolidated{i,17};
