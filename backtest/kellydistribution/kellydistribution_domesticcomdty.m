@@ -85,7 +85,7 @@ if ww < 10
 else
     tag = [num2str(yy),'w',num2str(ww)];
 end
-save([dir_,'comdty_domestic_daily_',tag,'.mat'],comdty_domestic_daily);
+save([dir_,'comdty_domestic_daily_',tag,'.mat'],'comdty_domestic_daily');
 %% the following is for data analysis
 d = load([dir_,'comdty_domestic_daily_',tag,'.mat']);
 props = fields(d);
