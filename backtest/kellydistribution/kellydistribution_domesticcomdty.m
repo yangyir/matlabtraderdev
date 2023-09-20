@@ -85,7 +85,51 @@ if ww < 10
 else
     tag = [num2str(yy),'w',num2str(ww)];
 end
-save([dir_,'comdty_domestic_daily_',tag,'.mat'],comdty_domestic_daily);
+% add extra asset column in kellyb and kellys
+Code_L = comdty_domestic_daily.kellyb.Code_L;
+nl = length(Code_L);
+Asset_L = cell(nl,1);
+fut = code2instrument(Code_L{1});
+Asset_L{1} = fut.asset_name;
+for i = 2:nl
+    if ~strcmpi(Code_L{i},Code_L{i-1})
+        fut = code2instrument(Code_L{i});
+        Asset_L{i} = fut.asset_name;
+    else
+        Asset_L{i} = Asset_L{i-1};
+    end
+end
+OpenSignal_L = comdty_domestic_daily.kellyb.OpenSignal_L;
+NumOfTrades_L = comdty_domestic_daily.kellyb.NumOfTrades_L;
+WinProb_L = comdty_domestic_daily.kellyb.WinProb_L;
+WinAvgPnL_L = comdty_domestic_daily.kellyb.WinAvgPnL_L;
+LossAvgPnL_L = comdty_domestic_daily.kellyb.LossAvgPnL_L;
+KellyRatio_L = comdty_domestic_daily.kellyb.KellyRatio_L;
+comdty_domestic_daily.kellyb = table(OpenSignal_L,NumOfTrades_L,WinProb_L,WinAvgPnL_L,LossAvgPnL_L,KellyRatio_L,Code_L,Asset_L);
+%
+Code_S = comdty_domestic_daily.kellys.Code_S;
+ns = length(Code_S);
+Asset_S = cell(ns,1);
+fut = code2instrument(Code_S{1});
+Asset_S{1} = fut.asset_name;
+for i = 2:ns
+    if ~strcmpi(Code_S{i},Code_S{i-1})
+        fut = code2instrument(Code_S{i});
+        Asset_S{i} = fut.asset_name;
+    else
+        Asset_S{i} = Asset_S{i-1};
+    end
+end
+OpenSignal_S = comdty_domestic_daily.kellys.OpenSignal_S;
+NumOfTrades_S = comdty_domestic_daily.kellys.NumOfTrades_S;
+WinProb_S = comdty_domestic_daily.kellys.WinProb_S;
+WinAvgPnL_S = comdty_domestic_daily.kellys.WinAvgPnL_S;
+LossAvgPnL_S = comdty_domestic_daily.kellys.LossAvgPnL_S;
+KellyRatio_S = comdty_domestic_daily.kellys.KellyRatio_S;
+comdty_domestic_daily.kellys = table(OpenSignal_S,NumOfTrades_S,WinProb_S,WinAvgPnL_S,LossAvgPnL_S,KellyRatio_S,Code_S,Asset_S);
+%
+dir_ = 'c:\yangyiran\';
+save([dir_,'comdty_domestic_daily_',tag,'.mat'],'comdty_domestic_daily');
 %% the following is for data analysis
 d = load([dir_,'comdty_domestic_daily_',tag,'.mat']);
 props = fields(d);
