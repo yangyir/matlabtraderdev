@@ -23,7 +23,7 @@ function [flag] = istime2sleep(macrocn,t)
     if minutespassed > 690 && minutespassed < 780 
         %market breaks between 11:30am and 13:00pm
         if mod(mm,MM_INTERVAL2PRINT) == 0 && ss <= 1
-            fprintf('%s %s sleeps......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'),obj.timer_.Name);
+            fprintf('%s %s sleeps......\n',datestr(t,'yyyy-mm-dd HH:MM:SS'),macrocn.timer_.Name);
         end
         return
     end
