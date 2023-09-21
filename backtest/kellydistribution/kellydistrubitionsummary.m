@@ -18,12 +18,14 @@ function [reportbyasset_tc,reportbyasset_tb] = kellydistrubitionsummary(inputstr
     idxs = ones(ns,1);
     colidx_comment1 = 10;
     colidx_pnl = 18;
+    colidx_closeid = 20;
     for i = 1:nb
         %a.remove trades with unsatified open condition
         %b.remove trades with null pnl
         if ~isempty(tblb_data_consolidated{i,colidx_comment1}),idxb(i) = 0;end
         if isempty(tblb_data_consolidated{i,colidx_pnl}),idxb(i) = 0;end
         if isnan(tblb_data_consolidated{i,colidx_pnl}),idxb(i) = 0;end
+        if isempty(tblb_data_consolidated{i,colidx_closeid}),idxb(i) = 0;end
     end
     for i = 1:ns
         %a.remove trades with unsatified open condition
@@ -31,6 +33,7 @@ function [reportbyasset_tc,reportbyasset_tb] = kellydistrubitionsummary(inputstr
         if ~isempty(tbls_data_consolidated{i,colidx_comment1}),idxs(i) = 0;end
         if isempty(tbls_data_consolidated{i,colidx_pnl}),idxs(i) = 0;end
         if isnan(tbls_data_consolidated{i,colidx_pnl}),idxs(i) = 0;end
+        if isempty(tbls_data_consolidated{i,colidx_closeid}),idxs(i) = 0;end
     end
     idxb = logical(idxb);
     idxs = logical(idxs);
