@@ -90,7 +90,7 @@ save([dir_,'comdty_domestic_daily_',tag,'.mat'],'comdty_domestic_daily');
 d = load([dir_,'comdty_domestic_daily_',tag,'.mat']);
 props = fields(d);
 comdty_domestic_daily = d.(props{1});
-
+%%
 kellyb_unique = comdty_domestic_daily.kellyb_unique;
 nkellyb = size(kellyb_unique,1);
 use_unique_l = nan(nkellyb,1);
@@ -158,7 +158,7 @@ for i = 1:nkellys
     end
 end
 kelly_table_s = table(opensignal_unique_s,ntrades_unique_s,winp_unique_s,r_unique_s,kelly_unique_s,sharp_unique_s,use_unique_s);
-%
+%%
 [rp_tc,rp_tb] = kellydistrubitionsummary(comdty_domestic_daily);
 %%
 strat_comdty_domestic_daily = struct('kelly_table_l',kelly_table_l,...
@@ -172,5 +172,51 @@ strat_comdty_domestic_daily = struct('kelly_table_l',kelly_table_l,...
     'breachupsshighvalue_tb',rp_tb{3}.table,...
     'breachdnbshighvalue_tb',rp_tb{4}.table);
 save([dir_,'strat_comdty_domestic_daily_',tag,'.mat'],'strat_comdty_domestic_daily');
+%%
+signal_l_valid = kelly_table_l.opensignal_unique_l(logical(kelly_table_l.use_unique_l));
+signalcolumn = comdty_domestic_daily.kellyb.OpenSignal_L;
+signalidx = zeros(length(signalcolumn),1);
+for i = 1:length(signalcolumn)
+    signalidx(i) = sum(strcmpi(signalcolumn{i},signal_l_valid));
+end
+signalidx = logical(signalidx);
+vlookuptbl_valid_l = comdty_domestic_daily.kellyb(signalidx,:);
+ntrades_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L));
+nwintrades_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*cell2mat(vlookuptbl_valid_l.WinProb_L));
+winavgpnl_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*cell2mat(vlookuptbl_valid_l.WinProb_L).*cell2mat(vlookuptbl_valid_l.WinAvgPnL_L))/nwintrades_l;
+lossavgpnl_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*(1-cell2mat(vlookuptbl_valid_l.WinProb_L)).*cell2mat(vlookuptbl_valid_l.LossAvgPnL_L))/(ntrades_l-nwintrades_l);
+W_L = nwintrades_l/ntrades_l;
+R_L = abs(winavgpnl_l/lossavgpnl_l);
+K_L = W - (1-W)/R;
+%
+assetcolumn = vlookuptbl_valid_l.Asset_L;
+assetlist = unique(assetcolumn);
+nasset = length(assetlist);
+W_ = zeros(nasset,1);
+R_ = zeros(nasset,1);
+K_ = zeros(nasset,1);
+for i = 1:nasset
+    assetidx = strcmpi(assetcolumn,assetlist{i});
+    tbl_i = vlookuptbl_valid_l(assetidx,:);
+    ntrades = sum(cell2mat(tbl_i.NumOfTrades_L));
+    nwintrades = sum(cell2mat(tbl_i.NumOfTrades_L).*cell2mat(tbl_i.WinProb_L));
+    winavgpnl = sum(cell2mat(tbl_i.NumOfTrades_L).*cell2mat(tbl_i.WinProb_L).*cell2mat(tbl_i.WinAvgPnL_L))/nwintrades;
+    lossavgpnl = sum(cell2mat(tbl_i.NumOfTrades_L).*(1-cell2mat(tbl_i.WinProb_L)).*cell2mat(tbl_i.LossAvgPnL_L))/(ntrades-nwintrades);
+    W_(i) = nwintrades/ntrades;
+    R_(i) = abs(winavgpnl/lossavgpnl);
+    K_(i) = W_(i) - (1-W_(i))/R_(i);
+end
 
+%%
+WMat = zeros(nasset,length(signal_l_valid));
+RMat = WMat;
+KMat = WMat;
+for i = 1:nasset
+    for j = 1:length(signal_l_valid)
+        ret = kellyempirical('distribution',comdty_domestic_daily,'assetname',assetlist{i},'direction','l','signalname',signal_l_valid{j});
+        WMat(i,j) = ret.W;
+        RMat(i,j) = ret.R;
+        KMat(i,j) = ret.K;
+    end
+end
 
