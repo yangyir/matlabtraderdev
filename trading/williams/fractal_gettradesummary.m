@@ -366,6 +366,10 @@ if ~isempty(tblb_data)
         wintotalpnl = 0;
         losstotalpnl = 0;
         for k = 1:size(tbl_this_mode,1)
+            if ~isempty(tbl_this_mode{k,10}),continue;end
+            if isempty(tbl_this_mode{k,20}),continue;end
+            if isempty(tbl_this_mode{k,18}),continue;end
+            if isnan(tbl_this_mode{k,18}),continue;end
             if tbl_this_mode{k,18} >= 0
                 wincount = wincount + 1;
                 if ~strcmpi(code,'gzhy')
@@ -435,6 +439,10 @@ if ~isempty(tbls_data)
         wintotalpnl = 0;
         losstotalpnl = 0;
         for k = 1:size(tbl_this_mode,1)
+            if ~isempty(tbl_this_mode{k,10}),continue;end
+            if isempty(tbl_this_mode{k,20}),continue;end
+            if isempty(tbl_this_mode{k,18}),continue;end
+            if isnan(tbl_this_mode{k,18}),continue;end
             if tbl_this_mode{k,18} >= 0
                 wincount = wincount + 1;
                 if ~strcmpi(code,'gzhy')
