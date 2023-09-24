@@ -159,7 +159,7 @@ for i = 1:nkellys
 end
 kelly_table_s = table(opensignal_unique_s,ntrades_unique_s,winp_unique_s,r_unique_s,kelly_unique_s,sharp_unique_s,use_unique_s);
 %%
-[rp_tc,rp_tb] = kellydistrubitionsummary(comdty_domestic_daily);
+[rp_tc,rp_tb,tbl] = kellydistrubitionsummary(comdty_domestic_daily);
 %%
 strat_comdty_domestic_daily = struct('kelly_table_l',kelly_table_l,...
     'kelly_table_s',kelly_table_s,...
@@ -187,7 +187,7 @@ winavgpnl_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*cell2mat(vlookuptb
 lossavgpnl_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*(1-cell2mat(vlookuptbl_valid_l.WinProb_L)).*cell2mat(vlookuptbl_valid_l.LossAvgPnL_L))/(ntrades_l-nwintrades_l);
 W_L = nwintrades_l/ntrades_l;
 R_L = abs(winavgpnl_l/lossavgpnl_l);
-K_L = W - (1-W)/R;
+K_L = W_L - (1-W_L)/R_L;
 %
 assetcolumn = vlookuptbl_valid_l.Asset_L;
 assetlist = unique(assetcolumn);
