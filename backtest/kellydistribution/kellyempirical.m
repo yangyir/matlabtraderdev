@@ -44,7 +44,11 @@ function [ret] = kellyempirical(varargin)
         lossavgpnl = sum(cell2mat(tbl.NumOfTrades_S).*(1-cell2mat(tbl.WinProb_S)).*cell2mat(tbl.LossAvgPnL_S))/(ntrades-nwintrades);
     end
     W = nwintrades/ntrades;
-    R = abs(winavgpnl/lossavgpnl);
+    if W == 1
+        R = 9.99;
+    else
+        R = abs(winavgpnl/lossavgpnl);
+    end
     K = W - (1-W)/R;
     
     %tbl2 is based on all assets

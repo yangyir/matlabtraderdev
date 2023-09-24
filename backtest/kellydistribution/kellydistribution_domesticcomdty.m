@@ -181,20 +181,38 @@ for i = 1:length(signalcolumn)
 end
 signalidx = logical(signalidx);
 vlookuptbl_valid_l = comdty_domestic_daily.kellyb(signalidx,:);
-ntrades_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L));
+ntrades_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L));  
 nwintrades_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*cell2mat(vlookuptbl_valid_l.WinProb_L));
 winavgpnl_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*cell2mat(vlookuptbl_valid_l.WinProb_L).*cell2mat(vlookuptbl_valid_l.WinAvgPnL_L))/nwintrades_l;
 lossavgpnl_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*(1-cell2mat(vlookuptbl_valid_l.WinProb_L)).*cell2mat(vlookuptbl_valid_l.LossAvgPnL_L))/(ntrades_l-nwintrades_l);
-W_L = nwintrades_l/ntrades_l;
-R_L = abs(winavgpnl_l/lossavgpnl_l);
-K_L = W_L - (1-W_L)/R_L;
+W_L_ALL = nwintrades_l/ntrades_l;
+R_L_ALL = abs(winavgpnl_l/lossavgpnl_l);
+K_L_ALL = W_L_ALL - (1-W_L_ALL)/R_L_ALL;
+%
+signal_s_valid = kelly_table_s.opensignal_unique_s(logical(kelly_table_s.use_unique_s));
+signalcolumn = comdty_domestic_daily.kellys.OpenSignal_S;
+signalidx = zeros(length(signalcolumn),1);
+for i = 1:length(signalcolumn)
+    signalidx(i) = sum(strcmpi(signalcolumn{i},signal_s_valid));
+end
+signalidx = logical(signalidx);
+vlookuptbl_valid_s = comdty_domestic_daily.kellys(signalidx,:);
+ntrades_s = sum(cell2mat(vlookuptbl_valid_s.NumOfTrades_S));
+nwintrades_s = sum(cell2mat(vlookuptbl_valid_s.NumOfTrades_S).*cell2mat(vlookuptbl_valid_s.WinProb_S));
+winavgpnl_s = sum(cell2mat(vlookuptbl_valid_s.NumOfTrades_S).*cell2mat(vlookuptbl_valid_s.WinProb_S).*cell2mat(vlookuptbl_valid_s.WinAvgPnL_S))/nwintrades_s;
+lossavgpnl_s = sum(cell2mat(vlookuptbl_valid_s.NumOfTrades_S).*(1-cell2mat(vlookuptbl_valid_s.WinProb_S)).*cell2mat(vlookuptbl_valid_s.LossAvgPnL_S))/(ntrades_l-nwintrades_s);
+W_S_ALL = nwintrades_s/ntrades_s;
+R_S_ALL = abs(winavgpnl_s/lossavgpnl_s);
+K_S_ALL = W_S_ALL - (1-W_S_ALL)/R_S_ALL;
 %
 assetcolumn = vlookuptbl_valid_l.Asset_L;
+%
 assetlist = unique(assetcolumn);
 nasset = length(assetlist);
-W_ = zeros(nasset,1);
-R_ = zeros(nasset,1);
-K_ = zeros(nasset,1);
+N_L = zeros(nasset+1,1);
+W_L = zeros(nasset+1,1);
+R_L = zeros(nasset+1,1);
+K_L = zeros(nasset+1,1);
 for i = 1:nasset
     assetidx = strcmpi(assetcolumn,assetlist{i});
     tbl_i = vlookuptbl_valid_l(assetidx,:);
@@ -202,21 +220,79 @@ for i = 1:nasset
     nwintrades = sum(cell2mat(tbl_i.NumOfTrades_L).*cell2mat(tbl_i.WinProb_L));
     winavgpnl = sum(cell2mat(tbl_i.NumOfTrades_L).*cell2mat(tbl_i.WinProb_L).*cell2mat(tbl_i.WinAvgPnL_L))/nwintrades;
     lossavgpnl = sum(cell2mat(tbl_i.NumOfTrades_L).*(1-cell2mat(tbl_i.WinProb_L)).*cell2mat(tbl_i.LossAvgPnL_L))/(ntrades-nwintrades);
-    W_(i) = nwintrades/ntrades;
-    R_(i) = abs(winavgpnl/lossavgpnl);
-    K_(i) = W_(i) - (1-W_(i))/R_(i);
+    N_L(i) = ntrades;
+    W_L(i) = nwintrades/ntrades;
+    R_L(i) = abs(winavgpnl/lossavgpnl);
+    K_L(i) = W_L(i) - (1-W_L(i))/R_L(i);
 end
+assetlist{nasset+1,1} = 'all';
+W_L(nasset+1,1) = W_L_ALL;
+R_L(nasset+1,1) = R_L_ALL;
+K_L(nasset+1,1) = K_L_ALL;
+N_L(nasset+1,1) = sum(N_L(1:end-1));
+tblbyasset_L = table(assetlist,N_L,W_L,R_L,K_L);
+tblbyasset_L = sortrows(tblbyasset_L,'K_L','descend');
+%
+assetcolumn = vlookuptbl_valid_s.Asset_S;
+%
+assetlist = unique(assetcolumn);
+nasset = length(assetlist);
+N_S = zeros(nasset+1,1);
+W_S = zeros(nasset+1,1);
+R_S = zeros(nasset+1,1);
+K_S = zeros(nasset+1,1);
+for i = 1:nasset
+    assetidx = strcmpi(assetcolumn,assetlist{i});
+    tbl_i = vlookuptbl_valid_s(assetidx,:);
+    ntrades = sum(cell2mat(tbl_i.NumOfTrades_S));
+    nwintrades = sum(cell2mat(tbl_i.NumOfTrades_S).*cell2mat(tbl_i.WinProb_S));
+    winavgpnl = sum(cell2mat(tbl_i.NumOfTrades_S).*cell2mat(tbl_i.WinProb_S).*cell2mat(tbl_i.WinAvgPnL_S))/nwintrades;
+    lossavgpnl = sum(cell2mat(tbl_i.NumOfTrades_S).*(1-cell2mat(tbl_i.WinProb_S)).*cell2mat(tbl_i.LossAvgPnL_S))/(ntrades-nwintrades);
+    N_S(i) = ntrades;
+    W_S(i) = nwintrades/ntrades;
+    R_S(i) = abs(winavgpnl/lossavgpnl);
+    K_S(i) = W_S(i) - (1-W_S(i))/R_S(i);
+end
+assetlist{nasset+1,1} = 'all';
+W_S(nasset+1,1) = W_S_ALL;
+R_S(nasset+1,1) = R_S_ALL;
+K_S(nasset+1,1) = K_S_ALL;
+N_S(nasset+1,1) = sum(N_S(1:end-1));
+tblbyasset_S = table(assetlist,N_S,W_S,R_S,K_S);
+tblbyasset_S = sortrows(tblbyasset_S,'K_S','descend');
 
 %%
-WMat = zeros(nasset,length(signal_l_valid));
-RMat = WMat;
-KMat = WMat;
+WMat_L = zeros(nasset,length(signal_l_valid));
+RMat_L = WMat_L;
+KMat_L = WMat_L;
 for i = 1:nasset
     for j = 1:length(signal_l_valid)
         ret = kellyempirical('distribution',comdty_domestic_daily,'assetname',assetlist{i},'direction','l','signalname',signal_l_valid{j});
-        WMat(i,j) = ret.W;
-        RMat(i,j) = ret.R;
-        KMat(i,j) = ret.K;
+        WMat_L(i,j) = ret.W;
+        RMat_L(i,j) = ret.R;
+        KMat_L(i,j) = ret.K;
     end
 end
-
+%%
+WMat_S = zeros(nasset,length(signal_s_valid));
+RMat_S = WMat_S;
+KMat_S = WMat_S;
+for i = 1:nasset
+    for j = 1:length(signal_s_valid)
+        ret = kellyempirical('distribution',comdty_domestic_daily,'assetname',assetlist{i},'direction','s','signalname',signal_s_valid{j});
+        WMat_S(i,j) = ret.W;
+        RMat_S(i,j) = ret.R;
+        KMat_S(i,j) = ret.K;
+    end
+end
+%%
+strat_comdty_domestic_daily2 = struct('assetlist',{assetlist},...
+    'signal_l_valid',{signal_l_valid},...
+    'w_mat_l',WMat_L,...
+    'r_mat_l',RMat_L,...
+    'k_mat_l',KMat_L,...
+    'signal_s_valid',{signal_s_valid},...
+    'w_mat_s',WMat_S,...
+    'r_mat_s',RMat_S,...
+    'k_mat_s',KMat_S);
+save([dir_,'strat_comdty_domestic_daily2_',tag,'.mat'],'strat_comdty_domestic_daily2');
