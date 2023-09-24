@@ -46,11 +46,11 @@ function [output] = fractal_kelly_summary(varargin)
 
     output.tblb = tblbcell;
     output.tbls = tblscell;
-    output.data = datacell;
-    output.tradesb = tradesbcell;
-    output.tradess = tradesscell;
-    output.validtradesb = validtradesbcell;
-    output.validtradess = validtradesscell;
+%     output.data = datacell;
+%     output.tradesb = tradesbcell;
+%     output.tradess = tradesscelrl;
+%     output.validtradesb = validtradesbcell;
+%     output.validtradess = validtradesscell;
     
     output.kellys = kellyscell;
 
@@ -169,7 +169,21 @@ function [output] = fractal_kelly_summary(varargin)
     end
     % %
     if ~isempty(OpenSignal_L)
-        kellyltbl = table(OpenSignal_L,NumOfTrades_L,WinProb_L,WinAvgPnL_L,LossAvgPnL_L,KellyRatio_L,Code_L);
+        Asset_L = Code_L;
+        for k = 1:length(Code_L)
+            if k == 1
+                fut = code2instrument(Code_L{k});
+                Asset_L{k} = fut.asset_name;
+            else
+                if strcmpi(Code_L{k},Code_L{k-1})
+                    Asset_L{k} = Asset_L{k-1};
+                else
+                    fut = code2instrument(Code_L{k});
+                    Asset_L{k} = fut.asset_name;
+                end
+            end
+        end
+        kellyltbl = table(OpenSignal_L,NumOfTrades_L,WinProb_L,WinAvgPnL_L,LossAvgPnL_L,KellyRatio_L,Code_L,Asset_L);
         opensignal_l_unique = unique(OpenSignal_L);
         nunique_l = length(opensignal_l_unique);
         ntrades_unique_l = zeros(nunique_l,1);
@@ -221,7 +235,21 @@ function [output] = fractal_kelly_summary(varargin)
     end
     % %
     if ~isempty(OpenSignal_S)
-        kellystbl = table(OpenSignal_S,NumOfTrades_S,WinProb_S,WinAvgPnL_S,LossAvgPnL_S,KellyRatio_S,Code_S);
+        Asset_S = Code_S;
+        for k = 1:length(Code_S)
+            if k == 1
+                fut = code2instrument(Code_S{k});
+                Asset_S{k} = fut.asset_name;
+            else
+                if strcmpi(Code_S{k},Code_S{k-1})
+                    Asset_S{k} = Asset_S{k-1};
+                else
+                    fut = code2instrument(Code_S{k});
+                    Asset_S{k} = fut.asset_name;
+                end
+            end
+        end
+        kellystbl = table(OpenSignal_S,NumOfTrades_S,WinProb_S,WinAvgPnL_S,LossAvgPnL_S,KellyRatio_S,Code_S,Asset_S);
         opensignal_s_unique = unique(OpenSignal_S);
         nunique_s = length(opensignal_s_unique);
         ntrades_unique_s = zeros(nunique_s,1);
