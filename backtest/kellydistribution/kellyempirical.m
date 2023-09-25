@@ -31,6 +31,9 @@ function [ret] = kellyempirical(varargin)
     assetidx = strcmpi(assetcolumn,asset);
     signalidx = strcmpi(signalcolumn,signal);
     idx = assetidx & signalidx;
+    if strcmpi(asset,'all')
+        idx = signalidx;
+    end
     tbl = vlookuptbl(idx,:);
     if direction == 1
         ntrades = sum(cell2mat(tbl.NumOfTrades_L));
