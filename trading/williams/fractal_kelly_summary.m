@@ -169,7 +169,26 @@ function [output] = fractal_kelly_summary(varargin)
     end
     % %
     if ~isempty(OpenSignal_L)
-        kellyltbl = table(OpenSignal_L,NumOfTrades_L,WinProb_L,WinAvgPnL_L,LossAvgPnL_L,KellyRatio_L,Code_L);
+        Asset_L = Code_L;
+        fut = code2instrument(Code_L{1});
+        if isempty(fut.asset_name)
+            Asset_L{1} = Code_L{1};
+        else
+            Asset_L{1} = fut.asset_name;
+        end
+        for k = 2:length(Code_L)
+            if strcmpi(Code_L{k},Code_L{k-1})
+                Asset_L{k} = Asset_L{k-1};
+            else
+                fut = code2instrument(Code_L{k});
+                if isempty(fut.asset_name)
+                    Asset_L{k} = Code_L{k};
+                else
+                    Asset_L{k} = fut.asset_name;
+                end
+            end
+        end
+        kellyltbl = table(OpenSignal_L,NumOfTrades_L,WinProb_L,WinAvgPnL_L,LossAvgPnL_L,KellyRatio_L,Code_L,Asset_L);
         opensignal_l_unique = unique(OpenSignal_L);
         nunique_l = length(opensignal_l_unique);
         ntrades_unique_l = zeros(nunique_l,1);
@@ -221,7 +240,26 @@ function [output] = fractal_kelly_summary(varargin)
     end
     % %
     if ~isempty(OpenSignal_S)
-        kellystbl = table(OpenSignal_S,NumOfTrades_S,WinProb_S,WinAvgPnL_S,LossAvgPnL_S,KellyRatio_S,Code_S);
+        Asset_S = Code_S;
+        fut = code2instrument(Code_S{1});
+        if isempty(fut.asset_name)
+            Asset_S{1} = Code_S{1};
+        else
+            Asset_S{1} = fut.asset_name;
+        end
+        for k = 2:length(Code_S)
+            if strcmpi(Code_S{k},Code_S{k-1})
+                Asset_S{k} = Asset_S{k-1};
+            else
+                fut = code2instrument(Code_S{k});
+                if isempty(fut.asset_name)
+                    Asset_S{k} = Code_S{k};
+                else
+                    Asset_S{k} = fut.asset_name;
+                end
+            end
+        end
+        kellystbl = table(OpenSignal_S,NumOfTrades_S,WinProb_S,WinAvgPnL_S,LossAvgPnL_S,KellyRatio_S,Code_S,Asset_S);
         opensignal_s_unique = unique(OpenSignal_S);
         nunique_s = length(opensignal_s_unique);
         ntrades_unique_s = zeros(nunique_s,1);
