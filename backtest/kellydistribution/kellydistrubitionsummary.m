@@ -55,7 +55,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     closestr_b = cell(nb,1);
     pnlrel_b = zeros(nb,1);
     trendflag_b = zeros(nb,1);
-
+    idxb = ones(nb,1);
     for i = 1:nb
         opentype_b(i) = tblb_data_consolidated{i,2};
         opensignal_b{i} = tblb_data_consolidated{i,11};
@@ -73,12 +73,24 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         opennotional_b(i) = openprice_b(i)*fut.contract_size;
         opendatetime_b(i) = tblb_data_consolidated{i,13};
         opendate_b(i) = getlastbusinessdate(opendatetime_b(i));
+        if isempty(fut.asset_name)
+            idxb(i) = 1;
+        else
+            last_trade_month = month(fut.last_trade_date1);
+            last_trade_year = year(fut.last_trade_date1);
+            if year(opendatetime_b(i)) == last_trade_year && ...
+                    month(opendatetime_b(i)) == last_trade_month
+                idxb(i) = 0;
+            end
+        end
         openid_b(i) = tblb_data_consolidated{i,15};
         closestr_b{i} = tblb_data_consolidated{i,19};
         pnlrel_b(i) = tblb_data_consolidated{i,18}/opennotional_b(i);
         trendflag_b(i) = tblb_data_consolidated{i,37};
     end
+    idxb = logical(idxb);
     tbl_extractedinfo_b = table(code_b,assetname_b,opentype_b,opensignal_b,direction_b,openid_b,opendatetime_b,opendate_b,openprice_b,opennotional_b,pnlrel_b,closestr_b,trendflag_b);
+    tbl_extractedinfo_b = tbl_extractedinfo_b(idxb,:);
     %
     ns = size(tbls_data_consolidated,1);
     opentype_s = zeros(ns,1);%1-weak;2-medium;3-strong
@@ -94,7 +106,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     closestr_s = cell(ns,1);
     pnlrel_s = zeros(ns,1);
     trendflag_s = zeros(ns,1);
-
+    idxs = ones(ns,1);
     for i = 1:ns
         opentype_s(i) = tbls_data_consolidated{i,2};
         opensignal_s{i} = tbls_data_consolidated{i,11};
@@ -112,52 +124,66 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         opennotional_s(i) = openprice_s(i)*fut.contract_size;
         opendatetime_s(i) = tbls_data_consolidated{i,13};
         opendate_s(i) = getlastbusinessdate(opendatetime_s(i));
+        if isempty(fut.asset_name)
+            idxs(i) = 1;
+        else
+            last_trade_month = month(fut.last_trade_date1);
+            last_trade_year = year(fut.last_trade_date1);
+            if year(opendatetime_s(i)) == last_trade_year && ...
+                    month(opendatetime_s(i)) == last_trade_month
+                idxb(i) = 0;
+            end
+        end
         openid_s(i) = tbls_data_consolidated{i,15};
         closestr_s{i} = tbls_data_consolidated{i,19};
         pnlrel_s(i) = tbls_data_consolidated{i,18}/opennotional_s(i);
         trendflag_s(i) = tbls_data_consolidated{i,37};
     end
+    idxs = logical(idxs);
     tbl_extractedinfo_s = table(code_s,assetname_s,opentype_s,opensignal_s,direction_s,openid_s,opendatetime_s,opendate_s,openprice_s,opennotional_s,pnlrel_s,closestr_s,trendflag_s);
+    tbl_extractedinfo_s = tbl_extractedinfo_s(idxs,:);
     %
     % merge long/short table for further analysis
-    code = [code_b;code_s];
-    assetname = [assetname_b;assetname_s];
-    opentype = [opentype_b;opentype_s];
-    opensignal = [opensignal_b;opensignal_s];
-    direction = [direction_b;direction_s];
-    openid = [openid_b;openid_s];
-    opendatetime = [opendatetime_b;opendatetime_s];
-    opendate = [opendate_b;opendate_s];
-    openprice = [openprice_b;openprice_s];
-    opennotional = [opennotional_b;opennotional_s];
-    pnlrel = [pnlrel_b;pnlrel_s];
-    closestr = [closestr_b;closestr_s];
-    trendflag = [trendflag_b;trendflag_s];
+    code = [tbl_extractedinfo_b.code_b;tbl_extractedinfo_s.code_s];
+    assetname = [tbl_extractedinfo_b.assetname_b;tbl_extractedinfo_s.assetname_s];
+    opentype = [tbl_extractedinfo_b.opentype_b;tbl_extractedinfo_s.opentype_s];
+    opensignal = [tbl_extractedinfo_b.opensignal_b;tbl_extractedinfo_s.opensignal_s];
+    direction = [tbl_extractedinfo_b.direction_b;tbl_extractedinfo_s.direction_s];
+    openid = [tbl_extractedinfo_b.openid_b;tbl_extractedinfo_s.openid_s];
+    opendatetime = [tbl_extractedinfo_b.opendatetime_b;tbl_extractedinfo_s.opendatetime_s];
+    opendate = [tbl_extractedinfo_b.opendate_b;tbl_extractedinfo_s.opendate_s];
+    openprice = [tbl_extractedinfo_b.openprice_b;tbl_extractedinfo_s.openprice_s];
+    opennotional = [tbl_extractedinfo_b.opennotional_b;tbl_extractedinfo_s.opennotional_s];
+    pnlrel = [tbl_extractedinfo_b.pnlrel_b;tbl_extractedinfo_s.pnlrel_s];
+    closestr = [tbl_extractedinfo_b.closestr_b;tbl_extractedinfo_s.closestr_s];
+    trendflag = [tbl_extractedinfo_b.trendflag_b;tbl_extractedinfo_s.trendflag_s];
     tbl_extractedinfo = table(code,assetname,opentype,opensignal,direction,openid,opendatetime,opendate,openprice,opennotional,pnlrel,closestr,trendflag);
     tbl_extractedinfo = sortrows(tbl_extractedinfo,'opendatetime','ascend');
     fprintf('data extracted...\n');
     %
     % 3. plot bmtc(buy-medium-trendconfirmed),bstc(buy-strong-trendconfirmed)
     % and smtc(sell-medium-trendconfirmed),sstc(sell-strong-trendconfirmed)
+    nb = size(tbl_extractedinfo_b,1);
+    ns = size(tbl_extractedinfo_s,1);
     idx_bmtc = zeros(nb,1);
     idx_bstc = zeros(nb,1);
     idx_smtc = zeros(ns,1);
     idx_sstc = zeros(ns,1);
     for i = 1:nb
-        if opentype_b(i) == 2 && trendflag_b(i) == 1
+        if tbl_extractedinfo_b.opentype_b(i) == 2 && tbl_extractedinfo_b.trendflag_b(i) == 1
             idx_bmtc(i) = 1;
         end
-        if opentype_b(i) == 3 && trendflag_b(i) == 1
+        if tbl_extractedinfo_b.opentype_b(i) == 3 && tbl_extractedinfo_b.trendflag_b(i) == 1
             idx_bstc(i) = 1;
         end
     end
     idx_bmtc = logical(idx_bmtc);
     idx_bstc = logical(idx_bstc);
     for i = 1:ns
-        if opentype_s(i) == 2 && trendflag_s(i) == 1
+        if tbl_extractedinfo_s.opentype_s(i) == 2 && tbl_extractedinfo_s.trendflag_s(i) == 1
             idx_smtc(i) = 1;
         end
-        if opentype_s(i) == 3 && trendflag_s(i) == 1
+        if tbl_extractedinfo_s.opentype_s(i) == 3 && tbl_extractedinfo_s.trendflag_s(i) == 1
             idx_sstc(i) = 1;
         end
     end
