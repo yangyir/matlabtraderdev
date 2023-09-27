@@ -22,7 +22,7 @@ signal_l_valid_grease = k_l_grease_i.opensignal_unique_l(logical(k_l_grease_i.us
 signal_s_valid_grease = k_s_grease_i.opensignal_unique_s(logical(k_s_grease_i.use_unique_s));
 assetlist_grease = unique([tblbyasset_l_grease_i.assetlist;tblbyasset_s_grease_i.assetlist]);
 nasset = size(assetlist_grease,1);
-%%
+%
 WMat_L_grease_i = zeros(length(signal_l_valid_grease),nasset);
 RMat_L_grease_i = WMat_L_grease_i;
 KMat_L_grease_i = WMat_L_grease_i;
@@ -34,7 +34,7 @@ for i = 1:length(signal_l_valid_grease)
         KMat_L_grease_i(i,j) = ret.K;
     end
 end
-%%
+%
 WMat_S_grease_i = zeros(length(signal_s_valid_grease),nasset);
 RMat_S_grease_i = WMat_S_grease_i;
 KMat_S_grease_i = WMat_S_grease_i;
@@ -46,7 +46,7 @@ for i = 1:length(signal_s_valid_grease)
         KMat_S_grease_i(i,j) = ret.K;
     end
 end
-%%
+%
 %%
 strat_daily_grease = struct('tblbyasset_l',tblbyasset_l_grease_i,...
     'tblbyasset_s',tblbyasset_s_grease_i,...
@@ -64,4 +64,4 @@ strat_daily_grease = struct('tblbyasset_l',tblbyasset_l_grease_i,...
     'kelly_matrix_s',WMat_S_grease_i,...
     'signal_l',{signal_l_valid_grease},...
     'signal_s',{signal_s_valid_grease},...
-    'asset_list',{assetlist_grease});
+    'asset_list',{assetlist_grease'});
