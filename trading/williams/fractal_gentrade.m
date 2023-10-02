@@ -145,7 +145,7 @@ if longshort == 1
     end
     
     if resstruct.teeth(idx) > trade.riskmanager_.pxstoploss_
-        trade.riskmanager_.pxstoploss_;
+        trade.riskmanager_.pxstoploss_ = floor(resstruct.teeth(idx)/ticksize)*ticksize;
         trade.riskmanager_.closestr_ = 'fractal:teeth';
     end
     
@@ -251,7 +251,7 @@ elseif longshort == -1
     end
     
     if resstruct.teeth(idx) < trade.riskmanager_.pxstoploss_
-        trade.riskmanager_.pxstoploss_;
+        trade.riskmanager_.pxstoploss_ = ceil(resstruct.teeth(idx)/ticksize)*ticksize;
         trade.riskmanager_.closestr_ = 'fractal:teeth';
     end
     
