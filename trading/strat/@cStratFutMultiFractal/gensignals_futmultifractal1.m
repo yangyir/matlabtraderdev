@@ -138,10 +138,32 @@ function signals = gensignals_futmultifractal1(stratfractal)
             if ~isempty(signal_i)
                 if signal_i(1) == 0
                     if ~strcmpi(freq,'1440m')
+                        if op.direction == 1
+                            idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_.kelly_table_l.opensignal_unique_l);
+                            kelly = stratfractal.tbl_all_intraday_.kelly_table_l.kelly_unique_l(idx);
+                            wprob = stratfractal.tbl_all_intraday_.kelly_table_l.winp_unique_l(idx);
+                        elseif op.direction == -1
+                            idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_.kelly_table_s.opensignal_unique_s);
+                            kelly = stratfractal.tbl_all_intraday_.kelly_table_s.kelly_unique_s(idx);
+                            wprob = stratfractal.tbl_all_intraday_.kelly_table_s.winp_unique_s(idx);
+                        else
+                            kelly = 0;
+                            wprob = 0;
+                        end
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     else
-                        idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_l.opensignal_unique_l);
-                        kelly = stratfractal.tbl_all_daily_.kelly_table_l.kelly_unique_l(idx);
-                        wprob = stratfractal.tbl_all_daily_.kelly_table_l.winp_unique_l(idx);
+                        if op.direction == 1
+                            idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_l.opensignal_unique_l);
+                            kelly = stratfractal.tbl_all_daily_.kelly_table_l.kelly_unique_l(idx);
+                            wprob = stratfractal.tbl_all_daily_.kelly_table_l.winp_unique_l(idx);
+                        elseif op.direction == -1
+                            idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_s.opensignal_unique_s);
+                            kelly = stratfractal.tbl_all_daily_.kelly_table_s.kelly_unique_s(idx);
+                            wprob = stratfractal.tbl_all_daily_.kelly_table_s.winp_unique_s(idx);
+                        else
+                            kelly = 0;
+                            wprob = 0;
+                        end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     end
                 elseif signal_i(1) == 1
@@ -151,6 +173,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             strcmpi(op.comment,'breachup-highsc13')
                         %do nothing as this is for sure trending trades
                         if ~strcmpi(freq,'1440m')
+                            kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
+                            wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         else
                             idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_l.opensignal_unique_l);
                             kelly = stratfractal.tbl_all_daily_.kelly_table_l.kelly_unique_l(idx);
@@ -160,6 +185,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     else
                         if strcmpi(op.comment,'breachup-lvlup') && ~status.istrendconfirmed
                             if ~strcmpi(freq,'1440m')
+                                vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tb;
+                                idx = strcmpi(vlookuptbl.asset,assetname);
+                                try
+                                    kelly = vlookuptbl.K(idx);
+                                    wprob = vlookuptbl.W(idx);
+                                catch
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
+                                if kelly < 0.15, signal_i(1) = 0;end
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-lvlup-tb',100*kelly,100*wprob);
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tb;
                                 idx = strcmpi(vlookuptbl.asset,assetname);
@@ -175,6 +211,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             end
                         elseif strcmpi(op.comment,'breachup-sshighvalue') && ~status.istrendconfirmed
                             if ~strcmpi(freq,'1440m')
+                                vlookuptbl = stratfractal.tbl_all_intraday_.breachupsshighvalue_tb;
+                                idx = strcmpi(vlookuptbl.asset,assetname);
+                                try
+                                    kelly = vlookuptbl.K(idx);
+                                    wprob = vlookuptbl.W(idx);
+                                catch
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
+                                if kelly < 0.15, signal_i(1) = 0;end
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-sshighvalue-tb',100*kelly,100*wprob);
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachupsshighvalue_tb;
                                 idx = strcmpi(vlookuptbl.asset,assetname);
@@ -190,6 +237,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             end
                         else
                             if ~strcmpi(freq,'1440m')
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                             else
                                 idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_l.opensignal_unique_l);
                                 kelly = stratfractal.tbl_all_daily_.kelly_table_l.kelly_unique_l(idx);
@@ -207,6 +257,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             strcmpi(op.comment,'breachdn-lowbc13')
                         %do nothing as this is for sure trending trades
                         if ~strcmpi(freq,'1440m')
+                            kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
+                            wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         else
                             idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_s.opensignal_unique_s);
                             kelly = stratfractal.tbl_all_daily_.kelly_table_s.kelly_unique_s(idx);
@@ -216,6 +269,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     else
                         if strcmpi(op.comment,'breachdn-lvldn') && ~status.istrendconfirmed
                             if ~strcmpi(freq,'1440m')
+                                vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tb;
+                                idx = strcmpi(vlookuptbl.asset,assetname);
+                                try
+                                    kelly = vlookuptbl.K(idx);
+                                    wprob = vlookuptbl.W(idx);
+                                catch
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
+                                if kelly < 0.15, signal_i(1) = 0;end
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-lvldn-tb',100*kelly,100*wprob);
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tb;
                                 idx = strcmpi(vlookuptbl.asset,assetname);
@@ -231,6 +295,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             end
                         elseif strcmpi(op.comment,'breachdn-bshighvalue') && ~status.istrendconfirmed
                             if ~strcmpi(freq,'1440m')
+                                vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tb;
+                                idx = strcmpi(vlookuptbl.asset,assetname);
+                                try
+                                    kelly = vlookuptbl.K(idx);
+                                    wprob = vlookuptbl.W(idx);
+                                catch
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
+                                if kelly < 0.15, signal_i(1) = 0;end
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-sshighvalue-tb',100*kelly,100*wprob);
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachdnbshighvalue_tb;
                                 idx = strcmpi(vlookuptbl.asset,assetname);
@@ -246,6 +321,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             end
                         else
                             if ~strcmpi(freq,'1440m')
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                             else
                                 idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_s.opensignal_unique_s);
                                 kelly = stratfractal.tbl_all_daily_.kelly_table_s.kelly_unique_s(idx);
@@ -279,13 +357,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1
                     if strcmpi(op_cond_i{1,1},'conditional:mediumbreach-trendconfirmed')
                         if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_tc_intraday_{1}.table;
+                            vlookuptbl = stratfractal.tbl_all_intraday_.bmtc;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.bmtc;
                         end
                     elseif strcmpi(op_cond_i{1,1},'conditional:strongbreach-trendconfirmed')
                         if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_tc_intraday_{2}.table;
+                            vlookuptbl = stratfractal.tbl_all_intraday_.bstc;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.bstc;
                         end
@@ -309,13 +387,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1
                     if strcmpi(op_cond_i{1,2},'conditional:mediumbreach-trendconfirmed')
                         if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_tc_intraday_{3}.table;
+                            vlookuptbl = stratfractal.tbl_all_intraday_.smtc;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.smtc;
                         end
                     elseif strcmpi(op_cond_i{1,2},'conditional:strongbreach-trendconfirmed')
                         if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_tc_intraday_{4}.table;
+                            vlookuptbl = stratfractal.tbl_all_intraday_.sstc;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.sstc;
                         end
@@ -417,7 +495,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 hhbelowlvlup = hh(end)<lvlup(end) ...
                     & hh(end)>teeth(end) ...
                     & lips(end)>teeth(end) ...
-                    & p(end,5)<hh(end);
+                    & p(end,5)<hh(end) ...
+                    & p(end,5)>teeth(end);
 
                 if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1
                     %TREND has priority over TDST breakout
@@ -445,7 +524,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 else
                     if hhabovelvlup
                         if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_tb_intraday_{1}.table;
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tb;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tb;
                         end
@@ -472,16 +551,31 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             signals{i,1} = this_signal;
                         end
                     elseif hhbelowlvlup && p(end,3)>lvldn(end)
-%                         this_signal = zeros(1,7);
-%                         this_signal(1,1) = 1;
-%                         this_signal(1,2) = lvlup(end);                          %HH is still below TDST-lvlup
-%                         this_signal(1,3) = ll(end);
-%                         this_signal(1,5) = p(end,3);
-%                         this_signal(1,6) = p(end,4);
-%                         this_signal(1,7) = lips(end);
-%                         this_signal(1,4) = 4;
-%                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup');
-%                         signals{i,1} = this_signal;
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tb;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tb;
+                        end
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        try
+                            kelly = vlookuptbl.K(idx);
+                            wprob = vlookuptbl.W(idx);
+                        catch
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                        if kelly >= 0.4                        
+                            this_signal = zeros(1,7);
+                            this_signal(1,1) = 1;
+                            this_signal(1,2) = lvlup(end);                          %HH is still below TDST-lvlup
+                            this_signal(1,3) = ll(end);
+                            this_signal(1,5) = p(end,3);
+                            this_signal(1,6) = p(end,4);
+                            this_signal(1,7) = lips(end);
+                            this_signal(1,4) = 4;
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup',100*kelly,100*wprob);
+                            signals{i,1} = this_signal;
+                        end
                     end
                 end
                 %
@@ -589,7 +683,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     %NOT BELOW TEETH
                     if llbelowlvldn
                         if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_tb_intraday_{2}.table;
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tb;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tb;
                         end
