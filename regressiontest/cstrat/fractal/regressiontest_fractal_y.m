@@ -5,7 +5,7 @@ try
 catch
 end
 %
-codes = {'y2309'};
+codes = {'y2401'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
@@ -28,14 +28,14 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-06-15','replaytodate','2023-06-15');
+    'replayfromdate','2023-09-07','replaytodate','2023-09-07');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
+combo.strategy.load_kelly_intraday('directory','C:\Users\yy\OneDrive\fractal backtest\kelly distribution\matlab\grease\','filename','strat_intraday_grease.mat');
 set(0,'DefaultFigureWindowStyle','docked');
-mde_fin_plot(combo.mdefut);
 %%
 combo.mdefut.start;
 combo.ops.start;
