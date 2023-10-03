@@ -38,12 +38,20 @@ function [ret] = kellyempirical(varargin)
     if direction == 1
         ntrades = sum(cell2mat(tbl.NumOfTrades_L));
         nwintrades = sum(cell2mat(tbl.NumOfTrades_L).*cell2mat(tbl.WinProb_L));
-        winavgpnl = sum(cell2mat(tbl.NumOfTrades_L).*cell2mat(tbl.WinProb_L).*cell2mat(tbl.WinAvgPnL_L))/nwintrades;
+        if nwintrades == 0
+            winavgpnl = 0;
+        else
+            winavgpnl = sum(cell2mat(tbl.NumOfTrades_L).*cell2mat(tbl.WinProb_L).*cell2mat(tbl.WinAvgPnL_L))/nwintrades;
+        end
         lossavgpnl = sum(cell2mat(tbl.NumOfTrades_L).*(1-cell2mat(tbl.WinProb_L)).*cell2mat(tbl.LossAvgPnL_L))/(ntrades-nwintrades);
     else
         ntrades = sum(cell2mat(tbl.NumOfTrades_S));
         nwintrades = sum(cell2mat(tbl.NumOfTrades_S).*cell2mat(tbl.WinProb_S));
-        winavgpnl = sum(cell2mat(tbl.NumOfTrades_S).*cell2mat(tbl.WinProb_S).*cell2mat(tbl.WinAvgPnL_S))/nwintrades;
+        if nwintrades == 0
+            winavgpnl = 0;
+        else
+            winavgpnl = sum(cell2mat(tbl.NumOfTrades_S).*cell2mat(tbl.WinProb_S).*cell2mat(tbl.WinAvgPnL_S))/nwintrades;
+        end
         lossavgpnl = sum(cell2mat(tbl.NumOfTrades_S).*(1-cell2mat(tbl.WinProb_S)).*cell2mat(tbl.LossAvgPnL_S))/(ntrades-nwintrades);
     end
     W = nwintrades/ntrades;
