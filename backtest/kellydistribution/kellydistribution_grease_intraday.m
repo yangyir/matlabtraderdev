@@ -70,3 +70,4 @@ strat_intraday_grease = struct('tblbyasset_l',tblbyasset_l_grease_i,...
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'];
 save([dir_,'strat_intraday_grease.mat'],'strat_intraday_grease');
+fprintf('file saved...\n');
