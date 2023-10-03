@@ -487,7 +487,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     winavgpnl_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*cell2mat(vlookuptbl_valid_l.WinProb_L).*cell2mat(vlookuptbl_valid_l.WinAvgPnL_L))/nwintrades_l;
     lossavgpnl_l = sum(cell2mat(vlookuptbl_valid_l.NumOfTrades_L).*(1-cell2mat(vlookuptbl_valid_l.WinProb_L)).*cell2mat(vlookuptbl_valid_l.LossAvgPnL_L))/(ntrades_l-nwintrades_l);
     W_L_ALL = nwintrades_l/ntrades_l;
-    R_L_ALL = abs(winavgpnl_l/lossavgpnl_l);
+    if W_L_ALL == 1
+        R_L_ALL = 9.99;
+    else
+        R_L_ALL = abs(winavgpnl_l/lossavgpnl_l);
+    end
     K_L_ALL = W_L_ALL - (1-W_L_ALL)/R_L_ALL;
     %
     signal_s_valid = kelly_table_s.opensignal_unique_s(logical(kelly_table_s.use_unique_s));
@@ -503,7 +507,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     winavgpnl_s = sum(cell2mat(vlookuptbl_valid_s.NumOfTrades_S).*cell2mat(vlookuptbl_valid_s.WinProb_S).*cell2mat(vlookuptbl_valid_s.WinAvgPnL_S))/nwintrades_s;
     lossavgpnl_s = sum(cell2mat(vlookuptbl_valid_s.NumOfTrades_S).*(1-cell2mat(vlookuptbl_valid_s.WinProb_S)).*cell2mat(vlookuptbl_valid_s.LossAvgPnL_S))/(ntrades_s-nwintrades_s);
     W_S_ALL = nwintrades_s/ntrades_s;
-    R_S_ALL = abs(winavgpnl_s/lossavgpnl_s);
+    if W_S_ALL == 1
+        R_S_ALL = 9.99;
+    else
+        R_S_ALL = abs(winavgpnl_s/lossavgpnl_s);
+    end
     K_S_ALL = W_S_ALL - (1-W_S_ALL)/R_S_ALL;
     %
     assetcolumn = vlookuptbl_valid_l.Asset_L;
@@ -523,7 +531,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         lossavgpnl = sum(cell2mat(tbl_i.NumOfTrades_L).*(1-cell2mat(tbl_i.WinProb_L)).*cell2mat(tbl_i.LossAvgPnL_L))/(ntrades-nwintrades);
         N_L(i) = ntrades;
         W_L(i) = nwintrades/ntrades;
-        R_L(i) = abs(winavgpnl/lossavgpnl);
+        if W_L(i) == 1
+            R_L(i) = 9.99;
+        else
+            R_L(i) = abs(winavgpnl/lossavgpnl);
+        end
         K_L(i) = W_L(i) - (1-W_L(i))/R_L(i);
     end
     assetlist{nasset+1,1} = 'all';
@@ -551,7 +563,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         lossavgpnl = sum(cell2mat(tbl_i.NumOfTrades_S).*(1-cell2mat(tbl_i.WinProb_S)).*cell2mat(tbl_i.LossAvgPnL_S))/(ntrades-nwintrades);
         N_S(i) = ntrades;
         W_S(i) = nwintrades/ntrades;
-        R_S(i) = abs(winavgpnl/lossavgpnl);
+        if W_S(i) == 1
+            R_S(i) = 9.99;
+        else
+            R_S(i) = abs(winavgpnl/lossavgpnl);
+        end
         K_S(i) = W_S(i) - (1-W_S(i))/R_S(i);
     end
     assetlist{nasset+1,1} = 'all';
