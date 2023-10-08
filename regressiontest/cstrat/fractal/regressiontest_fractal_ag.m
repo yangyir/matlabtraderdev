@@ -28,13 +28,13 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-06-15','replaytodate','2023-06-15');
+    'replayfromdate','2023-07-06','replaytodate','2023-07-06');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-combo.mdefut.showfigures_ = false;
+combo.mdefut.showfigures_ = true;
 %%
 combo.mdefut.start;
 combo.ops.start;

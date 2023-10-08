@@ -5,7 +5,7 @@ try
 catch
 end
 %
-codes = {'cu2210';'al2210';'zn2210';'pb2210';'ni2210';'sn2210'};
+codes = {'cu2308';'al2308';'zn2308';'pb2308';'ni2308';'sn2308'};
 lots = [1;2;2;2;2;1];
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
@@ -29,12 +29,13 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2022-09-01','replaytodate','2022-09-01');
+    'replayfromdate','2023-07-03','replaytodate','2023-07-03');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
+combo.mdefut.showfigures_ = false;
 %%
 combo.mdefut.start;
 combo.ops.start;
