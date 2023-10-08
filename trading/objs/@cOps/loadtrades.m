@@ -89,7 +89,11 @@ function [] = loadtrades(obj,varargin)
                 if isa(trade_i.opensignal_,'cFractalInfo') && isa(trade_i.riskmanager_,'cSpiderman')
                     if ~strcmpi(trade_i.opensignal_.frequency_,'1440m')
                         [wad,px] = obj.mdefut_.calc_wad_(trade_i.instrument_,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                        iopen = find(px(:,1) <= trade_i.opendatetime1_,1,'last')-1;
+                        if ~isempty(strfind(trade_i.opensignal_.mode_,'conditional'))
+                            iopen = find(px(:,1) <= trade_i.opendatetime1_,1,'last');
+                        else
+                            iopen = find(px(:,1) <= trade_i.opendatetime1_,1,'last')-1;
+                        end
                     else
                         if hour(t) < 9
                             [wad,px] = obj.mdefut_.calc_wad_(trade_i.instrument_,'IncludeLastCandle',0,'RemoveLimitPrice',1);
