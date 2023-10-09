@@ -52,6 +52,10 @@ for i = 1:n
         if strcmpi(codes{i},'gzhy')
             instrument = codes{i};
             ticksize = 0.0001;%1bp
+        elseif strcmpi(codes{i},'tb01y') || strcmpi(codes{i},'tb03y') || strcmpi(codes{i},'tb05y') || ...
+                strcmpi(codes{i},'tb07y') || strcmpi(codes{i},'tb10y') || strcmpi(codes{i},'tb30y')
+            instrument = codes{i};
+            ticksize = 0.001;%0.1bp
         elseif strcmpi(codes{i},'audusd') || strcmpi(codes{i},'eurusd') || strcmpi(codes{i},'gbpusd') || ...
                 strcmpi(codes{i},'usdcad') || strcmpi(codes{i},'usdchf') || strcmpi(codes{i},'eurchf') || ...
                 strcmpi(codes{i},'gbpeur') || strcmpi(codes{i},'usdcnh')

@@ -18,7 +18,12 @@ if ~isglobalmacro
                 iscomdtyindex = true;
             end
         else
-            if ~strcmpi(code,'gzhy')
+            if strcmpi(code,'gzhy') || strcmpi(code,'tb01y') || strcmpi(code,'tb03y') || ...
+                    strcmpi(code,'tb05y') || strcmpi(code,'tb07y') || strcmpi(code,'tb10y') || ...
+                    strcmpi(code,'tb30y')
+                isequity = false;
+                iscomdtyindex = false;
+            else
                 assetinfo = getassetinfo(instrument.asset_name);
                 if ~strcmpi(assetinfo.AssetType,'agriculture')
                     error('fractal_daily_checker:invalid code input:%s not supported',assetinfo.AssetType);
