@@ -71,6 +71,9 @@ classdef cStock < cInstrument
             elseif strcmpi(codestr,'SPX') || strcmpi(codestr,'DJI') || strcmpi(codestr,'IXIC') || ...
                     strcmpi(codestr,'N225') || strcmpi(codestr,'FTSE') || strcmpi(codestr,'GDAXI')
                 obj.code_wind = [codestr,'.GI'];
+            elseif strcmpi(codestr,'tb01y') || strcmpi(codestr,'tb03y') || strcmpi(codestr,'tb05y') || ...
+                    strcmpi(codestr,'tb07y') || strcmpi(codestr,'tb10y') || strcmpi(codestr,'tb30y')
+                obj.code_wind = [upper(codestr),'.WI'];
             else
                 if length(codestr) == 6 && isempty(strfind(obj.code_ctp,'.WI'))
                     if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
@@ -92,6 +95,9 @@ classdef cStock < cInstrument
             
             if strcmpi(codestr,'000001.SH')
                 obj.tick_size = 0.01;
+            elseif strcmpi(codestr,'tb01y') || strcmpi(codestr,'tb03y') || strcmpi(codestr,'tb05y') || ...
+                    strcmpi(codestr,'tb07y') || strcmpi(codestr,'tb10y') || strcmpi(codestr,'tb30y')
+                obj.tick_size = 0.001;
             else
                 if strcmpi(codestr(1),'1') || strcmpi(codestr(1),'5')
                     obj.tick_size = 0.001;
