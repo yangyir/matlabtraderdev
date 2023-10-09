@@ -29,14 +29,14 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-09-01','replaytodate','2023-09-01');
+    'replayfromdate','2023-09-07','replaytodate','2023-09-07');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-set(0,'DefaultFigureWindowStyle','docked');
-mde_fin_plot(combo.mdefut);
+combo.strategy.load_kelly_daily('directory','C:\Users\yiran\OneDrive\fractal backtest\kelly distribution\matlab\comdty_domestic\',...
+    'filename','strat_comdty_domestic_daily_2023w37.mat');
 %%
 combo.mdefut.start;
 combo.ops.start;
@@ -52,4 +52,5 @@ end
 %%
 combo.ops.condentrustspending_.latest
 %%
+set(0,'DefaultFigureWindowStyle','docked');
 mde_fin_plot(combo.mdefut);

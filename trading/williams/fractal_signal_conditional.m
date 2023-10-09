@@ -220,8 +220,10 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
     %2)the lips,teeth and jaws are not crossed
     %3)the fractal ll moves dnward or (breachdn-lvldn case)
     %then the short trend shall be confirmed
+%     sflag1 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+%         ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
     sflag1 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-        ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+        ei.teeth(end-2*nfractal+1:end)>0,1,'first'));
     sflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
     sflag3 = lldnward;
     sflag4 = (~lldnward && ei.ll(end)<=ei.lvldn(end)&&ei.px(end,5)>=ei.lvldn(end));
@@ -235,7 +237,11 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
                 %shorttrend is valid if fractal ll moves dnward
                 %TODO:
                 %NO MATTER WHETHER ANY LIPS,TEETH OR JAWS CROSSED
-                shorttrend = true;
+                shorttrend = sflag1;
+                if ~shorttrend
+                    shorttrend = isempty(find(ei.px(end-nfractal+1:end,5)-...
+                        ei.teeth(end-nfractal+1:end)>0,1,'first'));
+                end
             else
                 %special cases if ll moves upward
                 if ~isteethlipscrossed
@@ -273,9 +279,9 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
                 %short trend can be identified as long as there are
                 %2*nfracal candles' high below alligator's teeth
                 shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,3)-...
-                    ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first')) || ...
+                    ei.teeth(end-2*nfractal+1:end)+2*ticksize>0,1,'first')) || ...
                     isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-                    min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
+                    min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize>0,1,'first'));
             else
                 shorttrend = false;
             end

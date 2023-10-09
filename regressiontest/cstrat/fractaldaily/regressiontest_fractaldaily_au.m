@@ -5,21 +5,22 @@ try
 catch
 end
 %
-codes = {'OI401'};
-for i = 1:length(codes)
-    addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
-    addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
-end
-path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
+codes = {'au2312'};
+path_ = [getenv('HOME'),'\regressiontest\cstrat\fractaldaily\'];
 cd(path_);
-bookname = 'rapeseedoil';
+for i = 1:size(codes,1)
+    addpath([getenv('DATAPATH'),'intradaybar\',codes{i},'\']);
+    addpath([getenv('DATAPATH'),'ticks\',codes{i},'\']);
+end
+cd(path_);
+bookname = 'daily_gold';
 strategyname = 'fractal';
-riskconfigfilename = 'config_rapeseedoil.txt';
+riskconfigfilename = 'daily_config_gold.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
     'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'usefractalupdate'},...
-    'propvalues',{4;'30m';1;1;'spiderman';1;0});
+    'propvalues',{2;'1440m';1;1;'spiderman';1;0});
 end
 %
 combo = rtt_setup('countername','ccb_ly_fut',...
@@ -28,14 +29,14 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-09-06','replaytodate','2023-09-06');
+    'replayfromdate','2023-09-11','replaytodate','2023-09-15');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-combo.strategy.load_kelly_intraday('directory','C:\Users\yiran\OneDrive\fractal backtest\kelly distribution\matlab\grease\','filename','strat_intraday_grease.mat');
-set(0,'DefaultFigureWindowStyle','docked');
+combo.strategy.load_kelly_daily('directory','C:\Users\yiran\OneDrive\fractal backtest\kelly distribution\matlab\comdty_domestic\',...
+    'filename','strat_comdty_domestic_daily_2023w37.mat');
 %%
 combo.mdefut.start;
 combo.ops.start;
@@ -51,4 +52,5 @@ end
 %%
 combo.ops.condentrustspending_.latest
 %%
+set(0,'DefaultFigureWindowStyle','docked');
 mde_fin_plot(combo.mdefut);

@@ -1,7 +1,6 @@
 function [] = load_kelly_daily(obj,varargin)
 % a cStratFutMultiFractal public method
-% to load empirical kelly tables based on intraday (30m) data
-    variablenotused(obj);
+% to load empirical kelly tables based on daily data
 %     error('cStratFutMultiFractal:load_kelly_daily not implemented')
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;

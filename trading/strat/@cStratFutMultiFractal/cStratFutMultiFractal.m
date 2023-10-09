@@ -20,10 +20,7 @@ classdef cStratFutMultiFractal < cStrat
         %
         displaysignalonly_@logical = false
         %
-        tbl_all_intraday_@cell
-        tbl_tc_intraday_@cell
-        tbl_tb_intraday_@cell
-        tbl_exotics_intraday_@cell
+        tbl_all_intraday_@struct
         %
         tbl_all_daily_@struct
         

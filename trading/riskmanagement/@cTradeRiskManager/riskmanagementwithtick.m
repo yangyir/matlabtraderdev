@@ -38,15 +38,15 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
     instrument = obj.trade_.instrument_;
     %1.check whether either 1) stop loss is breached or 2) target is
     %breached
-    if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ < -instrument.tick_size) ||...
-            (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ > instrument.tick_size)
+    if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ <= 0 ) ||...
+            (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ >= 0)
 %             (obj.trade_.opendirection_ == 1 && tickBid > obj.pxtarget_) || ...
 %             (obj.trade_.opendirection_ == -1 && tickAsk < obj.pxtarget_)
         
         ismarketopen = istrading(tickTime,instrument.trading_hours,'tradingbreak',instrument.trading_break);
         if ismarketopen
-            if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ < -instrument.tick_size) || ...
-                    (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ > instrument.tick_size)
+%             if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ < -instrument.tick_size) || ...
+%                     (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ > instrument.tick_size)
                 obj.closestr_ = 'tick breaches stoploss price';
                 if doprint
                     fprintf('%s:%s:%s of %s...\n',...
@@ -65,7 +65,7 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
 %                         obj.closestr_,...
 %                         num2str(obj.pxtarget_));
 %                 end
-            end
+%             end
                     
             if strcmpi(class(obj),'cBatman'), obj.checkflag_ = 0;end
         
