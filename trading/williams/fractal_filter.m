@@ -51,7 +51,7 @@ for i = 1:n
     else
         if strcmpi(codes{i},'gzhy')
             instrument = codes{i};
-            ticksize = 0.0001;%1bp
+            ticksize = 0.0025;%0.25bp
         elseif strcmpi(codes{i},'audusd') || strcmpi(codes{i},'eurusd') || strcmpi(codes{i},'gbpusd') || ...
                 strcmpi(codes{i},'usdcad') || strcmpi(codes{i},'usdchf') || strcmpi(codes{i},'eurchf') || ...
                 strcmpi(codes{i},'gbpeur') || strcmpi(codes{i},'usdcnh')

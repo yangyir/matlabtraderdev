@@ -35,6 +35,8 @@ try
         ticksize = 0.01;
     elseif strcmpi(code,'usdx')
         ticksize = 0.01;
+    elseif strcmpi(code,'gzhy')
+        ticksize = 0.0025;
     else
         instrument = code2instrument(code);
         ticksize = instrument.tick_size;
