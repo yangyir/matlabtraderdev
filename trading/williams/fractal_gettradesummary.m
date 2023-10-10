@@ -15,6 +15,9 @@ if isequity
 else
     if strcmpi(code,'gzhy')
         ticksize = 0.0001;
+    elseif strcmpi(code,'tb01y') || strcmpi(code,'tb03y') || strcmpi(code,'tb05y') || strcmpi(code,'tb07y') || ...
+            strcmpi(code,'tb10y') || strcmpi(code,'tb30y')
+        ticksize = 0.001;%0.1bp
     elseif strcmpi(code,'audusd') || strcmpi(code,'eurusd') || strcmpi(code,'gbpusd') || ...
                 strcmpi(code,'usdcad') || strcmpi(code,'usdchf') || strcmpi(code,'eurchf') || ...
                 strcmpi(code,'gbpeur') || strcmpi(code,'usdcnh')
@@ -372,17 +375,17 @@ if ~isempty(tblb_data)
             if isempty(tbl_this_mode{k,20}),continue;end
             if tbl_this_mode{k,18} >= 0
                 wincount = wincount + 1;
-                if ~strcmpi(code,'gzhy')
-                    wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
-                else
+                if strcmpi(code,'gzhy') || strcmpi(code,'tb10y')
                     wintotalpnl = wintotalpnl + tbl_this_mode{k,18};
+                else
+                    wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
                 end
             elseif tbl_this_mode{k,18} < 0
                 losscount = losscount + 1;
-                if ~strcmpi(code,'gzhy')
-                    losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
-                else
+                if strcmpi(code,'gzhy') || strcmpi(code,'tb10y')
                     losstotalpnl = losstotalpnl + tbl_this_mode{k,18};
+                else
+                    losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
                 end
             end
         end
@@ -445,17 +448,17 @@ if ~isempty(tbls_data)
             if isempty(tbl_this_mode{k,20}),continue;end
             if tbl_this_mode{k,18} >= 0
                 wincount = wincount + 1;
-                if ~strcmpi(code,'gzhy')
-                    wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
-                else
+                if strcmpi(code,'gzhy') || strcmpi(code,'tb10y')
                     wintotalpnl = wintotalpnl + tbl_this_mode{k,18};
+                else
+                    wintotalpnl = wintotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
                 end
             elseif tbl_this_mode{k,18} < 0
                 losscount = losscount + 1;
-                if ~strcmpi(code,'gzhy')
-                    losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
-                else
+                if strcmpi(code,'gzhy') || strcmpi(code,'tb10y')
                     losstotalpnl = losstotalpnl + tbl_this_mode{k,18};
+                else
+                    losstotalpnl = losstotalpnl + tbl_this_mode{k,18}/tbl_this_mode{k,17}/contractsize;
                 end
             end
         end

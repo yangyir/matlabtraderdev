@@ -37,6 +37,9 @@ try
         ticksize = 0.01;
     elseif strcmpi(code,'gzhy')
         ticksize = 0.0025;
+    elseif strcmpi(code,'tb01y') || strcmpi(code,'tb03y') || strcmpi(code,'tb05y') || ...
+            strcmpi(code,'tb07y') || strcmpi(code,'tb10y') || strcmpi(code,'tb30y') 
+        ticksize = 0.001;
     else
         instrument = code2instrument(code);
         ticksize = instrument.tick_size;
