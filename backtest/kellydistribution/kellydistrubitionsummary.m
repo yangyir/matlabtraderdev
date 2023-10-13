@@ -328,39 +328,55 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     %
     %6.check un-trended breachup-sshighvalue and breachdn-bshighvalue
     idx_breachupsshighvalue_tb = zeros(nb,1);
+    idx_breachupsshighvalue_tc = zeros(nb,1);
     for i = 1:nb
         if strcmpi(tbl_extractedinfo_b.opensignal_b{i,1},'breachup-sshighvalue') && tbl_extractedinfo_b.trendflag_b(i) == 0
             idx_breachupsshighvalue_tb(i) = 1;
         end
+        if strcmpi(tbl_extractedinfo_b.opensignal_b{i,1},'breachup-sshighvalue') && tbl_extractedinfo_b.trendflag_b(i) == 1
+            idx_breachupsshighvalue_tc(i) = 1;
+        end
     end
     idx_breachupsshighvalue_tb = logical(idx_breachupsshighvalue_tb);
+    idx_breachupsshighvalue_tc = logical(idx_breachupsshighvalue_tc);
     pnl_breachupsshighvalue_tb = tbl_extractedinfo_b.pnlrel_b(idx_breachupsshighvalue_tb);
+    pnl_breachupsshighvalue_tc = tbl_extractedinfo_b.pnlrel_b(idx_breachupsshighvalue_tc);
     [winp_breachupsshighvalue_tb,R_breachupsshighvalue_tb,kelly_breachupsshighvalue_tb] = calcrunningkelly(pnl_breachupsshighvalue_tb);
+    [winp_breachupsshighvalue_tc,R_breachupsshighvalue_tc,kelly_breachupsshighvalue_tc] = calcrunningkelly(pnl_breachupsshighvalue_tc);
     figure(8)
     subplot(311);plot(winp_breachupsshighvalue_tb,'r');title('breachup-sshighvalue-tb');ylabel('win prob');grid on;
     subplot(312);plot(R_breachupsshighvalue_tb,'b');ylabel('win/loss');grid on;
     subplot(313);plot(kelly_breachupsshighvalue_tb,'g');xlabel('number of trades');ylabel('kelly criteria');grid on;
     fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachup-sshighvalue-tb',winp_breachupsshighvalue_tb(end)*100,R_breachupsshighvalue_tb(end),kelly_breachupsshighvalue_tb(end)*100,size(kelly_breachupsshighvalue_tb,1));
+    fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachup-sshighvalue-tc',winp_breachupsshighvalue_tc(end)*100,R_breachupsshighvalue_tc(end),kelly_breachupsshighvalue_tc(end)*100,size(kelly_breachupsshighvalue_tc,1));
     %
     idx_breachdnbshighvalue_tb = zeros(ns,1);
+    idx_breachdnbshighvalue_tc = zeros(ns,1);
     for i = 1:ns
         if strcmpi(tbl_extractedinfo_s.opensignal_s{i,1},'breachdn-bshighvalue') && tbl_extractedinfo_s.trendflag_s(i) == 0
             idx_breachdnbshighvalue_tb(i) = 1;
         end
+        if strcmpi(tbl_extractedinfo_s.opensignal_s{i,1},'breachdn-bshighvalue') && tbl_extractedinfo_s.trendflag_s(i) == 1
+            idx_breachdnbshighvalue_tc(i) = 1;
+        end
     end
     idx_breachdnbshighvalue_tb = logical(idx_breachdnbshighvalue_tb);
+    idx_breachdnbshighvalue_tc = logical(idx_breachdnbshighvalue_tc);
     pnl_breachdnbshighvalue_tb = tbl_extractedinfo_s.pnlrel_s(idx_breachdnbshighvalue_tb);
+    pnl_breachdnbshighvalue_tc = tbl_extractedinfo_s.pnlrel_s(idx_breachdnbshighvalue_tc);
     [winp_breachdnbshighvalue_tb,R_breachdnbshighvalue_tb,kelly_breachdnbshighvalue_tb] = calcrunningkelly(pnl_breachdnbshighvalue_tb);
+    [winp_breachdnbshighvalue_tc,R_breachdnbshighvalue_tc,kelly_breachdnbshighvalue_tc] = calcrunningkelly(pnl_breachdnbshighvalue_tc);
     figure(9)
     subplot(311);plot(winp_breachdnbshighvalue_tb,'r');title('breachdn-bshighvalue-tb');ylabel('win prob');grid on;
     subplot(312);plot(R_breachdnbshighvalue_tb,'b');ylabel('win/loss');grid on;
     subplot(313);plot(kelly_breachdnbshighvalue_tb,'g');xlabel('number of trades');ylabel('kelly criteria');grid on;
     fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachdn-bshighvalue-tb',winp_breachdnbshighvalue_tb(end)*100,R_breachdnbshighvalue_tb(end),kelly_breachdnbshighvalue_tb(end)*100,size(kelly_breachdnbshighvalue_tb,1));
+    fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachdn-bshighvalue-tc',winp_breachdnbshighvalue_tc(end)*100,R_breachdnbshighvalue_tc(end),kelly_breachdnbshighvalue_tc(end)*100,size(kelly_breachdnbshighvalue_tc,1));
     fprintf('\n');
     %
     %7.group by each asset in breachuplvlup-tb,breachdn-lvldn-tb,breachup-sshighvalue-tb and breachdn-bshighvalue-tb
-    reportbyasset_tb = cell(6,1);
-    for i = 1:6
+    reportbyasset_tb = cell(8,1);
+    for i = 1:8
         if i == 1
             pnl2check = pnl_breachuplvlup_tb;
             asset2check = tbl_extractedinfo_b.assetname_b(idx_breachuplvlup_tb);
@@ -391,6 +407,16 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             asset2check = tbl_extractedinfo_s.assetname_s(idx_breachdnlvldn_tc);
             reportbyasset_tb{i}.name = 'breachdn-lvldn-tc';
             reportbyasset_tb{i}.direction = 's';
+        elseif i == 7
+            pnl2check = pnl_breachupsshighvalue_tc;
+            asset2check = tbl_extractedinfo_b.assetname_b(idx_breachupsshighvalue_tc);
+            reportbyasset_tb{i}.name = 'breachup-sshighvalue-tc';
+            reportbyasset_tb{i}.direction = 'b';
+        elseif i == 8
+            pnl2check = pnl_breachdnbshighvalue_tc;
+            asset2check = tbl_extractedinfo_s.assetname_s(idx_breachdnbshighvalue_tc);
+            reportbyasset_tb{i}.name = 'breachdn-bshighvalue-tc';
+            reportbyasset_tb{i}.direction = 's';    
         end
         asset = unique(asset2check);
         nasset = size(asset,1);
