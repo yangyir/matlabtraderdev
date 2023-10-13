@@ -68,7 +68,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             %fracal distance (fracal hh minus fratal ll)
             flag2 = extrainfo.px(end,5)<extrainfo.hh(end)+1.618*(extrainfo.hh(end)-extrainfo.ll(end));
             %condition3:candle close is above alligator's lips
-            flag3 = extrainfo.px(end,5)>extrainfo.lips(end);
+            flag3 = extrainfo.px(end,5)>extrainfo.lips(end)-2*ticksize;
             validlongopen = flag1&flag2&flag3;
             if validlongopen
                 signal = zeros(1,7);
@@ -83,15 +83,15 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                 signal = zeros(1,6);
                 if ~flag1
                     op.comment = [op.comment,'-invalid long as close dumps from high'];
-                    op.use = 0;
+%                     op.use = 0;
                 end
                 if ~flag2
                     op.comment = [op.comment,'-invalid long as close moves too high'];
-                    op.use = 0;
+%                     op.use = 0;
                 end
                 if ~flag3
                     op.comment = [op.comment,'-invalid long as close below alligator lips'];
-                    op.use = 0;
+%                     op.use = 0;
                 end
             end
         else
@@ -144,7 +144,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             %fractal distance (fractal hh minus fracal ll)
             flag2 = extrainfo.px(end,5)>extrainfo.ll(end)-1.618*(extrainfo.hh(end)-extrainfo.ll(end));
             %condition3:candle close below alligator's lips
-            flag3 = extrainfo.px(end,5)<extrainfo.lips(end);
+            flag3 = extrainfo.px(end,5)<extrainfo.lips(end)+2*ticksize;
             validshortopen = flag1&flag2&flag3;
             if validshortopen
                 signal = zeros(1,7);
@@ -159,15 +159,23 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                 signal = zeros(1,7);
                 if ~flag1
                     op.comment = [op.comment,'-invalid short as close rallied from low'];
-                    op.use = 0;
+%                     op.use = 0;
                 end
                 if ~flag2
                     op.comment = [op.comment,'-invalid short as close moves too low'];
-                    op.use = 0;
+%                     op.use = 0;
                 end
                 if ~flag3
                     op.comment = [op.comment,'-invalid short as close above alligator lips'];
-                    op.use = 0;
+%                     op.use = 0;
+                    signal = zeros(1,7);
+                    signal(1) = -1;
+                    signal(2) = extrainfo.hh(end);
+                    signal(3) = extrainfo.ll(end);
+                    signal(4) = -1;
+                    signal(5) = extrainfo.px(end,3);
+                    signal(6) = extrainfo.px(end,4);
+                    signal(7) = extrainfo.lips(end);
                 end
             end
         else
