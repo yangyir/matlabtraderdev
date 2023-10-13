@@ -103,6 +103,31 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     end
                     unwindtrade = obj.trade_;
                     return
+                else
+                    %special treatment for conditional-breachdn-bshighvalue
+                    lastbsidx = find(extrainfo.bs >= 9,1,'last');
+                    ndiff = size(extrainfo.bs,1)-lastbsidx;
+                    if ndiff <= 13
+                        lastbsval = extrainfo.bs(lastbsidx);
+                        bslow = min(extrainfo.p(lastbsidx-lastbsval+1:lastbsidx,4));
+                        if bslow == extrainfo.ll(end)
+                            %here we confirm it is a conditional-breachdnbshighvalue
+                            obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                            obj.trade_.closeprice_ = extrainfo.latestopen;
+                            volume = trade.openvolume_;
+                            obj.status_ = 'closed';
+                            obj.trade_.status_ = 'closed';
+                            obj.trade_.runningpnl_ = 0;
+                            instrument = trade.instrument_;
+                            if isempty(instrument)
+                                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                            else
+                                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                            end
+                            unwindtrade = obj.trade_;
+                            return
+                        end
+                    end
                 end
             elseif strcmpi(val,'conditional-breachuplvlup')
                 if extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1)
@@ -151,6 +176,27 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         'updatepnlforclosedtrade',updatepnlforclosedtrade);
     if ~isempty(unwindtrade)
         return
+    end
+    
+    %special case when a long dated public holiday is ahead
+    if runriskmanagementbeforemktclose
+        thisbd = floor(candleTime);
+        nextbd = dateadd(thisbd,'1b');
+        if nextbd - thisbd > 3
+            unwindtrade = trade;
+            obj.closestr_ = 'long holiday';
+            obj.status_ = 'closed';
+            trade.status_ = 'closed';
+            trade.runningpnl_ = 0;
+            trade.closeprice_ = extrainfo.px(end,5);
+            trade.closedatetime1_ = extrainfo.px(end,1);
+            if isempty(trade.instrument_)
+                trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_);
+            else
+                trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+            end
+            return
+        end
     end
     
     obj.updatestoploss('extrainfo',extrainfo);
