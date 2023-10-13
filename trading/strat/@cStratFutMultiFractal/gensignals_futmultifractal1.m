@@ -190,14 +190,14 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             wprob = stratfractal.tbl_all_daily_.kelly_table_l.winp_unique_l(idx);
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         end
-                        if kelly < 0.15 || wprob < 0.4
+                        if kelly < 0.1
                             signal_i(1) = 0;
                             %unwind position as the kelly or
                             %winning probability is low
                             stratfractal.unwindpositions(instruments{i});
                         end
                     else
-                        if strcmpi(op.comment,'breachup-lvlup')
+                        if ~isempty(strfind(op.comment,'breachup-lvlup'))
                             if ~status.istrendconfirmed
                                 if ~strcmpi(freq,'1440m')
                                     vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tb;
@@ -241,7 +241,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     stratfractal.unwindpositions(instruments{i});
                                 end
                             end
-                        elseif strcmpi(op.comment,'breachup-sshighvalue') 
+                        elseif ~isempty(strfind(op.comment,'breachup-sshighvalue')) 
                             if ~status.istrendconfirmed
                                 if ~strcmpi(freq,'1440m')
                                     vlookuptbl = stratfractal.tbl_all_intraday_.breachupsshighvalue_tb;
@@ -323,14 +323,14 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             wprob = stratfractal.tbl_all_daily_.kelly_table_s.winp_unique_s(idx);
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         end
-                        if kelly < 0.15 || wprob < 0.4
+                        if kelly < 0.1
                             signal_i(1) = 0;
                             %unwind position as the kelly or
                             %winning probability is low
                             stratfractal.unwindpositions(instruments{i});
                         end
                     else
-                        if strcmpi(op.comment,'breachdn-lvldn') 
+                        if ~isempty(strfind(op.comment,'breachdn-lvldn')) 
                             if ~status.istrendconfirmed
                                 if ~strcmpi(freq,'1440m')
                                     vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tb;
@@ -367,7 +367,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-lvldn-tc',100*kelly,100*wprob);
                             end
-                        elseif strcmpi(op.comment,'breachdn-bshighvalue') 
+                        elseif ~isempty(strfind(op.comment,'breachdn-bshighvalue')) 
                             if ~status.istrendconfirmed
                                 if ~strcmpi(freq,'1440m')
                                     vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tb;
