@@ -41,8 +41,12 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
             %tends to rally even market temporially falls below alligator
             %lips
             abovelvlupflag = isempty(find(extrainfo.p(openid:end,4)-extrainfo.lvlup(openid:end)+2*ticksize<0,1,'first'));
-            updatefailedflag = extrainfo.p(end,5) < 1.382*obj.hh0_-0.382*obj.hh1_ & obj.hh1_ - obj.hh0_ > 2*ticksize;
-            updatefailedflag = updatefailedflag & extrainfo.latestopen < 1.382*obj.hh0_-0.382*obj.hh1_;
+            if obj.usefractalupdate_
+                updatefailedflag = extrainfo.p(end,5) < 1.382*obj.hh0_-0.382*obj.hh1_ & obj.hh1_ - obj.hh0_ > 2*ticksize;
+                updatefailedflag = updatefailedflag & extrainfo.latestopen < 1.382*obj.hh0_-0.382*obj.hh1_;
+            else
+                updatefailedflag = false;
+            end
             if extrainfo.latestopen < extrainfo.lips(end)-2*ticksize && (~abovelvlupflag || updatefailedflag)
                 closeflag = 1;
                 obj.closestr_ = 'fractal:lips';
