@@ -26,6 +26,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 end
 %                 obj.pxstoploss_ = max(extrainfo.p(end,4),extrainfo.lips(end));
                 obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
+                obj.pxstoploss_ = floor(obj.pxstoploss_/ticksize)*ticksize;
                 obj.closestr_ = ['wad:',ret.reason];
             else
                 %if latest open jumps and moves higher than the highest
@@ -112,6 +113,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 end
 %                 obj.pxstoploss_ =  min(extrainfo.p(end,3),extrainfo.lips(end));
                 obj.pxstoploss_ =  min(2*extrainfo.p(end,3)-extrainfo.p(end,4),extrainfo.lips(end));
+                obj.pxstoploss_ = ceil(obj.pxstoploss_/ticksize)*ticksize;
                 obj.closestr_ = ['wad:',ret.reason];
             else
                 %if latest open jumps and moves lower than the lowest close
