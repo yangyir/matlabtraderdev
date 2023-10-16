@@ -377,7 +377,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             else
                 op{1,1} = 'conditional:mediumbreach-trendconfirmed';
             end
-            this_signal = zeros(1,7);
+            this_signal = zeros(1,8);
             this_signal(1,1) = 1;
             %speical treatment here in case of close fractal hh and tdst
             %lvlup
@@ -392,6 +392,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             this_signal(1,5) = ei.px(end,3);
             this_signal(1,6) = ei.px(end,4);
             this_signal(1,7) = ei.lips(end);
+            this_signal(1,8) = ei.teeth(end);
             this_signal(1,4) = 2;
             signal{1,1} = this_signal;
         end
@@ -415,6 +416,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             this_signal(1,5) = ei.px(end,3);
             this_signal(1,6) = ei.px(end,4);
             this_signal(1,7) = ei.lips(end);
+            this_signal(1,8) = ei.teeth(end);
             this_signal(1,4) = -2;
             signal{1,2} = this_signal;
         end
