@@ -188,8 +188,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.status_ = 'closed';
             trade.status_ = 'closed';
             trade.runningpnl_ = 0;
-            trade.closeprice_ = extrainfo.px(end,5);
-            trade.closedatetime1_ = extrainfo.px(end,1);
+            trade.closeprice_ = extrainfo.p(end,5);
+            trade.closedatetime1_ = extrainfo.p(end,1);
             if isempty(trade.instrument_)
                 trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_);
             else
