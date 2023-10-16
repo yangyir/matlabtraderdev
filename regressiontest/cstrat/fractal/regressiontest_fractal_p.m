@@ -28,15 +28,14 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-09-28','replaytodate','2023-09-28');
+    'replayfromdate','2023-10-10','replaytodate','2023-10-10');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-combo.strategy.load_kelly_intraday('directory','C:\Users\yiran\OneDrive\fractal backtest\kelly distribution\matlab\grease\','filename','strat_intraday_grease.mat');
+combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'],'filename','strat_intraday_grease.mat');
 set(0,'DefaultFigureWindowStyle','docked');
-
 %%
 combo.mdefut.start;
 combo.ops.start;
