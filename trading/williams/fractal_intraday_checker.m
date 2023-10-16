@@ -68,11 +68,22 @@ for i = 1:n
             extrainfo.latestdt = d.px(k+1,1);
         end
         if strcmpi(trade.status_,'closed'),break;end
+        %
+        runflag = false;
+        if hour(extrainfo.px(end,1)) == 14
+            lastbd = floor(extrainfo.px(end,1));
+            nextbd = dateadd(lastbd,'1b');
+            if nextbd - lastbd > 3
+                runflag = true;
+            end
+        end
+        %
         tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
             'usecandlelastonly',false,...
             'debug',false,...
             'updatepnlforclosedtrade',true,...
-            'extrainfo',extrainfo);
+            'extrainfo',extrainfo,...
+            'RunRiskManagementBeforeMktClose',runflag);
         if ~isempty(tradeout)
             pnl{i,1} = tradeout.closepnl_;
             pnl{i,2} = tradeout.closestr_;
