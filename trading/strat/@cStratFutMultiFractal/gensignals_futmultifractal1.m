@@ -323,7 +323,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             wprob = stratfractal.tbl_all_daily_.kelly_table_s.winp_unique_s(idx);
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         end
-                        if kelly < 0.1
+                        if kelly < 0.1 || wprob < 0.4
                             signal_i(1) = 0;
                             %unwind position as the kelly or
                             %winning probability is low
