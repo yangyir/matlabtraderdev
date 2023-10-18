@@ -57,7 +57,13 @@ for i = 1:n
     %
     trade.riskmanager_.setusefractalupdateflag(usefracalupdateflag);
     trade.riskmanager_.setusefibonacciflag(usefibonacciflag);
-    for k = j+1:size(d.px,1)
+    if isempty(find(d.px(:,1)==trade.opendatetime1_,1,'last'))
+        checkstartidx = j+1;
+    else
+        checkstartidx = j;
+    end
+    
+    for k = checkstartidx:size(d.px,1)
         extrainfo = fractal_genextrainfo(d,k);
         if k == size(d.px,1) || ...
                 (hour(d.px(k,1)) == 14 && minute(d.px(k,1)) == 30)          %avoid market jump between 15:00 and 21:00 for comdty
