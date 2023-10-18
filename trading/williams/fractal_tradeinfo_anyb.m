@@ -96,7 +96,13 @@ if debugflag
 end
 unwindtrade = {};
 closeid = [];
-for k = openid+1:size(ei.px,1)
+if ~isempty(strfind(statusstr,'trendconfirmed'))
+    checkstartid = openid;
+else
+    checkstartid = openid+1;
+end
+
+for k = checkstartid:size(ei.px,1)
     ei_k = fractal_truncate(ei,k);
     if k == size(ei.px,1)
         ei_k.latestopen = ei.px(k,5);
@@ -107,11 +113,22 @@ for k = openid+1:size(ei.px,1)
     end
     if strcmpi(trade.status_,'closed'),break;end
     %
+    runflag = false;
+    if hour(ei.px(k,1)) == 14
+        lastbd = floor(ei.px(k,1));
+        nextbd = dateadd(lastbd,'1b');
+        if nextbd - lastbd > 3
+            runflag = true;
+        end
+    end
+    
     unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
         'usecandlelastonly',false,...
         'debug',false,...
         'updatepnlforclosedtrade',true,...
-        'extrainfo',ei_k);
+        'extrainfo',ei_k,...
+        'RunRiskManagementBeforeMktClose',runflag);
+    
     if debugflag
         fprintf('%8s %8s %8.3f %8.3f %8.3f %10.3f %10.3f %8.3f %12.3f\n',...
             code,...
