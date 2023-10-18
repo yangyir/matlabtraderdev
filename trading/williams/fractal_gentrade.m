@@ -80,10 +80,17 @@ if longshort == 1
         if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
         else
-            if idx < size(resstruct.px,1)
-                opendt = resstruct.px(idx+1,1);
-            else
+            ei = fractal_truncate(resstruct,idx);
+            hhstatus = fractal_barrier_status(ei,ticksize);
+            if strcmpi(hhstatus,'upward')
                 opendt = resstruct.px(idx,1);
+            else
+            
+                if idx < size(resstruct.px,1)
+                    opendt = resstruct.px(idx+1,1);
+                else
+                    opendt = resstruct.px(idx,1);
+                end
             end
         end
         openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksize);
@@ -188,10 +195,16 @@ elseif longshort == -1
         if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
         else
-            try
-                opendt = resstruct.px(idx+1,1);
-            catch
+            ei = fractal_truncate(resstruct,idx);
+            [~,llstatus] = fractal_barrier_status(ei,ticksize);
+            if strcmpi(llstatus,'dnward')
                 opendt = resstruct.px(idx,1);
+            else
+                try
+                    opendt = resstruct.px(idx+1,1);
+                catch
+                    opendt = resstruct.px(idx,1);
+                end
             end
         end
         openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksize);
