@@ -480,7 +480,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         kelly = -9.99;
                         wprob = 0;
                     end       
-                    if kelly >= 0.15
+                    if kelly >= 0.15 || (kelly > 0.11 && wprob > 0.45)      %release condition for long trades
                         signal_cond_i{1,1}(1) = 1;
                     else
                         signal_cond_i{1,1}(1) = 0;
