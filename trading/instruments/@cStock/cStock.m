@@ -73,6 +73,8 @@ classdef cStock < cInstrument
                 obj.code_wind = [codestr,'.GI'];
             elseif strcmpi(codestr,'gzhy')
                 obj.code_wind = 'TB10Y.WI';
+            elseif strcmpi(codestr,'gzhy_30y')
+                obj.code_wind = 'TB30Y.WI';
             elseif strcmpi(codestr,'tb01y') || strcmpi(codestr,'tb03y') || strcmpi(codestr,'tb05y') || ...
                     strcmpi(codestr,'tb07y') || strcmpi(codestr,'tb10y') || strcmpi(codestr,'tb30y')
                 obj.code_wind = [upper(codestr),'.WI'];
@@ -103,7 +105,7 @@ classdef cStock < cInstrument
             else
                 if strcmpi(codestr(1),'1') || strcmpi(codestr(1),'5')
                     obj.tick_size = 0.001;
-                elseif strcmpi(codestr,'gzhy')
+                elseif strcmpi(codestr,'gzhy') || strcmpi(codestr,'gzhy_30y')
                     obj.tick_size = 0.0025;
                 else
                     obj.tick_size = 0.01;

@@ -13,11 +13,11 @@ if isequity
         ticksize = 0.01;
     end
 else
-    if strcmpi(code,'gzhy')
-        ticksize = 0.0001;
+    if strcmpi(code,'gzhy') || strcmpi(code,'gzhy_30y')
+        ticksize = 0.0025;%0.25bp
     elseif strcmpi(code,'tb01y') || strcmpi(code,'tb03y') || strcmpi(code,'tb05y') || strcmpi(code,'tb07y') || ...
             strcmpi(code,'tb10y') || strcmpi(code,'tb30y')
-        ticksize = 0.001;%0.1bp
+        ticksize = 0.0025;%0.25bp
     elseif strcmpi(code,'audusd') || strcmpi(code,'eurusd') || strcmpi(code,'gbpusd') || ...
                 strcmpi(code,'usdcad') || strcmpi(code,'usdchf') || strcmpi(code,'eurchf') || ...
                 strcmpi(code,'gbpeur') || strcmpi(code,'usdcnh')
