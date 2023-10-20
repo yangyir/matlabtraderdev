@@ -35,7 +35,7 @@ tools_technicalplot2(mat_gzhy_10y(end-nshift:end,:),3,'活跃10年国债收益率',true)
 tools_technicalplot2(mat_gzhy_30y(end-nshift:end,:),4,'活跃30年国债收益率',true);
 tools_technicalplot2(mat_gkhy_10y(end-nshift:end,:),5,'活跃10年国开收益率',true);
 %%
-
+[tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary('gzhy','usefractalupdate',0);
 
 %%
 
