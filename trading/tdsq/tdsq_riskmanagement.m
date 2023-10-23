@@ -56,7 +56,8 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
     end
        
     if direction == 1
-        if ~isnan(trade.riskmanager_.tdlow_) && extrainfo.ss(end) > 9
+%         if ~isnan(trade.riskmanager_.tdlow_) && extrainfo.ss(end) > 9
+        if ~isnan(trade.riskmanager_.tdlow_)
             if p(end,5) < trade.riskmanager_.tdlow_-ticksize
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
@@ -234,7 +235,8 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         end
     elseif direction == -1
         if ~isnan(trade.riskmanager_.tdhigh_)
-            if p(end,5) > trade.riskmanager_.tdhigh_+ticksize && extrainfo.bs(end) > 9
+%             if p(end,5) > trade.riskmanager_.tdhigh_+ticksize && extrainfo.bs(end) > 9
+            if p(end,5) > trade.riskmanager_.tdhigh_+ticksize
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
                 closestr = trade.riskmanager_.closestr_;
