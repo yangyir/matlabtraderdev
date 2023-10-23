@@ -117,6 +117,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                             volume = trade.openvolume_;
                             obj.status_ = 'closed';
                             obj.trade_.status_ = 'closed';
+                            obj.closestr_ = 'conditional breachdn-bshighvalue failed';
                             obj.trade_.runningpnl_ = 0;
                             instrument = trade.instrument_;
                             if isempty(instrument)
