@@ -89,6 +89,31 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     return
                 end
             elseif strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1)
+                isbreachdnlvldn = extrainfo.ll(end) <= extrainfo.lvldn(end) && extrainfo.p(end,5) > extrainfo.lvldn(end);
+                if isbreachdnlvldn
+                    tbl2lookup = kellytables.breachdnlvldn_tc;
+                    idx = strcmpi(tbl2lookup.asset,trade.instrument_.asset_name);
+                    kelly = tbl2lookup.K(idx);
+                    if kelly < 0.15
+                        obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                        obj.trade_.closeprice_ = extrainfo.latestopen;
+                        volume = trade.openvolume_;
+                        obj.status_ = 'closed';
+                        obj.trade_.status_ = 'closed';
+                        obj.closestr_ = 'conditional breachdn-lvldn failed';
+                        obj.trade_.runningpnl_ = 0;
+                        instrument = trade.instrument_;
+                        if isempty(instrument)
+                            obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                        else
+                            obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                        end
+                        unwindtrade = obj.trade_;
+                        return
+                    end
+                    return
+                end
+                %
                 if runriskmanagementbeforemktclose || ...
                         extrainfo.p(end,5) > min(extrainfo.teeth(end),extrainfo.lips(end))         
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
