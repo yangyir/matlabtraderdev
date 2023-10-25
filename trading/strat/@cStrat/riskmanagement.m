@@ -249,8 +249,13 @@ function [] = riskmanagement(obj,dtnum)
             trade_i = obj.helper_.trades_.node_(i);
             if strcmpi(trade_i.status_,'closed'), continue; end
             
+            if strcmpi(trade_i.opensignal_.frequency_,'30m')
+                kellytables = obj.tbl_all_intraday_;
+            else
+                kellytables = obj.tbl_all_daily_;
+            end
             unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
-                'UpdatePnLForClosedTrade',false,'Strategy',obj);
+                'UpdatePnLForClosedTrade',false,'Strategy',obj,'KellyTables',kellytables);
         
             if ~isempty(unwindtrade)
                 obj.unwindtrade(unwindtrade);

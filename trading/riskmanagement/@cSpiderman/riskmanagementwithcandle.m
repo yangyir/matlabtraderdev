@@ -14,6 +14,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     p.addParameter('ExtraInfo',{},@isstruct);
     p.addParameter('RunHighLowOnly',false,@islogical);
     p.addParameter('RunRiskManagementBeforeMktClose',false,@islogical);
+    p.addParameter('KellyTables',{},@isstruct);
     p.parse(varargin{:});
     usecandlelastonly = p.Results.UseCandleLastOnly;
     doprint = p.Results.Debug;
@@ -21,6 +22,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     extrainfo = p.Results.ExtraInfo;
     runhighlowonly = p.Results.RunHighLowOnly;
     runriskmanagementbeforemktclose = p.Results.RunRiskManagementBeforeMktClose;
+    kellytables = p.Results.KellyTables;
     try
         candleTime = extrainfo.p(end,1);
     catch
@@ -112,21 +114,26 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                         bslow = min(extrainfo.p(lastbsidx-lastbsval+1:lastbsidx,4));
                         if bslow == extrainfo.ll(end)
                             %here we confirm it is a conditional-breachdnbshighvalue
-                            obj.trade_.closedatetime1_ = extrainfo.latestdt;
-                            obj.trade_.closeprice_ = extrainfo.latestopen;
-                            volume = trade.openvolume_;
-                            obj.status_ = 'closed';
-                            obj.trade_.status_ = 'closed';
-                            obj.closestr_ = 'conditional breachdn-bshighvalue failed';
-                            obj.trade_.runningpnl_ = 0;
-                            instrument = trade.instrument_;
-                            if isempty(instrument)
-                                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-                            else
-                                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                            tbl2lookup = kellytables.breachdnbshighvalue_tc;
+                            idx = strcmpi(tbl2lookup.asset,trade.instrument_.asset_name);
+                            kelly = tbl2lookup.K(idx);
+                            if kelly < 0.15                          
+                                obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                                obj.trade_.closeprice_ = extrainfo.latestopen;
+                                volume = trade.openvolume_;
+                                obj.status_ = 'closed';
+                                obj.trade_.status_ = 'closed';
+                                obj.closestr_ = 'conditional breachdn-bshighvalue failed';
+                                obj.trade_.runningpnl_ = 0;
+                                instrument = trade.instrument_;
+                                if isempty(instrument)
+                                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                                else
+                                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                                end
+                                unwindtrade = obj.trade_;
+                                return
                             end
-                            unwindtrade = obj.trade_;
-                            return
                         end
                     end
                 end

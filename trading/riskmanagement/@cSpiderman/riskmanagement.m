@@ -13,9 +13,11 @@ function [unwindtrade] = riskmanagement(obj,varargin)
     p.addParameter('UpdatePnLForClosedTrade',false,@islogical);
     p.addParameter('Strategy',{},...
         @(x) validateattributes(x,{'cStratFutMultiFractal'},{},'','Strategy'));
+    p.addParameter('KellyTables',{},@isstruct);
     p.parse(varargin{:});
     mdefut = p.Results.MDEFut;
     strat = p.Results.Strategy;
+    kellytables = p.Results.KellyTables;
     if isempty(mdefut), return;end
     
     debug = p.Results.Debug;
@@ -195,7 +197,8 @@ function [unwindtrade] = riskmanagement(obj,varargin)
             'usecandlelastonly',true,...
             'updatepnlforclosedtrade',updatepnlforclosedtrade,...
             'extrainfo',extrainfo,...
-            'runriskmanagementbeforemktclose',runriskmanagementbeforemktclose);
+            'runriskmanagementbeforemktclose',runriskmanagementbeforemktclose,...
+            'kellytables',kellytables);
         
         obj.bucket_count_ = this_count;
     else
@@ -224,7 +227,8 @@ function [unwindtrade] = riskmanagement(obj,varargin)
                  'usecandlelastonly',true,...
                  'updatepnlforclosedtrade',updatepnlforclosedtrade,...
                  'extrainfo',extrainfo,...
-                 'runriskmanagementbeforemktclose',runriskmanagementbeforemktclose);
+                 'runriskmanagementbeforemktclose',runriskmanagementbeforemktclose,...
+                 'kellytables',kellytables);
         end
     end
     
