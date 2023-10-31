@@ -216,9 +216,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-lvlup-tb',100*kelly,100*wprob);
                             else
                                 if ~strcmpi(freq,'1440m')
-                                    vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tb;
+                                    vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc;
                                 else
-                                    vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tb;                                    
+                                    vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc;                                    
                                 end
                                 idx = strcmpi(vlookuptbl.asset,assetname);
                                 try
@@ -454,11 +454,19 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         sshigh = max(extrainfo.px(sslastidx-sslastval+1:sslastidx,3));
                         isbreachupsshighvalue = extrainfo.hh(end) == sshigh;
                     end
-                    if isbreachupsshighvalue
+                    %20231031:further check whether it is a breachup-lvlup
+                    isbreachuplvlup = extrainfo.hh(end) >= extrainfo.lvlup(end) && extrainfo.px(end,5) < extrainfo.lvlup(end);
+                    if isbreachupsshighvalue && ~isbreachuplvlup
                         if ~strcmpi(freq,'1440m')
                             vlookuptbl = stratfractal.tbl_all_intraday_.breachupsshighvalue_tc;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.breachupsshighvalue_tc;
+                        end
+                    elseif isbreachuplvlup
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc;
                         end
                     else
                         if strcmpi(op_cond_i{1,1},'conditional:mediumbreach-trendconfirmed')
@@ -489,7 +497,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         signal_cond_i{1,1}(1) = 1;
                     else
                         signal_cond_i{1,1}(1) = 0;
-                        if isbreachupsshighvalue
+                        if isbreachuplvlup
+                            fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional breachup-lvlup',100*kelly,100*wprob);
+                        elseif isbreachupsshighvalue
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional breachup-sshighvalue',100*kelly,100*wprob);
                         else
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
@@ -696,7 +706,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                     end
                     signals{i,1} = signal_cond_i{1,1};
-                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
+                    if isbreachuplvlup
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
+                    elseif isbreachupsshighvalue
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-sshighvalue-tc',100*kelly,100*wprob);
+                    else
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
+                    end
                 else
                     if hhabovelvlup
                         if ~strcmpi(freq,'1440m')
