@@ -85,7 +85,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         end
         openid_b(i) = tblb_data_consolidated{i,15};
         closestr_b{i} = tblb_data_consolidated{i,19};
-        pnlrel_b(i) = tblb_data_consolidated{i,18}/opennotional_b(i);
+        if strcmpi(fut.code_ctp,'gzhy') || strcmpi(fut.code_ctp,'gzhy_30y') || strcmpi(fut.code_ctp,'gkhy')
+            pnlrel_b(i) = tblb_data_consolidated{i,18};
+        else
+            pnlrel_b(i) = tblb_data_consolidated{i,18}/opennotional_b(i);
+        end
         trendflag_b(i) = tblb_data_consolidated{i,37};
     end
     idxb = logical(idxb);
@@ -136,7 +140,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         end
         openid_s(i) = tbls_data_consolidated{i,15};
         closestr_s{i} = tbls_data_consolidated{i,19};
-        pnlrel_s(i) = tbls_data_consolidated{i,18}/opennotional_s(i);
+        if strcmpi(fut.code_ctp,'gzhy') || strcmpi(fut.code_ctp,'gzhy_30y') || strcmpi(fut.code_ctp,'gkhy')
+            pnlrel_s(i) = tbls_data_consolidated{i,18};
+        else
+            pnlrel_s(i) = tbls_data_consolidated{i,18}/opennotional_s(i);
+        end
         trendflag_s(i) = tbls_data_consolidated{i,37};
     end
     idxs = logical(idxs);
