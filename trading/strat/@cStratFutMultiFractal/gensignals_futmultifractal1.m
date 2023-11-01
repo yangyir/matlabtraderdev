@@ -208,6 +208,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -224,6 +228,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -248,6 +256,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -264,6 +276,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -333,6 +349,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -349,6 +369,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -370,6 +394,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -386,6 +414,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -489,6 +521,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     try
                         kelly = vlookuptbl.K(idx);
                         wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
                     catch
                         kelly = -9.99;
                         wprob = 0;
@@ -551,6 +587,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     try
                         kelly = vlookuptbl.K(idx);
                         wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
                     catch
                         kelly = -9.99;
                         wprob = 0;
@@ -662,6 +702,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         try
                             kelly = vlookuptbl.K(idx);
                             wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         catch
                             kelly = -9.99;
                             wprob = 0;
@@ -724,6 +768,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         try
                             kelly = vlookuptbl.K(idx);
                             wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         catch
                             kelly = -9.99;
                             wprob = 0;
@@ -752,6 +800,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         try
                             kelly = vlookuptbl.K(idx);
                             wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         catch
                             kelly = -9.99;
                             wprob = 0;
@@ -890,6 +942,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         try
                             kelly = vlookuptbl.K(idx);
                             wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         catch
                             kelly = -9.99;
                             wprob = 0;
