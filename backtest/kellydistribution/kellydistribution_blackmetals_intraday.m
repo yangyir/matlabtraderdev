@@ -41,7 +41,7 @@ codes_hc = {
     'hc2101';'hc2105';'hc2110';...
     'hc2201';'hc2205';'hc2210';...
     'hc2301';'hc2305';'hc2310';...
-    'hcb2401';...
+    'hc2401';...
     };
 %
 output_blackmetal = fractal_kelly_summary('codes',[codes_j;codes_jm;codes_i;codes_rb;codes_hc],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
@@ -50,7 +50,7 @@ output_blackmetal = fractal_kelly_summary('codes',[codes_j;codes_jm;codes_i;code
 %%
 signal_l_valid_blackmetal = k_l_blackmetal_i.opensignal_unique_l(logical(k_l_blackmetal_i.use_unique_l));
 signal_s_valid_blackmetal = k_s_blackmetal_i.opensignal_unique_s(logical(k_s_blackmetal_i.use_unique_s));
-assetlist_blackmetal = unique([tblbyasset_l_blackmetal_i.assetlist;tblbyasset_s_govtbondfut_i.assetlist]);
+assetlist_blackmetal = unique([tblbyasset_l_blackmetal_i.assetlist;tblbyasset_s_blackmetal_i.assetlist]);
 nasset = size(assetlist_blackmetal,1);
 %
 WMat_L_blackmetal_i = zeros(length(signal_l_valid_blackmetal),nasset);
