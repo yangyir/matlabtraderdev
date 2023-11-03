@@ -24,6 +24,10 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 if strcmpi(trade.opensignal_.frequency_,'daily')
                     closeflag = ret.inconsistence;
                 end
+                if extrainfo.latestopen < extrainfo.p(end,5)-2*ticksize
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ['wad:',ret.reason];
+                end
 %                 obj.pxstoploss_ = max(extrainfo.p(end,4),extrainfo.lips(end));
                 obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
                 obj.pxstoploss_ = floor(obj.pxstoploss_/ticksize)*ticksize;
