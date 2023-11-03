@@ -221,6 +221,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -237,6 +241,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -261,6 +269,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -277,6 +289,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -346,6 +362,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -362,6 +382,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -383,6 +407,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -399,6 +427,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 try
                                     kelly = vlookuptbl.K(idx);
                                     wprob = vlookuptbl.W(idx);
+                                    if isempty(kelly)
+                                        kelly = -9.99;
+                                        wprob = 0;
+                                    end
                                 catch
                                     kelly = -9.99;
                                     wprob = 0;
@@ -502,6 +534,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     try
                         kelly = vlookuptbl.K(idx);
                         wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
                     catch
                         kelly = -9.99;
                         wprob = 0;
@@ -564,6 +600,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     try
                         kelly = vlookuptbl.K(idx);
                         wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
                     catch
                         kelly = -9.99;
                         wprob = 0;
@@ -667,6 +707,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                     else
                         if ~isempty(status) && ~status.istrendconfirmed
+                            
                             if ~strcmpi(freq,'1440m')
                                 vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tb;
                             else
@@ -676,6 +717,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             try
                                 kelly = vlookuptbl.K(idx);
                                 wprob = vlookuptbl.W(idx);
+                                if isempty(kelly)
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
                             catch
                                 kelly = -9.99;
                                 wprob = 0;
@@ -690,9 +735,28 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     if ~strcmpi(e.signalinfo_.mode,'conditional-breachuplvlup'),continue;end
                                     condentrusts2remove.push(e);
                                 end
-                                if condentrusts2remove.latest > 0
-                                    stratfractal.removecondentrusts(condentrusts2remove);
-                                    fprintf('\t%s:conditional-breachuplvlup cancled as kelly is below 0.4....\n',instruments{i}.code_ctp);
+                                idx = strcmpi(vlookuptbl.asset,assetname);
+                                try
+                                    kelly = vlookuptbl.K(idx);
+                                    wprob = vlookuptbl.W(idx);
+                                catch
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
+                                if kelly < 0.4
+                                    ne = stratfractal.helper_.condentrustspending_.latest;
+                                    condentrusts2remove = EntrustArray;
+                                    for jj = 1:ne
+                                        e = stratfractal.helper_.condentrustspending_.node(jj);
+                                        if e.offsetFlag ~= 1, continue; end
+                                        if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
+                                        if ~strcmpi(e.signalinfo_.mode,'conditional-breachuplvlup'),continue;end
+                                        condentrusts2remove.push(e);
+                                    end
+                                    if condentrusts2remove.latest > 0
+                                        stratfractal.removecondentrusts(condentrusts2remove);
+                                        fprintf('\t%s:conditional-breachuplvlup cancled as kelly is below 0.4....\n',instruments{i}.code_ctp);
+                                    end
                                 end
                             end
                         end
@@ -739,6 +803,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         try
                             kelly = vlookuptbl.K(idx);
                             wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         catch
                             kelly = -9.99;
                             wprob = 0;
@@ -767,6 +835,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         try
                             kelly = vlookuptbl.K(idx);
                             wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         catch
                             kelly = -9.99;
                             wprob = 0;
@@ -905,6 +977,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         try
                             kelly = vlookuptbl.K(idx);
                             wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         catch
                             kelly = -9.99;
                             wprob = 0;
