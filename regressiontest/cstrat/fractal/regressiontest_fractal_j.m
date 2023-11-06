@@ -5,7 +5,7 @@ try
 catch
 end
 %
-codes = {'j2309'};
+codes = {'j2401'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
@@ -18,8 +18,8 @@ riskconfigfilename = 'config_coke.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
-    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'bidclosespread'},...
-    'propvalues',{4;'30m';1;1;'spiderman';1;0});
+    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'bidclosespread';'usefractalupdate'},...
+    'propvalues',{4;'30m';1;1;'spiderman';1;0;0});
 end
 %
 combo = rtt_setup('countername','ccb_ly_fut',...
@@ -28,14 +28,14 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-06-15','replaytodate','2023-06-15');
+    'replayfromdate','2023-11-02','replaytodate','2023-11-02');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
+combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\blackmetal\'],'filename','strat_intraday_blackmetal.mat');
 set(0,'DefaultFigureWindowStyle','docked');
-mde_fin_plot(combo.mdefut);
 %%
 combo.mdefut.start;
 combo.ops.start;

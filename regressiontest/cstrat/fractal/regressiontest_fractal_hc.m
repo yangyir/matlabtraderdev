@@ -5,21 +5,21 @@ try
 catch
 end
 %
-codes = {'y2401'};
+codes = {'hc2401'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
 end
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'soybeanoil';
+bookname = 'hotroiledcoil';
 strategyname = 'fractal';
-riskconfigfilename = 'config_soybeanoil.txt';
+riskconfigfilename = 'config_hotroiledcoil.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
-    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'usefractalupdate'},...
-    'propvalues',{4;'30m';1;1;'spiderman';1;0});
+    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'bidclosespread';'usefractalupdate'},...
+    'propvalues',{4;'30m';1;1;'spiderman';1;0;0});
 end
 %
 combo = rtt_setup('countername','ccb_ly_fut',...
@@ -28,13 +28,13 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-10-30','replaytodate','2023-10-30');
+    'replayfromdate','2023-10-23','replaytodate','2023-10-23');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'],'filename','strat_intraday_grease.mat');
+combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\blackmetal\'],'filename','strat_intraday_blackmetal.mat');
 set(0,'DefaultFigureWindowStyle','docked');
 %%
 combo.mdefut.start;
