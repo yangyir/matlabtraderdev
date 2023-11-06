@@ -12,14 +12,14 @@ for i = 1:length(codes)
 end
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'corn';
+bookname = 'soymeal';
 strategyname = 'fractal';
-riskconfigfilename = 'config_corn.txt';
+riskconfigfilename = 'config_soymeal.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
-    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade'},...
-    'propvalues',{4;'30m';1;1;'spiderman';1});
+    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'usefractalupdate'},...
+    'propvalues',{4;'30m';1;1;'spiderman';1;0});
 end
 %
 combo = rtt_setup('countername','ccb_ly_fut',...
@@ -28,7 +28,7 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-09-08','replaytodate','2023-09-08');
+    'replayfromdate','2023-11-06','replaytodate','2023-11-06');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
