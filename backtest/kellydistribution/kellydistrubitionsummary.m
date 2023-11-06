@@ -76,11 +76,15 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         if isempty(fut.asset_name)
             idxb(i) = 1;
         else
-            last_trade_month = month(fut.last_trade_date1);
-            last_trade_year = year(fut.last_trade_date1);
-            if year(opendatetime_b(i)) == last_trade_year && ...
-                    month(opendatetime_b(i)) == last_trade_month
-                idxb(i) = 0;
+            try
+                last_trade_month = month(fut.last_trade_date1);
+                last_trade_year = year(fut.last_trade_date1);
+                if year(opendatetime_b(i)) == last_trade_year && ...
+                        month(opendatetime_b(i)) == last_trade_month
+                    idxb(i) = 0;
+                end
+            catch
+                idxb(i) = 1;
             end
         end
         openid_b(i) = tblb_data_consolidated{i,15};
@@ -131,11 +135,15 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         if isempty(fut.asset_name)
             idxs(i) = 1;
         else
-            last_trade_month = month(fut.last_trade_date1);
-            last_trade_year = year(fut.last_trade_date1);
-            if year(opendatetime_s(i)) == last_trade_year && ...
-                    month(opendatetime_s(i)) == last_trade_month
-                idxb(i) = 0;
+            try
+                last_trade_month = month(fut.last_trade_date1);
+                last_trade_year = year(fut.last_trade_date1);
+                if year(opendatetime_s(i)) == last_trade_year && ...
+                        month(opendatetime_s(i)) == last_trade_month
+                    idxb(i) = 0;
+                end
+            catch
+                idxs(i) = 1;
             end
         end
         openid_s(i) = tbls_data_consolidated{i,15};
