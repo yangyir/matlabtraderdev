@@ -388,11 +388,33 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     subplot(313);plot(kelly_breachdnbshighvalue_tb,'g');xlabel('number of trades');ylabel('kelly criteria');grid on;
     fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachdn-bshighvalue-tb',winp_breachdnbshighvalue_tb(end)*100,R_breachdnbshighvalue_tb(end),kelly_breachdnbshighvalue_tb(end)*100,size(kelly_breachdnbshighvalue_tb,1));
     fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachdn-bshighvalue-tc',winp_breachdnbshighvalue_tc(end)*100,R_breachdnbshighvalue_tc(end),kelly_breachdnbshighvalue_tc(end)*100,size(kelly_breachdnbshighvalue_tc,1));
+    %
+    idx_breachuphighsc13 = zeros(nb,1);
+    for i = 1:nb
+        if strcmpi(tbl_extractedinfo_b.opensignal_b{i,1},'breachup-highsc13')
+            idx_breachuphighsc13(i) = 1;
+        end
+    end
+    idx_breachuphighsc13 = logical(idx_breachuphighsc13);
+    pnl_breachuphighsc13 = tbl_extractedinfo_b.pnlrel_b(idx_breachuphighsc13);
+    [winp_breachuphighsc13,R_breachuphighsc13,kelly_breachuphighsc13] = calcrunningkelly(pnl_breachuphighsc13);
+    fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachup-highsc13',winp_breachuphighsc13(end)*100,R_breachuphighsc13(end),kelly_breachuphighsc13(end)*100,size(kelly_breachuphighsc13,1));
+    %
+    idx_breachdnlowbc13 = zeros(ns,1);
+    for i = 1:ns
+        if strcmpi(tbl_extractedinfo_s.opensignal_s{i,1},'breachdn-lowbc13')
+            idx_breachdnlowbc13(i) = 1;
+        end
+    end
+    idx_breachdnlowbc13 = logical(idx_breachdnlowbc13);
+    pnl_breachdnlowbc13 = tbl_extractedinfo_s.pnlrel_s(idx_breachdnlowbc13);
+    [winp_breachdnlowbc13,R_breachdnlowbc13,kelly_breachdnlowbc13] = calcrunningkelly(pnl_breachdnlowbc13);
+    fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachdn-highbc13',winp_breachdnlowbc13(end)*100,R_breachdnlowbc13(end),kelly_breachdnlowbc13(end)*100,size(kelly_breachdnlowbc13,1));
     fprintf('\n');
     %
     %7.group by each asset in breachuplvlup-tb,breachdn-lvldn-tb,breachup-sshighvalue-tb and breachdn-bshighvalue-tb
-    reportbyasset_tb = cell(8,1);
-    for i = 1:8
+    reportbyasset_tb = cell(10,1);
+    for i = 1:10
         if i == 1
             pnl2check = pnl_breachuplvlup_tb;
             asset2check = tbl_extractedinfo_b.assetname_b(idx_breachuplvlup_tb);
@@ -432,7 +454,17 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             pnl2check = pnl_breachdnbshighvalue_tc;
             asset2check = tbl_extractedinfo_s.assetname_s(idx_breachdnbshighvalue_tc);
             reportbyasset_tb{i}.name = 'breachdn-bshighvalue-tc';
-            reportbyasset_tb{i}.direction = 's';    
+            reportbyasset_tb{i}.direction = 's';
+        elseif i == 9
+            pnl2check = pnl_breachuphighsc13;
+            asset2check = tbl_extractedinfo_b.assetname_b(idx_breachuphighsc13);
+            reportbyasset_tb{i}.name = 'breachup-highsc13';
+            reportbyasset_tb{i}.direction = 'b';
+        elseif i == 10
+            pnl2check = pnl_breachdnlowbc13;
+            asset2check = tbl_extractedinfo_s.assetname_s(idx_breachdnlowbc13);
+            reportbyasset_tb{i}.name = 'breachdn-lowbc13';
+            reportbyasset_tb{i}.direction = 's';
         end
         asset = unique(asset2check);
         nasset = size(asset,1);
