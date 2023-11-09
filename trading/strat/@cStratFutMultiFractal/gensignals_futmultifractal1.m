@@ -190,8 +190,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 elseif signal_i(1) == 1
                     %20230613:further check of signals
                     if strcmpi(op.comment,'volblowup') || strcmpi(op.comment,'volblowup2') || ...
-                            strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed') || ...
-                            strcmpi(op.comment,'breachup-highsc13')
+                            strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed')
                         %do nothing as this is for sure trending trades
                         if ~strcmpi(freq,'1440m')
                             kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
@@ -209,6 +208,29 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             %winning probability is low
                             stratfractal.unwindpositions(instruments{i});
                         end
+                    elseif strcmpi(op.comment,'breachup-highsc13')
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachuphighsc13;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachuphighsc13;
+                        end
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        try
+                            kelly = vlookuptbl.K(idx);
+                            wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
+                        catch
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                        if kelly < 0.15 || wprob < 0.4
+                            signal_i(1) = 0;
+                            stratfractal.unwindpositions(instruments{i});
+                        end
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     else
                         if ~isempty(strfind(op.comment,'breachup-lvlup'))
                             if ~status.istrendconfirmed
@@ -249,7 +271,6 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     kelly = -9.99;
                                     wprob = 0;
                                 end
-                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-lvlup-tc',100*kelly,100*wprob);
                                 if kelly < 0.15 || wprob < 0.4
                                     signal_i(1) = 0;
                                     %unwind position as the kelly or
@@ -257,6 +278,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     %in case there are any positions
                                     stratfractal.unwindpositions(instruments{i});
                                 end
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-lvlup-tc',100*kelly,100*wprob);
                             end
                         elseif ~isempty(strfind(op.comment,'breachup-sshighvalue')) 
                             if ~status.istrendconfirmed
@@ -331,8 +353,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 elseif signal_i(1) == -1
                     %20230613:further check of signals
                     if strcmpi(op.comment,'volblowup') || strcmpi(op.comment,'volblowup2') || ...
-                            strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed') || ...
-                            strcmpi(op.comment,'breachdn-lowbc13')
+                            strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed')
                         %do nothing as this is for sure trending trades
                         if ~strcmpi(freq,'1440m')
                             kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
@@ -350,6 +371,29 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             %winning probability is low
                             stratfractal.unwindpositions(instruments{i});
                         end
+                    elseif strcmpi(op.comment,'breachdn-lowbc13')
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlowbc13;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnlowbc13;
+                        end  
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        try
+                            kelly = vlookuptbl.K(idx);
+                            wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
+                        catch
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                        if kelly < 0.146
+                            signal_i(1) = 0;
+                            stratfractal.unwindpositions(instruments{i});
+                        end
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-lowbc13',100*kelly,100*wprob);
                     else
                         if ~isempty(strfind(op.comment,'breachdn-lvldn')) 
                             if ~status.istrendconfirmed
