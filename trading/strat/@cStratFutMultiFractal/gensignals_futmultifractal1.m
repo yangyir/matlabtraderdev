@@ -487,31 +487,42 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 end
                 
                 %
-                [signal_cond_i,op_cond_i] = fractal_signal_conditional(extrainfo,ticksize,nfractal);
+                [signal_cond_i,op_cond_i,flags_i] = fractal_signal_conditional(extrainfo,ticksize,nfractal);
                 %20230613:further check of conditional signals
                 if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1
-                    %20231025:further check whether it is a breachup-sshighvalue
-                    isbreachupsshighvalue = false;
-                    sslastidx = find(extrainfo.ss >= 9,1,'last');
-                    sslastval = extrainfo.ss(sslastidx);
-                    ndiff = size(extrainfo.ss,1)-sslastidx;
-                    if ndiff <= 13
-                        sshigh = max(extrainfo.px(sslastidx-sslastval+1:sslastidx,3));
-                        isbreachupsshighvalue = extrainfo.hh(end) == sshigh;
-                    end
-                    %20231031:further check whether it is a breachup-lvlup
-                    isbreachuplvlup = extrainfo.hh(end) >= extrainfo.lvlup(end) && extrainfo.px(end,5) < extrainfo.lvlup(end);
-                    if isbreachupsshighvalue && ~isbreachuplvlup
+%                     %20231025:further check whether it is a breachup-sshighvalue
+%                     isbreachupsshighvalue = false;
+%                     sslastidx = find(extrainfo.ss >= 9,1,'last');
+%                     sslastval = extrainfo.ss(sslastidx);
+%                     ndiff = size(extrainfo.ss,1)-sslastidx;
+%                     if ndiff <= 13
+%                         sshigh = max(extrainfo.px(sslastidx-sslastval+1:sslastidx,3));
+%                         isbreachupsshighvalue = extrainfo.hh(end) == sshigh;
+%                     end
+%                     %20231031:further check whether it is a breachup-lvlup
+%                     isbreachuplvlup = extrainfo.hh(end) >= extrainfo.lvlup(end) && extrainfo.px(end,5) < extrainfo.lvlup(end);
+                    %
+                    isbreachuplvlup = flags_i.islvlupbreach;
+                    isbreachupsshigh = flags_i.issshighbreach;
+                    isbreachupschigh = flags_i.isschighbreach;
+                    
+                    if isbreachuplvlup
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc;
+                        end
+                    elseif isbreachupsshigh
                         if ~strcmpi(freq,'1440m')
                             vlookuptbl = stratfractal.tbl_all_intraday_.breachupsshighvalue_tc;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.breachupsshighvalue_tc;
                         end
-                    elseif isbreachuplvlup
+                    elseif isbreachupschigh
                         if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc;
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachuphighsc13;
                         else
-                            vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc;
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachuphighsc13;
                         end
                     else
                         if strcmpi(op_cond_i{1,1},'conditional:mediumbreach-trendconfirmed')
@@ -548,37 +559,50 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         signal_cond_i{1,1}(1) = 0;
                         if isbreachuplvlup
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional breachup-lvlup',100*kelly,100*wprob);
-                        elseif isbreachupsshighvalue
+                        elseif isbreachupsshigh
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional breachup-sshighvalue',100*kelly,100*wprob);
+                        elseif isbreachupschigh
+                            fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional breachup-highsc13',100*kelly,100*wprob);
                         else
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
                         end
                     end
                 end
                 if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1
-                    %20231025:further check whether it is a breachdn-bshighvalue
-                    isbreachdnbshighvalue = false;
-                    bslastidx = find(extrainfo.bs >= 9,1,'last');
-                    bslastval = extrainfo.bs(bslastidx);
-                    ndiff = size(extrainfo.bs,1)-bslastidx;
-                    if ndiff <= 13
-                        bslow = min(extrainfo.px(bslastidx-bslastval+1:bslastidx,4));
-                        isbreachdnbshighvalue = extrainfo.ll(end) == bslow;
-                    end
-                    %20231026:further check whether it is a breachdn-lvldn
-                    isbreachdnlvldn = extrainfo.ll(end) <= extrainfo.lvldn(end) && extrainfo.px(end,5) > extrainfo.lvldn(end);
-                    if isbreachdnbshighvalue && ~isbreachdnlvldn
-                        if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tc;
-                        else
-                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnbshighvalue_tc;
-                        end
-                    elseif isbreachdnlvldn
+%                     %20231025:further check whether it is a breachdn-bshighvalue
+%                     isbreachdnbslow = false;
+%                     bslastidx = find(extrainfo.bs >= 9,1,'last');
+%                     bslastval = extrainfo.bs(bslastidx);
+%                     ndiff = size(extrainfo.bs,1)-bslastidx;
+%                     if ndiff <= 13
+%                         bslow = min(extrainfo.px(bslastidx-bslastval+1:bslastidx,4));
+%                         isbreachdnbslow = extrainfo.ll(end) == bslow;
+%                     end
+%                     %20231026:further check whether it is a breachdn-lvldn
+%                     isbreachdnlvldn = extrainfo.ll(end) <= extrainfo.lvldn(end) && extrainfo.px(end,5) > extrainfo.lvldn(end);
+                    %
+                    isbreachdnlvldn = flags_i.islvldnbreach;
+                    isbreachdnbslow = flags_i.isbslowbreach;
+                    isbreachdnbclow = flags_i.isbclowbreach;
+                    
+                    if isbreachdnlvldn
                         if ~strcmpi(freq,'1440m')
                             vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tc;
                         else
                             vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tc;
                         end
+                    elseif isbreachdnbslow
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tc;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnbshighvalue_tc;
+                        end
+                    elseif isbreachdnbclow
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlowbc13;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnlowbc13;
+                        end   
                     else
                         if strcmpi(op_cond_i{1,2},'conditional:mediumbreach-trendconfirmed')
                             if ~strcmpi(freq,'1440m')
@@ -614,8 +638,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         signal_cond_i{1,2}(1) = 0;
                         if isbreachdnlvldn
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional breachdn-lvldn',100*kelly,100*wprob);
-                        elseif isbreachdnbshighvalue
+                        elseif isbreachdnbslow
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional breachdn-bshighvalue',100*kelly,100*wprob);
+                        elseif isbreachdnbclow
+                            fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional breachdn-lowbc13',100*kelly,100*wprob);
                         else
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),op_cond_i{1,2},100*kelly,100*wprob);
                         end
@@ -787,8 +813,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals{i,1} = signal_cond_i{1,1};
                     if isbreachuplvlup
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
-                    elseif isbreachupsshighvalue
+                    elseif isbreachupsshigh
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-sshighvalue-tc',100*kelly,100*wprob);
+                    elseif isbreachupschigh
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-highsc13',100*kelly,100*wprob);
                     else
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
                     end
@@ -959,8 +987,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     signals{i,2} = signal_cond_i{1,2};
                     if isbreachdnlvldn
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn-tc',100*kelly,100*wprob);
-                    elseif isbreachdnbshighvalue
+                    elseif isbreachdnbslow
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-bshighvalue-tc',100*kelly,100*wprob);
+                    elseif isbreachdnbclow
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-bclow13',100*kelly,100*wprob);
                     else
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),op_cond_i{1,2},100*kelly,100*wprob);
                     end

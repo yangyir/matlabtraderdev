@@ -72,21 +72,30 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             val = signalinfo.mode_;
             if strcmpi(val,'conditional-uptrendconfirmed') && extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1) 
                 if runriskmanagementbeforemktclose || ...
-                        extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))         
-                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
-                    obj.trade_.closeprice_ = extrainfo.latestopen;
-                    volume = trade.openvolume_;
-                    obj.status_ = 'closed';
-                    obj.trade_.status_ = 'closed';
-                    obj.trade_.runningpnl_ = 0;
-                    instrument = trade.instrument_;
-                    if isempty(instrument)
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                        extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))
+                    %special case that the close is above lvlup and the
+                    %close is above teeth and lips is above teeth
+                    if extrainfo.p(end,5) > extrainfo.lvlup(end) && ...
+                            extrainfo.p(end,5) > extrainfo.teeth(end) && ...
+                            extrainfo.lips(end) > extrainfo.teeth(end)
+                        %donothing
+                        return
                     else
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                        obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                        obj.trade_.closeprice_ = extrainfo.latestopen;
+                        volume = trade.openvolume_;
+                        obj.status_ = 'closed';
+                        obj.trade_.status_ = 'closed';
+                        obj.trade_.runningpnl_ = 0;
+                        instrument = trade.instrument_;
+                        if isempty(instrument)
+                            obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                        else
+                            obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                        end
+                        unwindtrade = obj.trade_;
+                        return
                     end
-                    unwindtrade = obj.trade_;
-                    return
                 end
             elseif strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1)
                 isbreachdnlvldn = extrainfo.ll(end) <= extrainfo.lvldn(end) && extrainfo.p(end,5) > extrainfo.lvldn(end);

@@ -1,4 +1,4 @@
-function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
+function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
 %return a signal in case there is neither valid breachup or valid breachdn
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
@@ -11,6 +11,7 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
 
     signal = {};
     op = {};
+    flags = {};
     
     [validbreachhh,validbreachll] = fractal_validbreach(ei,ticksize);
     if validbreachhh || validbreachll
@@ -395,6 +396,50 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             this_signal(1,8) = ei.teeth(end);
             this_signal(1,4) = 2;
             signal{1,1} = this_signal;
+            %
+            flags.islvldnbreach = false;
+            flags.isbslowbreach = false;
+            flags.isbclowbreach = false;            
+            %1.check whether it is a conditional breachup-lvlup
+            flags.islvlupbreach = ei.hh(end)>=ei.lvlup(end)&ei.px(end,5)<ei.lvlup(end);
+            %2.check whether it is a conditional breachup-sshighvalue
+            sslastidx = find(ei.ss >= 9,1,'last');
+            if isempty(sslastidx)
+                flags.issshighbreach = false;
+            else
+                sslastval = ei.ss(sslastidx);
+                ndiff = size(ei.ss,1)-sslastidx;
+                if ndiff > 12
+                    flags.issshighbreach = false;
+                else
+                    sshigh = max(ei.px(sslastidx-sslastval+1:sslastidx,3));
+                    flags.issshighbreach = ei.hh(end) >= sshigh;
+                end
+            end
+            %3.check whether it is a conditional breachup-highsc13
+            sclastidx = find(ei.sc == 13,1,'last');
+            if isempty(sclastidx)
+                flags.isschighbreach = false;
+            else
+                nkfromsc13 = size(ei.sc,1)-sclastidx;
+                if nkfromsc13 > 12
+                    idxhhlast = find(ei.idxhh == 1,1,'last');
+                    if idxhhlast > sclastidx
+                        schigh = max(ei.px(sclastidx:idxhhlast,3));
+                        flags.isschighbreach = ei.hh(end) == schigh;
+                    else
+                        flags.isschighbreach = false;
+                    end
+                else
+                    idxhhlast = find(ei.idxhh == 1,1,'last');
+                    if idxhhlast > sclastidx
+                        schigh = max(ei.px(sclastidx:idxhhlast,3));
+                    else
+                        schigh = max(ei.px(sclastidx:end,3));
+                    end
+                    flags.isschighbreach = ei.hh(end) >= schigh;
+                end
+            end
         end
         %
         if shorttrend
@@ -419,6 +464,50 @@ function [signal,op] = fractal_signal_conditional(ei,ticksize,nfractal,varargin)
             this_signal(1,8) = ei.teeth(end);
             this_signal(1,4) = -2;
             signal{1,2} = this_signal;
+            %
+            flags.islvlupbreach = false;
+            flags.issshighbreach = false;
+            flags.isschighbreach = false;
+            %1.check whether it is a conditional breachdn-lvldn
+            flags.islvldnbreach = ei.ll(end)<=ei.lvldn(end)&ei.px(end,5)>ei.lvldn(end);
+            %2.check whether it is a conditional breachdn-bshighvalue
+            bslastidx = find(ei.bs >= 9,1,'last');
+            if isempty(bslastidx)
+                flags.isbslowbreach = false;
+            else
+                bslastval = ei.bs(bslastidx);
+                ndiff = size(ei.bs,1)-bslastidx;
+                if ndiff > 12
+                    flags.isbslowbreach = false;
+                else
+                    bslow = min(ei.px(bslastidx-bslastval+1:bslastidx,4));
+                    flags.isbslowbreach = ei.ll(end) <= bslow;
+                end
+            end
+            %3.check whether it is a conditional breachdn-lowbc13
+            bclastidx = find(ei.bc == 13,1,'last');
+            if isempty(bclastidx)
+                flags.isbclowbreach = false;
+            else
+                nkfrombc13 = size(ei.bc,1)-bclastidx;
+                if nkfrombc13 > 12
+                    idxlllast = find(ei.idxll == -1,1,'last');
+                    if idxlllast > bclastidx
+                        bclow = min(ei.px(bclastidx:idxlllast,4));
+                        flags.isbclowbreach = ei.ll(end) == bclow;
+                    else
+                        flags.isbclowbreach = false;
+                    end
+                else
+                    idxlllast = find(ei.idxll == -1,1,'last');
+                    if idxlllast > bclastidx
+                        bclow = min(ei.px(bclastidx:idxlllast,4));
+                    else
+                        bclow = min(ei.px(bclastidx:end,4));
+                    end
+                    flags.isbclowbreach = ei.ll(end) <= bclow;
+                end
+            end
         end
         
         return
