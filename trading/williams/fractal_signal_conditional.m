@@ -413,7 +413,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     flags.issshighbreach = false;
                 else
                     sshigh = max(ei.px(sslastidx-sslastval+1:sslastidx,3));
-                    flags.issshighbreach = ei.hh(end) >= sshigh;
+                    flags.issshighbreach = ei.hh(end) == sshigh;
                 end
             end
             %3.check whether it is a conditional breachup-highsc13
@@ -423,13 +423,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             else
                 nkfromsc13 = size(ei.sc,1)-sclastidx;
                 if nkfromsc13 > 12
-                    idxhhlast = find(ei.idxhh == 1,1,'last');
-                    if idxhhlast > sclastidx
-                        schigh = max(ei.px(sclastidx:idxhhlast,3));
-                        flags.isschighbreach = ei.hh(end) == schigh;
-                    else
+%                     idxhhlast = find(ei.idxhh == 1,1,'last');
+%                     if idxhhlast > sclastidx
+%                         schigh = max(ei.px(sclastidx:idxhhlast,3));
+%                         flags.isschighbreach = ei.hh(end) == schigh;
+%                     else
                         flags.isschighbreach = false;
-                    end
+%                     end
                 else
                     idxhhlast = find(ei.idxhh == 1,1,'last');
                     if idxhhlast > sclastidx
@@ -491,18 +491,18 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             else
                 nkfrombc13 = size(ei.bc,1)-bclastidx;
                 if nkfrombc13 > 12
-                    idxlllast = find(ei.idxll == -1,1,'last');
-                    if idxlllast > bclastidx
-                        bclow = min(ei.px(bclastidx:idxlllast,4));
-                        flags.isbclowbreach = ei.ll(end) == bclow;
-                    else
+%                     idxlllast = find(ei.idxll == -1,1,'last');
+%                     if idxlllast > bclastidx
+%                         bclow = min(ei.px(bclastidx:idxlllast,4));
+%                         flags.isbclowbreach = ei.ll(end) == bclow;
+%                     else
                         flags.isbclowbreach = false;
-                    end
+%                     end
                 else
                     idxlllast = find(ei.idxll == -1,1,'last');
                     if idxlllast > bclastidx
                         bclow = min(ei.px(bclastidx:idxlllast,4));
-                        flags.isbclowbreach = ei.ll(end) <= bclow;
+                        flags.isbclowbreach = ei.ll(end) == bclow;
                     else
                         flags.isbclowbreach = ei.ll(end) <= px(bclastidx:end,4);
                     end
