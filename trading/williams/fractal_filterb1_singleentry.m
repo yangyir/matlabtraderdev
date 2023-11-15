@@ -164,6 +164,17 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             return
         else
             output = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,ticksize);
+            if strcmpi(output.comment,'mediumbreach-trendbreak')
+                if status.isfirstbreachsincelastbs && ~status.isfirstbreachsincelastbc13
+                    output = struct('use',1,'comment','mediumbreach-trendbreak-bsreverse');
+                elseif ~status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
+                    output = struct('use',1,'comment','mediumbreach-trendbreak-bcreverse');
+                elseif status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
+                    output = struct('use',1,'comment','mediumbreach-trendbreak-bsbcdoublereverse');
+                else
+                end
+                return
+            end
             return
         end
     end
@@ -182,6 +193,17 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             return
         else
             output = fractal_filterb1_singleentry2(b1type,nfractal,extrainfo,ticksize);
+            if strcmpi(output.comment,'strongbreach-trendbreak')
+                if status.isfirstbreachsincelastbs && ~status.isfirstbreachsincelastbc13
+                    output = struct('use',1,'comment','strongbreach-trendbreak-bsreverse');
+                elseif ~status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
+                    output = struct('use',1,'comment','strongbreach-trendbreak-bcreverse');
+                elseif status.isfirstbreachsincelastbs && status.isfirstbreachsincelastbc13
+                    output = struct('use',1,'comment','strongbreach-trendbreak-bsbcdoublereverse');
+                else
+                end
+                return
+            end
             return
         end           
     end
