@@ -226,6 +226,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     %
     fprintf('\n');
     fprintf('report of special trended trasactions:\n');
+    fprintf('\t%25s\t%5s\t%3s%9s%9s\n','type','winp','R','kelly','#trades')
     idx_breachuplvlup_tc = zeros(nb,1);
     for i = 1:nb
         %here we only focus on cases with hh above (or equal) the lvlup
@@ -460,6 +461,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     %5.check un-trended breachup-lvlup and breachdn-lvldn trades
     fprintf('\n');
     fprintf('report of special untrended trasactions:\n');
+    fprintf('\t%25s\t%5s\t%3s%9s%9s\n','type','winp','R','kelly','#trades')
     idx_breachuplvlup_tb = zeros(nb,1);
     for i = 1:nb
         if strcmpi(tbl_extractedinfo_b.opensignal_b{i,1},'breachup-lvlup') && tbl_extractedinfo_b.trendflag_b(i) == 0
