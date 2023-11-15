@@ -33,7 +33,8 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
     %keep if it breach-dn low of a previous buy sequential
     if status.isbslowbreach
         if ~status.isbshighvalue && ~status.istrendconfirmed
-            %to comemnt:
+            output = struct('use',1,'comment','breachdn-bshighvalue');
+            return
         elseif status.isclose2lvldn && ~status.istrendconfirmed
             %to comment:
         else
