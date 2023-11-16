@@ -11,17 +11,17 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
     %
     px = extrainfo.px;
     bs = extrainfo.bs;
-    bc = extrainfo.bc;
-    lvlup = extrainfo.lvlup;
-    lvldn = extrainfo.lvldn;
-    idxhh = extrainfo.idxhh;
-    idxll = extrainfo.idxll;
-    hh = extrainfo.hh;
-    ll = extrainfo.ll;
+%     bc = extrainfo.bc;
+%     lvlup = extrainfo.lvlup;
+%     lvldn = extrainfo.lvldn;
+%     idxhh = extrainfo.idxhh;
+%     idxll = extrainfo.idxll;
+%     hh = extrainfo.hh;
+%     ll = extrainfo.ll;
     lips = extrainfo.lips;
     teeth = extrainfo.teeth;
-    jaw = extrainfo.jaw;
-    wad = extrainfo.wad;
+%     jaw = extrainfo.jaw;
+%     wad = extrainfo.wad;
     
     status = fractal_s1_status(nfractal,extrainfo,ticksize);
     
@@ -33,7 +33,11 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
     %keep if it breach-dn low of a previous buy sequential
     if status.isbslowbreach
         if ~status.isbshighvalue && ~status.istrendconfirmed
-            output = struct('use',1,'comment','breachdn-bshighvalue');
+            if s1type == 2
+                output = struct('use',0,'comment','mediumbreach-trendbreak-bslowbreach');
+            else
+                output = struct('use',0,'comment','strongbreach-trendbreak-bslowbreach');
+            end
             return
         elseif status.isclose2lvldn && ~status.istrendconfirmed
             %to comment:
