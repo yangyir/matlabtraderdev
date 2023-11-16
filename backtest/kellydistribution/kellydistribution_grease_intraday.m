@@ -30,7 +30,7 @@ codes_a = {'a2101';'a2105';'a2109';'a2111';...
 codes_grease = [codes_oi;codes_p;codes_y;codes_m;codes_rm;codes_a];
 output_grease = fractal_kelly_summary('codes',codes_grease,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %%
-[tc_grease_i,tb_grease_i,tbl_grease_i,k_l_grease_i,k_s_grease_i,tblbyasset_l_grease_i,tblbyasset_s_grease_i] = kellydistrubitionsummary(output_grease);
+[tc_grease_i,tb_grease_i,tbl_grease_i,k_l_grease_i,k_s_grease_i,tblbyasset_l_grease_i,tblbyasset_s_grease_i] = kellydistributionsummary(output_grease);
 %%
 signal_l_valid_grease = k_l_grease_i.opensignal_unique_l(logical(k_l_grease_i.use_unique_l));
 signal_s_valid_grease = k_s_grease_i.opensignal_unique_s(logical(k_s_grease_i.use_unique_s));
