@@ -96,7 +96,12 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             end
         else
             %~useflag
-            signal = zeros(1,7); 
+            signal = zeros(1,7);
+            signal(2) = extrainfo.hh(end);
+            signal(3) = extrainfo.ll(end);
+            signal(5) = extrainfo.px(end,3);
+            signal(6) = extrainfo.px(end,4);
+            signal(7) = extrainfo.lips(end);
         end
         return
     end
@@ -180,6 +185,11 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             end
         else
             signal = zeros(1,7);
+            signal(2) = extrainfo.hh(end);
+            signal(3) = extrainfo.ll(end);
+            signal(5) = extrainfo.px(end,3);
+            signal(6) = extrainfo.px(end,4);
+            signal(7) = extrainfo.lips(end);
         end
         return
     end 
