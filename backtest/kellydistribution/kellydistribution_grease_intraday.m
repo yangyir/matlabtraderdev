@@ -88,6 +88,8 @@ strat_intraday_grease = struct('tblbyasset_l',tblbyasset_l_grease_i,...
     'signal_s',{signal_s_valid_grease},...
     'asset_list',{assetlist_grease'});
 %%
+[tbl_report_grease_i,stats_report_grease_i] = kellydistributionreport(tbl_grease_i,strat_intraday_grease);
+%%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'];
 save([dir_,'strat_intraday_grease.mat'],'strat_intraday_grease');
 fprintf('file saved...\n');
