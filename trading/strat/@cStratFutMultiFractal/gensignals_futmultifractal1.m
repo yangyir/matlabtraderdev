@@ -146,6 +146,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_.kelly_table_l.opensignal_unique_l);
                                 kelly = stratfractal.tbl_all_intraday_.kelly_table_l.kelly_unique_l(idx);
                                 wprob = stratfractal.tbl_all_intraday_.kelly_table_l.winp_unique_l(idx);
+                                if isempty(kelly)
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
                             end
                         elseif op.direction == -1
                             try
@@ -155,13 +159,18 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_.kelly_table_s.opensignal_unique_s);
                                 kelly = stratfractal.tbl_all_intraday_.kelly_table_s.kelly_unique_s(idx);
                                 wprob = stratfractal.tbl_all_intraday_.kelly_table_s.winp_unique_s(idx);
+                                if isempty(kelly)
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
                             end
                         else
                             kelly = 0;
                             wprob = 0;
                         end
                         if kelly >= 0.15 && wprob >= 0.5
-                            signal_i(i) = 1;
+                            signal_i(1) = op.direction;
+                            signal_i(4) = op.direction;
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     else
@@ -169,10 +178,18 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_l.opensignal_unique_l);
                             kelly = stratfractal.tbl_all_daily_.kelly_table_l.kelly_unique_l(idx);
                             wprob = stratfractal.tbl_all_daily_.kelly_table_l.winp_unique_l(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         elseif op.direction == -1
                             idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_s.opensignal_unique_s);
                             kelly = stratfractal.tbl_all_daily_.kelly_table_s.kelly_unique_s(idx);
                             wprob = stratfractal.tbl_all_daily_.kelly_table_s.winp_unique_s(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
                         else
                             kelly = 0;
                             wprob = 0;
