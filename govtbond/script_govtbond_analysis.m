@@ -40,7 +40,7 @@ tools_technicalplot2(mat_gkhy_10y(end-nshift:end,:),5,'活跃10年国开收益率',true)
 [tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary('gzhy','usefractalupdate',0);
 %%
 output_gzhy = fractal_kelly_summary('codes',{'gzhy'},'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
-[tc_gzhy,tb_gzhy,tbl_gzhy,k_l_gzhy,k_s_gzhy,tblbyasset_l_gzhy,tblbyasset_s_gzhy] = kellydistrubitionsummary(output_gzhy);
+[tc_gzhy,tb_gzhy,tbl_gzhy,k_l_gzhy,k_s_gzhy,tblbyasset_l_gzhy,tblbyasset_s_gzhy] = kellydistributionsummary(output_gzhy);
 %%
 output_gzhy30y = fractal_kelly_summary('codes',{'gzhy_30y'},'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
 [tc_gzhy30y,tb_gzhy30y,tbl_gzhy30y,k_l_gzhy30y,k_s_gzhy30y,tblbyasset_l_gzhy30y,tblbyasset_s_gzhy30y] = kellydistrubitionsummary(output_gzhy30y);
