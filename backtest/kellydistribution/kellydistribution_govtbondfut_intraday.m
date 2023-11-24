@@ -10,12 +10,13 @@ codes_T = {'T1706';'T1709';'T1712';...
     'T2103';'T2106';'T2109';'T2112';...
     'T2203';'T2206';'T2209';'T2212';...
     'T2303';'T2306';'T2309';'T2312';...
+    'T2403';
     };
-codes_TL = {'TL2312'};
+codes_TL = {'TL2312';'T2403'};
 %
 output_govtbondfut = fractal_kelly_summary('codes',[codes_TF;codes_T;codes_TL],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %%
-[tc_govtbondfut_i,tb_govtbondfut_i,tbl_govtbondfut_i,k_l_govtbondfut_i,k_s_govtbondfut_i,tblbyasset_l_govtbondfut_i,tblbyasset_s_govtbondfut_i] = kellydistrubitionsummary(output_govtbondfut);
+[tc_govtbondfut_i,tb_govtbondfut_i,tbl_govtbondfut_i,k_l_govtbondfut_i,k_s_govtbondfut_i,tblbyasset_l_govtbondfut_i,tblbyasset_s_govtbondfut_i] = kellydistributionsummary(output_govtbondfut);
 %%
 signal_l_valid_govtbondfut = k_l_govtbondfut_i.opensignal_unique_l(logical(k_l_govtbondfut_i.use_unique_l));
 signal_s_valid_govtbondfut = k_s_govtbondfut_i.opensignal_unique_s(logical(k_s_govtbondfut_i.use_unique_s));
