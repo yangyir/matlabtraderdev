@@ -5,6 +5,9 @@ function [tbl_report,stats_report] = kellydistributionreport(tbl_trades,struct_d
     yearinfo = year(tbl_trades.opendatetime);
     monthinfo = month(tbl_trades.opendatetime);
     weeknuminfo = weeknum(tbl_trades.opendatetime);
+    if size(monthinfo,1) ~= size(weeknuminfo,1)
+        weeknuminfo = weeknuminfo';
+    end
     %
     n = size(tbl_trades,1);
     % calculate those columns to be added

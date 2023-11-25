@@ -1,5 +1,9 @@
-function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kelly_table_s,tblbyasset_L,tblbyasset_S] = kellydistributionsummary(inputstruct)
+function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kelly_table_s,tblbyasset_L,tblbyasset_S] = kellydistributionsummary(inputstruct,keepopenposition)
     %
+    if nargin < 2
+        keepopenposition = false;
+    end
+    
     %1.consolidate all tblb and tbls
     tblb_data_consolidated = inputstruct.tblb{1};
     openidxb = inputstruct.tblb{1}(:,1);
@@ -28,7 +32,13 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         hh_i = num2cell(hh_i);
         lvlup_i = num2cell(lvlup_i);
         tempb_i = [inputstruct.tblb{i},hh_i,lvlup_i];
-        tempnew = [tblb_data_consolidated;tempb_i];
+        if isempty(tblb_data_consolidated)
+            tempnew = tempb_i;
+        elseif isempty(tempb_i)
+            tempnew = tblb_data_consolidated;
+        else
+            tempnew = [tblb_data_consolidated;tempb_i];
+        end
         tblb_data_consolidated = tempnew;
         %
         %
@@ -39,7 +49,13 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         ll_i = num2cell(ll_i);
         lvldn_i = num2cell(lvldn_i);
         temps_i = [inputstruct.tbls{i},ll_i,lvldn_i];
-        tempnew = [tbls_data_consolidated;temps_i];
+        if isempty(tbls_data_consolidated)
+            tempnew = temps_i;
+        elseif isempty(temps_i);
+            tempnew = tbls_data_consolidated;
+        else
+            tempnew = [tbls_data_consolidated;temps_i];
+        end
         tbls_data_consolidated = tempnew;
     end
     %
@@ -56,7 +72,9 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         if ~isempty(tblb_data_consolidated{i,colidx_comment1}),idxb(i) = 0;end
         if isempty(tblb_data_consolidated{i,colidx_pnl}),idxb(i) = 0;end
         if isnan(tblb_data_consolidated{i,colidx_pnl}),idxb(i) = 0;end
-        if isempty(tblb_data_consolidated{i,colidx_closeid}),idxb(i) = 0;end
+        if ~keepopenposition
+            if isempty(tblb_data_consolidated{i,colidx_closeid}),idxb(i) = 0;end
+        end
     end
     for i = 1:ns
         %a.remove trades with unsatified open condition
@@ -64,7 +82,9 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         if ~isempty(tbls_data_consolidated{i,colidx_comment1}),idxs(i) = 0;end
         if isempty(tbls_data_consolidated{i,colidx_pnl}),idxs(i) = 0;end
         if isnan(tbls_data_consolidated{i,colidx_pnl}),idxs(i) = 0;end
-        if isempty(tbls_data_consolidated{i,colidx_closeid}),idxs(i) = 0;end
+        if ~keepopenposition
+            if isempty(tbls_data_consolidated{i,colidx_closeid}),idxs(i) = 0;end
+        end
     end
     idxb = logical(idxb);
     idxs = logical(idxs);
