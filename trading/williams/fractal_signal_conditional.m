@@ -436,7 +436,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         schigh = max(ei.px(sclastidx:idxhhlast,3));
                         flags.isschighbreach = ei.hh(end) >= schigh;
                     else
-                        flags.isschighbreach = ei.hh(end) >= ei.px(sclastidx,3);
+                        flags.isschighbreach = ei.hh(end) >= ei.px(sclastidx:end,3);
                     end   
                 end
             end
@@ -481,7 +481,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     flags.isbslowbreach = false;
                 else
                     bslow = min(ei.px(bslastidx-bslastval+1:bslastidx,4));
-                    flags.isbslowbreach = ei.ll(end) <= bslow;
+                    flags.isbslowbreach = ei.ll(end) == bslow;
                 end
             end
             %3.check whether it is a conditional breachdn-lowbc13
@@ -504,7 +504,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         bclow = min(ei.px(bclastidx:idxlllast,4));
                         flags.isbclowbreach = ei.ll(end) == bclow;
                     else
-                        flags.isbclowbreach = ei.ll(end) <= px(bclastidx:end,4);
+                        flags.isbclowbreach = ei.ll(end) <= ei.px(bclastidx:end,4);
                     end
                     
                 end
