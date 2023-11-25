@@ -93,3 +93,11 @@ strat_intraday_grease = struct('tblbyasset_l',tblbyasset_l_grease_i,...
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'];
 save([dir_,'strat_intraday_grease.mat'],'strat_intraday_grease');
 fprintf('file saved...\n');
+%%
+startdate = '2023-11-17';
+codes_grease_active = {codes_oi{end};codes_p{end};codes_y{end};codes_m{end};codes_rm{end};codes_a{end}};
+output_grease_active = fractal_kelly_summary('codes',codes_grease_active,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both','fromdate',startdate);
+[~,~,tbl_grease_active,~,~,~,~] = kellydistributionsummary(output_grease_active);
+distributionfile = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\strat_intraday_grease.mat']);
+tbl_report_grease_active = kellydistributionreport(tbl_grease_active,distributionfile.strat_intraday_grease);
+%%
