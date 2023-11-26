@@ -20,9 +20,28 @@ function [] = updatecondentrusts(strategy)
                 
                 if ~instrument.isable2trade(ordertime), continue; end
                 
+                [flag,idx] = strategy.helper_.book_.hasposition(instrument);
+                if ~flag
+                    volume_exist = 0;
+                    direction_exist = 0;
+                else
+                    pos = obj.helper_.book_.positions_{idx};
+                    volume_exist = pos.position_total_;
+                    direction_exist = pos.direction_;
+                end
+                volume = condentrust.volume;
+                direction = condentrust.direction;
+                volume2check = volume*direction + volume_exist*direction_exist;
+                try
+                    maxvolume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','maxunits');
+                catch
+                    maxvolume = 0;
+                end
+                if abs(volume2check) > maxvolume, continue;end
+                
                 signalinfo = condentrust.signalinfo_;
                 condpx = condentrust.price;
-                volume = condentrust.volume;
+                
                 lasttick = strategy.mde_fut_.getlasttick(codestr);
                 
                 if isempty(lasttick), continue; end
@@ -81,7 +100,7 @@ function [] = updatecondentrusts(strategy)
                     end
                 end
                 %
-                direction = condentrust.direction;
+                %
                 if direction == 1
                     sprd = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','bidopenspread');
                 else
