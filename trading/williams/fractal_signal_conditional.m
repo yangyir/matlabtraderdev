@@ -196,7 +196,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     if longtrend
         longtrend = ~(ei.px(end,5)-ei.ll(end-1)<=-ticksize);
     end
-    longtrend = longtrend & ei.px(end,5)<ei.hh(end);
+    longtrend = longtrend & (ei.px(end,5)<ei.hh(end)|(ei.px(end,5)==ei.hh(end)&ei.px(end-1,5)<ei.hh(end)));
     %
     %
     %SHORT TREND:
@@ -367,7 +367,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     if shorttrend
         shorttrend = ~(ei.px(end,5)-ei.hh(end-1)>=ticksize);
     end
-    shorttrend = shorttrend & ei.px(end,5)>ei.ll(end);
+    shorttrend = shorttrend & (ei.px(end,5)>ei.ll(end)| (ei.px(end,5)==ei.ll(end) & ei.px(end-1,5)>ei.ll(end)));
         
     if longtrend || shorttrend
         signal = cell(1,2);
@@ -436,7 +436,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         schigh = max(ei.px(sclastidx:idxhhlast,3));
                         flags.isschighbreach = ei.hh(end) >= schigh;
                     else
-                        flags.isschighbreach = ei.hh(end) >= ei.px(sclastidx:end,3);
+                        flags.isschighbreach = ei.hh(end) == max(ei.px(sclastidx:end,3));
                     end   
                 end
             end
@@ -504,7 +504,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         bclow = min(ei.px(bclastidx:idxlllast,4));
                         flags.isbclowbreach = ei.ll(end) == bclow;
                     else
-                        flags.isbclowbreach = ei.ll(end) <= ei.px(bclastidx:end,4);
+                        flags.isbclowbreach = ei.ll(end) == min(ei.px(bclastidx:end,4));
                     end
                     
                 end
