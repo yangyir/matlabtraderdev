@@ -2,7 +2,7 @@ function [flag] = istime2print(mdefx,t)
 %cmdefx
     mm = minute(t);
     
-    MM_INTERVAL2PRINT = 5;
+    MM_INTERVAL2PRINT = 10;
     if mod(mm,MM_INTERVAL2PRINT) == 0
         if ~mdefx.printed_
             flag = 1;

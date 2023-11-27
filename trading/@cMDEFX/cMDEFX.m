@@ -8,6 +8,7 @@ classdef cMDEFX < cMonitorBase
     %
     properties (GetAccess = private,SetAccess = private)
         codes_fx_@cell
+        instruments_fx_@cell
         %
         dailybar_fx_@cell
         %
@@ -16,6 +17,11 @@ classdef cMDEFX < cMonitorBase
         mat_fx_@cell
         %
         struct_fx_@cell
+        %
+        trades_fx_@cTradeOpenArray
+        trades_dir_@char
+        %
+        kelly_table_@struct
         
     end
     %
@@ -47,6 +53,8 @@ classdef cMDEFX < cMonitorBase
     
     methods (Access = private)
         obj = init(obj,varargin)
+        [] = updatesignal_fx(obj,varagin)
+        [] = riskmanagement_fx(obj,varargin)
     end
     
 end
