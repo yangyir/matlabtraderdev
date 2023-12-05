@@ -4,6 +4,7 @@ classdef cMDEFX < cMonitorBase
     %
     properties
         w_@cWind
+        ths_@cTHS
     end
     %
     properties (GetAccess = private,SetAccess = private)

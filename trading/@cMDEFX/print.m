@@ -42,7 +42,7 @@ function [] = print(mdefx,varargin)
     
     fprintf('\n');
     
-    for i = 1:4
+    for i = 1:nfx
         try
             if ~isempty(strfind(code,'JPY'))
                 tools_technicalplot2(mdefx.mat_fx_{i}(end-62:end,:),i+1,mdefx.codes_fx_{i},true,0.02);

@@ -1,7 +1,12 @@
 function [] = refresh(mdefx,varargin)
 %cmdefx
     nfractal = 2;
-    rt_fx_new = mdefx.w_.ds_.wsq(mdefx.codes_fx_,'rt_date,rt_open,rt_high,rt_low,rt_latest');
+    if ~isempty(mdefx.w_)
+        rt_fx_new = mdefx.w_.ds_.wsq(mdefx.codes_fx_,'rt_date,rt_open,rt_high,rt_low,rt_latest');
+    else
+        rt_fx_new = THS_RQ(mdefx.codes_fx_,'tradeDate;open;high;low;latest','','format:table');
+        rt_fx_new = [datenum(rt_fx_new.tradeDate,'yyyy-mm-dd'),rt_fx_new.open,rt_fx_new.high,rt_fx_new.low,rt_fx_new.latest];
+    end
     %
     rt_fx_new(1) = datenum(num2str(rt_fx_new(1)),'yyyymmdd');
     rt_fx_new(:,1) = rt_fx_new(1);

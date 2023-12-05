@@ -5,6 +5,7 @@ function mdefx = init(mdefx,varargin)
     p.addParameter('Name','mdefx',@ischar);
     p.addParameter('Pairs',{},@iscell);
     p.addParameter('TradesDirectory','',@ischar);
+    p.addParameter('Connection','ths',@ischar);
     p.parse(varargin{:});
     mdefx.name_ = p.Results.Name;
     pairs = p.Results.Pairs;
@@ -44,10 +45,21 @@ function mdefx = init(mdefx,varargin)
     %
     if npairs == 0, return,end
     %
-    try
-        mdefx.w_ = cWind;
-    catch
+    connection = p.Results.Connection;
+    if strcmpi(connection,'wind')
+        try
+            mdefx.w_ = cWind;
+        catch
+            mdefx.w_ = [];
+        end
+        mdefx.ths_ = [];
+    else
         mdefx.w_ = [];
+        try
+            mdefx.ths_ = cTHS;
+        catch
+            mdefx.ths_ = [];
+        end
     end
     %
     % load kelly tables
