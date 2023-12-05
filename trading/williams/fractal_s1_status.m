@@ -142,7 +142,7 @@ if isempty(lastbc13)
     isbclowbreach = false;
 else
     nkfrombc13 = size(px,1)-lastbc13;
-    isbclowbreach = px(end,5)<min(px(lastbc13:end-1,4)) & nkfrombc13 < 12;
+    isbclowbreach = px(end,5)<min(px(lastbc13:end-1,4)) & nkfrombc13 <= 13;
 end
 
 %does it firstly breach-dn ll after sc13 without any breachdn of ll or

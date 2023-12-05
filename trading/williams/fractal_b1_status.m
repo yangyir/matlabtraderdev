@@ -143,7 +143,7 @@ if isempty(lastsc13)
     isschighbreach = false;
 else
     nkfromsc13 = size(px,1)-lastsc13;
-    isschighbreach = px(end,5)>=max(px(lastsc13:end-1,3)) & nkfromsc13<12;
+    isschighbreach = px(end,5)>=max(px(lastsc13:end-1,3)) & nkfromsc13<=13;
 end
 
 %
