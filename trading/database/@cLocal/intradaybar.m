@@ -129,7 +129,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
         %number of ticks
         %total tick value in the bar
         if interval ~= 1
-            dummyinstrument = code2instrument('IF2106');
+            dummyinstrument = code2instrument(code_ctp);
             enddate2 = datenum(enddate) + interval/1440 - 1/86400;            
             enddate2 = datestr(enddate2,'yyyy-mm-dd HH:MM:SS');
             data = timeseries_compress(data_raw_(:,1:5),...
