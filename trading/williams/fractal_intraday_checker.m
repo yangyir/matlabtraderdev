@@ -8,6 +8,7 @@ p.addParameter('usefractalupdate',1,@isnumeric);
 p.addParameter('usefibonacci',1,@isnumeric);
 p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
 p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
+p.addParameter('frequency',30,@isnumeric);
 
 p.parse(varargin{:});
 type = p.Results.type;
@@ -19,10 +20,16 @@ dt1 = p.Results.fromdate;
 if ~isempty(dt1) && ischar(dt1), dt1 = datenum(dt1);end
 dt2 = p.Results.todate;
 if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
+freq = p.Results.frequency;
+%
 %load the data
 isequity = isinequitypool(code);
 if isequity
-    fn = [getenv('onedrive'),'\matlabdev\equity\',code,'\',code,'.mat'];
+    if freq == 30
+        fn = [getenv('onedrive'),'\matlabdev\equity\',code,'\',code,'.mat'];
+    else
+        fn = [getenv('onedrive'),'\matlabdev\equity\',code,'\',code,'_',num2str(freq),'m.mat'];
+    end
     data = load(fn);
     cp = data.data;
 else
@@ -37,8 +44,13 @@ else
         instrument = code2instrument(code);
         assetinfo = getassetinfo(instrument.asset_name);
         shortcode = lower(assetinfo.WindCode);
-        fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
-            '\',shortcode,'\',code,'.mat'];
+        if freq == 30
+            fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
+                '\',shortcode,'\',code,'.mat'];
+        else
+            fn = [getenv('onedrive'),'\matlabdev\',assetinfo.AssetType,...
+                '\',shortcode,'\',code,'_',num2str(freq),'m.mat'];
+        end
         data = load(fn);
         cp = data.data;
     end
