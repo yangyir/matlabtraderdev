@@ -5,7 +5,7 @@ try
 catch
 end
 %
-codes = {'IH2209'};
+codes = {'IH2312'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
@@ -28,11 +28,12 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2022-09-06','replaytodate','2022-09-06');
+    'replayfromdate','2023-12-04','replaytodate','2023-12-04');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
+combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\'],'filename','strat_intraday_eqindexfut.mat');
 combo.strategy.printflag_ = false;
 %%
 combo.mdefut.start;
