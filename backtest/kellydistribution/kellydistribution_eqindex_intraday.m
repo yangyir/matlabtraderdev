@@ -23,7 +23,7 @@ codes_IM = {'IM2209';'IM2210';'IM2211';'IM2212';...
 %
 output_eqindexfut = fractal_kelly_summary('codes',[codes_IF;codes_IH;codes_IC;codes_IM],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %%
-[tc_eqindexfut_i,tb_eqindexfut_i,tbl_eqindexfut_i,k_l_eqindexfut_i,k_s_eqindexfut_i,tblbyasset_l_eqindexfut_i,tblbyasset_s_eqindexfut_i] = kellydistrubitionsummary(output_eqindexfut);
+[tc_eqindexfut_i,tb_eqindexfut_i,tbl_eqindexfut_i,k_l_eqindexfut_i,k_s_eqindexfut_i,tblbyasset_l_eqindexfut_i,tblbyasset_s_eqindexfut_i] = kellydistributionsummary(output_eqindexfut);
 %%
 signal_l_valideqindex = k_l_eqindexfut_i.opensignal_unique_l(logical(k_l_eqindexfut_i.use_unique_l));
 signal_s_valideqindex = k_s_eqindexfut_i.opensignal_unique_s(logical(k_s_eqindexfut_i.use_unique_s));
@@ -82,7 +82,7 @@ strat_intraday_eqindexfut = struct('tblbyasset_l',tblbyasset_l_eqindexfut_i,...
     'asset_list',{assetlisteqindex'});
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\'];
-save([dir_,'strat_intraday_eqindex.mat'],'strat_intraday_eqindex');
+save([dir_,'strat_intraday_eqindexfut.mat'],'strat_intraday_eqindexfut');
 fprintf('file saved...\n');
 %%
 [tbl_report_eqindex_i,stats_report_eqindex_i] = kellydistributionreport(tbl_eqindexfut_i,strat_intraday_eqindexfut);
