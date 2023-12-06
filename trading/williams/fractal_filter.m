@@ -78,8 +78,19 @@ for i = 1:n
     end
     p = data_in{i};
     if p(2,1) - p(1,1) < 1
-        freqstr = '30m';
-        nfractal = 4;
+        if abs((p(2,1)-p(1,1))*1440 - 30) < 1e-6
+            freqstr = '30m';
+            nfractal = 4;
+        elseif abs((p(2,1)-p(1,1))*1440 - 15) < 1e-6
+            freqstr = '15m';
+            nfractal = 8;
+        elseif abs((p(2,1)-p(1,1))*1440 - 5) < 1e-6
+            freqstr = '5m';
+            nfractal = 12;
+        else
+            freqstr = '30m';
+            nfractal = 4;
+        end
     else
         freqstr = 'daily';
         nfractal = 2;
