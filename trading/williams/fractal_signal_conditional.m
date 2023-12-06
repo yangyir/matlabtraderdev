@@ -221,13 +221,14 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     %2)the lips,teeth and jaws are not crossed
     %3)the fractal ll moves dnward or (breachdn-lvldn case)
     %then the short trend shall be confirmed
-%     sflag1 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-%         ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
     sflag1 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-        ei.teeth(end-2*nfractal+1:end)>0,1,'first'));
+        ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first')) &...
+        ei.px(end,5)<ei.teeth(end);
+%     sflag1 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+%         ei.teeth(end-2*nfractal+1:end)>0,1,'first'));
     sflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
     sflag3 = lldnward;
-    sflag4 = (~lldnward && ei.ll(end)<=ei.lvldn(end)&&ei.px(end,5)>=ei.lvldn(end));
+    sflag4 = ~lldnward & ei.ll(end)<=ei.lvldn(end) & ei.px(end,5)>=ei.lvldn(end);
     shorttrend = sflag1 & (sflag2 | sflag4) & (sflag3 | sflag4);
     %
     %if not all the above 3 conditions hold
