@@ -26,7 +26,15 @@ usefibonacciflag = p.Results.usefibonacci;
 if strcmpi(freq,'daily')
     nfractal = 2;
 else
-    nfractal = 4;
+    if strcmpi(freq,'intraday') || strcmpi(freq,'intraday-30m')
+        nfractal = 4;
+    elseif strcmpi(freq,'intraday-15m')
+        nfractal = 8;
+    elseif strcmpi(freq,'intrday-5m')
+        nfractal = 12;
+    else
+        error('fractal_tradeinfo_anys:invalid frequency input')
+    end
 end
 
 asset = code2instrument(code);
