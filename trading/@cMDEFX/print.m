@@ -44,7 +44,7 @@ function [] = print(mdefx,varargin)
     
     for i = 1:nfx
         try
-            if ~isempty(strfind(code,'JPY'))
+            if ~isempty(strfind(mdefx.codes_fx_{i},'JPY'))
                 tools_technicalplot2(mdefx.mat_fx_{i}(end-62:end,:),i+1,mdefx.codes_fx_{i},true,0.02);
             else
                 tools_technicalplot2(mdefx.mat_fx_{i}(end-62:end,:),i+1,mdefx.codes_fx_{i},true,0.0005);
