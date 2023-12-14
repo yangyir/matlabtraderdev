@@ -57,6 +57,13 @@ classdef cWatcher < handle
                 else
                     ds_ = obj.ds;
                 end
+            elseif strcmpi(obj.conn,'ths')
+                if ~isa(obj.ds,'cTHS')
+                    ds_ = cTHS;
+                    obj.ds = ds_;
+                else
+                    ds_ = obj.ds;
+                end 
             elseif strcmpi(obj.conn,'ctp')
                 if ~isa(obj.ds,'cCTP')
                     %default values
@@ -127,6 +134,7 @@ classdef cWatcher < handle
         [] = init_quotes(obj)
         quotes = getquotes_wind(obj)
         quotes = getquotes_bbg(obj)
+        quotes = getquotes_ths(obj)
         quotes = getquotes_ctp(obj)
         quotes = getquotes_local(obj,timestr)
         quotes_pair = quotessingle2pair(obj)

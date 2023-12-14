@@ -10,6 +10,8 @@ function quotes = getquotes(watcher,timestr)
 
     if strcmpi(watcher.conn,'wind')
         quotes = getquotes_wind(watcher);
+    elseif strcmpi(watcher.conn,'ths')
+        quotes = getquotes_ths(watcher);
     elseif strcmpi(watcher.conn,'bbg') || strcmpi(watcher.conn,'bloomberg')
         quotes = getquotes_bbg(watcher);
     elseif strcmpi(watcher.conn,'ctp')
