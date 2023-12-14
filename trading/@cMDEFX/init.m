@@ -50,11 +50,11 @@ function mdefx = init(mdefx,varargin)
         try
             mdefx.w_ = cWind;
         catch
-            mdefx.w_ = [];
+%             mdefx.w_ = [];
         end
-        mdefx.ths_ = [];
+%         mdefx.ths_ = [];
     else
-        mdefx.w_ = [];
+%         mdefx.w_ = [];
         try
             mdefx.ths_ = cTHS;
         catch
