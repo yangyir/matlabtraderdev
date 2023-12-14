@@ -240,6 +240,35 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             return
         end
     end
+    %
+    %special case when tdsq ss>=9 with sc=13 or bs>=9 with bc=13 and a
+    %weekend ahead
+    if runriskmanagementbeforemktclose
+        thisbd = floor(candleTime);
+        nextbd = dateadd(thisbd,'1b');
+        if nextbd - thisbd == 3
+            if (direction == 1 && extrainfo.ss(end) >= 9 && extrainfo.sc(end) == 13) || ...
+                    (direction == -1 && extrainfo.bs(end) >= 9 && extrainfo.bc(end) == 13)
+                unwindtrade = trade;
+                if direction == 1
+                    obj.closestr_ = 'tdsq:sc13limit';
+                else
+                    obj.closestr_ = 'tdsq:bc13limit';
+                end
+                obj.status_ = 'closed';
+                trade.status_ = 'closed';
+                trade.runningpnl_ = 0;
+                trade.closeprice_ = extrainfo.p(end,5);
+                trade.closedatetime1_ = extrainfo.p(end,1);
+                if isempty(trade.instrument_)
+                    trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_);
+                else
+                    trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                end
+            end 
+        end
+    end
+    
     
     obj.updatestoploss('extrainfo',extrainfo);
     %
