@@ -18,7 +18,11 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
 
     if isa(instrument,'cFutures') || isa(instrument,'cStock')
         code_wind = instrument.code_wind;
-
+        
+        if ~isempty(strfind(code_wind,'.INE'))
+            code_wind = [code_wind(1:end-4),'.SHF'];
+        end
+        
         category = getfutcategory(instrument);
         
         bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...

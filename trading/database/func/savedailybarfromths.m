@@ -13,9 +13,9 @@ if nargin < 3
     override = false;
 end
 
-if override
-    error('savedailybarfromths:override true is not supported now as THS access is limited...')
-end
+% if override
+%     error('savedailybarfromths:override true is not supported now as THS access is limited...')
+% end
 
 f = code2instrument(code_ctp);
 fn = [getenv('DATAPATH'),'info_futures\',code_ctp,'_info.txt'];

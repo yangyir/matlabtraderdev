@@ -24,8 +24,10 @@ function [] = init_ths(obj,ths)
 %         'ths_close_time_night_future';...
 %         'ths_rest_start_time_future';...
 %         'ths_rest_end_time_future'};
+    reverseflag = false;
     if ~isempty(strfind(obj.code_wind,'.INE'))
         obj.code_wind = [obj.code_wind(1:end-4),'.SHF'];
+        reverseflag = true;
     end
     
     ths_data = THS_BD(obj.code_wind,'ths_contract_multiplier_future','','format:table');
@@ -89,6 +91,10 @@ function [] = init_ths(obj,ths)
     ths_data = THS_BD(obj.code_wind,'ths_rest_end_time_future','','format:table');
     rest_end_cell = ths_data.ths_rest_end_time_future;
     obj.trading_break = [rest_start_cell{1}(1:5),'-',rest_end_cell{1}(1:5)];
+    
+    if reverseflag
+        obj.code_wind = [obj.code_wind(1:end-4),'.INE'];
+    end
     
 end
 %end of init_ths

@@ -7,7 +7,11 @@ function data = history(obj,instrument,fields,fromdate,todate)
         if strcmpi(instrument.code_wind,'USDX.FX')
             [d,~,~,~,~,~,~,~,~] = THS_HQ('DINI.FX',fields,'',fromdate,todate,'format:table');
         else
-            [d,~,~,~,~,~,~,~,~] = THS_HQ(instrument.code_wind,fields,'',fromdate,todate,'format:table');
+            if ~isempty(strfind(instrument.code_wind,'.INE'))
+                [d,~,~,~,~,~,~,~,~] = THS_HQ([instrument.code_wind(1:end-4),'.SHF'],fields,'',fromdate,todate,'format:table');
+            else
+                [d,~,~,~,~,~,~,~,~] = THS_HQ(instrument.code_wind,fields,'',fromdate,todate,'format:table');
+            end
         end
     else
         if strcmpi(instrument(1),'5') || strcmpi(instrument(1),'6')
