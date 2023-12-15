@@ -22,6 +22,7 @@ function [ret] = login(obj,varargin)
     end
     
     if ~(strcmpi(conn,'Bloomberg') || strcmpi(conn,'Wind') || ...
+            strcmpi(conn,'THS') || ...
             strcmpi(conn,'CTP') || strcmpi(conn,'Local'))
         error('cMDEFut:login:invalid connection entry!!!\n')
     end

@@ -11,6 +11,7 @@ function data = realtime(obj,instruments,fields)
             tmp = [fields_,',',fields{i}];
             fields_ = tmp;
         end
+        fields = fields_;
     end
 
     if isa(instruments,'cInstrument')
@@ -37,7 +38,7 @@ function data = realtime(obj,instruments,fields)
         list_ths = instr.code_wind;
     end
 
-    d = THS_RQ(list_ths,'tradeDate;tradeTime;latest','','format:table');
+    d = THS_RQ(list_ths,fields,'','format:table');
     data = [datenum(d.time,'yyyy-mm-dd HH:MM:SS'),d.latest];
 end
 %end of realtime

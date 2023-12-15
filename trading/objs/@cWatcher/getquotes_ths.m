@@ -9,7 +9,7 @@ function quotes = getquotes_ths(watcher)
     
     quotes = zeros(ns,7);
 
-    data = watcher.ds.realtime(list_ctp,'latest');
+    data = watcher.ds.realtime(list_ctp,'latest,bid1,ask1,bidSize1,askSize1');
     for i = 1:ns
         try
             quotes(i,1) = floor(data(i,1));
