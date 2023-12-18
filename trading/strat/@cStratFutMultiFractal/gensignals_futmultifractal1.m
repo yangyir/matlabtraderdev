@@ -755,6 +755,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         else
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),op_cond_i{1,2},100*kelly,100*wprob);
                         end
+                        stratfractal.unwindpositions(instruments{i});
                     end
                 end               
                 %
