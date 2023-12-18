@@ -435,7 +435,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     idxhhlast = find(ei.idxhh == 1,1,'last');
                     if idxhhlast > sclastidx
                         schigh = max(ei.px(sclastidx:idxhhlast,3));
-                        flags.isschighbreach = ei.hh(end) >= schigh;
+                        flags.isschighbreach = ei.hh(end) == schigh;
                     else
                         flags.isschighbreach = ei.hh(end) == max(ei.px(sclastidx:end,3));
                     end   
