@@ -20,6 +20,12 @@ function data = savetickfromths(ths,code_ctp,varargin)
     dir_ = getenv('DATAPATH');
     dir_data_ = [dir_,'ticks\',code_ctp,'\'];
     
+    try
+        cd(dir_data_);
+    catch
+        mkdir(dir_data_);
+    end
+    
     files = dir(dir_data_);
     nfiles = size(files,1);
     
@@ -62,7 +68,7 @@ function data = savetickfromths(ths,code_ctp,varargin)
                 data = ths.tickdata(code_ctp,datestr(bds(i),'yyyy-mm-dd'),datestr(bds(i),'yyyy-mm-dd'));
             end
             if isempty(data)
-                fprintf('savetickfromths:no tick data returned on %s...\n',datestr(bds(i),'yyyy-mm-dd'));
+                fprintf('savetickfromths:%s:no tick data returned on %s...\n',code_ctp,datestr(bds(i),'yyyy-mm-dd'));
                 continue;
             else
                 cDataFileIO.saveDataToTxtFile(fn_,data,coldefs,permission,usedatestr);
