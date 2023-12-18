@@ -134,7 +134,7 @@ function [] = updatesignal_fx(mdefx,varargin)
                             wprob = mdefx.kelly_table_.kelly_table_s.winp_unique_s(idx);
                             signal_i(1) = 0;
                         end
-                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',mdefx.codes_fx_{i}(1:end-3),num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
+                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',mdefx.codes_fx_{i}(1:end-3),num2str(signal_i(1)),op_i.comment,100*kelly,100*wprob);
                     end 
                 end
             end   
