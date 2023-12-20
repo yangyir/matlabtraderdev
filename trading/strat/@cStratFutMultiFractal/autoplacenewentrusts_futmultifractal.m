@@ -99,7 +99,28 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                         'hh',signal_short(2),'ll',signal_short(3),'mode',mode,'nfractal',nfractals,...
                         'hh1',signal_short(5),'ll1',signal_short(6));
                 if bid < signal_short(3) && bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
-                    stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                    techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                    px = techvar(:,1:5);
+                    idxLL = techvar(:,7);
+                    idx_lastll = find(idxLL == -1,1,'last');
+                    nfractal = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','nfractals');
+                    nkfromll = size(px,1) - idx_lastll+nfractal+1;
+                    barsizerest = px(end-nkfromll+1:end,3)-px(end-nkfromll+1:end,4);
+                    retlast = ask-px(end,5);
+                    isvolblowup2 = retlast<0 & (abs(retlast)-mean(barsizerest))/std(barsizerest)>norminv(0.99);
+                    if isvolblowup2
+                        freq = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
+                        if ~strcmpi(freq,'1440m')
+                            kelly = kelly_k('volblowup2',instruments{i}.asset_name,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
+                        else
+                            kelly = kelly_k('volblowup2',instruments{i}.asset_name,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_s);
+                        end
+                        if kelly >= 0.146
+                            stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                        end
+                    else
+                        stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                    end
                 elseif bid >= signal_short(3)
                     %conditional entrust shall be placed
                     ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
@@ -154,7 +175,28 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                         'hh',signal_long(2),'ll',signal_long(3),'mode',mode,'nfractal',nfractals,...
                         'hh1',signal_long(5),'ll1',signal_long(6));
                 if ask > signal_long(2)+ticksize && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
-                    stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+                    techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                    px = techvar(:,1:5);
+                    idxHH = techvar(:,6);
+                    idx_lasthh = find(idxHH == 1,1,'last');
+                    nfractal = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','nfractals');
+                    nkfromhh = size(px,1) - idx_lasthh+nfractal+1;
+                    barsizerest = px(end-nkfromhh+1:end,3)-px(end-nkfromhh+1:end,4);
+                    retlast = ask-px(end,5);
+                    isvolblowup2 = retlast>0 & (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
+                    if isvolblowup2
+                        freq = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
+                        if ~strcmpi(freq,'1440m')
+                            kelly = kelly_k('volblowup2',instruments{i}.asset_name,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
+                        else
+                            kelly = kelly_k('volblowup2',instruments{i}.asset_name,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
+                        end
+                        if kelly >= 0.146
+                            stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+                        end
+                    else
+                        stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+                    end
                 elseif ask <= signal_long(2)
                     %conditional entrust shall be placed
                     ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
