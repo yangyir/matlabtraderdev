@@ -1,39 +1,24 @@
-codes_oi = {'OI901';'OI905';'OI909';'OI101';'OI105';'OI109';...
-    'OI201';'OI205';'OI209';...
-    'OI301';'OI305';'OI309';...
-    'OI401'};
+foldername = [getenv('onedrive'),'\matlabdev\agriculture\'];
+shortcodes = {'oi';'p';'y';'m';'rm';'a'};
+codes_grease = cell(10000,1);
+ncodes = 0;
+for i = 1:length(shortcodes)
+    foldername_i = [foldername,shortcodes{i}];
+    listing_i = dir(foldername_i);
+    for j = 3:size(listing_i,1)
+        ncodes = ncodes + 1;
+        fn_j = listing_i(j).name;
+        codes_grease{ncodes,1} = fn_j(1:end-4);
+    end
+end
+codes_grease = codes_grease(1:ncodes,:);
 %
-codes_p = {'p1901';'p1905';'p1909';'p2001';'p2005';'p2009';...
-    'p2101';'p2105';'p2109';'p2201';'p2205';'p2209';...
-    'p2301';'p2305';'p2309';...
-    'p2401'};
-%
-codes_y = {'y1901';'y1905';'y1909';'y2001';'y2005';'y2009';...
-    'y2101';'y2105';'y2109';'y2201';'y2205';'y2209';...
-    'y2301';'y2305';'y2309';...
-    'y2401'};
-%
-codes_m = {'m1901';'m1905';'m1909';'m2001';'m2005';'m2009';...
-    'm2101';'m2105';'m2109';'m2201';'m2205';'m2209';...
-    'm2301';'m2305';'m2309';...
-    'm2401';'m2405'};
-%
-codes_rm = {'RM105';'RM109';'RM201';'RM205';'RM209';...
-    'RM301';'RM305';'RM309';...
-    'RM401'};
-%
-codes_a = {'a2101';'a2105';'a2109';'a2111';...
-    'a2201';'a2203';'a2207';'a2209';'a2211';...
-    'a2301';'a2305';'a2307';'a2309';'a2311';...
-    'a2401'};
-%
-codes_grease = [codes_oi;codes_p;codes_y;codes_m;codes_rm;codes_a];
 output_grease = fractal_kelly_summary('codes',codes_grease,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
-%%
-[tc_grease_i,tb_grease_i,tbl_grease_i,k_l_grease_i,k_s_grease_i,tblbyasset_l_grease_i,tblbyasset_s_grease_i,strat_intraday_grease] = kellydistributionsummary(output_grease);
-%%
+%
+[~,~,tbl_grease_i,~,~,~,~,strat_intraday_grease] = kellydistributionsummary(output_grease);
+%
 [tbl_report_grease_i,stats_report_grease_i] = kellydistributionreport(tbl_grease_i,strat_intraday_grease);
-%%
+%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'];
 save([dir_,'strat_intraday_grease.mat'],'strat_intraday_grease');
 fprintf('file saved...\n');

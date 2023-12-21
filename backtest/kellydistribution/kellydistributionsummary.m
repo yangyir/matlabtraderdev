@@ -51,7 +51,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         temps_i = [inputstruct.tbls{i},ll_i,lvldn_i];
         if isempty(tbls_data_consolidated)
             tempnew = temps_i;
-        elseif isempty(temps_i);
+        elseif isempty(temps_i)
             tempnew = tbls_data_consolidated;
         else
             tempnew = [tbls_data_consolidated;temps_i];

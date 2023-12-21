@@ -206,6 +206,23 @@ function [tbl_report,stats_report] = kellydistributionreport(tbl_trades,struct_d
         end
         name1 = struct_distributions.asset_list{k};
         name2 = name1(~isspace(name1));
+        if strcmpi(name2,'上证50')
+            name2 = 'sz50';
+        elseif strcmpi(name2,'上证指数')
+            name2 = 'shcomp';
+        elseif strcmpi(name2,'中证1000')
+            name2 = 'zz1000';
+        elseif strcmpi(name2,'中证500')
+            name2 = 'zz500';
+        elseif strcmpi(name2,'创业板指')
+            name2 = 'cybz';
+        elseif strcmpi(name2,'沪深300')
+            name2 = 'hs300';
+        elseif strcmpi(name2,'科创50')
+            name2 = 'kc50';
+        elseif strcmpi(name2,'红利指数')
+            name2 = 'hlzs';
+        end
         stats_report.(name2) = table(jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec);
     end
 end

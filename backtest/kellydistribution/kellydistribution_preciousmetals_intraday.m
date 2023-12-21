@@ -15,9 +15,9 @@ codes_au = {
     'au2402';...
     };
 %
-output_preciousmetal = fractal_kelly_summary('codes',[codes_ag;codes_au],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
+output_pm = fractal_kelly_summary('codes',[codes_ag;codes_au],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %%
-[tc_preciousmetal_i,tb_preciousmetal_i,tbl_preciousmetal_i,k_l_preciousmetal_i,k_s_preciousmetal_i,tblbyasset_l_preciousmetal_i,tblbyasset_s_preciousmetal_i] = kellydistrubitionsummary(output_preciousmetal);
+[~,~,tbl_pm_i,~,~,~,~,strat_intraday_pm] = kellydistributionsummary(output_pm);
 %%
 signal_l_valid_preciousmetal = k_l_preciousmetal_i.opensignal_unique_l(logical(k_l_preciousmetal_i.use_unique_l));
 signal_s_valid_preciousmetal = k_s_preciousmetal_i.opensignal_unique_s(logical(k_s_preciousmetal_i.use_unique_s));
@@ -29,7 +29,7 @@ RMat_L_preciousmetal_i = WMat_L_preciousmetal_i;
 KMat_L_preciousmetal_i = WMat_L_preciousmetal_i;
 for i = 1:length(signal_l_valid_preciousmetal)
     for j = 1:nasset
-        ret = kellyempirical('distribution',output_preciousmetal,'assetname',assetlist_preciousmetal{j},'direction','l','signalname',signal_l_valid_preciousmetal{i});
+        ret = kellyempirical('distribution',output_pm,'assetname',assetlist_preciousmetal{j},'direction','l','signalname',signal_l_valid_preciousmetal{i});
         WMat_L_preciousmetal_i(i,j) = ret.W;
         RMat_L_preciousmetal_i(i,j) = ret.R;
         KMat_L_preciousmetal_i(i,j) = ret.K;
@@ -41,7 +41,7 @@ RMat_S_preciousmetal_i = WMat_S_preciousmetal_i;
 KMat_S_preciousmetal_i = WMat_S_preciousmetal_i;
 for i = 1:length(signal_s_valid_preciousmetal)
     for j = 1:nasset
-        ret = kellyempirical('distribution',output_preciousmetal,'assetname',assetlist_preciousmetal{j},'direction','s','signalname',signal_s_valid_preciousmetal{i});
+        ret = kellyempirical('distribution',output_pm,'assetname',assetlist_preciousmetal{j},'direction','s','signalname',signal_s_valid_preciousmetal{i});
         WMat_S_preciousmetal_i(i,j) = ret.W;
         RMat_S_preciousmetal_i(i,j) = ret.R;
         KMat_S_preciousmetal_i(i,j) = ret.K;

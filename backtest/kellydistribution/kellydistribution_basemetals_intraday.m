@@ -40,8 +40,7 @@ codes_sn = {
     'sn2301';'sn2302';'sn2303';'sn2304';'sn2305';'sn2306';'sn2307';'sn2308';'sn2309';'sn2310';'sn2311';'sn2312';...
     };
 %
-% output_basemetals = fractal_kelly_summary('codes',[codes_cu;codes_al;codes_zn;codes_pb;codes_ni;codes_sn],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
-output_basemetals = fractal_kelly_summary('codes',[codes_ni],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
+output_basemetals = fractal_kelly_summary('codes',[codes_cu;codes_al;codes_zn;codes_pb;codes_ni;codes_sn],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %%
 [tc_basemetals_i,tb_basemetals_i,tbl_basemetals_i,k_l_basemetals_i,k_s_basemetals_i,tblbyasset_l_basemetals_i,tblbyasset_s_basemetals_i] = kellydistrubitionsummary(output_basemetals);
 %%

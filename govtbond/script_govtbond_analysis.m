@@ -10,8 +10,8 @@ codes_govtbond = {'TB10Y.WI';...%国债10年活跃
 'CDB10Y.WI';%国开10年活跃
 };
 fn_govtbond = {'gzhy_daily.txt';'gzhy_30y_daily.txt';'gkhy_daily.txt'};
-codes_govtbondfut = {'T2312';...%10年国债期货
-    'TL2312';...%30年国债期货
+codes_govtbondfut = {'T2403';...%10年国债期货
+    'TL2403';...%30年国债期货
     };
 %%
 for i = 1:length(codes_govtbond)
@@ -35,15 +35,18 @@ hd_gkhy_10y = cDataFileIO.loadDataFromTxtFile([dir_data_,fn_govtbond{3}]);
 nshift = 62;
 tools_technicalplot2(mat_gzhy_10y(end-nshift:end,:),3,'活跃10年国债收益率',true);
 tools_technicalplot2(mat_gzhy_30y(end-nshift:end,:),4,'活跃30年国债收益率',true);
-tools_technicalplot2(mat_gkhy_10y(end-nshift:end,:),5,'活跃10年国开收益率',true);
-%%
-[tblb_headers,tblb_data,tbls_headers,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary('gzhy','usefractalupdate',0);
+% tools_technicalplot2(mat_gkhy_10y(end-nshift:end,:),5,'活跃10年国开收益率',true);
+
 %%
 output_gzhy = fractal_kelly_summary('codes',{'gzhy'},'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
-[tc_gzhy,tb_gzhy,tbl_gzhy,k_l_gzhy,k_s_gzhy,tblbyasset_l_gzhy,tblbyasset_s_gzhy] = kellydistributionsummary(output_gzhy);
+close all;
+[~,~,tbl_gzhy,~,~,~,~,strat_gzhy_daily] = kellydistributionsummary(output_gzhy,true);
+[tblreport_gzhy_daily,statsreport_gzhy_daily] = kellydistributionreport(tbl_gzhy,strat_gzhy_daily);
 %%
 output_gzhy30y = fractal_kelly_summary('codes',{'gzhy_30y'},'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
-[tc_gzhy30y,tb_gzhy30y,tbl_gzhy30y,k_l_gzhy30y,k_s_gzhy30y,tblbyasset_l_gzhy30y,tblbyasset_s_gzhy30y] = kellydistrubitionsummary(output_gzhy30y);
+close all;
+[~,~,tbl_gzhy30y,~,~,~,~,strat_gzhy30y_daily] = kellydistrubitionsummary(output_gzhy30y,true);
+
 %%
 [signal_10y_yield,op_yield] = fractal_signal_unconditional(data,0.0025,2);
 [signal_cond_10y_yield,op_cond_yield] = fractal_signal_conditional(data,0.0025,2);
