@@ -694,58 +694,83 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     isbreachdnlvldn = flags_i.islvldnbreach;
                     isbreachdnbslow = flags_i.isbslowbreach;
                     isbreachdnbclow = flags_i.isbclowbreach;
-                    
-                    if isbreachdnlvldn
-                        if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tc;
-                        else
-                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tc;
-                        end
-                    elseif isbreachdnbslow
-                        if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tc;
-                        else
-                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnbshighvalue_tc;
-                        end
-                    elseif isbreachdnbclow
-                        if ~strcmpi(freq,'1440m')
-                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlowbc13;
-                        else
-                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnlowbc13;
-                        end   
-                    else
-                        if strcmpi(op_cond_i{1,2},'conditional:mediumbreach-trendconfirmed')
+                    %
+                    if isbreachdnlvldn || isbreachdnbslow || isbreachdnbclow
+                        if isbreachdnlvldn
                             if ~strcmpi(freq,'1440m')
-                                vlookuptbl = stratfractal.tbl_all_intraday_.smtc;
+                                vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tc;
                             else
-                                vlookuptbl = stratfractal.tbl_all_daily_.smtc;
+                                vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tc;
                             end
-                        elseif strcmpi(op_cond_i{1,2},'conditional:strongbreach-trendconfirmed')
+                        elseif isbreachdnbslow
                             if ~strcmpi(freq,'1440m')
-                                vlookuptbl = stratfractal.tbl_all_intraday_.sstc;
+                                vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tc;
                             else
-                                vlookuptbl = stratfractal.tbl_all_daily_.sstc;
+                                vlookuptbl = stratfractal.tbl_all_daily_.breachdnbshighvalue_tc;
                             end
-                        else
-                            %internal error
+                        elseif isbreachdnbclow
+                            if ~strcmpi(freq,'1440m')
+                                vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlowbc13;
+                            else
+                                vlookuptbl = stratfractal.tbl_all_daily_.breachdnlowbc13;
+                            end
                         end
-                    end
-                    idx = strcmpi(vlookuptbl.asset,assetname);
-                    try
+                        idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
                         wprob = vlookuptbl.W(idx);
                         if isempty(kelly)
                             kelly = -9.99;
                             wprob = 0;
                         end
-                    catch
-                        kelly = -9.99;
-                        wprob = 0;
-                    end
-                    if kelly >= 0.145
-                        signal_cond_i{1,2}(1) = -1;
+                        if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.45)
+                            signal_cond_i{1,2}(1) = -1;
+                        else
+                            signal_cond_i{1,2}(1) = 0;
+                        end
                     else
-                        signal_cond_i{1,2}(1) = 0;
+                         if strcmpi(op_cond_i{1,2},'conditional:mediumbreach-trendconfirmed')
+                            if ~strcmpi(freq,'1440m')
+                                vlookuptbl = stratfractal.tbl_all_intraday_.smtc;
+                            else
+                                vlookuptbl = stratfractal.tbl_all_daily_.smtc;
+                            end
+                            kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
+                            wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+                        elseif strcmpi(op_cond_i{1,2},'conditional:strongbreach-trendconfirmed')
+                            if ~strcmpi(freq,'1440m')
+                                vlookuptbl = stratfractal.tbl_all_intraday_.sstc;
+                            else
+                                vlookuptbl = stratfractal.tbl_all_daily_.sstc;
+                            end
+                            kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
+                            wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+                         end
+                         idx = strcmpi(vlookuptbl.asset,assetname);
+                         kelly = vlookuptbl.K(idx);
+                         wprob = vlookuptbl.W(idx);
+                         if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                         end
+                         if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.45)
+                             signal_cond_i{1,2}(1) = -1;
+                         else
+                             %here we need to compare with unconditional
+                             %mediumbreach-trendconfirmed or
+                             %strongbreach-trendconfirmed since it is not
+                             %known whether the conditional bid would turn
+                             %out to be a volblowup or volblowup2
+                             if kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.45)
+                                 kelly = kelly2;
+                                 wprob = wprob2;
+                                 signal_cond_i{1,2}(1) = -1;
+                             else
+                                 signal_cond_i{1,2}(1) = 0;
+                             end
+                         end                  
+                    end
+                    
+                    if signal_cond_i{1,2}(1) == 0
                         if isbreachdnlvldn
                             fprintf('\t%6s:%4s\t%10s not to place\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional breachdn-lvldn',100*kelly,100*wprob);
                         elseif isbreachdnbslow
