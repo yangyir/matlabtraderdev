@@ -1,4 +1,4 @@
-function [ret] = fractal_tradeinfo_anys(varargin)
+    function [ret] = fractal_tradeinfo_anys(varargin)
 % fractal utility function
 % to check any (SELL) trade information, i.e. open signal, status and
 % parameter change during its life

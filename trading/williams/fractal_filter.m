@@ -83,10 +83,10 @@ for i = 1:n
             nfractal = 4;
         elseif abs((p(2,1)-p(1,1))*1440 - 15) < 1e-6
             freqstr = '15m';
-            nfractal = 8;
+            nfractal = 4;
         elseif abs((p(2,1)-p(1,1))*1440 - 5) < 1e-6
             freqstr = '5m';
-            nfractal = 12;
+            nfractal = 6;
         else
             freqstr = '30m';
             nfractal = 4;
@@ -94,9 +94,6 @@ for i = 1:n
     else
         freqstr = 'daily';
         nfractal = 2;
-%         if strcmpi(codes{i},'gzhy')
-%             nfractal = 4;
-%         end
     end
     [resmat{i},resstruct{i}] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
     [idxb1{i},idxs1{i}] = fractal_genindicators1(resstruct{i}.px,...
