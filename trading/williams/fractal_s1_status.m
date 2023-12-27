@@ -142,7 +142,18 @@ if isempty(lastbc13)
     isbclowbreach = false;
 else
     nkfrombc13 = size(px,1)-lastbc13;
-    isbclowbreach = px(end,5)<min(px(lastbc13:end-1,4)) & nkfrombc13 <= 13;
+    idxlllast = find(idxLL == -1,1,'last');
+    if idxlllast - 2*nfractal <= lastbc13 && lastbc13 <= idxlllast
+        %bc13 happens within the latest fractal
+        bclow = LL(end);
+    elseif lastbc13 > idxlllast
+        %bc13 happens after the latest fractal
+        bclow = min(px(lastbc13:end-1,4));
+    elseif lastbc13 < idxlllast - 2*nfractal
+        %bc13 happens before the latest fractal
+        bclow = min(px(lastbc13:idxlllast,4));
+    end
+    isbclowbreach = px(end,5)<bclow & nkfrombc13 < 13;
 end
 
 %does it firstly breach-dn ll after sc13 without any breachdn of ll or
