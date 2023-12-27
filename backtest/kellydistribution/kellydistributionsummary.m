@@ -320,7 +320,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     idx_breachdnlowbc13 = logical(idx_breachdnlowbc13);
     pnl_breachdnlowbc13 = tbl_extractedinfo_s.pnlrel_s(idx_breachdnlowbc13);
     [winp_breachdnlowbc13,R_breachdnlowbc13,kelly_breachdnlowbc13] = calcrunningkelly(pnl_breachdnlowbc13);
-    fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachdn-highbc13',winp_breachdnlowbc13(end)*100,R_breachdnlowbc13(end),kelly_breachdnlowbc13(end)*100,size(kelly_breachdnlowbc13,1));
+    fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d\n','breachdn-lowbc13',winp_breachdnlowbc13(end)*100,R_breachdnlowbc13(end),kelly_breachdnlowbc13(end)*100,size(kelly_breachdnlowbc13,1));
     fprintf('\n');
     %
     idx_bmtc = zeros(nb,1);
