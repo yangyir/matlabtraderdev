@@ -171,9 +171,9 @@ end
 if plotflag
     set(0,'DefaultFigureWindowStyle','docked');
     if isempty(closeid)
-        ei_plot = fractal_truncate(ei,size(ei.px,1),openid-9);
+        ei_plot = fractal_truncate(ei,size(ei.px,1),openid-13);
     else
-        ei_plot = fractal_truncate(ei,min(closeid+5,size(ei.px,1)),openid-9);
+        ei_plot = fractal_truncate(ei,min(closeid+5,size(ei.px,1)),openid-13);
     end
     tools_technicalplot2(ei_plot,2,[code,'-',asset.asset_name],true);
 end
