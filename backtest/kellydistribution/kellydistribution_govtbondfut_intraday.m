@@ -38,5 +38,7 @@ output_govtbondfut_15m = fractal_kelly_summary('codes',[codes_TF;codes_T;codes_T
 [tblreport_govtbondfut_15m,statsreport_govtbondfut_15m] = kellydistributionreport(tbl_govtbondfut_15m,strat_govtbondfut_15m);
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\'];
-save([dir_,'strat_intraday_govtbondfut.mat'],'strat_intraday_govtbondfut');
+save([dir_,'strat_govtbondfut_30m.mat'],'strat_govtbondfut_30m');
+save([dir_,'strat_govtbondfut_5m.mat'],'strat_govtbondfut_5m');
+save([dir_,'strat_govtbondfut_15m.mat'],'strat_govtbondfut_15m');
 fprintf('file saved...\n');

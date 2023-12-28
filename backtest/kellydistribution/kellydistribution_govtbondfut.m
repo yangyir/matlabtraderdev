@@ -27,15 +27,13 @@ codes_TL = {'TL2309';'TL2312';...
     'TL2403'};
 %
 output_govtbondfut_daily = fractal_kelly_summary('codes',[codes_TF;codes_T;codes_TL],'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
-
-%%
+%
 [~,~,tbl_govtbondfut_daily,~,~,~,~,strat_govtbondfut_daily] = kellydistributionsummary(output_govtbondfut_daily,true);
+%
 [tblreport_govtbondfut_daily,statsreport_govtbondfut_daily] = kellydistributionreport(tbl_govtbondfut_daily,strat_govtbondfut_daily);
-close all;
-
 %%
 
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\'];
-save([dir_,'strat_daily_govtbondfut.mat'],'strat_daily_govtbondfut');
+save([dir_,'strat_govtbondfut_daily.mat'],'strat_govtbondfut_daily');
 fprintf('file saved...\n');
