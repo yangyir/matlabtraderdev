@@ -42,6 +42,9 @@ function [output,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainf
             return
         elseif status.isclose2lvlup && ~status.istrendconfirmed
             %to comment:
+        elseif ss(end) == 9 && status.istrendconfirmed && status.isschighbreach
+            output = struct('use',1,'comment','breachup-highsc13');
+            return
         else
             output = struct('use',1,'comment','breachup-sshighvalue');
             return
