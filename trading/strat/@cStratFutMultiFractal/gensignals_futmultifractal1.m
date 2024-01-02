@@ -176,6 +176,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         if kelly >= 0.13 && wprob >= 0.4 && useflag
                             signal_i(1) = op.direction;
                             signal_i(4) = op.direction;
+                        else
+                            stratfractal.unwindpositions(instruments{i});
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     else
@@ -216,6 +218,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         if kelly >= 0.13 && wprob >= 0.4
                             signal_i(1) = op.direction;
                             signal_i(4) = op.direction;
+                        else
+                            stratfractal.unwindpositions(instruments{i});
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     end
@@ -984,7 +988,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end
                 end
                 
-                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1 && p(end,5) > teeth(end)
                     %TREND has priority over TDST breakout
                     %note:20211118
                     %it is necessary to withdraw pending conditional
@@ -1158,7 +1162,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & lips(end)<teeth(end) -2*ticksize...
                     & p(end,5)>ll(end);
                 
-                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1 && p(end,5) < teeth(end)
                     %TREND has priority over TDST breakout
                     %note:20211118
                     %it is necessary to withdraw pending conditional
