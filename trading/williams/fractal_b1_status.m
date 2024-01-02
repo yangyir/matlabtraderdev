@@ -37,7 +37,13 @@ end
 %breached up lvlup;
 islvlupbreach = 0;
 if px(end,5)> lvlup(end) && px(end-1,5)<=lvlup(end)+ticksize
-    islvlupbreach = 1;
+    if px(end-1,5) < lvlup(end)
+        islvlupbreach = 1;
+    elseif px(end-1,5) < lvlup(end) + ticksize
+        islvlupbreach = 1;
+    elseif px(end-1,5) > lvlup(end) && px(end-1,5) == lvlup(end)+ticksize
+        islvlupbreach = 0;
+    end
 elseif px(end,5)==lvlup(end) && px(end-1,5)<lvlup(end)
     islvlupbreach = 1;
 end
