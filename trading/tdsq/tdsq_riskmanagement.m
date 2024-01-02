@@ -184,6 +184,10 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
 %             closeflag = 1;
             trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss_,extrainfo.p(end,4)-(extrainfo.p(end,3)-extrainfo.p(end,4)));
             trade.riskmanager_.closestr_ = 'tdsq:ss16';
+            if ss(end) >= 21
+                trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss_,extrainfo.p(end,4));
+                trade.riskmanager_.closestr_ = ['tdsq:ss',num2str(ss(end))];
+            end
             closestr = trade.riskmanager_.closestr_;
             return
         end

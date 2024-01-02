@@ -92,9 +92,9 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
                 output = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,ticksize);
                 if ~output.use
                     if lips(end) - teeth(end) < 2*ticksize                 %introducing a buffer zone
-                        output = struct('use',0,'comment','volblowup-alligatorfailed');
-                    else
                         output = struct('use',0,'comment','volblowup-trendbreak');
+                    else
+                        output = struct('use',0,'comment','volblowup-alligatorfailed');
                     end
                 else
                     if ~isempty(strfind(output.comment,'s1'))
@@ -126,9 +126,9 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
                 output = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,ticksize);
                 if ~output.use
                     if lips(end) - teeth(end) < 2*ticksize                 %introducing a buffer zone
-                        output = struct('use',0,'comment','volblowup2-alligatorfailed');
-                    else
                         output = struct('use',0,'comment','volblowup2-trendbreak');
+                    else
+                        output = struct('use',0,'comment','volblowup2-alligatorfailed');
                     end
                 else
                     if ~isempty(strfind(output.comment,'s1'))
