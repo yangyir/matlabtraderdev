@@ -16,6 +16,7 @@ function [rtt_output] = rtt_setup(varargin)
     p.addParameter('ReplayFromDate','',@ischar);
     p.addParameter('ReplayToDate','',@ischar);
     p.addParameter('ReplaySpeed',50,@isnumeric);
+    p.addParameter('DemoConnection','ctp',@ischar);
         
     p.parse(varargin{:});
     
@@ -188,6 +189,22 @@ function [rtt_output] = rtt_setup(varargin)
     if ~isempty(stratfund)
         rtt_strategy.setavailablefund(stratfund,'firstset',true,'checkavailablefund',false);
     end
+       
+    if strcmpi(mode,'realtime')
+        rtt_mdefut.qms_.watcher_.conn = 'ctp';
+        rtt_mdefut.qms_.watcher_.ds = cCTP.ccb_ly_fut;
+    elseif strcmpi(mode,'demo')
+        datasource = p.Results.DemoConnection;
+        if strcmpi(datasource,'ctp')
+            rtt_mdefut.qms_.watcher_.conn = 'ctp';
+            rtt_mdefut.qms_.watcher_.ds = cCTP.ccb_ly_fut;
+        elseif strcmpi(datasource,'wind') || strcmpi(datasource,'ths')
+            rtt_mdefut.qms_.setdatasource(datasource);
+            rtt_mdefut.qms_.isconnect;
+        else
+            error('rtt_setup:invalid demo connection')
+        end       
+    end
     
     usehistoricaldata = p.Results.UseHistoricalData;
     if usehistoricaldata
@@ -195,11 +212,6 @@ function [rtt_output] = rtt_setup(varargin)
         rtt_strategy.initdata;
     else
         if strcmpi(stratname,'manual'), rtt_strategy.usehistoricaldata_ = false;end
-    end
-    
-    if strcmpi(mode,'realtime') || strcmpi(mode,'demo')
-        rtt_mdefut.qms_.watcher_.conn = 'ctp';
-        rtt_mdefut.qms_.watcher_.ds = cCTP.ccb_ly_fut;
     end
     
     rtt_output = struct('counter',rtt_counter,...
