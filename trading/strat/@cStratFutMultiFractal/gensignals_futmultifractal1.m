@@ -714,7 +714,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             kelly = -9.99;
                             wprob = 0;
                         end
-                        if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.45)
+                        if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41)
                             signal_cond_i{1,1}(1) = 1;
                         else
                             %here we need to compare with unconditional
@@ -722,7 +722,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             %strongbreach-trendconfirmed since it is not
                             %known whether the conditional bid would turn
                             %out to be a volblowup or volblowup2
-                            if kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.45)
+                            if kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
                                 kelly = kelly2;
                                 wprob = wprob2;
                                 signal_cond_i{1,1}(1) = 1;
