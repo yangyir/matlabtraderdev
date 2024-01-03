@@ -25,7 +25,7 @@ function [] = updatecondentrusts(strategy)
                     volume_exist = 0;
                     direction_exist = 0;
                 else
-                    pos = obj.helper_.book_.positions_{idx};
+                    pos = strategy.helper_.book_.positions_{idx};
                     volume_exist = pos.position_total_;
                     direction_exist = pos.direction_;
                 end
