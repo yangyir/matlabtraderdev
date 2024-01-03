@@ -6,12 +6,8 @@ function [ret] = initcandles(mdefut,instrument,varargin)
     nop = p.Results.NumberofPeriods;
     instruments = mdefut.qms_.instruments_.getinstrument;
     ns = size(instruments,1);
-    if strcmpi(mdefut.mode_,'replay')
-        ds = cLocal;
-    else
-%         ds = cBloomberg;
-        ds = cLocal;
-    end
+    ds = cLocal;
+    
     if nargin < 2
         for i = 1:ns
             date2 = floor(mdefut.candles_{i}(1,1));
@@ -288,8 +284,8 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                             end
                         else
                             try
-%                                 ds2 = cBloomberg;
-                                if strcmpi(mdefut.qms_.watcher_.conn,'wind') &&  mdefut.qms_.watcher_.isconnect
+                                if (strcmpi(mdefut.qms_.watcher_.conn,'wind') || strcmpi(mdefut.qms_.watcher_.conn,'ths')) && ...
+                                        mdefut.qms_.watcher_.isconnect
                                     candles = mdefut.qms_.watcher_.ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
                                 else
                                     if mdefut.candle_freq_(i) ~= 1440
