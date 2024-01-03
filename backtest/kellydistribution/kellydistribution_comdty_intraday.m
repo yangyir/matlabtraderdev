@@ -20,19 +20,30 @@ for i = 1:length(categories)
 end
 codes_comdty = codes_comdty(1:ncodes,:);
 %
-output_comdty_intraday = fractal_kelly_summary('codes',codes_comdty,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
+output_comdty_i = fractal_kelly_summary('codes',codes_comdty,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
-[~,~,tbl_comdty_intraday,~,~,~,~,strat_intraday_comdty] = kellydistributionsummary(output_comdty_intraday);
+[~,~,tbl_comdty_i,~,~,~,~,strat_comdty_i] = kellydistributionsummary(output_comdty_i);
 %
-[tbl_report_comdty_intraday,stats_report_comdty_intraday] = kellydistributionreport(tbl_comdty_intraday,strat_intraday_comdty);
-%
+[tbl_report_comdty_i,stats_report_comdty_i] = kellydistributionreport(tbl_comdty_i,strat_comdty_i);
+
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\'];
-save([dir_,'strat_intraday_comdty.mat'],'strat_intraday_comdty');
-fprintf('file saved...\n');
+try
+    cd(dir_);
+catch
+    mkdir(dir_);
+    cd(dir_);
+end
+save([dir_,'strat_comdty_i.mat'],'strat_comdty_i');
+fprintf('strat M-file saved...\n');
+
+filename = [getenv('onedrive'),'\fractal backtest\kelly distribution\tbl_report_comdty_i.xlsx'];
+writetable(tbl_report_comdty_i,filename,'Sheet',1,'Range','A1');
+fprintf('excel file saved...\n');
+
 %%
-startdate = '2023-12-18';
-output_grease_active = fractal_kelly_summary('codes',codes_grease_active,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both','fromdate',startdate);
-[~,~,tbl_grease_active,~,~,~,~] = kellydistributionsummary(output_grease_active);
-distributionfile = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\strat_intraday_grease.mat']);
-tbl_report_grease_active = kellydistributionreport(tbl_grease_active,distributionfile.strat_intraday_grease);
+% startdate = '2023-12-18';
+% output_grease_active = fractal_kelly_summary('codes',codes_grease_active,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both','fromdate',startdate);
+% [~,~,tbl_grease_active,~,~,~,~] = kellydistributionsummary(output_grease_active);
+% distributionfile = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\strat_intraday_grease.mat']);
+% tbl_report_grease_active = kellydistributionreport(tbl_grease_active,distributionfile.strat_intraday_grease);
 %%
