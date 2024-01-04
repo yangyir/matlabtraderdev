@@ -1,5 +1,6 @@
 function [ret] = logoff(obj)
 %cMDEFut
+    ret = 0;
     if strcmpi(obj.mode_,'replay'), return; end
     if strcmpi(obj.mode_,'demo'), return;end
     try
@@ -8,7 +9,7 @@ function [ret] = logoff(obj)
         connstr = '';
     end
     
-    ret = 0;
+    
     
     if strcmpi(connstr,'ctp')
         ret = obj.qms_.ctplogoff;
