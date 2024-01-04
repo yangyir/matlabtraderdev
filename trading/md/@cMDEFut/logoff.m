@@ -1,6 +1,7 @@
 function [ret] = logoff(obj)
 %cMDEFut
     if strcmpi(obj.mode_,'replay'), return; end
+    if strcmpi(obj.mode_,'demo'), return;end
     try
         connstr = obj.qms_.watcher_.conn;
     catch

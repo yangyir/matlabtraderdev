@@ -161,6 +161,7 @@ function [] = loadtrades(obj,varargin)
     end
     %
     if strcmpi(obj.mode_,'replay'), return; end
+    if strcmpi(obj.mode_,'demo'), return;end
     %
     counter = obj.getcounter;
     if ~counter.is_Counter_Login
