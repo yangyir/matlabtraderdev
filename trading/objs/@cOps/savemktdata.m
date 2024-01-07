@@ -2,6 +2,7 @@ function [] = savemktdata(obj,varargin)
 %note cOps doesn't save mktdata
 %     variablenotused(obj);
     if strcmpi(obj.mode_,'replay'), return; end
+    if strcmpi(obj.mode_,'demo'), return;end
 
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
