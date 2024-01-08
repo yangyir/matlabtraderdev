@@ -5,16 +5,16 @@ try
 catch
 end
 %
-codes = {'T2403'};
+codes = {'TF2403'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
 end
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'govtbond_t_5m';
+bookname = 'govtbond_tf_5m';
 strategyname = 'fractal';
-riskconfigfilename = 'config_govtbond_t_5m.txt';
+riskconfigfilename = 'config_govtbond_tf_5m.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
