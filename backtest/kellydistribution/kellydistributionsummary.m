@@ -631,7 +631,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
                 strcmpi(signal_i,'mediumbreach-trendconfirmed')
             use_unique_l(i) = 1;
         else
-            if kelly_unique_l(i) >= 0.15 && sharp_unique_l(i) >= 3/sqrt(252) && winp_unique_l(i) >= 0.4
+            if kelly_unique_l(i) >= 0.145  || (kelly_unique_l(i) > 0.11 && winp_unique_l(i) > 0.41)
                 use_unique_l(i) = 1;
             else
                 use_unique_l(i) = 0;
@@ -665,7 +665,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
                 strcmpi(signal_i,'mediumbreach-trendconfirmed')
             use_unique_s(i) = 1;
         else
-            if kelly_unique_s(i) >= 0.15 && sharp_unique_s(i) >= 3/sqrt(252) && winp_unique_s(i) >= 0.4
+            if kelly_unique_s(i) >= 0.145  || (kelly_unique_s(i) > 0.11 && winp_unique_s(i) > 0.41)
                 use_unique_s(i) = 1;
             else
                 use_unique_s(i) = 0;
