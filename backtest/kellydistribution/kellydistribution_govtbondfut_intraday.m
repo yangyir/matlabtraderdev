@@ -1,37 +1,33 @@
+foldername = [getenv('onedrive'),'\matlabdev\govtbond\'];
+shortcodes = {'tf';'t';'tl'};
+codes_govtbondfut = cell(10000,1);
+ncodes = 0;
+for i = 1:length(shortcodes)
+    foldername_i = [foldername,shortcodes{i}];
+    listing_i = dir(foldername_i);
+    for j = 3:size(listing_i,1)
+        fn_j = listing_i(j).name;
+        if isempty(strfind(fn_j,'_'))
+            ncodes = ncodes + 1;
+            codes_govtbondfut{ncodes,1} = fn_j(1:end-4);
+        end
+    end
+end
+codes_govtbondfut = codes_govtbondfut(1:ncodes,:);
 %
-codes_TF = {'TF1706';'TF1709';'TF1712';...
-    'TF1803';'TF1806';'TF1809';'TF1812';...
-    'TF1903';'TF1906';'TF1909';'TF1912';...
-    'TF2003';'TF2006';'TF2009';'TF2012';...
-    'TF2103';'TF2106';'TF2109';'TF2112';...
-    'TF2203';'TF2206';'TF2209';'TF2212';...
-    'TF2303';'TF2306';'TF2309';'TF2312';...
-    'TF2403';
-    };
-codes_T = {'T1706';'T1709';'T1712';...
-    'T1803';'T1806';'T1809';'T1812';...
-    'T1903';'T1906';'T1909';'T1912';...
-    'T2003';'T2006';'T2009';'T2012';...
-    'T2103';'T2106';'T2109';'T2112';...
-    'T2203';'T2206';'T2209';'T2212';...
-    'T2303';'T2306';'T2309';'T2312';...
-    'T2403';
-    };
-codes_TL = {'TL2312';'T2403'};
-%
-output_govtbondfut_30m = fractal_kelly_summary('codes',[codes_TF;codes_T;codes_TL],'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
+output_govtbondfut_30m = fractal_kelly_summary('codes',codes_govtbondfut,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
 [~,~,tbl_govtbondfut_30m,~,~,~,~,strat_govtbondfut_30m] = kellydistributionsummary(output_govtbondfut_30m);
 %
 [tblreport_govtbondfut_30m,statsreport_govtbondfut_30m] = kellydistributionreport(tbl_govtbondfut_30m,strat_govtbondfut_30m);
 %%
-output_govtbondfut_5m = fractal_kelly_summary('codes',[codes_TF;codes_T;codes_TL],'frequency','intraday-5m','usefractalupdate',0,'usefibonacci',1,'direction','both');
+output_govtbondfut_5m = fractal_kelly_summary('codes',codes_govtbondfut,'frequency','intraday-5m','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
 [~,~,tbl_govtbondfut_5m,~,~,~,~,strat_govtbondfut_5m] = kellydistributionsummary(output_govtbondfut_5m);
 %
 [tblreport_govtbondfut_5m,statsreport_govtbondfut_5m] = kellydistributionreport(tbl_govtbondfut_5m,strat_govtbondfut_5m);
 %%
-output_govtbondfut_15m = fractal_kelly_summary('codes',[codes_TF;codes_T;codes_TL],'frequency','intraday-15m','usefractalupdate',0,'usefibonacci',1,'direction','both');
+output_govtbondfut_15m = fractal_kelly_summary('codes',codes_govtbondfut,'frequency','intraday-15m','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
 [~,~,tbl_govtbondfut_15m,~,~,~,~,strat_govtbondfut_15m] = kellydistributionsummary(output_govtbondfut_15m);
 %
@@ -39,6 +35,9 @@ output_govtbondfut_15m = fractal_kelly_summary('codes',[codes_TF;codes_T;codes_T
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\'];
 save([dir_,'strat_govtbondfut_30m.mat'],'strat_govtbondfut_30m');
+save([dir_,'tblreport_govtbondfut_30m.mat'],'tblreport_govtbondfut_30m');
 save([dir_,'strat_govtbondfut_5m.mat'],'strat_govtbondfut_5m');
+save([dir_,'tblreport_govtbondfut_5m.mat'],'tblreport_govtbondfut_5m');
 save([dir_,'strat_govtbondfut_15m.mat'],'strat_govtbondfut_15m');
+save([dir_,'tblreport_govtbondfut_15m.mat'],'tblreport_govtbondfut_15m');
 fprintf('file saved...\n');
