@@ -737,12 +737,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             %strongbreach-trendconfirmed since it is not
                             %known whether the conditional bid would turn
                             %out to be a volblowup or volblowup2
-                            if kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
-                                kelly = kelly2;
-                                wprob = wprob2;
+                            if kelly3 >= 0.145
                                 signal_cond_i{1,1}(1) = 1;
-                            elseif kelly3 >= 0.145
+                                fprintf('\tpotential high kelly with volblowup breach up...\n');
+                            elseif kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
                                 signal_cond_i{1,1}(1) = 1;
+                                fprintf('\tpotential high kelly with ordinary trending breach up...\n');
                             else
                                 signal_cond_i{1,1}(1) = 0;
                             end
@@ -848,12 +848,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                              %strongbreach-trendconfirmed since it is not
                              %known whether the conditional bid would turn
                              %out to be a volblowup or volblowup2
-                             if kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
-                                 kelly = kelly2;
-                                 wprob = wprob2;
+                             if kelly3 >= 0.145
                                  signal_cond_i{1,2}(1) = -1;
-                             elseif kelly3 >= 0.145
+                                 fprintf('\tpotential high kelly with volblowup breach dn...\n');
+                             elseif kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
                                  signal_cond_i{1,2}(1) = -1;
+                                 fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
                              else
                                  signal_cond_i{1,2}(1) = 0;
                              end
