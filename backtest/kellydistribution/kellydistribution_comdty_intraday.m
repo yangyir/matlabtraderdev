@@ -36,9 +36,12 @@ end
 save([dir_,'strat_comdty_i.mat'],'strat_comdty_i');
 fprintf('strat M-file saved...\n');
 
-filename = [getenv('onedrive'),'\fractal backtest\kelly distribution\tbl_report_comdty_i.xlsx'];
-writetable(tbl_report_comdty_i,filename,'Sheet',1,'Range','A1');
-fprintf('excel file saved...\n');
+save([dir_,'tbl_report_comdty_i.mat'],'tbl_report_comdty_i');
+fprintf('tbl report M-file saved...\n');
+
+% filename = [getenv('onedrive'),'\fractal backtest\kelly distribution\tbl_report_comdty_i.xlsx'];
+% writetable(tbl_report_comdty_i,filename,'Sheet',1,'Range','A1');
+% fprintf('excel file saved...\n');
 
 %%
 % startdate = '2023-12-18';
