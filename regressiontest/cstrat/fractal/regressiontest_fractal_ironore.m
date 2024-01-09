@@ -5,16 +5,16 @@ try
 catch
 end
 %
-codes = {'FG405'};
+codes = {'i2405'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
 end
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
-bookname = 'glass';
+bookname = 'ironore';
 strategyname = 'fractal';
-riskconfigfilename = 'config_glass.txt';
+riskconfigfilename = 'config_ironore.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
@@ -28,14 +28,15 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-12-11','replaytodate','2023-12-11');
+    'replayfromdate','2024-01-02','replaytodate','2024-01-05');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.mdefut.showfigures_ = true;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\blackmetal\'],'filename','strat_intraday_blackmetal.mat');
+combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\'],...
+    'filename','strat_comdty_i.mat');
 set(0,'DefaultFigureWindowStyle','docked');
 %%
 combo.mdefut.start;
