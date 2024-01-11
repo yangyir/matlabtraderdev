@@ -177,7 +177,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                         %NOTE:here kelly and wprob threshold shall be set
                         %via configuration files, TODO:
-                        if kelly >= 0.145 && wprob >= 0.41 && useflag
+                        if kelly >= 0.141 && wprob >= 0.41 && useflag
                             signal_i(1) = op.direction;
                             signal_i(4) = op.direction;
                         else
@@ -224,7 +224,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                         %NOTE:here kelly and wprob threshold shall be set
                         %via configuration files, TODO:
-                        if kelly >= 0.145 && wprob >= 0.41 && useflag
+                        if kelly >= 0.141 && wprob >= 0.41 && useflag
                             signal_i(1) = op.direction;
                             signal_i(4) = op.direction;
                         else
