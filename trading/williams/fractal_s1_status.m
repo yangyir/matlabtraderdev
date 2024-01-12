@@ -3,8 +3,11 @@ function [res] = fractal_s1_status(nfractal,extrainfo,ticksize)
 if nargin < 3
     ticksize = 0;
 end
-
-px = extrainfo.px;
+try
+    px = extrainfo.px;
+catch
+    px = extrainfo.p;
+end
 ss = extrainfo.ss;
 bs = extrainfo.bs;
 sc = extrainfo.sc;
