@@ -249,7 +249,8 @@ function [] = riskmanagement(obj,dtnum)
             trade_i = obj.helper_.trades_.node_(i);
             if strcmpi(trade_i.status_,'closed'), continue; end
             
-            if strcmpi(trade_i.opensignal_.frequency_,'30m')
+            if strcmpi(trade_i.opensignal_.frequency_,'30m') || strcmpi(trade_i.opensignal_.frequency_,'5m') || ...
+                    strcmpi(trade_i.opensignal_.frequency_,'15m')
                 kellytables = obj.tbl_all_intraday_;
             else
                 kellytables = obj.tbl_all_daily_;
