@@ -16,8 +16,8 @@ function [flag] = istime2loadtrades(obj,t)
     hh = hour(tnum);
     mm = minute(tnum) + hh*60;
     
-    if (mm >= obj.mm_08_50_ && mm < obj.mm_09_00_) || ...
-            (mm >= obj.mm_20_50_ && mm < obj.mm_21_00_)
+    if (mm > obj.mm_08_50_+1 && mm < obj.mm_09_00_) || ...
+            (mm > obj.mm_20_50_+1 && mm < obj.mm_21_00_)
         flag = true;
     else
         flag = false;

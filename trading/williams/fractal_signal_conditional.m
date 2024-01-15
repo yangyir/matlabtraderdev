@@ -188,7 +188,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             idx_ss_start = idx_ss_last-ss_last+1;
             if size(ei.sc,1) - idx_sc13_last <= 12 && ...
                     ss_last >= 22 && ...
-                    idx_ss_start + 9 < idx_sc13_last
+                    idx_ss_last >= idx_sc13_last && idx_ss_start < idx_sc13_last
                 longtrend = false;
             end
         end
@@ -360,7 +360,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             idx_bs_start = idx_bs_last-bs_last+1;
             if size(ei.bc,1)-idx_bc13_last <= 12 && ...
                     bs_last >= 22 &&...
-                    idx_bs_start + 9 < idx_bc13_last
+                    idx_bs_start < idx_bc13_last && idx_bs_last >= idx_bc13_last
                 shorttrend = false;
             end
         end

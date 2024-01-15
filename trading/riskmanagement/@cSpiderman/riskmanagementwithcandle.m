@@ -97,8 +97,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                         return
                     end
                 end
-            elseif strcmpi(val,'conditional-uptrendconfirmed') && extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1) 
-                    idx_lasthh = find(extrainfo.idxhh == 1,1,'last');
+            elseif runriskmanagementbeforemktclose && strcmpi(val,'conditional-uptrendconfirmed') && extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1) 
                 if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
                     nfractal = 2;
                 elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
@@ -106,18 +105,27 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 else
                     nfractal = 4;
                 end
-                nkfromhh = size(extrainfo.p,1)-idx_lasthh+nfractal+1;
-                barsizerest = extrainfo.p(end-nkfromhh+1:end-1,3)-extrainfo.p(end-nkfromhh+1:end-1,4);
-                barsizelast = extrainfo.p(end,3)-extrainfo.p(end,4);
-                isvolblowup = (barsizelast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
-                if isvolblowup
+                status = fractal_b1_status(nfractal,extrainfo,trade.instrument_.tick_size);
+                if status.islvlupbreach
+                    tbl = kellytables.breachdnlvlup_tc;
+                    idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
+                    kelly = tbl.K(idx);
+                elseif status.isvolblowup
                     kelly = kelly_k('volblowup',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
+                elseif status.issshighbreach
+                    tbl = kellytables.breachupsshighvalue_tc;
+                    idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
+                    kelly = tbl.K(idx);
+                elseif status.isschighbreach
+                    tbl = kellytables.breachuphighsc13;
+                    idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
+                    kelly = tbl.K(idx);
                 else
-                    if extrainfo.teeth(end-1) > extrainfo.jaw(end-1)
-                        kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
-                    else
+                    if status.b1type == 2
                         kelly = kelly_k('mediumbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
-                    end
+                    elseif status.b1type == 3
+                        kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
+                    end 
                 end
                 if kelly < 0.145
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
@@ -125,7 +133,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     volume = trade.openvolume_;
                     obj.status_ = 'closed';
                     obj.trade_.status_ = 'closed';
-                    obj.closestr_ = 'conditional uptrendconfirmed failed as kelly of volblowup is low';
+                    obj.closestr_ = 'conditional uptrendconfirmed failed as kelly is low';
                     obj.trade_.runningpnl_ = 0;
                     instrument = trade.instrument_;
                     if isempty(instrument)
@@ -210,27 +218,35 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                         end
                     end
                 end
-            elseif strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1)
-                idx_lastll = find(extrainfo.idxll == -1,1,'last');
+            elseif runriskmanagementbeforemktclose && strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1)
                 if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
                     nfractal = 2;
                 elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
                     nfractal = 6;
                 else
                     nfractal = 4;
-                end
-                nkfromll = size(extrainfo.p,1)-idx_lastll+nfractal+1;
-                barsizerest = extrainfo.p(end-nkfromll+1:end-1,3)-extrainfo.p(end-nkfromll+1:end-1,4);
-                barsizelast = extrainfo.p(end,3)-extrainfo.p(end,4);
-                isvolblowup = (barsizelast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
-                if isvolblowup
+                end  
+                status = fractal_s1_status(nfractal,extrainfo,trade.instrument_.tick_size);
+                if status.islvldnbreach
+                    tbl = kellytables.breachdnlvldn_tc;
+                    idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
+                    kelly = tbl.K(idx);
+                elseif status.isvolblowup
                     kelly = kelly_k('volblowup',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
+                elseif status.isbslowbreach
+                    tbl = kellytables.breachdnbshighvalue_tc;
+                    idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
+                    kelly = tbl.K(idx);
+                elseif status.isbclowbreach
+                    tbl = kellytables.breachdnlowbc13;
+                    idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
+                    kelly = tbl.K(idx);
                 else
-                    if extrainfo.teeth(end-1) < extrainfo.jaw(end-1)
-                        kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-                    else
+                    if status.s1type == 2
                         kelly = kelly_k('mediumbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-                    end
+                    elseif status.s1type == 3
+                        kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
+                    end 
                 end
                 if kelly < 0.145
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
@@ -238,7 +254,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     volume = trade.openvolume_;
                     obj.status_ = 'closed';
                     obj.trade_.status_ = 'closed';
-                    obj.closestr_ = 'conditional dntrendconfirmed failed as kelly of volblowup is low';
+                    obj.closestr_ = 'conditional dntrendconfirmed failed as kelly is low';
                     obj.trade_.runningpnl_ = 0;
                     instrument = trade.instrument_;
                     if isempty(instrument)
