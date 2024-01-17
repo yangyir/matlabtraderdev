@@ -125,6 +125,7 @@ function [tbl_report,stats_report] = kellydistributionreport(tbl_trades,struct_d
             end
         end
         if ~isnan(kellyspecial(i))
+            if kellyspecial(i) == -inf, kellyspecial(i) = -9.99;end
             kellyused(i) = kellyspecial(i);
             if kellyspecial(i) >= 0.1
                 use2(i) = 1;
