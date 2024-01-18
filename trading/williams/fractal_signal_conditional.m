@@ -416,6 +416,9 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     sshigh = max(ei.px(sslastidx-sslastval+1:sslastidx,3));
                     flags.issshighbreach = ei.hh(end) == sshigh;
                 end
+                if ~flags.issshighbreach && ei.ss(end) >= 9
+                    flags.issshighbreach = true;
+                end
             end
             %3.check whether it is a conditional breachup-highsc13
             sclastidx = find(ei.sc == 13,1,'last');
@@ -483,6 +486,9 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 else
                     bslow = min(ei.px(bslastidx-bslastval+1:bslastidx,4));
                     flags.isbslowbreach = ei.ll(end) == bslow;
+                end
+                if ~flags.isbslowbreach && ei.bs(end) >= 9
+                    flags.isbslowbreach = true;
                 end
             end
             %3.check whether it is a conditional breachdn-lowbc13
