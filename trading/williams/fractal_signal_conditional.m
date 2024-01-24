@@ -105,6 +105,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first')) || ...
                     isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                     max(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+                longtrend = longtrend & ~(strcmpi(hhstatus,'dnward') & strcmpi(llstatus,'dnward'));
             else
                 longtrend = false;
             end
@@ -284,6 +285,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     ei.teeth(end-2*nfractal+1:end)+2*ticksize>0,1,'first')) || ...
                     isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                     min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize>0,1,'first'));
+                shorttrend = shorttrend & ~(strcmpi(hhstatus,'upward') & strcmpi(llstatus,'upward'));
             else
                 shorttrend = false;
             end
