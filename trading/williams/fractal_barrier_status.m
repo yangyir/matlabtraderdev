@@ -14,7 +14,7 @@ function [hhstatus,llstatus] = fractal_barrier_status(extrainfo,ticksize)
             if abs(last2hh(end) - last2hh(1)) < 4*ticksize
                 last3hhidx = find(extrainfo.idxhh == 1,3,'last');
                 try
-                    if min(last2hh) - extrainfo.hh(last3hhidx(1)) >= 4*ticksize
+                    if min(last2hh) - extrainfo.hh(last3hhidx(1)) >= 2*ticksize
                         hhstatus = 'upward';
                     else
                         hhstatus = 'dnward';
@@ -44,7 +44,7 @@ function [hhstatus,llstatus] = fractal_barrier_status(extrainfo,ticksize)
             if abs(last2ll(end) - last2ll(1)) < 4*ticksize
                 last3llidx = find(extrainfo.idxll == -1,3,'last');
                 try
-                    if max(last2ll) - extrainfo.ll(last3llidx(1)) <= -4*ticksize
+                    if max(last2ll) - extrainfo.ll(last3llidx(1)) <= -2*ticksize
                         llstatus = 'dnward';
                     else
                         llstatus = 'upward';
