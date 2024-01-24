@@ -145,7 +145,11 @@ if nRecords <= 20
 else
     nTrials = 200;
     rng(100);
-    nSample = ceil(nRecords/5);
+    if nRecords > 50
+        nSample = ceil(nRecords/5);
+    else
+        nSample = ceil(nRecords/2);
+    end
     wTrials = zeros(nTrials,1);
     rTrials = zeros(nTrials,1);
     kTrials = zeros(nTrials,1);
@@ -155,45 +159,57 @@ else
         [w,r,k] = calcrunningkelly(temp);
         wTrials(i) = w(end);
         rTrials(i) = r(end);
-        kTrials(i) = k(end);
-        try
-            wH = kstest((wTrials-mean(wTrials))/std(wTrials));
-        catch
-            wH = 1;
-        end
-        [wMu,wSigma] = normfit(wTrials,0.05);
-        try
-            rH = kstest((rTrials-mean(rTrials))/std(rTrials));
-        catch
-            rH = 1;
-        end
-        [rMu,rSigma] = normfit(rTrials,0.05);
-        try
-            kH = kstest((kTrials-mean(kTrials))/std(kTrials));
-        catch
-            kH = 1;
-        end
-        [kMu,kSigma] = normfit(kTrials,0.05);
-        
-        if (kMu >= 0.145 || (kMu > 0.11 && wMu > 0.41)) && kH == 0
-            useOut = 1;
+        if k(end) == -inf
+            kTrials(i) = -9.99;
         else
-            useOut = 0;
+            kTrials(i) = k(end);
         end
-        
-        resOut = struct('use',useOut,...
+    end
+    
+    try
+        wH = kstest((wTrials-mean(wTrials))/std(wTrials));
+    catch
+        wH = 1;
+    end
+    [wMu,wSigma] = normfit(wTrials,0.05);
+    try
+        rH = kstest((rTrials-mean(rTrials))/std(rTrials));
+    catch
+        rH = 1;
+    end
+    [rMu,rSigma] = normfit(rTrials,0.05);
+    try
+        kH = kstest((kTrials-mean(kTrials))/std(kTrials));
+    catch
+        kH = 1;
+    end
+    [kMu,kSigma] = normfit(kTrials,0.05);
+    
+    if (kMu >= 0.145 || (kMu > 0.1 && wMu > 0.41)) && kH == 0
+        useOut = 1;
+    else
+        useOut = 0;
+    end
+    
+    
+    [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
+    
+    resOut = struct('use',useOut,...
         'wMu',wMu,'wSigma',wSigma,'wH',wH,...
         'rMu',rMu,'rSigma',rSigma,'rH',rH,...
         'kMu',kMu,'kSigma',kSigma,'kH',kH,...
         'sigmalmode',modeInput,'direction',directionInput,...
-        'tblout',tblOut);
-    end
+        'tblout',tblOut,...
+        'wSample',winp_running(end),...
+        'rSample',R_running(end),...
+        'kSample',kelly_running(end));
+    
 end
 
 if doPlot
     close all;
     set(0,'defaultfigurewindowstyle','docked');
-    [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
+    
     figure(2);
     subplot(311);plot(winp_running,'r');title(modeInput);ylabel('winning rates');grid on;
     subplot(312);plot(R_running,'b');ylabel('odds rates');grid on;
