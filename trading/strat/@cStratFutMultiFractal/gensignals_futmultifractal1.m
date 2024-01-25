@@ -181,7 +181,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             signal_i(1) = op.direction;
                             signal_i(4) = op.direction;
                         else
-                            stratfractal.unwindpositions(instruments{i});
+                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     else
@@ -228,7 +228,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             signal_i(1) = op.direction;
                             signal_i(4) = op.direction;
                         else
-                            stratfractal.unwindpositions(instruments{i});
+                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     end
@@ -246,11 +246,23 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed')
                         %do nothing as this is for sure trending trades
                         if ~strcmpi(freq,'1440m')
-                            kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
-                            wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
+                            try
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
+                            catch
+                                idxvolblowup2 = strcmpi(stratfractal.tbl_all_intraday_.kelly_table_l.opensignal_unique_l,op.comment);
+                                kelly = stratfractal.tbl_all_intraday_.kelly_table_l.kelly_unique_l(idxvolblowup2);
+                                wprob = stratfractal.tbl_all_intraday_.kelly_table_l.winp_unique_l(idxvolblowup2);
+                            end
                         else
-                            kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
-                            wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
+                            try
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
+                            catch
+                                idxvolblowup2 = strcmpi(stratfractal.tbl_all_daily_.kelly_table_l.opensignal_unique_l,op.comment);
+                                kelly = stratfractal.tbl_all_daily_.kelly_table_l.kelly_unique_l(idxvolblowup2);
+                                wprob = stratfractal.tbl_all_daily_.kelly_table_l.winp_unique_l(idxvolblowup2);
+                            end
                         end
                         %%NOTE:here kelly or wprob threshold shall be set
                         %%via configuration files,TODO:
@@ -259,7 +271,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             signal_i(4) = 0;
                             %unwind position as the kelly or
                             %winning probability is low
-                            stratfractal.unwindpositions(instruments{i});
+                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         else
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
@@ -285,7 +297,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
                             signal_i(1) = 0;
                             signal_i(4) = 0;
-                            stratfractal.unwindpositions(instruments{i});
+                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     else
@@ -311,7 +323,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 if kelly < 0.145 || wprob < 0.41
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-lvlup-tb',100*kelly,100*wprob);
                             else
@@ -338,7 +350,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     %unwind position as the kelly or
                                     %winning probability is low
                                     %in case there are any positions
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-lvlup-tc',100*kelly,100*wprob);
                             end
@@ -364,7 +376,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 if kelly < 0.145 || wprob < 0.41
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-sshighvalue-tb',100*kelly,100*wprob);
                             else
@@ -392,7 +404,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     %unwind position as the kelly or
                                     %winning probability is low
                                     %in case there are any positions
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                             end
                         else
@@ -407,12 +419,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     wprob = stratfractal.tbl_all_intraday_.kelly_table_l.winp_unique_l(idx);
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 if kelly < 0.145 || wprob < 0.4
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                             else
@@ -425,12 +437,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     wprob = stratfractal.tbl_all_daily_.kelly_table_l.winp_unique_l(idx);
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 if kelly < 0.145 || wprob < 0.4
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                             end
@@ -443,18 +455,30 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed')
                         %do nothing as this is for sure trending trades
                         if ~strcmpi(freq,'1440m')
-                            kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
-                            wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+                            try
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+                            catch
+                                idxvolblowup2 = strcmpi(stratfractal.tbl_all_intraday_.kelly_table_s.opensignal_unique_s,op.comment);
+                                kelly = stratfractal.tbl_all_intraday_.kelly_table_s.kelly_unique_s(idxvolblowup2);
+                                wprob = stratfractal.tbl_all_intraday_.kelly_table_s.winp_unique_s(idxvolblowup2);
+                            end
                         else
-                            kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_s);
-                            wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_s);
+                            try
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_s);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_s);
+                            catch
+                                idxvolblowup2 = strcmpi(stratfractal.tbl_all_daily_.kelly_table_s.opensignal_unique_s,op.comment);
+                                kelly = stratfractal.tbl_all_daily_.kelly_table_s.kelly_unique_s(idxvolblowup2);
+                                wprob = stratfractal.tbl_all_daily_.kelly_table_s.winp_unique_s(idxvolblowup2);
+                            end
                         end
                         if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
                             signal_i(1) = 0;
                             signal_i(4) = 0;
                             %unwind position as the kelly or
                             %winning probability is low
-                            stratfractal.unwindpositions(instruments{i});
+                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);      
                         else
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
@@ -481,7 +505,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
                             signal_i(1) = 0;
                             signal_i(4) = 0;
-                            stratfractal.unwindpositions(instruments{i});
+                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-lowbc13',100*kelly,100*wprob);
                     else
@@ -530,7 +554,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-lvldn-tc',100*kelly,100*wprob);
                             end
@@ -556,7 +580,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 if kelly < 0.145 || wprob < 0.41
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-bshighvalue-tb',100*kelly,100*wprob);
                             else
@@ -584,7 +608,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     %unwind position as the kelly or
                                     %winning probability is low
                                     %in case there are any positions
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                             end
                         else
@@ -595,7 +619,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     if kelly < 0.145 || wprob < 0.41
                                         signal_i(1) = 0;
                                         signal_i(4) = 0;
-                                        stratfractal.unwindpositions(instruments{i});
+                                        stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                     end
                                 catch
                                     idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_.kelly_table_s.opensignal_unique_s);
@@ -603,7 +627,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     wprob = stratfractal.tbl_all_intraday_.kelly_table_s.winp_unique_s(idx);
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                             else
@@ -613,7 +637,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     if kelly < 0.145 || wprob < 0.41
                                         signal_i(1) = 0;
                                         signal_i(4) = 0;
-                                        stratfractal.unwindpositions(instruments{i});
+                                        stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                     end
                                 catch
                                     idx = strcmpi(op.comment,stratfractal.tbl_all_daily_.kelly_table_s.opensignal_unique_s);
@@ -621,7 +645,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     wprob = stratfractal.tbl_all_daily_.kelly_table_s.winp_unique_s(idx);
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i});
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                             end
@@ -696,13 +720,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
                                 wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
                                 kelly3 = kelly_k('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
-                                wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
+%                                 wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.bmtc;
                                 kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
                                 wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
                                 kelly3 = kelly_k('volblowup',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
-                                wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
+%                                 wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
                             end
                             %
                         elseif strcmpi(op_cond_i{1,1},'conditional:strongbreach-trendconfirmed')
@@ -711,13 +735,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
                                 wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
                                 kelly3 = kelly_k('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
-                                wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
+%                                 wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.bstc;
                                 kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
                                 wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
                                 kelly3 = kelly_k('volblowup',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
-                                wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
+%                                 wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
                             end
                             %
                         end
@@ -808,13 +832,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
                                 wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
                                 kelly3 = kelly_k('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
-                                wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+%                                 wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.smtc;
                                 kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_s);
                                 wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_s);
                                 kelly3 = kelly_k('volblowup',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_s);
-                                wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_s);
+%                                 wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_s);
                             end
                             
                         elseif strcmpi(op_cond_i{1,2},'conditional:strongbreach-trendconfirmed')
@@ -823,13 +847,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
                                 wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
                                 kelly3 = kelly_k('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
-                                wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+%                                 wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.sstc;
                                 kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_s);
                                 wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_s);
                                 kelly3 = kelly_k('volblowup',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_s);
-                                wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_s);
+%                                 wprob3 = kelly_w('volblowup',assetname,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_s);
                             end
                             
                          end
@@ -1017,7 +1041,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end
                 end
                 
-                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1 && p(end,5) > teeth(end)
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1 && p(end,5) > teeth(end) && p(end,5) > lips(end)
                     %TREND has priority over TDST breakout
                     %note:20211118
                     %it is necessary to withdraw pending conditional
@@ -1191,7 +1215,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     & lips(end)<teeth(end) -2*ticksize...
                     & p(end,5)>ll(end);
                 
-                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1 && p(end,5) < teeth(end)
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == -1 && p(end,5) < teeth(end) && p(end,5) < lips(end)
                     %TREND has priority over TDST breakout
                     %note:20211118
                     %it is necessary to withdraw pending conditional
