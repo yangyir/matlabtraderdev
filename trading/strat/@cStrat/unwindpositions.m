@@ -1,4 +1,11 @@
 function [] = unwindpositions(strategy,instrument,varargin)
+    p = inputParser;
+    p.CaseSensitive = false;
+    p.KeepUnmatched = true;
+    p.addParameter('closestr','',@ischar);
+    p.parse(varargin{:});
+    closestr = p.Results.closestr;
+
     if ischar(instrument)
         instrument = code2instrument(instrument);
     end
@@ -30,6 +37,9 @@ function [] = unwindpositions(strategy,instrument,varargin)
         if strcmpi(trade_i.code_,instrument.code_ctp) && ...
                 ~strcmpi(trade_i.status_,'closed')
             strategy.unwindtrade(trade_i);
+            if ~isempty(closestr)
+                trade_i.riskmanager_.closestr_ = closestr;
+            end
         end
     end
     
