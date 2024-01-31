@@ -267,11 +267,49 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         %%NOTE:here kelly or wprob threshold shall be set
                         %%via configuration files,TODO:
                         if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
-                            signal_i(1) = 0;
-                            signal_i(4) = 0;
-                            %unwind position as the kelly or
-                            %winning probability is low
-                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                            if stratfractal.helper_.book_.hasposition(instruments{i})
+                                %in case the condtional uptrend trade was
+                                %opened with breachsshighvalue but it turns
+                                %out to be a normal trend trade, e.g.check
+                                %with live hog on 24th Jan 2024
+                                if ss(end) >= 9
+                                    idxss9 = find(ss == 9,1,'last');
+                                    pxhightillss9 = max(p(idxss9-8:idxss9,3));
+                                    if pxhightillss9 == hh(end)
+                                        op.comment = 'breachup-sshighvalue';
+                                        if ~strcmpi(freq,'1440m')
+                                            vlookuptbl = stratfractal.tbl_all_intraday_.breachupsshighvalue_tc;
+                                        else
+                                            vlookuptbl = stratfractal.tbl_all_daily_.breachupsshighvalue_tc;
+                                        end
+                                        idx = strcmpi(vlookuptbl.asset,assetname);
+                                        kelly = vlookuptbl.K(idx);
+                                        wprob = vlookuptbl.W(idx);
+                                        if isempty(kelly)
+                                            kelly = -9.99;
+                                            wprob = 0;
+                                        end
+                                        if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                                            signal_i(1) = 0;
+                                            signal_i(4) = 0;
+                                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                        end
+                                    else
+                                        signal_i(1) = 0;
+                                        signal_i(4) = 0;
+                                        stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                    end
+                                else
+                                    %unwind position as the kelly or
+                                    %winning probability is low
+                                    signal_i(1) = 0;
+                                    signal_i(4) = 0;
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                end
+                            else
+                                signal_i(1) = 0;
+                                signal_i(4) = 0;
+                            end
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         else
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
@@ -474,12 +512,51 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             end
                         end
                         if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
-                            signal_i(1) = 0;
-                            signal_i(4) = 0;
-                            %unwind position as the kelly or
-                            %winning probability is low
-                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
-                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);      
+                            if stratfractal.helper_.book_.hasposition(instruments{i})
+                                %in case the conditional dntrend was opened
+                                %with breachdnbshighvalue but it turns out
+                                %to be a normal trend trend, e.g not found
+                                %yet!!!
+                                if bs(end) >= 9
+                                    idxbs9 = find(bs == 9,1,'last');
+                                    pxlowtillbs9 = min(p(idxbs9-8:idxbs9,4));
+                                    if pxlowtillbs9 == ll(end)
+                                        op.comment = 'breachdn-bshighvalue';
+                                        if ~strcmpi(freq,'1440m')
+                                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tc;
+                                        else
+                                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnbshighvalue_tc;
+                                        end
+                                        idx = strcmpi(vlookuptbl.asset,assetname);
+                                        kelly = vlookuptbl.K(idx);
+                                        wprob = vlookuptbl.W(idx);
+                                        if isempty(kelly)
+                                            kelly = -9.99;
+                                            wprob = 0;
+                                        end
+                                        if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                                            signal_i(1) = 0;
+                                            signal_i(4) = 0;
+                                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                        end
+                                    else
+                                        signal_i(1) = 0;
+                                        signal_i(4) = 0;
+                                        stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                    end                                        
+                                else
+                                    %unwind position as the kelly or
+                                    %winning probability is low
+                                    signal_i(1) = 0;
+                                    signal_i(4) = 0;
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                end
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
+                            else
+                                signal_i(1) = 0;
+                                signal_i(4) = 0;
+                            end
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         else
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         end 
