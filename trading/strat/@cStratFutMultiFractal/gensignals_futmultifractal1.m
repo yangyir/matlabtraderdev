@@ -608,7 +608,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     %unwind position as the kelly or
                                     %winning probability is low
                                     %in case there are any positions
-                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                    %special treatment???
+                                    if stratfractal.helper_.book_.hasposition(instruments{i}) && kelly < 0.1
+                                        stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                    end
                                 end
                             end
                         else
