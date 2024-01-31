@@ -106,6 +106,9 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                     max(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
                 longtrend = longtrend & ~(strcmpi(hhstatus,'dnward') & strcmpi(llstatus,'dnward'));
+                if ~longtrend
+                    longtrend = lflag1 & ~isteethlipscrossed & lflag3;
+                end
             else
                 longtrend = false;
             end
@@ -166,6 +169,11 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             exceptionflag = hhupward && ...
                 isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                 max(ei.teeth(end-2*nfractal+1:end),ei.lips(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+        end
+        %exception in case fractal lls are dnwards and candles close below
+        %teeth and lips and teeth not crossed
+        if ~exceptionflag
+            exceptionflag = hhupward & lflag1 & ~isteethlipscrossed;
         end
         %
         if exceptionflag
@@ -286,6 +294,9 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                     min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize>0,1,'first'));
                 shorttrend = shorttrend & ~(strcmpi(hhstatus,'upward') & strcmpi(llstatus,'upward'));
+                if ~shorttrend
+                    shorttrend = sflag1 & ~isteethlipscrossed & sflag3;
+                end
             else
                 shorttrend = false;
             end
@@ -339,6 +350,11 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             exceptionflag = lldnward && ...
                 isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                 min(ei.teeth(end-2*nfractal+1:end),ei.lips(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
+        end
+        %exception in case fractal lls are dnwards and candles close below
+        %teeth and lips and teeth not crossed
+        if ~exceptionflag
+            exceptionflag = lldnward & sflag1 & ~isteethlipscrossed;
         end
 
         if exceptionflag
