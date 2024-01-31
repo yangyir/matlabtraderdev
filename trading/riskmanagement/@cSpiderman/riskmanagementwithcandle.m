@@ -177,6 +177,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     volume = trade.openvolume_;
                     obj.status_ = 'closed';
                     obj.trade_.status_ = 'closed';
+                    if runriskmanagementbeforemktclose
+                        obj.closestr_ = 'conditional-dntrendconfirmed failed before market closes';
+                    else
+                        obj.closestr_ = 'conditional-dntrendconfirmed failed';
+                    end
                     obj.trade_.runningpnl_ = 0;
                     instrument = trade.instrument_;
                     if isempty(instrument)
@@ -273,6 +278,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     volume = trade.openvolume_;
                     obj.status_ = 'closed';
                     obj.trade_.status_ = 'closed';
+                    obj.closestr_ = 'conditional-breachuplvlup failed as highest price fails to breach hh';
                     obj.trade_.runningpnl_ = 0;
                     instrument = trade.instrument_;
                     if isempty(instrument)
