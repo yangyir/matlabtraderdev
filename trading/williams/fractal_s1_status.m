@@ -205,6 +205,9 @@ if ~istrendconfirmed
                 flag3 = false;
             end
             istrendconfirmed = flag1 & flag2 & flag3;
+            if ~istrendconfirmed
+                istrendconfirmed = flag1 & ~isteethlipscrossed & flag3;
+            end
         end
         istrendconfirmed = istrendconfirmed & px(end,5)-teeth(end) <= 2*ticksize;
     end
