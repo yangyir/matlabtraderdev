@@ -22,7 +22,7 @@ codes_comdty = codes_comdty(1:ncodes,:);
 %
 output_comdty_i = fractal_kelly_summary('codes',codes_comdty,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
-[~,~,tbl_comdty_i,~,~,~,~,strat_comdty_i] = kellydistributionsummary(output_comdty_i);
+[~,~,tbl_comdty_i,~,~,~,~,strat_comdty_i] = kellydistributionsummary(output_comdty_i,'useactiveonly',true);
 %
 [tbl_report_comdty_i,stats_report_comdty_i] = kellydistributionreport(tbl_comdty_i,strat_comdty_i);
 
