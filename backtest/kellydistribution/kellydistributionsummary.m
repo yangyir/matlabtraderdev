@@ -1,8 +1,12 @@
-function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kelly_table_s,tblbyasset_L,tblbyasset_S,strat_output] = kellydistributionsummary(inputstruct,keepopenposition)
+function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kelly_table_s,tblbyasset_L,tblbyasset_S,strat_output] = kellydistributionsummary(inputstruct,varargin)
+    p = inputParser;
+    p.KeepUnmatched = true;p.CaseSensitive = false;
+    p.addParameter('keepopenposition',false,@islogical);
+    p.addParameter('useactiveonly',false,@islogical);
+    p.parse(varargin{:});
     %
-    if nargin < 2
-        keepopenposition = false;
-    end
+    keepopenposition = p.Results.keepopenposition;
+    useactiveonly = p.Results.useactiveonly;
     
     %1.consolidate all tblb and tbls
     tblb_data_consolidated = inputstruct.tblb{1};
@@ -237,6 +241,25 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     barriertdsq = [tbl_extractedinfo_b.lvlup;tbl_extractedinfo_s.lvldn];
     tbl_extractedinfo = table(code,assetname,opentype,opensignal,direction,openid,opendatetime,opendate,openprice,opennotional,pnlrel,closestr,trendflag,barrierfractal,barriertdsq);
     tbl_extractedinfo = sortrows(tbl_extractedinfo,'opendatetime','ascend');
+    if useactiveonly
+        nrecords = size(tbl_extractedinfo,1);
+        isactivefut = zeros(nrecords,1);
+        activefuturesdir = [getenv('DATAPATH'),'activefutures\'];
+        bds = tbl_extractedinfo.opendate;
+        fn = ['activefutures_',datestr(bds(1),'yyyymmdd'),'.txt'];
+        futlist = cDataFileIO.loadDataFromTxtFile([activefuturesdir,fn]);
+        isactivefut(1) = sum(strcmpi(futlist,tbl_extractedinfo.code(1)));
+        for i = 2:nrecords
+            if bds(i) ~= bds(i-1)
+                fn = ['activefutures_',datestr(bds(i),'yyyymmdd'),'.txt'];
+                futlist = cDataFileIO.loadDataFromTxtFile([activefuturesdir,fn]);  
+            end
+            isactivefut(i) = sum(strcmpi(futlist,tbl_extractedinfo.code(i)));
+        end
+        isactivefut = logical(isactivefut);
+        tbl_extractedinfo = tbl_extractedinfo(isactivefut,:);
+    end
+    
     fprintf('data extracted...\n');
     %
     % 3. plot bmtc(buy-medium-trendconfirmed),bstc(buy-strong-trendconfirmed)
