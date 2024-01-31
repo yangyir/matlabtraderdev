@@ -1043,7 +1043,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end
                 end
                 
-                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1 && p(end,5) > teeth(end) && p(end,5) > lips(end)
+                if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1 && p(end,5) > teeth(end)
                     %TREND has priority over TDST breakout
                     %note:20211118
                     %it is necessary to withdraw pending conditional
