@@ -157,6 +157,36 @@ function [tbl_report,stats_report] = kellydistributionreport(tbl_trades,struct_d
     tbl_report = table(code,assetname,opentype,opensignal,direction,openid,opendatetime,openprice,opennotional,pnlrel,closestr,trendflag,barrierfractal,barriertdsq,yearinfo,monthinfo,weeknuminfo,kellygeneral,use1,kellyspecial,kellyused,use2);
     %
     %
+    A = unique(tbl_report.assetname);
+    nasset = length(A);
+    N_LS = zeros(nasset,1);N_L = zeros(nasset,1);N_S = zeros(nasset,1);
+    W_LS = zeros(nasset,1);W_L = zeros(nasset,1);W_S = zeros(nasset,1);
+    R_LS = zeros(nasset,1);R_L = zeros(nasset,1);R_S = zeros(nasset,1);
+    K_LS = zeros(nasset,1);K_L = zeros(nasset,1);K_S = zeros(nasset,1);
+    
+    for iasset = 1:length(A)
+        idx_iasset = strcmpi(tbl_report.assetname,A{iasset}) & tbl_report.use2 == 1;
+        tbl_iasset = tbl_report(idx_iasset,:);
+        [w_,r_,k_] = calcrunningkelly(tbl_iasset.pnlrel);
+        N_LS(iasset) = size(w_,1);
+        W_LS(iasset) = w_(end);
+        R_LS(iasset) = r_(end);
+        K_LS(iasset) = k_(end);
+        idx_iasset_l = tbl_iasset.direction == 1;
+        idx_iasset_s = tbl_iasset.direction == -1;
+        [w_,r_,k_] = calcrunningkelly(tbl_iasset.pnlrel(idx_iasset_l));
+        N_L(iasset) = size(w_,1);
+        W_L(iasset) = w_(end);
+        R_L(iasset) = r_(end);
+        K_L(iasset) = k_(end);
+        [w_,r_,k_] = calcrunningkelly(tbl_iasset.pnlrel(idx_iasset_s));
+        N_S(iasset) = size(w_,1);
+        W_S(iasset) = w_(end);
+        R_S(iasset) = r_(end);
+        K_S(iasset) = k_(end);
+    end
+    tbl_byasset = table(A,N_LS,W_LS,R_LS,K_LS,N_L,W_L,R_L,K_L,N_S,W_S,R_S,K_S);
+    
     years = unique(yearinfo);
     nyears = length(years);
     jan = zeros(nyears,1);
