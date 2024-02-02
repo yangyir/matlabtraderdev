@@ -62,7 +62,11 @@ function [] = updateentrustsandbook2(obj)
                     e.complete_time_ = now;
                 end
                 if flagCanceled
-                    e.complete_time_ = e.cancelTime;
+                    if ~isempty(e.cancelTime)
+                        e.complete_time_ = e.cancelTime;
+                    else
+                        e.complete_time_ = now;
+                    end
                 end
                 %
                 %note:here we need to double check the dealprice of the
@@ -274,7 +278,14 @@ function [] = updateentrustsandbook2(obj)
     for i = 1:nf
         npending = obj.entrustspending_.latest;
         for j = npending:-1:1
-            if obj.entrustspending_.node(j).entrustNo == entrusts.node(i).entrustNo
+            if ~isempty(obj.entrustspending_.node(j).entrustNo)
+                thesameflag = obj.entrustspending_.node(j).entrustNo == entrusts.node(i).entrustNo;
+            else
+                thesameflag = obj.entrustspending_.node(j).entrustId == entrusts.node(i).entrustId & ...
+                    strcmpi(obj.entrustspending_.node(j).instrumentCode,entrusts.node(i).instrumentCode) & ...
+                    obj.entrustspending_.node(j).direction == entrusts.node(i).direction;
+            end
+            if thesameflag
                 rmidx = j;
                 obj.entrustspending_.removeByIndex(rmidx);
                 break
@@ -283,7 +294,14 @@ function [] = updateentrustsandbook2(obj)
         nfinished = obj.entrustsfinished_.latest;
         flag = false;
         for j = 1:nfinished
-            if obj.entrustsfinished_.node(j).entrustNo == entrusts.node(i).entrustNo
+            if ~isempty(obj.entrustsfinished_.node(j).entrustNo)
+                thesameflag = obj.entrustsfinished_.node(j).entrustNo == entrusts.node(i).entrustNo;
+            else
+                thesameflag = obj.entrustspending_.node(j).entrustId == entrusts.node(i).entrustId & ...
+                    strcmpi(obj.entrustspending_.node(j).instrumentCode,entrusts.node(i).instrumentCode) & ...
+                    obj.entrustspending_.node(j).direction == entrusts.node(i).direction;
+            end
+            if thesameflag
                 flag = true;
                 break
             end
