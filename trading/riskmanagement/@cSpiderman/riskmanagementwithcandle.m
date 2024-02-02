@@ -325,7 +325,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if runriskmanagementbeforemktclose
         thisbd = floor(candleTime);
         nextbd = dateadd(thisbd,'1b');
-        if nextbd - thisbd > 3
+        if nextbd - thisbd > 3 && hour(candleTime) >= 9
             unwindtrade = trade;
             obj.closestr_ = 'long holiday';
             obj.status_ = 'closed';
