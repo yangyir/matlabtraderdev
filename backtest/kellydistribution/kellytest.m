@@ -185,7 +185,7 @@ else
     end
     [kMu,kSigma] = normfit(kTrials,0.05);
     
-    if (kMu >= 0.145 || (kMu > 0.1 && wMu > 0.41)) && kH == 0
+    if (kMu >= 0.145 || (kMu > 0.1 && wMu > 0.4)) && kH == 0
         useOut = 1;
     else
         useOut = 0;
