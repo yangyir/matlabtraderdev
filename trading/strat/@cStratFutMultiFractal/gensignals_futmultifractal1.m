@@ -737,8 +737,24 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     %internal errror
                 end
                 if signal_i(1) == 1
+                    if ~isempty(strfind(op.comment,'breachup-sshighvalue')) 
+                        sshighidx = find(ss >= 9,1,'last');
+                        sshighval = ss(sshighidx);
+                        sshighpx = max(extrainfo.px(sshighidx-sshighval+1:sshighidx,3));
+                        highpxidx = sshighidx-sshighval+find(extrainfo.px(sshighidx-sshighval+1:sshighidx,3) == sshighpx,1,'last');
+                        lowpx = extrainfo.px(highpxidx,4);
+                        signal_i(7) = max(lowpx,signal_i(7));
+                    end
                     signals{i,1} = signal_i;
                 else
+                    if ~isempty(strfind(op.comment,'breachdn-bshighvalue')) 
+                        bshighidx = find(bs >= 9,1,'last');
+                        bshighval = bs(bshighidx);
+                        bslowpx = min(extrainfo.px(bshighidx-bshighval+1:bshighidx,4));
+                        lowpxidx = bshighidx-bshighval+find(extrainfo.px(bshighidx-bshighval+1:bshighidx,4) == bslowpx,1,'last');
+                        highpx = extrainfo.px(lowpxidx,3);
+                        signal_i(7) = min(highpx,signal_i(7));                  
+                    end
                     signals{i,2} = signal_i;
                 end
             else
