@@ -345,6 +345,10 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         if bc(end) == 13
             if isnan(trade.riskmanager_.td13high_)
                 trade.riskmanager_.td13high_ = extrainfo.p(end,3);
+            else
+                if extrainfo.p(end,3) > trade.riskmanager_.td13high_
+                    trade.riskmanager_.td13high_ = extrainfo.p(end,3);
+                end
             end
             idx_bs_last = find(bs>=9,1,'last');
             if  ~isempty(idx_bs_last)
@@ -353,7 +357,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 if bs_last >= 22 &&...
                     idx_bs_start < size(bc,1) && idx_bs_last <= size(bc,1)
                     closeflag = 1;
-                    trade.riskmanager_.closestr_ = 'tdsq:bc13';
+                    trade.riskmanager_.closestr_ = 'tdsq:bc13break';
                     closestr = trade.riskmanager_.closestr_;
                 end
             end

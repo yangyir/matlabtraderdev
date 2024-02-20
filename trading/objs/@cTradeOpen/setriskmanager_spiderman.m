@@ -18,12 +18,22 @@ function [] = setriskmanager_spiderman(obj,varargin)
     riskmanager.type_ = info.type_;
     %
     try
-        riskmanager.tdhigh_ = info.tdhigh_;
+        riskmanager.tdhigh_ = info.tdhigh_; 
+    catch
+    end
+    try
         riskmanager.tdlow_ = info.tdlow_;
+    catch
+    end
+    try
         riskmanager.td13high_ = info.td13high_;
+    catch
+    end
+    try
         riskmanager.td13low_ = info.td13low_;
     catch
     end
+    
     %
     try
         riskmanager.wadopen_ = info.wadopen_;
