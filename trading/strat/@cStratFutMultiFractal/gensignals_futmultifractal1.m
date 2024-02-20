@@ -515,9 +515,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             if stratfractal.helper_.book_.hasposition(instruments{i})
                                 %in case the conditional dntrend was opened
                                 %with breachdnbshighvalue but it turns out
-                                %to be a normal trend trend, e.g not found
+                                %to be a normal trend trend, e.g zn2403 on
+                                %20240117
                                 %yet!!!
-                                if bs(end) >= 9
+                                if bs(end) >= 9 || bs(end-1) >= 9
                                     idxbs9 = find(bs == 9,1,'last');
                                     pxlowtillbs9 = min(p(idxbs9-8:idxbs9,4));
                                     if pxlowtillbs9 == ll(end)
@@ -540,9 +541,34 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                             stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                         end
                                     else
-                                        signal_i(1) = 0;
-                                        signal_i(4) = 0;
-                                        stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                        lastll = find(idxLL == -1,1,'last');
+                                        if lastll < idxbs9 - bs(idxbs9)+1
+                                            %the lastest LL was formed
+                                            %before the latest buy setup
+                                            %sequential
+                                            op.comment = 'breachdn-bshighvalue';
+                                            if ~strcmpi(freq,'1440m')
+                                                vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tc;
+                                            else
+                                                vlookuptbl = stratfractal.tbl_all_daily_.breachdnbshighvalue_tc;
+                                            end
+                                            idx = strcmpi(vlookuptbl.asset,assetname);
+                                            kelly = vlookuptbl.K(idx);
+                                            wprob = vlookuptbl.W(idx);
+                                            if isempty(kelly)
+                                                kelly = -9.99;
+                                                wprob = 0;
+                                            end
+                                            if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                                                signal_i(1) = 0;
+                                                signal_i(4) = 0;
+                                                stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                            end
+                                        else
+                                            signal_i(1) = 0;
+                                            signal_i(4) = 0;
+                                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                        end
                                     end                                        
                                 else
                                     %unwind position as the kelly or
