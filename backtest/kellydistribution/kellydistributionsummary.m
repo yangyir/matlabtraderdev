@@ -287,7 +287,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     reportbyasset_tc = cell(nSpecial+length(modeTrend),1);
     
     for iMode = 1:length(modeSpecial)
-        resOut = kellytest(tbl_extractedinfo,modeSpecial{iMode},1);
+        if strcmpi(modeSpecial{iMode}(1:8),'breachup')
+            resOut = kellytest(tbl_extractedinfo,modeSpecial{iMode},1);
+        else
+            resOut = kellytest(tbl_extractedinfo,modeSpecial{iMode},-1);
+        end
         fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
             [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
         pnl2check = resOut.tblout.pnlrel;
@@ -335,7 +339,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     fprintf('\t%25s\t%5s\t%3s%9s%9s%9s%9s\n','type','winp','R','kelly','#trades','use','kstest')
     
     for iMode = 1:length(modeTrend)
-        resOut = kellytest(tbl_extractedinfo,modeTrend{iMode},1);
+        if strcmpi(modeTrend{iMode}(1),'b')
+            resOut = kellytest(tbl_extractedinfo,modeTrend{iMode},1);
+        else
+            resOut = kellytest(tbl_extractedinfo,modeTrend{iMode},-1);
+        end
         fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeTrend{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
             [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
 %         if iMode == 1
@@ -392,7 +400,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         'breachdn-bshighvalue-tb'};
     reportbyasset_tb = cell(length(modeSpecialUntrend),1);
     for iMode = 1:length(modeSpecialUntrend)
-        resOut = kellytest(tbl_extractedinfo,modeSpecialUntrend{iMode},1);
+        if strcmpi(modeSpecialUntrend{iMode}(1:8),'breachup')
+            resOut = kellytest(tbl_extractedinfo,modeSpecialUntrend{iMode},1);
+        else
+            resOut = kellytest(tbl_extractedinfo,modeSpecialUntrend{iMode},-1);
+        end
         fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecialUntrend{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
             [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
         pnl2check = resOut.tblout.pnlrel;
@@ -451,10 +463,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     nsignal_l = length(opensignal_unique_l);
     ntrades_unique_l = zeros(nsignal_l,1);
     use_unique_l = zeros(nsignal_l,1);
-    winp_unique_l = use_unique_l;
-    r_unique_l = use_unique_l;
-    kelly_unique_l = use_unique_l;
+    winp_unique_l = use_unique_l;winp_unique_l_sample = winp_unique_l;
+    r_unique_l = use_unique_l;r_unique_l_sample = r_unique_l;
+    kelly_unique_l = use_unique_l;kelly_unique_l_sample = kelly_unique_l;
     kstest_unique_l = cell(nsignal_l,1);
+    
 
     for iSignal = 1:nsignal_l
         signal_l_i = opensignal_unique_l{iSignal};
@@ -465,9 +478,12 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         r_unique_l(iSignal) = resSignal_l_i.rMu;
         kelly_unique_l(iSignal) = resSignal_l_i.kMu;
         kstest_unique_l{iSignal} = [num2str(resSignal_l_i.wH),'-',num2str(resSignal_l_i.rH),'-',num2str(resSignal_l_i.kH)];
+        winp_unique_l_sample(iSignal) = resSignal_l_i.wSample;
+        r_unique_l_sample(iSignal) = resSignal_l_i.rSample;
+        kelly_unique_l_sample(iSignal) = resSignal_l_i.kSample;
     end
      
-    kelly_table_l = table(opensignal_unique_l,ntrades_unique_l,winp_unique_l,r_unique_l,kelly_unique_l,use_unique_l,kstest_unique_l);
+    kelly_table_l = table(opensignal_unique_l,ntrades_unique_l,winp_unique_l,r_unique_l,kelly_unique_l,use_unique_l,kstest_unique_l,winp_unique_l_sample,r_unique_l_sample,kelly_unique_l_sample);
     %
     idx_s = tbl_extractedinfo.direction == -1;
     signal_s = tbl_extractedinfo.opensignal(idx_s);
@@ -475,9 +491,9 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     nsignal_s = length(opensignal_unique_s);
     ntrades_unique_s = zeros(nsignal_s,1);
     use_unique_s = zeros(nsignal_s,1);
-    winp_unique_s = use_unique_s;
-    r_unique_s = use_unique_s;
-    kelly_unique_s = use_unique_s;
+    winp_unique_s = use_unique_s;winp_unique_s_sample = winp_unique_s;
+    r_unique_s = use_unique_s;r_unique_s_sample = r_unique_s;
+    kelly_unique_s = use_unique_s;kelly_unique_s_sample = kelly_unique_s;
     kstest_unique_s = cell(nsignal_s,1);
 
     for iSignal = 1:nsignal_s
@@ -489,8 +505,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         r_unique_s(iSignal) = resSignal_s_i.rMu;
         kelly_unique_s(iSignal) = resSignal_s_i.kMu;
         kstest_unique_s{iSignal} = [num2str(resSignal_s_i.wH),'-',num2str(resSignal_s_i.rH),'-',num2str(resSignal_s_i.kH)];
+        winp_unique_s_sample(iSignal) = resSignal_s_i.wSample;
+        r_unique_s_sample(iSignal) = resSignal_s_i.rSample;
+        kelly_unique_s_sample(iSignal) = resSignal_s_i.kSample;
     end
-    kelly_table_s = table(opensignal_unique_s,ntrades_unique_s,winp_unique_s,r_unique_s,kelly_unique_s,use_unique_s,kstest_unique_s);
+    kelly_table_s = table(opensignal_unique_s,ntrades_unique_s,winp_unique_s,r_unique_s,kelly_unique_s,use_unique_s,kstest_unique_s,winp_unique_s_sample,r_unique_s_sample,kelly_unique_s_sample);
     %
     %
     %
