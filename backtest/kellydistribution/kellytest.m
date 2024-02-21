@@ -131,17 +131,21 @@ end
 %
 pnl2check = tblOut.pnlrel;
 nRecords = size(pnl2check,1);
-if nRecords <= 20
+if nRecords <= 15
     useOut = 0;
     wMu = NaN;wSigma = NaN;wH = NaN;
     rMu = NaN;rSigma = NaN;rH = NaN;
     kMu = NaN;kSigma = NaN;kH = NaN;
+    [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
     resOut = struct('use',useOut,...
         'wMu',wMu,'wSigma',wSigma,'wH',wH,...
         'rMu',rMu,'rSigma',rSigma,'rH',rH,...
         'kMu',kMu,'kSigma',kSigma,'kH',kH,...
         'sigmalmode',modeInput,'direction',directionInput,...
-        'tblout',tblOut);
+        'tblout',tblOut,...
+        'wSample',winp_running(end),...
+        'rSample',R_running(end),...
+        'kSample',kelly_running(end));
 else
     nTrials = 200;
     rng(100);
@@ -185,14 +189,18 @@ else
     end
     [kMu,kSigma] = normfit(kTrials,0.05);
     
+    [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
+    
     if (kMu >= 0.145 || (kMu > 0.1 && wMu > 0.4)) && kH == 0
         useOut = 1;
     else
-        useOut = 0;
+        if kelly_running(end) >= 0.145 && winp_running(end) >= 0.5
+            useOut = 1;
+        else
+            useOut = 0;
+        end
     end
     
-    
-    [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
     
     resOut = struct('use',useOut,...
         'wMu',wMu,'wSigma',wSigma,'wH',wH,...
