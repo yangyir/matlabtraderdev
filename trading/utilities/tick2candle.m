@@ -169,24 +169,40 @@ function [candlesout] = tick2candle(code,datein)
     end
     if category == 5
         %commodity traded overnight requires 2 files for candle storage
-        fn1 = [code,'_',datestr(datestr_start,'yyyymmdd'),'_1m.txt'];
-        fn2 = [code,'_',datestr(datestr_end,'yyyymmdd'),'_1m.txt'];
-        try
-            data1 = cDataFileIO.loadDataFromTxtFile([intradaypath,fn1]);
-            idx1 = data1(:,1)<datenum_open(1,1) & sum(data1(:,2:end),2) ~=0;
-            datacarry = data1(idx1,:);
-        catch
-            datacarry = [];
-        end
-        idx2 = candlesout(:,1) < datenum(datestr_end) & sum(candlesout(:,2:end),2) ~=0;
-        datasaved1 = [datacarry;candlesout(idx2,:)];
-        if ~isempty(datasaved1)
-            cDataFileIO.saveDataToTxtFile([intradaypath,fn1],datasaved1,coldefs,'w',true);
-        end
-        idx3 = candlesout(:,1) >= datenum(datestr_end) & sum(candlesout(:,2:end),2) ~=0;
-        datasaved2 = candlesout(idx3,:);
-        if ~isempty(datasaved2)
-            cDataFileIO.saveDataToTxtFile([intradaypath,fn2],datasaved2,coldefs,'w',true);
+        if ~strcmpi(datestr_start,datestr_end)
+            fn1 = [code,'_',datestr(datestr_start,'yyyymmdd'),'_1m.txt'];
+            fn2 = [code,'_',datestr(datestr_end,'yyyymmdd'),'_1m.txt'];
+            try
+                data1 = cDataFileIO.loadDataFromTxtFile([intradaypath,fn1]);
+                idx1 = data1(:,1)<datenum_open(1,1) & sum(data1(:,2:end),2) ~=0;
+                datacarry = data1(idx1,:);
+            catch
+                datacarry = [];
+            end
+            idx2 = candlesout(:,1) < datenum(datestr_end) & sum(candlesout(:,2:end),2) ~=0;
+            datasaved1 = [datacarry;candlesout(idx2,:)];
+            if ~isempty(datasaved1)
+                cDataFileIO.saveDataToTxtFile([intradaypath,fn1],datasaved1,coldefs,'w',true);
+            end
+            idx3 = candlesout(:,1) >= datenum(datestr_end) & sum(candlesout(:,2:end),2) ~=0;
+            datasaved2 = candlesout(idx3,:);
+            if ~isempty(datasaved2)
+                cDataFileIO.saveDataToTxtFile([intradaypath,fn2],datasaved2,coldefs,'w',true);
+            end
+        else
+            fn1 = [code,'_',datestr(datestr_start,'yyyymmdd'),'_1m.txt'];
+            try
+                data1 = cDataFileIO.loadDataFromTxtFile([intradaypath,fn1]);
+                idx1 = data1(:,1)<datenum_open(1,1) & sum(data1(:,2:end),2) ~=0;
+                datacarry = data1(idx1,:);
+            catch
+                datacarry = [];
+            end
+            idx2 = candlesout(:,1) >= datenum(datestr_end) & sum(candlesout(:,2:end),2) ~=0;
+            datasaved1 = [datacarry;candlesout(idx2,:)];
+            if ~isempty(datasaved1)
+                cDataFileIO.saveDataToTxtFile([intradaypath,fn1],datasaved1,coldefs,'w',true);
+            end
         end
     else
         fn1 = [code,'_',datestr(datestr_start,'yyyymmdd'),'_1m.txt'];
