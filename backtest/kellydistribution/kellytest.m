@@ -194,7 +194,7 @@ else
     if (kMu >= 0.145 || (kMu > 0.1 && wMu > 0.4)) && kH == 0
         useOut = 1;
     else
-        if kelly_running(end) >= 0.145 && winp_running(end) >= 0.5
+        if kelly_running(end) >= 0.145 && winp_running(end) >= 0.5 && R_running(end) > 1
             useOut = 1;
         else
             useOut = 0;
