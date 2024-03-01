@@ -71,6 +71,21 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if extrainfo.p(end,1) <= trade.opendatetime1_
             val = signalinfo.mode_;
             if strcmpi(val,'conditional-uptrendconfirmed') && extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1) 
+                %speical treatment for tin and nickel as they are very
+                %volotile
+                if strcmpi(trade.instrument_.asset_name,'tin') || strcmpi(trade.instrument_.asset_name,'nickel')
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.status_ = 'closed';
+                    obj.closestr_ = 'conditional uptrendconfirmed failed to breach';
+                    obj.trade_.status_ = 'closed';
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    unwindtrade = obj.trade_;
+                    return
+                end
                 if runriskmanagementbeforemktclose || ...
                         extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))
                     %special case that the close is above lvlup and the
@@ -145,6 +160,22 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     return
                 end
             elseif strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1)
+                %speical treatment for tin and nickel as they are very
+                %volotile
+                if strcmpi(trade.instrument_.asset_name,'tin') || strcmpi(trade.instrument_.asset_name,'nickel')
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.status_ = 'closed';
+                    obj.closestr_ = 'conditional dntrendconfirmed failed to breach';
+                    obj.trade_.status_ = 'closed';
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    unwindtrade = obj.trade_;
+                    return
+                end
+                %
                 isbreachdnlvldn = extrainfo.ll(end) <= extrainfo.lvldn(end) && extrainfo.p(end,5) > extrainfo.lvldn(end);
                 if isbreachdnlvldn
                     tbl2lookup = kellytables.breachdnlvldn_tc;
