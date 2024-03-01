@@ -92,7 +92,11 @@ else
     end
 end
 
-volume2check = volume*direction + volume_exist*direction_exist+volume_pending;
+% volume2check = volume*direction + volume_exist*direction_exist+volume_pending;
+%note:20240301:from this time onwards, we check conditional entrust
+%seperately from exiting positions as further risk management would do it
+%later upon openning positions 
+volume2check = volume*direction + volume_pending;
 
 try
     maxvolume = obj.riskcontrols_.getconfigvalue('code',code,'propname','maxunits');
