@@ -21,6 +21,11 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
     exceptionflagb = direction == 1 & ...
         strcmpi(trade.opensignal_.mode_,'breachup-lvlup') & ...
         extrainfo.p(end,5) > extrainfo.lips(end);
+    exceptionflagb2 = direction == 1 & ...
+        extrainfo.p(end,5) > extrainfo.lips(end) & ...
+        ~isnan(extrainfo.lvlup(end)) & ...
+        extrainfo.p(end,5) > extrainfo.lvlup(end);
+    
     %not sure about breachdn-lvldn case but we shall leave it as exception
     exceptionflags = direction == -1 & ...
         strcmpi(trade.opensignal_.mode_,'breachdn-lvldn') & ...
@@ -28,7 +33,7 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
     
     if direction == 1
         if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_) && ...
-                ~exceptionflagb && obj.usefibonacci_
+                ~exceptionflagb && ~exceptionflagb2 && obj.usefibonacci_
             closeflag = 1;
             obj.closestr_ = 'fibonacci:0.618';
         end
@@ -98,7 +103,7 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                 end
             end
             if extrainfo.p(end,5) < obj.fibonacci1_-0.618*(obj.fibonacci1_-obj.fibonacci0_) && ...
-                    ~exceptionflagb && obj.usefibonacci_
+                    ~exceptionflagb && ~exceptionflagb2 && obj.usefibonacci_
                 obj.status_ = 'closed';
                 obj.closestr_ = 'fibonacci:0.618';
                 unwindtrade = obj.trade_;
