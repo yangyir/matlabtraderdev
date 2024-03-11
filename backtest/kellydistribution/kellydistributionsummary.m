@@ -635,7 +635,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     KMat_L_ = WMat_L_;
     for i = 1:length(signal_l_)
         for j = 1:nasset
-            ret = kellyempirical('distribution',inputstruct,'assetname',assetlist_{j},'direction','l','signalname',signal_l_{i});
+            ret = kellyempirical2('table',tbl_extractedinfo,'assetname',assetlist_{j},'direction','l','signalname',signal_l_{i});
             WMat_L_(i,j) = ret.W;
             RMat_L_(i,j) = ret.R;
             KMat_L_(i,j) = ret.K;
@@ -647,7 +647,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     KMat_S_ = WMat_S_;
     for i = 1:length(signal_s_)
         for j = 1:nasset
-            ret = kellyempirical('distribution',inputstruct,'assetname',assetlist_{j},'direction','s','signalname',signal_s_{i});
+            ret = kellyempirical2('table',tbl_extractedinfo,'assetname',assetlist_{j},'direction','s','signalname',signal_s_{i});
             WMat_S_(i,j) = ret.W;
             RMat_S_(i,j) = ret.R;
             KMat_S_(i,j) = ret.K;
