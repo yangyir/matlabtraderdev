@@ -109,6 +109,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     opendate_b = zeros(nb,1);
     openid_b = zeros(nb,1);
     closestr_b = cell(nb,1);
+    closedatetime_b = zeros(nb,1);
     pnlrel_b = zeros(nb,1);
     trendflag_b = zeros(nb,1);
     idxb = ones(nb,1);
@@ -147,17 +148,18 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         end
         openid_b(i) = tblb_data_consolidated{i,15};
         closestr_b{i} = tblb_data_consolidated{i,19};
+        closedatetime_b(i) = tblb_data_consolidated{i,41};
         if strcmpi(fut.code_ctp,'gzhy') || strcmpi(fut.code_ctp,'gzhy_30y') || strcmpi(fut.code_ctp,'gkhy')
             pnlrel_b(i) = tblb_data_consolidated{i,18};
         else
             pnlrel_b(i) = tblb_data_consolidated{i,18}/opennotional_b(i);
         end
         trendflag_b(i) = tblb_data_consolidated{i,37};
-        hh(i) = tblb_data_consolidated{i,41};
-        lvlup(i) = tblb_data_consolidated{i,42};
+        hh(i) = tblb_data_consolidated{i,42};
+        lvlup(i) = tblb_data_consolidated{i,43};
     end
     idxb = logical(idxb);
-    tbl_extractedinfo_b = table(code_b,assetname_b,opentype_b,opensignal_b,direction_b,openid_b,opendatetime_b,opendate_b,openprice_b,opennotional_b,pnlrel_b,closestr_b,trendflag_b,hh,lvlup);
+    tbl_extractedinfo_b = table(code_b,assetname_b,opentype_b,opensignal_b,direction_b,openid_b,opendatetime_b,opendate_b,openprice_b,opennotional_b,pnlrel_b,closedatetime_b,closestr_b,trendflag_b,hh,lvlup);
     tbl_extractedinfo_b = tbl_extractedinfo_b(idxb,:);
     %
     ns = size(tbls_data_consolidated,1);
@@ -172,6 +174,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     opendate_s = zeros(ns,1);
     openid_s = zeros(ns,1);
     closestr_s = cell(ns,1);
+    closedatetime_s = zeros(ns,1);
     pnlrel_s = zeros(ns,1);
     trendflag_s = zeros(ns,1);
     idxs = ones(ns,1);
@@ -210,17 +213,18 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         end
         openid_s(i) = tbls_data_consolidated{i,15};
         closestr_s{i} = tbls_data_consolidated{i,19};
+        closedatetime_s(i) = tbls_data_consolidated{i,41};
         if strcmpi(fut.code_ctp,'gzhy') || strcmpi(fut.code_ctp,'gzhy_30y') || strcmpi(fut.code_ctp,'gkhy')
             pnlrel_s(i) = tbls_data_consolidated{i,18};
         else
             pnlrel_s(i) = tbls_data_consolidated{i,18}/opennotional_s(i);
         end
         trendflag_s(i) = tbls_data_consolidated{i,37};
-        ll(i) = tbls_data_consolidated{i,41};
+        ll(i) = tbls_data_consolidated{i,42};
         lvldn(i) = tbls_data_consolidated{i,42};
     end
     idxs = logical(idxs);
-    tbl_extractedinfo_s = table(code_s,assetname_s,opentype_s,opensignal_s,direction_s,openid_s,opendatetime_s,opendate_s,openprice_s,opennotional_s,pnlrel_s,closestr_s,trendflag_s,ll,lvldn);
+    tbl_extractedinfo_s = table(code_s,assetname_s,opentype_s,opensignal_s,direction_s,openid_s,opendatetime_s,opendate_s,openprice_s,opennotional_s,pnlrel_s,closestr_s,closedatetime_s,trendflag_s,ll,lvldn);
     tbl_extractedinfo_s = tbl_extractedinfo_s(idxs,:);
     %
     % merge long/short table for further analysis
@@ -236,10 +240,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     opennotional = [tbl_extractedinfo_b.opennotional_b;tbl_extractedinfo_s.opennotional_s];
     pnlrel = [tbl_extractedinfo_b.pnlrel_b;tbl_extractedinfo_s.pnlrel_s];
     closestr = [tbl_extractedinfo_b.closestr_b;tbl_extractedinfo_s.closestr_s];
+    closedatetime = [tbl_extractedinfo_b.closedatetime_b;tbl_extractedinfo_s.closedatetime_s];
     trendflag = [tbl_extractedinfo_b.trendflag_b;tbl_extractedinfo_s.trendflag_s];
     barrierfractal = [tbl_extractedinfo_b.hh;tbl_extractedinfo_s.ll];
     barriertdsq = [tbl_extractedinfo_b.lvlup;tbl_extractedinfo_s.lvldn];
-    tbl_extractedinfo = table(code,assetname,opentype,opensignal,direction,openid,opendatetime,opendate,openprice,opennotional,pnlrel,closestr,trendflag,barrierfractal,barriertdsq);
+    tbl_extractedinfo = table(code,assetname,opentype,opensignal,direction,openid,opendatetime,opendate,openprice,opennotional,pnlrel,closestr,closedatetime,trendflag,barrierfractal,barriertdsq);
     tbl_extractedinfo = sortrows(tbl_extractedinfo,'opendatetime','ascend');
     if useactiveonly
         nrecords = size(tbl_extractedinfo,1);

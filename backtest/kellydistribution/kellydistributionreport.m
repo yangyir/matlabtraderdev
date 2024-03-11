@@ -1,4 +1,4 @@
-function [tbl_report,stats_report] = kellydistributionreport(tbl_trades,struct_distributions)
+function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_trades,struct_distributions)
 
 % add
 % columns:year,month,weeknum,kellygeneral,kellyspecial,use1,use2,kellyused
@@ -151,10 +151,11 @@ function [tbl_report,stats_report] = kellydistributionreport(tbl_trades,struct_d
     opennotional = tbl_trades.opennotional;
     pnlrel = tbl_trades.pnlrel;
     closestr = tbl_trades.closestr;
+    closedatetime = tbl_trades.closedatetime;
     trendflag = tbl_trades.trendflag;
     barrierfractal = tbl_trades.barrierfractal;
     barriertdsq = tbl_trades.barriertdsq;
-    tbl_report = table(code,assetname,opentype,opensignal,direction,openid,opendatetime,openprice,opennotional,pnlrel,closestr,trendflag,barrierfractal,barriertdsq,yearinfo,monthinfo,weeknuminfo,kellygeneral,use1,kellyspecial,kellyused,use2);
+    tbl_report = table(code,assetname,opentype,opensignal,direction,openid,opendatetime,openprice,opennotional,pnlrel,closestr,closedatetime,trendflag,barrierfractal,barriertdsq,yearinfo,monthinfo,weeknuminfo,kellygeneral,use1,kellyspecial,kellyused,use2);
     %
     %
     A = unique(tbl_report.assetname);
@@ -235,25 +236,29 @@ function [tbl_report,stats_report] = kellydistributionreport(tbl_trades,struct_d
             nov(i) = sum(tbl2check.pnlrel(idx_nov));
             dec(i) = sum(tbl2check.pnlrel(idx_dec));
         end
-        name1 = struct_distributions.asset_list{k};
-        name2 = name1(~isspace(name1));
-        if strcmpi(name2,'上证50')
-            name2 = 'sz50';
-        elseif strcmpi(name2,'上证指数')
-            name2 = 'shcomp';
-        elseif strcmpi(name2,'中证1000')
-            name2 = 'zz1000';
-        elseif strcmpi(name2,'中证500')
-            name2 = 'zz500';
-        elseif strcmpi(name2,'创业板指')
-            name2 = 'cybz';
-        elseif strcmpi(name2,'沪深300')
-            name2 = 'hs300';
-        elseif strcmpi(name2,'科创50')
-            name2 = 'kc50';
-        elseif strcmpi(name2,'红利指数')
-            name2 = 'hlzs';
+        try
+            name1 = struct_distributions.asset_list{k};
+            name2 = name1(~isspace(name1));
+            if strcmpi(name2,'上证50')
+                name2 = 'sz50';
+            elseif strcmpi(name2,'上证指数')
+                name2 = 'shcomp';
+            elseif strcmpi(name2,'中证1000')
+                name2 = 'zz1000';
+            elseif strcmpi(name2,'中证500')
+                name2 = 'zz500';
+            elseif strcmpi(name2,'创业板指')
+                name2 = 'cybz';
+            elseif strcmpi(name2,'沪深300')
+                name2 = 'hs300';
+            elseif strcmpi(name2,'科创50')
+                name2 = 'kc50';
+            elseif strcmpi(name2,'红利指数')
+                name2 = 'hlzs';
+            end
+            stats_report.(name2) = table(jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec);
+        catch
+            
         end
-        stats_report.(name2) = table(jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec);
     end
 end

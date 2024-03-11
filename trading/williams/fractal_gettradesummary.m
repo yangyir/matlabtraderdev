@@ -141,8 +141,8 @@ data = resstruct{1};
 
 nbtrades = tradesb.latest_;
 nstrades = tradess.latest_;
-tblbtrades = cell(nbtrades,28);
-tblstrades = cell(nstrades,28);
+tblbtrades = cell(nbtrades,29);
+tblstrades = cell(nstrades,29);
 
 for i = 1:tradesb.latest_
     trade_i = tradesb.node_(i);
@@ -175,6 +175,7 @@ for i = 1:tradesb.latest_
     for k = 1:length(fldnamesb)
         tblbtrades{i,9+k} = status.(fldnamesb{k});
     end
+    tblbtrades{i,29} = trade_i.closedatetime1_;
 end
 %
 for i = 1:tradess.latest_
@@ -208,6 +209,7 @@ for i = 1:tradess.latest_
     for k = 1:length(fldnamess)
         tblstrades{i,9+k} = status.(fldnamess{k});
     end
+    tblstrades{i,29} = trade_i.closedatetime1_;
 end
 %
 %ouput
@@ -325,6 +327,8 @@ for i = 1:n2-9
     catch
     end
 end
+tblb_headers{1,29} = 'closedatetime';
+tbls_headers{1,29} = 'closedatetime';
 %
 %
 nb = size(tblb_data,1);ns = size(tbls_data,1);
