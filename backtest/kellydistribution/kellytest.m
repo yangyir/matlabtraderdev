@@ -132,11 +132,20 @@ end
 pnl2check = tblOut.pnlrel;
 nRecords = size(pnl2check,1);
 if nRecords <= 15
-    useOut = 0;
     wMu = NaN;wSigma = NaN;wH = NaN;
     rMu = NaN;rSigma = NaN;rH = NaN;
     kMu = NaN;kSigma = NaN;kH = NaN;
     [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
+    if nRecords <= 8
+        useOut = 0;
+    else
+        if kelly_running(end) >= 0.166 && winp_running(end) >= 0.5 && R_running(end) >= 1.5
+            useOut = 1;
+        else
+            useOut = 0;
+        end
+    end
+    
     resOut = struct('use',useOut,...
         'wMu',wMu,'wSigma',wSigma,'wH',wH,...
         'rMu',rMu,'rSigma',rSigma,'rH',rH,...
@@ -194,7 +203,7 @@ else
     if (kMu >= 0.145 || (kMu > 0.1 && wMu > 0.4)) && kH == 0
         useOut = 1;
     else
-        if kelly_running(end) >= 0.145 && winp_running(end) >= 0.5 && R_running(end) > 1
+        if kelly_running(end) >= 0.145 && winp_running(end) >= 0.45 && R_running(end) > 1.1
             useOut = 1;
         else
             useOut = 0;
