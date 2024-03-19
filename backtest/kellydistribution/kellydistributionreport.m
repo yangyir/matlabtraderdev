@@ -19,7 +19,7 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
     for i = 1:n
         if tbl_trades.direction(i) == 1
             idx = strcmpi(struct_distributions.kelly_table_l.opensignal_unique_l,tbl_trades.opensignal{i});
-            kellygeneral(i) = struct_distributions.kelly_table_l.kelly_unique_l(idx);
+            kellygeneral(i) = struct_distributions.kelly_table_l.kelly_unique_l_sample(idx);
             use1(i) = struct_distributions.kelly_table_l.use_unique_l(idx);
             %
             if strcmpi(tbl_trades.opensignal{i},'breachup-highsc13')
@@ -52,9 +52,7 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
                     kellyspecial(i) = struct_distributions.breachupsshighvalue_tb.K(idx2);
                 end
             elseif strcmpi(tbl_trades.opensignal{i},'mediumbreach-trendconfirmed') || ...
-                    strcmpi(tbl_trades.opensignal{i},'strongbreach-trendconfirmed') || ...
-                    strcmpi(tbl_trades.opensignal{i},'volblowup') || ...
-                    strcmpi(tbl_trades.opensignal{i},'volblowup2')
+                    strcmpi(tbl_trades.opensignal{i},'strongbreach-trendconfirmed')
                 if tbl_trades.opentype(i) == 2
                     idx2 = strcmpi(struct_distributions.bmtc.asset,tbl_trades.assetname{i});
                     kellyspecial(i) = struct_distributions.bmtc.K(idx2);
@@ -72,7 +70,7 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
             end
         else
             idx = strcmpi(struct_distributions.kelly_table_s.opensignal_unique_s,tbl_trades.opensignal{i});
-            kellygeneral(i) = struct_distributions.kelly_table_s.kelly_unique_s(idx);
+            kellygeneral(i) = struct_distributions.kelly_table_s.kelly_unique_s_sample(idx);
             use1(i) = struct_distributions.kelly_table_s.use_unique_s(idx);
             %
             if strcmpi(tbl_trades.opensignal{i},'breachdn-lowbc13')
@@ -105,9 +103,7 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
                     kellyspecial(i) = struct_distributions.breachdnbshighvalue_tb.K(idx2);
                 end
             elseif strcmpi(tbl_trades.opensignal{i},'mediumbreach-trendconfirmed') || ...
-                    strcmpi(tbl_trades.opensignal{i},'strongbreach-trendconfirmed') || ...
-                    strcmpi(tbl_trades.opensignal{i},'volblowup') || ...
-                    strcmpi(tbl_trades.opensignal{i},'volblowup2')
+                    strcmpi(tbl_trades.opensignal{i},'strongbreach-trendconfirmed')
                 if tbl_trades.opentype(i) == 2
                     idx2 = strcmpi(struct_distributions.smtc.asset,tbl_trades.assetname{i});
                     kellyspecial(i) = struct_distributions.smtc.K(idx2);
@@ -126,10 +122,11 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
         end
         if ~isnan(kellyspecial(i))
             if kellyspecial(i) == -inf, kellyspecial(i) = -9.99;end
-            kellyused(i) = kellyspecial(i);
-            if kellyspecial(i) >= 0.1
+            if kellyspecial(i) >= 0.1 && kellygeneral(i) > 0
+                kellyused(i) = kellyspecial(i);
                 use2(i) = 1;
             else
+                kellyused(i) = kellygeneral(i);
                 use2(i) = 0;
             end
         else
