@@ -366,9 +366,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-lvlup-tb',100*kelly,100*wprob);
                             else
                                 if ~strcmpi(freq,'1440m')
-                                    vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc;
+                                    vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc_all;
                                 else
-                                    vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc;                                    
+                                    vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc_all;                                    
                                 end
                                 idx = strcmpi(vlookuptbl.asset,assetname);
                                 try
@@ -638,9 +638,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-lvldn-tb',100*kelly,100*wprob);
                             else
                                 if ~strcmpi(freq,'1440m')
-                                    vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tc;
+                                    vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tc_all;
                                 else
-                                    vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tc;
+                                    vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tc_all;
                                 end
                                 idx = strcmpi(vlookuptbl.asset,assetname);
                                 try
