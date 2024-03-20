@@ -146,7 +146,9 @@ classdef cStrat < cMyTimerObj
     %abstract methods
     methods (Abstract)
         signals = gensignals(obj)
+        signals = gensignalssingle(obj,varargin)
         [] = autoplacenewentrusts(obj,signals)
+        [] = autoplacenewentrustssingle(obj,varargin)
         [] = updategreeks(obj)
 %         [] = riskmanagement(obj,dtnum)
         [] = initdata(obj)

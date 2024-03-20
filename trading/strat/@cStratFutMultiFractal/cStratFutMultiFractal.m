@@ -51,10 +51,14 @@ classdef cStratFutMultiFractal < cStrat
             end
         end
         
+        signals = gensignalssingle(obj,varargin)
+        
         function [] = autoplacenewentrusts(obj,signals)
             if obj.displaysignalonly_, return;end
             obj.autoplacenewentrusts_futmultifractal(signals)
         end
+        
+        [] = autoplacenewentrustssingle(obj,varargin)
         
         function [] = updategreeks(obj)
             variablenotused(obj);
