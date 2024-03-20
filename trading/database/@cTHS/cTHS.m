@@ -8,7 +8,8 @@ classdef cTHS < cDataSource
     methods
         function obj = cTHS
             try
-                obj.ds_ = THS_iFinDLogin('dyqh659','2011Sep29');
+%                 obj.ds_ = THS_iFinDLogin('dyqh659','2011Sep29');
+                obj.ds_ = THS_iFinDLogin('tg5058','4bbeed');
             catch e
                 fprintf(e.message);
             end
