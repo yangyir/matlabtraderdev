@@ -100,7 +100,7 @@ function [ret,e,msg] = shortopen(strategy,ctp_code,lots,varargin)
         else
             if overridepx > bidpx
                 entrusttype = 'limit';
-            elseif overridepx == bidpx;
+            elseif overridepx == bidpx
                 entrusttype = 'market';
             else
                 entrusttype = 'stop';
