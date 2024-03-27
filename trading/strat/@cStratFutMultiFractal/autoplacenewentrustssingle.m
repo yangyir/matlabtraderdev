@@ -64,12 +64,12 @@ function [] = autoplacenewentrustssingle(stratfractal,varargin)
     end
 
     %to check whether maximum volume has been reached
-    if (~isempty(signal_short) && signal_short(4) == -2) || ...
-            (~isempty(signal_long) && signal_short(4) == 2)
-        if volume_exist >= maxvolume + volume, return;end
-    else
-        if volume_exist >= maxvolume, return;end
-    end
+%     if (~isempty(signal_short) && signal_short(4) == -2) || ...
+%             (~isempty(signal_long) && signal_short(4) == 2)
+%         if volume_exist >= maxvolume + volume, return;end
+%     else
+    if volume_exist >= maxvolume, return;end
+%     end
 
     %here below we are about to place an order
     %but we shall withdraw any pending entrust with opening

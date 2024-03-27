@@ -15,12 +15,12 @@ end
 if ~flag
     volume_exist = 0;
 else
-    pos = obj.helper_.book_.positions_{idx};
+    pos = stratfractal.helper_.book_.positions_{idx};
     volume_exist = pos.position_total_;
 end
 
 try
-    maxvolume = obj.riskcontrols_.getconfigvalue('code',code,'propname','maxunits');
+    maxvolume = stratfractal.riskcontrols_.getconfigvalue('code',code,'propname','maxunits');
 catch
     maxvolume = 0;
 end

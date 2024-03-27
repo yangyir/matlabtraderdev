@@ -54,12 +54,12 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
         end
 
         %to check whether maximum volume has been reached
-        if (~isempty(signal_short) && signal_short(4) == -2) || ...
-                (~isempty(signal_long) && signal_long(4) == 2)
-            if volume_exist >= maxvolume + volume, continue;end
-        else
-            if volume_exist >= maxvolume, continue;end
-        end
+%         if (~isempty(signal_short) && signal_short(4) == -2) || ...
+%                 (~isempty(signal_long) && signal_long(4) == 2)
+%             if volume_exist >= maxvolume + volume, continue;end
+%         else
+        if volume_exist >= maxvolume, continue;end
+%         end
 
         %here below we are about to place an order
         %but we shall withdraw any pending entrust with opening

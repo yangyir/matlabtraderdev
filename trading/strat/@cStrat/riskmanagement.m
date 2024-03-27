@@ -260,6 +260,20 @@ function [] = riskmanagement(obj,dtnum)
         
             if ~isempty(unwindtrade)
                 obj.unwindtrade(unwindtrade);
+                if strcmpi(unwindtrade.closestr_,'conditional uptrendconfirmed failed to breach') || ...
+                        strcmpi(unwindtrade.closestr_,'conditional dntrendconfirmed failed to breach')
+                    instrument = unwindtrade.instrument_;
+                    flag = obj.helper_.book_.hasposition(instrument);
+                    nloopmax = 119;
+                    iloop = 0;
+                    while flag && iloop <= nloopmax
+                        obj.helper_.refresh;
+                        flag = obj.helper_.book_.hasposition(instrument);
+                        iloop = iloop + 1;
+                    end
+                    signals_ = obj.gensignalssingle('instrument',instrument);
+                    obj.autoplacenewentrustssingle('instrument',instrument,'signals',signals_);
+                end
             end
         end
     else
