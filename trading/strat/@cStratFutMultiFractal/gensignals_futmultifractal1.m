@@ -1273,6 +1273,26 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     else
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
                     end
+                elseif ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 0 && p(end,5) > teeth(end)
+                    if hhbelowlvlup
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc_all;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc_all;
+                        end
+                        kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                        if kelly > 0.3 && wprob > 0.5
+                            signal_cond_i{1,1}(1) = -1;
+                            signal_cond_i{1,1}(2) = lvlup(end);
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
+                        end
+                        signals{i,1} = signal_cond_i{1,1};
+                    end
                 elseif ~(~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}))
                     if hhabovelvlup
                         if ~strcmpi(freq,'1440m')
@@ -1446,7 +1466,28 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-bclow13',100*kelly,100*wprob);
                     else
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),op_cond_i{1,2},100*kelly,100*wprob);
-                    end                     
+                    end
+                elseif ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == 0 && p(end,5) < teeth(end)
+                    if llabovelvldn
+                        if ~strcmpi(freq,'1440m')
+                            vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tc_all;
+                        else
+                            vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tc_all;
+                        end
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                        if kelly > 0.3 && wprob > 0.5
+                            signal_cond_i{1,2}(1) = -1;
+                            signal_cond_i{1,2}(3) = lvldn(end);
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn',100*kelly,100*wprob);
+                        end
+                        signals{i,2} = signal_cond_i{1,2};
+                    end
                 elseif ~(~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2})) 
                     %NOT BELOW TEETH
                     if llbelowlvldn
