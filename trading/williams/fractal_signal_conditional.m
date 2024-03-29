@@ -56,6 +56,9 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         longtrend = lflag1 & (lflag2 | lflag4) & (lflag3 | lflag4);
     end
     %
+    lipsaboveteeth = isempty(find(ei.lips(end-2*nfractal+1:end)-ei.teeth(end-2*nfractal+1:end)<0,1,'last'));
+    teethabovejaws = isempty(find(ei.teeth(end-2*nfractal+1:end)-ei.jaw(end-2*nfractal+1:end)<0,1,'last'));
+    %
     %if not all of the above 3 conditions hold
     if ~longtrend 
         if nkaboveteeth >= 2*nfractal
@@ -70,8 +73,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 if ~isteethlipscrossed
                     %strong condition that all close are above lips IF THEY
                     %ARE NOT CROSSED
-                    longtrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-                        ei.lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                    if lipsaboveteeth
+                        longtrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                            ei.lips(end-2*nfractal+1:end)+4*ticksize<0,1,'first'));
+                    else
+                        longtrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                            ei.lips(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                    end
                     if ~longtrend
                         %weak condition:1)there are 2*nfracal candles low
                         %above alligator's teeth
@@ -143,8 +151,14 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         isempty(find(ei.lips(end-nfractal:end)-...
                         ei.teeth(end-nfractal:end)-2*ticksize<0, 1,'first'));
             if exceptionflag && ~hhupward
-                exceptionflag = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-                max(ei.teeth(end-2*nfractal+1:end),ei.lips(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+                if ~teethabovejaws
+                    exceptionflag = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                        max(ei.teeth(end-2*nfractal+1:end),ei.lips(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
+                else
+                    exceptionflag = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                        max(ei.teeth(end-2*nfractal+1:end),ei.lips(end-2*nfractal+1:end))+4*ticksize<0,1,'first'));
+                    exceptionflag = exceptionflag & lipsaboveteeth;
+                end
             end
         end
         %exception in case close is well above the maximum of lips,teeth
