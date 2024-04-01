@@ -63,18 +63,33 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
 
         %here below we are about to place an order
         %but we shall withdraw any pending entrust with opening
+        passplaceentrust = false;
         ne = stratfractal.helper_.entrustspending_.latest;
         for jj = 1:ne
             e = stratfractal.helper_.entrustspending_.node(jj);
             if e.offsetFlag ~= 1, continue; end
             if ~strcmpi(e.instrumentCode,instrument.code_ctp), continue;end%the same instrument
+            %very interesting case that found on j2405 on 20240320
+            %as the market moves so fast that an orignal conditional
+            %entrust was triggerd to be a 'real' entrust but not filled
+            if strcmpi(e.signalinfo_.mode,'conditional-uptrendconfirmed') && ...
+                    e.direction == 1 && ~isempty(signal_long) && signal_long(1) == 1 && signal_long(4) == 2 && e.price == signal_long(2) + instrument.tick_size && e.volume == volume
+                passplaceentrust = true;
+                continue;
+            elseif strcmpi(e.signalinfo_.mode,'conditional-dntrendconfirmed') && ...
+                    e.direction == -1 && ~isempty(signal_short) && signal_short(1) == -1 && signal_short(4) == -2 && e.price == signa_short(2) - instrument.tick_size && e.volume == volume
+                passplaceentrust = true;
+                continue;
+            end
             %if the code reaches here, the existing entrust shall be canceled
             if strcmpi(stratfractal.mode_,'realtime')
                 stratfractal.helper_.getcounter.withdrawEntrust(e);
             else
-                 stratfractal.withdrawentrusts(instrument,'offset',1);
+                stratfractal.withdrawentrusts(instrument,'offset',1);
             end
         end
+        
+        if passplaceentrust, continue;end
         
         ticksize = instrument.tick_size;
         nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');

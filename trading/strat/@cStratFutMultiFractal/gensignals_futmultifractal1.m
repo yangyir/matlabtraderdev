@@ -573,9 +573,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 else
                                     %unwind position as the kelly or
                                     %winning probability is low
-                                    signal_i(1) = 0;
-                                    signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                    if kelly <= 0
+                                        signal_i(1) = 0;
+                                        signal_i(4) = 0;
+                                        stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                    else
+                                        if ~(wprob > 0.45 && kelly > 0.0833)
+                                            signal_i(1) = 0;
+                                            signal_i(4) = 0;
+                                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                        end
+                                    end
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                             else
