@@ -1295,7 +1295,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             wprob = 0;
                         end
                         if kelly > 0.3 && wprob > 0.5
-                            signal_cond_i{1,1}(1) = -1;
+                            signal_cond_i{1,1}(1) = 1;
                             signal_cond_i{1,1}(2) = lvlup(end);
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
                         end
