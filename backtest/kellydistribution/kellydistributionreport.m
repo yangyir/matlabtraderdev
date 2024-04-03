@@ -120,16 +120,27 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
                 end
             end
         end
+        
         if ~isnan(kellyspecial(i))
             if kellyspecial(i) == -inf, kellyspecial(i) = -9.99;end
-            if kellyspecial(i) >= 0.1 && kellygeneral(i) > 0
-                kellyused(i) = kellyspecial(i);
-                use2(i) = 1;
+            kellyused(i) = kellyspecial(i);
+            if strcmpi(tbl_trades.opensignal{i},'mediumbreach-trendconfirmed') || ...
+                    strcmpi(tbl_trades.opensignal{i},'strongbreach-trendconfirmed')
+                if kellyspecial(i) >= 0.088 && kellygeneral(i) >= 0.088
+                    use2(i) = 1;
+                else
+                    kellyused(i) = kellygeneral(i);
+                    use2(i) = 0;
+                end
             else
-                kellyused(i) = kellygeneral(i);
-                use2(i) = 0;
+                if kellyspecial(i) >= 0.088
+                    use2(i) = 1;
+                else
+                    use2(i) = 0;
+                end
             end
         else
+            if kellygeneral(i) == -inf, kellygeneral(i) = -9.99;end
             kellyused(i) = kellygeneral(i);
             use2(i) = use1(i);
         end

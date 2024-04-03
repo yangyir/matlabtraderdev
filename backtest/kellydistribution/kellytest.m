@@ -137,7 +137,22 @@ if nRecords <= 15
     kMu = NaN;kSigma = NaN;kH = NaN;
     [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
     if nRecords <= 8
-        useOut = 0;
+        if ~isempty(strfind(modeInput,'bcreverse')) || ...
+                ~isempty(strfind(modeInput,'screverse')) || ...
+                ~isempty(strfind(modeInput,'bsreverse')) || ...
+                ~isempty(strfind(modeInput,'ssreverse')) || ...
+                ~isempty(strfind(modeInput,'bsbcdoublereverse')) || ...
+                ~isempty(strfind(modeInput,'ssscdoublereverse')) || ...
+                ~isempty(strfind(modeInput,'sshighbreach')) || ...
+                ~isempty(strfind(modeInput,'bslowbreach'))
+            if kelly_running(end) >= 0.166 && winp_running(end) >= 0.5 && R_running(end) >= 1.5
+                useOut = 1;
+            else
+                useOut = 0;
+            end
+        else
+            useOut = 0;
+        end
     else
         if kelly_running(end) >= 0.2 && winp_running(end) >= 0.5
             useOut = 1;
