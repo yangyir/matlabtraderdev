@@ -272,7 +272,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 %opened with breachsshighvalue but it turns
                                 %out to be a normal trend trade, e.g.check
                                 %with live hog on 24th Jan 2024
-                                if ss(end) >= 9
+                                if ss(end) >= 9 && ~strcmpi(op.comment,'volblowup')
                                     idxss9 = find(ss == 9,1,'last');
                                     pxhightillss9 = max(p(idxss9-8:idxss9,3));
                                     if pxhightillss9 == hh(end)
@@ -518,7 +518,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 %to be a normal trend trend, e.g zn2403 on
                                 %20240117
                                 %yet!!!
-                                if bs(end) >= 9 || bs(end-1) >= 9
+                                if (bs(end) >= 9 || bs(end-1) >= 9) && ~strcmpi(op.comment,'volblowup') 
                                     idxbs9 = find(bs == 9,1,'last');
                                     pxlowtillbs9 = min(p(idxbs9-8:idxbs9,4));
                                     if pxlowtillbs9 == ll(end)
