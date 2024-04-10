@@ -479,6 +479,9 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         resSignal_l_i = kellytest(tbl_extractedinfo,signal_l_i,1);
         ntrades_unique_l(iSignal) = size(resSignal_l_i.tblout,1);
         use_unique_l(iSignal) = resSignal_l_i.use;
+        if strcmpi(signal_l_i,'volblowup2') || strcmpi(signal_l_i,'volblowup')
+            use_unique_l(iSignal) = 1;
+        end
         winp_unique_l(iSignal) = resSignal_l_i.wMu;
         r_unique_l(iSignal) = resSignal_l_i.rMu;
         kelly_unique_l(iSignal) = resSignal_l_i.kMu;
@@ -506,6 +509,9 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         resSignal_s_i = kellytest(tbl_extractedinfo,signal_s_i,-1);
         ntrades_unique_s(iSignal) = size(resSignal_s_i.tblout,1);
         use_unique_s(iSignal) = resSignal_s_i.use;
+        if strcmpi(signal_s_i,'volblowup2') || strcmpi(signal_s_i,'volblowup')
+            use_unique_l(iSignal) = 1;
+        end
         winp_unique_s(iSignal) = resSignal_s_i.wMu;
         r_unique_s(iSignal) = resSignal_s_i.rMu;
         kelly_unique_s(iSignal) = resSignal_s_i.kMu;
