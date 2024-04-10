@@ -258,6 +258,10 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     sflag4 = ~lldnward & ei.ll(end)<=ei.lvldn(end) & ei.px(end,5)>=ei.lvldn(end);
     shorttrend = sflag1 & (sflag2 | sflag4) & (sflag3 | sflag4);
     %
+    lipsbelowteeth = isempty(find(ei.lips(end-2*nfractal+1:end)-ei.teeth(end-2*nfractal+1:end)>0,1,'last'));
+    teethbelowjaws = isempty(find(ei.teeth(end-2*nfractal+1:end)-ei.jaw(end-2*nfractal+1:end)>0,1,'last'));
+    %
+    %
     %if not all the above 3 conditions hold
     if ~shorttrend
         if nkbelowteeth >= 2*nfractal
@@ -313,7 +317,8 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize>0,1,'first'));
                 shorttrend = shorttrend & ~(strcmpi(hhstatus,'upward') & strcmpi(llstatus,'upward'));
                 if ~shorttrend
-                    shorttrend = sflag1 & ~isteethlipscrossed & sflag3;
+                    exceptionflag = sflag3 | (~isteethjawcrossed & lipsbelowteeth & teethbelowjaws);
+                    shorttrend = sflag1 & ~isteethlipscrossed & exceptionflag;
                 end
             else
                 shorttrend = false;
