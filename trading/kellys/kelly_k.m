@@ -50,7 +50,7 @@ function k = kelly_k(signalStr,assetStr,signallistCell,assetlistCell,kMat)
     end
     
     k_ = kMat(idxSignal,idxAsset);
-    if ~isnan(k_)
+    if ~isnan(k_) || (isnan(k_) && strcmpi(signalStr,'volblowup2'))
         k = k_;
     else
         for i = 1:n
