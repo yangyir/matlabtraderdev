@@ -136,12 +136,12 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     if isvolblowup2 && ~isbslowbreach
                         freq = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
                         if ~strcmpi(freq,'1440m')
-                            try
+%                             try
                                 kelly = kelly_k('volblowup2',instruments{i}.asset_name,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
-                            catch
-                                idxvolblowup2 = strcmpi(stratfractal.tbl_all_intraday_.kelly_table_s.opensignal_unique_s,'volblowup2');
-                                kelly = stratfractal.tbl_all_intraday_.kelly_table_s.kelly_unique_s(idxvolblowup2);
-                            end
+%                             catch
+%                                 idxvolblowup2 = strcmpi(stratfractal.tbl_all_intraday_.kelly_table_s.opensignal_unique_s,'volblowup2');
+%                                 kelly = stratfractal.tbl_all_intraday_.kelly_table_s.kelly_unique_s(idxvolblowup2);
+%                             end
                         else
                             try
                                 kelly = kelly_k('volblowup2',instruments{i}.asset_name,stratfractal.tbl_all_daily_.signal_s,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_s);
@@ -150,10 +150,14 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                                 kelly = stratfractal.tbl_all_daily_.kelly_table_s.kelly_unique_s(idxvolblowup2);
                             end
                         end
-                        if kelly >= 0.146
-                            stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                        if ~isnan(kelly)
+                            if kelly >= 0.146
+                                stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                            else
+                                fprintf('autoplacenewentrusts:low kelly of volblowup2 mode...\n');
+                            end
                         else
-                            fprintf('autoplacenewentrusts:low kelly of volblowup2 mode...\n');
+                            stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
                         end
                     else
                         stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
@@ -229,12 +233,12 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     if isvolblowup2 && ~issshighbreach
                         freq = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
                         if ~strcmpi(freq,'1440m')
-                            try
+%                             try
                                 kelly = kelly_k('volblowup2',instruments{i}.asset_name,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
-                            catch
-                                idxvolblowup2 = strcmpi(stratfractal.tbl_all_intraday_.kelly_table_l.opensignal_unique_l,'volblowup2');
-                                kelly = stratfractal.tbl_all_intraday_.kelly_table_l.kelly_unique_l(idxvolblowup2);
-                            end
+%                             catch
+%                                 idxvolblowup2 = strcmpi(stratfractal.tbl_all_intraday_.kelly_table_l.opensignal_unique_l,'volblowup2');
+%                                 kelly = stratfractal.tbl_all_intraday_.kelly_table_l.kelly_unique_l(idxvolblowup2);
+%                             end
                         else
                             try
                                 kelly = kelly_k('volblowup2',instruments{i}.asset_name,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
@@ -243,10 +247,14 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                                 kelly = stratfractal.tbl_all_daily_.kelly_table_l.kelly_unique_l(idxvolblowup2);
                             end
                         end
-                        if kelly >= 0.146
-                            stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+                        if ~isnan(kelly)
+                            if kelly >= 0.146
+                                stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+                            else
+                                fprintf('autoplacenewentrusts:low kelly of volblowup2 mode...\n');
+                            end
                         else
-                            fprintf('autoplacenewentrusts:low kelly of volblowup2 mode...\n');
+                            stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
                         end
                     else
                         stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
