@@ -117,6 +117,9 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 if ~longtrend
                     longtrend = lflag1 & ~isteethlipscrossed & lflag3;
                 end
+                if ~longtrend
+                    longtrend = lflag1 & lflag2 & lipsaboveteeth & teethabovejaws;
+                end
             else
                 longtrend = false;
             end
