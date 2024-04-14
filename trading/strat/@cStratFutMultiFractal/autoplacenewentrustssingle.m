@@ -187,7 +187,12 @@ function [] = autoplacenewentrustssingle(stratfractal,varargin)
                 info = struct('name','fractal','type',type,...
                     'hh',signal_short(2),'ll',signal_short(3),'mode',mode,'nfractal',nfractals,...
                     'hh1',signal_short(5),'ll1',signal_short(6));
-                stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                if bid <= signal_short(3)
+                    stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
+                else
+                    info.mode = 'conditional-dntrendbreak';
+                    stratfractal.condshortopen(instrument.code_ctp,signal_short(3),volume,'signalinfo',info);
+                end
             end
         end
     end
@@ -281,7 +286,12 @@ function [] = autoplacenewentrustssingle(stratfractal,varargin)
                 info = struct('name','fractal','type',type,...
                     'hh',signal_long(2),'ll',signal_long(3),'mode',mode,'nfractal',nfractals,...
                     'hh1',signal_long(5),'ll1',signal_long(6));
-                stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+                if ask >= signal_long(2)
+                    stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
+                else
+                    info.mode = 'conditional-uptrendbreak';
+                    stratfractal.condlongopen(instrument.code_ctp,signal_long(2),volume,'signalinfo',info);
+                end
             end
         end
     end
