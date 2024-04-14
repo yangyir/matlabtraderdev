@@ -267,12 +267,14 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 return
             end
 %             trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.ll0_;
-            trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.pxstoploss_;
-            if ~isempty(trade.instrument_)
-                ticksize = trade.instrument_.tick_size;
-                trade.riskmanager_.pxstoploss_ = ceil(trade.riskmanager_.pxstoploss_/ticksize)*ticksize;
+            if ~strcmpi(trade.riskmanager_.closestr_,'tdsq:candle failed to breach TDST lvldn')
+                trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.pxstoploss_;
+                if ~isempty(trade.instrument_)
+                    ticksize = trade.instrument_.tick_size;
+                    trade.riskmanager_.pxstoploss_ = ceil(trade.riskmanager_.pxstoploss_/ticksize)*ticksize;
+                end
+                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
             end
-            trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
         end
         %
         if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) && ...
