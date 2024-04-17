@@ -36,10 +36,15 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
     if strcmpi(obj.status_,'closed'), return; end
     
     instrument = obj.trade_.instrument_;
+    try
+        ticksize = instrument.tick_size;
+    catch
+        ticksize = 0;
+    end
     %1.check whether either 1) stop loss is breached or 2) target is
     %breached
-    if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ <= 0 ) ||...
-            (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ >= 0)
+    if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ < -2*ticksize ) ||...
+            (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ > 2*ticksize)
 %             (obj.trade_.opendirection_ == 1 && tickBid > obj.pxtarget_) || ...
 %             (obj.trade_.opendirection_ == -1 && tickAsk < obj.pxtarget_)
         
