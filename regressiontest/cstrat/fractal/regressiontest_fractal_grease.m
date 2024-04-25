@@ -5,7 +5,7 @@ try
 catch
 end
 %
-codes = {'p2401';'y2401';'m2401';'a2401';'OI401';'RM401'};
+codes = {'p2405';'y2405';'m2405';'a2403'};
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
     addpath([getenv('DATAPATH'),'intradaybar\',codes{i}]);
@@ -16,7 +16,7 @@ bookname = 'grease';
 strategyname = 'fractal';
 riskconfigfilename = 'config_grease.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
-baseunits = [1;1;2;2;1;2];
+baseunits = [1;1;2;2];
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
     'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'usefractalupdate'},...
@@ -29,14 +29,14 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2023-11-30','replaytodate','2023-11-30');
+    'replayfromdate','2024-01-22','replaytodate','2024-01-24');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'],'filename','strat_intraday_grease.mat');
-set(0,'DefaultFigureWindowStyle','docked');
+combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\'],...
+    'filename','strat_comdty_i.mat');
 %%
 combo.mdefut.start;
 combo.ops.start;
@@ -52,4 +52,5 @@ end
 %%
 combo.ops.condentrustspending_.latest
 %%
+set(0,'DefaultFigureWindowStyle','docked');
 mde_fin_plot(combo.mdefut);
