@@ -26,14 +26,31 @@ listassetsunique = unique(listassets);
 %%
 output_comdty_daily = fractal_kelly_summary('codes',listcodes,'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %%
-[~,~,tbl_comdty_daily,~,~,~,~,strat_daily_comdty] = kellydistributionsummary(output_comdty_daily);
+[~,~,tbl_comdty_daily,~,~,~,~,strat_comdty_daily] = kellydistributionsummary(output_comdty_daily,'useactiveonly',true);
 %%
-[tblreport_comdty_daily,statsreport_comdty_daily] = kellydistributionreport(tbl_comdty_daily,strat_daily_comdty);
+[tbl_report_comdty_daily,stats_report_comdty_daily] = kellydistributionreport(tbl_comdty_daily,strat_comdty_daily);
+%%
+dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\'];
+try
+    cd(dir_);
+catch
+    mkdir(dir_);
+    cd(dir_);
+end
+save([dir_,'strat_comdty_daily.mat'],'strat_comdty_daily');
+fprintf('daily strat M-file saved...\n');
+
+save([dir_,'tbl_report_comdty_daily.mat'],'tbl_report_comdty_daily');
+fprintf('daily tbl report M-file saved...\n');
+
+save([dir_,'output_comdty_daily.mat'],'output_comdty_daily');
+fprintf('daily output M-file saved...\n');
+%
+filename = [getenv('onedrive'),'\fractal backtest\kelly distribution\tblreport_comdty_daily.xlsx'];
+writetable(tbl_report_comdty_daily,filename,'Sheet',1,'Range','A1');
+fprintf('excel file saved...\n');
+
 %%
 idx_i = strcmpi(listassets,'soybean oil');
 codes_i = listcodes(idx_i);
 output_comdty_i = fractal_kelly_summary('codes',codes_i,'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
-%%
-dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\'];
-save([dir_,'strat_daily_comdty.mat'],'strat_daily_comdty');
-fprintf('file saved...\n');
