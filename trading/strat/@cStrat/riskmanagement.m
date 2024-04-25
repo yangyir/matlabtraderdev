@@ -261,7 +261,8 @@ function [] = riskmanagement(obj,dtnum)
             if ~isempty(unwindtrade)
                 obj.unwindtrade(unwindtrade);
                 if strcmpi(unwindtrade.closestr_,'conditional uptrendconfirmed failed to breach') || ...
-                        strcmpi(unwindtrade.closestr_,'conditional dntrendconfirmed failed to breach')
+                        strcmpi(unwindtrade.closestr_,'conditional dntrendconfirmed failed to breach') || ...
+                        ~isempty(strfind(unwindtrade.closestr_,'wad'))
                     instrument = unwindtrade.instrument_;
                     flag = obj.helper_.book_.hasposition(instrument);
                     nloopmax = 119;
