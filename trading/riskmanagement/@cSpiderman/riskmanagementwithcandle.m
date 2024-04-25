@@ -73,18 +73,20 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if strcmpi(val,'conditional-uptrendconfirmed') && extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1) 
                 %speical treatment for tin and nickel as they are very
                 %volotile
-                if strcmpi(trade.instrument_.asset_name,'tin') || strcmpi(trade.instrument_.asset_name,'nickel')
-                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
-                    obj.trade_.closeprice_ = extrainfo.latestopen;
-                    volume = trade.openvolume_;
-                    obj.status_ = 'closed';
-                    obj.closestr_ = 'conditional uptrendconfirmed failed to breach';
-                    obj.trade_.status_ = 'closed';
-                    obj.trade_.runningpnl_ = 0;
-                    instrument = trade.instrument_;
-                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-                    unwindtrade = obj.trade_;
+                if strcmpi(trade.instrument_.asset_name,'tin')
+                    if ~(extrainfo.p(end,2) < extrainfo.p(end,5) && extrainfo.ss(end) >= 3)
+                        obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                        obj.trade_.closeprice_ = extrainfo.latestopen;
+                        volume = trade.openvolume_;
+                        obj.status_ = 'closed';
+                        obj.closestr_ = 'conditional uptrendconfirmed failed to breach';
+                        obj.trade_.status_ = 'closed';
+                        obj.trade_.runningpnl_ = 0;
+                        instrument = trade.instrument_;
+                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                        unwindtrade = obj.trade_;
                     return
+                    end
                 end
                 if runriskmanagementbeforemktclose || ...
                         extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))
@@ -162,7 +164,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             elseif strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1)
                 %speical treatment for tin and nickel as they are very
                 %volotile
-                if strcmpi(trade.instrument_.asset_name,'tin') || strcmpi(trade.instrument_.asset_name,'nickel')
+                if strcmpi(trade.instrument_.asset_name,'tin')
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
                     obj.trade_.closeprice_ = extrainfo.latestopen;
                     volume = trade.openvolume_;
