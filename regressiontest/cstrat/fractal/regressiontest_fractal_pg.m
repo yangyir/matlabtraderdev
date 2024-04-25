@@ -5,7 +5,7 @@ try
 catch
 end
 %
-codes = {'SR405'};
+codes = {'pg2405'};
 path_ = [getenv('HOME'),'\regressiontest\cstrat\fractal\'];
 cd(path_);
 for i = 1:size(codes,1)
@@ -13,14 +13,14 @@ for i = 1:size(codes,1)
     addpath([getenv('DATAPATH'),'ticks\',codes{i},'\']);
 end
 cd(path_);
-bookname = 'sugar';
+bookname = 'lpg';
 strategyname = 'fractal';
-riskconfigfilename = 'config_sugar.txt';
+riskconfigfilename = 'config_lpg.txt';
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',codes);
 for i = 1:length(codes)
 modconfigfile([path_,riskconfigfilename],'code',codes{i},...
-    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade'},...
-    'propvalues',{4;'30m';1;1;'spiderman';1});
+    'propnames',{'nfractals';'samplefreq';'baseunits';'maxunits';'riskmanagername';'autotrade';'usefractalupdate'},...
+    'propvalues',{4;'30m';1;1;'spiderman';1;0});
 end
 %
 combo = rtt_setup('countername','ccb_ly_fut',...
@@ -29,13 +29,14 @@ combo = rtt_setup('countername','ccb_ly_fut',...
     'riskconfigfilename',riskconfigfilename,...
     'initialfundlevel',1e6,...
     'mode','replay',...
-    'replayfromdate','2024-02-22','replaytodate','2024-02-22');
+    'replayfromdate','2024-04-12','replaytodate','2024-04-12');
 combo.strategy.displaysignalonly_ = false;
 combo.mdefut.printflag_ = true;combo.mdefut.print_timeinterval_ = 30*60;
 combo.ops.printflag_ = true;
 combo.ops.print_timeinterval_ = 30*60;
 combo.strategy.printflag_ = false;
-combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\'],'filename','strat_comdty_i.mat');
+combo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\'],...
+    'filename','strat_comdty_i.mat');
 
 %%
 combo.mdefut.start;
@@ -51,8 +52,6 @@ for i = 1:length(timers)
 end
 %%
 combo.ops.condentrustspending_.latest
-%%
-mde_fin_plot(combo.mdefut);
 %%
 set(0,'DefaultFigureWindowStyle','docked');
 mde_fin_plot(combo.mdefut);
