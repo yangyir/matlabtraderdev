@@ -48,11 +48,19 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
         end
     end
     
-    flag = (px(1:end-1,5)<=HH(1:end-1)&px(2:end,5)-HH(1:end-1)-ticksize>=-1e-4) &...
-        abs(HH(1:end-1)./HH(2:end)-1) < 0.002 &...
-        px(2:end,3)>lips(2:end) &...
-        ~isnan(lips(1:end-1)) & ~isnan(teeth(1:end-1)) & ~isnan(jaw(1:end-1));
-%         ~(lips(2:end)<teeth(2:end) & teeth(2:end)<jaw(2:end));
+    try
+        flag = (px(1:end-1,5)<=HH(1:end-1)&px(2:end,5)-HH(1:end-1)-ticksize>=-1e-4) &...
+            abs(HH(1:end-1)./HH(2:end)-1) < 0.002 &...
+            px(2:end,3)>lips(2:end) &...
+            ~isnan(lips(1:end-1)) & ~isnan(teeth(1:end-1)) & ~isnan(jaw(1:end-1));
+        %         ~(lips(2:end)<teeth(2:end) & teeth(2:end)<jaw(2:end));
+    catch
+        if isa(instrument,'cInstrument')
+        	fprintf('error in %s\n',instrument.code_ctp);
+        else
+            fprintf('error in %s\n',instrument);
+        end
+    end
     if strcmpi(level,'weak')
         %in the weak level:
         %just need 1)price breach HH and 2)HH doesn't jump on that point
