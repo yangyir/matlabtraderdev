@@ -40,7 +40,11 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
             %backtests indicate that when market trades above lvlup, it
             %tends to rally even market temporially falls below alligator
             %lips
-            abovelvlupflag = isempty(find(extrainfo.p(openid:end,4)-extrainfo.lvlup(openid:end)+2*ticksize<0,1,'first'));
+            if isempty(strfind(obj.trade_.opensignal_.mode_,'lvlup'))
+                abovelvlupflag = isempty(find(extrainfo.p(openid:end,4)-extrainfo.lvlup(openid:end)+2*ticksize<0,1,'first'));
+            else
+                abovelvlupflag = isempty(find(extrainfo.p(openid+1:end,4)-extrainfo.lvlup(openid+1:end)+2*ticksize<0,1,'first'));
+            end
             if obj.usefractalupdate_
                 updatefailedflag = extrainfo.p(end,5) < 1.382*obj.hh0_-0.382*obj.hh1_ & obj.hh1_ - obj.hh0_ > 2*ticksize;
                 updatefailedflag = updatefailedflag & extrainfo.latestopen < 1.382*obj.hh0_-0.382*obj.hh1_;
@@ -78,7 +82,11 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
         %
     else
         if extrainfo.p(end,5) > extrainfo.lips(end)+2*ticksize
-            belowlvldnflag = isempty(find(extrainfo.p(openid:end,3)-extrainfo.lvldn(openid:end)-2*ticksize>0,1,'first'));
+            if isempty(strfind(obj.trade_.opensignal_.mode_,'lvldn'))
+                belowlvldnflag = isempty(find(extrainfo.p(openid:end,3)-extrainfo.lvldn(openid:end)-2*ticksize>0,1,'first'));
+            else
+                belowlvldnflag = isempty(find(extrainfo.p(openid+1:end,3)-extrainfo.lvldn(openid+1:end)-2*ticksize>0,1,'first'));
+            end
             if obj.usefractalupdate_
                 updatefailedflag = extrainfo.p(end,5) > 1.382*obj.ll0_-0.382*obj.ll1_ & obj.ll1_ - obj.ll0_ <-2*ticksize;
                 updatefailedflag = updatefailedflag & extrainfo.latestopen > 1.382*obj.ll0_-0.382*obj.ll1_;
