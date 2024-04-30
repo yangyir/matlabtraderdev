@@ -220,7 +220,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 info = struct('name','fractal','type',type,...
                         'hh',signal_long(2),'ll',signal_long(3),'mode',mode,'nfractal',nfractals,...
                         'hh1',signal_long(5),'ll1',signal_long(6));
-                if ask > signal_long(2)+ticksize && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
+                if ask >= signal_long(2)+ticksize && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
                     techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
                     px = techvar(:,1:5);
                     idxHH = techvar(:,6);
