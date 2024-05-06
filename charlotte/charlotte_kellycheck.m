@@ -37,6 +37,10 @@ if strcmpi(assetname,'govtbond_10y') || strcmpi(assetname,'govtbond_30y') || str
     end
 elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ...
         strcmpi(assetname,'eqindex_500') || strcmpi(assetname,'eqindex_1000')
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\strat_eqindexfut.mat']);
+    strat_ = data.strat_eqindexfut;
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
+    tbl_report_ = data.tblreport_eqindexfut;
 else
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
     strat_ = data.strat_comdty_i;
@@ -92,13 +96,25 @@ kelly_ = strat_.bstc.K(idx);
 fprintf('\t%22s:%5.1f%%\n','bstc',kelly_*100);
 kellyout.bstc = kelly_;
 %
-kelly_ = kelly_k('mediumbreach-trendconfirmed',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
+try
+    kelly_ = kelly_k('mediumbreach-trendconfirmed',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
+catch
+    kelly_ = -9.99;
+end
 fprintf('\t%22s:%5.1f%%\n','bmtc_only',kelly_*100);
 kellyout.bmtc_only = kelly_;
-kelly_ = kelly_k('strongbreach-trendconfirmed',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
+try
+    kelly_ = kelly_k('strongbreach-trendconfirmed',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
+catch
+    kelly_ = -9.99;
+end
 fprintf('\t%22s:%5.1f%%\n','bstc_only',kelly_*100);
 kellyout.bstc_only = kelly_;
-kelly_ = kelly_k('volblowup',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
+try
+    kelly_ = kelly_k('volblowup',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
+catch
+    kelly_ = -9.99;
+end
 fprintf('\t%22s:%5.1f%%\n','b_volblowup',kelly_*100);
 kellyout.b_volblowup = kelly_;
 fprintf('\n');
@@ -150,13 +166,25 @@ kelly_ = strat_.sstc.K(idx);
 fprintf('\t%22s:%5.1f%%\n','sstc',kelly_*100);
 kellyout.sstc = kelly_;
 %
-kelly_ = kelly_k('mediumbreach-trendconfirmed',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
+try
+    kelly_ = kelly_k('mediumbreach-trendconfirmed',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
+catch
+    kelly_ = -9.99;
+end
 fprintf('\t%22s:%5.1f%%\n','smtc_only',kelly_*100);
 kellyout.smtc_only = kelly_;
-kelly_ = kelly_k('strongbreach-trendconfirmed',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
+try
+    kelly_ = kelly_k('strongbreach-trendconfirmed',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
+catch
+    kelly_ = -9.99;
+end
 fprintf('\t%22s:%5.1f%%\n','sstc_only',kelly_*100);
 kellyout.sstc_only = kelly_;
-kelly_ = kelly_k('volblowup',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
+try
+    kelly_ = kelly_k('volblowup',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
+catch
+    kelly_ = -9.99;
+end
 fprintf('\t%22s:%5.1f%%\n','s_volblowup',kelly_*100);
 kellyout.s_volblowup = kelly_;
 
