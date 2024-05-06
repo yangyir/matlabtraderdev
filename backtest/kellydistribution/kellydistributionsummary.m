@@ -297,8 +297,13 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         else
             resOut = kellytest(tbl_extractedinfo,modeSpecial{iMode},-1);
         end
-        fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
-            [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
+        if isnan(resOut.wMu)
+            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wSample*100,resOut.rSample,resOut.kSample*100,size(resOut.tblout,1),resOut.use,...
+                [num2str(0),'-',num2str(0),'-',num2str(0)]);
+        else
+            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
+                [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
+        end
         pnl2check = resOut.tblout.pnlrel;
         asset2check = resOut.tblout.assetname;
         reportbyasset_tc{iMode}.name = modeSpecial{iMode};
@@ -349,8 +354,13 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         else
             resOut = kellytest(tbl_extractedinfo,modeTrend{iMode},-1);
         end
-        fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeTrend{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
-            [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
+        if isnan(resOut.wMu)
+            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeTrend{iMode},resOut.wSample*100,resOut.rSample,resOut.kSample*100,size(resOut.tblout,1),resOut.use,...
+                [num2str(0),'-',num2str(0),'-',num2str(0)]);
+        else
+            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeTrend{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
+                [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
+        end
 %         if iMode == 1
 %             close all;
 %             set(0,'defaultfigurewindowstyle','docked');
@@ -410,8 +420,13 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         else
             resOut = kellytest(tbl_extractedinfo,modeSpecialUntrend{iMode},-1);
         end
-        fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecialUntrend{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
-            [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
+        if isnan(resOut.wMu)
+            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecialUntrend{iMode},resOut.wSample*100,resOut.rSample,resOut.kSample*100,size(resOut.tblout,1),resOut.use,...
+                [num2str(0),'-',num2str(0),'-',num2str(0)]);
+        else
+            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecialUntrend{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
+                [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
+        end
         pnl2check = resOut.tblout.pnlrel;
         asset2check = resOut.tblout.assetname;
         reportbyasset_tb{iMode}.name = modeSpecialUntrend{iMode};
