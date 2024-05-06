@@ -96,7 +96,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                             extrainfo.p(end,5) > extrainfo.teeth(end) && ...
                             extrainfo.lips(end) > extrainfo.teeth(end)
                         %donothing
-                        return
+                        thisbd = floor(candleTime);
+                        nextbd = dateadd(thisbd,'1b');
+                        if nextbd - thisbd <= 3
+                            return
+                        end
                     else
                         obj.trade_.closedatetime1_ = extrainfo.latestdt;
                         obj.trade_.closeprice_ = extrainfo.latestopen;
