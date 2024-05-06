@@ -26,6 +26,8 @@ if strcmpi(assetname,'govtbond_10y') || strcmpi(assetname,'govtbond_30y') || str
     end
 elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ...
         strcmpi(assetname,'eqindex_500') || strcmpi(assetname,'eqindex_1000')
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
+    tbl_report_ = data.tblreport_eqindexfut;
 else
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
     tbl_report_ = data.tbl_report_comdty_i;
