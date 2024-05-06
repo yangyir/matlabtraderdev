@@ -144,8 +144,9 @@ if nRecords <= 15
                 ~isempty(strfind(modeInput,'bsbcdoublereverse')) || ...
                 ~isempty(strfind(modeInput,'ssscdoublereverse')) || ...
                 ~isempty(strfind(modeInput,'sshighbreach')) || ...
-                ~isempty(strfind(modeInput,'bslowbreach'))
-            if kelly_running(end) >= 0.166 && winp_running(end) >= 0.5 && R_running(end) >= 1.5
+                ~isempty(strfind(modeInput,'bslowbreach')) || ...
+                ~isempty(strfind(modeInput,'trendconfirmed')) 
+            if kelly_running(end) >= 0.166 && winp_running(end) >= 0.5 && R_running(end) >= 1.0
                 useOut = 1;
             else
                 useOut = 0;
@@ -157,7 +158,7 @@ if nRecords <= 15
         if kelly_running(end) >= 0.2 && winp_running(end) >= 0.5
             useOut = 1;
         else
-            if kelly_running(end) >= 0.166 && winp_running(end) >= 0.5 && R_running(end) >= 1.5
+            if kelly_running(end) >= 0.166 && winp_running(end) >= 0.5 && R_running(end) >= 1.0
                 useOut = 1;
             else
                 useOut = 0;
@@ -230,7 +231,7 @@ else
             end
         end
     else
-        if kelly_running(end) >= 0.145 && winp_running(end) >= 0.45 && R_running(end) > 1
+        if kelly_running(end) >= 0.145 && winp_running(end) >= 0.45 && R_running(end) > 1 && kMu >= 0.1
             useOut = 1;
         else
             useOut = 0;
