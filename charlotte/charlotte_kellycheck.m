@@ -99,14 +99,22 @@ kellyout.bstc = kelly_;
 try
     kelly_ = kelly_k('mediumbreach-trendconfirmed',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
 catch
-    kelly_ = -9.99;
+    idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == 1 & ...
+        strcmpi(tbl_report_.opensignal,'mediumbreach-trendconfirmed');
+    pnl2check = tbl_report_.pnlrel(idx);
+    [~,~,krunning] = calcrunningkelly(pnl2check);
+    kelly_ = krunning(end);
 end
 fprintf('\t%22s:%5.1f%%\n','bmtc_only',kelly_*100);
 kellyout.bmtc_only = kelly_;
 try
     kelly_ = kelly_k('strongbreach-trendconfirmed',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
 catch
-    kelly_ = -9.99;
+    idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == 1 & ...
+        strcmpi(tbl_report_.opensignal,'strongbreach-trendconfirmed');
+    pnl2check = tbl_report_.pnlrel(idx);
+    [~,~,krunning] = calcrunningkelly(pnl2check);
+    kelly_ = krunning(end);
 end
 fprintf('\t%22s:%5.1f%%\n','bstc_only',kelly_*100);
 kellyout.bstc_only = kelly_;
@@ -169,14 +177,22 @@ kellyout.sstc = kelly_;
 try
     kelly_ = kelly_k('mediumbreach-trendconfirmed',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
 catch
-    kelly_ = -9.99;
+    idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == -1 & ...
+        strcmpi(tbl_report_.opensignal,'mediumbreach-trendconfirmed');
+    pnl2check = tbl_report_.pnlrel(idx);
+    [~,~,krunning] = calcrunningkelly(pnl2check);
+    kelly_ = krunning(end);
 end
 fprintf('\t%22s:%5.1f%%\n','smtc_only',kelly_*100);
 kellyout.smtc_only = kelly_;
 try
     kelly_ = kelly_k('strongbreach-trendconfirmed',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
 catch
-    kelly_ = -9.99;
+    idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == -1 & ...
+        strcmpi(tbl_report_.opensignal,'strongbreach-trendconfirmed');
+    pnl2check = tbl_report_.pnlrel(idx);
+    [~,~,krunning] = calcrunningkelly(pnl2check);
+    kelly_ = krunning(end);
 end
 fprintf('\t%22s:%5.1f%%\n','sstc_only',kelly_*100);
 kellyout.sstc_only = kelly_;
