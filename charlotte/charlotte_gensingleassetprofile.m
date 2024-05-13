@@ -176,7 +176,7 @@ for i = 1:ndts
                 %trades carried furher and pnl is adjusted to the close
                 %price as of the cob date
                 code_j = opentradeinfo.code{j};
-                data = cDataFileIO.loadDataFromTxtFile([code_j,'_daily.txt']);
+                data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
                 idx = find(data(:,1) == dts(i),1,'first');
                 cp_j = data(idx,5);
                 pnl_open_i = pnl_open_i + opentradeinfo.opennotional(j)*opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
@@ -190,7 +190,7 @@ for i = 1:ndts
         closedt_i = carrytradesinfo.closedatetime;
         for j = 1:size(closedt_i,1)
             code_j = carrytradesinfo.code{j};
-            data = cDataFileIO.loadDataFromTxtFile([code_j,'_daily.txt']);
+            data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
             cp_jminus1 = data(find(data(:,1) == dts(i-1),1,'first'),5);
             cp_j = data(find(data(:,1) == dts(i),1,'first'),5);
             if closedt_i(j) <= dts(i) + 2/3
