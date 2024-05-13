@@ -77,7 +77,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 passplaceentrust = true;
                 continue;
             elseif strcmpi(e.signalinfo_.mode,'conditional-dntrendconfirmed') && ...
-                    e.direction == -1 && ~isempty(signal_short) && signal_short(1) == -1 && signal_short(4) == -2 && e.price == signa_short(2) - instrument.tick_size && e.volume == volume
+                    e.direction == -1 && ~isempty(signal_short) && signal_short(1) == -1 && signal_short(4) == -2 && e.price == signal_short(2) - instrument.tick_size && e.volume == volume
                 passplaceentrust = true;
                 continue;
             end
