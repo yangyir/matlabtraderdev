@@ -96,23 +96,24 @@ kelly_ = strat_.bstc.K(idx);
 fprintf('\t%22s:%5.1f%%\n','bstc',kelly_*100);
 kellyout.bstc = kelly_;
 %
-try
-    kelly_ = kelly_k('mediumbreach-trendconfirmed',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
-catch
-    idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == 1 & ...
-        strcmpi(tbl_report_.opensignal,'mediumbreach-trendconfirmed');
-    pnl2check = tbl_report_.pnlrel(idx);
+idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == 1 & ...
+    strcmpi(tbl_report_.opensignal,'mediumbreach-trendconfirmed');
+pnl2check = tbl_report_.pnlrel(idx);
+if isempty(pnl2check)
+    kelly_ = [];
+else
     [~,~,krunning] = calcrunningkelly(pnl2check);
     kelly_ = krunning(end);
 end
 fprintf('\t%22s:%5.1f%%\n','bmtc_only',kelly_*100);
 kellyout.bmtc_only = kelly_;
-try
-    kelly_ = kelly_k('strongbreach-trendconfirmed',assetname,strat_.signal_l,strat_.asset_list,strat_.kelly_matrix_l);
-catch
-    idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == 1 & ...
-        strcmpi(tbl_report_.opensignal,'strongbreach-trendconfirmed');
-    pnl2check = tbl_report_.pnlrel(idx);
+
+idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == 1 & ...
+    strcmpi(tbl_report_.opensignal,'strongbreach-trendconfirmed');
+pnl2check = tbl_report_.pnlrel(idx);
+if isempty(pnl2check)
+    kelly_ = [];
+else
     [~,~,krunning] = calcrunningkelly(pnl2check);
     kelly_ = krunning(end);
 end
@@ -174,23 +175,24 @@ kelly_ = strat_.sstc.K(idx);
 fprintf('\t%22s:%5.1f%%\n','sstc',kelly_*100);
 kellyout.sstc = kelly_;
 %
-try
-    kelly_ = kelly_k('mediumbreach-trendconfirmed',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
-catch
-    idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == -1 & ...
-        strcmpi(tbl_report_.opensignal,'mediumbreach-trendconfirmed');
-    pnl2check = tbl_report_.pnlrel(idx);
+idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == -1 & ...
+    strcmpi(tbl_report_.opensignal,'mediumbreach-trendconfirmed');
+pnl2check = tbl_report_.pnlrel(idx);
+if isempty(pnl2check)
+    kelly_ = [];
+else
     [~,~,krunning] = calcrunningkelly(pnl2check);
     kelly_ = krunning(end);
 end
 fprintf('\t%22s:%5.1f%%\n','smtc_only',kelly_*100);
 kellyout.smtc_only = kelly_;
-try
-    kelly_ = kelly_k('strongbreach-trendconfirmed',assetname,strat_.signal_s,strat_.asset_list,strat_.kelly_matrix_s);
-catch
-    idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == -1 & ...
-        strcmpi(tbl_report_.opensignal,'strongbreach-trendconfirmed');
-    pnl2check = tbl_report_.pnlrel(idx);
+%
+idx = strcmpi(tbl_report_.assetname,assetname) & tbl_report_.direction == -1 & ...
+    strcmpi(tbl_report_.opensignal,'strongbreach-trendconfirmed');
+pnl2check = tbl_report_.pnlrel(idx);
+if isempty(pnl2check)
+    kelly_ = [];
+else
     [~,~,krunning] = calcrunningkelly(pnl2check);
     kelly_ = krunning(end);
 end
