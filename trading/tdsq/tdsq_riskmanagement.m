@@ -65,6 +65,15 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 return
             end
         end
+        %
+        if isnan(trade.riskmanager_.td13low_)
+            sc13last = find(extrainfo.sc == 13,1,'last');
+            idxhhlast = find(extrainfo.idxhh == 1,1,'last');
+            if idxhhlast <= sc13last
+                trade.riskmanager_.td13low_ = extrainfo.p(sc13last,4);
+            end
+        end
+        %
         if ~isnan(trade.riskmanager_.td13low_) && extrainfo.sc(end) ~= 13
             if p(end,5) < trade.riskmanager_.td13low_-ticksize
                 closeflag = 1;
