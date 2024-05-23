@@ -107,6 +107,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                         volume = trade.openvolume_;
                         obj.status_ = 'closed';
                         obj.trade_.status_ = 'closed';
+                        if runriskmanagementbeforemktclose
+                            obj.closestr_ = 'conditional-uptrendconfirmed failed before market closes';
+                        else
+                            obj.closestr_ = 'conditional-uptrendconfirmed failed';
+                        end
                         obj.trade_.runningpnl_ = 0;
                         instrument = trade.instrument_;
                         if isempty(instrument)
