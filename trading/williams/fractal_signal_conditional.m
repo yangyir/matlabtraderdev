@@ -90,6 +90,9 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                             ei.px(end,5)-ei.lips(end)-2*ticksize>0;
                         longtrend = longtrend && ei.ss(end)>=1;
                     end
+                    if ~longtrend
+                        longtrend = lipsaboveteeth;
+                    end
                 else
                     %strong condition that all close are above max of lips and
                     %teeth IF THERY ARE CROSSED
@@ -193,6 +196,10 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             exceptionflag = hhupward & lflag1 & ~isteethlipscrossed;
         end
         %
+        if ~exceptionflag
+            exceptionflag = lflag1 & ~isteethlipscrossed & nkaboveteeth >= 2*nfractal & lipsaboveteeth;
+        end
+        %
         if exceptionflag
             longtrend = true;
         else
@@ -292,6 +299,9 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                             ei.px(end,5)-ei.lips(end)+2*ticksize<0;
                         shorttrend = shorttrend && ei.bs(end)>=1;
                     end
+                    if ~shorttrend
+                        shorttrend = lipsbelowteeth;
+                    end
                 else
                     %strong condition that all close are below min of lips
                     %and teeth IF THEY ARE 
@@ -379,7 +389,11 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         if ~exceptionflag
             exceptionflag = lldnward & sflag1 & ~isteethlipscrossed;
         end
-
+        %
+        if ~exceptionflag
+            exceptionflag = sflag1 & ~isteethlipscrossed & nkbelowteeth >= 2*nfractal & lipsbelowteeth;
+        end
+        %
         if exceptionflag
             shorttrend = true;
         else
