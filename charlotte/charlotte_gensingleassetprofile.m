@@ -72,6 +72,8 @@ if ~keepextratrades
     end
 end
 tblout = tblasset(logical(use3),:);
+tblout.opendatetime = datestr(tblout.opendatetime,'yyyy-mm-dd HH:MM');
+tblout.closedatetime = datestr(tblout.closedatetime,'yyyy-mm-dd HH:MM');
 %
 firstopendt = tblasset.opendatetime(1);
 if hour(firstopendt) > 15
