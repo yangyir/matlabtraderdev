@@ -411,9 +411,82 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             end 
         end
     end
-    
-    
-    obj.updatestoploss('extrainfo',extrainfo);
+    %
+    %in case it is a up-breach of fractal barrier, we shall calculate kelly
+    if runriskmanagementbeforemktclose && extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1)
+        if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
+            nfractal = 2;
+        elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
+            nfractal = 6;
+        else
+            nfractal = 4;
+        end
+        ei = extrainfo;
+        ei.px = ei.p;
+        [~,op] = fractal_signal_unconditional(ei,trade.instrument_.tick_size,nfractal);
+        try
+            kelly = kelly_k(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
+            wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
+        catch
+            kelly = -9.99;
+            wprob = 0;
+        end
+        if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+            obj.trade_.closedatetime1_ = extrainfo.latestdt;
+            obj.trade_.closeprice_ = extrainfo.latestopen;
+            volume = trade.openvolume_;
+            obj.status_ = 'closed';
+            obj.trade_.status_ = 'closed';
+            obj.closestr_ = ['up:',op.comment,':kelly is low'];
+            obj.trade_.runningpnl_ = 0;
+            instrument = trade.instrument_;
+            if isempty(instrument)
+                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+            else
+                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+            end
+            unwindtrade = obj.trade_;
+            return
+        end
+    end
+    %
+    %in case it is a dn-breach of fractal barrier, we shall calculate kelly
+    if runriskmanagementbeforemktclose && extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1)
+        if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
+            nfractal = 2;
+        elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
+            nfractal = 6;
+        else
+            nfractal = 4;
+        end
+        ei = extrainfo;
+        ei.px = ei.p;
+        [~,op] = fractal_signal_unconditional(ei,trade.instrument_.tick_size,nfractal);
+        try
+            kelly = kelly_k(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
+            wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
+        catch
+            kelly = -9.99;
+            wprob = 0;
+        end
+        if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+            obj.trade_.closedatetime1_ = extrainfo.latestdt;
+            obj.trade_.closeprice_ = extrainfo.latestopen;
+            volume = trade.openvolume_;
+            obj.status_ = 'closed';
+            obj.trade_.status_ = 'closed';
+            obj.closestr_ = ['dn:',op.comment,':kelly is low'];
+            obj.trade_.runningpnl_ = 0;
+            instrument = trade.instrument_;
+            if isempty(instrument)
+                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+            else
+                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+            end
+            unwindtrade = obj.trade_;
+            return
+        end
+    end
     %
     if isempty(instrument)
         obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_);
