@@ -55,7 +55,7 @@ end
 % if ~islvlupbreach && (px(end,5)>=lvlup(end) && px(end,4)<lvlup(end))
 %     islvlupbreach = 2;
 % end
-if ~islvlupbreach && ss(end) < 9 && px(end,5) >= lvlup(end)
+if ~islvlupbreach && ss(end) <= 9 && px(end,5) >= lvlup(end)
     if  ~isempty(find(px(end-ss(end)+1:end,5)-lvlup(end)+ticksize<0,1,'first'))
         islvlupbreach = 3;
     end
