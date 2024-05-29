@@ -459,10 +459,29 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     signal_i(4) = 0;
                                     stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
-                                if kelly < 0.145 || wprob < 0.4
-                                    signal_i(1) = 0;
-                                    signal_i(4) = 0;
-                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                if ~isempty(strfind(op.comment,'volblowup-'))
+                                    if wprob > 0.5
+                                        if kelly <= 0.05
+                                            signal_i(1) = 0;
+                                            signal_i(4) = 0;
+                                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                        else
+                                            signal_i(1) = 1;
+                                            signal_i(4) = 1;
+                                        end
+                                    else
+                                        if kelly < 0.145 || wprob < 0.4
+                                            signal_i(1) = 0;
+                                            signal_i(4) = 0;
+                                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                        end
+                                    end
+                                else
+                                    if kelly < 0.145 || wprob < 0.4
+                                        signal_i(1) = 0;
+                                        signal_i(4) = 0;
+                                        stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                    end
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                             else
@@ -692,6 +711,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
                                     stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                    stratfractal.withdrawcondentrust(instruments{i});
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-bshighvalue-tb',100*kelly,100*wprob);
                             else
@@ -723,6 +743,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     if stratfractal.helper_.book_.hasposition(instruments{i}) && kelly < 0.1
                                         stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                     end
+                                    stratfractal.withdrawcondentrust(instruments{i});
                                 end
                             end
                         else
