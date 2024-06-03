@@ -490,7 +490,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
 %                         schigh = max(ei.px(sclastidx:idxhhlast,3));
 %                         flags.isschighbreach = ei.hh(end) == schigh;
 %                     else
+                    idxhhlast = find(ei.idxhh == 1,1,'last');
+                    schigh = ei.px(sclastidx,3);
+                    if idxhhlast - sclastidx == nfractal && schigh == ei.hh(end)
+                        flags.isschighbreach = true;
+                    else
                         flags.isschighbreach = false;
+                    end
 %                     end
                 else
                     idxhhlast = find(ei.idxhh == 1,1,'last');
@@ -561,7 +567,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
 %                         bclow = min(ei.px(bclastidx:idxlllast,4));
 %                         flags.isbclowbreach = ei.ll(end) == bclow;
 %                     else
+                    idxlllast = find(ei.idxll == -1,1,'last');
+                    bclow = px(bclastidx,4);
+                    if idxlllast - bclastidx == nfractal && bclow == ei.ll(end)
+                        flags.isbclowbreach = true;
+                    else
                         flags.isbclowbreach = false;
+                    end
 %                     end
                 else
                     idxlllast = find(ei.idxll == -1,1,'last');
