@@ -16,7 +16,12 @@ function [output] = fractal_signal_conditional2(varargin)
     assetname = p.Results.AssetName;
     kellytables = p.Results.KellyTables;
     
-    [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,'uselastcandle',uselastcandle);
+    try
+        [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,'uselastcandle',uselastcandle);
+    catch
+        output = {};
+        return
+    end
     
     if ~isempty(signal) && ~isempty(signal{1,1}) && signal{1,1}(1) == 1
         signalkellied = signal{1,1};
