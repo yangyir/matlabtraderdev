@@ -180,6 +180,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         if kelly >= 0.141 && wprob >= 0.41 && useflag
                             signal_i(1) = op.direction;
                             signal_i(4) = op.direction;
+                        elseif wprob >= 0.5 && useflag && kelly > 0.1 && strcmpi(op.comment,'strongbreach-trendbreak')
+                            signal_i(1) = op.direction;
+                            signal_i(4) = op.direction;
                         else
                             stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                         end
@@ -459,7 +462,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     signal_i(4) = 0;
                                     stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                                 end
-                                if ~isempty(strfind(op.comment,'volblowup-'))
+                                if ~isempty(strfind(op.comment,'volblowup-')) || strcmpi(op.comment,'strongbreach-trendbreak')
                                     if wprob > 0.5
                                         if kelly <= 0.05
                                             signal_i(1) = 0;
