@@ -437,7 +437,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             else
                 op{1,1} = 'conditional:mediumbreach-trendconfirmed';
             end
-            this_signal = zeros(1,8);
+            this_signal = zeros(1,9);
             this_signal(1,1) = 1;
             %speical treatment here in case of close fractal hh and tdst
             %lvlup
@@ -453,8 +453,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             this_signal(1,6) = ei.px(end,4);
             this_signal(1,7) = ei.lips(end);
             this_signal(1,8) = ei.teeth(end);
-            this_signal(1,4) = 2;
-            signal{1,1} = this_signal;
+            this_signal(1,4) = 2;         
             %
             flags.islvldnbreach = false;
             flags.isbslowbreach = false;
@@ -508,6 +507,20 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     end   
                 end
             end
+            if flags.islvlupbreach
+                this_signal(1,9) = 21;
+            else
+                if flags.issshighbreach
+                    this_signal(1,9) = 22;
+                else
+                    if flags.isschighbreach
+                        this_signal(1,9) = 23;
+                    else
+                        this_signal(1,9) = 20;
+                    end
+                end
+            end
+            signal{1,1} = this_signal;
         end
         %
         if shorttrend
@@ -531,7 +544,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             this_signal(1,7) = ei.lips(end);
             this_signal(1,8) = ei.teeth(end);
             this_signal(1,4) = -2;
-            signal{1,2} = this_signal;
+            
             %
             flags.islvlupbreach = false;
             flags.issshighbreach = false;
@@ -586,6 +599,20 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     
                 end
             end
+            if flags.islvldnbreach
+                this_signal(1,9) = -21;
+            else
+                if flags.isbslowbreach
+                    this_signal(1,9) = -22;
+                else
+                    if flags.isbclowbreach
+                        this_signal(1,9) = -23;
+                    else
+                        this_signal(1,9) = 20;
+                    end
+                end
+            end
+            signal{1,2} = this_signal;
         end
         
         return
