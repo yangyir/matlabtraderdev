@@ -163,6 +163,26 @@ if longshort == 1
         end
     end
     
+    if isnan(trade.riskmanager_.tdhigh_) && strcmpi(mode,'breachup-sshighvalue')
+        ei_ = fractal_truncate(resstruct,idx);
+        sslastidx = find(ei_.ss>=9,1,'last');
+        sslastval = ei_.ss(sslastidx);
+        sspxhigh = max(ei_.px(sslastidx-sslastval+1:sslastidx,3));
+        tdidx = find(ei_.px(sslastidx-sslastval+1:sslastidx,3)==sspxhigh,1,'last')+sslastidx-sslastval;
+        trade.riskmanager_.tdhigh_ = sspxhigh;
+        trade.riskmanager_.tdlow_ = ei_.px(tdidx,4);
+        if trade.riskmanager_.tdlow_ - (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_) > trade.riskmanager_.pxstoploss_
+            trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdlow_ - (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_);
+            trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
+        end
+    end
+    
+    if isnan(trade.riskmanager_.td13low_) && strcmpi(mode,'breachup-highsc13')
+        ei_ = fractal_truncate(resstruct,idx);
+        sc13last = find(ei_.sc == 13,1,'last');
+        trade.riskmanager_.td13low_ = ei_.px(sc13last,4);
+    end
+    
     if resstruct.teeth(idx) > trade.riskmanager_.pxstoploss_
         trade.riskmanager_.pxstoploss_ = floor(resstruct.teeth(idx)/ticksize)*ticksize;
         trade.riskmanager_.closestr_ = 'fractal:teeth';
@@ -273,6 +293,26 @@ elseif longshort == -1
             trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_);
             trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
         end
+    end
+    
+    if isnan(trade.riskmanager_.tdlow_) && strcmpi(mode,'breachdn-bshighvalue')
+        ei_ = fractal_truncate(resstruct,idx);
+        bslastidx = find(ei_.bs>=9,1,'last');
+        bslastval = ei_.bs(bslastidx);
+        bspxlow = min(ei_.px(bslastidx-bslastval+1:bslastidx,4));
+        tdidx = find(ei_.px(bslastidx-bslastval+1:bslastidx,4)==bspxlow,1,'last')+bslastidx-bslastval;
+        trade.riskmanager_.tdlow_ = bspxlow;
+        trade.riskmanager_.tdhigh_ = ei_.px(tdidx,3);
+        if trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_) < trade.riskmanager_.pxstoploss_
+            trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_);
+            trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
+        end
+    end
+    
+    if isnan(trade.riskmanager_.td13low_) && strcmpi(mode,'breachdn-lowbc13')
+        ei_ = fractal_truncate(resstruct,idx);
+        bc13last = find(ei_.bc == 13,1,'last');
+        trade.riskmanager_.td13high_ = ei_.px(bc13last,3);
     end
     
     if resstruct.teeth(idx) < trade.riskmanager_.pxstoploss_
