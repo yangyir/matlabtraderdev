@@ -437,7 +437,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             volume = trade.openvolume_;
             obj.status_ = 'closed';
             obj.trade_.status_ = 'closed';
-            obj.closestr_ = ['up:',op.comment,':kelly is low'];
+            try
+                obj.closestr_ = ['up:',op.comment,':kelly is low'];
+            catch
+                obj.closestr_ = 'up::kelly is low';
+            end
             obj.trade_.runningpnl_ = 0;
             instrument = trade.instrument_;
             if isempty(instrument)
@@ -475,7 +479,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             volume = trade.openvolume_;
             obj.status_ = 'closed';
             obj.trade_.status_ = 'closed';
-            obj.closestr_ = ['dn:',op.comment,':kelly is low'];
+            try
+                obj.closestr_ = ['dn:',op.comment,':kelly is low'];
+            catch
+                obj.closestr_ = 'dn::kelly is low';
+            end
             obj.trade_.runningpnl_ = 0;
             instrument = trade.instrument_;
             if isempty(instrument)
