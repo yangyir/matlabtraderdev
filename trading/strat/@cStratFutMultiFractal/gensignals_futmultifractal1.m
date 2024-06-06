@@ -269,7 +269,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                         %%NOTE:here kelly or wprob threshold shall be set
                         %%via configuration files,TODO:
-                        if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                             if stratfractal.helper_.book_.hasposition(instruments{i})
                                 %in case the condtional uptrend trade was
                                 %opened with breachsshighvalue but it turns
@@ -292,7 +292,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                             kelly = -9.99;
                                             wprob = 0;
                                         end
-                                        if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                                             signal_i(1) = 0;
                                             signal_i(4) = 0;
                                             stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
@@ -533,7 +533,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 wprob = stratfractal.tbl_all_daily_.kelly_table_s.winp_unique_s(idxvolblowup2);
                             end
                         end
-                        if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                             if stratfractal.helper_.book_.hasposition(instruments{i})
                                 %in case the conditional dntrend was opened
                                 %with breachdnbshighvalue but it turns out
@@ -557,7 +557,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                             kelly = -9.99;
                                             wprob = 0;
                                         end
-                                        if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                                             signal_i(1) = 0;
                                             signal_i(4) = 0;
                                             stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
@@ -581,7 +581,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                                 kelly = -9.99;
                                                 wprob = 0;
                                             end
-                                            if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                                            if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                                                 signal_i(1) = 0;
                                                 signal_i(4) = 0;
                                                 stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
