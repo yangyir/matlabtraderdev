@@ -133,7 +133,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 end
                 status = fractal_b1_status(nfractal,extrainfo,trade.instrument_.tick_size);
                 if status.islvlupbreach
-                    tbl = kellytables.breachdnlvlup_tc;
+                    tbl = kellytables.breachuplvlup_tc;
                     idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
                     kelly = tbl.K(idx);
                 elseif status.isvolblowup
@@ -316,23 +316,23 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 end
                 %
             elseif strcmpi(val,'conditional-breachuplvlup')
-                if extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1)
-                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
-                    obj.trade_.closeprice_ = extrainfo.latestopen;
-                    volume = trade.openvolume_;
-                    obj.status_ = 'closed';
-                    obj.trade_.status_ = 'closed';
-                    obj.closestr_ = 'conditional-breachuplvlup failed as highest price fails to breach hh';
-                    obj.trade_.runningpnl_ = 0;
-                    instrument = trade.instrument_;
-                    if isempty(instrument)
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-                    else
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-                    end
-                    unwindtrade = obj.trade_;
-                    return
-                end
+%                 if extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1)
+%                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
+%                     obj.trade_.closeprice_ = extrainfo.latestopen;
+%                     volume = trade.openvolume_;
+%                     obj.status_ = 'closed';
+%                     obj.trade_.status_ = 'closed';
+%                     obj.closestr_ = 'conditional-breachuplvlup failed as highest price fails to breach hh';
+%                     obj.trade_.runningpnl_ = 0;
+%                     instrument = trade.instrument_;
+%                     if isempty(instrument)
+%                         obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+%                     else
+%                         obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+%                     end
+%                     unwindtrade = obj.trade_;
+%                     return
+%                 end
             elseif strcmpi(val,'conditional-breachdnlvldn')
             else
                 %do nothing for now
