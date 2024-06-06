@@ -156,7 +156,11 @@ else
         %bc13 happens before the latest fractal
         bclow = min(px(lastbc13:idxlllast,4));
     end
-    isbclowbreach = px(end,5)<bclow & nkfrombc13 < 13;
+    if nkfrombc13 < 13
+        isbclowbreach = px(end,5)<bclow;
+    else
+        isbclowbreach = bclow == LL(end) & idxlllast - lastbc13 == nfractal;
+    end
 end
 
 %does it firstly breach-dn ll after sc13 without any breachdn of ll or

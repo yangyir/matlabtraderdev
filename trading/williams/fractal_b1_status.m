@@ -162,7 +162,11 @@ else
         %sc13 happens before the latest fractal
         schigh = max(px(lastsc13:idxhhlast,3));
     end
-    isschighbreach = px(end,5)>=schigh & nkfromsc13 < 13;
+    if nkfromsc13 < 13
+        isschighbreach = px(end,5)>=schigh;
+    else
+        isschighbreach = schigh == HH(end) & idxhhlast - lastsc13 == nfractal;
+    end
 end
 
 %

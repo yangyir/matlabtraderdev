@@ -176,7 +176,7 @@ function [output] = fractal_signal_conditional2(varargin)
                     wprob2 = 0;
                 end
             elseif strcmpi(op{1,2},'conditional:strongbreach-trendconfirmed')
-                vlookuptbl = kellytables.bstc;
+                vlookuptbl = kellytables.sstc;
                 try
                     kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
                     wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
@@ -208,10 +208,10 @@ function [output] = fractal_signal_conditional2(varargin)
                 %the conditional bid would turn out to be a volblowup
                 if kelly3 >= 0.145 || (kelly3 > 0.11 && wprob3 > 0.41)
                     signalkellied(1) = -1;
-                    opkellied = 'potential high kelly with volblowup breach up';
+                    opkellied = 'potential high kelly with volblowup breach dn';
                 elseif kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
                     signalkellied(1) = -1;
-                    opkellied = 'potential high kelly with ordinary trending breach up';
+                    opkellied = 'potential high kelly with ordinary trending breach dn';
                 else
                     signalkellied(1) = 0;
                     opkellied = [op{1,2},' not to place'];

@@ -467,10 +467,12 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             else
                 sslastval = ei.ss(sslastidx);
                 ndiff = size(ei.ss,1)-sslastidx;
+                sshigh = max(ei.px(sslastidx-sslastval+1:sslastidx,3));
                 if ndiff > 12
-                    flags.issshighbreach = false;
+                    idxlasthh = find(ei.idxhh==1,1,'last');
+                    idxsshigh = find(ei.px(sslastidx-sslastval+1:sslastidx,3) == sshigh,1,'last')+sslastidx-sslastval;
+                    flags.issshighbreach = ei.hh(end) == sshigh & idxlasthh - idxsshigh == nfractal;
                 else
-                    sshigh = max(ei.px(sslastidx-sslastval+1:sslastidx,3));
                     flags.issshighbreach = ei.hh(end) == sshigh;
                 end
                 if ~flags.issshighbreach && ei.ss(end) >= 9
@@ -558,10 +560,12 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             else
                 bslastval = ei.bs(bslastidx);
                 ndiff = size(ei.bs,1)-bslastidx;
+                bslow = min(ei.px(bslastidx-bslastval+1:bslastidx,4));
                 if ndiff > 12
-                    flags.isbslowbreach = false;
+                    idxlastll = find(ei.idxll==-1,1,'last');
+                    idxbslow = find(ei.px(bslastidx-bslastval+1:bslastidx,4) == bslow,1,'last')+bslastidx-bslastval;
+                    flags.isbslowbreach = ei.ll(end) == bslow & idxlastll - idxbslow == nfractal;
                 else
-                    bslow = min(ei.px(bslastidx-bslastval+1:bslastidx,4));
                     flags.isbslowbreach = ei.ll(end) == bslow;
                 end
                 if ~flags.isbslowbreach && ei.bs(end) >= 9
