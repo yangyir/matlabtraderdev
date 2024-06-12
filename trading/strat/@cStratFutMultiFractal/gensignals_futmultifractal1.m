@@ -1301,15 +1301,31 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             stratfractal.removecondentrusts(condentrusts2remove);
                         end
                     end
+                    %
+                    if p(end,5) < lips(end) && hh(end) < lips(end) && ~isnan(lvlup(end)) && p(end,5) < lvlup(end)
+                        signal_cond_i{1,1}(1) = 0;
+                        if isbreachuplvlup
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),'conditional:breachup-lvlup-tc not to placed as price and hh is below lips...');
+                        elseif isbreachupsshigh
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),'conditional:breachup-sshighvalue-tc not to placed as price and hh is below lips...');
+                        elseif isbreachupschigh
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),'conditional:breachup-highsc13-tc not to placed as price and hh is below lips...');
+                        else
+                            fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(0),[op_cond_i{1,1},' not to placed as price and hh is below lips...']);
+                        end
+                    end
+                    %
                     signals{i,1} = signal_cond_i{1,1};
-                    if isbreachuplvlup
-                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
-                    elseif isbreachupsshigh
-                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-sshighvalue-tc',100*kelly,100*wprob);
-                    elseif isbreachupschigh
-                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-highsc13',100*kelly,100*wprob);
-                    else
-                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
+                    if signal_cond_i{1,1}(1)
+                        if isbreachuplvlup
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
+                        elseif isbreachupsshigh
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-sshighvalue-tc',100*kelly,100*wprob);
+                        elseif isbreachupschigh
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-highsc13',100*kelly,100*wprob);
+                        else
+                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_cond_i{1,1}(1)),op_cond_i{1,1},100*kelly,100*wprob);
+                        end
                     end
                 elseif ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 0 && p(end,5) > teeth(end)
                     if hhbelowlvlup
@@ -1326,7 +1342,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                         if kelly > 0.3 && wprob > 0.5
                             signal_cond_i{1,1}(1) = 1;
-                            signal_cond_i{1,1}(2) = lvlup(end);
+%                             signal_cond_i{1,1}(2) = lvlup(end);
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
                         end
                         signals{i,1} = signal_cond_i{1,1};
@@ -1521,7 +1537,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                         if kelly > 0.3 && wprob > 0.5
                             signal_cond_i{1,2}(1) = -1;
-                            signal_cond_i{1,2}(3) = lvldn(end);
+%                             signal_cond_i{1,2}(3) = lvldn(end);
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn',100*kelly,100*wprob);
                         end
                         signals{i,2} = signal_cond_i{1,2};
