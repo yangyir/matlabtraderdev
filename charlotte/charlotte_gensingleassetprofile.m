@@ -155,18 +155,22 @@ end
 %
 startnotional = 0;
 runningnotional = zeros(ndts,1);
+runningrets = zeros(ndts,1);
 for i = 1:ndts
     if isempty(tradesbyday{i,3}) && isempty(tradesbyday{i,4})
         %neither open trades nor carry trades
         if i == 1
             runningnotional(i) = startnotional;
+            runningrets(i) = 1;
         else
             runningnotional(i) = runningnotional(i-1);
+            runningrets(i) = runningrets(i-1);
         end
         continue;
     end
     %
     pnl_open_i = 0;
+    ret_open_i = 0;
     if  ~isempty(tradesbyday{i,3})
         opentradeinfo = tradesbyday{i,3};
         closedt_i = opentradeinfo.closedatetime;
@@ -174,6 +178,7 @@ for i = 1:ndts
             if closedt_i(j) <= dts(i) + 2/3
                 %trades close on the same day
                 pnl_open_i = pnl_open_i + opentradeinfo.pnlrel(j)*opentradeinfo.opennotional(j);
+                ret_open_i = ret_open_i + opentradeinfo.pnlrel(j);
             else
                 %trades carried furher and pnl is adjusted to the close
                 %price as of the cob date
@@ -182,11 +187,13 @@ for i = 1:ndts
                 idx = find(data(:,1) == dts(i),1,'first');
                 cp_j = data(idx,5);
                 pnl_open_i = pnl_open_i + opentradeinfo.opennotional(j)*opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
+                ret_open_i = ret_open_i + opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
             end 
         end
     end
     %
     pnl_carry_i = 0;
+    ret_carry_i = 0;
     if ~isempty(tradesbyday{i,4})
         carrytradesinfo = tradesbyday{i,4};
         closedt_i = carrytradesinfo.closedatetime;
@@ -199,17 +206,21 @@ for i = 1:ndts
                 %trades close on the same day
                 tradeclose = carrytradesinfo.openprice(j)+carrytradesinfo.openprice(j)*carrytradesinfo.pnlrel(j)/carrytradesinfo.direction(j); 
                 pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
+                ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
             else
                 %trades carried further
                 pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
+                ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
             end
         end
     end
     if i == 1
         runningnotional(i) = pnl_open_i + pnl_carry_i;
+        runningrets(i) = ret_open_i + ret_carry_i;
     else
         try
             runningnotional(i) = runningnotional(i-1) + pnl_open_i + pnl_carry_i;
+            runningrets(i) = runningrets(i-1) + ret_open_i + ret_carry_i;
         catch
             'haha';
         end
@@ -227,7 +238,7 @@ end
 drawdown = runningnotional - maxnotional;
 dtstr = datestr(dts,'yyyy-mm-dd');
 
-tblpnl = table(dts,dtstr,runningnotional,maxnotional,drawdown);
+tblpnl = table(dts,dtstr,runningnotional,runningrets,maxnotional,drawdown);
 
 maxdrawdown = min(drawdown);
 vardrawdown = quantile(drawdown,0.01);
