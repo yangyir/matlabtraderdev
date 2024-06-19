@@ -229,23 +229,29 @@ end
 %
 %stats
 maxnotional = runningnotional;
+maxrets = runningrets;
 for i = 1:length(maxnotional)
     maxnotional(i) = max(runningnotional(1:i));
+    maxrets(i) = max(runningrets(1:i));
     if maxnotional(i) < 0
         maxnotional(i) = 0;
     end
+    if maxrets(i) < 0
+        maxrets(i) = 0;
+    end
 end
 drawdown = runningnotional - maxnotional;
+drawdownrets = runningrets - maxrets;
 dtstr = datestr(dts,'yyyy-mm-dd');
 
-tblpnl = table(dts,dtstr,runningnotional,runningrets,maxnotional,drawdown);
+tblpnl = table(dts,dtstr,runningnotional,maxnotional,drawdown,runningrets,maxrets,drawdownrets);
 
-maxdrawdown = min(drawdown);
-vardrawdown = quantile(drawdown,0.01);
-notionalchg = runningnotional(2:end)-runningnotional(1:end-1);
-varpnl = quantile(notionalchg,0.01);
-avgpnl = mean(notionalchg);
-stdpnl = std(notionalchg);
+maxdrawdown = min(drawdown);maxdrawdownrets = min(drawdownrets);
+vardrawdown = quantile(drawdown,0.01);vardrawdownrets = quantile(drawdownrets,0.01);
+notionalchg = runningnotional(2:end)-runningnotional(1:end-1);retschg = runningrets(2:end)-runningrets(1:end-1);
+varpnl = quantile(notionalchg,0.01);varrets = quantile(retschg,0.01);
+avgpnl = mean(notionalchg);avgrets = mean(retschg);
+stdpnl = std(notionalchg);stdrets = std(retschg);
 sharpratio = sqrt(252)*avgpnl/stdpnl;
 
 % trade level analysis
@@ -275,7 +281,12 @@ statsout = struct('maxpnldrawdown',maxdrawdown,...
     'N',length(tradepnlvec),...
     'W',winp_running(end),...
     'R',R_running(end),...
-    'K',kelly_running(end));
+    'K',kelly_running(end),...
+    'maxretdrawdown',maxdrawdownrets,...
+    'varretsdrawdown',vardrawdownrets,...
+    'varret',varrets,...
+    'avgret',avgrets,...
+    'stdret',stdrets);
 
 
 
