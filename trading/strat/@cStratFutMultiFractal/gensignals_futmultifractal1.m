@@ -369,9 +369,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachup-lvlup-tb',100*kelly,100*wprob);
                             else
                                 if ~strcmpi(freq,'1440m')
-                                    vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc_all;
+                                    if hh(end) >= lvlup(end)
+                                        vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc;
+                                    else
+                                        vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc_all;
+                                    end
                                 else
-                                    vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc_all;                                    
+                                    if hh(end) >= lvlup(end)
+                                        vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc;    
+                                    else
+                                        vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc_all;
+                                    end
                                 end
                                 idx = strcmpi(vlookuptbl.asset,assetname);
                                 try
@@ -385,7 +393,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     kelly = -9.99;
                                     wprob = 0;
                                 end
-                                if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                                if ~(kelly > 0.088 && wprob >= 0.40)
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
                                     %unwind position as the kelly or
@@ -860,10 +868,18 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             kelly = -9.99;
                             wprob = 0;
                         end
-                        if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41)
-                            signal_cond_i{1,1}(1) = 1;
+                        if isbreachuplvlup
+                            if kelly > 0.088 && wprob >= 0.4
+                                signal_cond_i{1,1}(1) = 1;
+                            else
+                                signal_cond_i{1,1}(1) = 0;
+                            end
                         else
-                            signal_cond_i{1,1}(1) = 0;
+                            if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41)
+                                signal_cond_i{1,1}(1) = 1;
+                            else
+                                signal_cond_i{1,1}(1) = 0;
+                            end
                         end
                     else
                         %HERE we cannot identify whether it is volblowup or
