@@ -70,6 +70,48 @@ function [] = riskmanagement(obj,dtnum)
                 end
                 extrainfo = struct('pxtarget_',pxtarget,'pxstoploss_',pxstoploss);
             elseif strcmpi(riskmanagername,'spiderman')
+                if strcmpi(trade_i.opensignal_.mode_,'conditional-uptrendconfirmed-2') || ...
+                        strcmpi(trade_i.opensignal_.mode_,'conditional-uptrendconfirmed-3') || ...
+                        strcmpi(trade_i.opensignal_.mode_,'conditional-dntrendconfirmed-2') || ...
+                        strcmpi(trade_i.opensignal_.mode_,'conditional-dntrendconfirmed-3')
+                    [bs,ss,~,~,bc,sc,px] = obj.mde_fut_.calc_tdsq_(instrument,'includelastcandle',0,'removelimitprice',0);
+                    if strcmpi(trade_i.opensignal_.mode_,'conditional-uptrendconfirmed-2')
+                        sslastidx = find(ss>=9,1,'last');
+                        sslastval = ss(sslastidx);
+                        tdhigh_ = max(px(sslastidx-sslastval+1:sslastidx,3));
+                        tdidx_ = find(px(sslastidx-sslastval+1:sslastidx,3) == tdhigh_,1,'last') + sslastidx-sslastval;
+                        tdlow_ = px(tdidx_,4);
+                        td13low_ = NaN;
+                        td13high_ = NaN;
+                    elseif strcmpi(trade_i.opensignal_.mode_,'conditional-uptrendconfirmed-3')
+                        sclastidx = find(sc==13,1,'last');
+                        td13low_ = px(sclastidx,4);
+                        td13high_ = NaN;
+                        tdhigh_ = NaN;
+                        tdlow_ = NaN;
+                    elseif strcmpi(trade_i.opensignal_.mode_,'conditional-dntrendconfirmed-2')
+                        bslastidx = find(bs>=9,1,'last');
+                        bslastval = bs(bslastidx);
+                        tdlow_ = min(px(bslastidx-bslastval+1:bslastidx,4));
+                        tdidx_ = find(px(bslastidx-bslastval+1:bslastidx,4) == tdlow_,1,'last') + bslastidx-bslastval;
+                        tdhigh_ = px(tdidx_,3);
+                        td13low_ = NaN;
+                        td13high_ = NaN;
+                    elseif strcmpi(trade_i.opensignal_.mode_,'conditional-dntrendconfirmed-3')
+                        bclastidx = find(bc==13,1,'last');
+                        td13high_ = px(bclastidx,3);
+                        td13low_ = NaN;
+                        tdhigh_ = NaN;
+                        tdlow_ = NaN;
+                    end
+                else
+                    td13high_ = NaN;
+                    td13low_ = NaN;
+                    tdlow_ = NaN;
+                    tdhigh_ = NaN;
+                end
+                
+                
                 if trade_i.opendirection_ == 1
                     hh1 = trade_i.opensignal_.hh1_;
                     extrainfo = struct('hh0_',hh,'hh1_',hh,'ll0_',ll,'ll1_',ll,...
@@ -79,8 +121,10 @@ function [] = riskmanagement(obj,dtnum)
                         'status_','unset',...
                         'pxtarget_',-9.99,...
                         'pxstoploss_',-9.99,...
-                        'tdlow_',NaN,...
-                        'tdhigh_',NaN,...
+                        'tdlow_',tdlow_,...
+                        'tdhigh_',tdhigh_,...
+                        'td13high_',td13high_,...
+                        'td13low_',td13low_,...
                         'closestr_','none');
                 else
                     ll1 = trade_i.opensignal_.ll1_;
@@ -91,8 +135,10 @@ function [] = riskmanagement(obj,dtnum)
                         'status_','unset',...
                         'pxtarget_',-9.99,...
                         'pxstoploss_',-9.99,...
-                        'tdlow_',NaN,...
-                        'tdhigh_',NaN,...
+                        'tdlow_',tdlow_,...
+                        'tdhigh_',tdhigh_,...
+                        'td13high_',td13high_,...
+                        'td13low_',td13low_,...
                         'closestr_','none');
                 end
                 

@@ -109,7 +109,15 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 %here we place conditional entrust or an entrust directly
                 %if the price is below LL already        
                 if signal_short(4) == -2
-                    mode = 'conditional-dntrendconfirmed';
+                    if signal_short(9) == -21
+                        mode = 'conditional-dntrendconfirmed-1';
+                    elseif signal_short(9) == -22
+                        mode = 'conditional-dntrendconfirmed-2';
+                    elseif signal_short(9) == -23
+                        mode = 'conditional-dntrendconfirmed-3';
+                    else
+                        mode = 'conditional-dntrendconfirmed';
+                    end
                 elseif signal_short(4) == -3
                     mode = 'conditional-close2lvldn';
                 elseif signal_short(4) == -4
@@ -211,7 +219,15 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 %here we place conditional entrust or an entrust directly
                 %if the price is above HH already
                 if signal_long(4) == 2
-                    mode = 'conditional-uptrendconfirmed';
+                    if signal_long(9) == 21
+                        mode = 'conditional-uptrendconfirmed-1';
+                    elseif signal_long(9) == 22
+                        mode = 'conditional-uptrendconfirmed-2';
+                    elseif signal_long(9) == 23
+                        mode = 'conditional-uptrendconfirmed-3';
+                    else
+                        mode = 'conditional-uptrendconfirmed';
+                    end
                 elseif signal_long(4) == 3
                     mode = 'conditional-close2lvlup';
                 elseif signal_long(4) == 4

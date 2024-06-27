@@ -70,23 +70,24 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if isa(signalinfo,'cFractalInfo')
         if extrainfo.p(end,1) <= trade.opendatetime1_
             val = signalinfo.mode_;
-            if strcmpi(val,'conditional-uptrendconfirmed') && extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1) 
+            if (strcmpi(val,'conditional-uptrendconfirmed') || strcmpi(val,'conditional-uptrendconfirmed-1') || strcmpi(val,'conditional-uptrendconfirmed-2') || strcmpi(val,'conditional-uptrendconfirmed-3')) ...
+                    && (extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1)) 
                 %speical treatment for tin and nickel as they are very
                 %volotile
-                if strcmpi(trade.instrument_.asset_name,'tin')
-                    if ~(extrainfo.p(end,2) < extrainfo.p(end,5) && extrainfo.ss(end) >= 3)
-                        obj.trade_.closedatetime1_ = extrainfo.latestdt;
-                        obj.trade_.closeprice_ = extrainfo.latestopen;
-                        volume = trade.openvolume_;
-                        obj.status_ = 'closed';
-                        obj.closestr_ = 'conditional uptrendconfirmed failed to breach';
-                        obj.trade_.status_ = 'closed';
-                        obj.trade_.runningpnl_ = 0;
-                        instrument = trade.instrument_;
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-                        unwindtrade = obj.trade_;
+                if strcmpi(trade.instrument_.asset_name,'tin') &&...
+                        ~(extrainfo.p(end,2) < extrainfo.p(end,5) && ...
+                        extrainfo.ss(end) >= 3)
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.status_ = 'closed';
+                    obj.closestr_ = 'conditional uptrendconfirmed failed to breach';
+                    obj.trade_.status_ = 'closed';
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    unwindtrade = obj.trade_;
                     return
-                    end
                 end
                 if runriskmanagementbeforemktclose || ...
                         extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))
@@ -123,7 +124,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                         return
                     end
                 end
-            elseif runriskmanagementbeforemktclose && strcmpi(val,'conditional-uptrendconfirmed') && extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1) 
+            elseif runriskmanagementbeforemktclose ...
+                    && (strcmpi(val,'conditional-uptrendconfirmed') || strcmpi(val,'conditional-uptrendconfirmed-1') || strcmpi(val,'conditional-uptrendconfirmed-2') || strcmpi(val,'conditional-uptrendconfirmed-3')) ...
+                    && (extrainfo.p(end,5) >= extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1)) 
                 if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
                     nfractal = 2;
                 elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
@@ -132,17 +135,17 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     nfractal = 4;
                 end
                 status = fractal_b1_status(nfractal,extrainfo,trade.instrument_.tick_size);
-                if status.islvlupbreach
+                if strcmpi(val,'conditional-uptrendconfirmed-1')
                     tbl = kellytables.breachuplvlup_tc;
                     idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
                     kelly = tbl.K(idx);
                 elseif status.isvolblowup
                     kelly = kelly_k('volblowup',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
-                elseif status.issshighbreach
+                elseif strcmpi(val,'conditional-uptrendconfirmed-2')
                     tbl = kellytables.breachupsshighvalue_tc;
                     idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
                     kelly = tbl.K(idx);
-                elseif status.isschighbreach
+                elseif strcmpi(val,'conditional-uptrendconfirmed-3')
                     tbl = kellytables.breachuphighsc13;
                     idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
                     kelly = tbl.K(idx);
@@ -170,7 +173,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     unwindtrade = obj.trade_;
                     return
                 end
-            elseif strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1)
+            elseif (strcmpi(val,'conditional-dntrendconfirmed') || strcmpi(val,'conditional-dntrendconfirmed-1') || strcmpi(val,'conditional-dntrendconfirmed-2') || strcmpi(val,'conditional-dntrendconfirmed-3'))...
+                    && (extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1))
                 %speical treatment for tin and nickel as they are very
                 %volotile
                 if strcmpi(trade.instrument_.asset_name,'tin') && ...
@@ -267,7 +271,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                         end
                     end
                 end
-            elseif runriskmanagementbeforemktclose && strcmpi(val,'conditional-dntrendconfirmed') && extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1)
+            elseif runriskmanagementbeforemktclose ...
+                    && (strcmpi(val,'conditional-dntrendconfirmed') || strcmpi(val,'conditional-dntrendconfirmed-1') || strcmpi(val,'conditional-dntrendconfirmed-2') || strcmpi(val,'conditional-dntrendconfirmed-3'))...
+                    && (extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1))
                 if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
                     nfractal = 2;
                 elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
@@ -276,17 +282,17 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     nfractal = 4;
                 end  
                 status = fractal_s1_status(nfractal,extrainfo,trade.instrument_.tick_size);
-                if status.islvldnbreach
+                if strcmpi(val,'conditional-dntrendconfirmed-1')
                     tbl = kellytables.breachdnlvldn_tc;
                     idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
                     kelly = tbl.K(idx);
                 elseif status.isvolblowup
                     kelly = kelly_k('volblowup',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-                elseif status.isbslowbreach
+                elseif strcmpi(val,'conditional-dntrendconfirmed-2')
                     tbl = kellytables.breachdnbshighvalue_tc;
                     idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
                     kelly = tbl.K(idx);
-                elseif status.isbclowbreach
+                elseif strcmpi(val,'conditional-dntrendconfirmed-3')
                     tbl = kellytables.breachdnlowbc13;
                     idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
                     kelly = tbl.K(idx);
@@ -316,28 +322,15 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 end
                 %
             elseif strcmpi(val,'conditional-breachuplvlup')
-%                 if extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1)
-%                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
-%                     obj.trade_.closeprice_ = extrainfo.latestopen;
-%                     volume = trade.openvolume_;
-%                     obj.status_ = 'closed';
-%                     obj.trade_.status_ = 'closed';
-%                     obj.closestr_ = 'conditional-breachuplvlup failed as highest price fails to breach hh';
-%                     obj.trade_.runningpnl_ = 0;
-%                     instrument = trade.instrument_;
-%                     if isempty(instrument)
-%                         obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-%                     else
-%                         obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-%                     end
-%                     unwindtrade = obj.trade_;
-%                     return
-%                 end
+                %do nothing for now
             elseif strcmpi(val,'conditional-breachdnlvldn')
+                %do nothing for now
             else
                 %do nothing for now
             end
         end
+        %end of check for condtional open trade on the first candle close
+        %upon its open
             
     end
     
