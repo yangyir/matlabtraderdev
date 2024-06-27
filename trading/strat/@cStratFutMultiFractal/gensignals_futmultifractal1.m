@@ -848,18 +848,21 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachuplvlup_tc;
                             end
+                            op_cond_i{1,1} = [op_cond_i{1,1},'-1'];
                         elseif isbreachupsshigh
                             if ~strcmpi(freq,'1440m')
                                 vlookuptbl = stratfractal.tbl_all_intraday_.breachupsshighvalue_tc;
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachupsshighvalue_tc;
                             end
+                            op_cond_i{1,1} = [op_cond_i{1,1},'-2'];
                         elseif isbreachupschigh
                             if ~strcmpi(freq,'1440m')
                                 vlookuptbl = stratfractal.tbl_all_intraday_.breachuphighsc13;
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachuphighsc13;
                             end
+                            op_cond_i{1,1} = [op_cond_i{1,1},'-3'];
                         end
                         idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
@@ -873,12 +876,14 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 signal_cond_i{1,1}(1) = 1;
                             else
                                 signal_cond_i{1,1}(1) = 0;
+                                stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                             end
                         else
                             if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41)
                                 signal_cond_i{1,1}(1) = 1;
                             else
                                 signal_cond_i{1,1}(1) = 0;
+                                stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                             end
                         end
                     else
@@ -979,6 +984,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 fprintf('\tpotential high kelly with ordinary trending breach up...\n');
                             else
                                 signal_cond_i{1,1}(1) = 0;
+                                if extrainfo.hh(end) == extrainfo.hh(end-1)
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                end
                             end
                         end
                     end
@@ -1010,18 +1018,21 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachdnlvldn_tc;
                             end
+                            op_cond_i{1,2} = [op_cond_i{1,2},'-1'];
                         elseif isbreachdnbslow
                             if ~strcmpi(freq,'1440m')
                                 vlookuptbl = stratfractal.tbl_all_intraday_.breachdnbshighvalue_tc;
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachdnbshighvalue_tc;
                             end
+                            op_cond_i{1,2} = [op_cond_i{1,2},'-2'];
                         elseif isbreachdnbclow
                             if ~strcmpi(freq,'1440m')
                                 vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlowbc13;
                             else
                                 vlookuptbl = stratfractal.tbl_all_daily_.breachdnlowbc13;
                             end
+                            op_cond_i{1,2} = [op_cond_i{1,2},'-3'];
                         end
                         idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
@@ -1034,6 +1045,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             signal_cond_i{1,2}(1) = -1;
                         else
                             signal_cond_i{1,2}(1) = 0;
+                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                         end
                     else
                          if strcmpi(op_cond_i{1,2},'conditional:mediumbreach-trendconfirmed')
@@ -1129,6 +1141,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                  fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
                              else
                                  signal_cond_i{1,2}(1) = 0;
+                                 if extrainfo.ll(end) == extrainfo.ll(end-1)
+                                     stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                 end
                              end
                          end                  
                     end
