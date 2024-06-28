@@ -89,6 +89,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     unwindtrade = obj.trade_;
                     return
                 end
+                %
                 if runriskmanagementbeforemktclose || ...
                         extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))
                     %special case that the close is above lvlup and the
@@ -122,6 +123,40 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                         end
                         unwindtrade = obj.trade_;
                         return
+                    end
+                end
+                %
+                if strcmpi(val,'conditional-uptrendconfirmed')
+                    if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
+                        nfractal = 2;
+                    elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
+                        nfractal = 6;
+                    else
+                        nfractal = 4;
+                    end
+                    output = fractal_signal_conditional2('extrainfo',extrainfo,...
+                        'ticksize',trade.instrument_.tick_size,...
+                        'nfractal',nfractal,...
+                        'kellytables',kellytables,...
+                        'assetname',trade.instrument_.asset_name);
+                    if ~isempty(output)
+                        if ~isempty(strfind(output.opkellied,'potential'))
+                            obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                            obj.trade_.closeprice_ = extrainfo.latestopen;
+                            volume = trade.openvolume_;
+                            obj.status_ = 'closed';
+                            obj.trade_.status_ = 'closed';
+                            obj.closestr_ = 'conditional-uptrendconfirmed failed with low kelly';
+                            obj.trade_.runningpnl_ = 0;
+                            instrument = trade.instrument_;
+                            if isempty(instrument)
+                                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                            else
+                                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                            end
+                            unwindtrade = obj.trade_;
+                            return
+                        end
                     end
                 end
             elseif runriskmanagementbeforemktclose ...
@@ -268,6 +303,40 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                                 unwindtrade = obj.trade_;
                                 return
                             end
+                        end
+                    end
+                end
+                %
+                if strcmpi(val,'conditional-dntrendconfirmed')
+                    if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
+                        nfractal = 2;
+                    elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
+                        nfractal = 6;
+                    else
+                        nfractal = 4;
+                    end
+                    output = fractal_signal_conditional2('extrainfo',extrainfo,...
+                        'ticksize',trade.instrument_.tick_size,...
+                        'nfractal',nfractal,...
+                        'kellytables',kellytables,...
+                        'assetname',trade.instrument_.asset_name);
+                    if ~isempty(output)
+                        if ~isempty(strfind(output.opkellied,'potential'))
+                            obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                            obj.trade_.closeprice_ = extrainfo.latestopen;
+                            volume = trade.openvolume_;
+                            obj.status_ = 'closed';
+                            obj.trade_.status_ = 'closed';
+                            obj.closestr_ = 'conditional-dntrendconfirmed failed with low kelly';
+                            obj.trade_.runningpnl_ = 0;
+                            instrument = trade.instrument_;
+                            if isempty(instrument)
+                                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                            else
+                                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                            end
+                            unwindtrade = obj.trade_;
+                            return
                         end
                     end
                 end
