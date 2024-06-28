@@ -43,8 +43,8 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
     end
     %1.check whether either 1) stop loss is breached or 2) target is
     %breached
-    if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ <= -ticksize ) ||...
-            (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ >= ticksize)
+    if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ < -2*ticksize ) ||...
+            (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ > 2*ticksize)
 %             (obj.trade_.opendirection_ == 1 && tickBid > obj.pxtarget_) || ...
 %             (obj.trade_.opendirection_ == -1 && tickAsk < obj.pxtarget_)
         
