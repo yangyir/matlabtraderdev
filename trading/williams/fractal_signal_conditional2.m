@@ -44,23 +44,31 @@ function [output] = fractal_signal_conditional2(varargin)
             if isempty(kelly), kelly = -9.99;end
             if isempty(wprob), wprob = 0;end
             %
-            if kelly >= 0.145 || (kelly>0.11 && wprob>0.41)
-                signalkellied(1) = 1;
-                if isbreachuplvlup
+            if isbreachuplvlup
+                if kelly > 0.088 && wprob >= 0.4
                     opkellied = 'conditional breachup-lvlup';
-                elseif isbreachupsshigh
-                    opkellied = 'conditional breachup-sshighvalue';
-                elseif isbreachupschigh
-                    opkellied = 'conditional breachup-highsc13';
+                else
+                    opkellied = 'conditional breachup-lvlup not to place';
                 end
             else
-                signalkellied(1) = 0;
-                if isbreachuplvlup
-                    opkellied = 'conditional breachup-lvlup not to place';
-                elseif isbreachupsshigh
-                    opkellied = 'conditional breachup-sshighvalue not to place';
-                elseif isbreachupschigh
-                    opkellied = 'conditional breachup-highsc13 not to place';
+                if kelly >= 0.145 || (kelly>0.11 && wprob>0.41)
+                    signalkellied(1) = 1;
+                    if isbreachuplvlup
+                        opkellied = 'conditional breachup-lvlup';
+                    elseif isbreachupsshigh
+                        opkellied = 'conditional breachup-sshighvalue';
+                    elseif isbreachupschigh
+                        opkellied = 'conditional breachup-highsc13';
+                    end
+                else
+                    signalkellied(1) = 0;
+                    if isbreachuplvlup
+                        opkellied = 'conditional breachup-lvlup not to place';
+                    elseif isbreachupsshigh
+                        opkellied = 'conditional breachup-sshighvalue not to place';
+                    elseif isbreachupschigh
+                        opkellied = 'conditional breachup-highsc13 not to place';
+                    end
                 end
             end
         else
