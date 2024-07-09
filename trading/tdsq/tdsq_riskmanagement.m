@@ -102,7 +102,8 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
         end
         %
-        if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) && ...
+        if (strcmpi(trade.opensignal_.mode_,'conditional-uptrendconfirmed-2') || ...
+                strcmpi(trade.opensignal_.mode_,'conditional-breachuplvlup')) && ...
                 p(idxopen,5)<hh(idxopen-1) && p(idxopen,3)>lvlup(idxopen-1) && p(idxopen-1,5)<lvlup(idxopen-1)
             if p(end,3) < lvlup(idxopen-1)
                 closeflag = 1;
@@ -286,7 +287,8 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
         end
         %
-        if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) && ...
+        if (strcmpi(trade.opensignal_.mode_,'conditional-dntrendconfirmed-2') || ...
+                strcmpi(trade.opensignal_.mode_,'conditional-breachdnlvldn')) && ...
                 p(idxopen,5)>ll(idxopen-1) && p(idxopen,4)<lvldn(idxopen-1) && p(idxopen-1,5)>lvldn(idxopen-1)
             if p(end,4) > lvldn(idxopen-1)
                 closeflag = 1;
