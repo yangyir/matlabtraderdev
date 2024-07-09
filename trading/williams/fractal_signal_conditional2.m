@@ -17,6 +17,12 @@ function [output] = fractal_signal_conditional2(varargin)
     kellytables = p.Results.KellyTables;
     
     try
+        ei.px;
+    catch
+        ei.px = ei.p;
+    end
+    
+    try
         [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,'uselastcandle',uselastcandle);
     catch
         output = {};
