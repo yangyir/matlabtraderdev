@@ -99,6 +99,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
         if isempty(tick),continue;end
         bid = tick(2);
         ask = tick(3);
+        lasttrade = tick(4);
         %in case the market is stopped when the upper or lower limit is breached
         if abs(bid) > 1e10 || abs(ask) > 1e10, continue; end
         if bid <= 0 || ask <= 0, continue;end
@@ -126,7 +127,8 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 info = struct('name','fractal','type',type,...
                         'hh',signal_short(2),'ll',signal_short(3),'mode',mode,'nfractal',nfractals,...
                         'hh1',signal_short(5),'ll1',signal_short(6));
-                if bid < signal_short(3) && bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
+                if bid < signal_short(3) && bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3)) && ...
+                        lasttrade <= signal_short(3) && lasttrade > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
                     techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
                     px = techvar(:,1:5);
                     idxLL = techvar(:,7);
@@ -134,7 +136,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     nfractal = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','nfractals');
                     nkfromll = size(px,1) - idx_lastll+nfractal+1;
                     barsizerest = px(end-nkfromll+1:end,3)-px(end-nkfromll+1:end,4);
-                    retlast = ask-px(end,5);
+                    retlast = lasttrade-px(end,5);
                     isvolblowup2 = retlast<0 & (abs(retlast)-mean(barsizerest))/std(barsizerest)>norminv(0.99);
                     lllast = techvar(end,9);
                     bsidxlast = find(techvar(:,13)>=9,1,'last');
@@ -170,7 +172,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     else
                         stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
                     end
-                elseif bid >= signal_short(3)
+                elseif bid >= signal_short(3) && lasttrade >= signal_short(3)
                     %conditional entrust shall be placed
                     ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
                     ncondpendingvolume = 0;
@@ -199,11 +201,14 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 end
                 if bid <= signal_short(7) && ...
                         bid < signal_short(6) + 0.382*(signal_short(2)-signal_short(6)) && ...
-                        bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
+                        bid > signal_short(3)-1.618*(signal_short(2)-signal_short(3)) && ...
+                        lasttrade <= signal_short(7) && ...
+                        lasttrade < signal_short(6) + 0.382*(signal_short(2)-signal_short(6)) && ...
+                        lasttrade > signal_short(3)-1.618*(signal_short(2)-signal_short(3))
                     info = struct('name','fractal','type',type,...
                         'hh',signal_short(2),'ll',signal_short(3),'mode',mode,'nfractal',nfractals,...
                         'hh1',signal_short(5),'ll1',signal_short(6));
-                    if bid <= signal_short(3)
+                    if bid <= signal_short(3) && lasttrade <= signal_short(3)
                         stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
                     else
                         info.mode = 'conditional-dntrendbreak';
@@ -236,7 +241,8 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 info = struct('name','fractal','type',type,...
                         'hh',signal_long(2),'ll',signal_long(3),'mode',mode,'nfractal',nfractals,...
                         'hh1',signal_long(5),'ll1',signal_long(6));
-                if ask >= signal_long(2)+ticksize && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
+                if ask >= signal_long(2)+ticksize && ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3)) && ...
+                        lasttrade >= signal_long(2)+ticksize && lasttrade < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
                     techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
                     px = techvar(:,1:5);
                     idxHH = techvar(:,6);
@@ -244,7 +250,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     nfractal = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','nfractals');
                     nkfromhh = size(px,1) - idx_lasthh+nfractal+1;
                     barsizerest = px(end-nkfromhh+1:end,3)-px(end-nkfromhh+1:end,4);
-                    retlast = ask-px(end,5);
+                    retlast = lasttrade-px(end,5);
                     isvolblowup2 = retlast>0 & (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
                     hhlast = techvar(end,8);
                     ssidxlast = find(techvar(:,14)>=9,1,'last');
@@ -280,7 +286,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     else
                         stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
                     end
-                elseif ask <= signal_long(2)
+                elseif ask <= signal_long(2) && lasttrade <= signal_long(2)
                     %conditional entrust shall be placed
                     ncondpendingall = stratfractal.helper_.condentrustspending_.latest;
                     ncondpendingvolume = 0;
@@ -309,12 +315,15 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                 end
                 if ask >= signal_long(7) && ...
                         ask > signal_long(5) - 0.382*(signal_long(5)-signal_long(3)) && ...
-                        ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
+                        ask < signal_long(2)+1.618*(signal_long(2)-signal_long(3)) && ...
+                        lasttrade >= signal_long(7) && ...
+                        lasttrade > signal_long(5) - 0.382*(signal_long(5)-signal_long(3)) && ...
+                        lasttrade < signal_long(2)+1.618*(signal_long(2)-signal_long(3))
                     nfractals = stratfractal.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','nfractals');
                     info = struct('name','fractal','type',type,...
                         'hh',signal_long(2),'ll',signal_long(3),'mode',mode,'nfractal',nfractals,...
                         'hh1',signal_long(5),'ll1',signal_long(6));
-                    if ask >= signal_long(2)
+                    if ask >= signal_long(2) && lasttrade >= signal_long(2)
                         stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
                     else
                         info.mode = 'conditional-uptrendbreak';
