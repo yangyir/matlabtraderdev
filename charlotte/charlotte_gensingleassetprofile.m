@@ -266,7 +266,17 @@ for i = 1:length(maxtradecumpnlvec)
 end
 tradepnldrawdown = cumtradepnlvec - maxtradecumpnlvec;
 [winp_running,R_running,kelly_running] = calcrunningkelly(tradepnlvec);
-
+%
+traderetvec = tblout.pnlrel;
+cumtraderetvec = cumsum(traderetvec);
+maxtradecumretvec = cumtraderetvec;
+for i = 1:length(maxtradecumretvec)
+    maxtradecumretvec(i) = max(cumtraderetvec(1:i));
+    if maxtradecumretvec(i) < 0
+        maxtradecumretvec(i) = 0;
+    end
+end
+traderetdrawdown = cumtraderetvec - maxtradecumretvec;
 %
 statsout = struct('maxpnldrawdown',maxdrawdown,...
     'varpnldrawdown',vardrawdown,...
@@ -286,7 +296,9 @@ statsout = struct('maxpnldrawdown',maxdrawdown,...
     'varretsdrawdown',vardrawdownrets,...
     'varret',varrets,...
     'avgret',avgrets,...
-    'stdret',stdrets);
+    'stdret',stdrets,...
+    'maxtraderetdrawdown',min(traderetdrawdown),...
+    'vartraderetdrawdown',quantile(traderetdrawdown,0.01));
 
 
 
