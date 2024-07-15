@@ -43,8 +43,8 @@ function [] = updatecandleinmem(mdefut)
         
         if strcmpi(mdefut.mode_,'realtime')
             tnow = now;
-            if abs(t-tnow) >= 1/28800
-                fprintf('tick time and system time is off boudary')
+            if abs(t-tnow) >= 2/28800
+                fprintf('%s:%s:tick time:%s is off boudary\n',datestr(tnow,'yyyy-mm-dd HH;MM:SS'),instruments{i}.code_ctp,datestr(t,'yyyy-mm-dd HH;MM:SS'));
                 return
             end
         end
