@@ -43,7 +43,7 @@ function [] = updatecandleinmem(mdefut)
         
         if strcmpi(mdefut.mode_,'realtime')
             tnow = now;
-            if abs(t-tnow) >= 2/28800
+            if abs(t-tnow) >= 1/1440
                 fprintf('%s:%s:tick time:%s is off boudary\n',datestr(tnow,'yyyy-mm-dd HH;MM:SS'),instruments{i}.code_ctp,datestr(t,'yyyy-mm-dd HH;MM:SS'));
                 return
             end
@@ -85,10 +85,18 @@ function [] = updatecandleinmem(mdefut)
         if ~isempty(this_bucket)
             this_count = find(buckets == this_bucket);
         else
-            if t > buckets(end)
-                this_count = size(buckets,1);
+            if strcmpi(mdefut.mode_,'realtime')
+                if t > buckets(end) && now >  buckets(end)
+                    this_count = size(buckets,1);
+                else
+                    this_count = [];
+                end
             else
-                this_count = [];
+                if t > buckets(end)
+                    this_count = size(buckets,1);
+                else
+                    this_count = [];
+                end
             end
         end
 
