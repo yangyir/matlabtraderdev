@@ -56,11 +56,11 @@ function [unwindtrade] = riskmanagement(obj,varargin)
             trade.status_ = 'set';
             obj.status_ = 'set';
             if trade.opendirection_ == 1 && isnan(obj.tdhigh_) && isnan(obj.tdlow_)
-                if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+%                 if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+%                     [~,ss,~,~,~,~,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+%                 else
                     [~,ss,~,~,~,~,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
-                else
-                    [~,ss,~,~,~,~,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                end
+%                 end
                 if ss(end) >= 9
                     ssreached = ss(end);
                     obj.tdhigh_ = max(px(end-ssreached+1:end,3));
@@ -71,11 +71,11 @@ function [unwindtrade] = riskmanagement(obj,varargin)
                     end
                 end
             elseif trade.opendirection_ == -1 && isnan(obj.tdhigh_) && isnan(obj.tdlow_)
-                if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+%                 if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+%                     [bs,~,~,~,~,~,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
+%                 else
                     [bs,~,~,~,~,~,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',0,'RemoveLimitPrice',1);
-                else
-                    [bs,~,~,~,~,~,px] = mdefut.calc_tdsq_(instrument,'IncludeLastCandle',1,'RemoveLimitPrice',1);
-                end
+%                 end
                 if bs(end) >= 9
                     bsreached = bs(end);
                     obj.tdlow_ = min(px(end-bsreached+1:end,4));
