@@ -39,7 +39,15 @@ function [] = updatecandleinmem(mdefut)
                 break
             end
         end
-        if ~usetick, return; end    
+        if ~usetick, return; end
+        
+        if strcmpi(mdefut.mode_,'realtime')
+            tnow = now;
+            if abs(t-tnow) >= 1/28800
+                fprintf('tick time and system time is off boudary')
+                return
+            end
+        end
         
         % equalorNot 用来解决str相同，但是double不同导致最终比较结果错误的问题
         if mdefut.candle_freq_(i) ~= 1440
@@ -128,6 +136,9 @@ function [] = updatecandleinmem(mdefut)
                     catch
                         lastclose = px_trade;
                     end
+                    fprintf('candle data missing was found between %s and %s...\n',...
+                        datestr(mdefut.candles_{i}(this_count-1),'yyyy-mm-dd HH:MM'),...
+                        datestr(mdefut.candles_{i}(this_count),'yyyy-mm-dd HH:MM'));
                     mdefut.candles_{i}(this_count-1,2:5) = lastclose;
                 end
                 
