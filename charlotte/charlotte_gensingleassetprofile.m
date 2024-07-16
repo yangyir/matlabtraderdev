@@ -250,10 +250,19 @@ for i = 1:ndts
                 if closedt_i(j) <= dts(i)
                     %trades close on the same day
                     tradeclose = carrytradesinfo.openprice(j)+carrytradesinfo.openprice(j)*carrytradesinfo.pnlrel(j)/carrytradesinfo.direction(j); 
+                    if isempty(cp_jminus1)
+                        cp_jminus1 = data(find(data(:,1) <= dts(i-1),1,'last'),5);
+                    end
                     pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
                     ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
                 else
                     %trades carried further
+                    if isempty(cp_jminus1)
+                        cp_jminus1 = data(find(data(:,1) <= dts(i-1),1,'last'),5);
+                    end
+                    if isempty(cp_j)
+                        cp_j = cp_jminus1;
+                    end
                     pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
                     ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
                 end
