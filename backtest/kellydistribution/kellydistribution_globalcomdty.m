@@ -25,5 +25,5 @@ global_comdty = {
 output_daily_globalcomdty = fractal_kelly_summary('codes',global_comdty,...
     'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %%
-[reportbyasset_tc_globalcomdty,reportbyasset_tb_globalcomdty] = kellydistrubitionsummary(output_daily_globalcomdty);
+[~,~,tbl_globalcomdty_daily,~,~,~,~,strat_globalcomdty_daily] = kellydistributionsummary(output_daily_globalcomdty);
 %%
