@@ -15,6 +15,13 @@ for i = 3:nfiles
             strcmpi(this_instr.asset_name,'thermal coal')
         continue;
     end
+    if ~isempty(strfind(this_instr.code_ctp,'ME'))
+        continue;
+    end
+    data_i = cDataFileIO.loadDataFromTxtFile(this_name);
+    if size(data_i,1) < 13
+        continue;
+    end
     ncode = ncode + 1;
     listcodes{ncode,1} = this_code;
     listassets{ncode,1} = this_instr.asset_name;
