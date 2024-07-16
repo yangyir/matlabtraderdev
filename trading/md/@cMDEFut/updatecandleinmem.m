@@ -43,6 +43,12 @@ function [] = updatecandleinmem(mdefut)
         
         if strcmpi(mdefut.mode_,'realtime')
             tnow = now;
+            for k = 1:nintervals-1
+                %2 second buffer zone
+                if tnow > datenum_close(k)+2/86400 && tnow <= datenum_open(k+1)-2/86400
+                    return
+                end
+            end
             if abs(t-tnow) >= 1/1440 && tnow <= datenum_close(end)
                 fprintf('%s:%s:tick time:%s is off boudary\n',datestr(tnow,'yyyy-mm-dd HH;MM:SS'),instruments{i}.code_ctp,datestr(t,'yyyy-mm-dd HH;MM:SS'));
                 return
