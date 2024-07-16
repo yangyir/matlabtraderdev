@@ -117,6 +117,8 @@ elseif strcmpi(freq,'intraday')
         data =load([getenv('onedrive'),'\matlabdev\industrial\fg\',futcode,'.mat']);
     elseif strcmpi(instrument.asset_name,'lpg')
         data =load([getenv('onedrive'),'\matlabdev\energy\pg\',futcode,'.mat']);
+    elseif strcmpi(instrument.asset_name,'soda ash')
+        data =load([getenv('onedrive'),'\matlabdev\energy\sa\',futcode,'.mat']);
     else
         error('charlotte_plot:unsupported code %s...',futcode);
     end
