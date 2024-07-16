@@ -29,8 +29,13 @@ elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ..
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
     tbl_report_ = data.tblreport_eqindexfut;
 else
-    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
-    tbl_report_ = data.tbl_report_comdty_i;
+    if strcmpi(freq,'intraday')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
+        tbl_report_ = data.tbl_report_comdty_i;
+    elseif strcmpi(freq,'daily')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_daily.mat']);
+        tbl_report_ = data.tbl_report_comdty_daily;
+    end
 end
 
 keepextratrades = p.Results.extratrades;
@@ -72,35 +77,44 @@ if ~keepextratrades
     end
 end
 tblout = tblasset(logical(use3),:);
-tblout.opendatetime = datestr(tblout.opendatetime,'yyyy-mm-dd HH:MM');
-tblout.closedatetime = datestr(tblout.closedatetime,'yyyy-mm-dd HH:MM');
+if strcmpi(freq,'intraday')
+    tblout.opendatetime = datestr(tblout.opendatetime,'yyyy-mm-dd HH:MM');
+    tblout.closedatetime = datestr(tblout.closedatetime,'yyyy-mm-dd HH:MM');
+elseif strcmpi(freq,'daily')
+    tblout.opendatetime = datestr(tblout.opendatetime,'yyyy-mm-dd');
+    tblout.closedatetime = datestr(tblout.closedatetime,'yyyy-mm-dd');
+end
 %
 firstopendt = tblasset.opendatetime(1);
-if hour(firstopendt) > 15
-    firstopendt = dateadd(floor(firstopendt),'1b');
-elseif hour(firstopendt) < 9
-    wknum = weekday(firstopendt);
-    if wknum == 7
+if strcmpi(freq,'intraday')
+    if hour(firstopendt) > 15
         firstopendt = dateadd(floor(firstopendt),'1b');
+    elseif hour(firstopendt) < 9
+        wknum = weekday(firstopendt);
+        if wknum == 7
+            firstopendt = dateadd(floor(firstopendt),'1b');
+        else
+            firstopendt = floor(firstopendt);
+        end
     else
         firstopendt = floor(firstopendt);
     end
-else
-    firstopendt = floor(firstopendt);
 end
 %
 lastclosedt = tblasset.closedatetime(end);
-if hour(lastclosedt) > 15
-    lastclosedt = dateadd(floor(lastclosedt),'1b');
-elseif hour(lastclosedt) < 9
-    wknum = weekday(lastclosedt);
-    if wknum == 7
+if strcmpi(freq,'intraday')
+    if hour(lastclosedt) > 15
         lastclosedt = dateadd(floor(lastclosedt),'1b');
+    elseif hour(lastclosedt) < 9
+        wknum = weekday(lastclosedt);
+        if wknum == 7
+            lastclosedt = dateadd(floor(lastclosedt),'1b');
+        else
+            lastclosedt = floor(lastclosedt);
+        end
     else
         lastclosedt = floor(lastclosedt);
     end
-else
-    lastclosedt = floor(lastclosedt);
 end
 
 dts = gendates('fromdate',firstopendt,'todate',lastclosedt);
@@ -108,33 +122,35 @@ ndts = length(dts);
 
 openbd = tblasset.opendatetime;
 closebd = tblasset.closedatetime;
-for i = 1:length(openbd)
-    if hour(openbd(i)) > 15
-        openbd(i) = dateadd(floor(openbd(i)),'1b');
-    elseif hour(openbd(i)) < 9
-        wknum = weekday(openbd(i));
-        if wknum == 7
+if strcmpi(freq,'intraday')
+    for i = 1:length(openbd)
+        if hour(openbd(i)) > 15
             openbd(i) = dateadd(floor(openbd(i)),'1b');
+        elseif hour(openbd(i)) < 9
+            wknum = weekday(openbd(i));
+            if wknum == 7
+                openbd(i) = dateadd(floor(openbd(i)),'1b');
+            else
+                openbd(i) = floor(openbd(i));
+            end
         else
             openbd(i) = floor(openbd(i));
         end
-    else
-        openbd(i) = floor(openbd(i));
     end
-end
-%
-for i = 1:length(closebd)
-    if hour(closebd(i)) > 15
-        closebd(i) = dateadd(floor(closebd(i)),'1b');
-    elseif hour(closebd(i)) < 9
-        wknum = weekday(closebd(i));
-        if wknum == 7
+    %
+    for i = 1:length(closebd)
+        if hour(closebd(i)) > 15
             closebd(i) = dateadd(floor(closebd(i)),'1b');
+        elseif hour(closebd(i)) < 9
+            wknum = weekday(closebd(i));
+            if wknum == 7
+                closebd(i) = dateadd(floor(closebd(i)),'1b');
+            else
+                closebd(i) = floor(closebd(i));
+            end
         else
             closebd(i) = floor(closebd(i));
         end
-    else
-        closebd(i) = floor(closebd(i));
     end
 end
 
@@ -175,20 +191,37 @@ for i = 1:ndts
         opentradeinfo = tradesbyday{i,3};
         closedt_i = opentradeinfo.closedatetime;
         for j = 1:size(closedt_i,1)
-            if closedt_i(j) <= dts(i) + 2/3
-                %trades close on the same day
-                pnl_open_i = pnl_open_i + opentradeinfo.pnlrel(j)*opentradeinfo.opennotional(j);
-                ret_open_i = ret_open_i + opentradeinfo.pnlrel(j);
+            if strcmpi(freq,'intraday')
+                if closedt_i(j) <= dts(i) + 2/3
+                    %trades close on the same day
+                    pnl_open_i = pnl_open_i + opentradeinfo.pnlrel(j)*opentradeinfo.opennotional(j);
+                    ret_open_i = ret_open_i + opentradeinfo.pnlrel(j);
+                else
+                    %trades carried furher and pnl is adjusted to the close
+                    %price as of the cob date
+                    code_j = opentradeinfo.code{j};
+                    data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
+                    idx = find(data(:,1) == dts(i),1,'first');
+                    cp_j = data(idx,5);
+                    pnl_open_i = pnl_open_i + opentradeinfo.opennotional(j)*opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
+                    ret_open_i = ret_open_i + opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
+                end
             else
-                %trades carried furher and pnl is adjusted to the close
-                %price as of the cob date
-                code_j = opentradeinfo.code{j};
-                data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
-                idx = find(data(:,1) == dts(i),1,'first');
-                cp_j = data(idx,5);
-                pnl_open_i = pnl_open_i + opentradeinfo.opennotional(j)*opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
-                ret_open_i = ret_open_i + opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
-            end 
+                if closedt_i(j) <= dts(i)
+                    %trades close on the same day
+                    pnl_open_i = pnl_open_i + opentradeinfo.pnlrel(j)*opentradeinfo.opennotional(j);
+                    ret_open_i = ret_open_i + opentradeinfo.pnlrel(j);
+                else
+                    %trades carried furher and pnl is adjusted to the close
+                    %price as of the cob date
+                    code_j = opentradeinfo.code{j};
+                    data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
+                    idx = find(data(:,1) == dts(i),1,'first');
+                    cp_j = data(idx,5);
+                    pnl_open_i = pnl_open_i + opentradeinfo.opennotional(j)*opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
+                    ret_open_i = ret_open_i + opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
+                end
+            end
         end
     end
     %
@@ -202,15 +235,28 @@ for i = 1:ndts
             data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
             cp_jminus1 = data(find(data(:,1) == dts(i-1),1,'first'),5);
             cp_j = data(find(data(:,1) == dts(i),1,'first'),5);
-            if closedt_i(j) <= dts(i) + 2/3
-                %trades close on the same day
-                tradeclose = carrytradesinfo.openprice(j)+carrytradesinfo.openprice(j)*carrytradesinfo.pnlrel(j)/carrytradesinfo.direction(j); 
-                pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
-                ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
+            if strcmpi(freq,'intraday')
+                if closedt_i(j) <= dts(i) + 2/3
+                    %trades close on the same day
+                    tradeclose = carrytradesinfo.openprice(j)+carrytradesinfo.openprice(j)*carrytradesinfo.pnlrel(j)/carrytradesinfo.direction(j); 
+                    pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
+                    ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
+                else
+                    %trades carried further
+                    pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
+                    ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
+                end
             else
-                %trades carried further
-                pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
-                ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
+                if closedt_i(j) <= dts(i)
+                    %trades close on the same day
+                    tradeclose = carrytradesinfo.openprice(j)+carrytradesinfo.openprice(j)*carrytradesinfo.pnlrel(j)/carrytradesinfo.direction(j); 
+                    pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
+                    ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(tradeclose-cp_jminus1)/carrytradesinfo.openprice(j);
+                else
+                    %trades carried further
+                    pnl_carry_i = pnl_carry_i + carrytradesinfo.opennotional(j)*carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
+                    ret_carry_i = ret_carry_i + carrytradesinfo.direction(j)*(cp_j-cp_jminus1)/carrytradesinfo.openprice(j);
+                end
             end
         end
     end
