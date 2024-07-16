@@ -42,10 +42,17 @@ elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ..
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
     tbl_report_ = data.tblreport_eqindexfut;
 else
-    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
-    strat_ = data.strat_comdty_i;
-    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
-    tbl_report_ = data.tbl_report_comdty_i;
+    if strcmpi(freq,'intraday')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
+        strat_ = data.strat_comdty_i;
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
+        tbl_report_ = data.tbl_report_comdty_i;
+    elseif strcmpi(freq,'daily')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_daily.mat']);
+        strat_ = data.strat_comdty_daily;
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_daily.mat']);
+        tbl_report_ = data.tbl_report_comdty_daily;
+    end
 end
 
 fprintf('%s:\n',assetname);
