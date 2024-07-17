@@ -352,15 +352,17 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     close9<=close8 && ...
                     ~(extrainfo.p(end-1,5)>extrainfo.ll(end-1) && extrainfo.p(end,5)<extrainfo.ll(end-1))
                 lastbc13 = find(extrainfo.bc == 13,1,'last');
-                bs_ = bs(end-bs(end)+1:end);
-                lastbs9_ = find(bs_>=9,1,'last');
-                if lastbc13 < size(bs,1)-bs(end)+1 && ...
-                        lastbc13 > openidx && ...
-                        lastbs9_ < openidx
-                    closeflag = 1;
-                    trade.riskmanager_.closestr_ = 'tdsq:9139';
-                    closestr = trade.riskmanager_.closestr_;
-                    return
+                if ~isempty(lastbc13)
+                    bs_ = bs(end-bs(end)+1:end);
+                    lastbs9_ = find(bs_>=9,1,'last');
+                    if lastbc13 < size(bs,1)-bs(end)+1 && ...
+                            lastbc13 > openidx && ...
+                            lastbs9_ < openidx
+                        closeflag = 1;
+                        trade.riskmanager_.closestr_ = 'tdsq:9139';
+                        closestr = trade.riskmanager_.closestr_;
+                        return
+                    end
                 end
             end
             %
