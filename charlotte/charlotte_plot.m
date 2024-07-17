@@ -3,12 +3,14 @@ p = inputParser;
 p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('futcode','',@ischar);
 p.addParameter('datefrom','',@ischar);
+p.addParameter('dateto','',@ischar);
 p.addParameter('frequency','intraday',@ischar);
 p.addParameter('figureindex',2,@isnumeric);
 p.parse(varargin{:});
 
 futcode = p.Results.futcode;
 dt1str = p.Results.datefrom;
+dt2str = p.Results.dateto;
 freq = p.Results.frequency;
 if ~(strcmpi(freq,'intraday') || ...
         strcmpi(freq,'intraday-5m') || ...
@@ -141,13 +143,13 @@ res(:,1) = x2mdate(res(:,1));
 
 set(0,'defaultfigurewindowstyle','docked');
 
-if isempty(dt1str)
+if isempty(dt1str) && isempty(dt2str)
     if size(res,1) > 80
         tools_technicalplot2(res(end-79:end,:),figureindex,[futcode,'-',freq],true);
     else
         tools_technicalplot2(res(1:end,:),figureindex,[futcode,'-',freq],true);
     end
-else
+elseif ~isempty(dt1str) && isempty(dt2str)
     dt1num = datenum(dt1str,'yyyy-mm-dd');
     idx = find(res(:,1)>=dt1num,1,'first');
     if ~isempty(idx)
@@ -155,10 +157,23 @@ else
     else
         error('charlotte_script:invalid datefrom input...')
     end
-    
-    
-    
-    
-    
+elseif isempty(dt1str) && ~isempty(dt2str)
+    dt2num = datenum(dt2str,'yyyy-mm-dd');
+    idx = find(res(:,1)<=dt2num,1,'last');
+    if ~isempty(idx)
+        tools_technicalplot2(res(1:idx,:),figureindex,[futcode,'-',freq],true);
+    else
+        error('charlotte_script:invalid datefrom input...')
+    end
+elseif ~isempty(dt1str) && ~isempty(dt2str)
+    dt1num = datenum(dt1str,'yyyy-mm-dd');
+    dt2num = datenum(dt2str,'yyyy-mm-dd');
+    idx = res(:,1)>=dt1num & res(:,1)<=dt2num;
+    d = res(idx,:);
+    if ~isempty(d)
+        tools_technicalplot2(d,figureindex,[futcode,'-',freq],true);
+    else
+        error('charlotte_script:invalid datefrom and dateto input...')
+    end
 
 end
