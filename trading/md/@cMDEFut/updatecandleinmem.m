@@ -33,6 +33,9 @@ function [] = updatecandleinmem(mdefut)
         nintervals = size(instruments{i}.break_interval,1);
         datenum_open = mdefut.datenum_open_{i};
         datenum_close = mdefut.datenum_close_{i};
+        if t <= datenum_open(1)
+            return
+        end
         for k = 1:nintervals-1
             if t > datenum_close(k) && t <= datenum_open(k+1)
                 usetick = 0;
@@ -43,6 +46,9 @@ function [] = updatecandleinmem(mdefut)
         
         if strcmpi(mdefut.mode_,'realtime')
             tnow = now;
+            if tnow <= datenum_open(1)-1/86400
+                return
+            end
             for k = 1:nintervals-1
                 %2 second buffer zone
                 if tnow > datenum_close(k)+2/86400 && tnow <= datenum_open(k+1)-2/86400
