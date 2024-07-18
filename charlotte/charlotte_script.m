@@ -1,14 +1,15 @@
-asset = 'soybean oil';
-dtfrom = '2024-06-11';
+asset = 'iron ore';
+freq = 'intraday';
+dtfrom = '2024-06-01';
 [tblout,kellyout,tblout_notused] = charlotte_kellycheck('assetname',asset,...
     'datefrom',dtfrom,...
-    'frequency','intraday',...
+    'frequency',freq,...
     'reportunused',true);
 open tblout;
 open kellyout;
 open tblout_notused;
 %%
-[tblpnl,tblout2,statsout] = charlotte_gensingleassetprofile('assetname',asset);
+[tblpnl,tblout2,statsout] = charlotte_gensingleassetprofile('assetname',asset,'frequency',freq);
 open tblout2;
 open statsout;
 open tblpnl;
@@ -32,32 +33,69 @@ for i = 1:nasset
     [tblpnlcell{i},~,~] = charlotte_gensingleassetprofile('assetname',assetlist{i});
 end
 %%
-code = 'au2408';
-resstruct = charlotte_plot('futcode',code,'figureindex',4,'datefrom','2024-07-05');
+code = 'i2409';
+dt1 = datenum('2024-06-11','yyyy-mm-dd');
+dt2 = datenum('2024-06-11','yyyy-mm-dd');
+dt3 = [datestr(dateadd(dt1,'-1b'),'yyyy-mm-dd'),' 21:00:00'];
+dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
+resstruct = charlotte_plot('futcode',code,'figureindex',4,'datefrom',dt3,'dateto',dt4);
 fut = code2instrument(code);
 if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30y')
-    data = load('C:\Users\yy\OneDrive\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat');
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
     kellytables = data.strat_govtbondfut_30m;
 else
-    data = load('C:\Users\yy\OneDrive\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat');
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
     kellytables = data.strat_comdty_i;
 end
 
-idxstart = find(resstruct.px(:,1) >= datenum('2024-07-05 14:30','yyyy-mm-dd HH:MM'),1,'first');
+idxstart = find(resstruct.px(:,1) >= datenum(dt3,'yyyy-mm-dd HH:MM'),1,'first');
+idxend = find(resstruct.px(:,1) <= datenum(dt4,'yyyy-mm-dd HH:MM'),1,'last');
 clc;
-for i = idxstart:size(resstruct.px,1)
+for i = idxstart:idxend
     ei_ = fractal_truncate(resstruct,i);
     output = fractal_signal_conditional2('extrainfo',ei_,...
         'ticksize',fut.tick_size,...
         'kellytables',kellytables,...
         'assetname',fut.asset_name);
     if isempty(output)
-        [~,op] = fractal_signal_unconditional(ei_,fut.tick_size,4);
+        [signal,op] = fractal_signal_unconditional(ei_,fut.tick_size,4);
         if isempty(op)
             fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei_.px(end,1),'yyyy-mm-dd HH:MM'),0,'no conditional signal');
         else
             try
-                fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei_.px(end,1),'yyyy-mm-dd HH:MM'),0,op.comment);
+                if signal(1) == -1
+                    try
+                        kelly_ = kelly_k(op.comment,fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
+                        wprob_ = kelly_w(op.comment,fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
+                    catch
+                        idx = strcmpi(kellytables.kelly_table_s.opensignal_unique_s,op.comment);
+                        kelly_ = kellytables.kelly_table_s.kelly_unique_s(idx);
+                        wprob_ = kellytables.kelly_table_s.winp_unique_s(idx);
+                    end
+                elseif signal(1) == 1
+                    try
+                        kelly_ = kelly_k(op.comment,fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
+                        wprob_ = kelly_w(op.comment,fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l);
+                    catch
+                        idx = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
+                        kelly_ = kellytables.kelly_table_l.kelly_unique_l(idx);
+                        wprob_ = kellytables.kelly_table_l.winp_unique_l(idx);
+                    end
+                else
+                    if op.direction == 1
+                        idx = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
+                        kelly_ = kellytables.kelly_table_l.kelly_unique_l(idx);
+                        wprob_ = kellytables.kelly_table_l.winp_unique_l(idx);
+                    elseif op.direction == -1
+                        idx = strcmpi(kellytables.kelly_table_s.opensignal_unique_s,op.comment);
+                        kelly_ = kellytables.kelly_table_s.kelly_unique_s(idx);
+                        wprob_ = kellytables.kelly_table_s.winp_unique_s(idx);
+                    end
+                end
+                
+                fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei_.px(end,1),'yyyy-mm-dd HH:MM'),signal(1),op.comment,100*kelly_);
+                
+                
             catch
                 fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei_.px(end,1),'yyyy-mm-dd HH:MM'),0,'no conditional signal');
             end
