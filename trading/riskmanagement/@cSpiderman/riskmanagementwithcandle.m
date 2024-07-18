@@ -90,6 +90,21 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     return
                 end
                 %
+                if extrainfo.p(end,2) < extrainfo.p(end,5) && ...
+                        extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.status_ = 'closed';
+                    obj.closestr_ = 'conditional uptrendconfirmed failed to breach';
+                    obj.trade_.status_ = 'closed';
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    unwindtrade = obj.trade_;
+                    return
+                end
+                %
                 if runriskmanagementbeforemktclose || ...
                         extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))
                     %special case that the close is above lvlup and the
@@ -215,6 +230,21 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 if strcmpi(trade.instrument_.asset_name,'tin') && ...
                         ~(extrainfo.p(end,3) < extrainfo.lips(end) && ...
                         extrainfo.p(end,5) < extrainfo.p(end,2))
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.status_ = 'closed';
+                    obj.closestr_ = 'conditional dntrendconfirmed failed to breach';
+                    obj.trade_.status_ = 'closed';
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    unwindtrade = obj.trade_;
+                    return
+                end
+                %
+                if extrainfo.p(end,5) > extrainfo.p(end,2) && ...
+                        extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
                     obj.trade_.closeprice_ = extrainfo.latestopen;
                     volume = trade.openvolume_;
