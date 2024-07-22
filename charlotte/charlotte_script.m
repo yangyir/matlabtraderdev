@@ -1,4 +1,4 @@
-asset = 'iron ore';
+asset = 'govtbond_10y';
 freq = 'intraday';
 dtfrom = '2024-06-01';
 [tblout,kellyout,tblout_notused] = charlotte_kellycheck('assetname',asset,...
@@ -33,9 +33,9 @@ for i = 1:nasset
     [tblpnlcell{i},~,~] = charlotte_gensingleassetprofile('assetname',assetlist{i});
 end
 %%
-code = 'i2409';
-dt1 = datenum('2024-06-11','yyyy-mm-dd');
-dt2 = datenum('2024-06-11','yyyy-mm-dd');
+code = 'TL2409';
+dt1 = datenum('2024-07-19','yyyy-mm-dd');
+dt2 = datenum('2024-07-19','yyyy-mm-dd');
 dt3 = [datestr(dateadd(dt1,'-1b'),'yyyy-mm-dd'),' 21:00:00'];
 dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
 resstruct = charlotte_plot('futcode',code,'figureindex',4,'datefrom',dt3,'dateto',dt4);
@@ -84,12 +84,12 @@ for i = idxstart:idxend
                 else
                     if op.direction == 1
                         idx = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
-                        kelly_ = kellytables.kelly_table_l.kelly_unique_l(idx);
-                        wprob_ = kellytables.kelly_table_l.winp_unique_l(idx);
+                        kelly_ = kellytables.kelly_table_l.kelly_unique_l_sample(idx);
+                        wprob_ = kellytables.kelly_table_l.winp_unique_l_sample(idx);
                     elseif op.direction == -1
                         idx = strcmpi(kellytables.kelly_table_s.opensignal_unique_s,op.comment);
-                        kelly_ = kellytables.kelly_table_s.kelly_unique_s(idx);
-                        wprob_ = kellytables.kelly_table_s.winp_unique_s(idx);
+                        kelly_ = kellytables.kelly_table_s.kelly_unique_s_sample(idx);
+                        wprob_ = kellytables.kelly_table_s.winp_unique_s_sample(idx);
                     end
                 end
                 
