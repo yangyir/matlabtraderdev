@@ -184,7 +184,21 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             signal_i(1) = op.direction;
                             signal_i(4) = op.direction;
                         else
-                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                            if status.istrendconfirmed && strcmpi(op.comment,'breachup-lvlup-invalid long as close moves too high') && stratfractal.helper_.book_.hasposition(instruments{i})
+                                vlookuptbl = stratfractal.tbl_all_intraday_.breachuplvlup_tc;
+                                idx = strcmpi(vlookuptbl.asset,assetname);      
+                                kelly = vlookuptbl.K(idx);
+                                wprob = vlookuptbl.W(idx);
+                                if isempty(kelly)
+                                    kelly = -9.99;
+                                    wprob = 0;
+                                end
+                                if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41) || (kelly > 0.09 && wprob > 0.455))
+                                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                end
+                            else
+                                stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                            end
                         end
                         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                     else
