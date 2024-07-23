@@ -139,7 +139,8 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 end
             end
             if conditionsatisfied && p(end,5) < hhopen && ...
-                    p(end,5)<max([lips(end),teeth(end),jaw(end)])-2*ticksize
+                    (p(end,5)<max([lips(end),teeth(end),jaw(end)])-2*ticksize || ...
+                    p(end,3)<hhopen)
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:candle fell from above TDST lvlup to below HH again';
                 closestr = trade.riskmanager_.closestr_;
@@ -323,7 +324,8 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 end
             end
             if conditionsatisfied && p(end,5) > llopen && ...
-                    p(end,5)>min([lips(end),teeth(end),jaw(end)])+2*ticksize
+                    (p(end,5)>min([lips(end),teeth(end),jaw(end)])+2*ticksize || ...
+                    p(end,4)>llopen)
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:candle fell from below TDST lvldn to above LL again';
                 closestr = trade.riskmanager_.closestr_;
