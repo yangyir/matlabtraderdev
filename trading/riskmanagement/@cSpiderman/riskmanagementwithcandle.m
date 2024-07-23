@@ -105,6 +105,26 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     return
                 end
                 %
+                if extrainfo.p(end,2) < extrainfo.p(end,5)
+                    shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,5);
+                else
+                    shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,2);
+                end
+                kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
+                if shadowlinewidth/kwidth > 0.618
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.status_ = 'closed';
+                    obj.closestr_ = 'conditional uptrendconfirmed failed to breach:shadow line';
+                    obj.trade_.status_ = 'closed';
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    unwindtrade = obj.trade_;
+                    return
+                end
+                %
                 if runriskmanagementbeforemktclose || ...
                         extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end))
                     %special case that the close is above lvlup and the
@@ -258,6 +278,25 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     return
                 end
                 %
+                if extrainfo.p(end,2) < extrainfo.p(end,5)
+                    shadowlinewidth = extrainfo.p(end,2) - extrainfo.p(end,4);
+                else
+                    shadowlinewidth = extrainfo.p(end,5)-extrainfo.p(end,4);
+                end
+                kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
+                if shadowlinewidth/kwidth > 0.618
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.status_ = 'closed';
+                    obj.closestr_ = 'conditional dntrendconfirmed failed to breach:shadow line';
+                    obj.trade_.status_ = 'closed';
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    unwindtrade = obj.trade_;
+                    return
+                end
                 isbreachdnlvldn = extrainfo.ll(end) <= extrainfo.lvldn(end) && extrainfo.p(end,5) > extrainfo.lvldn(end);
                 if isbreachdnlvldn
                     tbl2lookup = kellytables.breachdnlvldn_tc;
