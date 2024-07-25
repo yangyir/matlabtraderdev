@@ -684,8 +684,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     wprob = 0;
                                 end
                                 if kelly < 0.145 || wprob < 0.41
-                                    signal_i(1) = 0;
-                                    signal_i(4) = 0;
+                                    if kelly > 0.11 && bs(end) >= 5
+                                        signal_i(1) = -1;
+                                        signal_i(4) = -1;
+                                    else
+                                        signal_i(1) = 0;
+                                        signal_i(4) = 0;
+                                    end
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-lvldn-tb',100*kelly,100*wprob);
                             else
@@ -1152,11 +1157,37 @@ function signals = gensignals_futmultifractal1(stratfractal)
                              %known whether the conditional bid would turn
                              %out to be a volblowup or volblowup2
                              if kelly3 >= 0.145 || (kelly3 > 0.11 && wprob3 > 0.41)
-                                 signal_cond_i{1,2}(1) = -1;
-                                 fprintf('\tpotential high kelly with volblowup breach dn...\n');
+                                 if kelly < 0
+                                     extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)>0,1,'first'));
+                                     if extracheck
+                                         signal_cond_i{1,2}(1) = -1;
+                                         fprintf('\tpotential high kelly with volblowup breach dn...\n');
+                                     else
+                                         signal_cond_i{1,2}(1) = 0;
+                                         if extrainfo.ll(end) <= extrainfo.ll(end-1) && ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
+                                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                         end
+                                     end
+                                 else
+                                    signal_cond_i{1,2}(1) = -1;
+                                    fprintf('\tpotential high kelly with volblowup breach dn...\n');
+                                 end
                              elseif kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
-                                 signal_cond_i{1,2}(1) = -1;
-                                 fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
+                                 if kelly < 0
+                                     extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)>0,1,'first'));
+                                     if extracheck
+                                         signal_cond_i{1,2}(1) = -1;
+                                         fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
+                                     else
+                                         signal_cond_i{1,2}(1) = 0;
+                                         if extrainfo.ll(end) <= extrainfo.ll(end-1) && ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
+                                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                                        end
+                                     end
+                                 else
+                                    signal_cond_i{1,2}(1) = -1;
+                                    fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
+                                 end
                              else
                                  signal_cond_i{1,2}(1) = 0;
                                  if extrainfo.ll(end) <= extrainfo.ll(end-1) && ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
