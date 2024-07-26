@@ -1158,7 +1158,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                              %out to be a volblowup or volblowup2
                              if kelly3 >= 0.145 || (kelly3 > 0.11 && wprob3 > 0.41)
                                  if kelly < 0
-                                     extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)>0,1,'first'));
+                                     extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)+ticksize>0,1,'first'));
                                      if extracheck
                                          signal_cond_i{1,2}(1) = -1;
                                          fprintf('\tpotential high kelly with volblowup breach dn...\n');
@@ -1174,7 +1174,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                  end
                              elseif kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
                                  if kelly < 0
-                                     extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)>0,1,'first'));
+                                     extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)+ticksize>0,1,'first'));
                                      if extracheck
                                          signal_cond_i{1,2}(1) = -1;
                                          fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
