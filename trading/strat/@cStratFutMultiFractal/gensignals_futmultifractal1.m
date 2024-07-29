@@ -684,13 +684,13 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     wprob = 0;
                                 end
                                 if kelly < 0.145 || wprob < 0.41
-                                    if kelly > 0.11 && bs(end) >= 5
-                                        signal_i(1) = -1;
-                                        signal_i(4) = -1;
-                                    else
+%                                     if kelly > 0.11 && bs(end) >= 5
+%                                         signal_i(1) = -1;
+%                                         signal_i(4) = -1;
+%                                     else
                                         signal_i(1) = 0;
                                         signal_i(4) = 0;
-                                    end
+%                                     end
                                 end
                                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),'breachdn-lvldn-tb',100*kelly,100*wprob);
                             else
