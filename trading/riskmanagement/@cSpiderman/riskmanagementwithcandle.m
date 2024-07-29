@@ -547,7 +547,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     end
     %
     %in case it is a up-breach of fractal barrier, we shall calculate kelly
-    if extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1)
+    if runriskmanagementbeforemktclose && extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1)
         if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
             nfractal = 2;
         elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
@@ -589,7 +589,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     end
     %
     %in case it is a dn-breach of fractal barrier, we shall calculate kelly
-    if extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1)
+    if runriskmanagementbeforemktclose && extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1)
         if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
             nfractal = 2;
         elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
