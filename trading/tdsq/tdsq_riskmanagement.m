@@ -101,7 +101,9 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
             trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
         end
-        %
+        %STOP the trade if it was a conditional breachup-lvlup trade in
+        %case it failed to breach fractal hh on open but its highest price
+        %on open candle breached lvlup
         if (strcmpi(trade.opensignal_.mode_,'conditional-uptrendconfirmed-2') || ...
                 strcmpi(trade.opensignal_.mode_,'conditional-breachuplvlup')) && ...
                 p(idxopen,5)<hh(idxopen-1) && p(idxopen,3)>lvlup(idxopen-1) && p(idxopen-1,5)<lvlup(idxopen-1)
@@ -113,7 +115,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
         end
         %STOP the trade if it opened below lvldn and breached up lvldn
-        %afterwards but then fell back above lvldn
+        %afterwards but then fell back below lvldn again
         lvldn = extrainfo.lvldn;
         if p(idxopen,5)<lvldn(idxopen) && ~isempty(find(p(idxopen:end-1,5)>lvldn(idxopen:end-1),1,'first'))
             if p(end,3)<lvldn(end)
@@ -177,17 +179,17 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     close9>=close8 && ...
                     strcmpi(trade.opensignal_.mode_,'breachup-highsc13') && ...
                     ~(extrainfo.p(end-1,5)<extrainfo.hh(end-1) && extrainfo.p(end,5)>extrainfo.hh(end-1))
-                %need to make sure the sc13 is well before the sell-setup
-                lastsc13 = find(extrainfo.sc == 13,1,'last');
-                sslast = extrainfo.ss(openidx);
-                if lastsc13 < openidx-sslast+1
+                flag = tdsq_is9139sellcount(extrainfo.bs,ss,extrainfo.bc,extrainfo.sc);
+                if flag
                     closeflag = 1;
                     trade.riskmanager_.closestr_ = 'tdsq:9139';
                     closestr = trade.riskmanager_.closestr_;
                     return
                 end
             end
+            %
         end
+        %
         if ss(end) >= 16 && ...
                 (strcmpi(trade.opensignal_.mode_,'breachup-highsc13') ||...
                 (~isempty(find(extrainfo.sc==13,1,'last')) && find(extrainfo.sc==13,1,'last') >= openidx-1))
@@ -218,6 +220,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     trade.riskmanager_.td13low_ = extrainfo.p(end,4);
                 end
             end
+            %
             if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) && ...
                 p(idxopen,5)<hh(idxopen-1) && p(idxopen,3)>hh(idxopen-1) && ...
                 p(end,5)<p(end,2)      
@@ -226,15 +229,27 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 closestr = trade.riskmanager_.closestr_;
                 return
             end
+            %
+            idx_ss_last = find(ss>=9,1,'last');
+            if  ~isempty(idx_ss_last)
+                ss_last = ss(idx_ss_last);
+                idx_ss_start = idx_ss_last-ss_last+1;
+                if ss_last >= 22 &&...
+                    idx_ss_start < size(sc,1) && idx_ss_last <= size(sc,1)
+                    closeflag = 1;
+                    trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+                    closestr = trade.riskmanager_.closestr_;
+                end
+            end
         end
         %
-        if ss(end) >= 9 && isnan(trade.riskmanager_.tdlow_)
+        if ss(end) >= 9 && isnan(trade.riskmanager_.tdhigh_)
             k = ss(end);
             trade.riskmanager_.tdhigh_ = max(extrainfo.p(end-k+1:end,3));
             tdidx = find(extrainfo.p(end-k+1:end,3)==trade.riskmanager_.tdhigh_,1,'last')+length(extrainfo.p)-k;
             trade.riskmanager_.tdlow_ = extrainfo.p(tdidx,4);
         end
-        if ~isnan(trade.riskmanager_.tdlow_) && ss(end) >= 9
+        if ~isnan(trade.riskmanager_.tdhigh_) && ss(end) >= 9
             if ss(end) == 9
                 %it must be a new sell-setup
                 highpx = max(extrainfo.p(end-8:end,3));
@@ -258,8 +273,17 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 return
             end
         end
-        if ~isnan(trade.riskmanager_.td13high_)
-            if p(end,5) > trade.riskmanager_.td13high_+ticksize && trade.riskmanager_.td13high_ > lips(end)+ticksize
+        %
+        if isnan(trade.riskmanager_.td13high_)
+            bc13last = find(extrainfo.bc == 13,1,'last');
+            idxlllast = find(extrainfo.idxll == -1,1,'last');
+            if idxlllast <= bc13last
+                trade.riskmanager_.td13high_ = extrainfo.p(bc13last,5);
+            end
+        end
+        %
+        if ~isnan(trade.riskmanager_.td13high_) && extrainfo.bc(end) ~= 13
+            if p(end,5) > trade.riskmanager_.td13high_+ticksize
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:bc13break';
                 closestr = trade.riskmanager_.closestr_;
@@ -278,16 +302,16 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 return
             end
 %             trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.ll0_;
-            if ~strcmpi(trade.riskmanager_.closestr_,'tdsq:candle failed to breach TDST lvldn')
-                trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.pxstoploss_;
-                if ~isempty(trade.instrument_)
-                    ticksize = trade.instrument_.tick_size;
-                    trade.riskmanager_.pxstoploss_ = ceil(trade.riskmanager_.pxstoploss_/ticksize)*ticksize;
-                end
-                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
+            trade.riskmanager_.pxstoploss_ = 0.382*lvldn(end-1)+0.618*trade.riskmanager_.pxstoploss_;
+            if ~isempty(trade.instrument_)
+                ticksize = trade.instrument_.tick_size;
+                trade.riskmanager_.pxstoploss_ = ceil(trade.riskmanager_.pxstoploss_/ticksize)*ticksize;
             end
+            trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvldn';
         end
-        %
+        %STOP the trade if it was a conditional breachdn-lvldn trade in
+        %case it failed to breach fractal ll on open but its lowest price
+        %on open candle breached lvldn
         if (strcmpi(trade.opensignal_.mode_,'conditional-dntrendconfirmed-2') || ...
                 strcmpi(trade.opensignal_.mode_,'conditional-breachdnlvldn')) && ...
                 p(idxopen,5)>ll(idxopen-1) && p(idxopen,4)<lvldn(idxopen-1) && p(idxopen-1,5)>lvldn(idxopen-1)
@@ -299,7 +323,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
         end
         %STOP the trade if it opened above lvlup and breached down lvlup
-        %afterwards but then rallied back above lvlup
+        %afterwards but then rallied back above lvlup again
         lvlup = extrainfo.lvlup;
         if p(idxopen,5)>lvlup(idxopen) && ~isempty(find(p(idxopen:end-1,5)<lvlup(idxopen:end-1),1,'first'))
             if p(end,4)>lvlup(end)
@@ -350,21 +374,16 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 closestr = trade.riskmanager_.closestr_;
             end
             %
-            if (low8 < min(low6,low7) || low9 < min(low6,low7)) && ...
+            if (low8 < min(low6,low7) || ...
+                    low9 < min(low6,low7)) && ...
                     close9<=close8 && ...
                     ~(extrainfo.p(end-1,5)>extrainfo.ll(end-1) && extrainfo.p(end,5)<extrainfo.ll(end-1))
-                lastbc13 = find(extrainfo.bc == 13,1,'last');
-                if ~isempty(lastbc13)
-                    bs_ = bs(end-bs(end)+1:end);
-                    lastbs9_ = find(bs_>=9,1,'last');
-                    if lastbc13 < size(bs,1)-bs(end)+1 && ...
-                            lastbc13 > openidx && ...
-                            lastbs9_ < openidx
-                        closeflag = 1;
-                        trade.riskmanager_.closestr_ = 'tdsq:9139';
-                        closestr = trade.riskmanager_.closestr_;
-                        return
-                    end
+                flag = tdsq_is9139buycount(bs,extrainfo.ss,extrainfo.bc,extrainfo.sc);
+                if flag
+                    closeflag = 1;
+                    trade.riskmanager_.closestr_ = 'tdsq:9139';
+                    closestr = trade.riskmanager_.closestr_;
+                    return
                 end
             end
             %
@@ -385,6 +404,16 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     trade.riskmanager_.td13high_ = extrainfo.p(end,3);
                 end
             end
+            %
+            if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) && ...
+                p(idxopen,5)>ll(idxopen-1) && p(idxopen,4)<hh(idxopen-1) && ...
+                p(end,5)>p(end,2)      
+                closeflag = 1;
+                trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+            %
             idx_bs_last = find(bs>=9,1,'last');
             if  ~isempty(idx_bs_last)
                 bs_last = bs(idx_bs_last);
@@ -405,10 +434,17 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             trade.riskmanager_.tdhigh_ = extrainfo.p(tdidx,3);
         end
         if ~isnan(trade.riskmanager_.tdlow_) && bs(end)>=9
-%             if extrainfo.p(end,4) <= trade.riskmanager_.tdlow_
-            if extrainfo.p(end,4) < trade.riskmanager_.tdlow_ - 2*ticksize
-                trade.riskmanager_.tdlow_ = extrainfo.p(end,4);
-                trade.riskmanager_.tdhigh_ = extrainfo.p(end,3);
+            if bs(end) == 9
+                %it must be a new buy-setup
+                lowpx = min(extrainfo.p(end-8:end,4));
+                lowidx = find(extrainfo.p(end-8:end,4) == lowpx,1,'last')+size(extrainfo.p,1)-9;
+            else
+                lowpx = extrainfo.p(end,4);
+                lowidx = size(extrainfo.p,1);
+            end
+            if lowpx < trade.riskmanager_.tdlow_ - 2*ticksize
+                trade.riskmanager_.tdlow_ = lowpx;
+                trade.riskmanager_.tdhigh_ = extrainfo.p(lowidx,3);
             end
         end
 
