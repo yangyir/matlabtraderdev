@@ -150,7 +150,7 @@ if isempty(dt1str) && isempty(dt2str)
         tools_technicalplot2(res(1:end,:),figureindex,[futcode,'-',freq],true);
     end
 elseif ~isempty(dt1str) && isempty(dt2str)
-    dt1num = datenum(dt1str,'yyyy-mm-dd');
+    dt1num = datenum(dt1str,'yyyy-mm-dd HH:MM');
     idx = find(res(:,1)>=dt1num,1,'first');
     if ~isempty(idx)
         tools_technicalplot2(res(idx:end,:),figureindex,[futcode,'-',freq],true);
@@ -158,7 +158,7 @@ elseif ~isempty(dt1str) && isempty(dt2str)
         error('charlotte_script:invalid datefrom input...')
     end
 elseif isempty(dt1str) && ~isempty(dt2str)
-    dt2num = datenum(dt2str,'yyyy-mm-dd');
+    dt2num = datenum(dt2str,'yyyy-mm-dd HH:MM');
     idx = find(res(:,1)<=dt2num,1,'last');
     if ~isempty(idx)
         tools_technicalplot2(res(1:idx,:),figureindex,[futcode,'-',freq],true);
@@ -166,8 +166,8 @@ elseif isempty(dt1str) && ~isempty(dt2str)
         error('charlotte_script:invalid datefrom input...')
     end
 elseif ~isempty(dt1str) && ~isempty(dt2str)
-    dt1num = datenum(dt1str,'yyyy-mm-dd');
-    dt2num = datenum(dt2str,'yyyy-mm-dd');
+    dt1num = datenum(dt1str,'yyyy-mm-dd HH:MM');
+    dt2num = datenum(dt2str,'yyyy-mm-dd HH:MM');
     idx = res(:,1)>=dt1num & res(:,1)<=dt2num;
     d = res(idx,:);
     if ~isempty(d)
