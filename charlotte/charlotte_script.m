@@ -1,6 +1,6 @@
-asset = 'govtbond_10y';
+asset = 'soda ash';
 freq = 'intraday';
-dtfrom = '2024-06-01';
+dtfrom = '2024-07-19';
 [tblout,kellyout,tblout_notused] = charlotte_kellycheck('assetname',asset,...
     'datefrom',dtfrom,...
     'frequency',freq,...
@@ -17,7 +17,7 @@ set(0,'defaultfigurewindowstyle','docked');
 timeseries_plot([tblpnl.dts,tblpnl.runningnotional],'figureindex',2,'dateformat','yy-mmm-dd','title',asset);
 timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
 %%
-code = 'ag2408';
+code = 'cu2409';
 [tblb_headers,tblb_data,~,tbls_data,data] = fractal_gettradesummary(code,...
     'frequency','intraday',...
     'usefractalupdate',0,...
@@ -33,9 +33,10 @@ for i = 1:nasset
     [tblpnlcell{i},~,~] = charlotte_gensingleassetprofile('assetname',assetlist{i});
 end
 %%
-code = 'TL2409';
-dt1 = datenum('2024-07-19','yyyy-mm-dd');
-dt2 = datenum('2024-07-19','yyyy-mm-dd');
+code = 'SA409';
+dt1 = datenum('2024-05-17','yyyy-mm-dd');
+% dt2 = datenum('2024-07-29','yyyy-mm-dd');
+dt2 = dt1;
 dt3 = [datestr(dateadd(dt1,'-1b'),'yyyy-mm-dd'),' 21:00:00'];
 dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
 resstruct = charlotte_plot('futcode',code,'figureindex',4,'datefrom',dt3,'dateto',dt4);
@@ -52,6 +53,57 @@ idxstart = find(resstruct.px(:,1) >= datenum(dt3,'yyyy-mm-dd HH:MM'),1,'first');
 idxend = find(resstruct.px(:,1) <= datenum(dt4,'yyyy-mm-dd HH:MM'),1,'last');
 clc;
 for i = idxstart:idxend
+    %1st check whether is any conditional open entrust
+    ei1 = fractal_truncate(resstruct,i-1);
+    ei2 = fractal_truncate(resstruct,i);
+    output1 = fractal_signal_conditional2('extrainfo',ei1,...
+        'ticksize',fut.tick_size,...
+        'kellytables',kellytables,...
+        'assetname',fut.asset_name);
+    output2 = fractal_signal_conditional2('extrainfo',ei2,...
+        'ticksize',fut.tick_size,...
+        'kellytables',kellytables,...
+        'assetname',fut.asset_name);
+    if ~isempty(output1)
+        if output1.directionkellied == 1
+            if ei2.px(end,3) > ei1.hh(end)
+                if ei2.px(end,5) >= ei1.hh(end)
+                    [signal,op] = fractal_signal_unconditional(ei2,fut.tick_size,4);
+                    try
+                        kelly_ = kelly_k(op.comment,fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
+                        wprob_ = kelly_w(op.comment,fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l);
+                    catch
+                        kelly_ = -9.99;
+                        wprob_ = 0;
+                    end
+                    fprintf('%6s:\t%s:%2d\t%s with %s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signal(1),[output1.opkellied,' success'],op.comment,100*kelly_);
+                else
+                    fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output1.directionkellied,[output1.opkellied,' failed...']);
+                end
+                
+            end
+        elseif output1.directionkellied == -1
+            if ei2.px(end,4) < ei1.ll(end)
+                if ei2.px(end,5) <= ei1.ll(end)
+                    [signal,op] = fractal_signal_unconditional(ei2,fut.tick_size,4);
+                    try
+                        kelly_ = kelly_k(op.comment,fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
+                        wprob_ = kelly_w(op.comment,fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
+                    catch
+                        kelly_ = -9.99;
+                        wprob_ = 0;
+                    end
+                    fprintf('%6s:\t%s:%2d\t%s with %s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signal(1),[output1.opkellied,' success'],op.comment,100*kelly_);
+                else
+                    fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output1.directionkellied,[output1.opkellied,' failed...']);
+                end
+            end
+        end
+    else
+        
+    end
+    
+    
     ei_ = fractal_truncate(resstruct,i);
     output = fractal_signal_conditional2('extrainfo',ei_,...
         'ticksize',fut.tick_size,...
