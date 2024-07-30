@@ -105,11 +105,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     return
                 end
                 %
-                if extrainfo.p(end,2) < extrainfo.p(end,5)
-                    shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,5);
-                else
-                    shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,2);
-                end
+                
+                shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,5);
                 kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
                 if shadowlinewidth/kwidth > 0.618
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
@@ -263,7 +260,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     return
                 end
                 %
-                if (extrainfo.p(end,5) > extrainfo.p(end,2) && ...
+                if (extrainfo.p(end,2) > extrainfo.p(end,5) && ...
                         extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size) || ...
                         (strcmpi(val,'conditional-dntrendconfirmed-2') && extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size)
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
@@ -279,11 +276,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     return
                 end
                 %
-                if extrainfo.p(end,2) < extrainfo.p(end,5)
-                    shadowlinewidth = extrainfo.p(end,2) - extrainfo.p(end,4);
-                else
-                    shadowlinewidth = extrainfo.p(end,5)-extrainfo.p(end,4);
-                end
+                shadowlinewidth = extrainfo.p(end,5)-extrainfo.p(end,4);
                 kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
                 if shadowlinewidth/kwidth > 0.618
                     obj.trade_.closedatetime1_ = extrainfo.latestdt;
