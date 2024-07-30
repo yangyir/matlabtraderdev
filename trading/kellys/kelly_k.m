@@ -1,4 +1,4 @@
-function k = kelly_k(signalStr,assetStr,signallistCell,assetlistCell,kMat)
+function k = kelly_k(signalStr,assetStr,signallistCell,assetlistCell,kMat,useall)
     if ~ischar(signalStr)
         error('kelly_k:invalid signal input, a string is required');
     end
@@ -28,6 +28,11 @@ function k = kelly_k(signalStr,assetStr,signallistCell,assetlistCell,kMat)
         error('kelly_k:mismatch between assetlist and kmat')
     end
     
+    if nargin < 6
+        useall = 1;
+    end
+    
+    
     idxSignal = 0;
     for i = 1:m
         if strcmpi(signalStr,signallistCell{i})
@@ -53,12 +58,17 @@ function k = kelly_k(signalStr,assetStr,signallistCell,assetlistCell,kMat)
     if ~isnan(k_) || (isnan(k_) && strcmpi(signalStr,'volblowup2'))
         k = k_;
     else
-        for i = 1:n
-           if strcmpi('all',assetlistCell{i})
-               idxAsset = i;
-               break
-           end 
+        if useall
+            for i = 1:n
+                if strcmpi('all',assetlistCell{i})
+                    idxAsset = i;
+                    break
+                end 
+            end
+            k = kMat(idxSignal,idxAsset);
+        else
+            if isnan(k_), k_ = -9.99;end
+            k = k_;            
         end
-        k = kMat(idxSignal,idxAsset);
     end
 end
