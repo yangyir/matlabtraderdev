@@ -1,4 +1,4 @@
-function w = kelly_w(signalStr,assetStr,signallistCell,assetlistCell,wMat)
+function w = kelly_w(signalStr,assetStr,signallistCell,assetlistCell,wMat,useall)
     if ~ischar(signalStr)
         error('kelly_w:invalid signal input, a string is required');
     end
@@ -28,6 +28,10 @@ function w = kelly_w(signalStr,assetStr,signallistCell,assetlistCell,wMat)
         error('kelly_w:mismatch between assetlist and kmat')
     end
     
+    if nargin < 6
+        useall = 1;
+    end
+    
     idxSignal = 0;
     for i = 1:m
         if strcmpi(signalStr,signallistCell{i})
@@ -53,12 +57,17 @@ function w = kelly_w(signalStr,assetStr,signallistCell,assetlistCell,wMat)
     if ~isnan(w_)
         w = w_;
     else
-        for i = 1:n
-           if strcmpi('all',assetlistCell{i})
-               idxAsset = i;
-               break
-           end 
+        if useall
+            for i = 1:n
+                if strcmpi('all',assetlistCell{i})
+                    idxAsset = i;
+                    break
+                end 
+            end
+            w = wMat(idxSignal,idxAsset);
+        else
+            if isnan(w_), w_ = 0;end
+            w = w_;
         end
-        w = wMat(idxSignal,idxAsset);
     end
 end
