@@ -111,7 +111,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 ~(extrainfo.p(end,2) < extrainfo.p(end,5) && ...
                 extrainfo.ss(end) >= 3)
             unwindflag = true;
-            msg = 'contional uptrendconfirmed failed:tin';
+            msg = 'conditional uptrendconfirmed failed:tin';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
@@ -120,7 +120,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         if extrainfo.p(end,2) < extrainfo.p(end,5) && ...
                 extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
             unwindflag = true;
-            msg = 'contional uptrendconfirmed failed:within2ticks';
+            msg = 'conditional uptrendconfirmed failed:within2ticks';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
@@ -221,7 +221,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 ~(extrainfo.p(end,3) < extrainfo.lips(end) && ...
                 extrainfo.p(end,5) < extrainfo.p(end,2))
             unwindflag = true;
-            msg = 'contional dntrendconfirmed failed:tin';
+            msg = 'conditional dntrendconfirmed failed:tin';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
@@ -230,7 +230,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         if (extrainfo.p(end,2) > extrainfo.p(end,5) || strcmpi(val,'conditional-dntrendconfirmed-2')) && ...
                 extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size
             unwindflag = true;
-            msg = 'contional dntrendconfirmed failed:within2ticks';
+            msg = 'conditional dntrendconfirmed failed:within2ticks';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
