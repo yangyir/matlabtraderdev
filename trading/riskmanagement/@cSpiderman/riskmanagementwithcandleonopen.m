@@ -1,4 +1,4 @@
-function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
+function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
 %this func is applied to fractal strategy ONLY
 %this func is for conditional-open trade ONLY
     p = inputParser;
@@ -18,10 +18,12 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
             strcmpi(val,'conditional-uptrendconfirmed-1') || ...
             strcmpi(val,'conditional-uptrendconfirmed-2') || ...
             strcmpi(val,'conditional-uptrendconfirmed-3') || ...
+            strcmpi(val,'conditional-breachuplvlup') || ...
             strcmpi(val,'conditional-dntrendconfirmed') || ...
             strcmpi(val,'conditional-dntrendconfirmed-1') || ...
             strcmpi(val,'conditional-dntrendconfirmed-2') || ...
-            strcmpi(val,'conditional-dntrendconfirmed-3'))
+            strcmpi(val,'conditional-dntrendconfirmed-3') || ...
+            strcmpi(val,'conditional-breachdnlvldn'))
         return;
     end
     %
@@ -50,6 +52,50 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
     runriskmanagementbeforemktclose = p.Results.RunRiskManagementBeforeMktClose;
     kellytables = p.Results.KellyTables;
     
+    if strcmpi(val,'conditional-breachuplvlup')
+        if extrainfo.p(end,5) < extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1)
+            closepx = extrainfo.p(end,5);
+            openpx = extrainfo.p(end,2);
+            highpx = extrainfo.p(end,3);
+            lowpx = extrainfo.p(end,4);
+            if closepx >= openpx
+                shadowlinewidth = highpx - closepx;
+            else
+                shadowlinewidth = highpx - openpx;
+            end
+            kwidth = highpx - lowpx;
+            if shadowlinewidth/kwidth >= 0.618
+                unwindflag = true;
+                msg = 'conditional breachuplvlup failed:shadowline';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+            end
+        end
+        return
+    end
+    %
+    if strcmpi(val,'conditional-breachdnlvldn')
+        if extrainfo.p(end,5) > extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1)
+            closepx = extrainfo.p(end,5);
+            openpx = extrainfo.p(end,2);
+            highpx = extrainfo.p(end,3);
+            lowpx = extrainfo.p(end,4);
+            if closepx <= openpx
+                shadowlinewidth = closepx - lowpx;
+            else
+                shadowlinewidth = openpx - lowpx;
+            end
+            kwidth = highpx - lowpx;
+            if shadowlinewidth/kwidth >= 0.618
+                unwindflag = true;
+                msg = 'conditional breachdnlvldn failed:shadowline';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+            end
+        end
+        return
+    end
+    %
     lflag = strcmpi(val,'conditional-uptrendconfirmed') || strcmpi(val,'conditional-uptrendconfirmed-1') || strcmpi(val,'conditional-uptrendconfirmed-2') || strcmpi(val,'conditional-uptrendconfirmed-3');
     sflag = strcmpi(val,'conditional-dntrendconfirmed') || strcmpi(val,'conditional-dntrendconfirmed-1') || strcmpi(val,'conditional-dntrendconfirmed-2') || strcmpi(val,'conditional-dntrendconfirmed-3');
     breachupfailed = (extrainfo.p(end,5) <= extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1));
@@ -66,6 +112,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
                 extrainfo.ss(end) >= 3)
             unwindflag = true;
             msg = 'contional uptrendconfirmed failed:tin';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         %CASE2:close above open but high is within 2 ticks above fractal hh
@@ -73,6 +121,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
                 extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
             unwindflag = true;
             msg = 'contional uptrendconfirmed failed:within2ticks';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         %CASE3:up shadow line is too long
@@ -80,7 +130,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
         kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
         if shadowlinewidth/kwidth > 0.618
             unwindflag = true;
-            msg = 'conditional uptrendconfirmed failed:shadow line:shadowline';
+            msg = 'conditional uptrendconfirmed failed:shadowline';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         exceptionflag = extrainfo.p(end,5) > extrainfo.lvlup(end) && ...
@@ -92,13 +144,17 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
         %CASE4:close before market close
         if runriskmanagementbeforemktclose && ~exceptionflag
             unwindflag = true;
-            msg = 'conditional uptrendconfirmed failed:shadow line:mktclose';
+            msg = 'conditional uptrendconfirmed failed:mktclose';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         %CASE5:the price is low enough
         if extrainfo.p(end,5) < max(extrainfo.teeth(end),extrainfo.lips(end)) && ~exceptionflag
             unwindflag = true;
             msg = 'conditional uptrendconfirmed failed:lowprice';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         %CASE6:potential high kelly failed
@@ -112,6 +168,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
                 if ~isempty(strfind(output.opkellied,'potential'))
                     unwindflag = true;
                     msg = 'conditional uptrendconfirmed failed:lowkelly';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
                     return
                 end
             end
@@ -147,6 +205,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
         if kelly < 0.145
             unwindflag = true;
             msg = 'conditional uptrendconfirmed success:lowkelly';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
     end
@@ -162,6 +222,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
                 extrainfo.p(end,5) < extrainfo.p(end,2))
             unwindflag = true;
             msg = 'contional dntrendconfirmed failed:tin';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         %CASE2:close below open but low is within 2 ticks below fractal ll
@@ -169,6 +231,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
                 extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size
             unwindflag = true;
             msg = 'contional dntrendconfirmed failed:within2ticks';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         %CASE3:dn shadow line is too long
@@ -176,19 +240,25 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
         kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
         if shadowlinewidth/kwidth > 0.618
             unwindflag = true;
-            msg = 'conditional dntrendconfirmed failed:shadow line:shadowline';
+            msg = 'conditional dntrendconfirmed failed:shadowline';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end  
         %CASE4:close before market close
         if runriskmanagementbeforemktclose
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:shadow line:mktclose';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         %CASE5:the price is high enough
         if extrainfo.p(end,5) > min(extrainfo.teeth(end),extrainfo.lips(end))
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:highprice';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
         %CASE6:potential high kelly failed
@@ -202,6 +272,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
                 if ~isempty(strfind(output.opkellied,'potential'))
                     unwindflag = true;
                     msg = 'conditional dntrendconfirmed failed:lowkelly';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
                 end
             end
         end
@@ -214,6 +286,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
             if kelly < 0.15
                 unwindflag = true;
                 msg = 'conditional dntrendconfirmed failed:shadow line:breachdnlvldn';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
                 return
             end
         end
@@ -234,6 +308,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
                 if kelly < 0.145
                     unwindflag = true;
                     msg = 'conditional dntrendconfirmed failed:shadow line:breachdnbshighvalue';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
                     return
                 end
             end
@@ -268,6 +344,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(varargin)
         if kelly < 0.145
             unwindflag = true;
             msg = 'conditional dntrendconfirmed success:lowkelly';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
             return
         end
     end

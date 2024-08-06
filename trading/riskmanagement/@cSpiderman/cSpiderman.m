@@ -50,6 +50,7 @@ classdef cSpiderman < cTradeRiskManager
         [unwindtrade] = riskmanagement_tdsq(obj,varargin)
         [unwindtrade] = riskmanagement_fractal(obj,varargin)
         [unwindtrade] = riskmanagement_fibonacci(obj,varargin)
+        [unwindflag,msg] = riskmanagementwithcandleonopen(obj,varargin)
         [] = setusefractalupdateflag(obj,flagin)
         [] = setusefibonacciflag(obj,flagin)
     end
