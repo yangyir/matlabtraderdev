@@ -569,7 +569,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 else
                     flags.isbslowbreach = ei.ll(end) == bslow;
                 end
-                if ~flags.isbslowbreach && ei.bs(end) >= 9
+                if ~flags.isbslowbreach && ei.bs(end) >= 9 && ei.ll(end) <= bslow
                     flags.isbslowbreach = true;
                 end
             end
