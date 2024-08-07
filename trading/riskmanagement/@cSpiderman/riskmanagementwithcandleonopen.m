@@ -117,7 +117,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %CASE2:close above open but high is within 2 ticks above fractal hh
-        if extrainfo.p(end,2) < extrainfo.p(end,5) && ...
+        if extrainfo.p(end,2) >= extrainfo.p(end,5) && ...
                 extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
             unwindflag = true;
             msg = 'conditional uptrendconfirmed failed:within2ticks';
@@ -227,7 +227,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %CASE2:close below open but low is within 2 ticks below fractal ll
-        if (extrainfo.p(end,2) > extrainfo.p(end,5) || strcmpi(val,'conditional-dntrendconfirmed-2')) && ...
+        if (extrainfo.p(end,2) <= extrainfo.p(end,5) || strcmpi(val,'conditional-dntrendconfirmed-2')) && ...
                 extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:within2ticks';
