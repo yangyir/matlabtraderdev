@@ -81,8 +81,8 @@ function [output] = fractal_signal_conditional2(varargin)
             if strcmpi(op{1,1},'conditional:mediumbreach-trendconfirmed')
                 vlookuptbl = kellytables.bmtc;
                 try
-                    kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
-                    wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l);
+                    kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
+                    wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
                 catch
                     kelly2 = -9.99;
                     wprob2 = 0;
@@ -90,8 +90,8 @@ function [output] = fractal_signal_conditional2(varargin)
             elseif strcmpi(op{1,1},'conditional:strongbreach-trendconfirmed')
                 vlookuptbl = kellytables.bstc;
                 try
-                    kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
-                    wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l);
+                    kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
+                    wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
                 catch
                     kelly2 = -9.99;
                     wprob2 = 0;
@@ -104,8 +104,8 @@ function [output] = fractal_signal_conditional2(varargin)
             if isempty(wprob), wprob = 0;end
             %
             try
-                kelly3 = kelly_k('volblowup',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
-                wprob3 = kelly_w('volblowup',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l);
+                kelly3 = kelly_k('volblowup',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
+                wprob3 = kelly_w('volblowup',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
             catch
                 kelly3 = -9.99;
                 wprob3 = 0;
@@ -183,8 +183,8 @@ function [output] = fractal_signal_conditional2(varargin)
             if strcmpi(op{1,2},'conditional:mediumbreach-trendconfirmed')
                 vlookuptbl = kellytables.smtc;
                 try
-                    kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-                    wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
+                    kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
+                    wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
                 catch
                     kelly2 = -9.99;
                     wprob2 = 0;
@@ -192,8 +192,8 @@ function [output] = fractal_signal_conditional2(varargin)
             elseif strcmpi(op{1,2},'conditional:strongbreach-trendconfirmed')
                 vlookuptbl = kellytables.sstc;
                 try
-                    kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-                    wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
+                    kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
+                    wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
                 catch
                     kelly2 = -9.99;
                     wprob2 = 0;
@@ -206,8 +206,8 @@ function [output] = fractal_signal_conditional2(varargin)
             if isempty(wprob), wprob = 0;end
             %
             try
-                kelly3 = kelly_k('volblowup',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-                wprob3 = kelly_w('volblowup',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
+                kelly3 = kelly_k('volblowup',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
+                wprob3 = kelly_w('volblowup',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
             catch
                 kelly3 = -9.99;
                 wprob3 = 0;
