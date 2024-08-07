@@ -60,7 +60,7 @@ for jj = 1:ncondpending
     %信号本身必须是Fractal
     if ~strcmpi(signalinfo.name,'fractal'), continue;end
     
-    if strcmpi(signalinfo.mode,'conditional-uptrendconfirmed') || strcmpi(signalinfo.mode,'conditional-uptrendbreak')
+    if ~isempty(strfind(signalinfo.mode,'conditional-uptrendconfirmed')) || strcmpi(signalinfo.mode,'conditional-uptrendbreak')
         %cancel 1)either the price falls below the alligator's teeth
         %2)the latest HH is (1-tick) below the previous HH
         %3)the lastest HH is updated
@@ -84,7 +84,7 @@ for jj = 1:ncondpending
             end
         end
         %
-    elseif strcmpi(signalinfo.mode,'conditional-dntrendconfirmed') || strcmpi(signalinfo.mode,'conditional-dntrendbreak')
+    elseif ~isempty(strfind(signalinfo.mode,'conditional-dntrendconfirmed')) || strcmpi(signalinfo.mode,'conditional-dntrendbreak')
         %cancel 1)either the price rallies above the alligator's teeth
         %2)the latest LL is (1-tick) above the previous LL
         %3)the latest LL is updated

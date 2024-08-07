@@ -19,6 +19,7 @@ else
     volume_exist = pos.position_total_;
 end
 
+code = instrument.code_ctp;
 try
     maxvolume = stratfractal.riskcontrols_.getconfigvalue('code',code,'propname','maxunits');
 catch
