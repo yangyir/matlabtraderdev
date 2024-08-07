@@ -157,7 +157,15 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             obj.closestr_ = msg;
             return
         end
-        %CASE6:potential high kelly failed
+        %CASE6:fractal hh update to a higher level
+        if extrainfo.hh(end) > extrainfo.hh(end-1)
+            unwindflag = true;
+            msg = 'conditional uptrendconfirmed failed:fractalhhupdate';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+        %CASE7:potential high kelly failed
         if strcmpi(val,'conditional-uptrendconfirmed')
             output = fractal_signal_conditional2('extrainfo',extrainfo,...
                 'ticksize',trade.instrument_.tick_size,...
@@ -261,7 +269,15 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             obj.closestr_ = msg;
             return
         end
-        %CASE6:potential high kelly failed
+        %case6:fractal ll update to a lower level
+        if extrainfo.ll(end) < extrainfo.ll(end-1)
+            unwindflag = true;
+            msg = 'conditional dntrendconfirmed failed:fractalllupdate';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+        %CASE7:potential high kelly failed
         if strcmpi(val,'conditional-dntrendconfirmed')
             output = fractal_signal_conditional2('extrainfo',extrainfo,...
                 'ticksize',trade.instrument_.tick_size,...
@@ -277,7 +293,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
             end
         end
-        %CASE7:special treatment for conditional breachdn-lvldn
+        %CASE8:special treatment for conditional breachdn-lvldn
         isbreachdnlvldn = extrainfo.ll(end) <= extrainfo.lvldn(end) && extrainfo.p(end,5) > extrainfo.lvldn(end);
         if isbreachdnlvldn
             tbl2lookup = kellytables.breachdnlvldn_tc;
@@ -291,7 +307,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 return
             end
         end
-        %CASE8:special treatment for conditional breachdn-bshighvalue
+        %CASE9:special treatment for conditional breachdn-bshighvalue
         lastbsidx = find(extrainfo.bs >= 9,1,'last');
         if isempty(lastbsidx)
             ndiff = size(extrainfo.bs,1);
