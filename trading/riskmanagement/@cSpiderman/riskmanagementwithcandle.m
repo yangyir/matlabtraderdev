@@ -487,7 +487,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         unwindtrade = trade;
         return
     end
-    
+            
     [ unwindtrade ] = obj.riskmanagement_tdsq('extrainfo',extrainfo,...
         'updatepnlforclosedtrade',updatepnlforclosedtrade);
     if ~isempty(unwindtrade)
@@ -575,7 +575,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         [~,op] = fractal_signal_unconditional(ei,trade.instrument_.tick_size,nfractal);
         try
             kelly = kelly_k(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
-            wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
+            wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l);
         catch
             kelly = -9.99;
             wprob = 0;
@@ -636,7 +636,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         [~,op] = fractal_signal_unconditional(ei,trade.instrument_.tick_size,nfractal);
         try
             kelly = kelly_k(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-            wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
+            wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
         catch
             kelly = -9.99;
             wprob = 0;
