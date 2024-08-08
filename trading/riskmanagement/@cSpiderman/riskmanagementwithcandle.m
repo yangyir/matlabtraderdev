@@ -476,7 +476,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         volume = trade.openvolume_;
         obj.status_ = 'closed';
         obj.closestr_ = msg;
-        trade.status_ = 'closed';
+%         trade.status_ = 'closed';
         trade.runningpnl_ = 0;
         instrument = trade.instrument_;
         if isempty(instrument)
@@ -520,7 +520,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             unwindtrade = trade;
             obj.closestr_ = 'long holiday';
             obj.status_ = 'closed';
-            trade.status_ = 'closed';
+%             trade.status_ = 'closed';
             trade.runningpnl_ = 0;
             trade.closeprice_ = extrainfo.p(end,5);
             trade.closedatetime1_ = extrainfo.p(end,1);
@@ -548,7 +548,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     obj.closestr_ = 'tdsq:bc13limit';
                 end
                 obj.status_ = 'closed';
-                trade.status_ = 'closed';
+%                 trade.status_ = 'closed';
                 trade.runningpnl_ = 0;
                 trade.closeprice_ = extrainfo.p(end,5);
                 trade.closedatetime1_ = extrainfo.p(end,1);
@@ -585,7 +585,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.trade_.closeprice_ = extrainfo.latestopen;
             volume = trade.openvolume_;
             obj.status_ = 'closed';
-            obj.trade_.status_ = 'closed';
+%             obj.trade_.status_ = 'closed';
             try
                 obj.closestr_ = ['up:',op.comment,':kelly is low'];
             catch
@@ -609,7 +609,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         obj.trade_.closeprice_ = extrainfo.latestopen;
         volume = trade.openvolume_;
         obj.status_ = 'closed';
-        obj.trade_.status_ = 'closed';
+%         obj.trade_.status_ = 'closed';
         obj.closestr_ = 'invalid breachup';
         obj.trade_.runningpnl_ = 0;
         instrument = trade.instrument_;
@@ -646,7 +646,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             obj.trade_.closeprice_ = extrainfo.latestopen;
             volume = trade.openvolume_;
             obj.status_ = 'closed';
-            obj.trade_.status_ = 'closed';
+%             obj.trade_.status_ = 'closed';
             try
                 obj.closestr_ = ['dn:',op.comment,':kelly is low'];
             catch
@@ -670,7 +670,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         obj.trade_.closeprice_ = extrainfo.latestopen;
         volume = trade.openvolume_;
         obj.status_ = 'closed';
-        obj.trade_.status_ = 'closed';
+%         obj.trade_.status_ = 'closed';
         obj.closestr_ = 'invalid breachdn';
         obj.trade_.runningpnl_ = 0;
         instrument = trade.instrument_;
