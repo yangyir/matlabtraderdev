@@ -1,5 +1,5 @@
 %%
-% w = cWind;
+w = cWind;
 fprintf('wind instance initiated...\n');
 dir_ = getenv('DATAPATH');
 dir_data_ = [dir_,'dailybar\'];
