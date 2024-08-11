@@ -152,19 +152,25 @@ if isempty(lastsc13)
 else
     nkfromsc13 = size(px,1)-lastsc13;
     idxhhlast = find(idxHH == 1,1,'last');
-    if idxhhlast - 2*nfractal <= lastsc13 && lastsc13 <= idxhhlast
-        %sc13 happens within the latest fractal
-        schigh = HH(end);
-    elseif lastsc13 > idxhhlast
-        %sc13 happens after the latest fractal
-        schigh = max(px(lastsc13:end-1,3));
-    elseif lastsc13 < idxhhlast - 2*nfractal
-        %sc13 happens before the latest fractal
-        schigh = max(px(lastsc13:idxhhlast,3));
-    end
+%     if idxhhlast - 2*nfractal <= lastsc13 && lastsc13 <= idxhhlast
+%         %sc13 happens within the latest fractal
+%         schigh = HH(end);
+%     elseif lastsc13 > idxhhlast
+%         %sc13 happens after the latest fractal
+%         schigh = max(px(lastsc13:end-1,3));
+%     elseif lastsc13 < idxhhlast - 2*nfractal
+%         %sc13 happens before the latest fractal
+%         schigh = max(px(lastsc13:idxhhlast,3));
+%     end
     if nkfromsc13 < 13
-        isschighbreach = px(end,5)>=schigh;
+        if idxhhlast > lastsc13
+            schigh = max(ei.px(lastsc13:idxhhlast,3));
+            isschighbreach = HH(end) == schigh;
+        else
+            isschighbreach = HH(end) == max(px(lastsc13:end-1,3));
+        end
     else
+        schigh = px(lastsc13,3);
         isschighbreach = schigh == HH(end) & idxhhlast - lastsc13 == nfractal;
     end
 end

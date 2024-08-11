@@ -146,19 +146,25 @@ if isempty(lastbc13)
 else
     nkfrombc13 = size(px,1)-lastbc13;
     idxlllast = find(idxLL == -1,1,'last');
-    if idxlllast - 2*nfractal <= lastbc13 && lastbc13 <= idxlllast
-        %bc13 happens within the latest fractal
-        bclow = LL(end);
-    elseif lastbc13 > idxlllast
-        %bc13 happens after the latest fractal
-        bclow = min(px(lastbc13:end-1,4));
-    elseif lastbc13 < idxlllast - 2*nfractal
-        %bc13 happens before the latest fractal
-        bclow = min(px(lastbc13:idxlllast,4));
-    end
+%     if idxlllast - 2*nfractal <= lastbc13 && lastbc13 <= idxlllast
+%         %bc13 happens within the latest fractal
+%         bclow = LL(end);
+%     elseif lastbc13 > idxlllast
+%         %bc13 happens after the latest fractal
+%         bclow = min(px(lastbc13:end-1,4));
+%     elseif lastbc13 < idxlllast - 2*nfractal
+%         %bc13 happens before the latest fractal
+%         bclow = min(px(lastbc13:idxlllast,4));
+%     end
     if nkfrombc13 < 13
-        isbclowbreach = px(end,5)<bclow;
+        if idxlllast > lastbc13
+            bclow = min(px(lastbc13:idxlllast,4));
+            isbclowbreach = LL(end) == bclow;
+        else
+            isbclowbreach = LL(end) ==  min(px(lastbc13:end-1,4));
+        end
     else
+        bclow = px(lastbc13,4);
         isbclowbreach = bclow == LL(end) & idxlllast - lastbc13 == nfractal;
     end
 end
