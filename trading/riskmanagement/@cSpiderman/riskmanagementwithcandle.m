@@ -603,24 +603,25 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
     end
     %
-%     if extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1) && ...
-%             extrainfo.hh(end) > extrainfo.hh(end-1)
-%         obj.trade_.closedatetime1_ = extrainfo.latestdt;
-%         obj.trade_.closeprice_ = extrainfo.latestopen;
-%         volume = trade.openvolume_;
-%         obj.status_ = 'closed';
-% %         obj.trade_.status_ = 'closed';
-%         obj.closestr_ = 'invalid breachup';
-%         obj.trade_.runningpnl_ = 0;
-%         instrument = trade.instrument_;
-%         if isempty(instrument)
-%             obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-%         else
-%             obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-%         end
-%         unwindtrade = obj.trade_;
-%         return
-%     end
+    if extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1) && ...
+            extrainfo.hh(end) > extrainfo.hh(end-1) && ...
+            abs(extrainfo.hh(end)/extrainfo.hh(end-1)-1)>0.002
+        obj.trade_.closedatetime1_ = extrainfo.latestdt;
+        obj.trade_.closeprice_ = extrainfo.latestopen;
+        volume = trade.openvolume_;
+        obj.status_ = 'closed';
+%         obj.trade_.status_ = 'closed';
+        obj.closestr_ = 'fractal:upupdate';
+        obj.trade_.runningpnl_ = 0;
+        instrument = trade.instrument_;
+        if isempty(instrument)
+            obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+        else
+            obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+        end
+        unwindtrade = obj.trade_;
+        return
+    end
     %
     %in case it is a dn-breach of fractal barrier, we shall calculate kelly
     if runriskmanagementbeforemktclose && extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1)
@@ -664,24 +665,25 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
     end
     %
-%     if extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1) && ...
-%             extrainfo.ll(end) < extrainfo.ll(end-1)
-%         obj.trade_.closedatetime1_ = extrainfo.latestdt;
-%         obj.trade_.closeprice_ = extrainfo.latestopen;
-%         volume = trade.openvolume_;
-%         obj.status_ = 'closed';
-% %         obj.trade_.status_ = 'closed';
-%         obj.closestr_ = 'invalid breachdn';
-%         obj.trade_.runningpnl_ = 0;
-%         instrument = trade.instrument_;
-%         if isempty(instrument)
-%             obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-%         else
-%             obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-%         end
-%         unwindtrade = obj.trade_;
-%         return
-%     end
+    if extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1) && ...
+            extrainfo.ll(end) < extrainfo.ll(end-1) && ...
+            abs(extrainfo.ll(end)/extrainfo.ll(end-1)-1)>0.002
+        obj.trade_.closedatetime1_ = extrainfo.latestdt;
+        obj.trade_.closeprice_ = extrainfo.latestopen;
+        volume = trade.openvolume_;
+        obj.status_ = 'closed';
+%         obj.trade_.status_ = 'closed';
+        obj.closestr_ = 'fractal:dnupdate';
+        obj.trade_.runningpnl_ = 0;
+        instrument = trade.instrument_;
+        if isempty(instrument)
+            obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+        else
+            obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+        end
+        unwindtrade = obj.trade_;
+        return
+    end
     %
     if isempty(instrument)
         obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_);
