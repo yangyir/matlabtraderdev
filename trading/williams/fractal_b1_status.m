@@ -164,7 +164,7 @@ else
 %     end
     if nkfromsc13 < 13
         if idxhhlast > lastsc13
-            schigh = max(ei.px(lastsc13:idxhhlast,3));
+            schigh = max(px(lastsc13:idxhhlast,3));
             isschighbreach = HH(end) == schigh;
         else
             isschighbreach = HH(end) == max(px(lastsc13:end-1,3));
