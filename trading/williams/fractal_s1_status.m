@@ -159,7 +159,7 @@ else
     if nkfrombc13 < 13
         if idxlllast > lastbc13
             bclow = min(px(lastbc13:idxlllast,4));
-            isbclowbreach = LL(end) == bclow;
+            isbclowbreach = LL(end) == bclow & LL(end) >= 2*px(lastbc13,4)-px(lastbc13,3);
         else
             isbclowbreach = LL(end) ==  min(px(lastbc13:end-1,4));
         end
