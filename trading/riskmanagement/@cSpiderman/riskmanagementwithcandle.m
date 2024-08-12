@@ -465,27 +465,39 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
 %         %upon its open
 %             
 %     end
-
-    [ unwindflag, msg ] = obj.riskmanagementwithcandleonopen('trade',trade,...
-        'extrainfo',extrainfo,...
-        'runriskmanagementbeforemktclose',runriskmanagementbeforemktclose,...
-        'kellytables',kellytables);
-    if unwindflag
-        trade.closedatetime1_ = extrainfo.latestdt;
-        trade.closeprice_ = extrainfo.latestopen;
-        volume = trade.openvolume_;
-        obj.status_ = 'closed';
-        obj.closestr_ = msg;
-%         trade.status_ = 'closed';
-        trade.runningpnl_ = 0;
-        instrument = trade.instrument_;
-        if isempty(instrument)
-            trade.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-        else
-            trade.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+    val = trade.opensignal_.mode_;
+    if (strcmpi(val,'conditional-uptrendconfirmed') || ...
+            strcmpi(val,'conditional-uptrendconfirmed-1') || ...
+            strcmpi(val,'conditional-uptrendconfirmed-2') || ...
+            strcmpi(val,'conditional-uptrendconfirmed-3') || ...
+            strcmpi(val,'conditional-breachuplvlup') || ...
+            strcmpi(val,'conditional-dntrendconfirmed') || ...
+            strcmpi(val,'conditional-dntrendconfirmed-1') || ...
+            strcmpi(val,'conditional-dntrendconfirmed-2') || ...
+            strcmpi(val,'conditional-dntrendconfirmed-3') || ...
+            strcmpi(val,'conditional-breachdnlvldn'))
+    
+        [ unwindflag, msg ] = obj.riskmanagementwithcandleonopen('trade',trade,...
+            'extrainfo',extrainfo,...
+            'runriskmanagementbeforemktclose',runriskmanagementbeforemktclose,...
+            'kellytables',kellytables);
+        if unwindflag
+            trade.closedatetime1_ = extrainfo.latestdt;
+            trade.closeprice_ = extrainfo.latestopen;
+            volume = trade.openvolume_;
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            %         trade.status_ = 'closed';
+            trade.runningpnl_ = 0;
+            instrument = trade.instrument_;
+            if isempty(instrument)
+                trade.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+            else
+                trade.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+            end
+            unwindtrade = trade;
+            return
         end
-        unwindtrade = trade;
-        return
     end
             
     [ unwindtrade ] = obj.riskmanagement_tdsq('extrainfo',extrainfo,...

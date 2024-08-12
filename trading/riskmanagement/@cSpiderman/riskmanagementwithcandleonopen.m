@@ -14,18 +14,18 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     signalinfo = trade.opensignal_;
     if ~isa(signalinfo,'cFractalInfo'), return;end
     val = signalinfo.mode_;
-    if ~(strcmpi(val,'conditional-uptrendconfirmed') || ...
-            strcmpi(val,'conditional-uptrendconfirmed-1') || ...
-            strcmpi(val,'conditional-uptrendconfirmed-2') || ...
-            strcmpi(val,'conditional-uptrendconfirmed-3') || ...
-            strcmpi(val,'conditional-breachuplvlup') || ...
-            strcmpi(val,'conditional-dntrendconfirmed') || ...
-            strcmpi(val,'conditional-dntrendconfirmed-1') || ...
-            strcmpi(val,'conditional-dntrendconfirmed-2') || ...
-            strcmpi(val,'conditional-dntrendconfirmed-3') || ...
-            strcmpi(val,'conditional-breachdnlvldn'))
-        return;
-    end
+%     if ~(strcmpi(val,'conditional-uptrendconfirmed') || ...
+%             strcmpi(val,'conditional-uptrendconfirmed-1') || ...
+%             strcmpi(val,'conditional-uptrendconfirmed-2') || ...
+%             strcmpi(val,'conditional-uptrendconfirmed-3') || ...
+%             strcmpi(val,'conditional-breachuplvlup') || ...
+%             strcmpi(val,'conditional-dntrendconfirmed') || ...
+%             strcmpi(val,'conditional-dntrendconfirmed-1') || ...
+%             strcmpi(val,'conditional-dntrendconfirmed-2') || ...
+%             strcmpi(val,'conditional-dntrendconfirmed-3') || ...
+%             strcmpi(val,'conditional-breachdnlvldn'))
+%         return;
+%     end
     %
     extrainfo = p.Results.ExtraInfo;
     try
@@ -124,11 +124,21 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,5);
         kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
         if shadowlinewidth/kwidth > 0.618
-            unwindflag = true;
-            msg = 'conditional uptrendconfirmed failed:shadowline';
-            obj.status_ = 'closed';
-            obj.closestr_ = msg;
-            return
+            if extrainfo.p(end,1) > trade.opendatetime1_
+                if extrainfo.p(end,4) < extrainfo.p(end-1,4)
+                    unwindflag = true;
+                    msg = 'conditional uptrendconfirmed failed:shadowline';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                    return
+                end
+            else
+                unwindflag = true;
+                msg = 'conditional uptrendconfirmed failed:shadowline';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                return
+            end
         end
         exceptionflag = extrainfo.p(end,5) > extrainfo.lvlup(end) && ...
             extrainfo.p(end,5) > extrainfo.teeth(end) && ...
@@ -245,7 +255,20 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     end
     %end of runriskmanagementbeforemktclose && lflag && breachupsuccess
     %
-    %  
+    %
+    if lflag && ~breachupfailed && (extrainfo.p(end,5) <= extrainfo.hh(end-1) && extrainfo.p(end-1,5) <= extrainfo.hh(end-1))
+        shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,5);
+        kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
+        if shadowlinewidth/kwidth > 0.618
+            unwindflag = true;
+            msg = 'conditional uptrendconfirmed failed:shadowline';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+    end
+    %
+    %
     if sflag && breachdnfailed
         %CASE1: special treatment for tin as it is very volatile
         %exception:close below open with high below lips
@@ -272,11 +295,21 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         shadowlinewidth = extrainfo.p(end,5)-extrainfo.p(end,4);
         kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
         if shadowlinewidth/kwidth > 0.618
-            unwindflag = true;
-            msg = 'conditional dntrendconfirmed failed:shadowline';
-            obj.status_ = 'closed';
-            obj.closestr_ = msg;
-            return
+            if extrainfo.p(end,1) > trade.opendatetime1_
+                if extrainfo.p(end,3) > extrainfo.p(end-1,3)
+                    unwindflag = true;
+                    msg = 'conditional dntrendconfirmed failed:shadowline';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                    return
+                end
+            else
+                unwindflag = true;
+                msg = 'conditional dntrendconfirmed failed:shadowline';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                return
+            end
         end  
         %CASE4:close before market close
         if runriskmanagementbeforemktclose
