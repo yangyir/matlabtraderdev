@@ -43,7 +43,7 @@ function [rtt_output] = rtt_setup(varargin)
     %note:20180918:we can now have RH counter
 %     if strcmpi(countername,'rh_demo_tf')
 %         rtt_counter = CounterRH.(countername);
-    if strcmpi(countername,'ccb_ly_fut') || strcmpi(countername,'ccb_yy_fut')
+    if strcmpi(countername,'ccb_ly_fut') || strcmpi(countername,'ccb_yy_fut') || strcmpi(countername,'gfqh_tgzg')
         rtt_counter = CounterCTP.(countername);
     elseif strcmpi(coutername,'demowind') %for equity demo/replay
         rtt_counter = [];%todo
@@ -118,6 +118,8 @@ function [rtt_output] = rtt_setup(varargin)
         dir_ = [dir_,'ccbyy\'];
     elseif strcmpi(countername,'demowind')
         dir_ = [dir_,'demowind\'];
+    elseif strcmpi(countername,'gfqh_tgzg')
+        dir_ = [dir_,'tgzg\'];
     else
         error('rtt_setup:invalid countername')
     end
