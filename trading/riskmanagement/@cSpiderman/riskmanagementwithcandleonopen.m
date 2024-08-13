@@ -53,9 +53,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     kellytables = p.Results.KellyTables;
     
     breachupfailed = (extrainfo.p(end,5) <= extrainfo.hh(end-1) && extrainfo.p(end,3) > extrainfo.hh(end-1));
-    breachupsuccess = extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) < extrainfo.hh(end-1);
+    breachupsuccess = extrainfo.p(end,5) > extrainfo.hh(end-1) && extrainfo.p(end-1,5) <= extrainfo.hh(end-1);
     breachdnfailed = extrainfo.p(end,5) >= extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1);
-    breachdnsuccess = extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) > extrainfo.ll(end-1);
+    breachdnsuccess = extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) >= extrainfo.ll(end-1);
     
     if strcmpi(val,'conditional-breachuplvlup')
         if breachupfailed
