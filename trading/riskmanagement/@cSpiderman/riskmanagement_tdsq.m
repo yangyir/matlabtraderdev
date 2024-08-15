@@ -19,7 +19,7 @@ function [ unwindtrade ] = riskmanagement_tdsq( obj,varargin )
         obj.status_ = 'closed';
         unwindtrade = trade;
         if updatepnlforclosedtrade
-            trade.status_ = 'closed';
+%             trade.status_ = 'closed';
             trade.runningpnl_ = 0;
             if isempty(trade.instrument_)
                 trade.closepnl_ = trade.opendirection_*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_);

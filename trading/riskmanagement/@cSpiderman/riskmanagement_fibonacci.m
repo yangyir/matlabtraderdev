@@ -53,7 +53,7 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
         obj.status_ = 'closed';
         unwindtrade = obj.trade_;
         if updatepnlforclosedtrade
-            trade.status_ = 'closed';
+%             trade.status_ = 'closed';
             trade.runningpnl_ = 0;
             if isempty(trade.instrument_)
                 try
@@ -112,7 +112,7 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                 obj.closestr_ = 'fibonacci:0.618';
                 unwindtrade = obj.trade_;
                 if updatepnlforclosedtrade
-                    trade.status_ = 'closed';
+%                     trade.status_ = 'closed';
                     trade.runningpnl_ = 0;
                     if isempty(trade.instrument_)
                         try
@@ -169,7 +169,7 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                 obj.closestr_ = 'fibonacci:0.618';
                 unwindtrade = obj.trade_;
                 if updatepnlforclosedtrade
-                    trade.status_ = 'closed';
+%                     trade.status_ = 'closed';
                     trade.runningpnl_ = 0;
                     if isempty(trade.instrument_)
                         try

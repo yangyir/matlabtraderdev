@@ -146,7 +146,7 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
         obj.status_ = 'closed';
         unwindtrade = obj.trade_;
         if updatepnlforclosedtrade
-            trade.status_ = 'closed';
+%             trade.status_ = 'closed';
             trade.runningpnl_ = 0;
             trade.closeprice_ = extrainfo.latestopen;
             trade.closedatetime1_ = extrainfo.latestdt;
