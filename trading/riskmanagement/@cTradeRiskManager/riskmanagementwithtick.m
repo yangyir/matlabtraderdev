@@ -78,7 +78,7 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
             obj.status_ = 'closed';
             %
             if updatepnlforclosedtrade
-                obj.trade_.status_ = 'closed';
+%                 obj.trade_.status_ = 'closed';
                 obj.trade_.runningpnl_ = 0;
                 if obj.trade_.opendirection_ == 1
                     obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(tickBid-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
@@ -119,7 +119,7 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
             end
             %
             if updatepnlforclosedtrade
-                obj.trade_.status_ = 'closed';
+%                 obj.trade_.status_ = 'closed';
                 obj.trade_.runningpnl_ = 0;
                 if obj.trade_.opendirection_ == 1
                     obj.trade_.closepnl_ = obj.trade_.opendirection_*obj.trade_.openvolume_*(tickBid-obj.trade_.openprice_)/ obj.trade_.instrument_.tick_size * obj.trade_.instrument_.tick_value;
