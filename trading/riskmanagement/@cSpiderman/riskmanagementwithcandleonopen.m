@@ -111,7 +111,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             obj.closestr_ = msg;
             return
         end
-        %CASE2:close above open but high is within 2 ticks above fractal hh
+        %CASE2:close below open but high is within 2 ticks above fractal hh
         if extrainfo.p(end,2) >= extrainfo.p(end,5) + 2*trade.instrument_.tick_size && ...
                 extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
             if extrainfo.p(end,1) > trade.opendatetime1_
@@ -197,7 +197,36 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
             end
         end
-        %  
+        %
+        %CASE8:close above open but high is within 2 ticks above fractal hh
+        if extrainfo.p(end,2) < extrainfo.p(end,5) && ...
+                extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
+            if extrainfo.p(end,1) <= trade.opendatetime1_
+                wadlast = extrainfo.wad(end);
+                wadidx = find(extrainfo.wad > wadlast,1,'last');
+                if ~isempty(wadidx)
+                    closepidx = extrainfo.p(wadidx,5);
+                    if closepidx <= extrainfo.p(end,5)+trade.instrument_.tick_size
+                        unwindflag = true;
+                        msg = 'conditional uptrendconfirmed failed:within2ticks_wad';
+                        obj.status_ = 'closed';
+                        obj.closestr_ = msg;
+                        return
+                    else
+                        if closepidx < extrainfo.hh(end-1)
+                            unwindflag = true;
+                            msg = 'conditional uptrendconfirmed failed:within2ticks_wad';
+                            obj.status_ = 'closed';
+                            obj.closestr_ = msg;
+                            return
+                        end
+                    end
+                end
+            else
+                %to be impelemented
+            end
+        end
+        %
     end
     %end of lfag with breachupfailed
     %
@@ -292,7 +321,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             obj.closestr_ = msg;
             return
         end
-        %CASE2:close below open but low is within 2 ticks below fractal ll
+        %CASE2:close above open but low is within 2 ticks below fractal ll
         if (extrainfo.p(end,2) <= extrainfo.p(end,5)-2*trade.instrument_.tick_size || strcmpi(val,'conditional-dntrendconfirmed-2')) && ...
                 extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size
             if extrainfo.p(end,1) > trade.opendatetime1_
@@ -408,6 +437,36 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
             end
         end
+        %
+        %CASE10:close below open but low is within 2 ticks below fractal ll
+        if extrainfo.p(end,2) > extrainfo.p(end,5) && ...
+                extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size
+            if extrainfo.p(end,1) <= trade.opendatetime1_
+                wadlast = extrainfo.wad(end);
+                wadidx = find(extrainfo.wad < wadlast,1,'last');
+                if ~isempty(wadidx)
+                    closepidx = extrainfo.p(wadidx,5);
+                    if closepidx >= extrainfo.p(end,5)-trade.instrument_.tick_size
+                        unwindflag = true;
+                        msg = 'conditional uptrendconfirmed failed:within2ticks_wad';
+                        obj.status_ = 'closed';
+                        obj.closestr_ = msg;
+                        return
+                    else
+                        if closepidx > extrainfo.ll(end-1)
+                            unwindflag = true;
+                            msg = 'conditional uptrendconfirmed failed:within2ticks_wad';
+                            obj.status_ = 'closed';
+                            obj.closestr_ = msg;
+                            return
+                        end
+                    end
+                end
+            else
+                %to be implemented
+            end
+        end
+        %
     end
     %end of sflag with breachdnfailed
     %

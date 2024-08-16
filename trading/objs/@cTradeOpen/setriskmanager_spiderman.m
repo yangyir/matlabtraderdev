@@ -70,6 +70,7 @@ function [] = setriskmanager_spiderman(obj,varargin)
 
     if strcmpi(riskmanager.type_,'breachup-B')
         if strcmpi(info.status_, 'closed')
+            riskmanager.status_ = info.status_;
             riskmanager.pxstoploss_ = info.pxstoploss_;
             riskmanager.pxtarget_ = info.pxtarget_;
             riskmanager.closestr_ = info.closestr_;
@@ -127,6 +128,7 @@ function [] = setriskmanager_spiderman(obj,varargin)
         error('cTradeOpen:setriskmanager_spiderman:reverse-B not implemented...')
     elseif strcmpi(riskmanager.type_,'breachdn-S')
         if strcmpi(info.status_, 'closed')
+            riskmanager.status_ = info.status_;
             riskmanager.pxstoploss_ = info.pxstoploss_;
             riskmanager.pxtarget_ = info.pxtarget_;
             riskmanager.closestr_ = info.closestr_;
