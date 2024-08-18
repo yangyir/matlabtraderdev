@@ -320,8 +320,39 @@ function [] = riskmanagement(obj,dtnum)
                         flag = obj.helper_.book_.hasposition(instrument);
                         iloop = iloop + 1;
                     end
-                    signals_ = obj.gensignalssingle('instrument',instrument);
-                    obj.autoplacenewentrustssingle('instrument',instrument,'signals',signals_);
+                    %make sure we are not gen any signals just before
+                    %market close in case there is any trade being unwinded
+                    %here
+                    if strcmpi(obj.mode_,'replay')
+                        runningt = obj.replay_time1_;
+                    else
+                        runningt = now;
+                    end
+                    lasttick = obj.mde_fut_.getlasttick(instrument);
+                    ticktime = lasttick(1);
+                    if ticktime - runningt < -1e-3
+                        fprintf('time discrepancy is found between tick and calendar time...\n');
+                        return;
+                    end
+                    runningmm = hour(runningt)*60+minute(runningt);
+                    tickm = hour(ticktime)*60+minute(ticktime);
+                    freq = obj.mde_fut_.getcandlefreq(instrument);
+                    runriskmanagementbeforemktclose = false;
+                    if freq ~= 1440
+                        if runningmm == unwindtrade.oneminb4close1_ && tickm == unwindtrade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+                            runriskmanagementbeforemktclose = true;
+                        elseif runningmm == unwindtrade.oneminb4close2_ && tickm == unwindtrade.oneminb4close2_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+                            runriskmanagementbeforemktclose = true;
+                        end
+                    else
+                        if runningmm == unwindtrade.oneminb4close1_ && tickm == unwindtrade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+                            runriskmanagementbeforemktclose = true;
+                        end
+                    end
+                    if ~runriskmanagementbeforemktclose
+                        signals_ = obj.gensignalssingle('instrument',instrument);
+                        obj.autoplacenewentrustssingle('instrument',instrument,'signals',signals_);
+                    end
                 end
             end
         end
