@@ -143,11 +143,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     return
                 end
             else
-                unwindflag = true;
-                msg = 'conditional uptrendconfirmed failed:shadowline';
-                obj.status_ = 'closed';
-                obj.closestr_ = msg;
-                return
+                %exception found on y2409 on 20240628
+                exceptionflag = extrainfo.p(end,4) > extrainfo.p(end-1,4) & ...
+                    shadowlinewidth/kwidth < 0.75;
+                if ~exceptionflag
+                    unwindflag = true;
+                    msg = 'conditional uptrendconfirmed failed:shadowline';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                    return
+                end
             end
         end
         exceptionflag = extrainfo.p(end,5) > extrainfo.lvlup(end) && ...
@@ -448,14 +453,14 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     closepidx = extrainfo.p(wadidx,5);
                     if closepidx >= extrainfo.p(end,5)-trade.instrument_.tick_size
                         unwindflag = true;
-                        msg = 'conditional uptrendconfirmed failed:within2ticks_wad';
+                        msg = 'conditional dntrendconfirmed failed:within2ticks_wad';
                         obj.status_ = 'closed';
                         obj.closestr_ = msg;
                         return
                     else
                         if closepidx > extrainfo.ll(end-1)
                             unwindflag = true;
-                            msg = 'conditional uptrendconfirmed failed:within2ticks_wad';
+                            msg = 'conditional dntrendconfirmed failed:within2ticks_wad';
                             obj.status_ = 'closed';
                             obj.closestr_ = msg;
                             return
