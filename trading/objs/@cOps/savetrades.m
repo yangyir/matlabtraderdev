@@ -66,7 +66,18 @@ function [] = savetrades(obj,varargin)
                 end
             end
             for itrade = 1:obj.trades_.latest_
-                savedtrades.push(obj.trades_.node_(itrade));
+                %check wheter the trade has been loaded twice
+                trade_i = obj.trades_.node_(itrade);
+                not2saveflag = false;
+                for jtrade = 1:closedtrades.latest_
+                    if strcmpi(closedtrades.node_(jtrade).id_,trade_i.id_)
+                        not2saveflag = true;
+                        break
+                    end
+                end
+                if ~not2saveflag
+                    savedtrades.push(trade_i);
+                end
             end
             savedtrades.totxt2(fn_);
         else
