@@ -16,6 +16,10 @@ function [validbreachhh,validbreachll,b1type,s1type] = fractal_validbreach(extra
         abs(extrainfo.hh(end-1)/extrainfo.hh(end)-1)<0.002 &...
         extrainfo.px(end,3)>extrainfo.lips(end) &...                         %the high price of candle is above alligator's lips
         ~isnan(extrainfo.lips(end))&~isnan(extrainfo.teeth(end))&~isnan(extrainfo.jaw(end));
+    if validbreachhh && extrainfo.px(end-1,5)==extrainfo.hh(end-1)
+        validbreachhh = extrainfo.ss(end-1) < 16;
+    end
+    
     if checkteeth
         validbreachhh = validbreachhh & extrainfo.hh(end)-extrainfo.teeth(end)>=ticksize;
     end
@@ -25,6 +29,9 @@ function [validbreachhh,validbreachll,b1type,s1type] = fractal_validbreach(extra
         abs(extrainfo.ll(end-1)/extrainfo.ll(end)-1)<0.002 &...
         extrainfo.px(end,4)<extrainfo.lips(end) &...                         %the low price of candle is below alligator's lips
         ~isnan(extrainfo.lips(end))&~isnan(extrainfo.teeth(end))&~isnan(extrainfo.jaw(end));
+    if validbreachll && extrainfo.px(end-1,5)==extrainfo.ll(end-1)
+        validbreachll = extrainfo.bs(end-1) < 16;
+    end
     if checkteeth
         validbreachll = validbreachll & extrainfo.ll(end)-extrainfo.teeth(end)<=-ticksize;
     end
