@@ -64,7 +64,7 @@ for jj = 1:ncondpending
         %cancel 1)either the price falls below the alligator's teeth
         %2)the latest HH is (1-tick) below the previous HH
         %3)the lastest HH is updated
-        ispxbelowteeth = p(end,5) < teeth(end);
+        ispxbelowteeth = p(end,5) <= teeth(end) - ticksize;
         last2hh = hh(find(idxHH == 1,2,'last'));
         if size(last2hh,1) == 2
             islatesthhlower = last2hh(2)<last2hh(1)-ticksize;
@@ -88,7 +88,7 @@ for jj = 1:ncondpending
         %cancel 1)either the price rallies above the alligator's teeth
         %2)the latest LL is (1-tick) above the previous LL
         %3)the latest LL is updated
-        ispxaboveteeth = p(end,5) > teeth(end);
+        ispxaboveteeth = p(end,5) >= teeth(end) + ticksize;
         last2ll = ll(find(idxLL == -1,2,'last'));
         if size(last2ll,1) == 2
             islatestllhigher = last2ll(2)>last2ll(1)+ticksize;

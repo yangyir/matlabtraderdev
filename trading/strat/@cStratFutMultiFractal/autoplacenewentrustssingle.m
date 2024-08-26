@@ -164,7 +164,7 @@ function [] = autoplacenewentrustssingle(stratfractal,varargin)
                         ncondpendingvolume = ncondpendingvolume + epending.volume;
                     end                                
                 end
-                display(ncondpendingvolume)
+%                 display(ncondpendingvolume)
                 if ncondpendingvolume < volume
                     if signal_short(4) == -2
                         stratfractal.condshortopen(instrument.code_ctp,signal_short(3)-ticksize,volume,'signalinfo',info);

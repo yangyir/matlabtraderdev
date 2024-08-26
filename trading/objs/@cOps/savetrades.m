@@ -61,7 +61,7 @@ function [] = savetrades(obj,varargin)
         if closedtrades.latest_ > 0
             savedtrades = cTradeOpenArray;
             for itrade = 1:closedtrades.latest_
-                if closedtrades.node_(itrade).opendatetime1_ > getlastbusinessdate(t)+ 0.375
+                if closedtrades.node_(itrade).closedatetime1_ > getlastbusinessdate(t)+ 0.375
                     savedtrades.push(closedtrades.node_(itrade));
                 end
             end
@@ -69,8 +69,8 @@ function [] = savetrades(obj,varargin)
                 %check wheter the trade has been loaded twice
                 trade_i = obj.trades_.node_(itrade);
                 not2saveflag = false;
-                for jtrade = 1:closedtrades.latest_
-                    if strcmpi(closedtrades.node_(jtrade).id_,trade_i.id_)
+                for jtrade = 1:savedtrades.latest_
+                    if strcmpi(savedtrades.node_(jtrade).id_,trade_i.id_)
                         not2saveflag = true;
                         break
                     end

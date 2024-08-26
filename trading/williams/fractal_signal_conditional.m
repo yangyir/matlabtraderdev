@@ -233,6 +233,17 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     longtrend = longtrend & (ei.px(end,5)<ei.hh(end)|(ei.px(end,5)==ei.hh(end)&ei.px(end-1,5)<ei.hh(end)));
     longtrend = longtrend & ei.px(end,5) > ei.teeth(end);
     %
+    %special case found on backtest of y2409 on 20240802
+    if longtrend && ei.ss(end) >= 9
+        sslastval = ei.ss(end);
+        sshighpx = max(ei.px(end-sslastval+1:end,3));
+        sshighidx = find(ei.px(end-sslastval+1:end,3) == sshighpx,1,'last') + size(ei.px,1) - sslastval;
+        sslowpx = ei.px(sshighidx,4);
+        if ei.hh(end) <= sslowpx
+            longtrend = false;
+        end
+    end
+    %
     %
     %SHORT TREND:
     %2a.1.there are 2*nfractal candles close BELOW alligator's teeth
@@ -476,7 +487,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 else
                     flags.issshighbreach = ei.hh(end) == sshigh;
                 end
-                if ~flags.issshighbreach && ei.ss(end) >= 9
+                if ~flags.issshighbreach && ei.ss(end) >= 9 && ei.hh(end) >= sshigh
                     flags.issshighbreach = true;
                 end
             end

@@ -330,7 +330,21 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             end
                             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
                         else
-                            fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
+                            %special case found on backest of y2409 on
+                            %20240802
+                            if ss(end-1) >= 9
+                                sslastval = ss(end-1);
+                                sshighpx = max(p(end-sslastval:end-1,3));
+                                sshighidx = find(p(end-sslastval:end-1,3) == sshighpx,1,'last') + size(p,1) - sslastval - 1;
+                                sslowpx = p(sshighidx,4);
+                                if hh(end) <= sslowpx
+                                    signal_i(1) = 0;
+                                    signal_i(4) = 0;
+                                    stratfractal.unwindpositions(instruments{i},'closestr','fracal hh is too low');
+                                end
+                            else
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
+                            end
                         end
                     elseif strcmpi(op.comment,'breachup-highsc13')
                         if ~strcmpi(freq,'1440m')

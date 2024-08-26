@@ -116,11 +116,15 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
             if extrainfo.p(end,1) > trade.opendatetime1_
                 if extrainfo.p(end,4) < extrainfo.p(end-1,4)
-                    unwindflag = true;
-                    msg = 'conditional uptrendconfirmed failed:within2ticks';
-                    obj.status_ = 'closed';
-                    obj.closestr_ = msg;
-                    return
+                    exceptionflag = strcmpi(val,'conditional-uptrendconfirmed-1') && ...
+                        (extrainfo.p(end,5) > extrainfo.lvlup(end) || extrainfo.latestopen > extrainfo.lvlup(end));
+                    if ~exceptionflag
+                        unwindflag = true;
+                        msg = 'conditional uptrendconfirmed failed:within2ticks';
+                        obj.status_ = 'closed';
+                        obj.closestr_ = msg;
+                        return
+                    end
                 end
             else
                 unwindflag = true;
@@ -212,11 +216,14 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 if ~isempty(wadidx)
                     closepidx = extrainfo.p(wadidx,5);
                     if closepidx <= extrainfo.p(end,5)+trade.instrument_.tick_size
-                        unwindflag = true;
-                        msg = 'conditional uptrendconfirmed failed:within2ticks_wad';
-                        obj.status_ = 'closed';
-                        obj.closestr_ = msg;
-                        return
+                        exceptionflag = strcmpi(val,'conditional-uptrendconfirmed-1') && extrainfo.p(end,5) > extrainfo.lvlup(end);
+                        if ~exceptionflag
+                            unwindflag = true;
+                            msg = 'conditional uptrendconfirmed failed:within2ticks_wad';
+                            obj.status_ = 'closed';
+                            obj.closestr_ = msg;
+                            return
+                        end
                     else
                         if closepidx < extrainfo.hh(end-1)
                             unwindflag = true;
