@@ -226,7 +226,7 @@ if ~istrendconfirmed
     end
 end
 %to be in line with the trading code
-istrendconfirmed = istrendconfirmed & px(end-1,5) < teeth(end-1);
+istrendconfirmed = istrendconfirmed & px(end-1,5) - teeth(end-1) < ticksize;
 
 %check alligator's lips,teeth,jaw relationship
 if jaw(end)<teeth(end) && teeth(end)<lips(end)
