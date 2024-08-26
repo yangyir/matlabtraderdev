@@ -61,7 +61,7 @@ function [] = savetrades(obj,varargin)
         if closedtrades.latest_ > 0
             savedtrades = cTradeOpenArray;
             for itrade = 1:closedtrades.latest_
-                if closedtrades.node_(itrade).opendatetime1_ > getlastbusinessdate(t)+ 0.375
+                if closedtrades.node_(itrade).closedatetime1_ > getlastbusinessdate(t)+ 0.375
                     savedtrades.push(closedtrades.node_(itrade));
                 end
             end
