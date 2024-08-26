@@ -1269,6 +1269,9 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         %above teeth
                         hhabovelvlup = hhabovelvlup & isempty(find(lips(end-nfractal:end)-teeth(end-nfractal:end)+ticksize<0,1,'first'));
                     end
+                    if ~hhabovelvlup && ss(end) >= 4
+                        hhabovelvlup = isempty(find(p(end-ss(end)+1:end,5)-lips(end-ss(end)+1:end)<0,1,'first'));
+                    end
                 end
                 if hhabovelvlup
                     if lvlup(end) > lvldn(end)
