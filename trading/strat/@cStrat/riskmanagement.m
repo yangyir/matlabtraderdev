@@ -349,7 +349,10 @@ function [] = riskmanagement(obj,dtnum)
                             runriskmanagementbeforemktclose = true;
                         end
                     end
-                    if ~runriskmanagementbeforemktclose
+                    if ~runriskmanagementbeforemktclose && isempty(strfind(unwindtrade.closestr_,'shadowline'))
+                        %avoid to reopen conditional trade in case the
+                        %market is about to close or the previous unwinded
+                        %trade is due to shadowline
                         signals_ = obj.gensignalssingle('instrument',instrument);
                         obj.autoplacenewentrustssingle('instrument',instrument,'signals',signals_);
                     end
