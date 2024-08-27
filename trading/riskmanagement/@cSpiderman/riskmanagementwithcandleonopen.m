@@ -357,7 +357,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
         if shadowlinewidth/kwidth > 0.618
             if extrainfo.p(end,1) > trade.opendatetime1_
-                if extrainfo.p(end,3) > extrainfo.p(end-1,3)
+                if ~(extrainfo.p(end,3) < extrainfo.p(end-1,3) && ...
+                        shadowlinewidth/kwidth < 0.8)
                     unwindflag = true;
                     msg = 'conditional dntrendconfirmed failed:shadowline';
                     obj.status_ = 'closed';
@@ -365,11 +366,17 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     return
                 end
             else
-                unwindflag = true;
-                msg = 'conditional dntrendconfirmed failed:shadowline';
-                obj.status_ = 'closed';
-                obj.closestr_ = msg;
-                return
+                %exception found on p2409 on 20240418
+                exceptionflag = extrainfo.p(end,3) < extrainfo.p(end-1,3) & ...
+                    extrainfo.p(end,5) < extrainfo.p(end-1,5) & ...
+                    shadowlinewidth/kwidth < 0.8;
+                if ~exceptionflag
+                    unwindflag = true;
+                    msg = 'conditional dntrendconfirmed failed:shadowline';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                    return
+                end
             end
         end  
         %CASE4:close before market close
