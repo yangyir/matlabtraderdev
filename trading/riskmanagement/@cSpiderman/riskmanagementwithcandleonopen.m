@@ -65,10 +65,15 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             shadowlinewidth = highpx - closepx;
             kwidth = highpx - lowpx;
             if shadowlinewidth/kwidth >= 0.75
-                unwindflag = true;
-                msg = 'conditional breachuplvlup failed:shadowline';
-                obj.status_ = 'closed';
-                obj.closestr_ = msg;
+                exceptionflag = extrainfo.p(end,5) > extrainfo.p(end,2) & ...
+                    extrainfo.p(end,5) > extrainfo.p(end-1,5) & ...
+                    extrainfo.p(end,4) > extrainfo.p(end-1,4);
+                if ~exceptionflag
+                    unwindflag = true;
+                    msg = 'conditional breachuplvlup failed:shadowline';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                end
             end
         elseif breachupsuccess
             trade.opensignal_.mode_ = 'breachup-lvlup';
