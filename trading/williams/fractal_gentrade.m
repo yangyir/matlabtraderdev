@@ -22,6 +22,8 @@ else
         nfractal = 4;
     elseif strcmpi(freq,'5m')
         nfractal = 6;
+    elseif strcmpi(freq,'daily')
+        nfractal = 2;
     end
     signalinfo = struct('name','fractal',...
         'hh',resstruct.hh(idx),'ll',resstruct.ll(idx),...
@@ -70,59 +72,49 @@ if longshort == 1
     %新逻辑：
     %1.已经连续2*nfractal的K线排列在alligator teeth的上方；且HH形成在alligator
     %teeth的上方，在HH的上方一个tick挂买单
-    if strcmpi(freq,'daily')
-        cond1 = isempty(find(resstruct.px(idx-4:idx-1,5)-resstruct.teeth(idx-4:idx-1)+2*ticksize<0,1,'first'));
+%     if strcmpi(freq,'daily')
+%         cond1 = isempty(find(resstruct.px(idx-4:idx-1,5)-resstruct.teeth(idx-4:idx-1)+2*ticksize<0,1,'first'));
+%     else
+%         cond1 = isempty(find(resstruct.px(idx-8:idx-1,5)-resstruct.teeth(idx-8:idx-1)+2*ticksize<0,1,'first'));
+%     end
+    %1.1 introduce fractal_signal_conditional to check whether trade was
+    %conditional trend or not
+    ei = fractal_truncate(resstruct,idx-1);
+    signal = fractal_signal_conditional(ei,ticksize,nfractal);
+    if isempty(signal)
+        cond1 = false;
     else
-        cond1 = isempty(find(resstruct.px(idx-8:idx-1,5)-resstruct.teeth(idx-8:idx-1)+2*ticksize<0,1,'first'));
+        if isempty(signal{1,1})
+            cond1 = false;
+        else
+            if signal{1,1}(1) == 1
+                cond1 = true;
+            else
+                cond1 = false;
+            end
+        end 
     end
     
     %2.TDST level up在HH的上方；且HH形成在alligator teeth的上方；在TDST level up
     %上方一个tick挂买单
-    cond2 = resstruct.lvlup(idx-1)>resstruct.hh(idx-1);
+%     cond2 = resstruct.lvlup(idx-1)>resstruct.hh(idx-1);
     
     %3.HH在TDST level up的上方；在HH上方2个tick挂买单
-    cond3 = resstruct.hh(idx-1)>resstruct.lvlup(idx-1);
+%     cond3 = resstruct.hh(idx-1)>resstruct.lvlup(idx-1);
+    %from 20240828 onwards
+    %all non-conditional-trended trade shall open with the next open or its
+    %close price in case the next open price is not available
+    %this is because for non-trened trades, no momenet would guarantee
+    %whether the price shall breach the barrier until it happened
     
     if cond1
         if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
+            openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksize);
         else
-            ei = fractal_truncate(resstruct,idx);
-            hhstatus = fractal_barrier_status(ei,ticksize);
-            if strcmpi(hhstatus,'upward')
-                opendt = resstruct.px(idx,1);
-            else
-            
-                if idx < size(resstruct.px,1)
-                    opendt = resstruct.px(idx+1,1);
-                else
-                    opendt = resstruct.px(idx,1);
-                end
-            end
-        end
-        openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksize);
-    elseif cond2 && strcmpi(mode,'breachup-lvlup') && resstruct.lips(idx) > resstruct.teeth(idx)
-        if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
-        else
-            try
-                opendt = resstruct.px(idx+1,1);
-            catch
-                opendt = resstruct.px(idx,1);
-            end
+            openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksize);
         end
-        openpx = max(resstruct.px(idx,2),resstruct.lvlup(idx-1)+ticksize);
-    elseif cond3 && strcmpi(mode,'breachup-lvlup') && resstruct.jaw(idx) < resstruct.hh(idx-1)
-        if strcmpi(freq,'daily')
-            opendt = resstruct.px(idx,1);
-        else
-            try
-                opendt = resstruct.px(idx+1,1);
-            catch
-                opendt = resstruct.px(idx,1);
-            end
-        end
-        openpx = max(resstruct.px(idx,2),resstruct.hh(idx-1)+2*ticksize);
     else
         if strcmpi(freq,'daily')
             try
@@ -205,58 +197,42 @@ elseif longshort == -1
     %新逻辑：
     %1.已经连续2*nfractal的K线排列在alligator teeth的下方；且LL形成在alligator
     %teeth的下方，在LL的下方一个tick挂买单
-    if strcmpi(freq,'daily')
-        cond1 = isempty(find(resstruct.px(idx-4:idx-1,5)-resstruct.teeth(idx-4:idx-1)-2*ticksize>0,1,'first'));
+%     if strcmpi(freq,'daily')
+%         cond1 = isempty(find(resstruct.px(idx-4:idx-1,5)-resstruct.teeth(idx-4:idx-1)-2*ticksize>0,1,'first'));
+%     else
+%         cond1 = isempty(find(resstruct.px(idx-8:idx-1,5)-resstruct.teeth(idx-8:idx-1)-2*ticksize>0,1,'first'));
+%     end
+    %
+    ei = fractal_truncate(resstruct,idx-1);
+    signal = fractal_signal_conditional(ei,ticksize,nfractal);
+    if isempty(signal)
+        cond1 = false;
     else
-        cond1 = isempty(find(resstruct.px(idx-8:idx-1,5)-resstruct.teeth(idx-8:idx-1)-2*ticksize>0,1,'first'));
-    end
-        
+        if isempty(signal{1,2})
+            cond1 = false;
+        else
+            if signal{1,2}(1) == -1
+                cond1 = true;
+            else
+                cond1 = false;
+            end
+        end
+    end    
     %2.TDST level dn在LL的下方；且LL形成在alligator teeth的下方；在TDST level dn
     %下方一个tick挂买单
-    cond2 = resstruct.lvldn(idx-1)<resstruct.ll(idx-1);
+%     cond2 = resstruct.lvldn(idx-1)<resstruct.ll(idx-1);
     
     %3.LL在TDST level dn的下方；在LL下方2个tick挂卖单
-    cond3 = resstruct.ll(idx-1)<resstruct.lvldn(idx-1);
+%     cond3 = resstruct.ll(idx-1)<resstruct.lvldn(idx-1);
     
     if cond1
         if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
+            openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksize);
         else
-            ei = fractal_truncate(resstruct,idx);
-            [~,llstatus] = fractal_barrier_status(ei,ticksize);
-            if strcmpi(llstatus,'dnward')
-                opendt = resstruct.px(idx,1);
-            else
-                try
-                    opendt = resstruct.px(idx+1,1);
-                catch
-                    opendt = resstruct.px(idx,1);
-                end
-            end
-        end
-        openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksize);
-    elseif cond2 && strcmpi(mode,'breachdn-lvldn')
-        if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
-        else
-            try
-                opendt = resstruct.px(idx+1,1);
-            catch
-                opendt = resstruct.px(idx,1);
-            end
+            openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksize);
         end
-        openpx = min(resstruct.px(idx,2),resstruct.lvldn(idx-1)-ticksize);
-    elseif cond3 && strcmpi(mode,'breachdn-lvldn')
-        if strcmpi(freq,'daily')
-            opendt = resstruct.px(idx,1);
-        else
-            try
-                opendt = resstruct.px(idx+1,1);
-            catch
-                opendt = resstruct.px(idx,1);
-            end
-        end
-        openpx = min(resstruct.px(idx,2),resstruct.ll(idx-1)-ticksize);
     else
         if strcmpi(freq,'daily')
             try
