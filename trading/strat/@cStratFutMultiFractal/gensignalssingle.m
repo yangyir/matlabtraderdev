@@ -94,8 +94,8 @@ if ~isempty(signal_)
     if signal_(1) == 0
         if op.direction == 1
             try
-                kelly = kelly_k(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l);
-                wprob = kelly_w(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l);
+                kelly = kelly_k(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l,0);
+                wprob = kelly_w(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l,0);
                 useflag = 1;
             catch
                 idx = strcmpi(op.comment,kellytable.kelly_table_l.opensignal_unique_l);
@@ -110,8 +110,8 @@ if ~isempty(signal_)
             end
         elseif op.direction == -1
             try
-                kelly = kelly_k(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s);
-                wprob = kelly_w(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s);
+                kelly = kelly_k(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s,0);
+                wprob = kelly_w(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s,0);
                 useflag = 1;
             catch
                 idx = strcmpi(op.comment,kellytable.kelly_table_s.opensignal_unique_s);
@@ -134,8 +134,26 @@ if ~isempty(signal_)
         if kelly >= 0.141 && wprob >= 0.41 && useflag
             signal_(1) = op.direction;
             signal_(4) = op.direction;
+        elseif wprob >= 0.5 && useflag && kelly > 0.1 && ...
+                (strcmpi(op.comment,'strongbreach-trendbreak') || strcmpi(op.comment,'volblowup-trendbreak'))
+            signal_(1) = op.direction;
+            signal_(4) = op.direction;
         else
-            stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+            if status.istrendconfirmed && strcmpi(op.comment,'breachup-lvlup-invalid long as close moves too high') && stratfractal.helper_.book_.hasposition(instrument)
+                vlookuptbl = kellytable.breachuplvlup_tc;
+                idx = strcmpi(vlookuptbl.asset,assetname); 
+                kelly = vlookuptbl.K(idx);
+                wprob = vlookuptbl.W(idx);
+                if isempty(kelly)
+                    kelly = -9.99;
+                    wprob = 0;
+                end
+                if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41) || (kelly > 0.09 && wprob > 0.455))
+                    stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                end
+            else
+                stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+            end
         end
         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),op.comment,100*kelly,100*wprob);
         %
@@ -152,8 +170,8 @@ if ~isempty(signal_)
                 strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed')
             %do nothing as this is for sure trending trades           
             try
-                kelly = kelly_k(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l);
-                wprob = kelly_w(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l);
+                kelly = kelly_k(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l,0);
+                wprob = kelly_w(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l,0);
             catch
                 idxvolblowup2 = strcmpi(kellytable.kelly_table_l.opensignal_unique_l,op.comment);
                 kelly = kellytable.kelly_table_l.kelly_unique_l(idxvolblowup2);
@@ -162,13 +180,13 @@ if ~isempty(signal_)
             %
             %%NOTE:here kelly or wprob threshold shall be set
             %%via configuration files,TODO:
-            if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+            if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41) || (kelly>0.10 && wprob>0.45)) 
                 if stratfractal.helper_.book_.hasposition(instrument)
                     %in case the condtional uptrend trade was
                     %opened with breachsshighvalue but it turns
                     %out to be a normal trend trade, e.g.check
                     %with live hog on 24th Jan 2024
-                    if ss(end) >= 9
+                    if ss(end) >= 9 && ~strcmpi(op.comment,'volblowup')
                         idxss9 = find(ss == 9,1,'last');
                         pxhightillss9 = max(p(idxss9-8:idxss9,3));
                         if pxhightillss9 == hh(end)
@@ -181,7 +199,7 @@ if ~isempty(signal_)
                                 kelly = -9.99;
                                 wprob = 0;
                             end
-                            if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                            if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                                 signal_(1) = 0;
                                 signal_(4) = 0;
                                 stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
@@ -204,7 +222,20 @@ if ~isempty(signal_)
                 end
                 fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),op.comment,100*kelly,100*wprob);
             else
-                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),op.comment,100*kelly,100*wprob);
+                %special case found on backest of y2409 on 20240802
+                if ss(end-1) >= 9
+                    sslastval = ss(end-1);
+                    sshighpx = max(p(end-sslastval:end-1,3));
+                    sshighidx = find(p(end-sslastval:end-1,3) == sshighpx,1,'last') + size(p,1) - sslastval - 1;
+                    sslowpx = p(sshighidx,4);
+                    if hh(end) <= sslowpx
+                        signal_(1) = 0;
+                        signal_(4) = 0;
+                        stratfractal.unwindpositions(instrument,'closestr','fracal hh is too low');
+                    end
+                else
+                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),op.comment,100*kelly,100*wprob);
+                end
             end
         elseif strcmpi(op.comment,'breachup-highsc13')
             vlookuptbl = kellytable.breachuphighsc13;
@@ -220,7 +251,7 @@ if ~isempty(signal_)
                 kelly = -9.99;
                 wprob = 0;
             end
-            if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+            if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
                 signal_(1) = 0;
                 signal_(4) = 0;
                 stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
@@ -242,14 +273,18 @@ if ~isempty(signal_)
                         kelly = -9.99;
                         wprob = 0;
                     end
-                    if kelly < 0.145 || wprob < 0.41
+                    if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41) || (kelly > 0.09 && wprob > 0.455))
                         signal_(1) = 0;
                         signal_(4) = 0;
                         stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
                     end
                     fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),'breachup-lvlup-tb',100*kelly,100*wprob);
                 else
-                    vlookuptbl = kellytable.breachuplvlup_tc_all;
+                    if hh(end) >= lvlup(end)
+                        vlookuptbl = kellytable.breachuplvlup_tc;
+                    else
+                        vlookuptbl = kellytable.breachuplvlup_tc_all;
+                    end
                     idx = strcmpi(vlookuptbl.asset,assetname);
                     try
                         kelly = vlookuptbl.K(idx);
@@ -262,7 +297,7 @@ if ~isempty(signal_)
                         kelly = -9.99;
                         wprob = 0;
                     end
-                    if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                    if ~(kelly > 0.1 && wprob >= 0.40)
                         signal_(1) = 0;
                         signal_(4) = 0;
                         %unwind position as the kelly or
@@ -308,7 +343,7 @@ if ~isempty(signal_)
                         wprob = 0;
                     end
                     fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),'breachup-sshighvalue-tc',100*kelly,100*wprob);
-                    if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                    if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
                         signal_(1) = 0;
                         signal_(4) = 0;
                         %unwind position as the kelly or
@@ -318,9 +353,10 @@ if ~isempty(signal_)
                     end
                 end
             else
+                %not trending signals
                 try
-                    kelly = kelly_k(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l);
-                    wprob = kelly_w(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l);
+                    kelly = kelly_k(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l,0);
+                    wprob = kelly_w(op.comment,assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l,0);
                 catch
                     idx = strcmpi(op.comment,kellytable.kelly_table_l.opensignal_unique_l);
                     kelly = kellytable.kelly_table_l.kelly_unique_l(idx);
@@ -329,12 +365,31 @@ if ~isempty(signal_)
                     signal_(4) = 0;
                     stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
                 end
-                if kelly < 0.145 || wprob < 0.4
-                    signal_(1) = 0;
-                    signal_(4) = 0;
-                    stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                if ~isempty(strfind(op.comment,'volblowup-')) || strcmpi(op.comment,'strongbreach-trendbreak')
+                    if wprob > 0.5
+                        if kelly <= 0.05
+                            signal_(1) = 0;
+                            signal_(4) = 0;
+                            stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                        else
+                            signal_(1) = 1;
+                            signal_(4) = 1;
+                        end
+                    else
+                        if kelly < 0.145 || wprob < 0.4
+                            signal_(1) = 0;
+                            signal_(4) = 0;
+                            stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                        end
+                    end
+                else
+                    if kelly < 0.145 || wprob < 0.4
+                        signal_(1) = 0;
+                        signal_(4) = 0;
+                        stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                    end
+                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),op.comment,100*kelly,100*wprob);
                 end
-                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),op.comment,100*kelly,100*wprob);
             end
         end
         %
@@ -344,22 +399,22 @@ if ~isempty(signal_)
                 strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed')
             %do nothing as this is for sure trending trades
             try
-                kelly = kelly_k(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s);
-                wprob = kelly_w(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s);
+                kelly = kelly_k(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s,0);
+                wprob = kelly_w(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s,0);
             catch
                 idxvolblowup2 = strcmpi(kellytable.kelly_table_s.opensignal_unique_s,op.comment);
                 kelly = kellytable.kelly_table_s.kelly_unique_s(idxvolblowup2);
                 wprob = kellytable.kelly_table_s.winp_unique_s(idxvolblowup2);
             end
             %
-            if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+            if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                 if stratfractal.helper_.book_.hasposition(instrument)
                     %in case the conditional dntrend was opened
                     %with breachdnbshighvalue but it turns out
                     %to be a normal trend trend, e.g zn2403 on
                     %20240117
                     %yet!!!
-                    if bs(end) >= 9 || bs(end-1) >= 9
+                    if bs(end) >= 9 || bs(end-1) >= 9 && ~strcmpi(op.comment,'volblowup') 
                         idxbs9 = find(bs == 9,1,'last');
                         pxlowtillbs9 = min(p(idxbs9-8:idxbs9,4));
                         if pxlowtillbs9 == ll(end)
@@ -372,7 +427,7 @@ if ~isempty(signal_)
                                 kelly = -9.99;
                                 wprob = 0;
                             end
-                            if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                            if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                                 signal_(1) = 0;
                                 signal_(4) = 0;
                                 stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
@@ -392,7 +447,7 @@ if ~isempty(signal_)
                                     kelly = -9.99;
                                     wprob = 0;
                                 end
-                                if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                                if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                                     signal_(1) = 0;
                                     signal_(4) = 0;
                                     stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
@@ -406,9 +461,17 @@ if ~isempty(signal_)
                     else
                         %unwind position as the kelly or
                         %winning probability is low
-                        signal_(1) = 0;
-                        signal_(4) = 0;
-                        stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                        if kelly <= 0
+                            signal_(1) = 0;
+                            signal_(4) = 0;
+                            stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                        else
+                            if ~(wprob > 0.45 && kelly > 0.0833)
+                                signal_(1) = 0;
+                                signal_(4) = 0;
+                                stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                            end
+                        end
                     end
                     fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),op.comment,100*kelly,100*wprob);
                 else
@@ -475,7 +538,7 @@ if ~isempty(signal_)
                         kelly = -9.99;
                         wprob = 0;
                     end
-                    if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                    if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
                         signal_(1) = 0;
                         signal_(4) = 0;
                         stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
@@ -501,6 +564,7 @@ if ~isempty(signal_)
                         signal_(1) = 0;
                         signal_(4) = 0;
                         stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                        stratfractal.withdrawcondentrust(instrument);
                     end
                     fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),'breachdn-bshighvalue-tb',100*kelly,100*wprob);
                 else
@@ -518,7 +582,7 @@ if ~isempty(signal_)
                         wprob = 0;
                     end
                     fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(signal_(1)),'breachdn-bshighvalue-tc',100*kelly,100*wprob);
-                    if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
+                    if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
                         signal_(1) = 0;
                         signal_(4) = 0;
                         %unwind position as the kelly or
@@ -532,8 +596,8 @@ if ~isempty(signal_)
                 end
             else
                 try
-                    kelly = kelly_k(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s);
-                    wprob = kelly_w(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s);
+                    kelly = kelly_k(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s,0);
+                    wprob = kelly_w(op.comment,assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s,0);
                     if kelly < 0.145 || wprob < 0.41
                         signal_(1) = 0;
                         signal_(4) = 0;
@@ -597,10 +661,13 @@ else
         if isbreachuplvlup || isbreachupsshigh || isbreachupschigh
             if isbreachuplvlup
                 vlookuptbl = kellytable.breachuplvlup_tc;
+                op_cond_i{1,1} = [op_cond_i{1,1},'-1'];
             elseif isbreachupsshigh
                 vlookuptbl = kellytable.breachupsshighvalue_tc;
+                op_cond_i{1,1} = [op_cond_i{1,1},'-2'];
             elseif isbreachupschigh
                 vlookuptbl = kellytable.breachuphighsc13;
+                op_cond_i{1,1} = [op_cond_i{1,1},'-3'];
             end
             idx = strcmpi(vlookuptbl.asset,assetname);
             kelly = vlookuptbl.K(idx);
@@ -609,10 +676,22 @@ else
                 kelly = -9.99;
                 wprob = 0;
             end
-            if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41)
-                signal_cond_i{1,1}(1) = 1;
+            if isbreachuplvlup
+                if kelly > 0.088 && wprob >= 0.4
+                    signal_cond_i{1,1}(1) = 1;
+                else
+                    signal_cond_i{1,1}(1) = 0;
+                    stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                end
             else
-                signal_cond_i{1,1}(1) = 0;
+                if kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41)
+                    signal_cond_i{1,1}(1) = 1;
+                else
+                    signal_cond_i{1,1}(1) = 0;
+                    if ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
+                        stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                    end
+                end
             end
         else
             %HERE we cannot identify whether it is volblowup or
@@ -620,15 +699,15 @@ else
             if strcmpi(op_cond_i{1,1},'conditional:mediumbreach-trendconfirmed')
                 vlookuptbl = kellytable.bmtc;
                 try
-                    kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l);
-                    wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l);
+                    kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l,0);
+                    wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l,0);
                 catch
                     kelly2 = -9.99;
                     wprob2 = 0;
                 end
                 try
-                    kelly3 = kelly_k('volblowup',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l);
-                    wprob3 = kelly_w('volblowup',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l);
+                    kelly3 = kelly_k('volblowup',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l,0);
+                    wprob3 = kelly_w('volblowup',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l,0);
                 catch
                     kelly3 = -9.99;
                     wprob3 = 0;
@@ -637,15 +716,15 @@ else
             elseif strcmpi(op_cond_i{1,1},'conditional:strongbreach-trendconfirmed')               
                 vlookuptbl = kellytable.bstc;
                 try
-                    kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l);
-                    wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l);
+                    kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l,0);
+                    wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l,0);
                 catch
                     kelly2 = -9.99;
                     wprob2 = 0;
                 end
                 try
-                    kelly3 = kelly_k('volblowup',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l);
-                    wprob3 = kelly_w('volblowup',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l);
+                    kelly3 = kelly_k('volblowup',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.kelly_matrix_l,0);
+                    wprob3 = kelly_w('volblowup',assetname,kellytable.signal_l,kellytable.asset_list,kellytable.winprob_matrix_l,0);
                 catch
                     kelly3 = -9.99;
                     wprob3 = 0;
@@ -676,6 +755,9 @@ else
                     fprintf('\tpotential high kelly with ordinary trending breach up...\n');
                 else
                     signal_cond_i{1,1}(1) = 0;
+                    if extrainfo.hh(end) >= extrainfo.hh(end-1) && ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
+                        stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                    end
                 end
             end
         end
@@ -703,10 +785,13 @@ else
         if isbreachdnlvldn || isbreachdnbslow || isbreachdnbclow
             if isbreachdnlvldn
                 vlookuptbl = kellytable.breachdnlvldn_tc;
+                op_cond_i{1,2} = [op_cond_i{1,2},'-1'];
             elseif isbreachdnbslow
                 vlookuptbl = kellytable.breachdnbshighvalue_tc;
+                op_cond_i{1,2} = [op_cond_i{1,2},'-2'];
             elseif isbreachdnbclow
                 vlookuptbl = kellytable.breachdnlowbc13;
+                op_cond_i{1,2} = [op_cond_i{1,2},'-3'];
             end
             idx = strcmpi(vlookuptbl.asset,assetname);
             kelly = vlookuptbl.K(idx);
@@ -715,24 +800,27 @@ else
                 kelly = -9.99;
                 wprob = 0;
             end
-            if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41)
+            if kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41)
                 signal_cond_i{1,2}(1) = -1;
             else
                 signal_cond_i{1,2}(1) = 0;
+                if ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
+                    stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                end
             end
         else
             if strcmpi(op_cond_i{1,2},'conditional:mediumbreach-trendconfirmed')
                 vlookuptbl = kellytable.smtc;
                 try
-                    kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s);
-                    wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s);
+                    kelly2 = kelly_k('mediumbreach-trendconfirmed',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s,0);
+                    wprob2 = kelly_w('mediumbreach-trendconfirmed',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s,0);
                 catch
                     kelly2 = -9.99;
                     wprob2 = 0;
                 end
                 try
-                    kelly3 = kelly_k('volblowup',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s);
-                    wprob3 = kelly_w('volblowup',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s);
+                    kelly3 = kelly_k('volblowup',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s,0);
+                    wprob3 = kelly_w('volblowup',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s,0);
                 catch
                     kelly3 = -9.99;
                     wprob3 = 0;
@@ -740,15 +828,15 @@ else
             elseif strcmpi(op_cond_i{1,2},'conditional:strongbreach-trendconfirmed')
                 vlookuptbl = kellytable.sstc;
                 try
-                    kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s);
-                    wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s);
+                    kelly2 = kelly_k('strongbreach-trendconfirmed',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s,0);
+                    wprob2 = kelly_w('strongbreach-trendconfirmed',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s,0);
                 catch
                     kelly2 = -9.99;
                     wprob2 = 0;
                 end
                 try
-                    kelly3 = kelly_k('volblowup',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s);
-                    wprob3 = kelly_w('volblowup',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s);
+                    kelly3 = kelly_k('volblowup',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.kelly_matrix_s,0);
+                    wprob3 = kelly_w('volblowup',assetname,kellytable.signal_s,kellytable.asset_list,kellytable.winprob_matrix_s,0);
                 catch
                     kelly3 = -9.99;
                     wprob3 = 0;
@@ -770,13 +858,42 @@ else
                 %known whether the conditional bid would turn
                 %out to be a volblowup or volblowup2
                 if kelly3 >= 0.145 || (kelly3 > 0.11 && wprob3 > 0.41)
-                    signal_cond_i{1,2}(1) = -1;
-                    fprintf('\tpotential high kelly with volblowup breach dn...\n');
+                    if kelly < 0
+                        extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)+ticksize>0,1,'first'));
+                        if extracheck
+                            signal_cond_i{1,2}(1) = -1;
+                            fprintf('\tpotential high kelly with volblowup breach dn...\n');
+                        else
+                            signal_cond_i{1,2}(1) = 0;
+                             if extrainfo.ll(end) <= extrainfo.ll(end-1) && ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
+                                 stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                             end
+                        end
+                    else
+                        signal_cond_i{1,2}(1) = -1;
+                        fprintf('\tpotential high kelly with volblowup breach dn...\n');
+                    end
                 elseif kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
-                    signal_cond_i{1,2}(1) = -1;
-                    fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
+                    if kelly < 0
+                        extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)+ticksize>0,1,'first'));
+                        if extracheck
+                            signal_cond_i{1,2}(1) = -1;
+                            fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
+                        else
+                            signal_cond_i{1,2}(1) = 0;
+                            if extrainfo.ll(end) <= extrainfo.ll(end-1) && ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
+                                stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                            end
+                        end
+                    else
+                        signal_cond_i{1,2}(1) = -1;
+                        fprintf('\tpotential high kelly with ordinary trending breach dn...\n');
+                    end
                 else
                     signal_cond_i{1,2}(1) = 0;
+                    if extrainfo.ll(end) <= extrainfo.ll(end-1) && ~(kelly >= 0.1 || (kelly > 0.088 && wprob >= 0.499))
+                        stratfractal.unwindpositions(instrument,'closestr','kelly is too low');
+                    end
                 end
             end
         end
@@ -812,13 +929,20 @@ else
     %if HH is breached, it shall also breach TDST level up
     hhabovelvlup = hh(end)>=lvlup(end) ...
         & hh(end)>teeth(end) ...
-        & p(end,5)<=hh(end) ...
+        & p(end,5)<hh(end) ...
         & p(end,5)<=lvlup(end) ...
         & (lips(end)>teeth(end) || (lips(end)<=teeth(end) && hh(end)>jaw(end))) ...
         & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first')) ...
         & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)+2*ticksize<0,1,'first')) ...
         & tick(4) >= min(lips(end),teeth(end));
-    if ~hhabovelvlup && p(end,5) <= hh(end) && p(end,5)<=lvlup(end)
+    if hhabovelvlup
+        if p(end,5)<=lvlup(end)
+            hhabovelvlup = true;
+        else
+            hhabovelvlup = ss(end)>1 & ss(end)<9 & ~isempty(find(p(end-ss(end)+1:end,5)-lvlup(end)+ticksize<0,1,'first'));
+        end
+    end   
+    if ~hhabovelvlup && p(end,5) < hh(end) && p(end,5)<=lvlup(end)
         sslast = find(ss==9,1,'last');
         if ~isempty(sslast)
             sslastval = ss(sslast);
@@ -845,6 +969,9 @@ else
             %also need at least nfractal+1 alligator's lips
             %above teeth
             hhabovelvlup = hhabovelvlup & isempty(find(lips(end-nfractal:end)-teeth(end-nfractal:end)+ticksize<0,1,'first'));
+        end
+        if ~hhabovelvlup && ss(end) >= 4
+            hhabovelvlup = isempty(find(p(end-ss(end)+1:end,5)-lips(end-ss(end)+1:end)<0,1,'first'));
         end
     end
     if hhabovelvlup
@@ -882,12 +1009,7 @@ else
             end
         else
             if ~isempty(status) && ~status.istrendconfirmed
-                
-                if ~strcmpi(freq,'1440m')
-                    vlookuptbl = kellytable.breachuplvlup_tb;
-                else
-                    vlookuptbl = kellytable.breachuplvlup_tb;
-                end
+                vlookuptbl = kellytable.breachuplvlup_tb;
                 idx = strcmpi(vlookuptbl.asset,assetname);
                 try
                     kelly = vlookuptbl.K(idx);
@@ -959,6 +1081,20 @@ else
                 stratfractal.removecondentrusts(condentrusts2remove);
             end
         end
+        %
+        if p(end,5) < lips(end) && hh(end) < lips(end) && ~isnan(lvlup(end)) && p(end,5) < lvlup(end)
+            signal_cond_i{1,1}(1) = 0;
+            if isbreachuplvlup
+                fprintf('\t%6s:%4s\t%10s\n',instrument.code_ctp,num2str(0),'conditional:breachup-lvlup-tc not to placed as price and hh is below lips...');
+            elseif isbreachupsshigh
+                fprintf('\t%6s:%4s\t%10s\n',instrument.code_ctp,num2str(0),'conditional:breachup-sshighvalue-tc not to placed as price and hh is below lips...');
+            elseif isbreachupschigh
+                fprintf('\t%6s:%4s\t%10s\n',instrument.code_ctp,num2str(0),'conditional:breachup-highsc13-tc not to placed as price and hh is below lips...');
+            else
+                fprintf('\t%6s:%4s\t%10s\n',instrument.code_ctp,num2str(0),[op_cond_i{1,1},' not to placed as price and hh is below lips...']);
+            end
+        end
+        %
         signals{1,1} = signal_cond_i{1,1};
         if isbreachuplvlup
             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
@@ -968,6 +1104,21 @@ else
             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(1),'conditional:breachup-highsc13',100*kelly,100*wprob);
         else
             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(1),op_cond_i{1,1},100*kelly,100*wprob);
+        end
+    elseif ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 0 && p(end,5) > teeth(end)
+        if hhbelowlvlup
+            vlookuptbl = kellytable.breachuplvlup_tc_all;
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+            if isempty(kelly)
+                kelly = -9.99;
+                wprob = 0;
+            end
+            if kelly > 0.3 && wprob > 0.5
+                signal_cond_i{1,1}(1) = 1;
+                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(1),'conditional:breachup-lvlup-tc',100*kelly,100*wprob);
+            end
+            signals{1,1} = signal_cond_i{1,1};
         end
     elseif ~(~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}))
         if hhabovelvlup
@@ -1135,14 +1286,31 @@ else
         else
             fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(-1),op_cond_i{1,2},100*kelly,100*wprob);
         end
+    elseif ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}) && signal_cond_i{1,2}(1) == 0 && p(end,5) < teeth(end)
+        if llabovelvldn
+            vlookuptbl = kellytable.breachdnlvldn_tc_all;
+            idx = strcmpi(vlookuptbl.asset,assetname);
+            try
+                kelly = vlookuptbl.K(idx);
+                wprob = vlookuptbl.W(idx);
+                if isempty(kelly)
+                    kelly = -9.99;
+                    wprob = 0;
+                end
+            catch
+                kelly = -9.99;
+                wprob = 0;
+            end
+            if kelly > 0.3 && wprob > 0.5
+                signal_cond_i{1,2}(1) = -1;
+                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(-1),'conditional:breachdn-lvldn',100*kelly,100*wprob);
+            end
+            signals{1,2} = signal_cond_i{1,2};
+        end
     elseif ~(~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,2}))
         %NOT BELOW TEETH
         if llbelowlvldn
-            if ~strcmpi(freq,'1440m')
-                vlookuptbl = kellytable.breachdnlvldn_tb;
-            else
-                vlookuptbl = kellytable.breachdnlvldn_tb;
-            end
+            vlookuptbl = kellytable.breachdnlvldn_tb;
             idx = strcmpi(vlookuptbl.asset,assetname);
             try
                 kelly = vlookuptbl.K(idx);
@@ -1169,16 +1337,38 @@ else
             end
             %                     elseif llabovelvldn && p(end,4)<lvlup(end)
         elseif llabovelvldn
-            %                         this_signal = zeros(1,6);
-            %                         this_signal(1,1) = -1;
-            %                         this_signal(1,2) = hh(end);
-            %                         this_signal(1,3) = lvldn(end);                      %LL is still above TDST-lvldn
-            %                         this_signal(1,5) = p(end,3);
-            %                         this_signal(1,6) = p(end,4);
-            %                         this_signal(1,7) = lips(end);
-            %                         this_signal(1,4) = -4;
-            %                         signals{i,2} = this_signal;
-            %                         fprintf('\t%6s:%4s\t%10s\n',instruments{i}.code_ctp,num2str(-1),'conditional:breachdn-lvldn');
+            sflag1 = isempty(find(p(end-2*nfractal+1:end,5)-...
+                teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first')) &...
+                p(end,5)<teeth(end) & ...
+                lvldn(end) > 2*ll(end)-hh(end) & ...
+                p(end,4) < lvlup(end);
+            if sflag1
+                vlookuptbl = kellytable.breachdnlvldn_tc;
+                idx = strcmpi(vlookuptbl.asset,assetname);
+                try
+                    kelly = vlookuptbl.K(idx);
+                    wprob = vlookuptbl.W(idx);
+                    if isempty(kelly)
+                        kelly = -9.99;
+                        wprob = 0;
+                    end
+                catch
+                    kelly = -9.99;
+                    wprob = 0;
+                end
+                if  kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41)
+                    this_signal = zeros(1,7);
+                    this_signal(1,1) = -1;
+                    this_signal(1,2) = hh(end);
+                    this_signal(1,3) = ll(end);
+                    this_signal(1,5) = p(end,3);
+                    this_signal(1,6) = p(end,4);
+                    this_signal(1,7) = lips(end);
+                    this_signal(1,4) = -4;
+                    signals{1,2} = this_signal;
+                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instrument.code_ctp,num2str(-1),'conditional:breachdn-lvldn',100*kelly,100*wprob);
+                end
+            end
         end
     end
 end

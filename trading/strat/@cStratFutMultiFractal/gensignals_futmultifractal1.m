@@ -265,8 +265,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         %do nothing as this is for sure trending trades
                         if ~strcmpi(freq,'1440m')
                             try
-                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
-                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l,0);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l,0);
                             catch
                                 idxvolblowup2 = strcmpi(stratfractal.tbl_all_intraday_.kelly_table_l.opensignal_unique_l,op.comment);
                                 kelly = stratfractal.tbl_all_intraday_.kelly_table_l.kelly_unique_l(idxvolblowup2);
@@ -274,8 +274,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             end
                         else
                             try
-                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l);
-                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l);
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.kelly_matrix_l,0);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_daily_.signal_l,stratfractal.tbl_all_daily_.asset_list,stratfractal.tbl_all_daily_.winprob_matrix_l,0);
                             catch
                                 idxvolblowup2 = strcmpi(stratfractal.tbl_all_daily_.kelly_table_l.opensignal_unique_l,op.comment);
                                 kelly = stratfractal.tbl_all_daily_.kelly_table_l.kelly_unique_l(idxvolblowup2);
@@ -489,8 +489,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             %not trending signals
                             if ~strcmpi(freq,'1440m')
                                 try
-                                    kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l);
-                                    wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l);
+                                    kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l,0);
+                                    wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_l,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l,0);
                                 catch
                                     idx = strcmpi(op.comment,stratfractal.tbl_all_intraday_.kelly_table_l.opensignal_unique_l);
                                     kelly = stratfractal.tbl_all_intraday_.kelly_table_l.kelly_unique_l(idx);
@@ -553,8 +553,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         %do nothing as this is for sure trending trades
                         if ~strcmpi(freq,'1440m')
                             try
-                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
-                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+                                kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s,0);
+                                wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s,0);
                             catch
                                 idxvolblowup2 = strcmpi(stratfractal.tbl_all_intraday_.kelly_table_s.opensignal_unique_s,op.comment);
                                 kelly = stratfractal.tbl_all_intraday_.kelly_table_s.kelly_unique_s(idxvolblowup2);
@@ -794,8 +794,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         else
                             if ~strcmpi(freq,'1440m')
                                 try
-                                    kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s);
-                                    wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s);
+                                    kelly = kelly_k(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_s,0);
+                                    wprob = kelly_w(op.comment,assetname,stratfractal.tbl_all_intraday_.signal_s,stratfractal.tbl_all_intraday_.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_s,0);
                                     if kelly < 0.145 || wprob < 0.41
                                         signal_i(1) = 0;
                                         signal_i(4) = 0;
@@ -1243,7 +1243,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 %if HH is breached, it shall also breach TDST level up
                 hhabovelvlup = hh(end)>=lvlup(end) ...
                     & hh(end)>teeth(end) ...
-                    & p(end,5)<=hh(end) ....
+                    & p(end,5)<hh(end) ....
                     & (lips(end)>teeth(end) || (lips(end)<=teeth(end) && hh(end)>jaw(end))) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,4)-lvlup(end)+2*ticksize<0,1,'first')) ...
                     & ~isempty(find(p(end-2*nfractal+1:end,5)-lvlup(end)+2*ticksize<0,1,'first')) ...
@@ -1255,7 +1255,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         hhabovelvlup = ss(end)>1 & ss(end)<9 & ~isempty(find(p(end-ss(end)+1:end,5)-lvlup(end)+ticksize<0,1,'first'));
                     end
                 end
-                if ~hhabovelvlup && p(end,5) <= hh(end) && p(end,5)<=lvlup(end)
+                if ~hhabovelvlup && p(end,5) < hh(end) && p(end,5)<=lvlup(end)
                     sslast = find(ss==9,1,'last');
                     if ~isempty(sslast)
                         sslastval = ss(sslast);
@@ -1678,7 +1678,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                               teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first')) &...
                               p(end,5)<teeth(end) & ...
                               lvldn(end) > 2*ll(end)-hh(end) & ...
-                               p(end,4) < lvlup(end);
+                              p(end,4) < lvlup(end);
                           if sflag1
                               if ~strcmpi(freq,'1440m')
                                   vlookuptbl = stratfractal.tbl_all_intraday_.breachdnlvldn_tc;
