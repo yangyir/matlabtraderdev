@@ -349,7 +349,8 @@ function [] = riskmanagement(obj,dtnum)
                             runriskmanagementbeforemktclose = true;
                         end
                     end
-                    if ~runriskmanagementbeforemktclose && isempty(strfind(unwindtrade.closestr_,'shadowline'))
+                    if ~runriskmanagementbeforemktclose && isempty(strfind(unwindtrade.closestr_,'shadowline')) && ...
+                            isempty(strfind(unwindtrade.closestr_,'sc13')) && isempty(strfind(unwindtrade.closestr_,'bc13'))
                         %avoid to reopen conditional trade in case the
                         %market is about to close or the previous unwinded
                         %trade is due to shadowline
