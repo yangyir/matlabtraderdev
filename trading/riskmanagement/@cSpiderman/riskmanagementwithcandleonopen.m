@@ -75,6 +75,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     obj.closestr_ = msg;
                 end
             end
+            %case found on p2409 on 20240515
+            if extrainfo.sc(end) == 13
+                status = fractal_b1_status(nfractal,extrainfo,trade.instrument_.tick_size);
+                if ~status.istrendconfirmed
+                    unwindflag = true;
+                    msg = 'conditional breachuplvlup failed:sc13';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                end
+            end
         elseif breachupsuccess
             trade.opensignal_.mode_ = 'breachup-lvlup';
         end
@@ -385,9 +395,17 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             end
         end  
         %CASE4:close before market close
-        if runriskmanagementbeforemktclose
+        exceptionflag = extrainfo.p(end,5) < extrainfo.teeth(end) & ...
+            extrainfo.lips(end) < extrainfo.teeth(end) & ...
+            extrainfo.p(end,2) > extrainfo.p(end,5) & ...
+            shadowlinewidth/kwidth < 0.382;
+        thisbd = floor(extrainfo.p(end,1));
+        nextbd = dateadd(thisbd,'1b');
+        exceptionflag = exceptionflag & nextbd - thisbd <= 3;
+        %exception found on p2409 on 20240509
+        if runriskmanagementbeforemktclose && ~exceptionflag
             unwindflag = true;
-            msg = 'conditional dntrendconfirmed failed:shadow line:mktclose';
+            msg = 'conditional dntrendconfirmed failed:mktclose';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
