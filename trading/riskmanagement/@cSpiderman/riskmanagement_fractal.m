@@ -51,7 +51,8 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
             else
                 updatefailedflag = false;
             end
-            if extrainfo.latestopen < extrainfo.lips(end)-2*ticksize && (~abovelvlupflag || updatefailedflag)
+            hhupdate = extrainfo.hh(end) / extrainfo.hh(end-1) > 1.002;
+            if extrainfo.latestopen < extrainfo.lips(end)-2*ticksize && (~abovelvlupflag || updatefailedflag || hhupdate)
                 closeflag = 1;
                 obj.closestr_ = 'fractal:lips';
             else
@@ -101,7 +102,8 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
             else
                 updatefailedflag = false;
             end
-            if extrainfo.latestopen > extrainfo.lips(end)+2*ticksize && (~belowlvldnflag || updatefailedflag)
+            llupdate = extrainfo.ll(end) < extrainfo.ll(end-1) < 0.998;
+            if extrainfo.latestopen > extrainfo.lips(end)+2*ticksize && (~belowlvldnflag || updatefailedflag || llupdate)
                 closeflag = 1;
                 obj.closestr_ = 'fractal:lips';
             else
