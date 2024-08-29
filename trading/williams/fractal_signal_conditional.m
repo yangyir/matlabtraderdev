@@ -634,7 +634,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     if flags.isbclowbreach
                         this_signal(1,9) = -23;
                     else
-                        this_signal(1,9) = 20;
+                        this_signal(1,9) = -20;
                     end
                 end
             end
