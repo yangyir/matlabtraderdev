@@ -98,8 +98,21 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             end
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj - obj.wadhigh_ <= -2*ticksize
-                closeflag = ret.inconsistence;
-                obj.closestr_ = ['wad:',ret.reason];
+                %20240829:new treatment when the latest wad is lower than
+                %the previous high but with a higher close price
+                if trade.openprice_ <= extrainfo.latestopen
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ['wad:',ret.reason];
+                else
+                    if strcmpi(trade.opensignal_.frequency_,'daily')
+                        closeflag = ret.inconsistence;
+                        obj.closestr_ = ['wad:',ret.reason];
+                    else
+                        obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
+                        obj.pxstoploss_ = floor(obj.pxstoploss_/ticksize)*ticksize+2*ticksize;
+                        obj.closestr_ = ['wad:',ret.reason];
+                    end
+                end
             else
                 %if the re-calculated wad is higher than the highest wad so
                 %far, the trade can be saved
@@ -181,8 +194,21 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             end
             wadadj = extrainfo.wad(end-1)+pmove;
             if wadadj > obj.wadlow_
-                closeflag = ret.inconsistence;
-                obj.closestr_ = ['wad:',ret.reason];
+                %20240829:new treatment when the latest wad is higher than
+                %the previous low but with a lower close price
+                if trade.openprice_ >= extrainfo.latestopen
+                    closeflag = ret.inconsistence;
+                    obj.closestr_ = ['wad:',ret.reason];
+                else
+                    if strcmpi(trade.opensignal_.frequency_,'daily')
+                        closeflag = ret.inconsistence;
+                        obj.closestr_ = ['wad:',ret.reason];
+                    else
+                        obj.pxstoploss_ =  min(2*extrainfo.p(end,3)-extrainfo.p(end,4),extrainfo.lips(end));
+                        obj.pxstoploss_ = ceil(obj.pxstoploss_/ticksize)*ticksize-2*ticksize;
+                        obj.closestr_ = ['wad:',ret.reason];
+                    end
+                end
             else
                 %if the re-calculated wad is lower than the lowest wad
                 %so far, the trade can be saved
