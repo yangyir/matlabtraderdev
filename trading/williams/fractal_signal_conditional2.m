@@ -136,6 +136,8 @@ function [output] = fractal_signal_conditional2(varargin)
         output.directionkellied = signalkellied(1);
         output.signalkellied = signalkellied;
         output.opkellied = opkellied;
+        output.kelly = kelly;
+        output.wprob = wprob;
         return
     end
     %
@@ -260,6 +262,8 @@ function [output] = fractal_signal_conditional2(varargin)
         output.directionkellied = signalkellied(1);
         output.signalkellied = signalkellied;
         output.opkellied = opkellied;
+        output.kelly = kelly;
+        output.wprob = wprob;
         return
     end
     
