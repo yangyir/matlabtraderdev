@@ -65,14 +65,16 @@ for jj = 1:ncondpending
         %2)the latest HH is (1-tick) below the previous HH
         %3)the lastest HH is updated
         ispxbelowteeth = p(end,5) <= teeth(end) - ticksize;
-        last2hh = hh(find(idxHH == 1,2,'last'));
-        if size(last2hh,1) == 2
-            islatesthhlower = last2hh(2)<last2hh(1)-ticksize;
-            ishhupdated = condentrust.price < last2hh(2);
-        else
-            islatesthhlower = false;
-            ishhupdated = false;
-        end
+        islatesthhlower = hh(end)<hh(end-1)-ticksize;
+        ishhupdated = condentrust.price < hh(end);
+%         last2hh = hh(find(idxHH == 1,2,'last'));
+%         if size(last2hh,1) == 2
+%             islatesthhlower = last2hh(2)<last2hh(1)-ticksize;
+%             ishhupdated = condentrust.price < last2hh(2);
+%         else
+%             islatesthhlower = false;
+%             ishhupdated = false;
+%         end
         if ispxbelowteeth || islatesthhlower || ishhupdated
             condentrusts2remove.push(condentrust);
             if ispxbelowteeth
@@ -89,14 +91,16 @@ for jj = 1:ncondpending
         %2)the latest LL is (1-tick) above the previous LL
         %3)the latest LL is updated
         ispxaboveteeth = p(end,5) >= teeth(end) + ticksize;
-        last2ll = ll(find(idxLL == -1,2,'last'));
-        if size(last2ll,1) == 2
-            islatestllhigher = last2ll(2)>last2ll(1)+ticksize;
-            isllupdated = condentrust.price > last2ll(2);
-        else
-            islatestllhigher = false;
-            isllupdated = false;
-        end
+        islatestllhigher = ll(end)>ll(end-1)+ticksize;
+        isllupdated = condentrust.price > ll(end);
+%         last2ll = ll(find(idxLL == -1,2,'last'));
+%         if size(last2ll,1) == 2
+%             islatestllhigher = last2ll(2)>last2ll(1)+ticksize;
+%             isllupdated = condentrust.price > last2ll(2);
+%         else
+%             islatestllhigher = false;
+%             isllupdated = false;
+%         end
         if ispxaboveteeth || islatestllhigher || isllupdated
             condentrusts2remove.push(condentrust);
             if ispxaboveteeth

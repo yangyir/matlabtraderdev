@@ -127,7 +127,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %CASE2:close below open but high is within 2 ticks above fractal hh
-        if extrainfo.p(end,2) >= extrainfo.p(end,5) + 2*trade.instrument_.tick_size && ...
+        if extrainfo.p(end,2) >= extrainfo.p(end,5) + trade.instrument_.tick_size && ...
                 extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
             if extrainfo.p(end,1) > trade.opendatetime1_
                 if extrainfo.p(end,4) < extrainfo.p(end-1,4)
@@ -174,12 +174,14 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
             end
         end
-        exceptionflag = extrainfo.p(end,5) > extrainfo.lvlup(end) && ...
-            extrainfo.p(end,5) > extrainfo.teeth(end) && ...
+        exceptionflag = extrainfo.p(end,5) > extrainfo.lvlup(end) & ...
+            extrainfo.p(end,5) > extrainfo.teeth(end) & ...
             extrainfo.lips(end) > extrainfo.teeth(end);
+        exceptionflag2 = extrainfo.p(end,5) - extrainfo.hh(end-1) >= -2*trade.instrument_.tick_size & ...
+            shadowlinewidth/kwidth < 0.382;
         thisbd = floor(extrainfo.p(end,1));
         nextbd = dateadd(thisbd,'1b');
-        exceptionflag = exceptionflag & nextbd - thisbd <= 3;
+        exceptionflag = (exceptionflag || exceptionflag2 ) & nextbd - thisbd <= 3;
         %CASE4:close before market close
         if runriskmanagementbeforemktclose && ~exceptionflag
             unwindflag = true;
@@ -349,7 +351,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %CASE2:close above open but low is within 2 ticks below fractal ll
-        if (extrainfo.p(end,2) <= extrainfo.p(end,5)-2*trade.instrument_.tick_size || strcmpi(val,'conditional-dntrendconfirmed-2')) && ...
+        if (extrainfo.p(end,2) <= extrainfo.p(end,5)-trade.instrument_.tick_size || strcmpi(val,'conditional-dntrendconfirmed-2')) && ...
                 extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size
             if extrainfo.p(end,1) > trade.opendatetime1_
                 if extrainfo.p(end,3) > extrainfo.p(end-1,3)
