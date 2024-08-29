@@ -44,6 +44,10 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
                 abovelvlupflag = isempty(find(extrainfo.p(openid:end,4)-extrainfo.lvlup(openid:end)+2*ticksize<0,1,'first'));
             else
                 abovelvlupflag = isempty(find(extrainfo.p(openid+1:end,4)-extrainfo.lvlup(openid+1:end)+2*ticksize<0,1,'first'));
+                if ~abovelvlupflag
+                    abovelvlupflag = isempty(find(extrainfo.lips(openid+1:end)-extrainfo.teeth(openid+1:end)+2*ticksize<0,1,'first'));
+                    abovelvlupflag = abovelvlupflag & extrainfo.hh(end) > extrainfo.lvlup(end) & extrainfo.p(end,4) > extrainfo.lvlup(end);
+                end
             end
             if obj.usefractalupdate_
                 updatefailedflag = extrainfo.p(end,5) < 1.382*obj.hh0_-0.382*obj.hh1_ & obj.hh1_ - obj.hh0_ > 2*ticksize;
