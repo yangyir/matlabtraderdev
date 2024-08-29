@@ -21,19 +21,19 @@ output_govtbondfut_30m = fractal_kelly_summary('codes',codes_govtbondfut,'freque
 [~,~,tbl_govtbondfut_30m,~,~,~,~,strat_govtbondfut_30m] = kellydistributionsummary(output_govtbondfut_30m,'useactiveonly',true);
 %
 [tblreport_govtbondfut_30m,statsreport_govtbondfut_30m] = kellydistributionreport(tbl_govtbondfut_30m,strat_govtbondfut_30m);
-%%
+%
 output_govtbondfut_5m = fractal_kelly_summary('codes',codes_govtbondfut,'frequency','intraday-5m','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %strat_govtbondfut_5m
 [~,~,tbl_govtbondfut_5m,~,~,~,~,strat_govtbondfut_5m] = kellydistributionsummary(output_govtbondfut_5m,'useactiveonly',true);
 %
 [tblreport_govtbondfut_5m,statsreport_govtbondfut_5m] = kellydistributionreport(tbl_govtbondfut_5m,strat_govtbondfut_5m);
-%%
+%
 output_govtbondfut_15m = fractal_kelly_summary('codes',codes_govtbondfut,'frequency','intraday-15m','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
 [~,~,tbl_govtbondfut_15m,~,~,~,~,strat_govtbondfut_15m] = kellydistributionsummary(output_govtbondfut_15m,'useactiveonly',true);
 %
 [tblreport_govtbondfut_15m,statsreport_govtbondfut_15m] = kellydistributionreport(tbl_govtbondfut_15m,strat_govtbondfut_15m);
-%%
+%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\'];
 save([dir_,'strat_govtbondfut_30m.mat'],'strat_govtbondfut_30m');
 save([dir_,'tblreport_govtbondfut_30m.mat'],'tblreport_govtbondfut_30m');
