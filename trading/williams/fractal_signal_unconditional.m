@@ -115,6 +115,14 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
 %             useflag = fractal_getkellywithsignal(-1,op.comment,freq);
         end
         op.direction = -1;
+        if useflag && strcmpi(op.comment,'breachdn-lvldn') && ~status.istrendconfirmed
+            flag1 = isempty(find(extrainfo.px(end-2*nfractal:end-1,5)-extrainfo.teeth(end-2*nfractal:end-1)>2*ticksize,1,'first'));
+            flag2 = isempty(find(extrainfo.lips(end-nfractal+1:end)-extrainfo.teeth(end-nfractal+1:end)>0,1,'first'));
+            if flag1 && flag2
+                status.istrendconfirmed = true;
+            end
+        end
+        
         if ~useflag && ~isempty(tick)
             %special treatment when market jumps low below lvldn
             bid = tick(2);
