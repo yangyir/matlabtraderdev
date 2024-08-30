@@ -284,7 +284,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         end
                         %%NOTE:here kelly or wprob threshold shall be set
                         %%via configuration files,TODO:
-                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45) || (kelly>0.12 && wprob>0.40))
                             if stratfractal.helper_.book_.hasposition(instruments{i})
                                 %in case the condtional uptrend trade was
                                 %opened with breachsshighvalue but it turns
