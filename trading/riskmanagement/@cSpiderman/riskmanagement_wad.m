@@ -100,7 +100,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             if wadadj - obj.wadhigh_ <= -2*ticksize
                 %20240829:new treatment when the latest wad is lower than
                 %the previous high but with a higher close price
-                if trade.openprice_ <= extrainfo.latestopen
+                if trade.openprice_ >= extrainfo.latestopen
                     closeflag = ret.inconsistence;
                     obj.closestr_ = ['wad:',ret.reason];
                 else
@@ -196,7 +196,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
             if wadadj > obj.wadlow_
                 %20240829:new treatment when the latest wad is higher than
                 %the previous low but with a lower close price
-                if trade.openprice_ >= extrainfo.latestopen
+                if trade.openprice_ <= extrainfo.latestopen
                     closeflag = ret.inconsistence;
                     obj.closestr_ = ['wad:',ret.reason];
                 else
