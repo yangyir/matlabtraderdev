@@ -12,10 +12,12 @@ function data = savetickfromwind(w,code_ctp,varargin)
     p.addParameter('Override',false,@islogical);
     p.addParameter('FromDate','',@ischar);
     p.addParameter('ToDate','',@ischar);
+    p.addParameter('UseLastBusinessDate',true,@islogical);
     p.parse(varargin{:});
     override = p.Results.Override;
     fromDate = p.Results.FromDate;
     toDate = p.Results.ToDate;
+    uselastbd = p.Results.UseLastBusinessDate;
     
     dir_ = getenv('DATAPATH');
     dir_info_ = [dir_,'info_futures\'];
@@ -50,7 +52,11 @@ function data = savetickfromwind(w,code_ctp,varargin)
     startdate = fromDate;
     lbd = getlastbusinessdate;
     plbd = businessdate(lbd,-1);
-    enddate = min(lbd,datenum(toDate));
+    if uselastbd
+        enddate = min(lbd,datenum(toDate));
+    else
+        enddate = toDate;
+    end
     bds = gendates('fromdate',startdate,'todate',enddate);
     
     for i = 1:size(bds,1)
