@@ -307,7 +307,21 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 end
                                     
                             else
-                                error('invalid time to initiate mktdata as connection to remote database is now disabled\n')
+                                if mdefut.candle_freq_(i) == 1440
+                                    try
+                                        if ~mdefut.qms_.isconnect
+                                            mdefut.login('connection','ctp','countername','ccb_ly_fut');
+                                            mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+                                        end
+                                        data = mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+                                        mkt = data{1}.mkt;
+                                        candles = [buckets(idx),mkt(2),mkt(3),mkt(4),mkt(1)];
+                                    catch
+                                         error('CTP error')
+                                    end
+                                else
+                                    error('invalid time to initiate mktdata as connection to remote database is now disabled\n')
+                                end
                             end
                             
                             
