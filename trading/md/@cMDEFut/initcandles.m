@@ -113,33 +113,34 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 end
                             end
                         else
-                            try
-%                                 ds2 = cBloomberg;
-                                if strcmpi(mdefut.qms_.watcher_.conn,'wind') &&  mdefut.qms_.watcher_.isconnect
-                                     candles = mdefut.qms_.watcher_.ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
-                                else
-                                    if mdefut.candle_freq_(i) ~= 1440
-                                        ds2 = cWind;
-                                        candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx+1),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
-                                        ds2.close;
-                                    else
-                                        try
-                                            if ~mdefut.qms_.isconnect
-                                                mdefut.login('connection','ctp','countername','ccb_ly_fut');
-                                                mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
-                                            end
-                                            data = mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
-                                            mkt = data{1}.mkt;
-                                            candles = [buckets(idx),mkt(2),mkt(3),mkt(4),mkt(1)];
-                                        catch
-                                            error('CTP error')
-                                        end
-                                    end
-                                end
-                            catch e
-                                fprintf('%s\n',e.message);
-                                return
-                            end                            
+                            error('not implemented pls check code')
+%                             try
+% %                                 ds2 = cBloomberg;
+%                                 if strcmpi(mdefut.qms_.watcher_.conn,'wind') &&  mdefut.qms_.watcher_.isconnect
+%                                      candles = mdefut.qms_.watcher_.ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+%                                 else
+%                                     if mdefut.candle_freq_(i) ~= 1440
+%                                         ds2 = cWind;
+%                                         candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx+1),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+%                                         ds2.close;
+%                                     else
+%                                         try
+%                                             if ~mdefut.qms_.isconnect
+%                                                 mdefut.login('connection','ctp','countername','ccb_ly_fut');
+%                                                 mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+%                                             end
+%                                             data = mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+%                                             mkt = data{1}.mkt;
+%                                             candles = [buckets(idx),mkt(2),mkt(3),mkt(4),mkt(1)];
+%                                         catch
+%                                             error('CTP error')
+%                                         end
+%                                     end
+%                                 end
+%                             catch e
+%                                 fprintf('%s\n',e.message);
+%                                 return
+%                             end                            
                         end
                         %
                         if mdefut.candle_freq_(i) ~= 1440
@@ -283,33 +284,60 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 end
                             end
                         else
-                            try
-                                if (strcmpi(mdefut.qms_.watcher_.conn,'wind') || strcmpi(mdefut.qms_.watcher_.conn,'ths')) && ...
-                                        mdefut.qms_.watcher_.isconnect
-                                    candles = mdefut.qms_.watcher_.ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
-                                else
-                                    if mdefut.candle_freq_(i) ~= 1440
-                                        ds2 = cWind;
-                                        candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
-                                        ds2.close;
-                                    else
-                                        try
-                                            if ~mdefut.qms_.isconnect
-                                                mdefut.login('connection','ctp','countername','ccb_ly_fut');
-                                                mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
-                                            end
-                                            data = mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
-                                            mkt = data{1}.mkt;
-                                            candles = [buckets(idx),mkt(2),mkt(3),mkt(4),mkt(1)];
-                                        catch
-                                            error('CTP error')
-                                        end
+                            mm = minute(t);
+                            if hh == 12 || (hh == 11 && mm > 30)
+                                if mdefut.candle_freq_(i) ~= 1440
+                                    try
+                                        candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+                                    catch
+                                        error('data on the current trading date is not found on local drive\n')
                                     end
+                                else
+                                    try
+                                        if ~mdefut.qms_.isconnect
+                                            mdefut.login('connection','ctp','countername','ccb_ly_fut');
+                                            mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+                                        end
+                                        data = mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+                                        mkt = data{1}.mkt;
+                                        candles = [buckets(idx),mkt(2),mkt(3),mkt(4),mkt(1)];
+                                    catch
+                                         error('CTP error')
+                                     end
                                 end
-                            catch e
-                                fprintf('%s\n',e.message);
-                                return
-                            end                           
+                                    
+                            else
+                                error('invalid time to initiate mktdata as connection to remote database is now disabled\n')
+                            end
+                            
+                            
+%                             try
+%                                 if (strcmpi(mdefut.qms_.watcher_.conn,'wind') || strcmpi(mdefut.qms_.watcher_.conn,'ths')) && ...
+%                                         mdefut.qms_.watcher_.isconnect
+%                                     candles = mdefut.qms_.watcher_.ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+%                                 else
+%                                     if mdefut.candle_freq_(i) ~= 1440
+%                                         ds2 = cWind;
+%                                         candles = ds2.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
+%                                         ds2.close;
+%                                     else
+%                                         try
+%                                             if ~mdefut.qms_.isconnect
+%                                                 mdefut.login('connection','ctp','countername','ccb_ly_fut');
+%                                                 mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+%                                             end
+%                                             data = mdefut.qms_.watcher_.ds.realtime(instruments{i}.code_ctp,'');
+%                                             mkt = data{1}.mkt;
+%                                             candles = [buckets(idx),mkt(2),mkt(3),mkt(4),mkt(1)];
+%                                         catch
+%                                             error('CTP error')
+%                                         end
+%                                     end
+%                                 end
+%                             catch e
+%                                 fprintf('%s\n',e.message);
+%                                 return
+%                             end                           
                         end
                         if mdefut.candle_freq_(i) ~= 1440
                             if size(candles,1) < idx
