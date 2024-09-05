@@ -88,26 +88,26 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 lvldn = techvar(:,16);
                 bc = techvar(:,17);
                 sc = techvar(:,18);
-                wad = techvar(:,19); 
+                wad = techvar(:,19);
+                %
+                stratfractal.hh_{i} = hh;
+                stratfractal.ll_{i} = ll;
+                stratfractal.jaw_{i} = jaw;
+                stratfractal.teeth_{i} = teeth;
+                stratfractal.lips_{i} = lips;
+                stratfractal.bs_{i} = bs;
+                stratfractal.ss_{i} = ss;
+                stratfractal.lvlup_{i} = lvlup;
+                stratfractal.lvldn_{i} = lvldn;
+                stratfractal.bc_{i} = bc;
+                stratfractal.sc_{i} = sc;
+                stratfractal.wad_{i} = wad;
             catch e
                 msg = sprintf('ERROR:%s:calctechnicalvariable:%s:%s\n',class(stratfractal),instruments{i}.code_ctp,e.message);
                 fprintf(msg);
                 continue
             end
             %
-            stratfractal.hh_{i} = hh;
-            stratfractal.ll_{i} = ll;
-            stratfractal.jaw_{i} = jaw;
-            stratfractal.teeth_{i} = teeth;
-            stratfractal.lips_{i} = lips;
-            stratfractal.bs_{i} = bs;
-            stratfractal.ss_{i} = ss;
-            stratfractal.lvlup_{i} = lvlup;
-            stratfractal.lvldn_{i} = lvldn;
-            stratfractal.bc_{i} = bc;
-            stratfractal.sc_{i} = sc;
-            stratfractal.wad_{i} = wad;
-            
             nfractal = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','nfractals');
             freq = stratfractal.riskcontrols_.getconfigvalue('code',instruments{i}.code_ctp,'propname','samplefreq');
             
@@ -307,7 +307,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                             kelly = -9.99;
                                             wprob = 0;
                                         end
-                                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+                                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45) || (kelly>0.12 && wprob>0.40))
                                             signal_i(1) = 0;
                                             signal_i(4) = 0;
                                             stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
@@ -1684,7 +1684,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
 %                                 kelly = -9.99;
 %                                 wprob = 0;
 %                             end
-%                         catch
+% %                         catch
 %                             kelly = -9.99;
 %                             wprob = 0;
 %                         end
