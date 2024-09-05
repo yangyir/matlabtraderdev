@@ -82,10 +82,13 @@ function [] = updateentrustsandbook2(obj)
                     if isempty(ticks), continue; end
                     if ticks(4) == 0, continue; end
                     ret = abs(log(e.dealPrice/ticks(4)));
-                    if ret >= 0.1
+                    if ret >= 0.01
                         %note:the dealPrice returned here is the multiple
                         %of the real dealPrice and the volume
-                        fprintf('cOps:updateentrustsandbook2:incorrect deal price returned\n');
+                        px = e.dealAmount/e.dealVolume;
+                        if abs(log(px/ticks(4))) >= 0.01
+                            fprintf('cOps:updateentrustsandbook2:incorrect deal price returned\n');
+                        end
                         e.dealPrice = e.price;
                     end
                 end
