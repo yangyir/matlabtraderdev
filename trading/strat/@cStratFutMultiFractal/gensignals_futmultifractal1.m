@@ -1178,7 +1178,18 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             wprob = 0;
                          end
                          if kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41)
-                             signal_cond_i{1,2}(1) = -1;
+                             if strcmpi(freq,'5m')
+                                 %strictly the close price shall below the
+                                 %alligator teeth in 5m trading
+                                 extracheck = isempty(find(extrainfo.px(end-2*nfractal+1:end,5)-extrainfo.teeth(end-2*nfractal+1:end)>0,1,'first'));
+                                 if extracheck
+                                     signal_cond_i{1,2}(1) = -1;
+                                 else
+                                     signal_cond_i{1,2}(1) = 0;
+                                 end
+                             else
+                                signal_cond_i{1,2}(1) = -1;
+                             end
                          else
                              %here we need to compare with unconditional
                              %mediumbreach-trendconfirmed or
