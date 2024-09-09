@@ -23,13 +23,49 @@
 %
 %
 %sample inputs:
-testdt = '2024-09-05';
-futcode = 'i2501';
+testdt = '2024-05-23';
+futcode = 'T2409';
 freq = '30m';
+%
+fut = code2instrument(futcode);
+data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
+kellytables = data.strat_govtbondfut_30m;
+%
 [~,extrainfo] = charlotte_loaddata('futcode',futcode,'frequency',freq);
-
+%
 dt1 = [testdt,' 09:00:00'];
 dt2 = [datestr(dateadd(datenum(testdt,'yyyy-mm-dd'),'1d'),'yyyy-mm-dd'),' 02:30:00'];
+dt1num = datenum(dt1,'yyyy-mm-dd HH:MM:SS');
+dt2num = datenum(dt2,'yyyy-mm-dd HH:MM:SS');
+idx1 = find(extrainfo.px(:,1) < dt1num,1,'last');
+idx2 = find(extrainfo.px(:,1) <= dt2num,1,'last');
+%
+
+
+% in case there is no trades carried from previous business date
+for i = idx1+1:idx2
+    trade = fractal_gentrade2(resstruct,futcode,i,freq,kellytables);
+    if ~isempty(trade)
+        for j = i:idx2
+            ei_j = fractal_truncate(extrainfo,j);
+            if j == size(resstruct.px,1) || 
+            
+            
+            
+            
+            tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
+            'usecandlelastonly',false,...
+            'debug',false,...
+            'updatepnlforclosedtrade',true,...
+            'extrainfo',ei_j,...
+            'RunRiskManagementBeforeMktClose',false,...
+            'KellyTables',kellytables);
+            
+            
+        end
+    end
+end
+
 
 
 
