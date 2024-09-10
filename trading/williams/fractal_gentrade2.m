@@ -28,7 +28,10 @@ if isempty(condsignal)
 end
 %
 %
-if condsignal.directionkellied == 1
+if condsignal.directionkellied == 0
+    trade = {};
+    return
+elseif condsignal.directionkellied == 1
     if condsignal.signalkellied(4) == 2
         td13high_ = NaN;
         td13low_ = NaN;
