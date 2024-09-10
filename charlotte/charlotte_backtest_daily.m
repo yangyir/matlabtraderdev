@@ -23,7 +23,7 @@
 %
 %
 %sample inputs:
-testdt = '2024-05-23';
+testdt = '2024-06-04';
 futcode = 'T2409';
 freq = '30m';
 %
@@ -41,29 +41,43 @@ idx1 = find(extrainfo.px(:,1) < dt1num,1,'last');
 idx2 = find(extrainfo.px(:,1) <= dt2num,1,'last');
 %
 
-
+trades = cTradeOpenArray;
 % in case there is no trades carried from previous business date
-for i = idx1+1:idx2
-    trade = fractal_gentrade2(resstruct,futcode,i,freq,kellytables);
+i = idx1+1;
+while i <= idx2
+    trade = fractal_gentrade2(extrainfo,futcode,i,freq,kellytables);
     if ~isempty(trade)
+        trades.push(trade);
         for j = i:idx2
             ei_j = fractal_truncate(extrainfo,j);
-            if j == size(resstruct.px,1) || 
-            
-            
-            
-            
+            if j == idx2
+                ei_j.latestopen = extrainfo.px(j,5);
+                ei_j.latestdt = extrainfo.px(j,1);
+            else
+                ei_j.latestopen = extrainfo.px(j+1,2);
+                ei_j.latestdt = extrainfo.px(j+1,1);
+            end
+            %
+            runflag = j == idx2;
+                
             tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
             'usecandlelastonly',false,...
             'debug',false,...
             'updatepnlforclosedtrade',true,...
             'extrainfo',ei_j,...
-            'RunRiskManagementBeforeMktClose',false,...
+            'RunRiskManagementBeforeMktClose',runflag,...
             'KellyTables',kellytables);
-            
-            
+        
+            if ~isempty(tradeout)
+                tradeout.status_ = 'closed';
+                break
+            end    
         end
+        i = j+1;
+    else
+        i = i+1;
     end
+    
 end
 
 
