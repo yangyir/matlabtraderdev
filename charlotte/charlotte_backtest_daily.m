@@ -1,3 +1,5 @@
+function [alltrades,carriedtrades,unwindedtrades] = charlotte_backtest_daily(varargin)
+
 %func to load existing trade if there is any
 %func to generate new trade if there is a prop signal
 %func to backtest the existing / newly-generated trade
@@ -23,13 +25,38 @@
 %
 %
 %sample inputs:
-testdt = '2024-06-04';
-futcode = 'T2409';
-freq = '30m';
+% testdt = '2024-05-23';
+% futcode = 'TL2409';
+% freq = '30m';
 %
+p = inputParser;
+p.CaseSensitive = false;p.KeepUnmatched = true;
+p.addParameter('code','',@ischar);
+p.addParameter('date','',@ischar);
+p.addParameter('frequency','30m',@ischar);
+p.parse(varargin{:});
+futcode = p.Results.code;
+testdt = p.Results.date;
+freq = p.Results.frequency;
+
 fut = code2instrument(futcode);
-data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
-kellytables = data.strat_govtbondfut_30m;
+if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30y')
+    if strcmpi(freq,'30m')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
+        kellytables = data.strat_govtbondfut_30m;
+    elseif strcmpi(freq,'15m')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_15m.mat']);
+        kellytables = data.strat_govtbondfut_15m;
+    elseif strcmpi(freq,'5m')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_5m.mat']);
+        kellytables = data.strat_govtbondfut_5m;
+    end
+elseif ~isempty(strfind(fut.asset_name,'eqindex'))
+else
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
+    kellytables = data.strat_comdty_i;
+end
+%        
 %
 [~,extrainfo] = charlotte_loaddata('futcode',futcode,'frequency',freq);
 %
@@ -41,13 +68,15 @@ idx1 = find(extrainfo.px(:,1) < dt1num,1,'last');
 idx2 = find(extrainfo.px(:,1) <= dt2num,1,'last');
 %
 
-trades = cTradeOpenArray;
+alltrades = cTradeOpenArray;
+carriedtrades = cTradeOpenArray;
+unwindedtrades = cTradeOpenArray;
 % in case there is no trades carried from previous business date
 i = idx1+1;
 while i <= idx2
     trade = fractal_gentrade2(extrainfo,futcode,i,freq,kellytables);
     if ~isempty(trade)
-        trades.push(trade);
+        alltrades.push(trade);
         for j = i:idx2
             ei_j = fractal_truncate(extrainfo,j);
             if j == idx2
@@ -70,6 +99,7 @@ while i <= idx2
         
             if ~isempty(tradeout)
                 tradeout.status_ = 'closed';
+                unwindedtrades.push(tradeout);
                 break
             end    
         end
@@ -77,7 +107,16 @@ while i <= idx2
     else
         i = i+1;
     end
-    
+    if i > idx2 && ~isempty(trade) && strcmpi(trade.status_,'set')
+        carriedtrades.push(trade);
+    end
+end
+%
+%sanity check
+sanityflag = alltrades.latest_ == carriedtrades.latest_ + unwindedtrades.latest_ && ...
+    (carriedtrades.latest_ == 0 || carriedtrades.latest_ == 1);
+if ~sanityflag
+    error('charlotte_backtest_daily:check required')
 end
 
 
