@@ -1,4 +1,4 @@
-function [tblout,kellyout,tblout_notused] = charlotte_kellycheck(varargin)
+function [tblout,kellyout,tblout_notused,strat_] = charlotte_kellycheck(varargin)
 %
 p = inputParser;
 p.KeepUnmatched = true;p.CaseSensitive = false;

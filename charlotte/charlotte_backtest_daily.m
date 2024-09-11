@@ -34,25 +34,32 @@ p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('code','',@ischar);
 p.addParameter('date','',@ischar);
 p.addParameter('frequency','30m',@ischar);
+p.addParameter('carriedtrade',{},@(x) validateattributes(x,{'cTradeOpen'},{},'','carriedtrade'));    
 p.parse(varargin{:});
 futcode = p.Results.code;
 testdt = p.Results.date;
 freq = p.Results.frequency;
+carriedtrade = p.Results.carriedtrade;
 
 fut = code2instrument(futcode);
 if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30y')
     if strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
         kellytables = data.strat_govtbondfut_30m;
+        nfractal = 4;
     elseif strcmpi(freq,'15m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_15m.mat']);
         kellytables = data.strat_govtbondfut_15m;
+        nfractal = 4;
     elseif strcmpi(freq,'5m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_5m.mat']);
         kellytables = data.strat_govtbondfut_5m;
+        nfractal = 6;
     end
 elseif ~isempty(strfind(fut.asset_name,'eqindex'))
+    nfractal = 4;
 else
+    nfractal = 4;
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
     kellytables = data.strat_comdty_i;
 end
@@ -74,7 +81,15 @@ unwindedtrades = cTradeOpenArray;
 % in case there is no trades carried from previous business date
 i = idx1+1;
 while i <= idx2
-    trade = fractal_gentrade2(extrainfo,futcode,i,freq,kellytables);
+    if i == idx1+1;
+        if ~isempty(carriedtrade) && ~strcmpi(carriedtrade.status_,'closed')
+            trade = carriedtrade;
+        else
+            trade = fractal_gentrade2(extrainfo,futcode,i,freq,kellytables);
+        end
+    else
+        trade = fractal_gentrade2(extrainfo,futcode,i,freq,kellytables);
+    end
     if ~isempty(trade)
         alltrades.push(trade);
         for j = i:idx2
@@ -90,21 +105,44 @@ while i <= idx2
             runflag = j == idx2;
                 
             tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
-            'usecandlelastonly',false,...
-            'debug',false,...
-            'updatepnlforclosedtrade',true,...
-            'extrainfo',ei_j,...
-            'RunRiskManagementBeforeMktClose',runflag,...
-            'KellyTables',kellytables);
+                'usecandlelastonly',false,...
+                'debug',false,...
+                'updatepnlforclosedtrade',true,...
+                'extrainfo',ei_j,...
+                'RunRiskManagementBeforeMktClose',runflag,...
+                'KellyTables',kellytables);
         
             if ~isempty(tradeout)
                 tradeout.status_ = 'closed';
                 unwindedtrades.push(tradeout);
                 break
+            else
+                output = fractal_signal_unconditional2('extrainfo',ei_j,...
+                   'ticksize',fut.tick_size,...
+                   'nfractal',nfractal,...
+                   'assetname',fut.asset_name,...
+                   'kellytables',kellytables);
+               if ~isempty(output)
+                   if output.directionkellied == 0
+                       trade.status_ = 'closed';
+                       trade.riskmanager_.status_ = 'closed';
+                       trade.riskmanager_.closestr_ = 'kelly is too low';
+                       trade.runningpnl_ = 0;
+                       trade.closeprice_ = ei_j.latestopen;
+                       trade.closedatetime1_ = ei_j.latestdt;
+                       trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
+                       tradeout = trade;
+                       unwindedtrades.push(tradeout);
+                       break
+                   end
+               end
             end    
         end
         i = j+1;
     else
+        
+        
+        
         i = i+1;
     end
     if i > idx2 && ~isempty(trade) && strcmpi(trade.status_,'set')

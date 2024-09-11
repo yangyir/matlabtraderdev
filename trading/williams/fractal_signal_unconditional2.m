@@ -91,12 +91,12 @@ function [output] = fractal_signal_unconditional2(varargin)
                 strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed')
             %do nothing as this is for sure trending trades
             try
-                kelly = kelly_k(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,stratfractal.tbl_all_intraday_.kelly_matrix_l,0);
-                wprob = kelly_w(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,stratfractal.tbl_all_intraday_.winprob_matrix_l,0);
+                kelly = kelly_k(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
+                wprob = kelly_w(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
             catch
                 idxvolblowup2 = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
                 kelly = kellytables.kelly_table_l.kelly_unique_l(idxvolblowup2);
-                wprob = kellytables.winp_unique_l(idxvolblowup2);
+                wprob = kellytables.kelly_table_l.winp_unique_l(idxvolblowup2);
             end
             
             %%NOTE:here kelly or wprob threshold shall be set
@@ -225,7 +225,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
-                    if kelly < 0.145 || wprob < 0.41
+                    if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41) || (kelly > 0.09 && wprob > 0.455))
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end

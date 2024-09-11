@@ -584,13 +584,33 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
         ei = extrainfo;
         ei.px = ei.p;
-        [~,op] = fractal_signal_unconditional(ei,trade.instrument_.tick_size,nfractal);
-        try
-            kelly = kelly_k(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
-            wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l);
-        catch
-            kelly = -9.99;
-            wprob = 0;
+        [~,op,status] = fractal_signal_unconditional(ei,trade.instrument_.tick_size,nfractal);
+        if strcmpi(op.comment,'breachup-lvlup')
+            if ~status.istrendconfirmed
+                vlookuptbl = kellytables.breachuplvlup_tb;
+            else
+                vlookuptbl = kellytables.breachuplvlup_tc;
+            end
+            idx = strcmpi(vlookuptbl.asset,trade.instrument_.asset_name);
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+        elseif strcmpi(op.comment,'breachup-sshighvalue')
+            if ~status.istrendconfirmed
+                vlookuptbl = kellytables.breachupsshighvalue_tb;
+            else
+                vlookuptbl = kellytables.breachupsshighvalue_tc;
+            end
+            idx = strcmpi(vlookuptbl.asset,trade.instrument_.asset_name);
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+        else
+            try
+                kelly = kelly_k(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l);
+                wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l);
+            catch
+                kelly = -9.99;
+                wprob = 0;
+            end
         end
         if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
             obj.trade_.closedatetime1_ = extrainfo.latestdt;
@@ -646,13 +666,33 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
         ei = extrainfo;
         ei.px = ei.p;
-        [~,op] = fractal_signal_unconditional(ei,trade.instrument_.tick_size,nfractal);
-        try
-            kelly = kelly_k(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-            wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
-        catch
-            kelly = -9.99;
-            wprob = 0;
+        [~,op,status] = fractal_signal_unconditional(ei,trade.instrument_.tick_size,nfractal);
+        if strcmpi(op.comment,'breachdn-lvldn')
+            if ~status.istrendconfirmed
+                vlookuptbl = kellytables.breachdnlvldn_tb;
+            else
+                vlookuptbl = kellytables.breachdnlvldn_tc;
+            end
+            idx = strcmpi(vlookuptbl.asset,trade.instrument_.asset_name);
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+        elseif strcmpi(op.comment,'breachdn-bshighvalue')
+            if ~status.istrendconfirmed
+                vlookuptbl = kellytables.breachdnbshighvalue_tb;
+            else
+                vlookuptbl = kellytables.breachdnbshighvalue_tc;
+            end
+            idx = strcmpi(vlookuptbl.asset,trade.instrument_.asset_name);
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+        else
+            try
+                kelly = kelly_k(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
+                wprob = kelly_w(op.comment,trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s);
+            catch
+                kelly = -9.99;
+                wprob = 0;
+            end
         end
         if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41))
             obj.trade_.closedatetime1_ = extrainfo.latestdt;

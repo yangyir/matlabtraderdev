@@ -23,8 +23,24 @@ condsignal = fractal_signal_conditional2('extrainfo',ei_,'ticksize',fut.tick_siz
 
 %1.first check whether kelly is big enough for place an conditional entrust
 if isempty(condsignal)
-   trade = {};
-   return
+    %2.check whether it is not a trending trade
+    ei = fractal_truncate(resstruct,idx);
+    uncondsignal = fractal_signal_unconditional2('extrainfo',ei,...
+        'ticksize',fut.tick_size,...
+        'nfractal',nfractal,...
+        'assetname',fut.asset_name,...
+        'kellytables',kellytables);
+    if isempty(uncondsignal)
+        trade = {};
+        return
+    else
+        if uncondsignal.directionkellied == 0
+            trade = {};
+            return
+        end
+        trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+        return
+    end
 end
 %
 %
@@ -237,6 +253,8 @@ elseif condsignal.directionkellied == -1
                 else
                     poptrade = false;
                 end
+            else
+                poptrade = true;
             end
         else
             poptrade = false;
@@ -254,8 +272,8 @@ elseif condsignal.directionkellied == -1
             'openvolume',1);
         trade.setsignalinfo('name','fractal','extrainfo',signalinfo);
         trade.setriskmanager('name','spiderman','extrainfo',riskmanager);
-        trade.riskmanager_.setusefractalupdateflag(false);
-        trade.riskmanager_.setusefibonacciflag(true);
+        trade.riskmanager_.setusefractalupdateflag(0);
+        trade.riskmanager_.setusefibonacciflag(1);
         %
         if ei_.bs(end) >= 9
             bsreached = ei_.bs(end);
