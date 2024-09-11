@@ -81,7 +81,7 @@ unwindedtrades = cTradeOpenArray;
 % in case there is no trades carried from previous business date
 i = idx1+1;
 while i <= idx2
-    if i == idx1+1;
+    if i == idx1+1
         if ~isempty(carriedtrade) && ~strcmpi(carriedtrade.status_,'closed')
             trade = carriedtrade;
         else
@@ -123,7 +123,8 @@ while i <= idx2
                    'assetname',fut.asset_name,...
                    'kellytables',kellytables);
                if ~isempty(output)
-                   if output.directionkellied == 0
+                   if output.directionkellied == 0 && (strcmpi(output.op.comment,trade.opensignal_.mode_) || ...
+                           (~strcmpi(output.op.comment,trade.opensignal_.mode_) && output.kelly < 0))
                        trade.status_ = 'closed';
                        trade.riskmanager_.status_ = 'closed';
                        trade.riskmanager_.closestr_ = 'kelly is too low';

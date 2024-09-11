@@ -165,7 +165,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                             end
                         end
                         if ~isnan(kelly)
-                            if kelly >= 0.146
+                            if kelly >= 0.146 || (kelly > 0.1 && wprob > 0.5)
                                 stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
                             else
                                 fprintf('autoplacenewentrusts:low kelly of volblowup2 mode...\n');
@@ -287,7 +287,7 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                             end
                         end
                         if ~isnan(kelly)
-                            if kelly >= 0.146 || (kelly > 0.12 && wprob > 0.5)
+                            if kelly >= 0.146 || (kelly > 0.1 && wprob > 0.5)
                                 stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
                             else
                                 fprintf('autoplacenewentrusts:low kelly of volblowup2 mode...\n');

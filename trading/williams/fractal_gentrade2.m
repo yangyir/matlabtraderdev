@@ -121,7 +121,7 @@ elseif condsignal.directionkellied == 1
                 kelly = kelly_k('volblowup2',fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
                 wprob = kelly_k('volblowup2',fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
                 if ~isnan(kelly)
-                    if kelly >= 0.146 || (kelly > 0.12 && wprob > 0.5)
+                    if kelly >= 0.146 || (kelly > 0.10 && wprob > 0.5)
                         poptrade = true;
                     else
                         poptrade = false;
@@ -245,7 +245,7 @@ elseif condsignal.directionkellied == -1
                 kelly = kelly_k('volblowup2',fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
                 wprob = kelly_k('volblowup2',fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
                 if ~isnan(kelly)
-                    if kelly >= 0.146 || (kelly > 0.12 && wprob > 0.5)
+                    if kelly >= 0.146 || (kelly > 0.10 && wprob > 0.5)
                         poptrade = true;
                     else
                         poptrade = false;

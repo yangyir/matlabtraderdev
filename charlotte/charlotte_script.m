@@ -8,12 +8,12 @@ elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m')
 else
 end
 %%
-% asset = 'govtbond_10y';
-% dtfrom = '2024-06-03';
-% [tblout,kellyout,tblout_notused,kellytables] = charlotte_kellycheck('assetname',asset,...
-%     'datefrom',dtfrom,...
-%     'frequency',freq,...
-%     'reportunused',true);
+asset = 'govtbond_10y';
+dtfrom = '2024-06-03';
+[tblout,kellyout,tblout_notused,kellytables] = charlotte_kellycheck('assetname',asset,...
+    'datefrom',dtfrom,...
+    'frequency',freq,...
+    'reportunused',true);
 % open tblout;
 % open kellyout;
 % open tblout_notused;
@@ -27,8 +27,8 @@ end
 % timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
 %%
 code = 'T2409';
-dt1 = datenum('2024-07-08','yyyy-mm-dd');
-dt2 = datenum('2024-07-16','yyyy-mm-dd');
+dt1 = datenum('2024-05-17','yyyy-mm-dd');
+dt2 = datenum('2024-08-16','yyyy-mm-dd');
 % dt2 = dt1;
 dt3 = [datestr(dateadd(dt1,'-1b'),'yyyy-mm-dd'),' 21:00:00'];
 dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
@@ -43,6 +43,11 @@ for i = idxstart:idxend
     ei1 = fractal_truncate(resstruct,i-1);
     ei2 = fractal_truncate(resstruct,i);
     output1 = fractal_signal_conditional2('extrainfo',ei1,...
+        'nfractal',nfractal,...
+        'ticksize',fut.tick_size,...
+        'kellytables',kellytables,...
+        'assetname',fut.asset_name);
+    output2 = fractal_signal_conditional2('extrainfo',ei2,...
         'nfractal',nfractal,...
         'ticksize',fut.tick_size,...
         'kellytables',kellytables,...
@@ -63,7 +68,11 @@ for i = idxstart:idxend
                     fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output1.directionkellied,[output1.opkellied,' failed...']);
                 end
             else
-                fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output1.directionkellied,output1.opkellied,100*output1.kelly);
+                if ~isempty(output2)
+                    fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output2.directionkellied,output2.opkellied,100*output2.kelly);
+                else
+                    fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
+                end
             end
         elseif output1.directionkellied == -1
             %dn-trend conditional signal
@@ -79,7 +88,11 @@ for i = idxstart:idxend
                     fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output1.directionkellied,[output1.opkellied,' failed...']);
                 end
             else
-                fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output1.directionkellied,output1.opkellied,100*output1.kelly);   
+                if ~isempty(output2)
+                    fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output2.directionkellied,output2.opkellied,100*output2.kelly);
+                else
+                    fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
+                end
             end
         elseif output1.directionkellied == 0
             %conditional signal with insuffient conditions to be placed
@@ -104,7 +117,11 @@ for i = idxstart:idxend
                    'assetname',fut.asset_name,...
                    'kellytables',kellytables);
         if isempty(signaluncond)
-            fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
+            if ~isempty(output2)
+                fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output2.directionkellied,output2.opkellied,100*output2.kelly);
+            else
+                fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
+            end
         else
             fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,signaluncond.op.comment,100*signaluncond.kelly);                
         end
