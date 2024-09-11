@@ -5,7 +5,7 @@ p.KeepUnmatched = true;p.CaseSensitive = false;
 p.addParameter('assetname','',@ischar);
 p.addParameter('datefrom','',@ischar);
 p.addParameter('dateto','',@ischar);
-p.addParameter('frequency','intraday',@ischar);
+p.addParameter('frequency','30m',@ischar);
 p.addParameter('reportunused',false,@islogical);
 p.parse(varargin{:});
 %
@@ -13,23 +13,23 @@ assetname = p.Results.assetname;
 dtfrom = p.Results.datefrom;
 dtto = p.Results.dateto;
 freq = p.Results.frequency;
-if ~(strcmpi(freq,'intraday') || strcmpi(freq,'daily') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intraday-15m')) 
-    error('charlotte_kellycheck:invalid frequency input, either be intraday or daily')
+if ~(strcmpi(freq,'30m') || strcmpi(freq,'1440m') || strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'daily')) 
+    error('charlotte_kellycheck:invalid frequency input, either be 5m,15m,30m or daily')
 end
 reportunused = p.Results.reportunused;
 
 if strcmpi(assetname,'govtbond_10y') || strcmpi(assetname,'govtbond_30y') || strcmpi(assetname,'govtbond_05y')
-    if strcmpi(freq,'intraday-5m')
+    if strcmpi(freq,'5m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_5m.mat']);
         strat_ = data.strat_govtbondfut_5m;
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_5m.mat']);
         tbl_report_ = data.tblreport_govtbondfut_5m;
-    elseif strcmpi(freq,'intraday-15m')
+    elseif strcmpi(freq,'15m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_15m.mat']);
         strat_ = data.strat_govtbondfut_15m;
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_15m.mat']);
         tbl_report_ = data.tblreport_govtbondfut_15m;
-    else
+    elseif strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
         strat_ = data.strat_govtbondfut_30m;
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_30m.mat']);
@@ -42,12 +42,12 @@ elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ..
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
     tbl_report_ = data.tblreport_eqindexfut;
 else
-    if strcmpi(freq,'intraday')
+    if strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
         strat_ = data.strat_comdty_i;
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
         tbl_report_ = data.tbl_report_comdty_i;
-    elseif strcmpi(freq,'daily')
+    elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_daily.mat']);
         strat_ = data.strat_comdty_daily;
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_daily.mat']);

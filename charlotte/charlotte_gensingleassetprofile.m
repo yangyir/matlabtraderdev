@@ -9,18 +9,18 @@ p.parse(varargin{:});
 %
 assetname = p.Results.assetname;
 freq = p.Results.frequency;
-if ~(strcmpi(freq,'intraday') || strcmpi(freq,'daily') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intraday-15m')) 
-    error('charlotte_gensingleassetprofile:invalid frequency input, either be intraday or daily')
+if ~(strcmpi(freq,'1440m') || strcmpi(freq,'daily') || strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')) 
+    error('charlotte_gensingleassetprofile:invalid frequency input, either be 5m,15m,30m,1440m or daily')
 end
 
 if strcmpi(assetname,'govtbond_10y') || strcmpi(assetname,'govtbond_30y') || strcmpi(assetname,'govtbond_05y')
-    if strcmpi(freq,'intraday-5m')
+    if strcmpi(freq,'5m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_5m.mat']);
         tbl_report_ = data.tblreport_govtbondfut_5m;
-    elseif strcmpi(freq,'intraday-15m')
+    elseif strcmpi(freq,'15m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_15m.mat']);
         tbl_report_ = data.tblreport_govtbondfut_15m;
-    else
+    elseif strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_30m.mat']);
         tbl_report_ = data.tblreport_govtbondfut_30m;
     end
@@ -29,10 +29,10 @@ elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ..
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
     tbl_report_ = data.tblreport_eqindexfut;
 else
-    if strcmpi(freq,'intraday')
+    if strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
         tbl_report_ = data.tbl_report_comdty_i;
-    elseif strcmpi(freq,'daily')
+    elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_daily.mat']);
         tbl_report_ = data.tbl_report_comdty_daily;
     end
@@ -77,16 +77,16 @@ if ~keepextratrades
     end
 end
 tblout = tblasset(logical(use3),:);
-if strcmpi(freq,'intraday') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intraday-15m') || strcmpi(freq,'intraday-30m')
+if strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')
     tblout.opendatetime = datestr(tblout.opendatetime,'yyyy-mm-dd HH:MM');
     tblout.closedatetime = datestr(tblout.closedatetime,'yyyy-mm-dd HH:MM');
-elseif strcmpi(freq,'daily')
+elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m')
     tblout.opendatetime = datestr(tblout.opendatetime,'yyyy-mm-dd');
     tblout.closedatetime = datestr(tblout.closedatetime,'yyyy-mm-dd');
 end
 %
 firstopendt = tblasset.opendatetime(1);
-if strcmpi(freq,'intraday') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intraday-15m') || strcmpi(freq,'intraday-30m')
+if strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')
     if hour(firstopendt) > 15
         firstopendt = dateadd(floor(firstopendt),'1b');
     elseif hour(firstopendt) < 9
@@ -102,7 +102,7 @@ if strcmpi(freq,'intraday') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intr
 end
 %
 lastclosedt = tblasset.closedatetime(end);
-if strcmpi(freq,'intraday') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intraday-15m') || strcmpi(freq,'intraday-30m')
+if strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')
     if hour(lastclosedt) > 15
         lastclosedt = dateadd(floor(lastclosedt),'1b');
     elseif hour(lastclosedt) < 9
@@ -122,7 +122,7 @@ ndts = length(dts);
 
 openbd = tblasset.opendatetime;
 closebd = tblasset.closedatetime;
-if strcmpi(freq,'intraday') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intraday-15m') || strcmpi(freq,'intraday-30m')
+if strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')
     for i = 1:length(openbd)
         if hour(openbd(i)) > 15
             openbd(i) = dateadd(floor(openbd(i)),'1b');
@@ -191,7 +191,7 @@ for i = 1:ndts
         opentradeinfo = tradesbyday{i,3};
         closedt_i = opentradeinfo.closedatetime;
         for j = 1:size(closedt_i,1)
-            if strcmpi(freq,'intraday') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intraday-15m') || strcmpi(freq,'intraday-30m')
+            if strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')
                 if closedt_i(j) <= dts(i) + 2/3
                     %trades close on the same day
                     pnl_open_i = pnl_open_i + opentradeinfo.pnlrel(j)*opentradeinfo.opennotional(j);
@@ -235,7 +235,7 @@ for i = 1:ndts
             data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
             cp_jminus1 = data(find(data(:,1) == dts(i-1),1,'first'),5);
             cp_j = data(find(data(:,1) == dts(i),1,'first'),5);
-            if strcmpi(freq,'intraday') || strcmpi(freq,'intraday-5m') || strcmpi(freq,'intraday-15m') || strcmpi(freq,'intraday-30m')
+            if strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')
                 if closedt_i(j) <= dts(i) + 2/3
                     %trades close on the same day
                     tradeclose = carrytradesinfo.openprice(j)+carrytradesinfo.openprice(j)*carrytradesinfo.pnlrel(j)/carrytradesinfo.direction(j); 
