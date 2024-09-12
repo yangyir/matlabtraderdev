@@ -498,20 +498,20 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 wadidx = find(extrainfo.wad < wadlast,1,'last');
                 if ~isempty(wadidx)
                     closepidx = extrainfo.p(wadidx,5);
-                    if closepidx >= extrainfo.p(end,5)-trade.instrument_.tick_size
+                    if closepidx > extrainfo.p(end,5)
                         unwindflag = true;
                         msg = 'conditional dntrendconfirmed failed:within2ticks_wad';
                         obj.status_ = 'closed';
                         obj.closestr_ = msg;
                         return
                     else
-                        if closepidx > extrainfo.ll(end-1)
-                            unwindflag = true;
-                            msg = 'conditional dntrendconfirmed failed:within2ticks_wad';
-                            obj.status_ = 'closed';
-                            obj.closestr_ = msg;
-                            return
-                        end
+%                         if closepidx > extrainfo.ll(end-1)
+%                             unwindflag = true;
+%                             msg = 'conditional dntrendconfirmed failed:within2ticks_wad';
+%                             obj.status_ = 'closed';
+%                             obj.closestr_ = msg;
+%                             return
+%                         end
                     end
                 end
             else
