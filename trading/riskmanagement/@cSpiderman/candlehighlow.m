@@ -36,7 +36,7 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
     if closeflag == 1
         if direction == 1 && openp < obj.pxstoploss_ - 2*ticksize
             closeprice = openp;
-        elseif direction == -1 && openp > obj.pxstoploss_ + 2*ticksiz
+        elseif direction == -1 && openp > obj.pxstoploss_ + 2*ticksize
             closeprice = openp;
         else
             if direction == 1
