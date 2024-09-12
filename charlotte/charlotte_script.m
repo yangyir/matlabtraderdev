@@ -8,29 +8,29 @@ elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m')
 else
 end
 %%
-asset = 'govtbond_10y';
+asset = 'aluminum';
 dtfrom = '2024-06-03';
 [tblout,kellyout,tblout_notused,kellytables] = charlotte_kellycheck('assetname',asset,...
     'datefrom',dtfrom,...
     'frequency',freq,...
     'reportunused',true);
-% open tblout;
-% open kellyout;
-% open tblout_notused;
-% %%
-% [tblpnl,tblout2,statsout] = charlotte_gensingleassetprofile('assetname',asset,'frequency',freq);
-% open tblout2;
-% open statsout;
-% open tblpnl;
-% set(0,'defaultfigurewindowstyle','docked');
-% timeseries_plot([tblpnl.dts,tblpnl.runningnotional],'figureindex',2,'dateformat','yy-mmm-dd','title',asset);
-% timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
+open tblout;
+open kellyout;
+open tblout_notused;
 %%
-code = 'T2409';
-dt1 = datenum('2024-05-17','yyyy-mm-dd');
-dt2 = datenum('2024-08-16','yyyy-mm-dd');
+[tblpnl,tblout2,statsout] = charlotte_gensingleassetprofile('assetname',asset,'frequency',freq);
+open tblout2;
+open statsout;
+open tblpnl;
+set(0,'defaultfigurewindowstyle','docked');
+timeseries_plot([tblpnl.dts,tblpnl.runningnotional],'figureindex',2,'dateformat','yy-mmm-dd','title',asset);
+timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
+%%
+code = 'al2410';
+dt1 = datenum('2024-09-03','yyyy-mm-dd');
+dt2 = datenum('2024-09-05','yyyy-mm-dd');
 % dt2 = dt1;
-dt3 = [datestr(dateadd(dt1,'-1b'),'yyyy-mm-dd'),' 21:00:00'];
+dt3 = [datestr(dt1,'yyyy-mm-dd'),' 09:00:00'];
 dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
 resstruct = charlotte_plot('futcode',code,'figureindex',4,'datefrom',dt3,'dateto',dt4,'frequency',freq);
 fut = code2instrument(code);
@@ -63,7 +63,13 @@ for i = idxstart:idxend
                         'nfractal',nfractal,...
                         'assetname',fut.asset_name,...
                         'kellytables',kellytables);
-                    fprintf('%6s:\t%s:%2d\t%s with %s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,[output1.opkellied,' success'],signaluncond.op.comment,100*signaluncond.kelly);
+                    if ~isempty(signaluncond)
+                        fprintf('%6s:\t%s:%2d\t%s with %s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,[output1.opkellied,' success'],signaluncond.op.comment,100*signaluncond.kelly);
+                    else
+                        %there was not a valid breach,i.e.the fractal hh
+                        %was updated
+                        fprintf('%6s:\t%s:%2d\t%s but invalid...\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),1,[output1.opkellied,' success']);
+                    end
                 else
                     fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output1.directionkellied,[output1.opkellied,' failed...']);
                 end
@@ -83,7 +89,13 @@ for i = idxstart:idxend
                         'nfractal',nfractal,...
                         'assetname',fut.asset_name,...
                         'kellytables',kellytables);
-                    fprintf('%6s:\t%s:%2d\t%s with %s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,[output1.opkellied,' success'],signaluncond.op.comment,100*signaluncond.kelly);
+                    if ~isempty(signaluncond)
+                        fprintf('%6s:\t%s:%2d\t%s with %s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,[output1.opkellied,' success'],signaluncond.op.comment,100*signaluncond.kelly);
+                    else
+                        %there was not a valid breach,i.e.the fractal ll
+                        %was updated
+                        fprintf('%6s:\t%s:%2d\t%s but invalid as ll updates...\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),-1,[output1.opkellied,' success']);
+                    end
                 else
                     fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output1.directionkellied,[output1.opkellied,' failed...']);
                 end
@@ -155,15 +167,22 @@ for i = 1:length(dts)
 end
 %print backtest trades results
 fprintf('\n');
-fprintf('unwinded trades:\n');
-for i = 1:unwindedtrades.latest_
-    t_i = unwindedtrades.node_(i);
-    fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\t%40s\n',code,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
-end
-if carriedtrades.latest_ > 0
-    fprintf('carried trade:\n');
-    t_i = carriedtrades.node_(1);
-    fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\n',code,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
+if unwindedtrades.latest_ == 0 && carriedtrades.latest_ == 0
+    fprintf('there were no trades...\n');
+else
+    if unwindedtrades.latest_ > 0
+        fprintf('unwinded trades:\n');
+        for i = 1:unwindedtrades.latest_
+            t_i = unwindedtrades.node_(i);
+            fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\t%40s\n',code,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
+        end
+    end
+    %
+    if carriedtrades.latest_ > 0
+        fprintf('carried trade:\n');
+        t_i = carriedtrades.node_(1);
+        fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\n',code,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
+    end
 end
 %%
 %%
