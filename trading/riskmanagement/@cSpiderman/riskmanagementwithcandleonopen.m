@@ -313,13 +313,13 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             end
         end
         %
-        if extrainfo.hh(end) > extrainfo.hh(end-1)
-            unwindflag = true;
-            msg = 'conditional uptrendconfirmed failed:fractalhhupdate';
-            obj.status_ = 'closed';
-            obj.closestr_ = msg;
-            return
-        end
+%         if extrainfo.hh(end) > extrainfo.hh(end-1)
+%             unwindflag = true;
+%             msg = 'conditional uptrendconfirmed failed:fractalhhupdate';
+%             obj.status_ = 'closed';
+%             obj.closestr_ = msg;
+%             return
+%         end
     end
     %end of runriskmanagementbeforemktclose && lflag && breachupsuccess
     %
@@ -576,13 +576,13 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             end
         end
         %
-        if extrainfo.ll(end) < extrainfo.ll(end-1)
-            unwindflag = true;
-            msg = 'conditional dntrendconfirmed failed:fractalllupdate';
-            obj.status_ = 'closed';
-            obj.closestr_ = msg;
-            return
-        end
+%         if extrainfo.ll(end) < extrainfo.ll(end-1)
+%             unwindflag = true;
+%             msg = 'conditional dntrendconfirmed failed:fractalllupdate';
+%             obj.status_ = 'closed';
+%             obj.closestr_ = msg;
+%             return
+%         end
     end
     %end of runriskmanagementbeforemktclose && sflag && breachdnsuccess
 end
