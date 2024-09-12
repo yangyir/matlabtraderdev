@@ -168,6 +168,7 @@ elseif condsignal.directionkellied == 1
         end
         %
         trade.status_ = 'set';
+        trade.riskmanager_.status_ = 'set';
     elseif condsignal.signalkellied(4) ~= 2
         error('not implemented yet!!!')
     end
@@ -292,6 +293,7 @@ elseif condsignal.directionkellied == -1
         end
         %
         trade.status_ = 'set';
+        trade.riskmanager_.status_ = 'set';
     elseif condsignal.signalkellied(4) ~= -2
         error('not implemented yet!!!')
     end
