@@ -500,7 +500,7 @@ function [output] = fractal_signal_unconditional2(varargin)
             bshighval = ei.bs(bshighidx);
             bslowpx = min(ei.px(bshighidx-bshighval+1:bshighidx,4));
             lowpxidx = bshighidx-bshighval+find(ei.px(bshighidx-bshighval+1:bshighidx,4) == bslowpx,1,'last');
-            highpx = extrainfo.px(lowpxidx,3);
+            highpx = ei.px(lowpxidx,3);
             signal_i(7) = min(highpx,signal_i(7));
         end
         
