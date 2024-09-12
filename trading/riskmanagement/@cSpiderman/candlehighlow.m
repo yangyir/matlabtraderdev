@@ -3,6 +3,14 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
 %TRADING OR REPLAY
     unwindtrade = {};
     trade = obj.trade_;
+    if ~isempty(strfind(trade.opensignal_.mode_,'conditional'))
+        if t <= trade.opendatetime1_
+            %in case the candle time is before the open time
+            return
+        end
+    end
+    
+    
     direction = trade.opendirection_;
     instrument = trade.instrument_;
     try
@@ -11,8 +19,8 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
         ticksize = 0;
     end
     
-    if (lowp - obj.pxstoploss_ <= -3*ticksize && direction == 1) || ...
-            (highp - obj.pxstoploss_ >= 3*ticksize && direction == -1)
+    if (lowp - obj.pxstoploss_ < -2*ticksize && direction == 1) || ...
+            (highp - obj.pxstoploss_ > 2*ticksize && direction == -1)
         closeflag = 1;
     elseif (lowp < obj.pxtarget_ && direction == -1) ||...
             (highp > obj.pxtarget_ && direction == 1)
@@ -26,12 +34,16 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
     
     unwindtrade = obj.trade_;
     if closeflag == 1
-        if direction == 1 && openp < obj.pxstoploss_
+        if direction == 1 && openp < obj.pxstoploss_ - 2*ticksize
             closeprice = openp;
-        elseif direction == -1 && openp > obj.pxstoploss_
+        elseif direction == -1 && openp > obj.pxstoploss_ + 2*ticksiz
             closeprice = openp;
         else
-            closeprice = obj.pxstoploss_;
+            if direction == 1
+                closeprice = obj.pxstoploss_ -3*ticksize;
+            else
+                closeprice = obj.pxstoploss_ +3*ticksize;
+            end
         end
         if strcmpi(obj.closestr_,'n/a')
             obj.closestr_ = 'fractal:teeth';
