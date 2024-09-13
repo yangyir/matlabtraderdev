@@ -102,7 +102,38 @@ while i <= idx2
                 ei_j.latestdt = extrainfo.px(j+1,1);
             end
             %
-            runflag = j == idx2;
+            runflag = false;
+            if trade.oneminb4close1_ == 914
+                %govtbond
+                if strcmpi(freq,'30m')
+                    if hour(ei_j.px(end,1)) == 15, runflag = true;end
+                elseif strcmpi(freq,'15m')
+                    if hour(ei_j.px(end,1)) == 15, runflag = true;end
+                elseif strcmpi(freq,'5m')
+                    if hour(ei_j.px(end,1)) == 15 && minute(ei_j.px(end,1)) == 10, runflag = true;end
+                end
+            elseif trade.oneminb4close1_ == 899 && isnan(trade.oneminb4close2_)
+                if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
+                if hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30, runflag = true;end
+            elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 1379
+                if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
+                if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
+                        (hour(ei_j.px(end,1)) == 22 && minute(ei_j.px(end,1)) == 30)
+                    runflag = true;
+                end
+            elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 59
+                if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
+                if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
+                        (hour(ei_j.px(end,1)) == 0 && minute(ei_j.px(end,1)) == 30)
+                    runflag = true;
+                end
+            elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 149
+                if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
+                if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
+                        (hour(ei_j.px(end,1)) == 2 && minute(ei_j.px(end,1)) == 30)
+                    runflag = true;
+                end
+            end
                 
             tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
                 'usecandlelastonly',false,...
