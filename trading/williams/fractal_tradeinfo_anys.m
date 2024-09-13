@@ -118,11 +118,46 @@ for k = checkstartid:size(ei.px,1)
     if strcmpi(trade.status_,'closed'),break;end
     %
     runflag = false;
-    if hour(ei.px(k,1)) == 14
-        lastbd = floor(ei.px(k,1));
+    if trade.oneminb4close1_ == 914
+        %govtbond
+        if strcmpi(freq,'intraday-30m') || strcmpi(freq,'intraday')
+            if hour(ei_k.px(end,1)) == 15, runflag = true;end
+        elseif strcmpi(freq,'intraday-15m')
+            if hour(ei_k.px(end,1)) == 15, runflag = true;end
+        elseif strcmpi(freq,'intraday-5m')
+            if hour(ei_k.px(end,1)) == 15 && minute(ei_k.px(end,1)) == 10, runflag = true;end
+        end
+    elseif trade.oneminb4close1_ == 899 && isnan(trade.oneminb4close2_)
+        if ~(strcmpi(freq,'intraday-30m') || strcmpi(freq,'intraday')), error('fractal_tradeinfo_anys:invalid freq input....');end
+        if hour(ei_k.px(end,1)) == 14 && minute(ei_k.px(end,1)) == 30, runflag = true;end
+    elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 1379
+        if ~(strcmpi(freq,'intraday-30m') || strcmpi(freq,'intraday')), error('fractal_tradeinfo_anys:invalid freq input....');end
+        if (hour(ei_k.px(end,1)) == 14 && minute(ei_k.px(end,1)) == 30) || ...
+                (hour(ei_k.px(end,1)) == 22 && minute(ei_k.px(end,1)) == 30)
+            runflag = true;
+        end
+    elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 59
+        if ~(strcmpi(freq,'intraday-30m') || strcmpi(freq,'intraday')), error('fractal_tradeinfo_anys:invalid freq input....');end
+        if (hour(ei_k.px(end,1)) == 14 && minute(ei_k.px(end,1)) == 30) || ...
+                (hour(ei_k.px(end,1)) == 0 && minute(ei_k.px(end,1)) == 30)
+            runflag = true;
+        end
+    elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 149
+        if ~(strcmpi(freq,'intraday-30m') || strcmpi(freq,'intraday')), error('fractal_tradeinfo_anys:invalid freq input....');end
+        if (hour(ei_k.px(end,1)) == 14 && minute(ei_k.px(end,1)) == 30) || ...
+                (hour(ei_k.px(end,1)) == 2 && minute(ei_k.px(end,1)) == 30)
+            runflag = true;
+        end
+    end
+    
+    %here we only check whether it is a long holiday afterwards
+    if runflag && hour(ei_k.px(end,1)) <= 15
+        lastbd = floor(ei_k.px(end,1));
         nextbd = dateadd(lastbd,'1b');
         if nextbd - lastbd > 3
             runflag = true;
+        else
+            runflag = false;
         end
     end
     

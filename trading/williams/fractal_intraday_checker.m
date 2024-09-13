@@ -88,13 +88,48 @@ for i = 1:n
         if strcmpi(trade.status_,'closed'),break;end
         %
         runflag = false;
-        if hour(extrainfo.px(end,1)) == 14
+        if trade.oneminb4close1_ == 914
+            %govtbond
+            if freq == 30
+                if hour(extrainfo.px(end,1)) == 15, runflag = true;end
+            elseif freq == 15
+                if hour(extrainfo.px(end,1)) == 15, runflag = true;end
+            elseif freq == 5
+                if hour(extrainfo.px(end,1)) == 15 && minute(extrainfo.px(end,1)) == 10, runflag = true;end
+            end
+        elseif trade.oneminb4close1_ == 899 && isnan(trade.oneminb4close2_)
+            if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
+            if hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30, runflag = true;end
+        elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 1379
+            if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
+            if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
+                    (hour(extrainfo.px(end,1)) == 22 && minute(extrainfo.px(end,1)) == 30)
+                runflag = true;
+            end
+        elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 59
+            if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
+            if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
+                    (hour(extrainfo.px(end,1)) == 0 && minute(extrainfo.px(end,1)) == 30)
+                runflag = true;
+            end
+        elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 149
+            if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
+            if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
+                    (hour(extrainfo.px(end,1)) == 2 && minute(extrainfo.px(end,1)) == 30)
+                runflag = true;
+            end
+        end
+        %here we only check whether it is a long holiday afterwards
+        if runflag && hour(extrainfo.px(end,1)) <= 15
             lastbd = floor(extrainfo.px(end,1));
             nextbd = dateadd(lastbd,'1b');
             if nextbd - lastbd > 3
                 runflag = true;
+            else
+                runflag = false;
             end
         end
+        
         %
         tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
             'usecandlelastonly',false,...
