@@ -26,13 +26,14 @@ set(0,'defaultfigurewindowstyle','docked');
 timeseries_plot([tblpnl.dts,tblpnl.runningnotional],'figureindex',2,'dateformat','yy-mmm-dd','title',asset);
 timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
 %%
-code = 'al2410';
-dt1 = datenum('2024-09-03','yyyy-mm-dd');
-dt2 = datenum('2024-09-05','yyyy-mm-dd');
+code = 'al2001';
+dt1 = datenum('2019-11-15','yyyy-mm-dd');
+dt2 = datenum('2019-11-15','yyyy-mm-dd');
 % dt2 = dt1;
 dt3 = [datestr(dt1,'yyyy-mm-dd'),' 09:00:00'];
 dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
 resstruct = charlotte_plot('futcode',code,'figureindex',4,'datefrom',dt3,'dateto',dt4,'frequency',freq);
+grid off;
 fut = code2instrument(code);
 
 idxstart = find(resstruct.px(:,1) >= datenum(dt3,'yyyy-mm-dd HH:MM'),1,'first');
@@ -46,12 +47,14 @@ for i = idxstart:idxend
         'nfractal',nfractal,...
         'ticksize',fut.tick_size,...
         'kellytables',kellytables,...
-        'assetname',fut.asset_name);
+        'assetname',fut.asset_name,...
+        'ticksizeratio',0.5);
     output2 = fractal_signal_conditional2('extrainfo',ei2,...
         'nfractal',nfractal,...
         'ticksize',fut.tick_size,...
         'kellytables',kellytables,...
-        'assetname',fut.asset_name);
+        'assetname',fut.asset_name,...
+        'ticksizeratio',0.5);
     %
     if ~isempty(output1)
         if output1.directionkellied == 1
@@ -169,13 +172,34 @@ end
 fprintf('\n');
 if unwindedtrades.latest_ == 0 && carriedtrades.latest_ == 0
     fprintf('there were no trades...\n');
+    tbl2check = {};
 else
     if unwindedtrades.latest_ > 0
+        n = unwindedtrades.latest_;
+        codes = cell(n,1);
+        bsflag = zeros(n,1);
+        opendt = cell(n,1);
+        openpx = zeros(n,1);
+        closedt = cell(n,1);
+        closepx = zeros(n,1);
+        opensignal = cell(n,1);
+        closestr = cell(n,1);
+        closepnl = zeros(n,1);
         fprintf('unwinded trades:\n');
-        for i = 1:unwindedtrades.latest_
+        for i = 1:n
             t_i = unwindedtrades.node_(i);
             fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\t%40s\n',code,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
+            codes{i} = code;
+            bsflag(i) = t_i.opendirection_;
+            opendt{i} = t_i.opendatetime2_;
+            openpx(i) = t_i.openprice_;
+            closedt{i} = t_i.closedatetime2_;
+            closepx(i) = t_i.closeprice_;
+            opensignal{i} = t_i.opensignal_.mode_;
+            closestr{i} = t_i.closestr_;
+            closepnl(i) = t_i.closepnl_;
         end
+        tbl2check = table(codes,bsflag,opendt,openpx,closedt,closepx,opensignal,closestr,closepnl);
     end
     %
     if carriedtrades.latest_ > 0
@@ -184,6 +208,10 @@ else
         fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\n',code,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
     end
 end
+%
+
+
+
 %%
 %%
 % asset_list={'gold';'silver';...
