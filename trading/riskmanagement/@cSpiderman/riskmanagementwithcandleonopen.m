@@ -127,7 +127,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %CASE2:close below open but high is within 2 ticks above fractal hh
-        if extrainfo.p(end,2) >= extrainfo.p(end,5) + trade.instrument_.tick_size && ...
+        if extrainfo.p(end,2) >= extrainfo.p(end,5) && ...
                 extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
             if extrainfo.p(end,1) > trade.opendatetime1_
                 if extrainfo.p(end,4) < extrainfo.p(end-1,4)
@@ -359,7 +359,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         end
         %CASE2:close above open but low is within 2 ticks below fractal ll
 %         if (extrainfo.p(end,2) <= extrainfo.p(end,5)-trade.instrument_.tick_size || strcmpi(val,'conditional-dntrendconfirmed-2')) && ...
-        if extrainfo.p(end,2) <= extrainfo.p(end,5)-trade.instrument_.tick_size && ...
+        if extrainfo.p(end,2) <= extrainfo.p(end,5) && ...
                 extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size
             if extrainfo.p(end,1) > trade.opendatetime1_
                 if extrainfo.p(end,3) > extrainfo.p(end-1,3)
@@ -585,4 +585,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
 %         end
     end
     %end of runriskmanagementbeforemktclose && sflag && breachdnsuccess
+    %
+    if sflag && ~breachdnfailed && ~breachdnsuccess
+        %it is absolutely that the trade has opened on the previous candle
+        %time
+        'haha';
+    end
 end
