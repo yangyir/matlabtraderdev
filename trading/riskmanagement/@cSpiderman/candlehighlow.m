@@ -8,7 +8,13 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
             %in case the candle time is before the open time
             return
         end
+    else
+        if t < trade.opendatetime1_
+            return
+        end       
     end
+    
+    
     
     
     direction = trade.opendirection_;
