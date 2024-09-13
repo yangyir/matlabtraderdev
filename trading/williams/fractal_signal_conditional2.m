@@ -8,6 +8,7 @@ function [output] = fractal_signal_conditional2(varargin)
     p.addParameter('UseLastCandle',true,@islogical);
     p.addParameter('AssetName','',@ischar);
     p.addParameter('KellyTables',{},@isstruct);
+    p.addParameter('TickSizeRatio',1,@isnumeric);
     p.parse(varargin{:});
     ei = p.Results.ExtraInfo;
     ticksize = p.Results.TickSize;
@@ -15,6 +16,7 @@ function [output] = fractal_signal_conditional2(varargin)
     uselastcandle = p.Results.UseLastCandle;
     assetname = p.Results.AssetName;
     kellytables = p.Results.KellyTables;
+    ticksizeratio = p.Results.TickSizeRatio;
     
     try
         ei.px;
@@ -23,7 +25,7 @@ function [output] = fractal_signal_conditional2(varargin)
     end
     
     try
-        [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,'uselastcandle',uselastcandle);
+        [signal,op,flags] = fractal_signal_conditional(ei,ticksizeratio*ticksize,nfractal,'uselastcandle',uselastcandle);
     catch
         output = {};
         return

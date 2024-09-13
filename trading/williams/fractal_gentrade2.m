@@ -17,7 +17,8 @@ fut = code2instrument(code);
 idx_ = idx-1;
 ei_ = fractal_truncate(resstruct,idx_);
 condsignal = fractal_signal_conditional2('extrainfo',ei_,'ticksize',fut.tick_size,...
-    'nfractal',nfractal,'kellytables',kellytables,'assetname',fut.asset_name);
+    'nfractal',nfractal,'kellytables',kellytables,'assetname',fut.asset_name,...
+    'TickSizeRatio',0.5);
 
 
 
