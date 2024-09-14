@@ -154,7 +154,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
         if shadowlinewidth/kwidth > 0.618
             if extrainfo.p(end,1) > trade.opendatetime1_
-                if extrainfo.p(end,4) < extrainfo.p(end-1,4)
+                exceptionflag = strcmpi(val,'conditional-uptrendconfirmed-1') && ...
+                    extrainfo.p(end,3) > extrainfo.lvlup(end);
+                if extrainfo.p(end,4) < extrainfo.p(end-1,4) && ~exceptionflag
                     unwindflag = true;
                     msg = 'conditional uptrendconfirmed failed:shadowline';
                     obj.status_ = 'closed';
@@ -163,8 +165,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
             else
                 %exception found on y2409 on 20240628
-                exceptionflag = extrainfo.p(end,4) > extrainfo.p(end-1,4) & ...
-                    shadowlinewidth/kwidth < 0.75;
+                exceptionflag = (extrainfo.p(end,4) > extrainfo.p(end-1,4) && ...
+                    shadowlinewidth/kwidth < 0.75) || ...
+                    (strcmpi(val,'conditional-uptrendconfirmed-1') && ...
+                    extrainfo.p(end,3) > extrainfo.lvlup(end));
                 if ~exceptionflag
                     unwindflag = true;
                     msg = 'conditional uptrendconfirmed failed:shadowline';
@@ -200,11 +204,14 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         end
         %CASE6:fractal hh update to a higher level
         if extrainfo.hh(end) > extrainfo.hh(end-1)
-            unwindflag = true;
-            msg = 'conditional uptrendconfirmed failed:fractalhhupdate';
-            obj.status_ = 'closed';
-            obj.closestr_ = msg;
-            return
+            exceptionflag = strcmpi(val,'conditional-uptrendconfirmed-1') && extrainfo.p(end,3) > extrainfo.lvlup(end);
+            if ~exceptionflag
+                unwindflag = true;
+                msg = 'conditional uptrendconfirmed failed:fractalhhupdate';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                return
+            end
         end
         %CASE7:potential high kelly failed
         if strcmpi(val,'conditional-uptrendconfirmed')
@@ -327,7 +334,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if lflag && ~breachupfailed && (extrainfo.p(end,5) <= extrainfo.hh(end-1) && extrainfo.p(end-1,5) <= extrainfo.hh(end-1))
         shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,5);
         kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
-        if shadowlinewidth/kwidth > 0.618
+        exceptionflag = strcmpi(val,'conditional-uptrendconfirmed-1') && ...
+                    extrainfo.p(end,3) > extrainfo.lvlup(end);
+        if shadowlinewidth/kwidth > 0.618 && ~exceptionflag
             unwindflag = true;
             msg = 'conditional uptrendconfirmed failed:shadowline';
             obj.status_ = 'closed';
