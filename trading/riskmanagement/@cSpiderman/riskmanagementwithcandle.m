@@ -15,6 +15,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     p.addParameter('RunHighLowOnly',false,@islogical);
     p.addParameter('RunRiskManagementBeforeMktClose',false,@islogical);
     p.addParameter('KellyTables',{},@isstruct);
+    p.addParameter('CompulsoryCheckForConditional',true,@islogical);
     p.parse(varargin{:});
     usecandlelastonly = p.Results.UseCandleLastOnly;
     doprint = p.Results.Debug;
@@ -23,6 +24,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     runhighlowonly = p.Results.RunHighLowOnly;
     runriskmanagementbeforemktclose = p.Results.RunRiskManagementBeforeMktClose;
     kellytables = p.Results.KellyTables;
+    compulsorycheck = p.Results.CompulsoryCheckForConditional;
     try
         candleTime = extrainfo.p(end,1);
     catch
@@ -475,7 +477,8 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             strcmpi(val,'conditional-dntrendconfirmed-1') || ...
             strcmpi(val,'conditional-dntrendconfirmed-2') || ...
             strcmpi(val,'conditional-dntrendconfirmed-3') || ...
-            strcmpi(val,'conditional-breachdnlvldn'))
+            strcmpi(val,'conditional-breachdnlvldn')) && ...
+            compulsorycheck
     
         [ unwindflag, msg ] = obj.riskmanagementwithcandleonopen('trade',trade,...
             'extrainfo',extrainfo,...
