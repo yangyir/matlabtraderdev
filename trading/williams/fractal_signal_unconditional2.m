@@ -323,7 +323,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         end
                     else
                         lastll = find(ei.idxll == -1,1,'last');
-                        if lastll < idxbs9 - bs(idxbs9)+1
+                        if lastll < idxbs9 - ei.bs(idxbs9)+1
                             %the lastest LL was formed before the latest buy setup
                             %sequential
                             op.comment = 'breachdn-bshighvalue-tc';
