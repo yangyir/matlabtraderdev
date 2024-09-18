@@ -181,11 +181,13 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         exceptionflag = extrainfo.p(end,5) > extrainfo.lvlup(end) & ...
             extrainfo.p(end,5) > extrainfo.teeth(end) & ...
             extrainfo.lips(end) > extrainfo.teeth(end);
+        
         exceptionflag2 = extrainfo.p(end,5) - extrainfo.hh(end-1) >= -2*trade.instrument_.tick_size & ...
             shadowlinewidth/kwidth < 0.382;
         thisbd = floor(extrainfo.p(end,1));
         nextbd = dateadd(thisbd,'1b');
-        exceptionflag = (exceptionflag || exceptionflag2 ) & nextbd - thisbd <= 3;
+        exceptionflag = (exceptionflag || exceptionflag2 ) & nextbd - thisbd <= 3 & ...
+            ~(strcmpi(val,'conditional-uptrendconfirmed-3') & nextbd-thisbd == 3);
         %CASE4:close before market close
         if runriskmanagementbeforemktclose && ~exceptionflag
             unwindflag = true;
@@ -214,22 +216,22 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             end
         end
         %CASE7:potential high kelly failed
-        if strcmpi(val,'conditional-uptrendconfirmed')
-            output = fractal_signal_conditional2('extrainfo',extrainfo,...
-                'ticksize',trade.instrument_.tick_size,...
-                'nfractal',nfractal,...
-                'kellytables',kellytables,...
-                'assetname',trade.instrument_.asset_name);
-            if ~isempty(output)
-                if ~isempty(strfind(output.opkellied,'potential'))
-                    unwindflag = true;
-                    msg = 'conditional uptrendconfirmed failed:lowkelly';
-                    obj.status_ = 'closed';
-                    obj.closestr_ = msg;
-                    return
-                end
-            end
-        end
+%         if strcmpi(val,'conditional-uptrendconfirmed')
+%             output = fractal_signal_conditional2('extrainfo',extrainfo,...
+%                 'ticksize',trade.instrument_.tick_size,...
+%                 'nfractal',nfractal,...
+%                 'kellytables',kellytables,...
+%                 'assetname',trade.instrument_.asset_name);
+%             if ~isempty(output)
+%                 if ~isempty(strfind(output.opkellied,'potential'))
+%                     unwindflag = true;
+%                     msg = 'conditional uptrendconfirmed failed:lowkelly';
+%                     obj.status_ = 'closed';
+%                     obj.closestr_ = msg;
+%                     return
+%                 end
+%             end
+%         end
         %
         %CASE8:close above open but high is within 2 ticks above fractal hh
         if extrainfo.p(end,2) < extrainfo.p(end,5) && ...
@@ -289,7 +291,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             end
         end
         %
-        if runriskmanagementbeforemktclose
+%         if runriskmanagementbeforemktclose
             if strcmpi(val,'conditional-uptrendconfirmed-1')
                 tbl = kellytables.breachuplvlup_tc;
                 idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
@@ -311,14 +313,14 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
                 end
             end
-            if kelly < 0.145
+            if kelly < 0.1
                 unwindflag = true;
                 msg = 'conditional uptrendconfirmed success:lowkelly';
                 obj.status_ = 'closed';
                 obj.closestr_ = msg;
                 return
             end
-        end
+%         end
         %
 %         if extrainfo.hh(end) > extrainfo.hh(end-1)
 %             unwindflag = true;
@@ -446,21 +448,21 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %CASE7:potential high kelly failed
-        if strcmpi(val,'conditional-dntrendconfirmed')
-            output = fractal_signal_conditional2('extrainfo',extrainfo,...
-                'ticksize',trade.instrument_.tick_size,...
-                'nfractal',nfractal,...
-                'kellytables',kellytables,...
-                'assetname',trade.instrument_.asset_name);
-            if ~isempty(output)
-                if ~isempty(strfind(output.opkellied,'potential'))
-                    unwindflag = true;
-                    msg = 'conditional dntrendconfirmed failed:lowkelly';
-                    obj.status_ = 'closed';
-                    obj.closestr_ = msg;
-                end
-            end
-        end
+%         if strcmpi(val,'conditional-dntrendconfirmed')
+%             output = fractal_signal_conditional2('extrainfo',extrainfo,...
+%                 'ticksize',trade.instrument_.tick_size,...
+%                 'nfractal',nfractal,...
+%                 'kellytables',kellytables,...
+%                 'assetname',trade.instrument_.asset_name);
+%             if ~isempty(output)
+%                 if ~isempty(strfind(output.opkellied,'potential'))
+%                     unwindflag = true;
+%                     msg = 'conditional dntrendconfirmed failed:lowkelly';
+%                     obj.status_ = 'closed';
+%                     obj.closestr_ = msg;
+%                 end
+%             end
+%         end
         %CASE8:special treatment for conditional breachdn-lvldn
         isbreachdnlvldn = extrainfo.ll(end) <= extrainfo.lvldn(end) && extrainfo.p(end,5) > extrainfo.lvldn(end);
         if isbreachdnlvldn
@@ -554,7 +556,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             end
         end
         %
-        if runriskmanagementbeforemktclose
+%         if runriskmanagementbeforemktclose
             if strcmpi(val,'conditional-dntrendconfirmed-1')
                 tbl = kellytables.breachdnlvldn_tc;
                 idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
@@ -576,14 +578,14 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
                 end
             end
-            if kelly < 0.145
+            if kelly < 0.1
                 unwindflag = true;
                 msg = 'conditional dntrendconfirmed success:lowkelly';
                 obj.status_ = 'closed';
                 obj.closestr_ = msg;
                 return
             end
-        end
+%         end
         %
 %         if extrainfo.ll(end) < extrainfo.ll(end-1)
 %             unwindflag = true;
