@@ -42,8 +42,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         return
     end
     if extrainfo.p(end,1) - extrainfo.p(end-1,1) >= 1
-        nfractal = 2;
-    elseif extrainfo.p(end,1) - extrainfo.p(end-1,1) <= 5/1440
+        if abs(extrainfo.p(end-1,1) - extrainfo.p(end-2,1) - 30/1440) <= 1e-6
+            nfractal = 4;
+        elseif abs(extrainfo.p(end-1,1) - extrainfo.p(end-2,1) - 15/1440) <= 1e-6
+            nfractal = 4;
+        elseif abs(extrainfo.p(end-1,1) - extrainfo.p(end-2,1) - 5/1440) <= 1e-6
+            nfractal = 6;
+        else
+            nfractal = 2;
+        end
+    elseif abs(extrainfo.p(end,1) - extrainfo.p(end-1,1) - 5/1440) <= 1e-6
         nfractal = 6;
     else
         nfractal = 4;
