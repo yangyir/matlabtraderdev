@@ -9,6 +9,7 @@ p.addParameter('todate','',@ischar);
 p.addParameter('kellytables','',@isstruct);
 p.addParameter('showlogs',true,@islogical);
 p.addParameter('figureidx',4,@isnumeric);
+p.addParameter('doplot',true,@islogical);
 p.parse(varargin{:});
 code = p.Results.code;
 freq = p.Results.frequency;
@@ -27,14 +28,17 @@ dt2 = p.Results.todate;
 kellytables = p.Results.kellytables;
 showlogsflag = p.Results.showlogs;
 figureidx = p.Results.figureidx;
+doplot = p.Results.doplot;
 %
 dt1 = datenum(dt1,'yyyy-mm-dd');
 dt2 = datenum(dt2,'yyyy-mm-dd');
 %
 dt3 = [datestr(dt1,'yyyy-mm-dd'),' 09:00:00'];
 dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
-resstruct = charlotte_plot('futcode',code,'figureindex',figureidx,'datefrom',dt3,'dateto',dt4,'frequency',freq);
-grid off;
+resstruct = charlotte_plot('futcode',code,'figureindex',figureidx,'datefrom',dt3,'dateto',dt4,'frequency',freq,'doplot',doplot);
+if doplot
+    grid off;
+end
 fut = code2instrument(code);
 
 if showlogsflag
