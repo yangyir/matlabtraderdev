@@ -10,18 +10,11 @@ end
 %%
 asset = 'govtbond_10y';
 dtfrom = '2024-09-03';
-[tblout,kellyout,tblout_notused,kellytables] = charlotte_kellycheck('assetname',asset,...
-    'datefrom',dtfrom,...
-    'frequency',freq,...
-    'reportunused',true);
-open tblout;
-open kellyout;
-open tblout_notused;
+[tblout,kellyout,tblout_notused,kellytables] = charlotte_kellycheck('assetname',asset,'datefrom',dtfrom,'frequency',freq,'reportunused',true);
+open tblout;open kellyout;open tblout_notused;
 %%
 [tblpnl,tblout2,statsout] = charlotte_gensingleassetprofile('assetname',asset,'frequency',freq);
-open tblout2;
-open statsout;
-open tblpnl;
+open tblout2;open statsout;open tblpnl;
 set(0,'defaultfigurewindowstyle','docked');
 timeseries_plot([tblpnl.dts,tblpnl.runningnotional],'figureindex',2,'dateformat','yy-mmm-dd','title',asset);
 timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
@@ -32,11 +25,29 @@ dt2 = '2024-09-13';
 [unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',false,'figureidx',4);
 open tbl2check;
 %%
-dt1_ = '2024-09-09';
-dt2_ = '2024-09-10';
-[~,~,tbl2check2] = charlotte_backtest_period('code',code,'fromdate',dt1_,'todate',dt2_,'kellytables',kellytables,'showlogs',true,'figureidx',5);
+code_ = 'T2306';
+dt1_ = '2023-03-10';
+dt2_ = '2023-03-13';
+[~,~,tbl2check2] = charlotte_backtest_period('code',code_,'fromdate',dt1_,'todate',dt2_,'kellytables',kellytables,'showlogs',true,'figureidx',5);
 
 %%
+close all;
+signal2check = 'conditional-uptrendconfirmed';
+closestr2check = 'conditional uptrendconfirmed failed:within2ticks';
+idx = strcmpi(tbl2check_.opensignal,signal2check) & strcmpi(tbl2check_.closestr,closestr2check);
+trades2check = tbl2check_(idx,:);
+n = size(trades2check,1);
+for i = 8:8
+    code_i = trades2check.codes{i};
+    dt1_i = datestr(floor(datenum(dateadd(trades2check.opendt(i),'-1b'))),'yyyy-mm-dd');
+    dt2_i = datestr(floor(datenum(dateadd(trades2check.closedt(i),'1b'))),'yyyy-mm-dd');
+    [~,~,~] = charlotte_backtest_period('code',code_i,'fromdate',dt1_i,'todate',dt2_i,'kellytables',kellytables,'showlogs',true,'figureidx',5+i);
+%     results = input('continue 1 or not 0?');
+%     if ~results
+%         break
+%     end
+end
+
 %%
 % asset_list={'gold';'silver';...
 %             'copper';'aluminum';'zinc';'lead';'nickel';'tin';...

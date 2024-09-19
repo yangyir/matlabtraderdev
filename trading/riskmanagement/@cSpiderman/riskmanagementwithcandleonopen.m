@@ -65,75 +65,116 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     breachdnfailed = extrainfo.p(end,5) >= extrainfo.ll(end-1) && extrainfo.p(end,4) < extrainfo.ll(end-1);
     breachdnsuccess = extrainfo.p(end,5) < extrainfo.ll(end-1) && extrainfo.p(end-1,5) >= extrainfo.ll(end-1);
     
-    if strcmpi(val,'conditional-breachuplvlup')
-        if breachupfailed
-            closepx = extrainfo.p(end,5);
-            highpx = extrainfo.p(end,3);
-            lowpx = extrainfo.p(end,4);
-            shadowlinewidth = highpx - closepx;
-            kwidth = highpx - lowpx;
-            if shadowlinewidth/kwidth >= 0.75
-                exceptionflag = extrainfo.p(end,5) > extrainfo.p(end,2) & ...
-                    extrainfo.p(end,5) > extrainfo.p(end-1,5) & ...
-                    extrainfo.p(end,4) > extrainfo.p(end-1,4);
-                if ~exceptionflag
-                    unwindflag = true;
-                    msg = 'conditional breachuplvlup failed:shadowline';
-                    obj.status_ = 'closed';
-                    obj.closestr_ = msg;
-                end
-            end
-            %case found on p2409 on 20240515
-            if extrainfo.sc(end) == 13
-                status = fractal_b1_status(nfractal,extrainfo,trade.instrument_.tick_size);
-                if ~status.istrendconfirmed
-                    unwindflag = true;
-                    msg = 'conditional breachuplvlup failed:sc13';
-                    obj.status_ = 'closed';
-                    obj.closestr_ = msg;
-                end
-            end
-        elseif breachupsuccess
-            trade.opensignal_.mode_ = 'breachup-lvlup';
-        end
-        return
-    end
-    %
-    if strcmpi(val,'conditional-breachdnlvldn')
-        if breachdnfailed
-            closepx = extrainfo.p(end,5);
-            highpx = extrainfo.p(end,3);
-            lowpx = extrainfo.p(end,4);
-            shadowlinewidth = closepx - lowpx;
-            kwidth = highpx - lowpx;
-            if shadowlinewidth/kwidth >= 0.75
-                unwindflag = true;
-                msg = 'conditional breachdnlvldn failed:shadowline';
-                obj.status_ = 'closed';
-                obj.closestr_ = msg;
-            end
-        elseif breachdnsuccess
-            trade.opensignal_.mode_ = 'breachdn-lvldn';
-        end
-        return
-    end
+%     if strcmpi(val,'conditional-breachuplvlup')
+%         if breachupfailed
+%             closepx = extrainfo.p(end,5);
+%             highpx = extrainfo.p(end,3);
+%             lowpx = extrainfo.p(end,4);
+%             shadowlinewidth = highpx - closepx;
+%             kwidth = highpx - lowpx;
+%             if shadowlinewidth/kwidth >= 0.75
+%                 exceptionflag = extrainfo.p(end,5) > extrainfo.p(end,2) & ...
+%                     extrainfo.p(end,5) > extrainfo.p(end-1,5) & ...
+%                     extrainfo.p(end,4) > extrainfo.p(end-1,4);
+%                 if ~exceptionflag
+%                     unwindflag = true;
+%                     msg = 'conditional breachuplvlup failed:shadowline';
+%                     obj.status_ = 'closed';
+%                     obj.closestr_ = msg;
+%                 end
+%             end
+%             %case found on p2409 on 20240515
+%             if extrainfo.sc(end) == 13
+%                 status = fractal_b1_status(nfractal,extrainfo,trade.instrument_.tick_size);
+%                 if ~status.istrendconfirmed
+%                     unwindflag = true;
+%                     msg = 'conditional breachuplvlup failed:sc13';
+%                     obj.status_ = 'closed';
+%                     obj.closestr_ = msg;
+%                 end
+%             end
+%         elseif breachupsuccess
+%             trade.opensignal_.mode_ = 'breachup-lvlup';
+%         end
+%         return
+%     end
+%     %
+%     if strcmpi(val,'conditional-breachdnlvldn')
+%         if breachdnfailed
+%             closepx = extrainfo.p(end,5);
+%             highpx = extrainfo.p(end,3);
+%             lowpx = extrainfo.p(end,4);
+%             shadowlinewidth = closepx - lowpx;
+%             kwidth = highpx - lowpx;
+%             if shadowlinewidth/kwidth >= 0.75
+%                 unwindflag = true;
+%                 msg = 'conditional breachdnlvldn failed:shadowline';
+%                 obj.status_ = 'closed';
+%                 obj.closestr_ = msg;
+%             end
+%         elseif breachdnsuccess
+%             trade.opensignal_.mode_ = 'breachdn-lvldn';
+%         end
+%         return
+%     end
     %
     lflag = strcmpi(val,'conditional-uptrendconfirmed') || strcmpi(val,'conditional-uptrendconfirmed-1') || strcmpi(val,'conditional-uptrendconfirmed-2') || strcmpi(val,'conditional-uptrendconfirmed-3');
     sflag = strcmpi(val,'conditional-dntrendconfirmed') || strcmpi(val,'conditional-dntrendconfirmed-1') || strcmpi(val,'conditional-dntrendconfirmed-2') || strcmpi(val,'conditional-dntrendconfirmed-3');
     
-    if lflag && breachupfailed
+    if lflag && breachupfailed && strcmpi(trade.instrument_.asset_name,'tin')
         %CASE1: special treatment for tin as it is very volatile
         %exception:close above open with sell setup sequential above 3
         %todo:might be removed later
-        if strcmpi(trade.instrument_.asset_name,'tin') &&...
-                ~(extrainfo.p(end,2) < extrainfo.p(end,5) && ...
+         if ~(extrainfo.p(end,2) < extrainfo.p(end,5) && ...
                 extrainfo.ss(end) >= 3)
             unwindflag = true;
             msg = 'conditional uptrendconfirmed failed:tin';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
-        end
+         end
+    end
+    
+    if lflag && breachupfailed
+        %within2ticks shall be 1)open shall not below close and 2)high is
+        %within 2 ticks above fractal hh
+        within2ticks = extrainfo.p(end,2) >= extrainfo.p(end,5) & extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size;
+        %
+        shadowlinewidth = extrainfo.p(end,3)-extrainfo.p(end,5);
+        kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
+        shadowlineratio = shadowlinewidth/kwidth;
+    end
+    %
+    if lflag && breachupsuccess
+    
+    end
+    %
+    if lflag && ~breachupfailed && ~breachupsuccess
+        %the trade has moved on from its openning candle
+        if extrainfo.p(end,1) <= trade.opendatetime1_, error('riskmanagementwithcandleonopen:internal error with lflag!');end
+    end
+    %    
+        
+    if sflag && breachdnfailed
+        within2ticks = extrainfo.p(end,2) <= extrainfo.p(end,5) & extrainfo.ll(end-1) - extrainfo.p(end,4) <= 2*trade.instrument_.tick_size;
+        shadowlinewidth = extrainfo.p(end,5)-extrainfo.p(end,4);
+        kwidth = extrainfo.p(end,3)-extrainfo.p(end,4);
+        shadowlineratio = shadowlinewidth/kwidth;
+    end
+    %
+    if sflag && breachdnsuccess
+        %within2ticks shall be 1)open shall not above close and 2)low is
+        %within 2 ticks above fractal hh
+    end
+    %
+    if sflag && ~breachdnfailed && ~breachdnsuccess
+        %the trade has moved on from its openning candle
+        if extrainfo.p(end,1) <= trade.opendatetime1_, error('riskmanagementwithcandleonopen:internal error with slfag!');end
+    end
+        
+        
+        
+    if lflag && breachupfailed    
         %CASE2:close below open but high is within 2 ticks above fractal hh
         if extrainfo.p(end,2) >= extrainfo.p(end,5) && ...
                 extrainfo.p(end,3) - extrainfo.hh(end-1) <= 2*trade.instrument_.tick_size
@@ -166,7 +207,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     extrainfo.p(end,3) > extrainfo.lvlup(end);
                 if extrainfo.p(end,4) < extrainfo.p(end-1,4) && ~exceptionflag
                     unwindflag = true;
-                    msg = 'conditional uptrendconfirmed failed:shadowline';
+                    msg = 'conditional uptrendconfirmed failed:shadowline2';
                     obj.status_ = 'closed';
                     obj.closestr_ = msg;
                     return
@@ -179,7 +220,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     extrainfo.p(end,3) > extrainfo.lvlup(end));
                 if ~exceptionflag
                     unwindflag = true;
-                    msg = 'conditional uptrendconfirmed failed:shadowline';
+                    msg = 'conditional uptrendconfirmed failed:shadowline1';
                     obj.status_ = 'closed';
                     obj.closestr_ = msg;
                     return
@@ -348,7 +389,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     extrainfo.p(end,3) > extrainfo.lvlup(end);
         if shadowlinewidth/kwidth > 0.618 && ~exceptionflag
             unwindflag = true;
-            msg = 'conditional uptrendconfirmed failed:shadowline';
+            msg = 'conditional uptrendconfirmed failed:shadowline3';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
@@ -404,7 +445,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 if ~(extrainfo.p(end,3) < extrainfo.p(end-1,3) && ...
                         shadowlinewidth/kwidth < 0.8)
                     unwindflag = true;
-                    msg = 'conditional dntrendconfirmed failed:shadowline';
+                    msg = 'conditional dntrendconfirmed failed:shadowline2';
                     obj.status_ = 'closed';
                     obj.closestr_ = msg;
                     return
@@ -416,7 +457,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     shadowlinewidth/kwidth < 0.8;
                 if ~exceptionflag
                     unwindflag = true;
-                    msg = 'conditional dntrendconfirmed failed:shadowline';
+                    msg = 'conditional dntrendconfirmed failed:shadowline1';
                     obj.status_ = 'closed';
                     obj.closestr_ = msg;
                     return
