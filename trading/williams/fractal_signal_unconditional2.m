@@ -23,7 +23,6 @@ function [output] = fractal_signal_unconditional2(varargin)
         [signal_i,op,status] = fractal_signal_unconditional(ei,ticksize,nfractal);
         output.signal = signal_i;
         output.op = op;
-        output.status = status;
     catch
         output = {};
         return

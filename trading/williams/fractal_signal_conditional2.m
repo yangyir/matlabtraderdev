@@ -32,14 +32,6 @@ function [output] = fractal_signal_conditional2(varargin)
     end
     
     if ~isempty(signal) && ~isempty(signal{1,1}) && signal{1,1}(1) == 1
-        %extracheck to avoid conditional open on fractal ll update point
-        highs = ei.px(end-nfractal+1:end,3);
-        highest = max(highs);
-        if highs(1) == highest
-            output = {};
-            return
-        end
-        %
         signalkellied = signal{1,1};
         opkellied = '';
         isbreachuplvlup = flags.islvlupbreach;
@@ -152,14 +144,6 @@ function [output] = fractal_signal_conditional2(varargin)
     end
     %
     if ~isempty(signal) && ~isempty(signal{1,2}) && signal{1,2}(1) == -1
-        %extracheck to avoid conditional open on fractal ll update point
-        lows = ei.px(end-nfractal+1:end,4);
-        lowest = min(lows);
-        if lows(1) == lowest
-            output = {};
-            return
-        end
-        %
         signalkellied = signal{1,2};
         opkellied = '';
         isbreachdnlvldn = flags.islvldnbreach;
