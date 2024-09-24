@@ -8,7 +8,7 @@ elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m')
 else
 end
 %%
-asset = 'govtbond_10y';
+asset = 'govtbond_30y';
 dtfrom = '2024-09-03';
 [tblout,kellyout,tblout_notused,kellytables] = charlotte_kellycheck('assetname',asset,'datefrom',dtfrom,'frequency',freq,'reportunused',true);
 open tblout;open kellyout;open tblout_notused;
@@ -32,16 +32,20 @@ dt2_ = '2023-03-13';
 
 %%
 close all;
-signal2check = 'conditional-uptrendconfirmed';
-closestr2check = 'conditional uptrendconfirmed failed:within2ticks';
+signal2check = 'conditional-uptrendconfirmed-1';
+% closestr2check = 'conditional uptrendconfirmed failed:within2ticks2';
+closestr2check = 'fractal:lips';
 idx = strcmpi(tbl2check_.opensignal,signal2check) & strcmpi(tbl2check_.closestr,closestr2check);
 trades2check = tbl2check_(idx,:);
 n = size(trades2check,1);
-for i = 8:8
+for i = 1:n
     code_i = trades2check.codes{i};
-    dt1_i = datestr(floor(datenum(dateadd(trades2check.opendt(i),'-1b'))),'yyyy-mm-dd');
+    dt1_i = datestr(floor(datenum(dateadd(trades2check.opendt(i),'-0b'))),'yyyy-mm-dd');
     dt2_i = datestr(floor(datenum(dateadd(trades2check.closedt(i),'1b'))),'yyyy-mm-dd');
-    [~,~,~] = charlotte_backtest_period('code',code_i,'fromdate',dt1_i,'todate',dt2_i,'kellytables',kellytables,'showlogs',true,'figureidx',5+i);
+    [ut_i,~,~] = charlotte_backtest_period('code',code_i,'fromdate',dt1_i,'todate',dt2_i,'kellytables',kellytables,'showlogs',false,'figureidx',5+i);
+%     for j = 1:ut_i.latest_
+%         fprintf('%20s\t%60s\t%4.2f\n',ut_i.node_(j).opendatetime2_,ut_i.node_(j).closestr_,ut_i.node_(j).closepnl_);
+%     end
 %     results = input('continue 1 or not 0?');
 %     if ~results
 %         break
