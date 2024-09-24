@@ -98,7 +98,7 @@ classdef cFractalInfo < cSignalInfo
                     strcmpi(val,'conditional-breachdnlvldn')
                 obj.mode_ = val;
             else
-                error('cFractalInfo:invalid mode input')
+                error('cFractalInfo:invalid mode input %s...',val)
             end     
         end
         
