@@ -1,4 +1,4 @@
-freq = '30m';
+freq = '5m';
 if strcmpi(freq,'30m') || strcmpi(freq,'15m')
     nfractal = 4;
 elseif strcmpi(freq,'5m')
@@ -19,29 +19,50 @@ set(0,'defaultfigurewindowstyle','docked');
 timeseries_plot([tblpnl.dts,tblpnl.runningnotional],'figureindex',2,'dateformat','yy-mmm-dd','title',asset);
 timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
 %%
-code = 'T2412';
-dt1 = '2024-08-15';
-dt2 = '2024-09-13';
-[unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',false,'figureidx',4);
-open tbl2check;
+charlotte_backtest_all;
+%%
+figure(5);plot(cumsum(tbl2check_.closepnl),'b');
+%%
+code = 'TL2412';
+dt1 = '2024-09-10';
+dt2 = '2024-09-10';
+[unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',true,'figureidx',4,'frequency',freq);
+% open tbl2check;
 %%
 code_ = 'T2306';
 dt1_ = '2023-03-10';
 dt2_ = '2023-03-13';
 [~,~,tbl2check2] = charlotte_backtest_period('code',code_,'fromdate',dt1_,'todate',dt2_,'kellytables',kellytables,'showlogs',true,'figureidx',5);
+%%
+condup = strcmpi(tbl2check_.opensignal,'conditional-uptrendconfirmed') | ...
+    strcmpi(tbl2check_.opensignal,'conditional-uptrendconfirmed-1') | ...
+    strcmpi(tbl2check_.opensignal,'conditional-uptrendconfirmed-2') | ...
+    strcmpi(tbl2check_.opensignal,'conditional-uptrendconfirmed-3');
+condupclosestr = unique(tbl2check_.closestr(condup));
+fprintf('conditional-uptrendconfirmed closestr:\n');
+disp(condupclosestr);
+%
+conddn = strcmpi(tbl2check_.opensignal,'conditional-dntrendconfirmed') | ...
+    strcmpi(tbl2check_.opensignal,'conditional-dntrendconfirmed-1') | ...
+    strcmpi(tbl2check_.opensignal,'conditional-dntrendconfirmed-2') | ...
+    strcmpi(tbl2check_.opensignal,'conditional-dntrendconfirmed-3');
+conddnclosestr = unique(tbl2check_.closestr(conddn));
+fprintf('\nconditional-dntrendconfirmed closestr:\n');
+disp(conddnclosestr);
 
 %%
 close all;
-signal2check = 'conditional-uptrendconfirmed-1';
-% closestr2check = 'conditional uptrendconfirmed failed:within2ticks2';
-closestr2check = 'fractal:lips';
+signal2check = 'conditional-uptrendconfirmed';
+closestr2check = 'conditional uptrendconfirmed failed:within2ticks2';
+% closestr2check = 'fractal:lips';
 idx = strcmpi(tbl2check_.opensignal,signal2check) & strcmpi(tbl2check_.closestr,closestr2check);
 trades2check = tbl2check_(idx,:);
+disp(trades2check);
 n = size(trades2check,1);
 for i = 1:n
     code_i = trades2check.codes{i};
     dt1_i = datestr(floor(datenum(dateadd(trades2check.opendt(i),'-0b'))),'yyyy-mm-dd');
-    dt2_i = datestr(floor(datenum(dateadd(trades2check.closedt(i),'1b'))),'yyyy-mm-dd');
+    dt2_i = datestr(floor(datenum(dateadd(trades2check.closedt(i),'0b'))),'yyyy-mm-dd');
     [ut_i,~,~] = charlotte_backtest_period('code',code_i,'fromdate',dt1_i,'todate',dt2_i,'kellytables',kellytables,'showlogs',false,'figureidx',5+i);
 %     for j = 1:ut_i.latest_
 %         fprintf('%20s\t%60s\t%4.2f\n',ut_i.node_(j).opendatetime2_,ut_i.node_(j).closestr_,ut_i.node_(j).closepnl_);
