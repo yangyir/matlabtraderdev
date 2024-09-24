@@ -26,15 +26,20 @@ set(0,'defaultfigurewindowstyle','docked');
 timeseries_plot([tblpnl.dts,tblpnl.runningnotional],'figureindex',2,'dateformat','yy-mmm-dd','title',asset);
 timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
 %%
+charlotte_backtest_all;
+figure(5);
+plot(cumsum(tbl2check_.closepnl),'b');
+%%
 code = 'T2412';
 dt1 = '2024-08-15';
 dt2 = '2024-09-13';
 [unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',false,'figureidx',4);
 open tbl2check;
 %%
-dt1_ = '2024-09-09';
-dt2_ = '2024-09-10';
-[~,~,tbl2check2] = charlotte_backtest_period('code',code,'fromdate',dt1_,'todate',dt2_,'kellytables',kellytables,'showlogs',true,'figureidx',5);
+code_ = 'T2412';
+dt1_ = '2024-09-20';
+dt2_ = '2024-09-20';
+[~,~,tbl2check2] = charlotte_backtest_period('code',code_,'fromdate',dt1_,'todate',dt2_,'kellytables',kellytables,'showlogs',true,'figureidx',5);
 
 %%
 %%
