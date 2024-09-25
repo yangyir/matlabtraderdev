@@ -2,14 +2,19 @@ function [trade] = fractal_gentrade2(resstruct,code,idx,freq,kellytables)
 
 if strcmpi(freq,'30m')
     nfractal = 4;
+    tickratio = 0.5;
 elseif strcmpi(freq,'15m')
     nfractal = 4;
+    tickratio = 0.5;
 elseif strcmpi(freq,'5m')
     nfractal = 6;
+    tickratio = 0;
 elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     nfractal = 2;
+    tickratio = 1;
 else
     nfractal = 4;
+    tickratio = 0.5;
 end
 
 fut = code2instrument(code);
@@ -18,19 +23,37 @@ idx_ = idx-1;
 ei_ = fractal_truncate(resstruct,idx_);
 condsignal = fractal_signal_conditional2('extrainfo',ei_,'ticksize',fut.tick_size,...
     'nfractal',nfractal,'kellytables',kellytables,'assetname',fut.asset_name,...
-    'TickSizeRatio',0.5);
-
-
-
-%1.first check whether kelly is big enough for place an conditional entrust
-if isempty(condsignal)
-    %2.check whether it is not a trending trade
-    ei = fractal_truncate(resstruct,idx);
-    uncondsignal = fractal_signal_unconditional2('extrainfo',ei,...
+    'TickSizeRatio',tickratio);
+ei = fractal_truncate(resstruct,idx); 
+uncondsignal = fractal_signal_unconditional2('extrainfo',ei,...
         'ticksize',fut.tick_size,...
         'nfractal',nfractal,...
         'assetname',fut.asset_name,...
         'kellytables',kellytables);
+
+weiredcase = false;
+if ~isempty(condsignal) && ~isempty(uncondsignal)
+    if condsignal.directionkellied ~= 0 && ...
+            uncondsignal.directionkellied ~= 0 && ...
+            condsignal.directionkellied ~= uncondsignal.directionkellied
+        weiredcase = true;
+    end
+    if weiredcase
+        if condsignal.directionkellied == 1 && uncondsignal.directionkellied == -1
+            %need to make sure whether fractal hh is breached
+            
+        elseif condsignal.directionkellied == -1 && condsignal.directionkellied == 1
+            %need to make sure whether fractal ll is breached
+        end
+    end
+end
+    
+    
+    
+
+%1.first check whether kelly is big enough for place an conditional entrust
+if isempty(condsignal)
+    %2.check whether it is not a trending trade
     if isempty(uncondsignal)
         trade = {};
         return
@@ -39,8 +62,36 @@ if isempty(condsignal)
             trade = {};
             return
         end
-        trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
-        return
+        if uncondsignal.status.istrendconfirmed
+            %filter out case that the empty condsignal was returned because
+            %of fractal barrier update
+            if uncondsignal.directionkellied == 1
+                highs = ei.px(end-nfractal:end-1,3);
+                highest = max(highs);
+                if highest == highs(1)
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                    trade.openprice_ = ei.px(end,5);
+                    return
+                else
+                    trade = {};
+                    return
+                end
+            elseif uncondsignal.directionkellied == -1
+                lows = ei.px(end-nfractal:end-1,4);
+                lowest = min(lows);
+                if lowest == lows(1)
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                    trade.openprice_ = ei.px(end,5);
+                    return
+                else
+                    trade = {};
+                    return
+                end
+            end
+        else
+            trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+            return
+        end
     end
 end
 %
@@ -229,11 +280,12 @@ elseif condsignal.directionkellied == -1
             barsizerest = px(end-nkfromll+1:end,3)-px(end-nkfromll+1:end,4);
             if pxopen <= condsignal.signalkellied(3)-fut.tick_size
                 lasttrade = pxopen;
+                retlast = lasttrade-px(end,5);
+                isvolblowup2 = retlast<0 & (abs(retlast)-mean(barsizerest))/std(barsizerest)>norminv(0.99);
             else
-                lasttrade = condsignal.signalkellied(3)-fut.tick_size;
+                isvolblowup2 = false;
             end
-            retlast = lasttrade-px(end,5);
-            isvolblowup2 = retlast<0 & (abs(retlast)-mean(barsizerest))/std(barsizerest)>norminv(0.99);
+            
             lllast = ei_.ll(end);
             bsidxlast = find(ei_.bs>=9,1,'last');
             if ~isempty(bsidxlast)
