@@ -15,13 +15,17 @@ code = p.Results.code;
 freq = p.Results.frequency;
 if strcmpi(freq,'30m') || strcmpi(freq,'15m')
     nfractal = 4;
+    tickratio = 0.5;
 elseif strcmpi(freq,'5m')
     nfractal = 6;
+    tickratio = 0;
 elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m')
     nfractal = 2;
+    tickratio = 1;
 else
     %default
     nfractal = 4;
+    tickratio = 0.5;
 end
 dt1 = p.Results.fromdate;
 dt2 = p.Results.todate;
@@ -54,13 +58,13 @@ if showlogsflag
             'ticksize',fut.tick_size,...
             'kellytables',kellytables,...
             'assetname',fut.asset_name,...
-            'ticksizeratio',0.5);
+            'ticksizeratio',tickratio);
         output2 = fractal_signal_conditional2('extrainfo',ei2,...
             'nfractal',nfractal,...
             'ticksize',fut.tick_size,...
             'kellytables',kellytables,...
             'assetname',fut.asset_name,...
-            'ticksizeratio',0.5);
+            'ticksizeratio',tickratio);
         %
         if ~isempty(output1)
             if output1.directionkellied == 1
@@ -86,7 +90,16 @@ if showlogsflag
                     if ~isempty(output2)
                         fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output2.directionkellied,output2.opkellied,100*output2.kelly);
                     else
-                        fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
+                        signaluncond = fractal_signal_unconditional2('extrainfo',ei2,...
+                            'ticksize',fut.tick_size,...
+                            'nfractal',nfractal,...
+                            'assetname',fut.asset_name,...
+                            'kellytables',kellytables);
+                        if ~isempty(signaluncond)
+                            fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,signaluncond.op.comment,100*signaluncond.kelly);
+                        else
+                            fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
+                        end
                     end
                 end
             elseif output1.directionkellied == -1
@@ -112,7 +125,16 @@ if showlogsflag
                     if ~isempty(output2)
                         fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),output2.directionkellied,output2.opkellied,100*output2.kelly);
                     else
-                        fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
+                        signaluncond = fractal_signal_unconditional2('extrainfo',ei2,...
+                            'ticksize',fut.tick_size,...
+                            'nfractal',nfractal,...
+                            'assetname',fut.asset_name,...
+                            'kellytables',kellytables);
+                        if ~isempty(signaluncond)
+                            fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,signaluncond.op.comment,100*signaluncond.kelly);
+                        else
+                            fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
+                        end
                     end
                 end
             elseif output1.directionkellied == 0
