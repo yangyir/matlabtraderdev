@@ -664,8 +664,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 ei_ = fractal_truncate(extrainfo,size(extrainfo.px,1)-1);
                                 output_ = fractal_signal_conditional2('extrainfo',ei_,...
                                     'ticksize',ticksize,...
+                                    'nfractal',nfractal,...
                                     'kellytables',kellytables,...
-                                    'assetname',assetname);
+                                    'assetname',assetname,...
+                                    'ticksizeratio',0.5);
                                 if ~isempty(output_)
                                     if output_.directionkellied == 0
                                         signal_i(1) = 0;
@@ -673,9 +675,16 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                         fprintf('\t%6s missing due to:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(output_.directionkellied),output_.opkellied,100*output_.kelly,100*output_.wprob);
                                     end
                                 else
-                                    signal_i(1) = 0;
-                                    signal_i(4) = 0;
-                                    fprintf('\t%6s:%4s\tconditional %10s was not held\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
+                                    lows = extrainfo.px(end-nfractal:end-1,4);
+                                    lowest = min(lows);
+                                    if lows(1) == lowest 
+                                        signal_i(1) = -1;
+                                        signal_i(4) = -1;
+                                    else
+                                        signal_i(1) = 0;
+                                        signal_i(4) = 0;
+                                        fprintf('\t%6s:%4s\tconditional %10s was not held\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
+                                    end
                                 end
                                 %
                                 if strcmpi(op.comment,'volblowup')
