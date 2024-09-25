@@ -255,8 +255,8 @@ function [output] = fractal_signal_unconditional2(varargin)
             else
                 %not trending signals
                 try
-                    kelly = kelly_k(op.comment,assetname,kellytables.kellytables.asset_list,kellytables.kelly_matrix_l,0);
-                    wprob = kelly_w(op.comment,assetname,kellytables.kellytables.asset_list,kellytables.winprob_matrix_l,0);
+                    kelly = kelly_k(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
+                    wprob = kelly_w(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
                 catch
                     idx = strcmpi(op.comment,kellytables.kelly_table_l.opensignal_unique_l);
                     kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
@@ -280,7 +280,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         end
                     end
                 else
-                    if kelly < 0.145 || wprob < 0.4
+                    if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -466,7 +466,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 try
                     kelly = kelly_k(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
                     wprob = kelly_w(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
-                    if kelly < 0.145 || wprob < 0.41
+                    if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
