@@ -111,7 +111,10 @@ if size(bs,1)-lastbs+1<=nkfromll
     isbslowbreach = px(end,5) < min(px(lastbs-lastbsval+1:min(lastbs,size(px,1)-1),4));
 end
 if ~isbslowbreach && bs(end) > 9
-    isbslowbreach = px(end,5) < min(px(end-bs(end):end-1,4));
+    isbslowbreach = px(end,5) < min(px(end-bs(end)+1:end-1,4));
+    if ~isbslowbreach && bs(end-1) >= 9
+        isbslowbreach = isempty(find(px(end-bs(end)+1:end-1,5) < LL(end-bs(end)+1:end-1),1,'last'));
+    end
 end
 
 %does it firstly breach-dn ll after the latest sell sequential without any

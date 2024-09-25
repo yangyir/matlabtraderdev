@@ -55,7 +55,7 @@ end
 % if ~islvlupbreach && (px(end,5)>=lvlup(end) && px(end,4)<lvlup(end))
 %     islvlupbreach = 2;
 % end
-if ~islvlupbreach && ss(end) <= 9 && px(end,5) >= lvlup(end)
+if ~islvlupbreach && ss(end) <= 5 && px(end,5) >= lvlup(end)
     if  ~isempty(find(px(end-ss(end)+1:end,5)-lvlup(end)+ticksize<0,1,'first'))
         islvlupbreach = 3;
     end
@@ -118,7 +118,10 @@ if size(ss,1)-lastss+1<=nkfromhh
     issshighbreach = px(end,5) > max(px(lastss-lastssval+1:min(lastss,size(px,1)-1),3));
 end
 if ~issshighbreach && ss(end) > 9
-    issshighbreach = px(end,5) > max(px(end-ss(end):end-1,3));
+    issshighbreach = px(end,5) > max(px(end-ss(end)+1:end-1,3));
+    if ~issshighbreach && ss(end-1) >= 9
+        issshighbreach = isempty(find(px(end-ss(end)+1:end-1,5) > HH(end-ss(end)+1:end-1),1,'last'));
+    end
 end
 
 %does it firstly breach-up hh after the latest buy sequential without any
