@@ -638,33 +638,46 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
     end
     %
-    if extrainfo.hh(end) > extrainfo.hh(end-1) && abs(extrainfo.hh(end)/extrainfo.hh(end-1)-1)>0.001 && ...
-            isnan(obj.tdlow_)
-        if extrainfo.p(end,5) > extrainfo.hh(end-1)
-            if extrainfo.p(end,5) < extrainfo.p(end,2) - instrument.tick_size
-                closeflag = true;
+    if extrainfo.hh(end) > extrainfo.hh(end-1) && abs(extrainfo.hh(end)/extrainfo.hh(end-1)-1)>0.001
+        if ~isnan(obj.tdlow_)
+            sshigh = find(extrainfo.ss >=9,1,'last');
+            sshigh = extrainfo.ss(sshigh);
+            if sshigh > 16
+                exceptionflag = false;
             else
-                closeflag = false;
+                exceptionflag = true;
             end
         else
-            closeflag = true;
+            exceptionflag = false;
         end
-        if closeflag
-            obj.trade_.closedatetime1_ = extrainfo.latestdt;
-            obj.trade_.closeprice_ = extrainfo.latestopen;
-            volume = trade.openvolume_;
-            obj.status_ = 'closed';
-            obj.closestr_ = 'fractal:upupdate';
-            obj.trade_.runningpnl_ = 0;
-            instrument = trade.instrument_;
-            if isempty(instrument)
-                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+        if ~exceptionflag
+            if extrainfo.p(end,5) > extrainfo.hh(end-1)
+                if extrainfo.p(end,5) < extrainfo.p(end,2) - instrument.tick_size
+                    closeflag = true;
+                else
+                    closeflag = false;
+                end
             else
-                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                closeflag = true;
             end
-            unwindtrade = obj.trade_;
-            return
-        end        
+            if closeflag
+                obj.pxstoploss_ = extrainfo.p(end,5);
+%                 obj.trade_.closedatetime1_ = extrainfo.latestdt;
+%                 obj.trade_.closeprice_ = extrainfo.latestopen;
+%                 volume = trade.openvolume_;
+%                 obj.status_ = 'closed';
+                obj.closestr_ = 'fractal:upupdate';
+%                 obj.trade_.runningpnl_ = 0;
+%                 instrument = trade.instrument_;
+%                 if isempty(instrument)
+%                     obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+%                 else
+%                     obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+%                 end
+%                 unwindtrade = obj.trade_;
+                return
+            end
+        end
     end
     %
     %in case it is a dn-breach of fractal barrier, we shall calculate kelly
@@ -729,33 +742,46 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
     end
     %
-    if extrainfo.ll(end) < extrainfo.ll(end-1) && abs(extrainfo.ll(end)/extrainfo.ll(end-1)-1)>0.001 && ...
-            isnan(obj.tdhigh_)
-        if extrainfo.p(end,5) < extrainfo.ll(end-1)
-            if extrainfo.p(end,5) > extrainfo.p(end,2) + instrument.tick_size
-                closeflag = true;
+    if extrainfo.ll(end) < extrainfo.ll(end-1) && abs(extrainfo.ll(end)/extrainfo.ll(end-1)-1)>0.001
+        if ~isnan(obj.tdhigh_)
+            bslow = find(extrainfo.bs >= 9,1,'last');
+            bslow = extrainfo.bs(bslow);
+            if bslow > 16
+                exceptionflag = false;
             else
-                closeflag = false;
+                exceptionflag = true;
             end
         else
-            closeflag = true;
+            exceptionflag = false;
         end
-        if closeflag
-            obj.trade_.closedatetime1_ = extrainfo.latestdt;
-            obj.trade_.closeprice_ = extrainfo.latestopen;
-            volume = trade.openvolume_;
-            obj.status_ = 'closed';
-            obj.closestr_ = 'fractal:dnupdate';
-            obj.trade_.runningpnl_ = 0;
-            instrument = trade.instrument_;
-            if isempty(instrument)
-                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+        if ~exceptionflag
+            if extrainfo.p(end,5) < extrainfo.ll(end-1)
+                if extrainfo.p(end,5) > extrainfo.p(end,2) + instrument.tick_size
+                    closeflag = true;
+                else
+                    closeflag = false;
+                end
             else
-                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                closeflag = true;
             end
-            unwindtrade = obj.trade_;
-            return
-        end        
+            if closeflag
+                obj.pxstoploss_ = extrainfo.p(end,5);
+%                 obj.trade_.closedatetime1_ = extrainfo.latestdt;
+%                 obj.trade_.closeprice_ = extrainfo.latestopen;
+%                 volume = trade.openvolume_;
+%                 obj.status_ = 'closed';
+                obj.closestr_ = 'fractal:dnupdate';
+%                 obj.trade_.runningpnl_ = 0;
+%                 instrument = trade.instrument_;
+%                 if isempty(instrument)
+%                     obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+%                 else
+%                     obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+%                 end
+%                 unwindtrade = obj.trade_;
+                return
+            end
+        end
     end
     %
     if isempty(instrument)

@@ -39,11 +39,33 @@ if ~isempty(condsignal) && ~isempty(uncondsignal)
         weiredcase = true;
     end
     if weiredcase
+        pxopen = ei.px(idx,2);
+        pxhigh = ei.px(idx,3);
+        pxlow = ei.px(idx,4);
         if condsignal.directionkellied == 1 && uncondsignal.directionkellied == -1
             %need to make sure whether fractal hh is breached
-            
-        elseif condsignal.directionkellied == -1 && condsignal.directionkellied == 1
+            breachflag = pxhigh>=condsignal.signalkellied(2)+fut.tick_size && ...
+                pxopen<condsignal.signalkellied(2)+1.618*(condsignal.signalkellied(2)-condsignal.signalkellied(3));
+            if breachflag
+                fprintf('not support with conditional breachup and unconditional breachdn happenning on the same candle\n');
+                trade = {};
+                return
+            else
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                return
+            end
+        elseif condsignal.directionkellied == -1 && uncondsignal.directionkellied == 1
             %need to make sure whether fractal ll is breached
+            breachflag = pxlow<=condsignal.signalkellied(3)-fut.tick_size && ...
+                pxopen>condsignal.signalkellied(3)-1.618*(condsignal.signalkellied(2)-condsignal.signalkellied(3));
+            if breachflag
+                fprintf('not support with conditional breachdn and unconditional breachup happenning on the same candle\n');
+                trade = {};
+                return
+            else
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                return
+            end
         end
     end
 end
@@ -155,11 +177,12 @@ elseif condsignal.directionkellied == 1
             barsizerest = px(end-nkfromhh+1:end,3)-px(end-nkfromhh+1:end,4);
             if pxopen >= condsignal.signalkellied(2)+fut.tick_size
                 lasttrade = pxopen;
+                retlast = lasttrade-px(end,5);
+                isvolblowup2 = retlast>0 & (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
             else
-                lasttrade = condsignal.signalkellied(2)+fut.tick_size;
+                isvolblowup2 = false;
             end
-            retlast = lasttrade-px(end,5);
-            isvolblowup2 = retlast>0 & (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
+            
             hhlast = ei_.hh(end);
             ssidxlast = find(ei_.ss>=9,1,'last');
             if ~isempty(ssidxlast)
