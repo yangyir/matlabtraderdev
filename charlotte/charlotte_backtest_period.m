@@ -180,7 +180,7 @@ end
 if showlogsflag
     fprintf('\n');
 end
-if unwindedtrades.latest_ == 0
+if unwindedtrades.latest_ == 0 &&  carriedtrades.latest_ == 0
     if showlogsflag,fprintf('there were no trades...\n');end
     tbl2check = {};
 else
