@@ -126,7 +126,7 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
             kellyused(i) = kellyspecial(i);
             if strcmpi(tbl_trades.opensignal{i},'mediumbreach-trendconfirmed') || ...
                     strcmpi(tbl_trades.opensignal{i},'strongbreach-trendconfirmed')
-                if kellyspecial(i) >= 0.088 && kellygeneral(i) >= 0.088
+                if kellyspecial(i) >= 0.088
                     use2(i) = 1;
                 else
                     kellyused(i) = kellygeneral(i);
