@@ -498,6 +498,12 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 if ~flags.issshighbreach && ei.ss(end) >= 9 && ei.hh(end) >= sshigh
                     flags.issshighbreach = true;
                 end
+                if ~flags.issshighbreach && ei.ss(end) >= 9 && ei.hh(end) < sshigh
+                    %but there was no close price ever breached the hh
+                    if isempty(find(ei.px(sslastidx-sslastval+1:sslastidx,5)>ei.hh(end),1,'last'))
+                        flags.issshighbreach = true;
+                    end
+                end
             end
             %3.check whether it is a conditional breachup-highsc13
             sclastidx = find(ei.sc == 13,1,'last');
