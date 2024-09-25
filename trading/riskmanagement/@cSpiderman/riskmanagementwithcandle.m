@@ -641,7 +641,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if extrainfo.hh(end) > extrainfo.hh(end-1) && abs(extrainfo.hh(end)/extrainfo.hh(end-1)-1)>0.001 && ...
             isnan(obj.tdlow_)
         if extrainfo.p(end,5) > extrainfo.hh(end-1)
-            if extrainfo.p(end,5) < extrainfo.p(end,2)
+            if extrainfo.p(end,5) < extrainfo.p(end,2) - instrument.tick_size
                 closeflag = true;
             else
                 closeflag = false;
@@ -732,7 +732,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if extrainfo.ll(end) < extrainfo.ll(end-1) && abs(extrainfo.ll(end)/extrainfo.ll(end-1)-1)>0.001 && ...
             isnan(obj.tdhigh_)
         if extrainfo.p(end,5) < extrainfo.ll(end-1)
-            if extrainfo.p(end,5) > extrainfo.p(end,2)
+            if extrainfo.p(end,5) > extrainfo.p(end,2) + instrument.tick_size
                 closeflag = true;
             else
                 closeflag = false;
