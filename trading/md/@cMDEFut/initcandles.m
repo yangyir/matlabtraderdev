@@ -284,8 +284,9 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                                 end
                             end
                         else
+                            category = getfutcategory(instruments{i});
                             mm = minute(t);
-                            if hh == 12 || (hh == 11 && mm > 30)
+                            if (hh == 12 || (hh == 11 && mm > 30)) || (category <= 3 && (hh > 15 || hh < 9))
                                 if mdefut.candle_freq_(i) ~= 1440
                                     try
                                         candles = ds.intradaybar(instruments{i},datestr(buckets(1),'yyyy-mm-dd HH:MM:SS'),datestr(buckets(idx),'yyyy-mm-dd HH:MM:SS'),mdefut.candle_freq_(i),'trade');
