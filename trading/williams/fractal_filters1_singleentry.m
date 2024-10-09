@@ -42,7 +42,17 @@ function [output,status] = fractal_filters1_singleentry(s1type,nfractal,extrainf
         elseif status.isclose2lvldn && ~status.istrendconfirmed
             %to comment:
         else
-            output = struct('use',1,'comment','breachdn-bshighvalue');
+            if status.isbclowbreach
+                bclastidx = find(extrainfo.bc == 13,1,'last');
+                bclow = extrainfo.px(bclastidx,4);
+                if bclow == extrainfo.ll(end-1)
+                    output = struct('use',1,'comment','breachdn-lowbc13');
+                else
+                    output = struct('use',1,'comment','breachdn-bshighvalue');
+                end
+            else
+                output = struct('use',1,'comment','breachdn-bshighvalue');
+            end
             return
         end
     end
