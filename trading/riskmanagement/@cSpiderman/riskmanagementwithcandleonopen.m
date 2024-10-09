@@ -234,7 +234,18 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if sflag && breachdnfailed
         %
         if fractalupdate
-            exceptionflag = strcmpi(val,'conditional-dntrendconfirmed-1') && ei.p(end,4) < ei.lvldn(end);
+            if ~isnan(obj.tdhigh_)
+                bslow = find(ei.bs >= 9,1,'last');
+                bslow = ei.bs(bslow);
+                if bslow > 16
+                    exceptionflag = false;
+                else
+                    exceptionflag = true;
+                end
+            else
+                exceptionflag = strcmpi(val,'conditional-dntrendconfirmed-1') && ei.p(end,4) < ei.lvldn(end);
+            end
+            
             if ~exceptionflag
                 unwindflag = true;
                 msg = 'conditional dntrendconfirmed failed:fractalllupdate';
