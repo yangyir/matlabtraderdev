@@ -36,7 +36,7 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
     end
        
     if direction == 1
-        if extrainfo.p(end,5) < extrainfo.lips(end)-2*ticksize
+        if extrainfo.p(end,5) < extrainfo.lips(end) - ticksize
             %backtests indicate that when market trades above lvlup, it
             %tends to rally even market temporially falls below alligator
             %lips
@@ -55,8 +55,9 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
             else
                 updatefailedflag = false;
             end
-            hhupdate = extrainfo.hh(end) / extrainfo.hh(end-1) > 1.002;
-            if extrainfo.latestopen < extrainfo.lips(end)-2*ticksize && (~abovelvlupflag || updatefailedflag || hhupdate)
+            hhupdate = extrainfo.hh(end) / extrainfo.hh(end-1) > 1.002 | ...
+                extrainfo.hh(end) / extrainfo.hh(end-2) > 1.002;
+            if extrainfo.latestopen < extrainfo.lips(end)-ticksize && (~abovelvlupflag || updatefailedflag || hhupdate)
                 closeflag = 1;
                 obj.closestr_ = 'fractal:lips';
             else
@@ -94,7 +95,7 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
         end
         %
     else
-        if extrainfo.p(end,5) > extrainfo.lips(end)+2*ticksize
+        if extrainfo.p(end,5) > extrainfo.lips(end) + ticksize
             if isempty(strfind(obj.trade_.opensignal_.mode_,'lvldn'))
                 belowlvldnflag = isempty(find(extrainfo.p(openid:end,3)-extrainfo.lvldn(openid:end)-2*ticksize>0,1,'first'));
             else
@@ -106,8 +107,9 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
             else
                 updatefailedflag = false;
             end
-            llupdate = extrainfo.ll(end) < extrainfo.ll(end-1) < 0.998;
-            if extrainfo.latestopen > extrainfo.lips(end)+2*ticksize && (~belowlvldnflag || updatefailedflag || llupdate)
+            llupdate = extrainfo.ll(end) / extrainfo.ll(end-1) < 0.998 | ...
+                extrainfo.ll(end) / extrainfo.ll(end-2) < 0.998;
+            if extrainfo.latestopen > extrainfo.lips(end)+ticksize && (~belowlvldnflag || updatefailedflag || llupdate)
                 closeflag = 1;
                 obj.closestr_ = 'fractal:lips';
             else

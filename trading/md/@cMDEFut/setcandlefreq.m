@@ -4,8 +4,15 @@ function [] = setcandlefreq(mdefut,freq,instrument)
 
     if strcmpi(mdefut.mode_,'realtime')
         hh = hour(now);
-        if hh < 3
+        if hh < 2
             cobdate = today - 1;
+        elseif hh  == 2
+            mm = minute(now);
+            if mm > 30
+                cobdate = today;
+            else
+                cobdate = today - 1;
+            end
         else
             cobdate = today;
         end  

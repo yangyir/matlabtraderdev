@@ -35,7 +35,7 @@ function [output] = fractal_signal_conditional2(varargin)
         %extracheck to avoid conditional open on fractal ll update point
         highs = ei.px(end-nfractal+1:end,3);
         highest = max(highs);
-        if highs(1) == highest && highest > ei.hh(end-1)
+        if highs(1) == highest && highest > ei.hh(end)
             output = {};
             return
         end
@@ -169,8 +169,9 @@ function [output] = fractal_signal_conditional2(varargin)
         %extracheck to avoid conditional open on fractal ll update point
         lows = ei.px(end-nfractal+1:end,4);
         lowest = min(lows);
-        if lows(1) == lowest && lowest < ei.ll(end-1)
+        if lows(1) == lowest && lowest < ei.ll(end)
             output = {};
+%             fprintf('\tfractal_signal_conditional2:potential fractal LL update...\n');
             return
         end
         %
@@ -188,6 +189,14 @@ function [output] = fractal_signal_conditional2(varargin)
             end
         end
         %
+        waspxbelowll = isempty(find(ei.px(end-nfractal+1:end-1,5)-ei.ll(end-nfractal+1:end-1)>0,1,'first'));
+        wasllabovelips = ei.ll(end)-ei.lips(end)>-ticksize;
+        if waspxbelowll && wasllabovelips
+            output = {};
+%             fprintf('\tfractal_signal_conditional2:rallied from fractal LL below...\n')
+            return
+        end
+        
         signalkellied = signal{1,2};
         opkellied = '';
         isbreachdnlvldn = flags.islvldnbreach;
