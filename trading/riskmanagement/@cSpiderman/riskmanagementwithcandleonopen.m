@@ -225,7 +225,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     %
     if lflag && ~breachupfailed && ~breachupsuccess
         %the trade has moved on from its openning candle
-        if onopenflag, error('riskmanagementwithcandleonopen:internal error with lflag!');end
+%         if onopenflag, error('riskmanagementwithcandleonopen:internal error with lflag!');end
+        unwindflag = false;
+        msg = '';
+        return
     end
     %end of lflag && ~breachupfailed && ~breachupsuccess
     %
@@ -420,7 +423,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     %
     if sflag && ~breachdnfailed && ~breachdnsuccess
         %the trade has moved on from its openning candle
-        if onopenflag, error('riskmanagementwithcandleonopen:internal error with slfag!');end
+%         if onopenflag, error('riskmanagementwithcandleonopen:internal error with slfag!');end
+        unwindflag = false;
+        msg = '';
     end
     %end of sflag && ~breachdnfailed && ~breachdnsuccess
     %

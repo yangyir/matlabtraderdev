@@ -6,12 +6,14 @@ function [output] = fractal_signal_unconditional2(varargin)
     p.addParameter('nFractal',4,@isnumeric);
     p.addParameter('AssetName','',@ischar);
     p.addParameter('KellyTables',{},@isstruct);
+    p.addParameter('TickSizeRatio',1,@isnumeric);
     p.parse(varargin{:});
     ei = p.Results.ExtraInfo;
     ticksize = p.Results.TickSize;
     nfractal = p.Results.nFractal;
     assetname = p.Results.AssetName;
     kellytables = p.Results.KellyTables;
+    ticksizeratio = p.Results.TickSizeRatio;
     
     try
         ei.px;
@@ -20,7 +22,7 @@ function [output] = fractal_signal_unconditional2(varargin)
     end
     
     try
-        [signal_i,op,status] = fractal_signal_unconditional(ei,ticksize,nfractal);
+        [signal_i,op,status] = fractal_signal_unconditional(ei,ticksizeratio*ticksize,nfractal);
         output.signal = signal_i;
         output.op = op;
         output.status = status;
@@ -510,7 +512,7 @@ function [output] = fractal_signal_unconditional2(varargin)
     
     output.directionkellied = signal_i(1);
     output.signalkellied = signal_i;
-    output.opkellied = op;
+    output.opkellied = op.comment;
     output.kelly = kelly;
     output.wprob = wprob;
     return
