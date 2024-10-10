@@ -380,7 +380,10 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     ~(extrainfo.p(end-1,5)>extrainfo.ll(end-1) && extrainfo.p(end,5)<extrainfo.ll(end-1))
                 flag = tdsq_is9139buycount(bs,extrainfo.ss,extrainfo.bc,extrainfo.sc);
                 if flag
-                    closeflag = 1;
+%                     closeflag = 1;
+                    if extrainfo.p(end,3) < trade.riskmanager_.pxstoploss_
+                        trade.riskmanager_.pxstoploss_ = extrainfo.p(end,3);
+                    end
                     trade.riskmanager_.closestr_ = 'tdsq:9139';
                     closestr = trade.riskmanager_.closestr_;
                     return

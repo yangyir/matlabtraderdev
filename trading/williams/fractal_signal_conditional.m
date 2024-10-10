@@ -650,7 +650,16 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 this_signal(1,9) = -21;
             else
                 if flags.isbslowbreach
-                    this_signal(1,9) = -22;
+                    if ~flags.isbclowbreach
+                        this_signal(1,9) = -22;
+                    else
+                        bclow = ei.px(bclastidx,4);
+                        if bclow == ei.ll(end)
+                            this_signal(1,9) = -23;
+                        else
+                            this_signal(1,9) = -22;
+                        end
+                    end
                 else
                     if flags.isbclowbreach
                         this_signal(1,9) = -23;

@@ -40,6 +40,20 @@ function [output] = fractal_signal_conditional2(varargin)
             return
         end
         %
+        %extracheck to avoid conditional open on reverse trend, i.e. the
+        %price has fallen from the fractal hh already
+        lastss = find(ei.ss >= 9,1,'last');
+        if size(ei.ss,1) - lastss <= nfractal
+            lastssval = ei.ss(lastss);
+            sshigh = max(ei.px(lastss-lastssval+1:lastss,3));
+            sshighidx = find(ei.px(lastss-lastssval+1:lastss,3) == sshigh,1,'last')+lastss-lastssval;
+            sslow = ei.px(sshighidx,4);
+            if ei.hh(end) < 2*sslow-sshigh && ei.hh(end) < sshigh
+                output = {};
+                return
+            end
+        end
+        %
         signalkellied = signal{1,1};
         opkellied = '';
         isbreachuplvlup = flags.islvlupbreach;
@@ -161,6 +175,20 @@ function [output] = fractal_signal_conditional2(varargin)
             return
         end
         %
+        %extracheck to avoid conditional open on reverse trend, i.e. the
+        %price has rallied from the fractal ll already
+        lastbs = find(ei.bs >= 9,1,'last');
+        if size(ei.bs,1) - lastbs <= nfractal
+            lastbsval = ei.bs(lastbs);
+            bslow = min(ei.px(lastbs-lastbsval+1:lastbs,4));
+            bslowidx = find(ei.px(lastbs-lastbsval+1:lastbs,4) == bslow,1,'last')+lastbs-lastbsval;
+            bshigh = ei.px(bslowidx,3);
+            if ei.ll(end) > 2*bshigh-bslow && ei.ll(end) > bslow
+                output = {};
+                return
+            end
+        end
+        %
         waspxbelowll = isempty(find(ei.px(end-nfractal+1:end-1,5)-ei.ll(end-nfractal+1:end-1)>0,1,'first'));
         wasllabovelips = ei.ll(end)-ei.lips(end)>-ticksize;
         if waspxbelowll && wasllabovelips
@@ -179,7 +207,18 @@ function [output] = fractal_signal_conditional2(varargin)
             if isbreachdnlvldn
                 vlookuptbl = kellytables.breachdnlvldn_tc;
             elseif isbreachdnbslow
-                vlookuptbl = kellytables.breachdnbshighvalue_tc;
+                if ~isbreachdnbclow
+                    vlookuptbl = kellytables.breachdnbshighvalue_tc;
+                else
+                    %need to make sure the ll is the same as bc13 low
+                    lastbcidx = find(ei.bc == 13,1,'last');
+                    bc13low = ei.px(lastbcidx,4);
+                    if bc13low == ei.ll(end)
+                        vlookuptbl = kellytables.breachdnlowbc13;
+                    else
+                        vlookuptbl = kellytables.breachdnbshighvalue_tc;
+                    end
+                end
             elseif isbreachdnbclow
                 vlookuptbl = kellytables.breachdnlowbc13;
             end
@@ -194,7 +233,18 @@ function [output] = fractal_signal_conditional2(varargin)
                 if isbreachdnlvldn
                     opkellied = 'conditional breachdn-lvldn';
                 elseif isbreachdnbslow
-                    opkellied = 'conditional breachdn-bshighvalue';
+                    if ~isbreachdnbclow
+                        opkellied = 'conditional breachdn-bshighvalue';
+                    else
+                        %need to make sure the ll is the same as bc13 low
+                        lastbcidx = find(ei.bc == 13,1,'last');
+                        bc13low = ei.px(lastbcidx,4);
+                        if bc13low == ei.ll(end)
+                            opkellied = 'conditional breachdn-lowbc13';
+                        else
+                            opkellied = 'conditional breachdn-bshighvalue';
+                        end
+                    end
                 elseif isbreachdnbclow
                     opkellied = 'conditional breachdn-lowbc13';
                 end
