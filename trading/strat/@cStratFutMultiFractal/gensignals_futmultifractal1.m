@@ -113,8 +113,18 @@ function signals = gensignals_futmultifractal1(stratfractal)
             
             if ~strcmpi(freq,'1440m')
                 kellytables = stratfractal.tbl_all_intraday_;
+                if strcmpi(freq,'5m')
+                    tickratio = 0;
+                elseif strcmpi(freq,'15m')
+                    tickratio = 0.5;
+                elseif strcmpi(freq,'30m')
+                    tickratio = 0.5;
+                else
+                    tickratio = 0.5;
+                end
             else
                 kellytables = stratfractal.tbl_all_daily_;
+                tickratio = 1;
             end
             
             try
@@ -140,7 +150,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
             
             tick = stratfractal.mde_fut_.getlasttick(instruments{i});
             
-            [signal_i,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nfractal,'lasttick',tick);
+            [signal_i,op,status] = fractal_signal_unconditional(extrainfo,tickratio*ticksize,nfractal,'lasttick',tick);
             if ~isempty(signal_i)
                 if signal_i(1) == 0
                     if op.direction == 1
@@ -295,7 +305,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 output_ = fractal_signal_conditional2('extrainfo',ei_,...
                                     'ticksize',ticksize,...
                                     'kellytables',kellytables,...
-                                    'assetname',assetname);
+                                    'assetname',assetname,...
+                                    'ticksizeratio',tickratio);
                                 if ~isempty(output_)
                                     if output_.directionkellied == 0
                                         signal_i(1) = 0;
@@ -360,7 +371,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 output_ = fractal_signal_conditional2('extrainfo',ei_,...
                                     'ticksize',ticksize,...
                                     'kellytables',kellytables,...
-                                    'assetname',assetname);
+                                    'assetname',assetname,...
+                                    'ticksizeratio',tickratio);
                                 if ~isempty(output_)
                                     if output_.directionkellied == 0
                                         signal_i(1) = 0;
@@ -432,7 +444,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                         output_ = fractal_signal_conditional2('extrainfo',ei_,...
                                             ticksize',ticksize,...
                                             'kellytables',kellytables,...
-                                            'assetname',assetname);
+                                            'assetname',assetname,...
+                                            'ticksizeratio',tickratio);
                                         if ~isempty(output_)
                                             if output_.directionkellied == 0
                                                 signal_i(1) = 0;
@@ -500,7 +513,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                         output_ = fractal_signal_conditional2('extrainfo',ei_,...
                                             ticksize',ticksize,...
                                             'kellytables',kellytables,...
-                                            'assetname',assetname);
+                                            'assetname',assetname,...
+                                            'ticksizeratio',tickratio);
                                         if ~isempty(output_)
                                             if output_.directionkellied == 0
                                                 signal_i(1) = 0;
@@ -667,7 +681,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     'nfractal',nfractal,...
                                     'kellytables',kellytables,...
                                     'assetname',assetname,...
-                                    'ticksizeratio',0.5);
+                                    'ticksizeratio',tickratio);
                                 if ~isempty(output_)
                                     if output_.directionkellied == 0
                                         signal_i(1) = 0;
@@ -726,7 +740,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             output_ = fractal_signal_conditional2('extrainfo',ei_,...
                                 'ticksize',ticksize,...
                                 'kellytables',kellytables,...
-                                'assetname',assetname);
+                                'assetname',assetname,...
+                                'ticksizeratio',tickratio);
                             if ~isempty(output_)
                                 if output_.directionkellied == 0
                                     signal_i(1) = 0;
@@ -789,7 +804,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                         output_ = fractal_signal_conditional2('extrainfo',ei_,...
                                             'ticksize',ticksize,...
                                             'kellytables',kellytables,...
-                                            'assetname',assetname);
+                                            'assetname',assetname,...
+                                            'ticksizeratio',tickratio);
                                         if ~isempty(output_)
                                             if output_.directionkellied == 0
                                                 signal_i(1) = 0;
@@ -864,7 +880,8 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                         output_ = fractal_signal_conditional2('extrainfo',ei_,...
                                             'ticksize',ticksize,...
                                             'kellytables',kellytables,...
-                                            'assetname',assetname);
+                                            'assetname',assetname,...
+                                            'ticksizeratio',ticksize);
                                         if ~isempty(output_)
                                             if output_.directionkellied == 0
                                                 signal_i(1) = 0;
@@ -937,7 +954,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 end
                 %
                 %
-                [signal_cond_i,op_cond_i,flags_i] = fractal_signal_conditional(extrainfo,ticksize,nfractal);
+                [signal_cond_i,op_cond_i,flags_i] = fractal_signal_conditional(extrainfo,tickratio*ticksize,nfractal);
                 %20230613:further check of conditional signals
                 if ~isempty(signal_cond_i) && ~isempty(signal_cond_i{1,1}) && signal_cond_i{1,1}(1) == 1
                     %
