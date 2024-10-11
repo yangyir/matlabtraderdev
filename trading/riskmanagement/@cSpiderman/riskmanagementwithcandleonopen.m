@@ -58,10 +58,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     runriskmanagementbeforemktclose = p.Results.RunRiskManagementBeforeMktClose;
     kellytables = p.Results.KellyTables;
     
-    breachupfailed = (ei.p(end,5) <= ei.hh(end-1) && ei.p(end,3) > ei.hh(end-1));
-    breachupsuccess = ei.p(end,5) > ei.hh(end-1) && ei.p(end-1,5) <= ei.hh(end-1);
-    breachdnfailed = ei.p(end,5) >= ei.ll(end-1) && ei.p(end,4) < ei.ll(end-1);
-    breachdnsuccess = ei.p(end,5) < ei.ll(end-1) && ei.p(end-1,5) >= ei.ll(end-1);
+    breachupfailed = (ei.p(end,5) < ei.hh(end-1) && ei.p(end,3) > ei.hh(end-1));
+    breachupsuccess = ei.p(end,5) > ei.hh(end-1) && ei.p(end-1,5) < ei.hh(end-1);
+    breachdnfailed = ei.p(end,5) > ei.ll(end-1) && ei.p(end,4) < ei.ll(end-1);
+    breachdnsuccess = ei.p(end,5) < ei.ll(end-1) && ei.p(end-1,5) > ei.ll(end-1);
     
     onopenflag = ei.p(end,1) <= trade.opendatetime1_;
     
@@ -226,6 +226,28 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if lflag && ~breachupfailed && ~breachupsuccess
         %the trade has moved on from its openning candle
 %         if onopenflag, error('riskmanagementwithcandleonopen:internal error with lflag!');end
+        if ei.p(end,5) >= ei.hh(end-1) && ei.p(end-1,5) < ei.hh(end-1)
+            status = fractal_b1_status(nfractal,ei,trade.instrument_.tick_size);
+            if strcmpi(val,'conditional-uptrendconfirmed-1')
+                trade.opensignal_.mode_ = 'breachup-lvlup';
+            elseif strcmpi(val,'conditional-uptrendconfirmed-2')
+                trade.opensignal_.mode_ = 'breachup-sshighvalue';
+            elseif strcmpi(val,'conditional-uptrendconfirmed-3')
+                trade.opensignal_.mode_ = 'breachup-highsc13';
+            elseif strcmpi(val,'conditional-uptrendconfirmed')
+                if status.isvolblowup
+                    trade.opensignal_.mode_ = 'volblowup';
+                elseif status.isvolblowup2
+                    trade.opensignal_.mode_ = 'volblowup2';
+                else
+                    if status.b1type == 2
+                        trade.opensignal_.mode_ = 'mediumbreach-trendconfirmed';
+                    elseif status.b1type == 3
+                        trade.opensignal_.mode_ = 'strongbreach-trendconfirmed';
+                    end
+                end    
+            end
+        end
         unwindflag = false;
         msg = '';
         return
