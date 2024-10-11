@@ -47,19 +47,24 @@ if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
         kellytables = data.strat_govtbondfut_30m;
         nfractal = 4;
+        tickratio = 0.5;
     elseif strcmpi(freq,'15m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_15m.mat']);
         kellytables = data.strat_govtbondfut_15m;
         nfractal = 4;
+        tickratio = 0.5;
     elseif strcmpi(freq,'5m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_5m.mat']);
         kellytables = data.strat_govtbondfut_5m;
         nfractal = 6;
+        tickratio = 0;
     end
 elseif ~isempty(strfind(fut.asset_name,'eqindex'))
     nfractal = 4;
+    tickratio = 0.5;
 else
     nfractal = 4;
+    tickratio = 0.5;
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
     kellytables = data.strat_comdty_i;
 end
@@ -153,7 +158,8 @@ while i <= idx2
                    'ticksize',fut.tick_size,...
                    'nfractal',nfractal,...
                    'assetname',fut.asset_name,...
-                   'kellytables',kellytables);
+                   'kellytables',kellytables,...
+                   'ticksizeratio',tickratio);
                if ~isempty(output)
                    if output.directionkellied == 0 && (strcmpi(output.op.comment,trade.opensignal_.mode_) || ...
                            (~strcmpi(output.op.comment,trade.opensignal_.mode_) && ...
