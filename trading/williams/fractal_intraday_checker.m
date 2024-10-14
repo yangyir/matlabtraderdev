@@ -57,7 +57,7 @@ else
 end
 if isempty(cp),error('fractal_intraday_checker:invalid code input or data not stored');end
 %generate trades and table
-[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2);
+[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2,freq);
 %
 %backtest trade performance
 n = trades.latest_;

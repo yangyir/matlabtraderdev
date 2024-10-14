@@ -1,4 +1,4 @@
-function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot,dt1,dt2)
+function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot,dt1,dt2,freq)
 if length(codes) ~= size(data_in,1)
     error('fractal_filter:invalid codes and data_intraday inputs')
 end
@@ -15,15 +15,22 @@ if nargin == 4
     doplot = 0;
     dt1 = [];
     dt2 = [];
+    freq = 30;
 end
 
 if nargin == 5
     dt1 = [];
     dt2 = [];
+    freq = 30;
 end
 
 if nargin == 6
     dt2 = [];
+    freq = 30;
+end
+
+if nargin == 7
+    freq = 30;
 end
 
 n = length(codes);
@@ -76,30 +83,33 @@ for i = 1:n
             end
         end
     end
-    p = data_in{i};
-    if p(2,1) - p(1,1) < 1
-        if abs((p(2,1)-p(1,1))*1440 - 30) < 1e-6
-            freqstr = '30m';
-            nfractal = 4;
-        elseif abs((p(2,1)-p(1,1))*1440 - 15) < 1e-6
-            freqstr = '15m';
-            nfractal = 4;
-        elseif abs((p(2,1)-p(1,1))*1440 - 5) < 1e-6
-            freqstr = '5m';
-            nfractal = 6;
-        else
-            freqstr = '30m';
-            nfractal = 4;
-        end
-    else
+    
+    if freq == 30
+        freqstr = '30m';
+        nfractal = 4;
+        ticksizeratio = 0.5;
+    elseif freq == 15
+        freqstr = '15m';
+        nfractal = 4;
+        ticksizeratio = 0.5;
+    elseif freq == 5
+        freqstr = '5m';
+        nfractal = 6;
+        ticksizeratio = 0;
+    elseif freq == 1440
         freqstr = 'daily';
         nfractal = 2;
+        ticksizeratio = 1;
     end
+    
+    p = data_in{i};
+    
     [resmat{i},resstruct{i}] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
     [idxb1{i},idxs1{i}] = fractal_genindicators1(resstruct{i}.px,...
         resstruct{i}.hh,resstruct{i}.ll,...
         resstruct{i}.jaw,resstruct{i}.teeth,resstruct{i}.lips,...
-        'instrument',instrument);
+        'instrument',instrument,...
+        'ticksizeratio',ticksizeratio);
     if ~isempty(dt1)
         idxstart_i = find(resstruct{i}.px(:,1)>=dt1,1,'first');
         if isempty(idxstart_i)
@@ -146,7 +156,7 @@ for i = 1:n
         b1type = idxb1_i(j,2);
         extrainfo = fractal_genextrainfo(resstruct{i},k);
         [nabovelips1_i(j),naboveteeth1_i(j),nabovelips2_i(j),nkaboveteeth2_i(j),nkfromhh_i(j),teethjawcrossed_b_i(j)] = fractal_countb(p(1:k,:),extrainfo.idxhh,nfractal,extrainfo.lips,extrainfo.teeth,extrainfo.jaw,ticksize);
-        [op,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksize);
+        [op,status] = fractal_filterb1_singleentry(b1type,nfractal,extrainfo,ticksizeratio*ticksize);
 %         status = fractal_b1_status(nfractal,extrainfo,ticksize);
         commentsb1_i{j,3} = fractal_b1_status2str(status);
         commentsb1_i{j,2} = op.comment;
@@ -182,7 +192,7 @@ for i = 1:n
             if doplot
                 iplot = iplot + 1;
                 for jj = k:size(p,1)
-                    if p(jj,5)-resstruct{i}.teeth(jj) < -2*ticksize
+                    if p(jj,5)-resstruct{i}.teeth(jj) < -2*ticksizeratio*ticksize
                         break
                     end
                 end
@@ -264,7 +274,7 @@ for i = 1:n
         s1type = idxs1_i(j,2);
         extrainfo = fractal_genextrainfo(resstruct{i},k);
         [nbelowlips1_i(j),nbelowteeth1_i(j),nbelowlips2_i(j),nkbelowteeth2_i(j),nkfromll_i(j),teethjawcrossed_s_i(j)] = fractal_counts(p(1:k,:),extrainfo.idxll,nfractal,extrainfo.lips,extrainfo.teeth,extrainfo.jaw,ticksize);
-        [op,status] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksize);
+        [op,status] = fractal_filters1_singleentry(s1type,nfractal,extrainfo,ticksizeratio*ticksize);
 %         status = fractal_s1_status(nfractal,extrainfo,ticksize);
         commentss1_i{j,3} = fractal_s1_status2str(status);
         commentss1_i{j,2} = op.comment;
@@ -272,7 +282,7 @@ for i = 1:n
         
 %         if k == size(p,1), continue;end
         if ~status.istrendconfirmed && k < size(p,1)
-            if p(k+1,2) - resstruct{i}.ll(k)-2*ticksize > 0
+            if p(k+1,2) - resstruct{i}.ll(k)-2*ticksizeratio*ticksize > 0
                 commentss1_i{j,1} = 'breachs1 break:next open above LL';
                 useflags_i(j) = 0;
                 continue;
@@ -304,7 +314,7 @@ for i = 1:n
             if doplot
                 iplot = iplot + 1;
                 for jj = k:size(p,1)
-                    if p(jj,5)-resstruct{i}.teeth(jj) > 2*ticksize
+                    if p(jj,5)-resstruct{i}.teeth(jj) > 2*ticksizeratio*ticksize
                         break
                     end
                 end
