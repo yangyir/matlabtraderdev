@@ -181,9 +181,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             elseif status.isvolblowup2
                 trade.opensignal_.mode_ = 'volblowup2';
             else
-                if status.b1type == 2
+                if ei.teeth(end-1) <= ei.jaw(end-1)
                     trade.opensignal_.mode_ = 'mediumbreach-trendconfirmed';
-                elseif status.b1type == 3
+                else
                     trade.opensignal_.mode_ = 'strongbreach-trendconfirmed';
                 end
             end
@@ -206,7 +206,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
             kelly = tbl.K(idx);
         else
-            if status.b1type == 2
+            if strcmpi(trade.opensignal_.mode_,'mediumbreach-trendconfirmed')
                 kelly = kelly_k('mediumbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
             elseif status.b1type == 3
                 kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
@@ -403,9 +403,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             elseif status.isvolblowup2
                 trade.opensignal_.mode_ = 'volblowup2';
             else
-                if status.s1type == 2
+                if ei.teeth(end-1) >= ei.jaw(end-1)
                     trade.opensignal_.mode_ = 'mediumbreach-trendconfirmed';
-                elseif status.s1type == 3
+                else
                     trade.opensignal_.mode_ = 'strongbreach-trendconfirmed';
                 end
             end
@@ -426,7 +426,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
             kelly = tbl.K(idx);
         else
-            if status.s1type == 2
+            if strcmpi(trade.opensignal_.mode_,'mediumbreach-trendconfirmed')
                 kelly = kelly_k('mediumbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
             elseif status.s1type == 3
                 kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
