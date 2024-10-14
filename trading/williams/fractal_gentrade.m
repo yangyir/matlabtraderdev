@@ -9,6 +9,7 @@ end
 
 if strcmpi(freq,'daily')
     nfractal = 2;
+    ticksizeratio = 1;
     signalinfo = struct('name','fractal',...
         'hh',resstruct.hh(idx),'ll',resstruct.ll(idx),...
         'frequency',freq,...
@@ -20,13 +21,17 @@ if strcmpi(freq,'daily')
 else
     if strcmpi(freq,'30m')
         nfractal = 4;
+        ticksizeratio = 1;
     elseif strcmpi(freq,'15m')
         nfractal = 4;
+        ticksizeratio = 1;
     elseif strcmpi(freq,'5m')
         nfractal = 6;
+        ticksizeratio = 0;
     else
         %default value of nfractal
         nfractal = 4;
+        ticksizeratio = 1;
     end
     signalinfo = struct('name','fractal',...
         'hh',resstruct.hh(idx),'ll',resstruct.ll(idx),...
@@ -113,10 +118,10 @@ if longshort == 1
     if cond1
         if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
-            openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksize);
+            openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksizeratio*ticksize);
         else
             opendt = resstruct.px(idx,1);
-            openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksize);
+            openpx = max(resstruct.px(idx,2),resstruct.hh(idx)+ticksizeratio*ticksize);
         end
     else
         if strcmpi(freq,'daily')
@@ -231,10 +236,10 @@ elseif longshort == -1
     if cond1
         if strcmpi(freq,'daily')
             opendt = resstruct.px(idx,1);
-            openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksize);
+            openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksizeratio*ticksize);
         else
             opendt = resstruct.px(idx,1);
-            openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksize);
+            openpx = min(resstruct.px(idx,2),resstruct.ll(idx)-ticksizeratio*ticksize);
         end
     else
         if strcmpi(freq,'daily')
