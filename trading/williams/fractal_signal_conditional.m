@@ -535,7 +535,8 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         if idxhhlast_ >= sclastidx
                             flags.isschighbreach = false;
                         else
-                            schigh = max(ei.px(sclastidx:idxhhlast,3));
+%                             schigh = max(ei.px(sclastidx:idxhhlast,3));
+                            schigh = ei.px(sclastidx,3);
                             flags.isschighbreach = ei.hh(end) == schigh & ...
                                 ei.hh(end) <= 2*ei.px(sclastidx,3)-ei.px(sclastidx,4);
                         end
@@ -637,9 +638,10 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         if idxlllast_ >= bclastidx
                             flags.isbclowbreach = false;
                         else
-                            bclow = min(ei.px(bclastidx:idxlllast,4));
+%                             bclow = min(ei.px(bclastidx:idxlllast,4));
+                            bclow = ei.px(bclastidx,4);
                             flags.isbclowbreach = ei.ll(end) == bclow & ...
-                                ei.hh(end) >= 2*ei.px(bclastidx,4)-ei.px(bclastidx,3);
+                                ei.ll(end) >= 2*ei.px(bclastidx,4)-ei.px(bclastidx,3);
                         end
                     else
                         flags.isbclowbreach = ei.ll(end) == min(ei.px(bclastidx:end,4));
