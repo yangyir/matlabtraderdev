@@ -150,6 +150,12 @@ for i = 1:tradesb.latest_
     tdsqmomentum = tdsq_momentum(extrainfo.p,extrainfo.bs,extrainfo.ss,extrainfo.lvlup,extrainfo.lvldn);
     if strcmpi(trade_i.opensignal_.frequency_,'daily')
         status = fractal_b1_status(2,extrainfo,ticksize);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'30m')
+        status = fractal_b1_status(4,extrainfo,0.5*ticksize);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'15m')
+        status = fractal_b1_status(4,extrainfo,0.5*ticksize);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'5m')
+        status = fractal_b1_status(6,extrainfo,0);
     else
         status = fractal_b1_status(4,extrainfo,ticksize);
     end
@@ -184,6 +190,12 @@ for i = 1:tradess.latest_
     tdsqmomentum = tdsq_momentum(extrainfo.p,extrainfo.bs,extrainfo.ss,extrainfo.lvlup,extrainfo.lvldn);
     if strcmpi(trade_i.opensignal_.frequency_,'daily')
         status = fractal_s1_status(2,extrainfo,ticksize);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'30m')
+        status = fractal_s1_status(4,extrainfo,0.5*ticksize);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'15m')
+        status = fractal_s1_status(4,extrainfo,0.5*ticksize);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'5m')
+        status = fractal_s1_status(6,extrainfo,0);
     else
         status = fractal_s1_status(4,extrainfo,ticksize);
     end

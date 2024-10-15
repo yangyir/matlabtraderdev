@@ -25,13 +25,17 @@ usefibonacciflag = p.Results.usefibonacci;
 
 if strcmpi(freq,'daily')
     nfractal = 2;
+    ticksizeratio = 1;
 else
     if strcmpi(freq,'intraday-30m') || strcmpi(freq,'intraday')
         nfractal = 4;
+        ticksizeratio = 0.5;
     elseif strcmpi(freq,'intraday-15m')
         nfractal = 4;
+        ticksizeratio = 0.5;
     elseif strcmpi(freq,'intraday-5m')
         nfractal = 6;
+        ticksizeratio = 0;
     else
         error('fractal_tradeinfo_anyb:invalud frequency input')
     end
@@ -42,7 +46,8 @@ asset = code2instrument(code);
 [idxb1,~] = fractal_genindicators1(ei.px,...
             ei.hh,ei.ll,...
             ei.jaw,ei.teeth,ei.lips,...
-            'instrument',asset);
+            'instrument',asset,...
+            'ticksizeratio',ticksizeratio);
 idx = find(idxb1(:,1) == openid, 1);
 if isempty(idx)
     ret = {};
@@ -62,8 +67,8 @@ if b1type == 1
 end
 
 d = fractal_truncate(ei,openid);
-op = fractal_filterb1_singleentry(b1type,nfractal,d,asset.tick_size); 
-statusstruct = fractal_b1_status(nfractal,d,asset.tick_size);
+op = fractal_filterb1_singleentry(b1type,nfractal,d,ticksizeratio*asset.tick_size); 
+statusstruct = fractal_b1_status(nfractal,d,ticksizeratio*asset.tick_size);
 statusstr = fractal_b1_status2str(statusstruct);
 % if op.use || (~op.use && statusstruct.istrendconfirmed)
     if strcmpi(freq,'daily')

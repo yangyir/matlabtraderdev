@@ -88,7 +88,7 @@ if longshort == 1
     %1.1 introduce fractal_signal_conditional to check whether trade was
     %conditional trend or not
     ei = fractal_truncate(resstruct,idx-1);
-    signal = fractal_signal_conditional(ei,ticksize,nfractal);
+    signal = fractal_signal_conditional(ei,ticksizeratio*ticksize,nfractal);
     if isempty(signal)
         cond1 = false;
     else
@@ -212,7 +212,7 @@ elseif longshort == -1
 %     end
     %
     ei = fractal_truncate(resstruct,idx-1);
-    signal = fractal_signal_conditional(ei,ticksize,nfractal);
+    signal = fractal_signal_conditional(ei,ticksizeratio*ticksize,nfractal);
     if isempty(signal)
         cond1 = false;
     else
