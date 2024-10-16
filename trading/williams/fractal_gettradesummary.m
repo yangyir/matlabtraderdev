@@ -148,7 +148,7 @@ for i = 1:tradesb.latest_
     trade_i = tradesb.node_(i);
     extrainfo = fractal_genextrainfo(resstruct{1},trade_i.id_);
     tdsqmomentum = tdsq_momentum(extrainfo.p,extrainfo.bs,extrainfo.ss,extrainfo.lvlup,extrainfo.lvldn);
-    if strcmpi(trade_i.opensignal_.frequency_,'daily')
+    if strcmpi(trade_i.opensignal_.frequency_,'daily') || strcmpi(trade_i.opensignal_.frequency_,'1440m')
         status = fractal_b1_status(2,extrainfo,ticksize);
     elseif strcmpi(trade_i.opensignal_.frequency_,'30m')
         status = fractal_b1_status(4,extrainfo,0.5*ticksize);
@@ -188,7 +188,7 @@ for i = 1:tradess.latest_
     trade_i = tradess.node_(i);
     extrainfo = fractal_genextrainfo(resstruct{1},trade_i.id_);
     tdsqmomentum = tdsq_momentum(extrainfo.p,extrainfo.bs,extrainfo.ss,extrainfo.lvlup,extrainfo.lvldn);
-    if strcmpi(trade_i.opensignal_.frequency_,'daily')
+    if strcmpi(trade_i.opensignal_.frequency_,'daily') || strcmpi(trade_i.opensignal_.frequency_,'1440m')
         status = fractal_s1_status(2,extrainfo,ticksize);
     elseif strcmpi(trade_i.opensignal_.frequency_,'30m')
         status = fractal_s1_status(4,extrainfo,0.5*ticksize);

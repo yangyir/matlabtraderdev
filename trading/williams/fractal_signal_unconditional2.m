@@ -206,7 +206,8 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
-                    if ~(kelly > 0.1 && wprob >= 0.40)
+%                     if ~(kelly > 0.1 && wprob >= 0.40)
+                    if ~(kelly > 0.1)    
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end

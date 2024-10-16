@@ -164,6 +164,7 @@ for i = 1:n
 %         if k == size(p,1), continue;end
         
         if ~status.istrendconfirmed && k < size(p,1)
+            
 %             if p(k+1,2) - resstruct{i}.hh(k) + 2*ticksize < 0
 %                 commentsb1_i{j,1} = 'breachb1 break:next open below HH';
 %                 useflagb_i(j) = 0;

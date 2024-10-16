@@ -75,10 +75,27 @@ for i = 1:n
         checkstartidx = j;
     end
     
+    isgovtbond = ~isempty(strfind(trade.instrument_.asset_name,'govtbond'));
+    if isgovtbond
+        if strcmpi(trade.instrument_.break_interval{1,1},'09:15:00')
+            startat0915 = true;
+        else
+            startat0915 = false;
+        end
+    else
+        startat0915 = false;
+    end
+    
     for k = checkstartidx:size(d.px,1)
         extrainfo = fractal_genextrainfo(d,k);
         if k == size(d.px,1) || ...
-                (hour(d.px(k,1)) == 14 && minute(d.px(k,1)) == 30)          %avoid market jump between 15:00 and 21:00 for comdty
+                (~isgovtbond && freq == 30 && hour(d.px(k,1)) == 14 && minute(d.px(k,1)) == 30) ||...          %avoid market jump between 15:00 and 21:00 for comdty
+                (~isgovtbond && freq == 15 && hour(d.px(k,1)) == 14 && minute(d.px(k,1)) == 45) ||...
+                (~isgovtbond && freq == 5 && hour(d.px(k,1)) == 14 && minute(d.px(k,1)) == 55) ||...
+                (isgovtbond && startat0915 && freq == 30 && hour(d.px(k,1)) == 14 && minute(d.px(k,1)) == 45) ||...
+                (isgovtbond && ~startat0915 && freq == 30 && hour(d.px(k,1)) == 15 && minute(d.px(k,1)) == 00) ||...
+                (isgovtbond && freq == 15 && hour(d.px(k,1)) == 15 && minute(d.px(k,1)) == 00) ||...
+                (isgovtbond && freq == 05 && hour(d.px(k,1)) == 15 && minute(d.px(k,1)) == 10)
             extrainfo.latestopen = d.px(k,5);
             extrainfo.latestdt = d.px(k,1);
         else
@@ -91,7 +108,11 @@ for i = 1:n
         if trade.oneminb4close1_ == 914
             %govtbond
             if freq == 30
-                if hour(extrainfo.px(end,1)) == 15, runflag = true;end
+                if ~startat0915
+                    if hour(extrainfo.px(end,1)) == 15, runflag = true;end
+                else
+                    if hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 45, runflag = true;end
+                end
             elseif freq == 15
                 if hour(extrainfo.px(end,1)) == 15, runflag = true;end
             elseif freq == 5
@@ -115,7 +136,7 @@ for i = 1:n
         elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 149
             if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
             if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
-                    (hour(extrainfo.px(end,1)) == 2 && minute(extrainfo.px(end,1)) == 30)
+                    (hour(extrainfo.px(end,1)) == 2 && minute(extrainfo.px(end,1)) == 00)
                 runflag = true;
             end
         end

@@ -73,8 +73,12 @@ statusstr = fractal_s1_status2str(statusstruct);
 % if op.use || (~op.use && statusstruct.istrendconfirmed)
     if strcmpi(freq,'daily')
         trade = fractal_gentrade(ei,code,openid,op.comment,-1,'daily');
-    else
+    elseif strcmpi(freq,'intraday') || strcmpi(freq,'intraday-30m')
         trade = fractal_gentrade(ei,code,openid,op.comment,-1,'30m');
+    elseif strcmpi(freq,'intraday-15m')
+        trade = fractal_gentrade(ei,code,openid,op.comment,-1,'15m');
+    elseif strcmpi(freq,'intraday-5m')
+        trade = fractal_gentrade(ei,code,openid,op.comment,-1,'5m');
     end
     trade.riskmanager_.setusefractalupdateflag(usefracalupdateflag);
     trade.riskmanager_.setusefibonacciflag(usefibonacciflag);

@@ -115,7 +115,7 @@ issshighbreach = 0;
 if size(ss,1)-lastss+1<=nkfromhh
 %case1:the lastest sell sequential finished within the fractal
     lastssval = ss(lastss);
-    issshighbreach = px(end,5) > max(px(lastss-lastssval+1:min(lastss,size(px,1)-1),3));
+    issshighbreach = px(end,5) - max(px(lastss-lastssval+1:min(lastss,size(px,1)-1),3))-ticksize >= -1e-6;
 end
 if ~issshighbreach && ss(end) > 9
     issshighbreach = px(end,5) > max(px(end-ss(end)+1:end-1,3));
