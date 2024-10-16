@@ -39,20 +39,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         %the candle hasn't reached the open candle yet
         return
     end
-    if ei.p(end,1) - ei.p(end-1,1) >= 1
-        if abs(ei.p(end-1,1) - ei.p(end-2,1) - 30/1440) <= 1e-6
-            nfractal = 4;
-        elseif abs(ei.p(end-1,1) - ei.p(end-2,1) - 15/1440) <= 1e-6
-            nfractal = 4;
-        elseif abs(ei.p(end-1,1) - ei.p(end-2,1) - 5/1440) <= 1e-6
-            nfractal = 6;
-        else
-            nfractal = 2;
-        end
-    elseif abs(ei.p(end,1) - ei.p(end-1,1) - 5/1440) <= 1e-6
-        nfractal = 6;
-    else
+    
+    freq_ = trade.opensignal_.frequency_;
+    if strcmpi(freq_,'30m')
         nfractal = 4;
+    elseif strcmpi(freq_,'15m')
+        nfractal = 4;
+    elseif strcmpi(freq_,'5m')
+        nfractal = 6;
+    elseif strcmpi(freq_,'1440m') || strcmpi(freq_,'daily')
+        nfractal = 2;
     end
     %
     runriskmanagementbeforemktclose = p.Results.RunRiskManagementBeforeMktClose;
@@ -340,6 +336,13 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         %
         if runriskmanagementbeforemktclose
             if strcmpi(val,'conditional-dntrendconfirmed-3') || ei.bs(end) > 9
+                unwindflag = true;
+                msg = 'conditional dntrendconfirmed failed:mktclose';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                return
+            end
+            if strcmpi(freq_,'5m') && ei.ll(end)-ei.px(end,4) <= 2*trade.instrument_.tick_size
                 unwindflag = true;
                 msg = 'conditional dntrendconfirmed failed:mktclose';
                 obj.status_ = 'closed';
