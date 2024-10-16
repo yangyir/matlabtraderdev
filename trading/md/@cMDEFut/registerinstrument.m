@@ -412,6 +412,9 @@ function [] = registerinstrument(mdefut,instrument)
                     datenum_close(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,2}]);
                 end
             end
+            if datenum_open(j,1) > datenum_close(j,1)
+                error('cMDEFut::registerinstrument::internal error!!!')
+            end
         end
         mdefut.datenum_open_{ns,1} = datenum_open;
         mdefut.datenum_close_{ns,1} = datenum_close;
@@ -440,6 +443,9 @@ function [] = registerinstrument(mdefut,instrument)
                     else
                         datenum_close_new(j,1) = datenum([datestr_start,blankstr,instrument.break_interval{j,2}]);
                     end
+                end
+                if datenum_open_new(j,1) > datenum_close_new(j,1)
+                    error('cMDEFut::registerinstrument::internal error!!!')
                 end
             end
             datenum_open{ns,1} = datenum_open_new;
