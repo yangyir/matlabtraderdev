@@ -176,6 +176,28 @@ while i <= idx2
                        break
                    end
                end
+               %
+               output2 = fractal_signal_conditional2('extrainfo',ei_j,...
+                   'ticksize',fut.tick_size,...
+                   'nfractal',nfractal,...
+                   'assetname',fut.asset_name,...
+                   'kellytables',kellytables,...
+                   'ticksizeratio',tickratio);
+               if ~isempty(output2)
+                   if output2.directionkellied == 0
+                       trade.status_ = 'closed';
+                       trade.riskmanager_.status_ = 'closed';
+                       trade.riskmanager_.closestr_ = 'kelly is too low';
+                       trade.runningpnl_ = 0;
+                       trade.closeprice_ = ei_j.latestopen;
+                       trade.closedatetime1_ = ei_j.latestdt;
+                       trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
+                       tradeout = trade;
+                       unwindedtrades.push(tradeout);
+                       break
+                   end
+               end
+               
             end    
         end
         i = j+1;
