@@ -428,8 +428,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                     kelly = -9.99;
                                     wprob = 0;
                                 end
-%                                 if ~(kelly > 0.1 && wprob >= 0.40)
-                                if ~(kelly > 0.1)
+                                if ~(kelly > 0.1 && wprob >= 0.40)
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
                                     %unwind position as the kelly or
