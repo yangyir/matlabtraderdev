@@ -43,21 +43,32 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     freq_ = trade.opensignal_.frequency_;
     if strcmpi(freq_,'30m')
         nfractal = 4;
+        ticksizeratio = 0.5;
     elseif strcmpi(freq_,'15m')
         nfractal = 4;
+        ticksizeratio = 0.5;
     elseif strcmpi(freq_,'5m')
         nfractal = 6;
+        ticksizeratio = 0;
     elseif strcmpi(freq_,'1440m') || strcmpi(freq_,'daily')
         nfractal = 2;
+        ticksizeratio = 1;
     end
     %
     runriskmanagementbeforemktclose = p.Results.RunRiskManagementBeforeMktClose;
     kellytables = p.Results.KellyTables;
     
-    breachupfailed = (ei.p(end,5) < ei.hh(end-1) && ei.p(end,3) > ei.hh(end-1));
-    breachupsuccess = ei.p(end,5) > ei.hh(end-1) && ei.p(end-1,5) < ei.hh(end-1);
-    breachdnfailed = ei.p(end,5) > ei.ll(end-1) && ei.p(end,4) < ei.ll(end-1);
-    breachdnsuccess = ei.p(end,5) < ei.ll(end-1) && ei.p(end-1,5) > ei.ll(end-1);
+    breachupfailed = ei.p(end,5) < ei.hh(end-1) &...
+        ei.p(end,3) > ei.hh(end-1);
+    %
+    breachupsuccess = ei.p(end,5) - ei.hh(end-1) - ticksizeratio*trade.instrument_.tick_size > -1e-6 &....
+        ei.p(end-1,5) < ei.hh(end-1);
+    %
+    breachdnfailed = ei.p(end,5) > ei.ll(end-1) &...
+        ei.p(end,4) < ei.ll(end-1);
+    %
+    breachdnsuccess = ei.p(end,5) - ei.ll(end-1) + ticksizeratio*trade.instrument_.tick_size < 1e-6 &...
+        ei.p(end-1,5) > ei.ll(end-1);
     
     onopenflag = ei.p(end,1) <= trade.opendatetime1_;
     
