@@ -305,7 +305,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                     wprob = kellytables.kelly_table_s.winp_unique_s(idxvolblowup2);
                 end
             
-            if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+            if ~(kelly>=0.12 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                 %in case the conditional dntrend was opened with breachdnbshighvalue 
                 %but it turns out to be a normal trend trend, e.g zn2403 on 20240117
                 if (ei.bs(end) >= 9 || ei.bs(end-1) >= 9) && ~strcmpi(op.comment,'volblowup')
@@ -321,7 +321,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                             kelly = -9.99;
                             wprob = 0;
                         end
-                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+                        if ~(kelly>=0.12 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                             signal_i(1) = 0;
                             signal_i(4) = 0;
                         end
@@ -339,7 +339,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                                 kelly = -9.99;
                                 wprob = 0;
                             end
-                            if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+                            if ~(kelly>=0.12 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
                                 signal_i(1) = 0;
                                 signal_i(4) = 0;
                             end
