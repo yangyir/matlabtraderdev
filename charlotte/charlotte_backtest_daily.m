@@ -166,7 +166,7 @@ while i <= idx2
                            (output.kelly < 0 || isnan(output.kelly))))
                        trade.status_ = 'closed';
                        trade.riskmanager_.status_ = 'closed';
-                       trade.riskmanager_.closestr_ = 'kelly is too low';
+                       trade.riskmanager_.closestr_ = ['kelly is too low: ',num2str(output.kelly)];
                        trade.runningpnl_ = 0;
                        trade.closeprice_ = ei_j.latestopen;
                        trade.closedatetime1_ = ei_j.latestdt;
@@ -187,7 +187,7 @@ while i <= idx2
                    if output2.directionkellied == 0
                        trade.status_ = 'closed';
                        trade.riskmanager_.status_ = 'closed';
-                       trade.riskmanager_.closestr_ = 'kelly is too low';
+                       trade.riskmanager_.closestr_ = ['conditional kelly is too low: ',num2str(output2.kelly)];
                        trade.runningpnl_ = 0;
                        trade.closeprice_ = ei_j.latestopen;
                        trade.closedatetime1_ = ei_j.latestdt;
