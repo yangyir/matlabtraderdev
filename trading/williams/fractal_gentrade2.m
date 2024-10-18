@@ -169,14 +169,19 @@ elseif condsignal.directionkellied == 1
         pxhigh = resstruct.px(idx,3);
         pxopen = resstruct.px(idx,2);
         %2.check whether volblowup2,i.e.market jumps at beginning
-        if pxhigh>=condsignal.signalkellied(2)+fut.tick_size*tickratio && ...
+        if tickratio == 0
+            tickratio_ = 0;
+        else
+            tickratio_ = 1;
+        end
+        if pxhigh>=condsignal.signalkellied(2)+fut.tick_size*tickratio_ && ...
                 pxopen<condsignal.signalkellied(2)+1.618*(condsignal.signalkellied(2)-condsignal.signalkellied(3))
             px = ei_.px;
             idxhh = ei_.idxhh;
             idx_lasthh = find(idxhh == 1,1,'last');
             nkfromhh = size(px,1) - idx_lasthh+nfractal+1;
             barsizerest = px(end-nkfromhh+1:end,3)-px(end-nkfromhh+1:end,4);
-            if pxopen >= condsignal.signalkellied(2)+fut.tick_size*tickratio
+            if pxopen >= condsignal.signalkellied(2)+fut.tick_size*tickratio_
                 lasttrade = pxopen;
                 retlast = lasttrade-px(end,5);
                 isvolblowup2 = retlast>0 & (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
@@ -219,7 +224,7 @@ elseif condsignal.directionkellied == 1
         %
         trade = cTradeOpen('id',idx,'code',code,...
             'opendatetime', resstruct.px(idx,1),...
-            'openprice',max(pxopen,condsignal.signalkellied(2)+tickratio*fut.tick_size),...
+            'openprice',max(pxopen,condsignal.signalkellied(2)+tickratio_*fut.tick_size),...
             'opendirection',1,...
             'openvolume',1);
         trade.setsignalinfo('name','fractal','extrainfo',signalinfo);
@@ -294,15 +299,21 @@ elseif condsignal.directionkellied == -1
         %
         pxlow = resstruct.px(idx,4);
         pxopen = resstruct.px(idx,2);
+        %
+        if tickratio == 0
+            tickratio_ = 0;
+        else
+            tickratio_ = 1;
+        end
         %2.check whether volblowup2,i.e.market jumps at begining
-        if pxlow<=condsignal.signalkellied(3)-tickratio*fut.tick_size && ...
+        if pxlow<=condsignal.signalkellied(3)-tickratio_*fut.tick_size && ...
                 pxopen>condsignal.signalkellied(3)-1.618*(condsignal.signalkellied(2)-condsignal.signalkellied(3))
             px = ei_.px;
             idxll = ei_.idxll;
             idx_lastll = find(idxll == -1,1,'last');
             nkfromll = size(px,1) - idx_lastll+nfractal+1;
             barsizerest = px(end-nkfromll+1:end,3)-px(end-nkfromll+1:end,4);
-            if pxopen <= condsignal.signalkellied(3)-tickratio*fut.tick_size
+            if pxopen <= condsignal.signalkellied(3)-tickratio_*fut.tick_size
                 lasttrade = pxopen;
                 retlast = lasttrade-px(end,5);
                 isvolblowup2 = retlast<0 & (abs(retlast)-mean(barsizerest))/std(barsizerest)>norminv(0.99);
@@ -345,7 +356,7 @@ elseif condsignal.directionkellied == -1
         %
         trade = cTradeOpen('id',idx,'code',code,...
             'opendatetime', resstruct.px(idx,1),...
-            'openprice',min(pxopen,condsignal.signalkellied(3)-tickratio*fut.tick_size),...
+            'openprice',min(pxopen,condsignal.signalkellied(3)-tickratio_*fut.tick_size),...
             'opendirection',-1,...
             'openvolume',1);
         trade.setsignalinfo('name','fractal','extrainfo',signalinfo);

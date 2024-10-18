@@ -32,6 +32,8 @@ function [output] = fractal_signal_unconditional2(varargin)
     end
     
     if isempty(signal_i)
+        %fractal_signal_unconditional returns EMPTY signal in case there
+        %was a invalid breach
         output = {};
         return
     end
@@ -47,11 +49,6 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
                 wprob = kellytables.kelly_table_l.winp_unique_l(idx);
                 useflag = kellytables.kelly_table_l.use_unique_l(idx);
-                if isempty(kelly)
-                    kelly = -9.99;
-                    wprob = 0;
-                    useflag = 0;
-                end
             end
         elseif op.direction == -1
             try
@@ -63,31 +60,23 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
                 wprob = kellytables.kelly_table_s.winp_unique_s(idx);
                 useflag = kellytables.kelly_table_s.use_unique_s(idx);
-                if isempty(kelly)
-                    kelly = -9.99;
-                    wprob = 0;
-                    useflag = 0;
-                end
             end
         else
+            %op.direction = 0
             kelly = 0;
             wprob = 0;
             useflag = 0;
         end
         %NOTE:here kelly and wprob threshold shall be set
         %via configuration files, TODO:
-        if kelly >= 0.141 && wprob >= 0.41 && useflag
-            signal_i(1) = op.direction;
-            signal_i(4) = op.direction;
-        elseif wprob >= 0.5 && useflag && kelly > 0.1 && ...
-                (strcmpi(op.comment,'strongbreach-trendbreak') || strcmpi(op.comment,'volblowup-trendbreak'))
+        %in line with @kellydistributionreport
+        if kelly >= 0.088 && useflag
             signal_i(1) = op.direction;
             signal_i(4) = op.direction;
         else
             %do nothing
         end
-%         fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(signal_i(1)),op.comment,100*kelly,100*wprob);
-
+        %
     elseif signal_i(1) == 1
         %20230613:further check of signals
         if strcmpi(op.comment,'volblowup') || strcmpi(op.comment,'volblowup2') || ...
@@ -97,21 +86,20 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = kelly_k(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
                 wprob = kelly_w(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
             catch
-                idxvolblowup2 = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
-                kelly = kellytables.kelly_table_l.kelly_unique_l(idxvolblowup2);
-                wprob = kellytables.kelly_table_l.winp_unique_l(idxvolblowup2);
-            end
-            
+                idx = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
+                kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
+                wprob = kellytables.kelly_table_l.winp_unique_l(idx);
+            end            
             %%NOTE:here kelly or wprob threshold shall be set
             %%via configuration files,TODO:
-            if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+            if ~(kelly >= 0.088)
                 %in case the condtional uptrend trade was opened with conditional breachsshighvalue 
                 %but it turns out to be a normal trend trade, e.g.check
                 if ei.ss(end) >= 9 && ~strcmpi(op.comment,'volblowup')
                     idxss9 = find(ei.ss == 9,1,'last');
                     pxhightillss9 = max(ei.px(idxss9-8:idxss9,3));
                     if pxhightillss9 == ei.hh(end)
-                        op.comment = 'breachup-sshighvalue';
+                        op.comment = 'breachup-sshighvalue-tc';
                         vlookuptbl = kellytables.breachupsshighvalue_tc;
                         idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
@@ -120,7 +108,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                             kelly = -9.99;
                             wprob = 0;
                         end
-                        if ~(kelly>=0.145 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+                        if ~(kelly >= 0.088)
                             signal_i(1) = 0;
                             signal_i(4) = 0;
                         else
@@ -152,18 +140,13 @@ function [output] = fractal_signal_unconditional2(varargin)
         elseif strcmpi(op.comment,'breachup-highsc13')
             vlookuptbl = kellytables.breachuphighsc13;
             idx = strcmpi(vlookuptbl.asset,assetname);
-            try
-                kelly = vlookuptbl.K(idx);
-                wprob = vlookuptbl.W(idx);
-                if isempty(kelly)
-                    kelly = -9.99;
-                    wprob = 0;
-                end
-            catch
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+            if isempty(kelly)
                 kelly = -9.99;
                 wprob = 0;
             end
-            if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
+            if ~(kelly >= 0.088)
                 signal_i(1) = 0;
                 signal_i(4) = 0;
             end
@@ -172,42 +155,31 @@ function [output] = fractal_signal_unconditional2(varargin)
                 if ~status.istrendconfirmed
                     vlookuptbl = kellytables.breachuplvlup_tb;
                     idx = strcmpi(vlookuptbl.asset,assetname);
-                    try
-                        kelly = vlookuptbl.K(idx);
-                        wprob = vlookuptbl.W(idx);
-                        if isempty(kelly)
-                            kelly = -9.99;
-                            wprob = 0;
-                        end
-                    catch
+                    kelly = vlookuptbl.K(idx);
+                    wprob = vlookuptbl.W(idx);
+                    if isempty(kelly)
                         kelly = -9.99;
                         wprob = 0;
                     end
-                    if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41) || (kelly > 0.09 && wprob > 0.455))
+                    if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
                     op.comment = 'breachup-lvlup-tb';
                 else
-                    if ei.hh(end) >= ei.lvlup(end)
+                    if ei.hh(end-1) >= ei.lvlup(end-1)
                         vlookuptbl = kellytables.breachuplvlup_tc;
                     else
                         vlookuptbl = kellytables.breachuplvlup_tc_all;
                     end
                     idx = strcmpi(vlookuptbl.asset,assetname);
-                    try
-                        kelly = vlookuptbl.K(idx);
-                        wprob = vlookuptbl.W(idx);
-                        if isempty(kelly)
-                            kelly = -9.99;
-                            wprob = 0;
-                        end
-                    catch
+                    kelly = vlookuptbl.K(idx);
+                    wprob = vlookuptbl.W(idx);
+                    if isempty(kelly)
                         kelly = -9.99;
                         wprob = 0;
                     end
-%                     if ~(kelly > 0.1 && wprob >= 0.40)
-                    if ~(kelly > 0.1)    
+                    if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -218,18 +190,13 @@ function [output] = fractal_signal_unconditional2(varargin)
                 if ~status.istrendconfirmed
                     vlookuptbl = kellytables.breachupsshighvalue_tb;
                     idx = strcmpi(vlookuptbl.asset,assetname);
-                    try
-                        kelly = vlookuptbl.K(idx);
-                        wprob = vlookuptbl.W(idx);
-                        if isempty(kelly)
-                            kelly = -9.99;
-                            wprob = 0;
-                        end
-                    catch
+                    kelly = vlookuptbl.K(idx);
+                    wprob = vlookuptbl.W(idx);
+                    if isempty(kelly)
                         kelly = -9.99;
                         wprob = 0;
                     end
-                    if ~(kelly >= 0.145 || (kelly > 0.11 && wprob > 0.41) || (kelly > 0.09 && wprob > 0.455))
+                    if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -237,18 +204,13 @@ function [output] = fractal_signal_unconditional2(varargin)
                 else
                     vlookuptbl = kellytables.breachupsshighvalue_tc;
                     idx = strcmpi(vlookuptbl.asset,assetname);
-                    try
-                        kelly = vlookuptbl.K(idx);
-                        wprob = vlookuptbl.W(idx);
-                        if isempty(kelly)
-                            kelly = -9.99;
-                            wprob = 0;
-                        end
-                    catch
+                    kelly = vlookuptbl.K(idx);
+                    wprob = vlookuptbl.W(idx);
+                    if isempty(kelly)
                         kelly = -9.99;
                         wprob = 0;
                     end
-                    if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
+                    if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -305,7 +267,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                     wprob = kellytables.kelly_table_s.winp_unique_s(idxvolblowup2);
                 end
             
-            if ~(kelly>=0.12 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+            if ~(kelly>=0.088)
                 %in case the conditional dntrend was opened with breachdnbshighvalue 
                 %but it turns out to be a normal trend trend, e.g zn2403 on 20240117
                 if (ei.bs(end) >= 9 || ei.bs(end-1) >= 9) && ~strcmpi(op.comment,'volblowup')
@@ -321,9 +283,12 @@ function [output] = fractal_signal_unconditional2(varargin)
                             kelly = -9.99;
                             wprob = 0;
                         end
-                        if ~(kelly>=0.12 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+                        if ~(kelly>=0.088)
                             signal_i(1) = 0;
                             signal_i(4) = 0;
+                        else
+                            signal_i(1) = op.direction;
+                            signal_i(4) = op.direction;
                         end
                     else
                         lastll = find(ei.idxll == -1,1,'last');
@@ -339,7 +304,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                                 kelly = -9.99;
                                 wprob = 0;
                             end
-                            if ~(kelly>=0.12 || (kelly>0.11 && wprob>0.41) || (kelly>0.10 && wprob>0.45))
+                            if ~(kelly>=0.088)
                                 signal_i(1) = 0;
                                 signal_i(4) = 0;
                             end
