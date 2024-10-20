@@ -49,6 +49,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
                 wprob = kellytables.kelly_table_l.winp_unique_l(idx);
                 useflag = kellytables.kelly_table_l.use_unique_l(idx);
+                if isempty(kelly)
+                    kelly = -9.99;
+                    wprob = 0;
+                    useflag = 0;
+                end
             end
         elseif op.direction == -1
             try
@@ -60,10 +65,15 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
                 wprob = kellytables.kelly_table_s.winp_unique_s(idx);
                 useflag = kellytables.kelly_table_s.use_unique_s(idx);
+                if isempty(kelly)
+                    kelly = -9.99;
+                    wprob = 0;
+                    useflag = 0;
+                end
             end
         else
             %op.direction = 0
-            kelly = 0;
+            kelly = -9.99;
             wprob = 0;
             useflag = 0;
         end
@@ -89,6 +99,10 @@ function [output] = fractal_signal_unconditional2(varargin)
                 idx = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
                 kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
                 wprob = kellytables.kelly_table_l.winp_unique_l(idx);
+                if isempty(kelly)
+                    kelly = -9.99;
+                    wprob = 0;
+                end
             end            
             %%NOTE:here kelly or wprob threshold shall be set
             %%via configuration files,TODO:
@@ -98,7 +112,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 if ei.ss(end) >= 9 && ~strcmpi(op.comment,'volblowup')
                     idxss9 = find(ei.ss == 9,1,'last');
                     pxhightillss9 = max(ei.px(idxss9-8:idxss9,3));
-                    if pxhightillss9 == ei.hh(end)
+                    if pxhightillss9 == ei.hh(end-1)
                         op.comment = 'breachup-sshighvalue-tc';
                         vlookuptbl = kellytables.breachupsshighvalue_tc;
                         idx = strcmpi(vlookuptbl.asset,assetname);
@@ -116,8 +130,30 @@ function [output] = fractal_signal_unconditional2(varargin)
                             signal_i(4) = op.direction;
                         end
                     else
-                        signal_i(1) = 0;
-                        signal_i(4) = 0;
+                        lasthh = find(ei.idxHH == 1,1,'last');
+                        if lasthh < idxss9 - ei.ss(idxss9) + 1
+                            %the latest HH was formed before the latest
+                            %sell sequential
+                            op.comment = 'breachup-ssghighvalue-tc';
+                            vlookuptbl = kellytables.breachupsshighvalue_tc;
+                            idx = strcmpi(vlookuptbl.asset,assetname);
+                            kelly = vlookuptbl.K(idx);
+                            wprob = vlookuptbl.W(idx);
+                            if isempty(kelly)
+                                kelly = -9.99;
+                                wprob = 0;
+                            end
+                            if ~(kelly >= 0.088)
+                                signal_i(1) = 0;
+                                signal_i(4) = 0;
+                            else
+                                signal_i(1) = op.direction;
+                                signal_i(4) = op.direction;
+                            end
+                        else                 
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
+                        end
                     end
                 else
                     signal_i(1) = 0;
@@ -131,7 +167,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                     sshighpx = max(ei.px(end-sslastval:end-1,3));
                     sshighidx = find(ei.px(end-sslastval:end-1,3) == sshighpx,1,'last') + size(ei.px,1) - sslastval - 1;
                     sslowpx = ei.px(sshighidx,4);
-                    if ei.hh(end) <= sslowpx
+                    if ei.hh(end-1) <= sslowpx
                         signal_i(1) = 0;
                         signal_i(4) = 0; 
                     end
@@ -226,6 +262,10 @@ function [output] = fractal_signal_unconditional2(varargin)
                     idx = strcmpi(op.comment,kellytables.kelly_table_l.opensignal_unique_l);
                     kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
                     wprob = kellytables.kelly_table_l.winp_unique_l(idx);
+                    if isempty(kelly)
+                        kelly = -9.99;
+                        wprob = 0;
+                    end
                     signal_i(1) = 0;
                     signal_i(4) = 0;
                 end
@@ -239,7 +279,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                             signal_i(4) = 1;
                         end
                     else
-                        if kelly < 0.145 || wprob < 0.4
+                        if ~(kelly >= 0.088)
                             signal_i(1) = 0;
                             signal_i(4) = 0;
                         end
@@ -273,7 +313,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 if (ei.bs(end) >= 9 || ei.bs(end-1) >= 9) && ~strcmpi(op.comment,'volblowup')
                     idxbs9 = find(ei.bs == 9,1,'last');
                     pxlowtillbs9 = min(ei.px(idxbs9-8:idxbs9,4));
-                    if pxlowtillbs9 == ei.ll(end)
+                    if pxlowtillbs9 == ei.ll(end-1)
                         op.comment = 'breachdn-bshighvalue-tc';
                         vlookuptbl = kellytables.breachdnbshighvalue_tc;
                         idx = strcmpi(vlookuptbl.asset,assetname);
@@ -307,6 +347,9 @@ function [output] = fractal_signal_unconditional2(varargin)
                             if ~(kelly>=0.088)
                                 signal_i(1) = 0;
                                 signal_i(4) = 0;
+                            else
+                                signal_i(1) = op.direction;
+                                signal_i(4) = op.direction;
                             end
                         else
                             signal_i(1) = 0;
@@ -314,20 +357,21 @@ function [output] = fractal_signal_unconditional2(varargin)
                         end
                     end
                 else
-                    %unwind position as the kelly or
-                    %winning probability is low
-                    if kelly <= 0
-                        signal_i(1) = 0;
-                        signal_i(4) = 0;
-                    else
-                        if ~(wprob > 0.45 && kelly > 0.0833)
-                            signal_i(1) = 0;
-                            signal_i(4) = 0;
-                        end
-                    end
+                    signal_i(1) = 0;
+                    signal_i(4) = 0;
                 end
             else
-                
+                %special case
+                if ei.bs(end-1) >= 9
+                    bslastval = ei.bs(end-1);
+                    bslowpx = min(ei.px(end-bslastval:end-1,4));
+                    bslowidx = find(ei.px(end-bslastval:end-1,4) == bslowpx,1,'last') + size(ei.px,1) - bslastval - 1;
+                    bshighpx = ei.px(bslowidx,3);
+                    if ei.ll(end-1) >= bshighpx
+                        signal_i(1) = 0;
+                        signal_i(4) = 0;
+                    end
+                end
             end
             %
         elseif strcmpi(op.comment,'breachdn-lowbc13')
