@@ -31,6 +31,11 @@ function [output] = fractal_signal_conditional2(varargin)
         return
     end
     
+    if isempty(signal)
+        output = {};
+        return
+    end
+    
     if ~isempty(signal) && ~isempty(signal{1,1}) && signal{1,1}(1) == 1
         %extracheck to avoid conditional open on fractal ll update point
         highs = ei.px(end-nfractal+1:end,3);
@@ -75,26 +80,24 @@ function [output] = fractal_signal_conditional2(varargin)
             if isempty(wprob), wprob = 0;end
             %
             if isbreachuplvlup
-                if kelly > 0.088 && wprob >= 0.4
+                if kelly >= 0.088
+                    signalkellied(1) = 1;
                     opkellied = 'conditional breachup-lvlup';
                 else
+                    signalkellied(1) = 0;
                     opkellied = 'conditional breachup-lvlup not to place';
                 end
             else
-                if kelly >= 0.145 || (kelly>0.11 && wprob>0.41)
+                if kelly >= 0.088
                     signalkellied(1) = 1;
-                    if isbreachuplvlup
-                        opkellied = 'conditional breachup-lvlup';
-                    elseif isbreachupsshigh
+                    if isbreachupsshigh
                         opkellied = 'conditional breachup-sshighvalue';
                     elseif isbreachupschigh
                         opkellied = 'conditional breachup-highsc13';
                     end
                 else
                     signalkellied(1) = 0;
-                    if isbreachuplvlup
-                        opkellied = 'conditional breachup-lvlup not to place';
-                    elseif isbreachupsshigh
+                    if isbreachupsshigh
                         opkellied = 'conditional breachup-sshighvalue not to place';
                     elseif isbreachupschigh
                         opkellied = 'conditional breachup-highsc13 not to place';
@@ -135,7 +138,7 @@ function [output] = fractal_signal_conditional2(varargin)
                 wprob3 = 0;
             end
             %
-            if kelly >= 0.145 || (kelly>0.11 && wprob>0.41)
+            if kelly >= 0.088
                 signalkellied(1) = 1;
                 opkellied = op{1,1};
             else
@@ -143,11 +146,33 @@ function [output] = fractal_signal_conditional2(varargin)
                 %strongbreach-trendconfirmed as it is not known whether
                 %the conditional bid would turn out to be a volblowup
                 if kelly3 >= 0.145 || (kelly3 > 0.11 && wprob3 > 0.41)
-                    signalkellied(1) = 1;
-                    opkellied = 'potential high kelly with volblowup breach up';
+                    if kelly < 0
+                        extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)-ticksizeratio*ticksize<0,1,'first'));
+                        if extracheck
+                            signalkellied(1) = 1;
+                            opkellied = 'potential high kelly with volblowup breach up';
+                        else
+                            signalkellied(1) = 0;
+                            opkellied = [op{1,1},' not to place as extra check failed'];
+                        end
+                    else
+                        signalkellied(1) = 1;
+                        opkellied = 'potential high kelly with volblowup breach up';
+                    end
                 elseif kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
-                    signalkellied(1) = 1;
-                    opkellied = 'potential high kelly with ordinary trending breach up';
+                    if kelly < 0
+                        extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)-ticksizeratio*ticksize<0,1,'first'));
+                        if extracheck
+                            signalkellied(1) = 1;
+                            opkellied = 'potential high kelly with ordinary trending breach up';
+                        else
+                            signalkellied(1) = 0;
+                            opkellied = [op{1,1},' not to place as extra check failed'];
+                        end 
+                    else
+                        signalkellied(1) = 1;
+                        opkellied = 'potential high kelly with ordinary trending breach up';
+                    end
                 else
                     signalkellied(1) = 0;
                     opkellied = [op{1,1},' not to place'];
@@ -171,7 +196,6 @@ function [output] = fractal_signal_conditional2(varargin)
         lowest = min(lows);
         if lows(1) == lowest && lowest < ei.ll(end) && nfractal ~= 6
             output = {};
-%             fprintf('\tfractal_signal_conditional2:potential fractal LL update...\n');
             return
         end
         %
@@ -189,11 +213,11 @@ function [output] = fractal_signal_conditional2(varargin)
             end
         end
         %
+        %NOTE:we dont have a symmetry in the long case for the case below
         waspxbelowll = isempty(find(ei.px(end-nfractal+1:end-1,5)-ei.ll(end-nfractal+1:end-1)>0,1,'first'));
-        wasllabovelips = ei.ll(end)-ei.lips(end)>-ticksize;
+        wasllabovelips = ei.ll(end)-ei.lips(end)>-ticksizeratio*ticksize;
         if waspxbelowll && wasllabovelips
             output = {};
-%             fprintf('\tfractal_signal_conditional2:rallied from fractal LL below...\n')
             return
         end
         
@@ -228,34 +252,51 @@ function [output] = fractal_signal_conditional2(varargin)
             if isempty(kelly), kelly = -9.99;end
             if isempty(wprob), wprob = 0;end
             %
-            if kelly >= 0.145 || (kelly>0.11 && wprob>0.41)
-                signalkellied(1) = -1;
-                if isbreachdnlvldn
+            if isbreachdnlvldn
+                if kelly >= 0.088
+                    signalkellied(1) = -1;
                     opkellied = 'conditional breachdn-lvldn';
-                elseif isbreachdnbslow
-                    if ~isbreachdnbclow
-                        opkellied = 'conditional breachdn-bshighvalue';
-                    else
-                        %need to make sure the ll is the same as bc13 low
-                        lastbcidx = find(ei.bc == 13,1,'last');
-                        bc13low = ei.px(lastbcidx,4);
-                        if bc13low == ei.ll(end)
-                            opkellied = 'conditional breachdn-lowbc13';
-                        else
-                            opkellied = 'conditional breachdn-bshighvalue';
-                        end
-                    end
-                elseif isbreachdnbclow
-                    opkellied = 'conditional breachdn-lowbc13';
+                else
+                    signalkellied(1) = 0;
+                    opkellied = 'conditional breachdn-lvldn not to place';
                 end
             else
-                signalkellied(1) = 0;
-                if isbreachdnlvldn
-                    opkellied = 'conditional breachdn-lvldn not to place';
-                elseif isbreachdnbslow
-                    opkellied = 'conditional breachdn-bshighvalue not to place';
-                elseif isbreachdnbclow
-                    opkellied = 'conditional breachdn-lowbc13 not to place';
+                if kelly >= 0.088
+                    signalkellied(1) = 1;
+                    if isbreachdnbslow
+                        if ~isbreachdnbclow
+                            opkellied = 'conditional breachdn-bshighvalue';
+                        else
+                            %need to make sure the ll is the same as bc13 low
+                            lastbcidx = find(ei.bc == 13,1,'last');
+                            bc13low = ei.px(lastbcidx,4);
+                            if bc13low == ei.ll(end)
+                                opkellied = 'conditional breachdn-lowbc13';
+                            else
+                                opkellied = 'conditional breachdn-bshighvalue';
+                            end
+                        end
+                    elseif isbreachdnbclow
+                        opkellied = 'conditional breachdn-lowbc13';
+                    end
+                else
+                    signalkellied(1) = 0;
+                    if isbreachdnbslow
+                        if ~isbreachdnbclow
+                            opkellied = 'conditional breachdn-bshighvalue not to place';
+                        else
+                            %need to make sure the ll is the same as bc13 low
+                            lastbcidx = find(ei.bc == 13,1,'last');
+                            bc13low = ei.px(lastbcidx,4);
+                            if bc13low == ei.ll(end)
+                                opkellied = 'conditional breachdn-lowbc13 not to place';
+                            else
+                                opkellied = 'conditional breachdn-bshighvalue not to place';
+                            end
+                        end
+                    elseif isbreachdnbclow
+                        opkellied = 'conditional breachdn-lowbc13 not to place';
+                    end     
                 end
             end
         else
@@ -292,7 +333,7 @@ function [output] = fractal_signal_conditional2(varargin)
                 wprob3 = 0;
             end
             %
-            if kelly >= 0.145 || (kelly>0.11 && wprob>0.41)
+            if kelly >= 0.088
                 signalkellied(1) = -1;
                 opkellied = op{1,2};
             else
@@ -301,7 +342,7 @@ function [output] = fractal_signal_conditional2(varargin)
                 %the conditional bid would turn out to be a volblowup
                 if kelly3 >= 0.145 || (kelly3 > 0.11 && wprob3 > 0.41)
                     if kelly < 0
-                        extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)+ticksize>0,1,'first'));
+                        extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)+ticksizeratio*ticksize>0,1,'first'));
                         if extracheck
                             signalkellied(1) = -1;
                             opkellied = 'potential high kelly with volblowup breach dn';
@@ -315,10 +356,10 @@ function [output] = fractal_signal_conditional2(varargin)
                     end
                 elseif kelly2 >= 0.145 || (kelly2 > 0.11 && wprob2 > 0.41)
                     if kelly < 0
-                        extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)+ticksize>0,1,'first'));
+                        extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)+ticksizeratio*ticksize>0,1,'first'));
                         if extracheck
                             signalkellied(1) = -1;
-                            opkellied = 'potential high kelly with volblowup breach dn';
+                            opkellied = 'potential high kelly with ordinary trending breach dn';
                         else
                             signalkellied(1) = 0;
                             opkellied = [op{1,2},' not to place as extra check failed'];
