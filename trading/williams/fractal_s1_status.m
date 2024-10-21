@@ -72,21 +72,21 @@ retlast = px(end,5)-px(end-1,5);
 isvolblowup2 = retlast<0 & (abs(retlast)-mean(barsizerest))/std(barsizerest)>norminv(0.99);
 
 %
-lastbs9 = find(bs==9,1,'last');
-if isempty(lastbs9)
-    nkfrombs = NaN;
-    lastbs = [];
-else
-    lastbs = lastbs9;
-    for i = lastbs9+1:size(bs,1)
-        if bs(i) ~= 0
-            lastbs = i;
-        else
-            break
-        end
-    end
-    nkfrombs = size(bs,1)-lastbs;
-end
+% lastbs9 = find(bs==9,1,'last');
+% if isempty(lastbs9)
+%     nkfrombs = NaN;
+%     lastbs = [];
+% else
+%     lastbs = lastbs9;
+%     for i = lastbs9+1:size(bs,1)
+%         if bs(i) ~= 0
+%             lastbs = i;
+%         else
+%             break
+%         end
+%     end
+%     nkfrombs = size(bs,1)-lastbs;
+% end
 
 %
 lastss9 = find(ss==9,1,'last');
@@ -104,18 +104,45 @@ else
 end
 
 %does it breach-dn low of a previous buy sequential
-isbslowbreach = 0;
-if size(bs,1)-lastbs+1<=nkfromll
-%case1:the latest buy sequential finished within the fractal
-    lastbsval = bs(lastbs);
-    isbslowbreach = px(end,5) - min(px(lastbs-lastbsval+1:min(lastbs,size(px,1)-1),4)) + ticksize <= 1e-6;
-end
-if ~isbslowbreach && bs(end) > 9
-    isbslowbreach = px(end,5) < min(px(end-bs(end)+1:end-1,4));
-    if ~isbslowbreach && bs(end-1) >= 9
-        isbslowbreach = isempty(find(px(end-bs(end)+1:end-1,5) < LL(end-bs(end)+1:end-1),1,'last'));
+% isbslowbreach = 0;
+% if size(bs,1)-lastbs+1<=nkfromll
+% %case1:the latest buy sequential finished within the fractal
+%     lastbsval = bs(lastbs);
+%     isbslowbreach = px(end,5) - min(px(lastbs-lastbsval+1:min(lastbs,size(px,1)-1),4)) + ticksize <= 1e-6;
+% end
+% if ~isbslowbreach && bs(end) > 9
+%     isbslowbreach = px(end,5) < min(px(end-bs(end)+1:end-1,4));
+%     if ~isbslowbreach && bs(end-1) >= 9
+%         isbslowbreach = isempty(find(px(end-bs(end)+1:end-1,5) < LL(end-bs(end)+1:end-1),1,'last'));
+%     end
+% end
+
+bslastidx = find(bs >= 9, 1,'last');
+if isempty(bslastidx)
+    isbslowbreach = false;
+    nkfrombs = NaN;
+else
+    bslastval = bs(bslastidx);
+    nkfrombs = size(bs,1) - bslastidx;
+    bslow = min(px(bslastidx-bslastval+1:bslastidx,4));
+    if nkfrombs > 13
+        if LL(end) == LL(end-1)
+            idxlastll = find(idxLL==-1,1,'last');
+        else
+            idxlastll = find(idxLL==-1,2,'last');
+            idxlastll = idxlastll(1);
+        end
+        idxbslow = find(px(bslastidx-bslastval+1:bslastidx,4) == bslow,1,'last')+bslastidx-bslastval;
+        isbslowbreach = LL(end-1) == bslow & idxlastll - idxbslow == nfractal;
+    else
+        isbslowbreach = LL(end-1) == bslow;
+    end
+    if ~isbslowbreach && bs(end) >= 9 && LL(end-1) <= bslow
+        isbslowbreach = true;
     end
 end
+    
+
 
 %does it firstly breach-dn ll after the latest sell sequential without any
 %breachdn of ll or breachup of hh in between
