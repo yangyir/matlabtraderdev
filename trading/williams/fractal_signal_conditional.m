@@ -18,13 +18,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         return
     end
     
-    if ei.px(end,5) == ei.ll(end) && ei.px(end,4) < ei.ll(end) && ei.px(end-1,5) > ei.ll(end)
-        return
-    end
+%     if ei.px(end,5) == ei.ll(end) && ei.px(end,4) < ei.ll(end) && ei.px(end-1,5) > ei.ll(end)
+%         return
+%     end
     
-    if ei.px(end,5) == ei.hh(end) && ei.px(end,3) > ei.hh(end) && ei.px(end-1,5) < ei.hh(end)
-        return
-    end
+%     if ei.px(end,5) == ei.hh(end) && ei.px(end,3) > ei.hh(end) && ei.px(end-1,5) < ei.hh(end)
+%         return
+%     end
     
 %     np = size(ei.px,1);
     isdaily = ei.px(end,1)-ei.px(end-1,1) >= 1;
