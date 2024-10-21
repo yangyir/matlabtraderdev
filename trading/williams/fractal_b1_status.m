@@ -79,21 +79,21 @@ retlast = px(end,5)-px(end-1,5);
 isvolblowup2 = retlast>0 & (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
 
 %
-lastss9 = find(ss==9,1,'last');
-if isempty(lastss9)
-    nkfromss = NaN;
-    lastss = [];
-else
-    lastss = lastss9;
-    for i = lastss9+1:size(ss,1)
-        if ss(i) ~= 0
-            lastss = i;
-        else
-            break
-        end
-    end
-    nkfromss = size(ss,1)-lastss;
-end
+% lastss9 = find(ss==9,1,'last');
+% if isempty(lastss9)
+%     nkfromss = NaN;
+%     lastss = [];
+% else
+%     lastss = lastss9;
+%     for i = lastss9+1:size(ss,1)
+%         if ss(i) ~= 0
+%             lastss = i;
+%         else
+%             break
+%         end
+%     end
+%     nkfromss = size(ss,1)-lastss;
+% end
 
 %
 lastbs9 = find(bs==9,1,'last');
@@ -111,18 +111,50 @@ else
 end
 
 %does it breach-up high of a previous sell sequential
-issshighbreach = 0;
-if size(ss,1)-lastss+1<=nkfromhh
-%case1:the lastest sell sequential finished within the fractal
-    lastssval = ss(lastss);
-    issshighbreach = px(end,5) - max(px(lastss-lastssval+1:min(lastss,size(px,1)-1),3))-ticksize >= -1e-6;
-end
-if ~issshighbreach && ss(end) > 9
-    issshighbreach = px(end,5) > max(px(end-ss(end)+1:end-1,3));
-    if ~issshighbreach && ss(end-1) >= 9
-        issshighbreach = isempty(find(px(end-ss(end)+1:end-1,5) > HH(end-ss(end)+1:end-1),1,'last'));
+% issshighbreach = 0;
+% if size(ss,1)-lastss+1<=nkfromhh
+% %case1:the lastest sell sequential finished within the fractal
+%     lastssval = ss(lastss);
+%     issshighbreach = px(end,5) - max(px(lastss-lastssval+1:min(lastss,size(px,1)-1),3))-ticksize >= -1e-6;
+% end
+% if ~issshighbreach && ss(end) > 9
+%     issshighbreach = px(end,5) > max(px(end-ss(end)+1:end-1,3));
+%     if ~issshighbreach && ss(end-1) >= 9
+%         issshighbreach = isempty(find(px(end-ss(end)+1:end-1,5) > HH(end-ss(end)+1:end-1),1,'last'));
+%     end
+% end
+
+sslastidx = find(ss >= 9,1,'last');
+if isempty(sslastidx)
+    issshighbreach = false;
+    nkfromss = NaN;
+else
+    sslastval = ss(sslastidx);
+    nkfromss = size(ss,1)-sslastidx;
+    sshigh = max(px(sslastidx-sslastval+1:sslastidx,3));
+    if nkfromss > 13
+        if HH(end) == HH(end-1)
+            idxlasthh = find(idxHH==1,1,'last');
+        else
+            idxlasthh = find(idxHH==1,2,'last');
+            idxlasthh = idxlasthh(1);
+        end
+        idxsshigh = find(px(sslastidx-sslastval+1:sslastidx,3) == sshigh,1,'last')+sslastidx-sslastval;
+        issshighbreach = HH(end-1) == sshigh & idxlasthh - idxsshigh == nfractal;
+    else
+        issshighbreach = HH(end-1) == sshigh;
+    end
+    if ~issshighbreach && ss(end) >= 9 && HH(end-1) >= sshigh
+        issshighbreach = true;
+    end
+    if ~issshighbreach && ss(end) >= 9 && HH(end-1) < sshigh
+        %but there was no close price ever breached the hh
+        if isempty(find(px(sslastidx-sslastval+1:sslastidx,5)>HH(end-1),1,'last'))
+            issshighbreach = true;
+        end
     end
 end
+
 
 %does it firstly breach-up hh after the latest buy sequential without any
 %breachup of hh or breachdn of ll in between
