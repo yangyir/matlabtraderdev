@@ -175,51 +175,29 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     %end of lflag && breachupfailed
     %
     if lflag && breachupsuccess
-        status = fractal_b1_status(nfractal,ei,trade.instrument_.tick_size);
-        if strcmpi(val,'conditional-uptrendconfirmed-1')
-            trade.opensignal_.mode_ = 'breachup-lvlup';
-        elseif strcmpi(val,'conditional-uptrendconfirmed-2')
-            trade.opensignal_.mode_ = 'breachup-sshighvalue';
-        elseif strcmpi(val,'conditional-uptrendconfirmed-3')
-            trade.opensignal_.mode_ = 'breachup-highsc13';
-        elseif strcmpi(val,'conditional-uptrendconfirmed')
-            if status.isvolblowup
-                trade.opensignal_.mode_ = 'volblowup';
-            elseif status.isvolblowup2
-                trade.opensignal_.mode_ = 'volblowup2';
-            else
-                if ei.teeth(end-1) <= ei.jaw(end-1)
-                    trade.opensignal_.mode_ = 'mediumbreach-trendconfirmed';
-                else
-                    trade.opensignal_.mode_ = 'strongbreach-trendconfirmed';
+        signaluncond = fractal_signal_unconditional2('extrainfo',ei,...
+                            'ticksize',trade.instrument_.tick_size,...
+                            'nfractal',nfractal,...
+                            'assetname',trade.instrument_.asset_name,...
+                            'kellytables',kellytables,...
+                            'ticksizeratio',ticksizeratio);
+        if ~isempty(signaluncond)
+            if signaluncond.directionkellied == 1
+                kelly = signaluncond.kelly;
+                trade.opensignal_.mode_ = signaluncond.opkellied;
+                if kelly < 0.088
+                    unwindflag = true;
+                    msg = 'conditional uptrendconfirmed success:lowkelly';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
                 end
+            else
+                unwindflag = true;
+                msg = 'conditional uptrendconfirmed success:lowkelly';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
             end
-        end
-        %
-        if strcmpi(val,'conditional-uptrendconfirmed-1')
-            tbl = kellytables.breachuplvlup_tc;
-            idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
-            kelly = tbl.K(idx);
-        elseif status.isvolblowup
-            kelly = kelly_k('volblowup',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
-        elseif status.isvolblowup2
-            kelly = kelly_k('volblowup2',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
-        elseif strcmpi(val,'conditional-uptrendconfirmed-2')
-            tbl = kellytables.breachupsshighvalue_tc;
-            idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
-            kelly = tbl.K(idx);
-        elseif strcmpi(val,'conditional-uptrendconfirmed-3')
-            tbl = kellytables.breachuphighsc13;
-            idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
-            kelly = tbl.K(idx);
         else
-            if strcmpi(trade.opensignal_.mode_,'mediumbreach-trendconfirmed')
-                kelly = kelly_k('mediumbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
-            elseif status.b1type == 3
-                kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
-            end
-        end
-        if kelly < 0.1
             unwindflag = true;
             msg = 'conditional uptrendconfirmed success:lowkelly';
             obj.status_ = 'closed';
@@ -404,49 +382,29 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     %end of sflag && breachdnfailed
     %
     if sflag && breachdnsuccess
-        status = fractal_s1_status(nfractal,ei,trade.instrument_.tick_size);
-        if strcmpi(val,'conditional-dntrendconfirmed-1')
-            trade.opensignal_.mode_ = 'breachdn-lvldn';
-        elseif strcmpi(val,'conditional-dntrendconfirmed-2')
-            trade.opensignal_.mode_ = 'breachdn-bshighvalue';
-        elseif strcmpi(val,'conditional-dntrendconfirmed-3')
-            trade.opensignal_.mode_ = 'breachdn-highbc13';
-        elseif strcmpi(val,'conditional-dntrendconfirmed')
-            if status.isvolblowup
-                trade.opensignal_.mode_ = 'volblowup';
-            elseif status.isvolblowup2
-                trade.opensignal_.mode_ = 'volblowup2';
-            else
-                if ei.teeth(end-1) >= ei.jaw(end-1)
-                    trade.opensignal_.mode_ = 'mediumbreach-trendconfirmed';
-                else
-                    trade.opensignal_.mode_ = 'strongbreach-trendconfirmed';
+        signaluncond = fractal_signal_unconditional2('extrainfo',ei,...
+                            'ticksize',trade.instrument_.tick_size,...
+                            'nfractal',nfractal,...
+                            'assetname',trade.instrument_.asset_name,...
+                            'kellytables',kellytables,...
+                            'ticksizeratio',ticksizeratio);
+        if ~isempty(signaluncond)
+            if signaluncond.directionkellied == -1
+                kelly = signaluncond.kelly;
+                trade.opensignal_.mode_ = signaluncond.opkellied;
+                if kelly < 0.088
+                    unwindflag = true;
+                    msg = 'conditional dntrendconfirmed success:lowkelly';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
                 end
+            else
+                unwindflag = true;
+                msg = 'conditional dntrendconfirmed success:lowkelly';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
             end
-        end
-        %
-        if strcmpi(val,'conditional-dntrendconfirmed-1')
-            tbl = kellytables.breachdnlvldn_tc;
-            idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
-            kelly = tbl.K(idx);
-        elseif status.isvolblowup
-            kelly = kelly_k('volblowup',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-        elseif strcmpi(val,'conditional-dntrendconfirmed-2')
-            tbl = kellytables.breachdnbshighvalue_tc;
-            idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
-            kelly = tbl.K(idx);
-        elseif strcmpi(val,'conditional-dntrendconfirmed-3')
-            tbl = kellytables.breachdnlowbc13;
-            idx = strcmpi(tbl.asset,trade.instrument_.asset_name);
-            kelly = tbl.K(idx);
         else
-            if strcmpi(trade.opensignal_.mode_,'mediumbreach-trendconfirmed')
-                kelly = kelly_k('mediumbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-            elseif status.s1type == 3
-                kelly = kelly_k('strongbreach-trendconfirmed',trade.instrument_.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s);
-            end
-        end
-        if kelly < 0.1
             unwindflag = true;
             msg = 'conditional dntrendconfirmed success:lowkelly';
             obj.status_ = 'closed';
