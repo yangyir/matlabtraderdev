@@ -77,6 +77,21 @@ function [output] = fractal_signal_unconditional2(varargin)
             wprob = 0;
             useflag = 0;
         end
+        %
+        if status.istrendconfirmed && strcmpi(op.comment,'breachup-lvlup-invalid long as close moves too high')
+            vlookuptbl = kellytables.breachuplvlup_tc;
+            idx = strcmpi(vlookuptbl.asset,assetname);
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+            if isempty(kelly)
+                kelly = -9.99;
+                wprob = 0;
+                useflag = 0;
+            end
+            if kelly >= 0.088
+                useflag = 1;
+            end
+        end
         %NOTE:here kelly and wprob threshold shall be set
         %via configuration files, TODO:
         %in line with @kellydistributionreport
