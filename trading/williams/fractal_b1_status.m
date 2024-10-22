@@ -153,6 +153,12 @@ else
             issshighbreach = true;
         end
     end
+    if ~issshighbreach && ss(end) > 9
+        issshighbreach = px(end,5) > max(px(end-ss(end)+1:end-1,3));
+    end
+    if ~issshighbreach && ss(end-1) >= 9
+        issshighbreach = isempty(find(px(end-ss(end)+1:end-1,5) > HH(end-ss(end)+1:end-1),1,'last'));
+    end    
 end
 
 

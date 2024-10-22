@@ -140,6 +140,12 @@ else
     if ~isbslowbreach && bs(end) >= 9 && LL(end-1) <= bslow
         isbslowbreach = true;
     end
+    if ~isbslowbreach && bs(end) > 9
+        isbslowbreach = px(end,5) < min(px(end-bs(end)+1:end-1,4));
+    end
+    if ~isbslowbreach && bs(end-1) >= 9
+        isbslowbreach = isempty(find(px(end-bs(end)+1:end-1,5) < LL(end-bs(end)+1:end-1),1,'last'));
+    end 
 end
     
 
