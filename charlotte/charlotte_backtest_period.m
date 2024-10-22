@@ -69,8 +69,8 @@ if showlogsflag
         if ~isempty(output1)
             if output1.directionkellied == 1
                 %up-trend conditional signal
-                if ei2.px(end,3) > ei1.hh(end-1)
-                    if ei2.px(end,5) - ei1.hh(end-1) - tickratio * fut.tick_size >= -1e-6
+                if ei2.px(end,3) > output1.signal{1,1}(2)
+                    if ei2.px(end,5) - output1.signal{1,1}(2) - tickratio * fut.tick_size >= -1e-6
                         signaluncond = fractal_signal_unconditional2('extrainfo',ei2,...
                             'ticksize',fut.tick_size,...
                             'nfractal',nfractal,...
@@ -106,8 +106,8 @@ if showlogsflag
                 end
             elseif output1.directionkellied == -1
                 %dn-trend conditional signal
-                if ei2.px(end,4) < ei1.ll(end-1)
-                    if ei2.px(end,5) - ei1.ll(end-1) + tickratio * fut.tick_size <= 1e-6
+                if ei2.px(end,4) < output1.signal{1,2}(3)
+                    if ei2.px(end,5) - output1.signal{1,2}(3) + tickratio * fut.tick_size <= 1e-6
                         signaluncond = fractal_signal_unconditional2('extrainfo',ei2,...
                             'ticksize',fut.tick_size,...
                             'nfractal',nfractal,...
