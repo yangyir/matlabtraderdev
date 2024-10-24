@@ -179,6 +179,22 @@ function [output] = fractal_signal_conditional2(varargin)
                 end
             end
         end
+        %
+        %
+        if ei.px(end,5) < ei.lips(end) && ei.hh(end) < ei.lips(end) && ~isnan(ei.lvlup(end)) && ei.px(end,5) < ei.lvlup(end)
+            signal{1,1}(1) = 0;
+            signalkellied(1) = 0;
+            if isbreachuplvlup
+                opkellied = 'conditional:breachup-lvlup-tc not to placed as price and hh is below lips';
+            elseif isbreachupsshigh
+                opkellied = 'conditional:breachup-sshighvalue-tc not to placed as price and hh is below lips';
+            elseif isbreachupschigh
+                opkellied = 'conditional:breachup-highsc13-tc not to placed as price and hh is below lips';
+            else
+                opkellied = [op{1,1},' not to placed as price and hh is below lips'];
+            end
+        end
+        %
         output.signal = signal;
         output.op = op;
         output.flags = flags;

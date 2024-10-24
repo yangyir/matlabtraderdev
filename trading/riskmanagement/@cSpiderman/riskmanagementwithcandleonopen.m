@@ -169,6 +169,13 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 obj.closestr_ = msg;
                 return
             end
+            if strcmpi(freq_,'5m') && ei.p(end,3)-ei.hh(end-1) <= 2*trade.instrument_.tick_size
+                unwindflag = true;
+                msg = 'conditional dntrendconfirmed failed:mktclose';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                return
+            end
         end
         %
     end
@@ -331,7 +338,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 obj.closestr_ = msg;
                 return
             end
-            if strcmpi(freq_,'5m') && ei.ll(end)-ei.px(end,4) <= 2*trade.instrument_.tick_size
+            if strcmpi(freq_,'5m') && ei.ll(end-1)-ei.p(end,4) <= 2*trade.instrument_.tick_size
                 unwindflag = true;
                 msg = 'conditional dntrendconfirmed failed:mktclose';
                 obj.status_ = 'closed';

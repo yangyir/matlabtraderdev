@@ -52,7 +52,9 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
         if ismarketopen
 %             if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ < -instrument.tick_size) || ...
 %                     (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ > instrument.tick_size)
-                obj.closestr_ = 'tick breaches stoploss price';
+                if strcmpi(obj.closestr_,'n/a') || strcmpi(obj.closestr_,'') || isempty(obj.closestr_)
+                    obj.closestr_ = 'tick breaches stoploss price';
+                end
                 if doprint
                     fprintf('%s:%s:%s of %s...\n',...
                         datestr(tickTime,'yyyy-mm-dd HH:MM:SS'),...
