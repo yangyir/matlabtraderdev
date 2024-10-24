@@ -269,7 +269,6 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                e = stratfractal.helper_.condentrustspending_.node(jj);
                                if e.offsetFlag ~= 1, continue; end
                                if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
-                               if e.direction ~= 1, continue;end %the same direction
                                if tickratio == 0
                                    if e.price <= signalcond.signalkellied(2),continue;end
                                else
