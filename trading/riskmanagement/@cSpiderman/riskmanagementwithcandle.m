@@ -257,7 +257,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         %
     end
     %
-    if extrainfo.hh(end) > extrainfo.hh(end-1) && abs(extrainfo.hh(end)/extrainfo.hh(end-1)-1)>0.001
+    if direction == 1 && extrainfo.hh(end) > extrainfo.hh(end-1) && abs(extrainfo.hh(end)/extrainfo.hh(end-1)-1)>0.001
         if ~isnan(obj.tdlow_)
             sshigh = find(extrainfo.ss >=9,1,'last');
             sshigh = extrainfo.ss(sshigh);
@@ -300,7 +300,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     end
     %
     %
-    if extrainfo.ll(end) < extrainfo.ll(end-1) && abs(extrainfo.ll(end)/extrainfo.ll(end-1)-1)>0.001
+    if direction == -1 && extrainfo.ll(end) < extrainfo.ll(end-1) && abs(extrainfo.ll(end)/extrainfo.ll(end-1)-1)>0.001
         if ~isnan(obj.tdhigh_)
             bslow = find(extrainfo.bs >= 9,1,'last');
             bslow = extrainfo.bs(bslow);
