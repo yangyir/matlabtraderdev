@@ -218,6 +218,14 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if lflag && ~breachupfailed && ~breachupsuccess
         %the trade has moved on from its openning candle
 %         if onopenflag, error('riskmanagementwithcandleonopen:internal error with lflag!');end
+        if runriskmanagementbeforemktclose && strcmpi(freq_,'5m') && ei.p(end,3)-ei.hh(end-1) <= 2*trade.instrument_.tick_size 
+            unwindflag = true;
+            msg = 'conditional uptrendconfirmed failed:mktclose';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+        %
         if ei.p(end,5) >= ei.hh(end-1) && ei.p(end-1,5) < ei.hh(end-1)
             status = fractal_b1_status(nfractal,ei,trade.instrument_.tick_size);
             if strcmpi(val,'conditional-uptrendconfirmed-1')
@@ -425,6 +433,13 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if sflag && ~breachdnfailed && ~breachdnsuccess
         %the trade has moved on from its openning candle
 %         if onopenflag, error('riskmanagementwithcandleonopen:internal error with slfag!');end
+        if runriskmanagementbeforemktclose && strcmpi(freq_,'5m') && ei.ll(end-1)-ei.p(end,4) <= 2*trade.instrument_.tick_size
+            unwindflag = true;
+            msg = 'conditional dntrendconfirmed failed:mktclose';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
         unwindflag = false;
         msg = '';
     end
