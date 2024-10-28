@@ -53,7 +53,7 @@ function [output] = fractal_signal_conditional2(varargin)
             sshigh = max(ei.px(lastss-lastssval+1:lastss,3));
             sshighidx = find(ei.px(lastss-lastssval+1:lastss,3) == sshigh,1,'last')+lastss-lastssval;
             sslow = ei.px(sshighidx,4);
-            if ei.hh(end) < 2*sslow-sshigh && ei.hh(end) < sshigh
+            if ei.hh(end) <= 2*sslow-sshigh+1e-6 && ei.hh(end) < sshigh
                 output = {};
                 return
             end
@@ -223,7 +223,7 @@ function [output] = fractal_signal_conditional2(varargin)
             bslow = min(ei.px(lastbs-lastbsval+1:lastbs,4));
             bslowidx = find(ei.px(lastbs-lastbsval+1:lastbs,4) == bslow,1,'last')+lastbs-lastbsval;
             bshigh = ei.px(bslowidx,3);
-            if ei.ll(end) > 2*bshigh-bslow && ei.ll(end) > bslow
+            if ei.ll(end) >= 2*bshigh-bslow-1e-6 && ei.ll(end) > bslow
                 output = {};
                 return
             end
