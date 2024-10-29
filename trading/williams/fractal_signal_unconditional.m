@@ -64,9 +64,9 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             %double check whether it is a valid long open
             %condition1:candle close is above 0.382 of (candle high minus fractal ll)
             flag1 = extrainfo.px(end,5)>extrainfo.px(end,3)-0.382*(extrainfo.px(end,3)-extrainfo.ll(end));
-            %condition2:candle close is below fracal hh plus 1.618 of
+            %condition2:candle close is below fracal hh plus 2.0 of
             %fracal distance (fracal hh minus fratal ll)
-            flag2 = extrainfo.px(end,5)<extrainfo.hh(end)+1.618*(extrainfo.hh(end)-extrainfo.ll(end));
+            flag2 = extrainfo.px(end,5)<extrainfo.hh(end)+2.0*(extrainfo.hh(end)-extrainfo.ll(end));
             %condition3:candle close is above alligator's lips
             flag3 = extrainfo.px(end,5)>extrainfo.lips(end)-2*ticksize;
             validlongopen = flag1&flag2&flag3;
@@ -88,6 +88,14 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                 if ~flag2
                     op.comment = [op.comment,'-invalid long as close moves too high'];
 %                     op.use = 0;
+                    signal = zeros(1,7);
+                    signal(1) = 0;
+                    signal(2) = extrainfo.hh(end);
+                    signal(3) = extrainfo.ll(end);
+                    signal(4) = 0;
+                    signal(5) = extrainfo.px(end,3);
+                    signal(6) = extrainfo.px(end,4);
+                    signal(7) = extrainfo.lips(end);
                 end
                 if ~flag3
                     op.comment = [op.comment,'-invalid long as close below alligator lips'];
@@ -153,9 +161,9 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             %double check whether it is a valid short open
             %condition1:candle close is below 0.382 of (fracal hh minus candle low£©
             flag1 = extrainfo.px(end,5)<extrainfo.px(end,4)+0.382*(extrainfo.hh(end)-extrainfo.px(end,4));
-            %condition2:candle close is above fracal hh minus 1.618 of
+            %condition2:candle close is above fracal hh minus 2.0 of
             %fractal distance (fractal hh minus fracal ll)
-            flag2 = extrainfo.px(end,5)>extrainfo.ll(end)-1.618*(extrainfo.hh(end)-extrainfo.ll(end));
+            flag2 = extrainfo.px(end,5)>extrainfo.ll(end)-2.0*(extrainfo.hh(end)-extrainfo.ll(end));
             %condition3:candle close below alligator's lips
             flag3 = extrainfo.px(end,5)<extrainfo.lips(end)+2*ticksize;
             validshortopen = flag1&flag2&flag3;
@@ -177,6 +185,14 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                 if ~flag2
                     op.comment = [op.comment,'-invalid short as close moves too low'];
 %                     op.use = 0;
+                    signal = zeros(1,7);
+                    signal(1) = 0;
+                    signal(2) = extrainfo.hh(end);
+                    signal(3) = extrainfo.ll(end);
+                    signal(4) = 0;
+                    signal(5) = extrainfo.px(end,3);
+                    signal(6) = extrainfo.px(end,4);
+                    signal(7) = extrainfo.lips(end);
                 end
                 if ~flag3
                     op.comment = [op.comment,'-invalid short as close above alligator lips'];
