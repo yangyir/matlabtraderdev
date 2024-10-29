@@ -110,6 +110,23 @@ function [output] = fractal_signal_unconditional2(varargin)
                 useflag = 0;
             end     
         end
+        %
+        if status.istrendconfirmed && strcmpi(op.comment,'volblowup-invalid short as close moves too low')
+            try
+                kelly = kelly_k('volblowup',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
+                wprob = kelly_w('volblowup',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
+            catch
+                kelly = -9.99;
+                wprob = 0;
+            end
+            if kelly >= 0.088
+                useflag = 1;
+                op.comment = 'volblowup';
+            else
+                useflag = 0;
+            end     
+        end
+        %
         %NOTE:here kelly and wprob threshold shall be set
         %via configuration files, TODO:
         %in line with @kellydistributionreport
