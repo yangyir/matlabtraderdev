@@ -46,7 +46,7 @@ if ~isempty(condsignal) && ~isempty(uncondsignal)
         if condsignal.directionkellied == 1 && uncondsignal.directionkellied == -1
             %need to make sure whether fractal hh is breached
             breachflag = pxhigh>=condsignal.signalkellied(2)+fut.tick_size && ...
-                pxopen<condsignal.signalkellied(2)+1.618*(condsignal.signalkellied(2)-condsignal.signalkellied(3));
+                pxopen<condsignal.signalkellied(2)+2.0*(condsignal.signalkellied(2)-condsignal.signalkellied(3));
             if breachflag
                 fprintf('not support with conditional breachup and unconditional breachdn happenning on the same candle\n');
                 trade = {};
@@ -58,7 +58,7 @@ if ~isempty(condsignal) && ~isempty(uncondsignal)
         elseif condsignal.directionkellied == -1 && uncondsignal.directionkellied == 1
             %need to make sure whether fractal ll is breached
             breachflag = pxlow<=condsignal.signalkellied(3)-fut.tick_size && ...
-                pxopen>condsignal.signalkellied(3)-1.618*(condsignal.signalkellied(2)-condsignal.signalkellied(3));
+                pxopen>condsignal.signalkellied(3)-2.0*(condsignal.signalkellied(2)-condsignal.signalkellied(3));
             if breachflag
                 fprintf('not support with conditional breachdn and unconditional breachup happenning on the same candle\n');
                 trade = {};
@@ -94,6 +94,7 @@ if isempty(condsignal)
                 if highest == highs(1)
                     trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
                     trade.openprice_ = ei.px(end,5);
+                    trade.riskmanager_.setusefractalupdateflag(0);
                     return
                 else
                     trade = {};
@@ -105,6 +106,7 @@ if isempty(condsignal)
                 if lowest == lows(1)
                     trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
                     trade.openprice_ = ei.px(end,5);
+                    trade.riskmanager_.setusefractalupdateflag(0);
                     return
                 else
                     trade = {};
@@ -113,6 +115,7 @@ if isempty(condsignal)
             end
         else
             trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+            trade.riskmanager_.setusefractalupdateflag(0);
             return
         end
     end
@@ -175,7 +178,7 @@ elseif condsignal.directionkellied == 1
             tickratio_ = 1;
         end
         if pxhigh>=condsignal.signalkellied(2)+fut.tick_size*tickratio_ && ...
-                pxopen<condsignal.signalkellied(2)+1.618*(condsignal.signalkellied(2)-condsignal.signalkellied(3))
+                pxopen<condsignal.signalkellied(2)+2.0*(condsignal.signalkellied(2)-condsignal.signalkellied(3))
             px = ei_.px;
             idxhh = ei_.idxhh;
             idx_lasthh = find(idxhh == 1,1,'last');
@@ -199,10 +202,14 @@ elseif condsignal.directionkellied == 1
                 issshighbreach = false;
             end
             if isvolblowup2 && ~issshighbreach
-                kelly = kelly_k('volblowup2',fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
-                wprob = kelly_k('volblowup2',fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
+                try
+                    kelly = kelly_k('volblowup2',fut.asset_name,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
+                catch
+                    idxvolblowup2 = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,'volblowup2');
+                    kelly = kellytables.kelly_table_l.kelly_unique_l(idxvolblowup2);
+                end
                 if ~isnan(kelly)
-                    if kelly >= 0.146 || (kelly > 0.10 && wprob > 0.5)
+                    if kelly >= 0.088
                         poptrade = true;
                     else
                         poptrade = false;
@@ -307,7 +314,7 @@ elseif condsignal.directionkellied == -1
         end
         %2.check whether volblowup2,i.e.market jumps at begining
         if pxlow<=condsignal.signalkellied(3)-tickratio_*fut.tick_size && ...
-                pxopen>condsignal.signalkellied(3)-1.618*(condsignal.signalkellied(2)-condsignal.signalkellied(3))
+                pxopen>condsignal.signalkellied(3)-2.0*(condsignal.signalkellied(2)-condsignal.signalkellied(3))
             px = ei_.px;
             idxll = ei_.idxll;
             idx_lastll = find(idxll == -1,1,'last');
@@ -331,10 +338,14 @@ elseif condsignal.directionkellied == -1
                 isbslowbreach = false;
             end
             if isvolblowup2 && ~isbslowbreach
-                kelly = kelly_k('volblowup2',fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
-                wprob = kelly_k('volblowup2',fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
+                try
+                    kelly = kelly_k('volblowup2',fut.asset_name,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
+                catch
+                    idxvolblowup2 = strcmpi(kellytables.kelly_table_s.opensignal_unique_s,'volblowup2');
+                    kelly = kellytables.kelly_table_s.kelly_unique_s(idxvolblowup2);
+                end
                 if ~isnan(kelly)
-                    if kelly >= 0.146 || (kelly > 0.10 && wprob > 0.5)
+                    if kelly >= 0.088
                         poptrade = true;
                     else
                         poptrade = false;
