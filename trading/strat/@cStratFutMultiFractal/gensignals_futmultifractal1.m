@@ -73,10 +73,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
         
         if calcsignalflag(i)
             try
-                techvar = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
+                [techvar,extrainfo] = stratfractal.calctechnicalvariable(instruments{i},'IncludeLastCandle',0,'RemoveLimitPrice',1);
                 p = techvar(:,1:5);
-                idxHH = techvar(:,6);
-                idxLL = techvar(:,7);
+%                 idxHH = techvar(:,6);
+%                 idxLL = techvar(:,7);
                 hh = techvar(:,8);
                 ll = techvar(:,9);
                 jaw = techvar(:,10);
@@ -139,14 +139,14 @@ function signals = gensignals_futmultifractal1(stratfractal)
                 assetname = 'unknown';
             end
             
-            extrainfo = struct('px',p,...
-                'ss',ss,'sc',sc,...
-                'bs',bs,'bc',bc,...
-                'lvlup',lvlup,'lvldn',lvldn,...
-                'idxhh',idxHH,'hh',hh,...
-                'idxll',idxLL,'ll',ll,...
-                'lips',lips,'teeth',teeth,'jaw',jaw,...
-                'wad',wad);
+%             extrainfo = struct('px',p,...
+%                 'ss',ss,'sc',sc,...
+%                 'bs',bs,'bc',bc,...
+%                 'lvlup',lvlup,'lvldn',lvldn,...
+%                 'idxhh',idxHH,'hh',hh,...
+%                 'idxll',idxLL,'ll',ll,...
+%                 'lips',lips,'teeth',teeth,'jaw',jaw,...
+%                 'wad',wad);
             
 %             tick = stratfractal.mde_fut_.getlasttick(instruments{i});
             
@@ -172,14 +172,20 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             'kellytables',kellytables,...
                             'ticksizeratio',tickratio);
                         if ~isempty(signalcond_)
-                            if signalcond_.directionkellied ~= 0
+                            if signalcond_.directionkellied == 1
+                                %due to low kelly reported on volblowup2 as
+                                %open price was high
+                                signals{i,1} = signal_i;
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                            elseif signalcond_.directionkellied == -1
                                 fprintf('gensignal_futmultifractal1:further check with weired case...\n')
+                            else
+                                %there was a conditional signal with low kelly
+                                signal_i(1) = 0;
+                                signal_i(4) = 0;
+                                signals{i,1} = signal_i;
+                                fprintf('\t%6s:%4s\tup conditional:%10s with low kelly\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signalcond_.opkellied,100*signalcond_.kelly,100*signalcond_.wprob);
                             end
-                            %there was a conditional signal with low kelly
-                            signal_i(1) = 0;
-                            signal_i(4) = 0;
-                            signals{i,1} = signal_i;
-                            fprintf('\t%6s:%4s\tup conditional:%10s with low kelly\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signalcond_.opkellied,100*signalcond_.kelly,100*signalcond_.wprob);
                         else
                             %there wasn't any conditional
                             %signal,i.e.alligator lines crossed and etc
@@ -208,14 +214,20 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             'kellytables',kellytables,...
                             'ticksizeratio',tickratio);
                         if ~isempty(signalcond_)
-                            if signalcond_.directionkellied ~= 0
+                            if signalcond_.directionkellied == -1
+                                %due to low kelly reported on volblowup2 as
+                                %open price was low
+                                signals{i,2} = signal_i;
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                            elseif signalcond_.directionkellied == 1
                                 fprintf('gensignal_futmultifractal1:further check with weired case...\n')
+                            else
+                                %there was a conditional signal with low kelly
+                                signal_i(1) = 0;
+                                signal_i(4) = 0;
+                                signals{i,1} = signal_i;
+                                fprintf('\t%6s:%4s\tdn conditional:%10s with low kelly\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signalcond_.opkellied,100*signalcond_.kelly,100*signalcond_.wprob);
                             end
-                            %there was a conditional signal with low kelly
-                            signal_i(1) = 0;
-                            signal_i(4) = 0;
-                            signals{i,1} = signal_i;
-                            fprintf('\t%6s:%4s\tdn conditional:%10s with low kelly\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signalcond_.opkellied,100*signalcond_.kelly,100*signalcond_.wprob);
                         else
                             %there wasn't any conditional
                             %signal,i.e.alligator lines crossed and etc
