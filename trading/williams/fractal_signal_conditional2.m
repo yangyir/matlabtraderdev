@@ -96,11 +96,35 @@ function [output] = fractal_signal_conditional2(varargin)
                         opkellied = 'conditional breachup-highsc13';
                     end
                 else
-                    signalkellied(1) = 0;
-                    if isbreachupsshigh
-                        opkellied = 'conditional breachup-sshighvalue not to place';
-                    elseif isbreachupschigh
-                        opkellied = 'conditional breachup-highsc13 not to place';
+                    isclose2lvlup = ~isnan(ei.lvlup(end)) && ~isnan(ei.lvldn(end)) && ...
+                        ei.lvlup(end)>ei.lvldn(end) && ...
+                        signal{1,1}(2)<ei.lvlup(end) && ...
+                        ei.lvlup(end)-signal{1,1}(2) <= 4*ticksize;
+                    %in case the fractal barrier is below lvlup but very
+                    %close
+                    if isclose2lvlup
+                        vlookuptbl = kellytables.breachuplvlup_tc;
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        if isempty(kelly), kelly = -9.99;end
+                        if kelly >= 0.088
+                            signalkellied(1) = 1;
+                            opkellied = 'conditional breachup-lvlup';
+                        else
+                            signalkellied(1) = 0;
+                            if isbreachupsshigh
+                                opkellied = 'conditional breachup-sshighvalue not to place';
+                            elseif isbreachupschigh
+                                opkellied = 'conditional breachup-highsc13 not to place';
+                            end
+                        end
+                    else
+                        signalkellied(1) = 0;
+                        if isbreachupsshigh
+                            opkellied = 'conditional breachup-sshighvalue not to place';
+                        elseif isbreachupschigh
+                            opkellied = 'conditional breachup-highsc13 not to place';
+                        end
                     end
                 end
             end
@@ -296,23 +320,58 @@ function [output] = fractal_signal_conditional2(varargin)
                         opkellied = 'conditional breachdn-lowbc13';
                     end
                 else
-                    signalkellied(1) = 0;
-                    if isbreachdnbslow
-                        if ~isbreachdnbclow
-                            opkellied = 'conditional breachdn-bshighvalue not to place';
+                    isclose2lvldn = ~isnan(ei.lvlup(end)) && ~isnan(ei.lvldn(end)) && ...
+                        ei.lvlup(end)>ei.lvldn(end) && ...
+                        signal{1,2}(3)>ei.lvldn(end) && ...
+                        signal{1,2}(3)-ei.lvldn(end) <= 4*ticksize;
+                    %in case the fractal barrier is above lvldn but very
+                    %close
+                    if isclose2lvldn
+                        vlookuptbl = kellytables.breachdnlvldn_tc;
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        if isempty(kelly), kelly = -9.99;end
+                        if kelly >= 0.088
+                            signalkellied(1) = -1;
+                            opkellied = 'conditional breachdn-lvldn';
                         else
-                            %need to make sure the ll is the same as bc13 low
-                            lastbcidx = find(ei.bc == 13,1,'last');
-                            bc13low = ei.px(lastbcidx,4);
-                            if bc13low == ei.ll(end)
+                            signalkellied(1) = 0;
+                            if isbreachdnbslow
+                                if ~isbreachdnbclow
+                                    opkellied = 'conditional breachdn-bshighvalue not to place';
+                                else
+                                    %need to make sure the ll is the same as bc13 low
+                                    lastbcidx = find(ei.bc == 13,1,'last');
+                                    bc13low = ei.px(lastbcidx,4);
+                                    if bc13low == ei.ll(end)
+                                        opkellied = 'conditional breachdn-lowbc13 not to place';
+                                    else
+                                        opkellied = 'conditional breachdn-bshighvalue not to place';
+                                    end
+                                end
+                            elseif isbreachdnbclow
                                 opkellied = 'conditional breachdn-lowbc13 not to place';
-                            else
-                                opkellied = 'conditional breachdn-bshighvalue not to place';
                             end
                         end
-                    elseif isbreachdnbclow
-                        opkellied = 'conditional breachdn-lowbc13 not to place';
-                    end     
+                    else    
+                        signalkellied(1) = 0;
+                        if isbreachdnbslow
+                            if ~isbreachdnbclow
+                                opkellied = 'conditional breachdn-bshighvalue not to place';
+                            else
+                                %need to make sure the ll is the same as bc13 low
+                                lastbcidx = find(ei.bc == 13,1,'last');
+                                bc13low = ei.px(lastbcidx,4);
+                                if bc13low == ei.ll(end)
+                                    opkellied = 'conditional breachdn-lowbc13 not to place';
+                                else
+                                    opkellied = 'conditional breachdn-bshighvalue not to place';
+                                end
+                            end
+                        elseif isbreachdnbclow
+                            opkellied = 'conditional breachdn-lowbc13 not to place';
+                        end
+                    end
                 end
             end
         else
