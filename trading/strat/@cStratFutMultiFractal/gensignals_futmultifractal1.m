@@ -184,7 +184,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 signal_i(1) = 0;
                                 signal_i(4) = 0;
                                 signals{i,1} = signal_i;
-                                fprintf('\t%6s:%4s\tup conditional:%10s with low kelly\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signalcond_.opkellied,100*signalcond_.kelly,100*signalcond_.wprob);
+                                fprintf('\t%6s:%4s\tup:%10s with low kelly\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signalcond_.opkellied,100*signalcond_.kelly,100*signalcond_.wprob);
                             end
                         else
                             %there wasn't any conditional
@@ -234,7 +234,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             signal_i(1) = 0;
                             signal_i(4) = 0;
                             signals{i,1} = signal_i;
-                            fprintf('\t%6s:%4s\tdn conditional %10s was invalid\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                            fprintf('\t%6s:%4s\tdn %10s was invalid\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
                         end
                     else
                         signals{i,2} = signal_i;
