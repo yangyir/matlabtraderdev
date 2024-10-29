@@ -278,7 +278,7 @@ function [output] = fractal_signal_conditional2(varargin)
                 end
             else
                 if kelly >= 0.088
-                    signalkellied(1) = 1;
+                    signalkellied(1) = -1;
                     if isbreachdnbslow
                         if ~isbreachdnbclow
                             opkellied = 'conditional breachdn-bshighvalue';
