@@ -76,11 +76,11 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     sflag = strcmpi(val,'conditional-dntrendconfirmed') || strcmpi(val,'conditional-dntrendconfirmed-1') || strcmpi(val,'conditional-dntrendconfirmed-2') || strcmpi(val,'conditional-dntrendconfirmed-3');
     
     if lflag
-        within2ticks = ei.p(end,2) >= ei.p(end,5) & ei.p(end,3) - ei.hh(end-1) <= 2*trade.instrument_.tick_size;
+        within2ticks = ei.p(end,2) > ei.p(end,5) & ei.p(end,3) - ei.hh(end-1) <= 2*trade.instrument_.tick_size;
         shadowlineratio = (ei.p(end,3) - ei.p(end,5))/(ei.p(end,3) - ei.p(end,4));
         fractalupdate = ei.hh(end) > ei.hh(end-1);
     elseif sflag
-        within2ticks = ei.p(end,2) <= ei.p(end,5) & ei.ll(end-1) - ei.p(end,4) <= 2*trade.instrument_.tick_size;
+        within2ticks = ei.p(end,2) < ei.p(end,5) & ei.ll(end-1) - ei.p(end,4) <= 2*trade.instrument_.tick_size;
         shadowlineratio = (ei.p(end,5) - ei.p(end,4))/(ei.p(end,3) - ei.p(end,4));
         fractalupdate = ei.ll(end) < ei.ll(end-1);
     else
