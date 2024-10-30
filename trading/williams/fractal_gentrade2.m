@@ -91,7 +91,7 @@ if isempty(condsignal)
             if uncondsignal.directionkellied == 1
                 highs = ei.px(end-nfractal:end-1,3);
                 highest = max(highs);
-                if highest == highs(1)
+                if highest == highs(1) && highest > ei.hh(end-1) && nfractal ~= 6
                     trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
                     trade.openprice_ = ei.px(end,5);
                     trade.riskmanager_.setusefractalupdateflag(0);
@@ -103,7 +103,7 @@ if isempty(condsignal)
             elseif uncondsignal.directionkellied == -1
                 lows = ei.px(end-nfractal:end-1,4);
                 lowest = min(lows);
-                if lowest == lows(1)
+                if lowest == lows(1) && lowest < ei.ll(end-1) && nfractal ~= 6
                     trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
                     trade.openprice_ = ei.px(end,5);
                     trade.riskmanager_.setusefractalupdateflag(0);
