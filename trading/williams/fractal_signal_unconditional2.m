@@ -78,8 +78,12 @@ function [output] = fractal_signal_unconditional2(varargin)
             useflag = 0;
         end
         %
-        if status.istrendconfirmed && strcmpi(op.comment,'breachup-lvlup-invalid long as close moves too high')
-            vlookuptbl = kellytables.breachuplvlup_tc;
+        if strcmpi(op.comment,'breachup-lvlup-invalid long as close moves too high')
+            if status.istrendconfirmed
+                vlookuptbl = kellytables.breachuplvlup_tc;
+            else
+                vlookuptbl = kellytables.breachuplvlup_tb;
+            end
             idx = strcmpi(vlookuptbl.asset,assetname);
             kelly = vlookuptbl.K(idx);
             wprob = vlookuptbl.W(idx);
@@ -87,9 +91,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = -9.99;
                 wprob = 0;
             end
-            if kelly >= 0.088
+            if (status.istrendconfirmed && kelly >= 0.088) ||...
+                    (~status.istrendconfirmed && kelly >= 0.145)
                 useflag = 1;
                 op.comment = 'breachup-lvlup';
+                output.op = op;
             else
                 useflag = 0;
             end
@@ -106,6 +112,7 @@ function [output] = fractal_signal_unconditional2(varargin)
             if kelly >= 0.088
                 useflag = 1;
                 op.comment = 'volblowup';
+                output.op = op;
             else
                 useflag = 0;
             end     
@@ -122,6 +129,7 @@ function [output] = fractal_signal_unconditional2(varargin)
             if kelly >= 0.088
                 useflag = 1;
                 op.comment = 'volblowup';
+                output.op = op;
             else
                 useflag = 0;
             end     
