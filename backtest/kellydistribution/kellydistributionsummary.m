@@ -301,7 +301,12 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wSample*100,resOut.rSample,resOut.kSample*100,size(resOut.tblout,1),resOut.use,...
                 [num2str(0),'-',num2str(0),'-',num2str(0)]);
         else
-            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
+            if resOut.kMu < 0.088 && resOut.kSample >= 0.088
+                kPrint = resOut.kSample;
+            else
+                kPrint =  resOut.kMu;
+            end
+            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wMu*100,resOut.rMu,kPrint*100,size(resOut.tblout,1),resOut.use,...
                 [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
         end
         pnl2check = resOut.tblout.pnlrel;
@@ -358,7 +363,12 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeTrend{iMode},resOut.wSample*100,resOut.rSample,resOut.kSample*100,size(resOut.tblout,1),resOut.use,...
                 [num2str(0),'-',num2str(0),'-',num2str(0)]);
         else
-            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeTrend{iMode},resOut.wMu*100,resOut.rMu,resOut.kMu*100,size(resOut.tblout,1),resOut.use,...
+            if resOut.kMu < 0.088 && resOut.kSample >= 0.088
+                kPrint = resOut.kSample;
+            else
+                kPrint = resOut.kMu;
+            end
+            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeTrend{iMode},resOut.wMu*100,resOut.rMu,kPrint*100,size(resOut.tblout,1),resOut.use,...
                 [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
         end
 %         if iMode == 1
