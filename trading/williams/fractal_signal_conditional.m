@@ -206,7 +206,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         end
         %
         if ~exceptionflag
-            exceptionflag = lflag1 & ~isteethlipscrossed & nkaboveteeth >= 2*nfractal & lipsaboveteeth;
+            exceptionflag = lflag1 & nkaboveteeth >= 2*nfractal & lipsaboveteeth;
         end
         %
         if exceptionflag
@@ -412,7 +412,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         end
         %
         if ~exceptionflag
-            exceptionflag = sflag1 & ~isteethlipscrossed & nkbelowteeth >= 2*nfractal & lipsbelowteeth;
+            exceptionflag = sflag1 & nkbelowteeth >= 2*nfractal & lipsbelowteeth;
         end
         %
         if exceptionflag
