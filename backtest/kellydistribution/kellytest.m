@@ -171,7 +171,8 @@ if nRecords <= 15
                 strcmpi(modeInput,'mediumbreach-trendconfirmed') || ...
                 strcmpi(modeInput,'bmtc') || ...
                 strcmpi(modeInput,'smtc')
-            if kelly_running(end) >= 0.166
+            if kelly_running(end) >= 0.145 || ...
+                (kelly_running(end) >= 0.088 && winp_running(end) >= 0.45 && R_running(end) > 1.0)
                 useOut = 1;
             else
                 useOut = 0;
@@ -195,7 +196,7 @@ if nRecords <= 15
                 useOut = 0;
             end
         else
-            if kelly_running(end) >= 0.166 || ...
+            if kelly_running(end) >= 0.145 || ...
                 (kelly_running(end) >= 0.088 && winp_running(end) >= 0.45 && R_running(end) > 1.0)
                 useOut = 1;
             else
@@ -259,11 +260,7 @@ else
     [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
     
     if kMu >= 0.088
-        if kH == 0
-            useOut = 1;
-        else
-            useOut = 0;
-        end
+        useOut = 1;
     else
         if kelly_running(end) >= 0.088 && winp_running(end) >= 0.45 && R_running(end) > 1.0
             useOut = 1;
@@ -277,9 +274,13 @@ else
             strcmpi(modeInput,'breachup-sshighvalue') || ...
             strcmpi(modeInput,'breachdn-lvldn') || ...
             strcmpi(modeInput,'breachdn-lowbc13') || ...
-            strcmpi(modeInput,'breachdn-bshighvalue')
+            strcmpi(modeInput,'breachdn-bshighvalue') || ...
+            strcmpi(modeInput,'bmtc') || ...
+            strcmpi(modeInput,'bstc') || ...
+            strcmpi(modeInput,'smtc') || ...
+            strcmpi(modeInput,'sstc')
         %special modes and kelly is calculated seperately
-        if kelly_running(end) > 0
+        if kelly_running(end) >= 0.088
             useOut = 1;
         else
             useOut = 0;
