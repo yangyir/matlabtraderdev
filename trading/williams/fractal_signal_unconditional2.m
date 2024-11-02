@@ -175,15 +175,15 @@ function [output] = fractal_signal_unconditional2(varargin)
                     if output_.directionkellied == 1
                         signal_i(1) = 1;
                         signal_i(4) = 1;
-                        if ~isempty(strfind(output_.opkilled,'breachup-lvlup'))
+                        if ~isempty(strfind(output_.opkellied,'breachup-lvlup'))
                             op.comment = 'breachup-lvlup';
-                        elseif ~isempty(strfind(output_.opkilled,'breachup-sshighvalue'))
+                        elseif ~isempty(strfind(output_.opkellied,'breachup-sshighvalue'))
                             op.comment = 'breachup-sshighvalue';
-                        elseif ~isempty(strfind(output_.opkilled,'breachup-highsc13'))
+                        elseif ~isempty(strfind(output_.opkellied,'breachup-highsc13'))
                             op.comment = 'breachup-highsc13';
-                        elseif ~isempty(strfind(output_.opkilled,'mediumbreach-trendconfirmed'))
+                        elseif ~isempty(strfind(output_.opkellied,'mediumbreach-trendconfirmed'))
                             op.comment = 'mediumbreach-trendconfirmed';
-                        elseif ~isempty(strfind(output_.opkilled,'strongbreach-trendconfirmed'))
+                        elseif ~isempty(strfind(output_.opkellied,'strongbreach-trendconfirmed'))
                             op.comment = 'strongbreach-trendconfirmed';
                         end
                     else
@@ -349,15 +349,15 @@ function [output] = fractal_signal_unconditional2(varargin)
                     if output_.directionkellied == -1
                         signal_i(1) = -1;
                         signal_i(4) = -1;
-                        if ~isempty(strfind(output_.opkilled,'breachdn-lvldn'))
+                        if ~isempty(strfind(output_.opkellied,'breachdn-lvldn'))
                             op.comment = 'breachdn-lvldn';
-                        elseif ~isempty(strfind(output_.opkilled,'breachdn-bshighvalue'))
+                        elseif ~isempty(strfind(output_.opkellied,'breachdn-bshighvalue'))
                             op.comment = 'breachdn-bshighvalue';
-                        elseif ~isempty(strfind(output_.opkilled,'breachdn-lowbc13'))
+                        elseif ~isempty(strfind(output_.opkellied,'breachdn-lowbc13'))
                             op.comment = 'breachdn-lowbc13';
-                        elseif ~isempty(strfind(output_.opkilled,'mediumbreach-trendconfirmed'))
+                        elseif ~isempty(strfind(output_.opkellied,'mediumbreach-trendconfirmed'))
                             op.comment = 'mediumbreach-trendconfirmed';
-                        elseif ~isempty(strfind(output_.opkilled,'strongbreach-trendconfirmed'))
+                        elseif ~isempty(strfind(output_.opkellied,'strongbreach-trendconfirmed'))
                             op.comment = 'strongbreach-trendconfirmed';
                         end
                     else
