@@ -89,6 +89,18 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         fractalupdate = false;
     end
     
+    if lflag && runriskmanagementbeforemktclose && ~breachupsuccess && ei.ss(end) >= 9
+        sslastval = ei.ss(end);
+        pxhigh = max(ei.px(end-sslastval+1:end,3));
+        if pxhigh > ei.hh(end-1)
+            unwindflag = true;
+            msg = 'conditional uptrendconfirmed failed:mktclose';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+    end
+    
     if lflag && breachupfailed
         %
         if fractalupdate
@@ -138,7 +150,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 isopencandle = abs(datenum([datestr(floor(ei.p(end,1)),'yyyy-mm-dd'), ' ',trade.instrument_.break_interval{1,1}],'yyyy-mm-dd HH:MM:SS')-ei.p(end,1)) < 1e-5;
                 if isopencandle
                     %the open market vol might be too high
-                    if ei.p(end,5) <= max(ei.lips(end),ei.teeth(end))
+                    if ei.p(end,5) <= max(ei.lips(end),ei.teeth(end)) || ...
+                            (~isnan(obj.tdlow_) && ei.p(end,5) < obj.tdlow_) || ...
+                            (~isnan(obj.td13low_) && ei.p(end,5) < obj.tdlow)
                         unwindflag = true;
                         msg = 'conditional uptrendconfirmed failed:shadowline1';
                         obj.status_ = 'closed';
@@ -176,6 +190,12 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 obj.closestr_ = msg;
                 return
             end
+        end
+        %
+        if strcmpi(val,'conditional-uptrendconfirmed-2')
+            if ~isnan(obj.tdlow_)
+                obj.pxstoploss_ = obj.tdlow_;
+            end   
         end
         %
     end
@@ -226,7 +246,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %
-        if ei.p(end,5) >= ei.hh(end-1) && ei.p(end-1,5) < ei.hh(end-1)
+        if ei.p(end,5) > ei.hh(end-1)            
             status = fractal_b1_status(nfractal,ei,trade.instrument_.tick_size);
             if strcmpi(val,'conditional-uptrendconfirmed-1')
                 trade.opensignal_.mode_ = 'breachup-lvlup';
@@ -248,6 +268,13 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end    
             end
         end
+        %
+        if strcmpi(val,'conditional-uptrendconfirmed-2')
+            if ~isnan(obj.tdlow_)
+                obj.pxstoploss_ = obj.tdlow_;
+            end   
+        end
+        %
         unwindflag = false;
         msg = '';
         return
