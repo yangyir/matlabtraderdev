@@ -40,7 +40,8 @@ function [output] = fractal_signal_conditional2(varargin)
         %extracheck to avoid conditional open on fractal hh update point
         highs = ei.px(end-nfractal+1:end,3);
         highest = max(highs);
-        if highs(1) == highest && highest > ei.hh(end) && nfractal ~= 6
+        if highs(1) == highest && highest > ei.hh(end) && nfractal ~= 6 && ...
+                ~isempty(find(ei.px(end-nfractal+2:end,5) - ei.hh(end-nfractal+2:end) > 0,1,'first'))
             output = {};
             return
         end
@@ -234,7 +235,8 @@ function [output] = fractal_signal_conditional2(varargin)
         %extracheck to avoid conditional open on fractal ll update point
         lows = ei.px(end-nfractal+1:end,4);
         lowest = min(lows);
-        if lows(1) == lowest && lowest < ei.ll(end) && nfractal ~= 6
+        if lows(1) == lowest && lowest < ei.ll(end) && nfractal ~= 6 && ...
+                ~isempty(find(ei.px(end-nfractal+2:end,5) - ei.ll(end-nfractal+2:end) < 0,1,'first'))
             output = {};
             return
         end
@@ -247,7 +249,7 @@ function [output] = fractal_signal_conditional2(varargin)
             bslow = min(ei.px(lastbs-lastbsval+1:lastbs,4));
             bslowidx = find(ei.px(lastbs-lastbsval+1:lastbs,4) == bslow,1,'last')+lastbs-lastbsval;
             bshigh = ei.px(bslowidx,3);
-            if ei.ll(end) >= 2*bshigh-bslow-1e-6 && ei.ll(end) > bslow
+            if ei.ll(end) >= bslow-0.382*(bshigh-bslow)-1e-6 && ei.ll(end) > bslow
                 output = {};
                 return
             end
