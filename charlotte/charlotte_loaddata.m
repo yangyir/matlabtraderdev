@@ -133,6 +133,8 @@ elseif strcmpi(freq,'30m')
         data =load([getenv('onedrive'),'\matlabdev\energy\sa\',futcode,'.mat']);
     elseif strcmpi(instrument.asset_name,'pvc')
         data =load([getenv('onedrive'),'\matlabdev\industrial\v\',futcode,'.mat']);
+    elseif strcmpi(instrument.asset_name,'carbamide')
+        data =load([getenv('onedrive'),'\matlabdev\energy\ur\',futcode,'.mat']);
     else
         error('charlotte_loaddata:unsupported code %s...',futcode);
     end
