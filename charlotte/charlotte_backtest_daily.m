@@ -111,7 +111,11 @@ while i <= idx2
             if trade.oneminb4close1_ == 914
                 %govtbond
                 if strcmpi(freq,'30m')
-                    if hour(ei_j.px(end,1)) == 15, runflag = true;end
+                    if strcmpi(trade.instrument_.break_interval{1,1},'09:15:00')
+                        if hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 45, runflag = true;end
+                    else
+                        if hour(ei_j.px(end,1)) == 15, runflag = true;end
+                    end
                 elseif strcmpi(freq,'15m')
                     if hour(ei_j.px(end,1)) == 15, runflag = true;end
                 elseif strcmpi(freq,'5m')
