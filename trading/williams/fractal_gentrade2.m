@@ -36,7 +36,8 @@ weiredcase = false;
 if ~isempty(condsignal) && ~isempty(uncondsignal)
     if condsignal.directionkellied ~= 0 && ...
             uncondsignal.directionkellied ~= 0 && ...
-            condsignal.directionkellied ~= uncondsignal.directionkellied
+            condsignal.directionkellied ~= uncondsignal.directionkellied && ...
+            uncondsignal.status.istrendconfirmed
         weiredcase = true;
     end
     if weiredcase
@@ -123,8 +124,24 @@ end
 %
 %
 if condsignal.directionkellied == 0
-    trade = {};
-    return
+    if ~isempty(uncondsignal)
+        if uncondsignal.directionkellied == 0
+            trade = {};
+            return
+        else
+            if ~uncondsignal.status.istrendconfirmed
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                trade.riskmanager_.setusefractalupdateflag(0);
+                return
+            else
+                trade = {};
+                return
+            end
+        end
+    else
+        trade = {};
+        return
+    end
 elseif condsignal.directionkellied == 1
     if condsignal.signalkellied(4) == 2
         td13high_ = NaN;
@@ -221,7 +238,17 @@ elseif condsignal.directionkellied == 1
                 poptrade = true;
             end
         else
-            poptrade = false;
+            if isempty(uncondsignal)
+                poptrade = false;
+            else
+                if uncondsignal.directionkellied == -1
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                    trade.riskmanager_.setusefractalupdateflag(0);
+                    return
+                else
+                    poptrade = false;
+                end
+            end
         end
         %
         if ~poptrade
@@ -357,7 +384,17 @@ elseif condsignal.directionkellied == -1
                 poptrade = true;
             end
         else
-            poptrade = false;
+            if isempty(uncondsignal)
+                poptrade = false;
+            else
+                if uncondsignal.directionkellied == 1
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                    trade.riskmanager_.setusefractalupdateflag(0);
+                    return
+                else
+                    poptrade = false;
+                end
+            end
         end
         %
         if ~poptrade
