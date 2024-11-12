@@ -45,8 +45,12 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         ei.teeth,...
         ei.jaw,...
         ticksize);
-   
-    [hhstatus,llstatus] = fractal_barrier_status(ei,ticksize);
+    
+    if nfractal == 4 || nfractal == 6
+        [hhstatus,llstatus] = fractal_barrier_status(ei,2*ticksize);
+    else
+        [hhstatus,llstatus] = fractal_barrier_status(ei,ticksize);
+    end
     hhupward = strcmpi(hhstatus,'upward');
     %
     %as long as there are 1) at least 2*nfractal candles close above teeth
@@ -336,6 +340,10 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     %and teeth IF THEY ARE 
                     shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                         min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
+                    if ~shorttrend
+                        %in case lips are below teeth for the latest
+                        %2*nfractal consecutive candles 
+                    end
                 end
             end
         else
