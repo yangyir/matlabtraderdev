@@ -173,17 +173,25 @@ function [output] = fractal_signal_unconditional2(varargin)
                     'kellytables',kellytables,'ticksizeratio',ticksizeratio);
                 if ~isempty(output_)
                     if output_.directionkellied == 1
-                        signal_i(1) = 1;
-                        signal_i(4) = 1;
                         if ~isempty(strfind(output_.opkellied,'breachup-lvlup'))
+                            signal_i(1) = 1;
+                            signal_i(4) = 1;
                             op.comment = 'breachup-lvlup';
                         elseif ~isempty(strfind(output_.opkellied,'breachup-sshighvalue'))
+                            signal_i(1) = 1;
+                            signal_i(4) = 1;
                             op.comment = 'breachup-sshighvalue';
                         elseif ~isempty(strfind(output_.opkellied,'breachup-highsc13'))
+                            signal_i(1) = 1;
+                            signal_i(4) = 1;
                             op.comment = 'breachup-highsc13';
                         elseif ~isempty(strfind(output_.opkellied,'mediumbreach-trendconfirmed'))
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
                             op.comment = 'mediumbreach-trendconfirmed';
                         elseif ~isempty(strfind(output_.opkellied,'strongbreach-trendconfirmed'))
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
                             op.comment = 'strongbreach-trendconfirmed';
                         end
                     else
@@ -347,17 +355,25 @@ function [output] = fractal_signal_unconditional2(varargin)
                     'kellytables',kellytables,'ticksizeratio',ticksizeratio);
                 if ~isempty(output_)
                     if output_.directionkellied == -1
-                        signal_i(1) = -1;
-                        signal_i(4) = -1;
                         if ~isempty(strfind(output_.opkellied,'breachdn-lvldn'))
+                            signal_i(1) = -1;
+                            signal_i(4) = -1;
                             op.comment = 'breachdn-lvldn';
                         elseif ~isempty(strfind(output_.opkellied,'breachdn-bshighvalue'))
+                            signal_i(1) = -1;
+                            signal_i(4) = -1;
                             op.comment = 'breachdn-bshighvalue';
                         elseif ~isempty(strfind(output_.opkellied,'breachdn-lowbc13'))
+                            signal_i(1) = -1;
+                            signal_i(4) = -1;
                             op.comment = 'breachdn-lowbc13';
                         elseif ~isempty(strfind(output_.opkellied,'mediumbreach-trendconfirmed'))
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
                             op.comment = 'mediumbreach-trendconfirmed';
                         elseif ~isempty(strfind(output_.opkellied,'strongbreach-trendconfirmed'))
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
                             op.comment = 'strongbreach-trendconfirmed';
                         end
                     else
