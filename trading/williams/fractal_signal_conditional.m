@@ -128,11 +128,15 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             if nkaboveteeth == nkfromhh
                 %long trend can be identified as long as there are
                 %2*nfracal candles'low above alligator's teeth
-                longtrend = isempty(find(ei.px(end-2*nfractal+1:end,4)-...
-                    ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first')) | ...
-                    isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                cond1 = isempty(find(ei.px(end-2*nfractal+1:end,4)-...
+                    ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
+                cond2 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                     max(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize<0,1,'first'));
-                longtrend = longtrend & ~(strcmpi(hhstatus,'dnward') & strcmpi(llstatus,'dnward'));
+                longtrend = cond1 | cond2;
+                if cond1 && cond2
+                else
+                    longtrend = longtrend & ~(strcmpi(hhstatus,'dnward') & strcmpi(llstatus,'dnward'));
+                end
                 if ~longtrend
                     longtrend = lflag1 & ~isteethlipscrossed & lflag3;
                 end
@@ -268,7 +272,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         sshighpx = max(ei.px(end-sslastval+1:end,3));
         sshighidx = find(ei.px(end-sslastval+1:end,3) == sshighpx,1,'last') + size(ei.px,1) - sslastval;
         sslowpx = ei.px(sshighidx,4);
-        if ei.hh(end) <= sslowpx
+        if ei.hh(end-1) < sslowpx
             longtrend = false;
         end
     end
@@ -362,6 +366,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     if ~shorttrend
                         %in case lips are below teeth for the latest
                         %2*nfractal consecutive candles 
+                        shorttrend = sflag1 & lipsbelowteeth;
                     end
                 end
             end
@@ -372,11 +377,15 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             if nkbelowteeth == nkfromll
                 %short trend can be identified as long as there are
                 %2*nfracal candles' high below alligator's teeth
-                shorttrend = isempty(find(ei.px(end-2*nfractal+1:end,3)-...
-                    ei.teeth(end-2*nfractal+1:end)+2*ticksize>0,1,'first')) | ...
-                    isempty(find(ei.px(end-2*nfractal+1:end,5)-...
+                cond1 = isempty(find(ei.px(end-2*nfractal+1:end,3)-...
+                    ei.teeth(end-2*nfractal+1:end)+2*ticksize>0,1,'first'));
+                cond2 = isempty(find(ei.px(end-2*nfractal+1:end,5)-...
                     min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))+2*ticksize>0,1,'first'));
-                shorttrend = shorttrend & ~(strcmpi(hhstatus,'upward') & strcmpi(llstatus,'upward'));
+                shorttrend = cond1 | cond2;
+                if cond1 && cond2
+                else
+                    shorttrend = shorttrend & ~(strcmpi(hhstatus,'upward') & strcmpi(llstatus,'upward'));
+                end
                 if ~shorttrend
                     exceptionflag = sflag3 | (~isteethjawcrossed & lipsbelowteeth & teethbelowjaws);
                     shorttrend = sflag1 & ~isteethlipscrossed & exceptionflag;
@@ -500,6 +509,17 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     end
 %     shorttrend = shorttrend & (ei.px(end,5)>ei.ll(end)| (ei.px(end,5)==ei.ll(end) & ei.px(end-1,5)>ei.ll(end)));
     shorttrend = shorttrend & ei.px(end,5) < ei.teeth(end);
+    
+    if shorttrend && ei.bs(end) >= 9
+        bslastval = ei.bs(end);
+        bslowpx = min(ei.px(end-bslastval+1:end,4));
+        bshighidx = find(ei.px(end-bslastval+1:end,4) == bslowpx,1,'last') + size(ei.px,1) - bslastval;
+        bshighpx = ei.px(bshighidx,3);
+        if ei.ll(end-1) > bshighpx
+            shorttrend = false;
+        end
+    end
+    
         
     if longtrend || shorttrend
         signal = cell(1,2);
