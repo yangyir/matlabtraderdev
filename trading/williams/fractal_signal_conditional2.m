@@ -250,7 +250,7 @@ function [output] = fractal_signal_conditional2(varargin)
             bslow = min(ei.px(lastbs-lastbsval+1:lastbs,4));
             bslowidx = find(ei.px(lastbs-lastbsval+1:lastbs,4) == bslow,1,'last')+lastbs-lastbsval;
             bshigh = ei.px(bslowidx,3);
-            if ei.ll(end) >= bslow-0.382*(bshigh-bslow)-1e-6 && ei.ll(end) > bslow
+            if ei.ll(end) > bshigh
                 output = {};
                 return
             end
