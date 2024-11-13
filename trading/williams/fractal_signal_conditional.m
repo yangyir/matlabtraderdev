@@ -51,7 +51,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     else
         [hhstatus,llstatus] = fractal_barrier_status(ei,ticksize);
     end
-    hhupward = strcmpi(hhstatus,'upward');
+    hhupward = ~strcmpi(hhstatus,'dnward');
     %
     %as long as there are 1) at least 2*nfractal candles close above teeth
     %2)the lips,teeth and jaws are not crossed
@@ -73,6 +73,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     teethabovejaws = isempty(find(ei.teeth(end-2*nfractal+1:end)-ei.jaw(end-2*nfractal+1:end)<0,1,'last'));
     %
     %if not all of the above 3 conditions hold
+    if ~longtrend
+        longtrend = lflag1 & (lflag2 | (lipsaboveteeth & teethabovejaws));
+    end
+    if ~longtrend
+        longtrend = lflag1 && lflag3 && ~isteethlipscrossed && lipsaboveteeth;
+    end
+    %
     if ~longtrend 
         if nkaboveteeth >= 2*nfractal
             %there are enough candles formed since the last hh
@@ -247,7 +254,12 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     if longtrend
         longtrend = ~(ei.px(end,5)-ei.ll(end-1)<=-ticksize);
     end
-    longtrend = longtrend & (ei.px(end,5)<ei.hh(end)|(ei.px(end,5)==ei.hh(end)&ei.px(end-1,5)<ei.hh(end)));
+    if abs(ticksize) <= 1e-6
+        longtrend = longtrend & ei.px(end,5)<ei.hh(end-1);
+    else
+        longtrend = longtrend & ei.px(end,5)<=ei.hh(end-1);
+    end
+%     longtrend = longtrend & (ei.px(end,5)<ei.hh(end)|(ei.px(end,5)==ei.hh(end)&ei.px(end-1,5)<ei.hh(end)));
     longtrend = longtrend & ei.px(end,5) > ei.teeth(end);
     %
     %special case found on backtest of y2409 on 20240802
@@ -278,7 +290,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             ei.teeth,...
             ei.jaw,...
             ticksize);
-    lldnward = strcmpi(llstatus,'dnward');
+    lldnward = ~strcmpi(llstatus,'upward');
     %
     %as long as there are 1) at least 2*nfractal candles close below teeth
     %2)the lips,teeth and jaws are not crossed
@@ -297,6 +309,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     %
     %
     %if not all the above 3 conditions hold
+    if ~shorttrend
+        shorttrend = sflag1 & (sflag2 | (lipsbelowteeth & teethbelowjaws));
+    end
+    if ~shorttrend
+        shorttrend = sflag1 && sflag3 && ~isteethlipscrossed && lipsbelowteeth;
+    end
+    %
     if ~shorttrend
         if nkbelowteeth >= 2*nfractal
             %there are enough candles formed since last hh
@@ -474,7 +493,12 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     if shorttrend
         shorttrend = ~(ei.px(end,5)-ei.hh(end-1)>=ticksize);
     end
-    shorttrend = shorttrend & (ei.px(end,5)>ei.ll(end)| (ei.px(end,5)==ei.ll(end) & ei.px(end-1,5)>ei.ll(end)));
+    if abs(ticksize) <= 1e-6
+        shorttrend = shorttrend & ei.px(end,5)>ei.ll(end-1);
+    else
+        shorttrend = shorttrend & ei.px(end,5)>=ei.ll(end-1);
+    end
+%     shorttrend = shorttrend & (ei.px(end,5)>ei.ll(end)| (ei.px(end,5)==ei.ll(end) & ei.px(end-1,5)>ei.ll(end)));
     shorttrend = shorttrend & ei.px(end,5) < ei.teeth(end);
         
     if longtrend || shorttrend
@@ -524,8 +548,12 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 else
                     flags.issshighbreach = ei.hh(end) == sshigh;
                 end
-                if ~flags.issshighbreach && ei.ss(end) >= 9 && ei.hh(end) >= sshigh
-                    flags.issshighbreach = true;
+                try
+                    if ~flags.issshighbreach && ei.ss(end) >= 9 && ei.hh(end) >= sshigh
+                        flags.issshighbreach = true;
+                    end
+                catch
+                    flags.issshighbreach = false;
                 end
                 if ~flags.issshighbreach && ei.ss(end) >= 9 && ei.hh(end) < sshigh
                     %but there was no close price ever breached the hh
@@ -556,16 +584,20 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
 %                     end
                 else
                     idxhhlast = find(ei.idxhh == 1,1,'last');
+                    schigh = ei.px(sclastidx,3);
                     if idxhhlast > sclastidx
                         %need to make sure there was no fractal update
                         %between
                         ei_ = fractal_truncate(ei,idxhhlast-1);
                         idxhhlast_ = find(ei_.idxhh == 1,1,'last');
                         if idxhhlast_ >= sclastidx
-                            flags.isschighbreach = false;
+                            if abs(ei.hh(idxhhlast) - ei_.hh(idxhhlast_)) > 1e-6
+                                flags.isschighbreach = false;
+                            else
+                                flags.isschighbreach = ei.hh(end) == schigh;
+                            end
                         else
-%                             schigh = max(ei.px(sclastidx:idxhhlast,3));
-                            schigh = ei.px(sclastidx,3);
+%                             schigh = max(ei.px(sclastidx:idxhhlast,3));    
                             flags.isschighbreach = ei.hh(end) == schigh & ...
                                 ei.hh(end) <= 2*ei.px(sclastidx,3)-ei.px(sclastidx,4);
                         end
@@ -633,8 +665,12 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 else
                     flags.isbslowbreach = ei.ll(end) == bslow;
                 end
-                if ~flags.isbslowbreach && ei.bs(end) >= 9 && ei.ll(end) <= bslow
-                    flags.isbslowbreach = true;
+                try
+                    if ~flags.isbslowbreach && ei.bs(end) >= 9 && ei.ll(end) <= bslow
+                        flags.isbslowbreach = true;
+                    end
+                catch
+                    flags.isbslowbreach = false;
                 end
             end
             %3.check whether it is a conditional breachdn-lowbc13
@@ -659,6 +695,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
 %                     end
                 else
                     idxlllast = find(ei.idxll == -1,1,'last');
+                    bclow = ei.px(bclastidx,4);
                     if idxlllast > bclastidx
                         %need to make sure there was no fractal update
                         %between
@@ -666,9 +703,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         idxlllast_ = find(ei_.idxll == -1,1,'last');
                         if idxlllast_ >= bclastidx
                             flags.isbclowbreach = false;
+                            if abs(ei.ll(idxlllast) - ei_.hh(idxlllast_)) > 1e-6
+                                flags.isbclowbreach = false;
+                            else
+                                flags.isbclowbreach = ei.ll(end) == bclow;
+                            end
                         else
 %                             bclow = min(ei.px(bclastidx:idxlllast,4));
-                            bclow = ei.px(bclastidx,4);
                             flags.isbclowbreach = ei.ll(end) == bclow & ...
                                 ei.ll(end) >= 2*ei.px(bclastidx,4)-ei.px(bclastidx,3);
                         end
