@@ -115,14 +115,14 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                     longtrend = cond1 | cond2;
                     if ~longtrend
                         if lipsaboveteeth
-                            cond3 = true;
+                            cond3 = isempty(find(ei.px(end-2*nfractal+2:end,5)-ei.jaw(end-2*nfractal+2:end)+2*ticksize<0,1,'first'));
                         else
                             cond3 = teethabovejaws & ...
-                                isempty(find(ei.lips(end-nfractal:end)-ei.teeth(end-nfractal:end)+2*ticksize<0,1,'last'));
+                                isempty(find(ei.lips(end-nfractal+2:end)-ei.teeth(end-nfractal+2:end)+2*ticksize<0,1,'last')) &...
+                                isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.jaw(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
                         end    
-                        longtrend = lflag1 & cond3 & ...
-                            isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-                            ei.jaw(end-2*nfractal+1:end)<0,1,'first'));
+                        longtrend = lflag1 & cond3;
+                            
                     end
                 end
             end
@@ -232,6 +232,11 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         %
         if ~exceptionflag
             exceptionflag = lflag1 & nkaboveteeth > nfractal & lipsaboveteeth;
+        end
+        %
+        if ~exceptionflag && lflag1 && nkaboveteeth > nfractal
+            exceptionflag = isempty(find(ei.lips(end-nfractal+2:end)-ei.teeth(end-nfractal+2:end)+2*ticksize<0,1,'last')) &...
+                isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.jaw(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
         end
         %
         if exceptionflag
@@ -359,11 +364,14 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         min(ei.lips(end-2*nfractal+1:end),ei.teeth(end-2*nfractal+1:end))-2*ticksize>0,1,'first'));
                     shorttrend = cond1 | cond2;
                     if ~shorttrend
-                        %in case lips are below teeth for the latest
-                        %2*nfractal consecutive candles 
-                        shorttrend = sflag1 & lipsbelowteeth & ...
-                            isempty(find(ei.px(end-2*nfractal+1:end,5)-...
-                            ei.jaw(end-2*nfractal+1:end)>0,1,'first'));
+                        if lipsbelowteeth
+                            cond3 = isempty(find(ei.px(end-2*nfractal+2:end,5)-ei.jaw(end-2*nfractal+2:end)-2*ticksize>0,1,'first'));
+                        else
+                            cond3 = teethbelowjaws & ...
+                                isempty(find(ei.lips(end-2*nfractal+2:end)-ei.teeth(end-2*nfractal+2:end)-2*ticksize>0,1,'last')) & ...
+                                isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.jaw(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+                        end
+                        shorttrend = sflag1 & cond3;
                     end
                 end
             end
@@ -469,6 +477,10 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             exceptionflag = sflag1 & nkbelowteeth > nfractal & lipsbelowteeth;
         end
         %
+        if ~exceptionflag && sflag1 && nkbelowteeth > nfractal
+            exceptionflag = isempty(find(ei.lips(end-2*nfractal+2:end)-ei.teeth(end-2*nfractal+2:end)-2*ticksize>0,1,'last')) & ...
+                isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.jaw(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
+        end
         if exceptionflag
             shorttrend = true;
         else
