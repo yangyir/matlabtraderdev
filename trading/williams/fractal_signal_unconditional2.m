@@ -101,6 +101,29 @@ function [output] = fractal_signal_unconditional2(varargin)
             end
         end
         %
+        if strcmpi(op.comment,'breachup-sshighvalue-invalid long as close moves too high')
+            if status.istrendconfirmed
+                vlookuptbl = kellytables.breachupsshighvalue_tc;
+            else
+                vlookuptbl = kellytables.breachupsshighvalue_tb;
+            end
+            idx = strcmpi(vlookuptbl.asset,assetname);
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+            if isempty(kelly)
+                kelly = -9.99;
+                wprob = 0;
+            end
+            if (status.istrendconfirmed && kelly >= 0.088) ||...
+                    (~status.istrendconfirmed && kelly >= 0.145)
+                useflag = 1;
+                op.comment = 'breachup-sshighvalue';
+                output.op = op;
+            else
+                useflag = 0;
+            end
+        end
+        %
         if status.istrendconfirmed && strcmpi(op.comment,'volblowup-invalid long as close moves too high')
             try
                 kelly = kelly_k('volblowup',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
