@@ -1,4 +1,8 @@
-function [trade] = fractal_gentrade(resstruct,code,idx,mode,longshort,freq)
+function [trade] = fractal_gentrade(resstruct,code,idx,mode,longshort,freq,useconditionalopen)
+
+if nargin < 7
+    useconditionalopen = 1;
+end
 
 if longshort == 1
     typein = 'breachup-B';
@@ -87,20 +91,24 @@ if longshort == 1
 %     end
     %1.1 introduce fractal_signal_conditional to check whether trade was
     %conditional trend or not
-    ei = fractal_truncate(resstruct,idx-1);
-    signal = fractal_signal_conditional(ei,ticksizeratio*ticksize,nfractal);
-    if isempty(signal)
-        cond1 = false;
-    else
-        if isempty(signal{1,1})
+    if useconditionalopen
+        ei = fractal_truncate(resstruct,idx-1);
+        signal = fractal_signal_conditional(ei,ticksizeratio*ticksize,nfractal);
+        if isempty(signal)
             cond1 = false;
         else
-            if signal{1,1}(1) == 1
-                cond1 = true;
-            else
+            if isempty(signal{1,1})
                 cond1 = false;
-            end
-        end 
+            else
+                if signal{1,1}(1) == 1
+                    cond1 = true;
+                else
+                    cond1 = false;
+                end
+            end 
+        end
+    else
+        cond1 = false;
     end
     
     %2.TDST level up在HH的上方；且HH形成在alligator teeth的上方；在TDST level up
@@ -215,21 +223,25 @@ elseif longshort == -1
 %         cond1 = isempty(find(resstruct.px(idx-8:idx-1,5)-resstruct.teeth(idx-8:idx-1)-2*ticksize>0,1,'first'));
 %     end
     %
-    ei = fractal_truncate(resstruct,idx-1);
-    signal = fractal_signal_conditional(ei,ticksizeratio*ticksize,nfractal);
-    if isempty(signal)
-        cond1 = false;
-    else
-        if isempty(signal{1,2})
+    if useconditionalopen
+        ei = fractal_truncate(resstruct,idx-1);
+        signal = fractal_signal_conditional(ei,ticksizeratio*ticksize,nfractal);
+        if isempty(signal)
             cond1 = false;
         else
-            if signal{1,2}(1) == -1
-                cond1 = true;
-            else
+            if isempty(signal{1,2})
                 cond1 = false;
+            else
+                if signal{1,2}(1) == -1
+                    cond1 = true;
+                else
+                    cond1 = false;
+                end
             end
         end
-    end    
+    else
+        cond1 = false;
+    end
     %2.TDST level dn在LL的下方；且LL形成在alligator teeth的下方；在TDST level dn
     %下方一个tick挂买单
 %     cond2 = resstruct.lvldn(idx-1)<resstruct.ll(idx-1);

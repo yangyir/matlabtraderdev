@@ -1,4 +1,4 @@
-function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot,dt1,dt2,freq)
+function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot,dt1,dt2,freq,useconditionalopen)
 if length(codes) ~= size(data_in,1)
     error('fractal_filter:invalid codes and data_intraday inputs')
 end
@@ -16,21 +16,29 @@ if nargin == 4
     dt1 = [];
     dt2 = [];
     freq = 30;
+    useconditionalopen = 1;
 end
 
 if nargin == 5
     dt1 = [];
     dt2 = [];
     freq = 30;
+    useconditionalopen = 1;
 end
 
 if nargin == 6
     dt2 = [];
     freq = 30;
+    useconditionalopen = 1;
 end
 
 if nargin == 7
     freq = 30;
+    useconditionalopen = 1;
+end
+
+if nargin == 8
+    useconditionalopen = 1;
 end
 
 n = length(codes);
@@ -245,7 +253,7 @@ for i = 1:n
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromhh_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 end
             end
-            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,1,freqstr);
+            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,1,freqstr,useconditionalopen);
             trades.push(trade);
         end 
     end
@@ -329,7 +337,7 @@ for i = 1:n
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromll_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 end
             end
-            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,-1,freqstr);
+            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,-1,freqstr,useconditionalopen);
             trades.push(trade);
         end
         

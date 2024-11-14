@@ -9,6 +9,7 @@ p.addParameter('usefibonacci',1,@isnumeric);
 p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
 p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
 p.addParameter('frequency',30,@isnumeric);
+p.addParameter('useconditionalopen',1,@isnumeric);
 
 p.parse(varargin{:});
 type = p.Results.type;
@@ -21,6 +22,7 @@ if ~isempty(dt1) && ischar(dt1), dt1 = datenum(dt1);end
 dt2 = p.Results.todate;
 if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
 freq = p.Results.frequency;
+useconditionalopen = p.Results.useconditionalopen;
 %
 %load the data
 isequity = isinequitypool(code);

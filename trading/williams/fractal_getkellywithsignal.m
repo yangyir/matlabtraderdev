@@ -1,7 +1,13 @@
-function [use,winprob,kellycriterion] = fractal_getkellywithsignal(longshort,signalmode,freq)
+function [use,winprob,kellycriterion] = fractal_getkellywithsignal(instrument,longshort,signalmode,freq)
 %FRACTAL_GETKELLYWITHSIGNAL Summary of this function goes here
 %   get useflag and kelly criterion based on emprical study
     
+    assetname = instrument.asset_name;
+    if strcmpi(assetname,'eqindex_50') || strcmpi(assetname,'eqindex_300') || ...
+            strcmpi(assetname,'eqindex_500') || strcmpi(assetname,'eqindex_10000')
+    elseif strcmpi(assetname,'govtbond_2y') || strcmpi(assetname,'govtbond_5y') || ...
+            strcmpi(assetname,'govtbond_10y') || strcmpi(assetname,'
+
     if strcmpi(freq,'intraday')
         fn_l = [getenv('onedrive'),'\fractal backtest\tbl_l_intraday.mat'];
         data = load(fn_l);
