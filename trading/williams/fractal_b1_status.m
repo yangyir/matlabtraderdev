@@ -212,14 +212,14 @@ else
                 isschighbreach = false;
             else
                 schigh = px(lastsc13,3);
-                isschighbreach = HH(end) == schigh & HH(end) <= 2*px(lastsc13,3)-px(lastsc13,4);
+                isschighbreach = HH(end-1) == schigh & HH(end-1) <= 2*px(lastsc13,3)-px(lastsc13,4);
             end
         else
-            isschighbreach = HH(end) == max(px(lastsc13:end-1,3));
+            isschighbreach = HH(end-1) == max(px(lastsc13:end-1,3));
         end
     else
         schigh = px(lastsc13,3);
-        isschighbreach = schigh == HH(end) & idxhhlast - lastsc13 == nfractal;
+        isschighbreach = schigh == HH(end-1) & idxhhlast - lastsc13 == nfractal;
     end
 end
 

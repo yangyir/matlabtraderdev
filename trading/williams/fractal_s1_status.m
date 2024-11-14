@@ -200,14 +200,14 @@ else
                 isbclowbreach = false;
             else
                 bclow = px(lastbc13,4);
-                isbclowbreach = LL(end) == bclow & LL(end) >= 2*px(lastbc13,4)-px(lastbc13,3);
+                isbclowbreach = LL(end-1) == bclow & LL(end) >= 2*px(lastbc13,4)-px(lastbc13,3);
             end
         else
-            isbclowbreach = LL(end) ==  min(px(lastbc13:end-1,4));
+            isbclowbreach = LL(end-1) ==  min(px(lastbc13:end-1,4));
         end
     else
         bclow = px(lastbc13,4);
-        isbclowbreach = bclow == LL(end) & idxlllast - lastbc13 == nfractal;
+        isbclowbreach = bclow == LL(end-1) & idxlllast - lastbc13 == nfractal;
     end
 end
 
