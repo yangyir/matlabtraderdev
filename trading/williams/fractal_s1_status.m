@@ -269,6 +269,11 @@ if ~istrendconfirmed
 end
 %to be in line with the trading code
 istrendconfirmed = istrendconfirmed & px(end-1,5) - teeth(end-1) < ticksize;
+if ~istrendconfirmed && islvldnbreach
+    sflag1 = isempty(find(px(end-2*nfractal:end-1,5)-teeth(end-2*nfractal:end-1)>2*ticksize,1,'first'));
+    sflag2 = isempty(find(lips(end-nfractal+1:end)-teeth(end-nfractal+1:end)>0,1,'first'));
+    istrendconfirmed = sflag1 && sflag2;
+end
 
 %check alligator's lips,teeth,jaw relationship
 if jaw(end)<teeth(end) && teeth(end)<lips(end)
