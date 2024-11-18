@@ -28,6 +28,12 @@ elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ..
         strcmpi(assetname,'eqindex_500') || strcmpi(assetname,'eqindex_1000')
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
     tbl_report_ = data.tblreport_eqindexfut;
+elseif isfx(assetname)
+    if ~strcmpi(freq,'daily')
+        error('charlotte_gensingleassetprofile:only daily frequency is supported for fx...')
+    end
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\tbl_report_fx_daily.mat']);
+    tbl_report_ = data.tbl_report_fx_daily;
 else
     if strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
@@ -117,7 +123,13 @@ if strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')
     end
 end
 
-dts = gendates('fromdate',firstopendt,'todate',lastclosedt);
+if isfx(assetname)
+    data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',assetname,'_daily.txt']);
+    idx = data(:,1) >= firstopendt & data(:,1) <= lastclosedt;
+    dts = data(idx,1);
+else
+    dts = gendates('fromdate',firstopendt,'todate',lastclosedt);
+end
 ndts = length(dts);
 
 openbd = tblasset.opendatetime;
@@ -200,7 +212,11 @@ for i = 1:ndts
                     %trades carried furher and pnl is adjusted to the close
                     %price as of the cob date
                     code_j = opentradeinfo.code{j};
-                    data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
+                    if isfx(code_j)
+                        data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',code_j,'_daily.txt']);
+                    else
+                        data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
+                    end
                     idx = find(data(:,1) == dts(i),1,'first');
                     cp_j = data(idx,5);
                     pnl_open_i = pnl_open_i + opentradeinfo.opennotional(j)*opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
@@ -215,7 +231,11 @@ for i = 1:ndts
                     %trades carried furher and pnl is adjusted to the close
                     %price as of the cob date
                     code_j = opentradeinfo.code{j};
-                    data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
+                    if isfx(code_j)
+                        data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',code_j,'_daily.txt']);
+                    else
+                        data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
+                    end
                     idx = find(data(:,1) == dts(i),1,'first');
                     cp_j = data(idx,5);
                     pnl_open_i = pnl_open_i + opentradeinfo.opennotional(j)*opentradeinfo.direction(j)*(cp_j-opentradeinfo.openprice(j))/opentradeinfo.openprice(j);
@@ -232,7 +252,11 @@ for i = 1:ndts
         closedt_i = carrytradesinfo.closedatetime;
         for j = 1:size(closedt_i,1)
             code_j = carrytradesinfo.code{j};
-            data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
+            if isfx(code_j)
+                data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',code_j,'_daily.txt']);
+            else
+                data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
+            end
             cp_jminus1 = data(find(data(:,1) == dts(i-1),1,'first'),5);
             cp_j = data(find(data(:,1) == dts(i),1,'first'),5);
             if strcmpi(freq,'5m') || strcmpi(freq,'15m') || strcmpi(freq,'30m')
