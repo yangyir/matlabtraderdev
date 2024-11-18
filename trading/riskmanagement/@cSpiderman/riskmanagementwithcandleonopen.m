@@ -152,7 +152,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     %the open market vol might be too high
                     if ei.p(end,5) <= max(ei.lips(end),ei.teeth(end)) || ...
                             (~isnan(obj.tdlow_) && ei.p(end,5) < obj.tdlow_) || ...
-                            (~isnan(obj.td13low_) && ei.p(end,5) < obj.tdlow)
+                            (~isnan(obj.td13low_) && ei.p(end,5) < obj.td13low_)
                         unwindflag = true;
                         msg = 'conditional uptrendconfirmed failed:shadowline1';
                         obj.status_ = 'closed';
@@ -219,6 +219,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     obj.closestr_ = msg;
                 end
             else
+                trade.opensignal_.mode_ = signaluncond.opkellied;
                 unwindflag = true;
                 msg = 'conditional uptrendconfirmed success:lowkelly';
                 obj.status_ = 'closed';
@@ -273,6 +274,20 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             if ~isnan(obj.tdlow_)
                 obj.pxstoploss_ = obj.tdlow_;
             end   
+        end
+        %
+        if strcmpi(val,'conditional-uptrendconfirmed-3')
+            if ~isnan(obj.td13low_)
+                obj.pxstoploss_ = obj.td13low_;
+            end
+            if shadowlineratio > 0.94
+                unwindflag = true;
+                msg = 'conditional uptrendconfirmed failed:shadowline3';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                return
+            end
+            
         end
         %
         unwindflag = false;
@@ -380,6 +395,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 obj.closestr_ = msg;
                 return
             end
+            if strcmpi(val,'conditional-dntrendconfirm-1')
+                if ei.p(end,5) > ei.lvldn(end)
+                    unwindflag = true;
+                    msg = 'conditional dntrendconfirmed failed:mktclose';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                else
+                    obj.pxstoploss_ = ei.lvldn(end);
+                end
+            end
         end
         %
         %CASE8:special treatment for conditional breachdn-lvldn
@@ -441,6 +466,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     obj.closestr_ = msg;
                 end
             else
+                trade.opensignal_.mode_ = signaluncond.opkellied;
                 unwindflag = true;
                 msg = 'conditional dntrendconfirmed success:lowkelly';
                 obj.status_ = 'closed';
