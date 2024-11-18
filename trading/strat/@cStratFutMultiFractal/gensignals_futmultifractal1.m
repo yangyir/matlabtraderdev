@@ -242,8 +242,22 @@ function signals = gensignals_futmultifractal1(stratfractal)
                     end
                     %
                     %
-                else                
-                    stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                else
+                    if stratfractal.helper_.book_.hasposition(instruments{i})
+                        %in case the signaluncond shares the same signal
+                        %mode with the current trade
+                        tradeexist = stratfractal.helper_.getlivetrade('code',instruments{i});
+                        mode1 = tradeexist.opensignal_.mode_;
+                        if strcmpi(mode1,signaluncond.opkellied)
+                            stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                        else
+                            kelly = signaluncond.kelly;
+                            if kelly < 0 || isnan(kelly)
+                                stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
+                            end
+                        end
+                    end
+                    %
                     try
                         stratfractal.processcondentrust(instruments{i},'techvar',techvar);
                     catch e
@@ -325,7 +339,39 @@ function signals = gensignals_futmultifractal1(stratfractal)
                        fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,-1,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
                        %
                    else
-                       stratfractal.unwindpositions(instruments{i},'closestr','conditional kelly is too low');
+                       if stratfractal.helper_.book_.hasposition(instruments{i})
+                           tradeexist = stratfractal.helper_.getlivetrade('code',instruments{i});
+                           mode1 = tradeexist.opensignal_.mode_;
+                           if strcmpi(mode1,'breachup-lvlup')
+                               samesignal = signalcond.flags.islvlupbreach;
+                           elseif strcmpi(mode1,'breachup-sshighvalue')
+                               samesignal = signalcond.flags.issshighbreach;
+                           elseif strcmpi(mode1,'breachup-highsc13')
+                               samesignal = signalcond.flags.isschighbreach;
+                           elseif strcmpi(mode1,'breachdn-lvldn')
+                               samesignal = signalcond.flags.islvldnbreach;
+                           elseif strcmpi(mode1,'breachdn-bshighvalue')
+                               samesignal = signalcond.flags.isbslowbreach;
+                           elseif strcmpi(mode1,'breachdn-lowbc13')
+                               samesignal = signalcond.flags.isbclowbreach;
+                           elseif ~isempty(strfind(mode1,'-trendconfirmed'))
+                               samesignal = 1;
+                           elseif ~isempty(strfind(mode1,'-conditional'))
+                               %not yet implemented correctly
+                               samesignal = 1;
+                           else
+                               %other non-trended signal
+                               samesignal = 0;
+                           end
+                           if samesignal
+                               stratfractal.unwindpositions(instruments{i},'closestr','conditional kelly is too low');
+                           else
+                               kelly = signalcond.kelly;
+                               if kelly < 0 || isnan(kelly)
+                                   stratfractal.unwindpositions(instruments{i},'closestr','conditional kelly is too low');
+                               end
+                           end
+                       end
                        fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,0,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
                        %
                        condentrusts2remove = EntrustArray;
