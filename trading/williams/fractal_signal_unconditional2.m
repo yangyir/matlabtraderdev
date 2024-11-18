@@ -216,6 +216,9 @@ function [output] = fractal_signal_unconditional2(varargin)
                             signal_i(1) = 0;
                             signal_i(4) = 0;
                             op.comment = 'strongbreach-trendconfirmed';
+                        elseif ~isempty(strfind(output_.opkellied,'potential high kelly'))
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
                         end
                     else
                         signal_i(1) = 0;
@@ -398,6 +401,9 @@ function [output] = fractal_signal_unconditional2(varargin)
                             signal_i(1) = 0;
                             signal_i(4) = 0;
                             op.comment = 'strongbreach-trendconfirmed';
+                        elseif ~isempty(strfind(output_.opkellied,'potential high kelly'))
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
                         end
                     else
                         signal_i(1) = 0;
