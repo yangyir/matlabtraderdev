@@ -126,6 +126,26 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     
     [ unwindtrade ] = obj.riskmanagement_wad('extrainfo',extrainfo, ...
         'updatepnlforclosedtrade',updatepnlforclosedtrade);
+    if runriskmanagementbeforemktclose && hour(candleTime) < 21 && hour(candleTime) > 9
+        %big uncertainty between pm market close and evening/next day
+        %market open
+        if (trade.opendirection_ == 1 && strcmpi(obj.closestr_,'wad:new high price w/o wad being higher')) || ...
+                (trade.opendirection_ == 1 && strcmpi(obj.closestr_,'wad:new high wad w/o price being higher')) || ...
+                (trade.opendirection_ == -1 && strcmpi(obj.closestr_,'wad:new low wad w/o price being lower')) || ...
+                (trade.opendirection_ == -1 && strcmpi(obj.closestr_,'wad:new low price w/o wad being lower'))
+            unwindtrade = trade;
+            obj.status_ = 'closed';
+            trade.runningpnl_ = 0;
+            trade.closeprice_ = extrainfo.p(end,5);
+            trade.closedatetime1_ = extrainfo.p(end,1);
+            if isempty(trade.instrument_)
+                trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_);
+            else
+                trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+            end
+            return
+        end
+    end
     if ~isempty(unwindtrade)
         return
     end
@@ -225,8 +245,16 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             closeflag = true;
             closestr = 'invalid breachup';
         else
+            %need to double-check whether the trade opened with the same
+            %signal
+            if strcmpi(obj.trade_.opensignal_.mode_,signaluncond.opkellied)
+                kellythreshold = 0.088;
+            else
+                kellythreshold = 0;
+            end
+            
             kelly = signaluncond.kelly;
-            if kelly < 0.088
+            if kelly < kellythreshold || isnan(kelly)
                 closeflag = true;
                 if breachupsuccess
                     closestr = ['up: ',signaluncond.opkellied,':kelly is low'];
