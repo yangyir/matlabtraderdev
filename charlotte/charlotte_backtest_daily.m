@@ -189,16 +189,40 @@ while i <= idx2
                    'ticksizeratio',tickratio);
                if ~isempty(output2)
                    if output2.directionkellied == 0
-                       trade.status_ = 'closed';
-                       trade.riskmanager_.status_ = 'closed';
-                       trade.riskmanager_.closestr_ = ['conditional kelly is too low: ',num2str(output2.kelly)];
-                       trade.runningpnl_ = 0;
-                       trade.closeprice_ = ei_j.latestopen;
-                       trade.closedatetime1_ = ei_j.latestdt;
-                       trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
-                       tradeout = trade;
-                       unwindedtrades.push(tradeout);
-                       break
+                       if strcmpi(trade.opensignal_.mode_,'breachup-lvlup')
+                           samesignal = output2.flags.islvlupbreach;
+                       elseif strcmpi(trade.opensignal_,'breachup-sshighvalue')
+                           samesignal = output2.flags.issshighbreach;
+                       elseif strcmpi(trade.opensignal_.mode_,'breachup-highsc13')
+                           samesignal = output2.flags.isschighbreach;
+                       elseif strcmpi(trade.opensignal_.mode_,'breachdn-lvldn')
+                           samesignal = output2.flags.islvldnbreach;
+                       elseif strcmpi(trade.opensignal_.mode_,'breachdn-bshighvalue')
+                           samesignal = output2.flags.isbslowbreach;
+                       elseif strcmpi(trade.opensignal_.mode_,'breachdn-lowbc13')
+                           samesignal = output2.flags.isbclowbreach;
+                       elseif ~isempty(strfind(trade.opensignal_.mode_,'-trendconfirmed'))
+                           samesignal = 1;
+                       elseif ~isempty(strfind(trade.opensignal_.mode_,'-conditional'))
+                           %not yet implemented correctly 
+                           samesignal = 1;
+                       else
+                           %other non-trended signal
+                           samesignal = 0;
+                       end
+                           
+                       if samesignal || (~samesignal && (output2.kelly < 0 || isnan(output2.kelly))) 
+                           trade.status_ = 'closed';
+                           trade.riskmanager_.status_ = 'closed';
+                           trade.riskmanager_.closestr_ = ['conditional kelly is too low: ',num2str(output2.kelly)];
+                           trade.runningpnl_ = 0;
+                           trade.closeprice_ = ei_j.latestopen;
+                           trade.closedatetime1_ = ei_j.latestdt;
+                           trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
+                           tradeout = trade;
+                           unwindedtrades.push(tradeout);
+                           break
+                       end
                    end
                end
                
