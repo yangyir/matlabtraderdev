@@ -5,7 +5,8 @@ function [flag] = isfx(asset)
     
     fn_fx = {'usdx';'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';...
     'eurjpy';'eurchf';'gbpeur';'gbpjpy';'audjpy';...
-    'usdcnh'};
+    'usdcnh';...
+    'xau';'xag'};
     
     if sum(strcmpi(asset,fn_fx)) > 0
         flag = true;
