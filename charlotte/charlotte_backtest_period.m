@@ -37,8 +37,13 @@ doplot = p.Results.doplot;
 dt1 = datenum(dt1,'yyyy-mm-dd');
 dt2 = datenum(dt2,'yyyy-mm-dd');
 %
-dt3 = [datestr(dt1,'yyyy-mm-dd'),' 09:00:00'];
-dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
+if isfx(code)
+    dt3 = [datestr(dt1,'yyyy-mm-dd'),' 00:00:00'];
+    dt4 = [datestr(dt2,'yyyy-mm-dd'),' 23:59:59'];
+else
+    dt3 = [datestr(dt1,'yyyy-mm-dd'),' 09:00:00'];
+    dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
+end
 resstruct = charlotte_plot('futcode',code,'figureindex',figureidx,'datefrom',dt3,'dateto',dt4,'frequency',freq,'doplot',doplot);
 if doplot
     grid off;

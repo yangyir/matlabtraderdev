@@ -62,6 +62,14 @@ if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30
 elseif ~isempty(strfind(fut.asset_name,'eqindex'))
     nfractal = 4;
     tickratio = 0.5;
+elseif isfx(fut.asset_name)
+    if ~strcmpi(freq,'daily')
+        error('charlotte_backtest_daily:invalid freq for fx, only daily is supported now...');
+    end
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_daily.mat']);
+    kellytables = data.strat_fx_daily;
+    nfractal = 2;
+    tickratio = 1;
 else
     nfractal = 4;
     tickratio = 0.5;
@@ -72,8 +80,13 @@ end
 %
 [~,extrainfo] = charlotte_loaddata('futcode',futcode,'frequency',freq);
 %
-dt1 = [testdt,' 09:00:00'];
-dt2 = [datestr(dateadd(datenum(testdt,'yyyy-mm-dd'),'1d'),'yyyy-mm-dd'),' 02:30:00'];
+if isfx(futcode)
+    dt1 = [testdt,' 00:00:00'];
+    dt2 = [testdt,' 23:59:59'];
+else
+    dt1 = [testdt,' 09:00:00'];
+    dt2 = [datestr(dateadd(datenum(testdt,'yyyy-mm-dd'),'1d'),'yyyy-mm-dd'),' 02:30:00'];
+end
 dt1num = datenum(dt1,'yyyy-mm-dd HH:MM:SS');
 dt2num = datenum(dt2,'yyyy-mm-dd HH:MM:SS');
 idx1 = find(extrainfo.px(:,1) < dt1num,1,'last');

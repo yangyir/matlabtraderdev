@@ -41,6 +41,11 @@ elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ..
     strat_ = data.strat_eqindexfut;
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
     tbl_report_ = data.tblreport_eqindexfut;
+elseif isfx(assetname)
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_daily.mat']);
+    strat_ = data.strat_fx_daily;
+    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\tbl_report_fx_daily.mat']);
+    tbl_report_ = data.tbl_report_fx_daily;
 else
     if strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);

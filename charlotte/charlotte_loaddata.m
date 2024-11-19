@@ -10,8 +10,9 @@ freq = p.Results.frequency;
 if ~(strcmpi(freq,'30m') || ...
         strcmpi(freq,'5m') || ...
         strcmpi(freq,'15m') || ...
-        strcmpi(freq,'1440m'))
-    error('charlotte_loaddata:invalid frequency input,must be 30m,5m,15m and 1440m only...')
+        strcmpi(freq,'1440m') || ...
+        strcmpi(freq,'daily')) 
+    error('charlotte_loaddata:invalid frequency input,must be 30m,5m,15m,1440m and daily only...')
 end
 
 instrument = code2instrument(futcode);
@@ -142,9 +143,13 @@ elseif strcmpi(freq,'30m')
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
     p = data.data;
-elseif strcmpi(freq,'1440m')
+elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     nfractal = 2;
-    data = cDataFileIO.loadDataFromTxtFile([futcode,'_daily.txt']);
+    if isfx(futcode)
+        data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',futcode,'_daily.txt']);
+    else
+        data = cDataFileIO.loadDataFromTxtFile([futcode,'_daily.txt']);
+    end
     try
         p = data(:,1:5);
     catch
