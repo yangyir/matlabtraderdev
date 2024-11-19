@@ -44,11 +44,18 @@ else
     dt3 = [datestr(dt1,'yyyy-mm-dd'),' 09:00:00'];
     dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
 end
-resstruct = charlotte_plot('futcode',code,'figureindex',figureidx,'datefrom',dt3,'dateto',dt4,'frequency',freq,'doplot',doplot);
+
+fut = code2instrument(code);
+if isfx(code)
+    plotshift = 2*fut.tick_size;
+else
+    plotshift = 0.005;
+end
+resstruct = charlotte_plot('futcode',code,'figureindex',figureidx,'datefrom',dt3,'dateto',dt4,'frequency',freq,'doplot',doplot,'plotshift',plotshift);
 if doplot
     grid off;
 end
-fut = code2instrument(code);
+
 
 if showlogsflag
     fprintf('\n\n');

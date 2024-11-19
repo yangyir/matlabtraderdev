@@ -7,6 +7,7 @@ p.addParameter('dateto','',@ischar);
 p.addParameter('frequency','30m',@ischar);
 p.addParameter('figureindex',2,@isnumeric);
 p.addParameter('doplot',true,@islogical);
+p.addParameter('plotshift',0.005,@isnumeric);
 p.parse(varargin{:});
 
 futcode = p.Results.futcode;
@@ -15,6 +16,7 @@ dt2str = p.Results.dateto;
 freq = p.Results.frequency;
 figureindex = p.Results.figureindex;
 doplot = p.Results.doplot;
+shift = p.Results.plotshift;
 
 % if strcmpi(freq,'intraday-5m')
 %     nfractal = 6;
@@ -137,15 +139,15 @@ if doplot
     
     if isempty(dt1str) && isempty(dt2str)
         if size(res,1) > 80
-            tools_technicalplot2(res(end-79:end,:),figureindex,[futcode,'-',freq],true);
+            tools_technicalplot2(res(end-79:end,:),figureindex,[futcode,'-',freq],true,shift);
         else
-            tools_technicalplot2(res(1:end,:),figureindex,[futcode,'-',freq],true);
+            tools_technicalplot2(res(1:end,:),figureindex,[futcode,'-',freq],true,shift);
         end
     elseif ~isempty(dt1str) && isempty(dt2str)
         dt1num = datenum(dt1str,'yyyy-mm-dd HH:MM');
         idx = find(res(:,1)>=dt1num,1,'first');
         if ~isempty(idx)
-            tools_technicalplot2(res(idx:end,:),figureindex,[futcode,'-',freq],true);
+            tools_technicalplot2(res(idx:end,:),figureindex,[futcode,'-',freq],true,shift);
         else
             error('charlotte_script:invalid datefrom input...')
         end
@@ -153,7 +155,7 @@ if doplot
         dt2num = datenum(dt2str,'yyyy-mm-dd HH:MM');
         idx = find(res(:,1)<=dt2num,1,'last');
         if ~isempty(idx)
-            tools_technicalplot2(res(1:idx,:),figureindex,[futcode,'-',freq],true);
+            tools_technicalplot2(res(1:idx,:),figureindex,[futcode,'-',freq],true,shift);
         else
             error('charlotte_script:invalid datefrom input...')
         end
@@ -163,7 +165,7 @@ if doplot
         idx = res(:,1)>=dt1num & res(:,1)<=dt2num;
         d = res(idx,:);
         if ~isempty(d)
-            tools_technicalplot2(d,figureindex,[futcode,'-',freq],true);
+            tools_technicalplot2(d,figureindex,[futcode,'-',freq],true,shift);
         else
             error('charlotte_script:invalid datefrom and dateto input...')
         end
