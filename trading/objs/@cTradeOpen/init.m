@@ -47,6 +47,9 @@ else
             strcmpi(obj.instrument_.asset_name,'nickel')
         obj.oneminb4close1_ = 899;
         obj.oneminb4close2_ = 59;
+    elseif isfx(obj.instrument_.asset_name)
+        obj.oneminb4close1_ = NaN;
+        obj.oneminb4close2_ = NaN;
     else
         obj.oneminb4close1_ = 899;
         obj.oneminb4close2_ = 1379;

@@ -21,7 +21,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
     if direction == 1
         if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
             if extrainfo.latestopen < obj.cphigh_
-                if strcmpi(trade.opensignal_.frequency_,'daily')
+                if strcmpi(trade.opensignal_.frequency_,'daily') && ~isfx(trade.instrument_.code_ctp)
                     closeflag = ret.inconsistence;
                 end
                 if extrainfo.latestopen < extrainfo.p(end,5)-2*ticksize
@@ -124,7 +124,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
     else
 %         ret = obj.riskmanagement_wadupdate('extrainfo',extrainfo);
         if ret.inconsistence && strcmpi(ret.reason,'new low wad w/o price being lower')
-            if extrainfo.latestopen > obj.cplow_
+            if extrainfo.latestopen > obj.cplow_ && ~isfx(trade.instrument_.code_ctp)
                 if strcmpi(trade.opensignal_.frequency_,'daily')
                     closeflag = ret.inconsistence;
                 end

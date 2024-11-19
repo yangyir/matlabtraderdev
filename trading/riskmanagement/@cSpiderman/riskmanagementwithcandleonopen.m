@@ -355,7 +355,11 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     return
                 end
             else
-                isopencandle = abs(datenum([datestr(floor(ei.p(end,1)),'yyyy-mm-dd'), ' ',trade.instrument_.break_interval{1,1}],'yyyy-mm-dd HH:MM:SS')-ei.p(end,1)) < 1e-5;
+                if strcmpi(trade.opensignal_.frequency_,'daily') || strcmpi(trade.opensignal_.frequency_,'1440m')
+                    isopencandle = false;
+                else
+                    isopencandle = abs(datenum([datestr(floor(ei.p(end,1)),'yyyy-mm-dd'), ' ',trade.instrument_.break_interval{1,1}],'yyyy-mm-dd HH:MM:SS')-ei.p(end,1)) < 1e-5;
+                end
                 if isopencandle
                     %the open market vol might be too high
                     if ei.p(end,5) >= min(ei.lips(end),ei.teeth(end))
@@ -464,6 +468,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     msg = 'conditional dntrendconfirmed success:lowkelly';
                     obj.status_ = 'closed';
                     obj.closestr_ = msg;
+                    return
                 end
             else
                 trade.opensignal_.mode_ = signaluncond.opkellied;
@@ -471,6 +476,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 msg = 'conditional dntrendconfirmed success:lowkelly';
                 obj.status_ = 'closed';
                 obj.closestr_ = msg;
+                return
             end
         else
             unwindflag = true;
@@ -486,6 +492,45 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if sflag && ~breachdnfailed && ~breachdnsuccess
         %the trade has moved on from its openning candle
 %         if onopenflag, error('riskmanagementwithcandleonopen:internal error with slfag!');end
+        if ei.p(end,5) - ei.ll(end-1) + ticksizeratio*trade.instrument_.tick_size < 1e-6
+            signaluncond = fractal_signal_unconditional2('extrainfo',ei,...
+                'ticksize',trade.instrument_.tick_size,...
+                'nfractal',nfractal,...
+                'assetname',trade.instrument_.asset_name,...
+                'kellytables',kellytables,...
+                'ticksizeratio',ticksizeratio);
+            if ~isempty(signaluncond)
+                if signaluncond.directionkellied == -1
+                    kelly = signaluncond.kelly;
+                    trade.opensignal_.mode_ = signaluncond.opkellied;
+                    obj.wadopen_ = ei.wad(end);
+%                     obj.wadlow_ = ei.wad(end);
+%                     obj.cpopen_ = ei.px(end,5);
+%                     obj.cplow_ = ei.px(end,5);
+                    if kelly < 0.088
+                        unwindflag = true;
+                        msg = 'conditional dntrendconfirmed success:lowkelly';
+                        obj.status_ = 'closed';
+                        obj.closestr_ = msg;
+                        return
+                    end
+                else
+                    trade.opensignal_.mode_ = signaluncond.opkellied;
+                    unwindflag = true;
+                    msg = 'conditional dntrendconfirmed success:lowkelly';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                    return
+                end
+            else
+                unwindflag = true;
+                msg = 'conditional dntrendconfirmed success:lowkelly';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                return
+            end
+        end
+        %
         if runriskmanagementbeforemktclose && strcmpi(freq_,'5m') && ei.ll(end-1)-ei.p(end,4) <= 2*trade.instrument_.tick_size
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:mktclose';
