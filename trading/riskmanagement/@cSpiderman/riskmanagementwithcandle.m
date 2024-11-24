@@ -88,8 +88,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             'runriskmanagementbeforemktclose',runriskmanagementbeforemktclose,...
             'kellytables',kellytables);
         if unwindflag
-            trade.closedatetime1_ = extrainfo.latestdt;
-            trade.closeprice_ = extrainfo.latestopen;
+            if ~runriskmanagementbeforemktclose
+                trade.closedatetime1_ = extrainfo.latestdt;
+                trade.closeprice_ = extrainfo.latestopen;
+            else
+                trade.closedatetime1_ = extrainfo.p(end,1);
+                trade.closeprice_ = extrainfo.p(end,5);
+            end
             volume = trade.openvolume_;
             obj.status_ = 'closed';
             obj.closestr_ = msg;
@@ -287,9 +292,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     %
     if direction == 1 && extrainfo.hh(end) > extrainfo.hh(end-1) && abs(extrainfo.hh(end)/extrainfo.hh(end-1)-1)>0.0003
         if ~isnan(obj.tdlow_)
-            sshigh = find(extrainfo.ss >=9,1,'last');
-            sshigh = extrainfo.ss(sshigh);
+            sshighidx = find(extrainfo.ss >=9,1,'last');
+            sshigh = extrainfo.ss(sshighidx);
             if sshigh > 16
+                exceptionflag = false;
+            elseif size(extrainfo.ss,1) - sshighidx > 13
+                %the sell sequential happens long time ago
                 exceptionflag = false;
             else
                 exceptionflag = true;
@@ -301,14 +309,16 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if extrainfo.p(end,5) > extrainfo.hh(end-1)
                 if extrainfo.p(end,5) < extrainfo.p(end,2) - ticksizeratio*ticksize
                     closeflag = true;
+                    obj.pxstoploss_ = 2*extrainfo.p(end,4) - extrainfo.p(end,3);
                 else
                     closeflag = false;
                 end
             else
                 closeflag = true;
+                obj.pxstoploss_ = extrainfo.p(end,5);
             end
             if closeflag
-                obj.pxstoploss_ = extrainfo.p(end,5);
+%                 obj.pxstoploss_ = 2*extrainfo.p(end,4) - extrainfo.p(end,3);
 %                 obj.trade_.closedatetime1_ = extrainfo.latestdt;
 %                 obj.trade_.closeprice_ = extrainfo.latestopen;
 %                 volume = trade.openvolume_;
@@ -344,14 +354,16 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if extrainfo.p(end,5) < extrainfo.ll(end-1)
                 if extrainfo.p(end,5) > extrainfo.p(end,2) + ticksizeratio*ticksize
                     closeflag = true;
+                    obj.pxstoploss_ = 2*extrainfo.p(end,3) - extrainfo.p(end,4);
                 else
                     closeflag = false;
                 end
             else
                 closeflag = true;
+                obj.pxstoploss_ = extrainfo.p(end,5);
             end
             if closeflag
-                obj.pxstoploss_ = extrainfo.p(end,5);
+%                 obj.pxstoploss_ = 2*extrainfo.p(end,3) - extrainfo.p(end,4);
 %                 obj.trade_.closedatetime1_ = extrainfo.latestdt;
 %                 obj.trade_.closeprice_ = extrainfo.latestopen;
 %                 volume = trade.openvolume_;
