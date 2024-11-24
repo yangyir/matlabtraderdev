@@ -18,9 +18,11 @@ function [dailystruct,intradaystruct] = showfigures(obj,varargin)
             foundflag = true;
             dailybarmat_ = obj.dailybarmat_index_{i};
             idx1 = find(dailybarmat_(:,1)>=datenum(dateadd(dailybarmat_(end,1),'-6m')),1,'first');
-            tools_technicalplot2(dailybarmat_(idx1:end,:),2,[obj.codes_index_{i},'-',obj.names_index_{i},'-日线'],true,0.002);    
+            tools_technicalplot2(dailybarmat_(idx1:end,:),2,[obj.codes_index_{i},'-',obj.names_index_{i},'-日线'],true,0.002); 
+            grid off;
             idx2 = find(obj.intradaybarmat_index_{i}(:,1)>=today-14,1,'first');
             tools_technicalplot2(obj.intradaybarmat_index_{i}(idx2:end,:),3,[obj.codes_index_{i},'-',obj.names_index_{i},'-30分钟线'],true,0.002);
+            grid off;
             if printflag
                 fractal_printmarket(obj.codes_index_{i}(1:6),obj.dailybarstruct_index_{i},obj.intradaybarstruct_index_{i});
             end
