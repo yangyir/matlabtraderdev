@@ -99,7 +99,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if isnan(obj.td13low_)
         lastsc13 = find(ei.sc == 13,1,'last');
         if size(ei.sc,1) - lastsc13 < 2*nfractal
-            obj.td13low_ = ei.px(lastsc13,4);
+            tdlow = ei.px(lastsc13,4);
+            if tdlow < ei.hh(end-1)
+                obj.td13low_ = tdlow;
+            end
         end
     end
     
@@ -176,8 +179,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     end
                 else
                     %exception found on y2409 on 20240628
-                    exceptionflag = (ei.p(end,4) > ei.p(end-1,4) && shadowlineratio < 0.75) || ...
+                    exceptionflag = (ei.p(end,4) > ei.p(end-1,4) && shadowlineratio <= 0.75) || ...
                         (strcmpi(val,'conditional-uptrendconfirmed-1') && ei.p(end,3) > ei.lvlup(end)) || ...
+                        (ei.p(end,5) > ei.lvlup(end-1) && ei.p(end-1,5) < ei.lvlup(end-1)) || ...
                         ~isnan(obj.tdlow_) || ~isnan(obj.td13low_);
                     if ~exceptionflag
                         unwindflag = true;
@@ -326,7 +330,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if isnan(obj.td13high_)
         lastbc13 = find(ei.bc == 13,1,'last');
         if size(ei.bc,1) - lastbc13 < 2*nfractal
-            obj.td13high_ = ei.px(lastbc13,4);
+            tdhigh = ei.px(lastbc13,4);
+            if tdhigh >= ei.ll(end-1)
+                obj.td13high_ = tdhigh;
+            end
         end
     end
     
