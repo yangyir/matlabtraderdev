@@ -18,6 +18,20 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
     closeflag = 0;
     ticksize = obj.trade_.instrument_.tick_size;
     
+    
+    if strcmpi(trade.opensignal_.frequency_,'30m')
+        keepclosestr = 60*hour(extrainfo.p(end,1))+minute(extrainfo.p(end,1))+30 > trade.oneminb4close1_;
+    elseif strcmpi(trade.opensignal_.frequency_,'15m')
+        keepclosestr = 60*hour(extrainfo.p(end,1))+minute(extrainfo.p(end,1))+15 > trade.oneminb4close1_;
+    elseif strcmpi(trade.opensignal_.frequency_,'5m')
+        keepclosestr = 60*hour(extrainfo.p(end,1))+minute(extrainfo.p(end,1))+5 > trade.oneminb4close1_;
+    elseif strcmpi(trade.opensignal_.frequency_,'daily')
+        keepclosestr = true;
+    else
+        keepclosestr = false;
+    end
+    
+    
     if direction == 1
         if ret.inconsistence && strcmpi(ret.reason,'new high wad w/o price being higher')
             if extrainfo.latestopen < obj.cphigh_
@@ -31,7 +45,9 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
 %                 obj.pxstoploss_ = max(extrainfo.p(end,4),extrainfo.lips(end));
                 obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
                 obj.pxstoploss_ = floor(obj.pxstoploss_/ticksize)*ticksize;
-                obj.closestr_ = ['wad:',ret.reason];
+                if keepclosestr
+                    obj.closestr_ = ['wad:',ret.reason];
+                end
             else
                 %if latest open jumps and moves higher than the highest
                 %close so far, the trade can be saved
@@ -110,7 +126,9 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                     else
                         obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
                         obj.pxstoploss_ = floor(obj.pxstoploss_/ticksize)*ticksize+2*ticksize;
-                        obj.closestr_ = ['wad:',ret.reason];
+                        if keepclosestr
+                            obj.closestr_ = ['wad:',ret.reason];
+                        end
                     end
                 end
             else
@@ -131,7 +149,9 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
 %                 obj.pxstoploss_ =  min(extrainfo.p(end,3),extrainfo.lips(end));
                 obj.pxstoploss_ =  min(2*extrainfo.p(end,3)-extrainfo.p(end,4),extrainfo.lips(end));
                 obj.pxstoploss_ = ceil(obj.pxstoploss_/ticksize)*ticksize;
-                obj.closestr_ = ['wad:',ret.reason];
+                if keepclosestr
+                    obj.closestr_ = ['wad:',ret.reason];
+                end
             else
                 %if latest open jumps and moves lower than the lowest close
                 %so far, the trade can be saved
@@ -206,7 +226,9 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                     else
                         obj.pxstoploss_ =  min(2*extrainfo.p(end,3)-extrainfo.p(end,4),extrainfo.lips(end));
                         obj.pxstoploss_ = ceil(obj.pxstoploss_/ticksize)*ticksize-2*ticksize;
-                        obj.closestr_ = ['wad:',ret.reason];
+                        if keepclosestr
+                            obj.closestr_ = ['wad:',ret.reason];
+                        end
                     end
                 end
             else
