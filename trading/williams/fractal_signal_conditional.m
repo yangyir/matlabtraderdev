@@ -739,7 +739,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                         idxlllast_ = find(ei_.idxll == -1,1,'last');
                         if idxlllast_ >= bclastidx
                             flags.isbclowbreach = false;
-                            if abs(ei.ll(idxlllast) - ei_.hh(idxlllast_)) > 1e-6
+                            if abs(ei.ll(idxlllast) - ei_.ll(idxlllast_)) > 1e-6
                                 flags.isbclowbreach = false;
                             else
                                 flags.isbclowbreach = ei.ll(end) == bclow;
