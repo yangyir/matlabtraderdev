@@ -309,7 +309,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if extrainfo.p(end,5) > extrainfo.hh(end-1)
                 if extrainfo.p(end,5) <= extrainfo.p(end,2)
                     closeflag = true;
-                    obj.pxstoploss_ = 2*extrainfo.p(end,4) - extrainfo.p(end,3);
+                    obj.pxstoploss_ = min(extrainfo.hh(end-1),extrainfo.p(end,4));
                 else
                     closeflag = false;
                 end
@@ -361,7 +361,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 end
             else
                 closeflag = true;
-                obj.pxstoploss_ = extrainfo.p(end,5);
+                obj.pxstoploss_ = extrainfo.p(end,3);
             end
             if closeflag
 %                 obj.pxstoploss_ = 2*extrainfo.p(end,3) - extrainfo.p(end,4);

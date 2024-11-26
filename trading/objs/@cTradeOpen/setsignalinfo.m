@@ -162,6 +162,11 @@ function [] = setsignalinfo(obj,varargin)
             signalinfo.ll1_ = [];
         end
         %
+        try
+            signalinfo.kelly_ = info.kelly;
+        catch
+            signalinfo.kelly_ = [];
+        end
         obj.opensignal_ = signalinfo;
         return
     end

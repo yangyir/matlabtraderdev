@@ -10,6 +10,10 @@ classdef cStratConfigFractal < cStratConfig
         includelastcandle_@double = 0
         usefractalupdate_@double = 1
         usefibonacci_@double = 1
+        kellylong_@double = 0.15
+        kellyconditionallong_@double = 0.15
+        
+        
     end
     
     methods

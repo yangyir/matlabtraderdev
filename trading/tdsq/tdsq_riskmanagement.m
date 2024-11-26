@@ -87,11 +87,18 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         %price fell below lvlup
         if ~isempty(find(p(idxopen:end-1,5)>lvlup(end-1),1,'first')) && ...
                 p(end,3)<lvlup(end-1)
-            if p(end,4)<lips(end)
-                closeflag = 1;
-                trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
-                closestr = trade.riskmanager_.closestr_;
-                return
+            if strcmpi(trade.opensignal_.mode_,'conditional-uptrendconfirmed-1')
+                 closeflag = 1;
+                 trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
+                 closestr = trade.riskmanager_.closestr_;
+                 return
+            else
+                if p(end,4)<lips(end)
+                    closeflag = 1;
+                    trade.riskmanager_.closestr_ = 'tdsq:candle failed to breach TDST lvlup';
+                    closestr = trade.riskmanager_.closestr_;
+                    return
+                end
             end
 %             trade.riskmanager_.pxstoploss_ = 0.382*lvlup(end-1)+0.618*trade.riskmanager_.hh0_;
             trade.riskmanager_.pxstoploss_ = 0.382*lvlup(end-1)+0.618*trade.riskmanager_.pxstoploss_;
