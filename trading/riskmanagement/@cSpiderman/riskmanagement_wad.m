@@ -43,7 +43,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                     obj.closestr_ = ['wad:',ret.reason];
                 end
 %                 obj.pxstoploss_ = max(extrainfo.p(end,4),extrainfo.lips(end));
-                obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
+                obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.teeth(end));
                 obj.pxstoploss_ = floor(obj.pxstoploss_/ticksize)*ticksize;
                 if keepclosestr
                     obj.closestr_ = ['wad:',ret.reason];
@@ -147,7 +147,7 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                     closeflag = ret.inconsistence;
                 end
 %                 obj.pxstoploss_ =  min(extrainfo.p(end,3),extrainfo.lips(end));
-                obj.pxstoploss_ =  min(2*extrainfo.p(end,3)-extrainfo.p(end,4),extrainfo.lips(end));
+                obj.pxstoploss_ =  min(2*extrainfo.p(end,3)-extrainfo.p(end,4),extrainfo.teeth(end));
                 obj.pxstoploss_ = ceil(obj.pxstoploss_/ticksize)*ticksize;
                 if keepclosestr
                     obj.closestr_ = ['wad:',ret.reason];

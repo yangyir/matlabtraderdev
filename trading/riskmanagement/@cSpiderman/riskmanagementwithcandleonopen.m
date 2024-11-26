@@ -170,7 +170,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     if ei.p(end,5) <= max(ei.lips(end),ei.teeth(end)) || ...
                             (~isnan(obj.tdlow_) && ei.p(end,5) < obj.tdlow_) || ...
                             (~isnan(obj.td13low_) && ei.p(end,5) < obj.td13low_) || ...
-                            (ei.p(end,4) >= ei.p(end-1,4) && shadowlineratio > 0.9)
+                            (ei.p(end,4) <= ei.p(end-1,4) && shadowlineratio > 0.9)
                         unwindflag = true;
                         msg = 'conditional uptrendconfirmed failed:shadowline1';
                         obj.status_ = 'closed';
@@ -232,6 +232,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             if signaluncond.directionkellied == 1
                 kelly = signaluncond.kelly;
                 trade.opensignal_.mode_ = signaluncond.opkellied;
+                trade.opensignal_.kelly_ = kelly;
                 if kelly < 0.088
                     unwindflag = true;
                     msg = 'conditional uptrendconfirmed success:lowkelly';
@@ -240,6 +241,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
             else
                 trade.opensignal_.mode_ = signaluncond.opkellied;
+                trade.opensignal_.kelly_ = signaluncond.kelly;
                 unwindflag = true;
                 msg = 'conditional uptrendconfirmed success:lowkelly';
                 obj.status_ = 'closed';
@@ -401,7 +403,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
                 if isopencandle
                     %the open market vol might be too high
-                    if ei.p(end,5) >= min(ei.lips(end),ei.teeth(end))
+                    if ei.p(end,5) >= min(ei.lips(end),ei.teeth(end)) || ...
+                            (~isnan(obj.tdhigh_) && ei.p(end,5) > obj.tdhigh_) || ...
+                            (~isnan(obj.td13high_) && ei.p(end,5) > obj.td13high_) || ...
+                            (ei.p(end,3) >= ei.p(end-1,3) && shadowlineratio > 0.9)
                         unwindflag = true;
                         msg = 'conditional dntrendconfirmed failed:shadowline1';
                         obj.status_ = 'closed';
@@ -503,6 +508,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             if signaluncond.directionkellied == -1
                 kelly = signaluncond.kelly;
                 trade.opensignal_.mode_ = signaluncond.opkellied;
+                trade.opensignal_.kelly_ = signaluncond.kelly;
                 if kelly < 0.088
                     unwindflag = true;
                     msg = 'conditional dntrendconfirmed success:lowkelly';
@@ -512,6 +518,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
             else
                 trade.opensignal_.mode_ = signaluncond.opkellied;
+                trade.opensignal_.kelly_ = signaluncond.kelly;
                 unwindflag = true;
                 msg = 'conditional dntrendconfirmed success:lowkelly';
                 obj.status_ = 'closed';
