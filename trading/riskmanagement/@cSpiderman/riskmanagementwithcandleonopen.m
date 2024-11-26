@@ -179,10 +179,11 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     end
                 else
                     %exception found on y2409 on 20240628
-                    exceptionflag = (ei.p(end,4) > ei.p(end-1,4) && shadowlineratio <= 0.75) || ...
-                        (strcmpi(val,'conditional-uptrendconfirmed-1') && ei.p(end,3) > ei.lvlup(end)) || ...
-                        (ei.p(end,5) > ei.lvlup(end-1) && ei.p(end-1,5) < ei.lvlup(end-1)) || ...
-                        ~isnan(obj.tdlow_) || ~isnan(obj.td13low_);
+                    exceptionflag = (ei.p(end,4) > ei.p(end-1,4) & shadowlineratio <= 0.75) | ...
+                        (ei.p(end,4) > ei.p(end-1,4) & ei.p(end-1,3) > ei.hh(end-2) & ei.p(end-1,5) <= ei.hh(end-2) & ei.hh(end-1) == ei.hh(end-2)) | ...
+                        (strcmpi(val,'conditional-uptrendconfirmed-1') & ei.p(end,3) > ei.lvlup(end)) | ...
+                        (ei.p(end,5) > ei.lvlup(end-1) & ei.p(end-1,5) < ei.lvlup(end-1)) | ...
+                        ~isnan(obj.tdlow_) | ~isnan(obj.td13low_);
                     if ~exceptionflag
                         unwindflag = true;
                         msg = 'conditional uptrendconfirmed failed:shadowline1';
@@ -313,6 +314,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             
         end
         %
+        if runriskmanagementbeforemktclose && strcmpi(freq_,'30m') && ...
+                (shadowlineratio > 0.9 || ...
+                (shadowlineratio >= 0.75 && ei.p(end,5) < ei.p(end-1,5)))
+            unwindflag = true;
+            msg = 'conditional dntrendconfirmed failed:mktclose';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+        %
         unwindflag = false;
         msg = '';
         return
@@ -417,6 +428,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     %exception found on p2409 on 20240418
                     exceptionflag = (ei.p(end,3) < ei.p(end-1,3) & ...
                         shadowlineratio < 0.8) | ...
+                        (ei.p(end,3) < ei.p(end-1,3) & ei.p(end-1,4) < ei.ll(end-2) & ei.p(end-1,5) >= ei.ll(end-2) & ei.ll(end-1) == ei.ll(end-2)) | ...
                         ~isnan(obj.tdhigh_) | ~isnan(obj.td13high_);
                     if ~exceptionflag
                         unwindflag = true;
@@ -586,7 +598,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %
-        if runriskmanagementbeforemktclose && strcmpi(freq_,'30m') && shadowlineratio > 0.9
+        if runriskmanagementbeforemktclose && strcmpi(freq_,'30m') && ...
+                (shadowlineratio > 0.9 || ...
+                (shadowlineratio >= 0.75 && ei.p(end,5) > ei.p(end-1,3) && ei.p(end-1,4) < ei.ll(end-2)))
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:mktclose';
             obj.status_ = 'closed';
