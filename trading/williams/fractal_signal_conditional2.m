@@ -40,8 +40,7 @@ function [output] = fractal_signal_conditional2(varargin)
         %extracheck to avoid conditional open on fractal hh update point
         highs = ei.px(end-nfractal+1:end,3);
         highest = max(highs);
-        if highs(1) == highest && highest > ei.hh(end) && nfractal ~= 6 && ...
-                ~isempty(find(ei.px(end-nfractal+2:end,5) - ei.hh(end-nfractal+2:end) > 0,1,'first'))
+        if highs(1) == highest && highest > ei.hh(end) && nfractal ~= 6
             signal{1,1}(2) = highest;
 %             output = {};
 %             return
@@ -238,8 +237,7 @@ function [output] = fractal_signal_conditional2(varargin)
         %extracheck to avoid conditional open on fractal ll update point
         lows = ei.px(end-nfractal+1:end,4);
         lowest = min(lows);
-        if lows(1) == lowest && lowest < ei.ll(end) && nfractal ~= 6 && ...
-                ~isempty(find(ei.px(end-nfractal+2:end,5) - ei.ll(end-nfractal+2:end) < 0,1,'first'))
+        if lows(1) == lowest && lowest < ei.ll(end) && nfractal ~= 6
             signal{1,2}(3) = lowest;
 %             output = {};
 %             return
