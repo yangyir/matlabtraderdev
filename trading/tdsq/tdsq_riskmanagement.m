@@ -58,7 +58,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
     if direction == 1
 %         if ~isnan(trade.riskmanager_.tdlow_) && extrainfo.ss(end) > 9
         if ~isnan(trade.riskmanager_.tdlow_)
-            if p(end,5) - trade.riskmanager_.tdlow_+ticksize < -1e-6
+            if p(end,5) - trade.riskmanager_.tdlow_+ticksize < 1e-6
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
                 closestr = trade.riskmanager_.closestr_;
@@ -255,7 +255,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             trade.riskmanager_.tdhigh_ = max(extrainfo.p(end-k+1:end,3));
             tdidx = find(extrainfo.p(end-k+1:end,3)==trade.riskmanager_.tdhigh_,1,'last')+length(extrainfo.p)-k;
             trade.riskmanager_.tdlow_ = extrainfo.p(tdidx,4);
-            if p(end,5) - trade.riskmanager_.tdlow_+2*ticksize < -1e-6
+            if p(end,5) - trade.riskmanager_.tdlow_+2*ticksize < 1e-6
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
                 closestr = trade.riskmanager_.closestr_;
@@ -275,7 +275,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.tdhigh_ = highpx;
                 trade.riskmanager_.tdlow_ = extrainfo.p(highidx,4);
             end
-            if p(end,5) - trade.riskmanager_.tdlow_+ticksize < -1e-6
+            if p(end,5) - trade.riskmanager_.tdlow_+ticksize < 1e-6
                 closeflag = 1;
                 trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
                 closestr = trade.riskmanager_.closestr_;

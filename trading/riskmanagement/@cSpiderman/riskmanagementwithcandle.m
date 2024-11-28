@@ -306,7 +306,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             exceptionflag = false;
         end
         if ~exceptionflag
-            if extrainfo.p(end,5) > extrainfo.hh(end-1)
+            if extrainfo.p(end,5) >= extrainfo.hh(end-1)
                 if extrainfo.p(end,5) <= extrainfo.p(end,2)
                     closeflag = true;
                     obj.pxstoploss_ = min(extrainfo.hh(end-1),extrainfo.p(end,4));
@@ -315,7 +315,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 end
             else
                 closeflag = true;
-                obj.pxstoploss_ = extrainfo.p(end,4);
+                if ~isempty(strfind(val,'conditional-'))
+                    obj.pxstoploss_ = extrainfo.p(end,5);
+                else
+                    obj.pxstoploss_ = extrainfo.p(end,4);
+                end
             end
             if closeflag
 %                 obj.pxstoploss_ = 2*extrainfo.p(end,4) - extrainfo.p(end,3);
@@ -351,7 +355,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             exceptionflag = false;
         end
         if ~exceptionflag
-            if extrainfo.p(end,5) < extrainfo.ll(end-1)
+            if extrainfo.p(end,5) <= extrainfo.ll(end-1)
                 if extrainfo.p(end,5) >= extrainfo.p(end,2)
                     closeflag = true;
                     obj.pxstoploss_ = 2*extrainfo.p(end,3) - extrainfo.p(end,4);
@@ -361,7 +365,15 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 end
             else
                 closeflag = true;
-                obj.pxstoploss_ = extrainfo.p(end,3);
+                if ~isempty(strfind(val,'conditional-'))
+                    obj.pxstoploss_ = extrainfo.p(end,5);
+                else
+                    if extrainfo.p(end,5) > extrainfo.lips(end)
+                        obj.pxstoploss_ = extrainfo.p(end,5) - 2*instrument.tick_size;
+                    else
+                        obj.pxstoploss_ = extrainfo.p(end,3);
+                    end
+                end
             end
             if closeflag
 %                 obj.pxstoploss_ = 2*extrainfo.p(end,3) - extrainfo.p(end,4);

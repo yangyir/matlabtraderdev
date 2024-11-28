@@ -7,7 +7,7 @@ classdef cFractalInfo < cSignalInfo
         ll_@double
         hh1_@double
         ll1_@double
-        kelly_@double
+        kelly_@double = -9.99
     end
     
     methods
