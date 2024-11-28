@@ -131,7 +131,12 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         openprice_b(i) = tblb_data_consolidated{i,17};
         opennotional_b(i) = openprice_b(i)*fut.contract_size;
         opendatetime_b(i) = tblb_data_consolidated{i,13};
-        opendate_b(i) = getlastbusinessdate(opendatetime_b(i));
+        if ~isempty(strfind(fut.asset_name,'govtbond')) || ...
+                ~isempty(strfind(fut.asset_name,'eqindex'))
+            opendate_b(i) = floor(opendatetime_b(i));
+        else
+            opendate_b(i) = getlastbusinessdate(opendatetime_b(i));
+        end
         if isempty(fut.asset_name)
             idxb(i) = 1;
         else
@@ -196,7 +201,12 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         openprice_s(i) = tbls_data_consolidated{i,17};
         opennotional_s(i) = openprice_s(i)*fut.contract_size;
         opendatetime_s(i) = tbls_data_consolidated{i,13};
-        opendate_s(i) = getlastbusinessdate(opendatetime_s(i));
+        if ~isempty(strfind(fut.asset_name,'govtbond')) || ...
+                ~isempty(strfind(fut.asset_name,'eqindex'))
+            opendate_s(i) = floor(opendatetime_s(i));
+        else
+            opendate_s(i) = getlastbusinessdate(opendatetime_s(i));
+        end
         if isempty(fut.asset_name)
             idxs(i) = 1;
         else
