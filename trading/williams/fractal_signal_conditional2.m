@@ -55,7 +55,7 @@ function [output] = fractal_signal_conditional2(varargin)
             sshighidx = find(ei.px(lastss-lastssval+1:lastss,3) == sshigh,1,'last')+lastss-lastssval;
             sslow = ei.px(sshighidx,4);
 %             if ei.hh(end) <= 2*sslow-sshigh+1e-6 && ei.hh(end) < sshigh
-            if ei.hh(end) < sslow
+            if ei.hh(end) < sslow || (ei.hh(end) < sshigh && ei.hh(end) > sslow)
                 signal{1,1}(2) = sshigh;
 %                 return
             end
@@ -93,7 +93,19 @@ function [output] = fractal_signal_conditional2(varargin)
                 if kelly >= 0.088
                     signalkellied(1) = 1;
                     if isbreachupsshigh
-                        opkellied = 'conditional breachup-sshighvalue';
+                        %special treatment when sslow is close to fractal
+                        %barrier,i.e. found on cu2104 on 2021-02-22
+                        lastss = find(ei.ss >= 9,1,'last');
+                        lastssval = ei.ss(lastss);
+                        sshigh = max(ei.px(lastss-lastssval+1:lastss,3));
+                        sshighidx = find(ei.px(lastss-lastssval+1:lastss,3) == sshigh,1,'last')+lastss-lastssval;
+                        sslow = ei.px(sshighidx,4);
+                        if ei.hh(end) - sslow <= 4*ticksize
+                            signalkellied(1) = 0;
+                            opkellied = 'conditional breachup-sshighvalue not to place as tdlow is close to fractal hh';
+                        else
+                            opkellied = 'conditional breachup-sshighvalue';
+                        end
                     elseif isbreachupschigh
                         opkellied = 'conditional breachup-highsc13';
                     end
