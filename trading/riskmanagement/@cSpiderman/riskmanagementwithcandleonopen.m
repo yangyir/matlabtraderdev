@@ -90,16 +90,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     end
     
     if ei.ss(end) == 9 && isnan(obj.tdlow_)
-        pxhigh = min(ei.px(end-8:end,3));
-        pxhighidx = find(ei.px(end-8:end,3) == pxhigh,1,'last')+size(ei.ss,1)-9;
+        pxhigh = min(ei.p(end-8:end,3));
+        pxhighidx = find(ei.p(end-8:end,3) == pxhigh,1,'last')+size(ei.ss,1)-9;
         obj.tdhigh_ = pxhigh;
-        obj.tdlow_ = ei.px(pxhighidx,4);
+        obj.tdlow_ = ei.p(pxhighidx,4);
     end
     
     if isnan(obj.td13low_)
         lastsc13 = find(ei.sc == 13,1,'last');
         if size(ei.sc,1) - lastsc13 < 2*nfractal
-            tdlow = ei.px(lastsc13,4);
+            tdlow = ei.p(lastsc13,4);
             if tdlow < ei.hh(end-1)
                 obj.td13low_ = tdlow;
             end
@@ -108,7 +108,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     
     if lflag && runriskmanagementbeforemktclose && ~breachupsuccess && ei.ss(end) >= 9
         sslastval = ei.ss(end);
-        pxhigh = max(ei.px(end-sslastval+1:end,3));
+        pxhigh = max(ei.p(end-sslastval+1:end,3));
         if pxhigh > ei.hh(end-1)
             unwindflag = true;
             msg = 'conditional uptrendconfirmed failed:mktclose';
@@ -119,6 +119,14 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     end
     
     if lflag && breachupfailed
+        %
+        if ei.sc(end) == 13
+            unwindflag = true;
+            msg = 'conditional uptrendconfirmed failed:sc13break';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
         %
         if fractalupdate
             exceptionflag = strcmpi(val,'conditional-uptrendconfirmed-1') && ei.p(end,3) > ei.lvlup(end);
@@ -156,8 +164,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             if ~onopenflag
                 exceptionflag = (strcmpi(val,'conditional-uptrendconfirmed-1') && ei.p(end,3) > ei.lvlup(end)) || ...
                     ~isnan(obj.tdlow_) || ~isnan(obj.td13low_);
-                exceptionflag = exceptionflag & shadowlineratio < 0.9;
-                if ei.p(end,4) < ei.p(end-1,4) && ~exceptionflag
+                exceptionflag = exceptionflag & shadowlineratio < 0.9 & ...
+                    ~(ei.p(end,4) < ei.p(end-1,4) & ei.p(end,5) < ei.p(end-1,5) & ei.p(end,3) < ei.p(end-1,3) & shadowlineratio > 0.8);
+                if ((ei.p(end,4) < ei.p(end-1,4)) || (ei.p(end,5) < ei.p(end-1,5) && ei.p(end,3) < ei.p(end-1,3))) && ~exceptionflag
                     unwindflag = true;
                     msg = 'conditional uptrendconfirmed failed:shadowline2';
                     obj.status_ = 'closed';
@@ -171,7 +180,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     if ei.p(end,5) <= max(ei.lips(end),ei.teeth(end)) || ...
                             (~isnan(obj.tdlow_) && ei.p(end,5) < obj.tdlow_) || ...
                             (~isnan(obj.td13low_) && ei.p(end,5) < obj.td13low_) || ...
-                            (ei.p(end,4) <= ei.p(end-1,4) && shadowlineratio > 0.9)
+                            (ei.p(end,4) <= ei.p(end-1,4) && shadowlineratio > 0.9) || ...
+                            (ei.p(end,4) < ei.p(end-1,4) && ei.p(end,5) < ei.p(end-1,5) && ei.p(end,5) < ei.p(end,2) && shadowlineratio > 0.8) || ...
+                            (ei.ss(end) > 9 && shadowlineratio > 0.9)
                         unwindflag = true;
                         msg = 'conditional uptrendconfirmed failed:shadowline1';
                         obj.status_ = 'closed';
@@ -182,7 +193,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     %exception found on y2409 on 20240628
                     exceptionflag = (ei.p(end,4) > ei.p(end-1,4) & shadowlineratio <= 0.75) | ...
                         (ei.p(end,4) > ei.p(end-1,4) & ei.p(end,5) > ei.p(end-1,3) & shadowlineratio <= 0.85) | ...
-                        (ei.p(end,4) > ei.p(end-1,4) & ei.p(end-1,3) > ei.hh(end-2) & ei.p(end-1,5) <= ei.hh(end-2) & ei.hh(end-1) == ei.hh(end-2)) | ...
+                        (ei.p(end,4) > ei.p(end-1,4) & ei.p(end-1,3) > ei.hh(end-2) & ei.p(end-1,5) <= ei.hh(end-2) & ei.hh(end-1) >= ei.hh(end-2)) | ...
                         (strcmpi(val,'conditional-uptrendconfirmed-1') & ei.p(end,3) > ei.lvlup(end)) | ...
                         (ei.p(end,5) > ei.lvlup(end-1) & ei.p(end-1,5) < ei.lvlup(end-1)) | ...
                         ~isnan(obj.tdlow_) | ~isnan(obj.td13low_);
@@ -320,7 +331,15 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 (shadowlineratio > 0.9 || ...
                 (shadowlineratio >= 0.75 && ei.p(end,5) < ei.p(end-1,5)))
             unwindflag = true;
-            msg = 'conditional dntrendconfirmed failed:mktclose';
+            msg = 'conditional uptrendconfirmed failed:mktclose';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+        %
+        if abs(ei.p(end,3) - ei.hh(end-1)) <= 2*trade.instrument_.tick_size && shadowlineratio > 0.618
+            unwindflag = true;
+            msg = 'conditional uptrendconfirmed failed:within2ticks2andshadowline2';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
@@ -336,16 +355,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     
     % ------- BELOW IS FOR SHORT POSITION ------- %
     if ei.bs(end) == 9 && isnan(obj.tdhigh_)
-        pxlow = min(ei.px(end-8:end,4));
-        pxlowidx = find(ei.px(end-8:end,4) == pxlow,1,'last')+size(ei.bs,1)-9;
+        pxlow = min(ei.p(end-8:end,4));
+        pxlowidx = find(ei.p(end-8:end,4) == pxlow,1,'last')+size(ei.bs,1)-9;
         obj.tdlow_ = pxlow;
-        obj.tdhigh_ = ei.px(pxlowidx,3);
+        obj.tdhigh_ = ei.p(pxlowidx,3);
     end
     
     if isnan(obj.td13high_)
         lastbc13 = find(ei.bc == 13,1,'last');
         if size(ei.bc,1) - lastbc13 < 2*nfractal
-            tdhigh = ei.px(lastbc13,4);
+            tdhigh = ei.p(lastbc13,3);
             if tdhigh >= ei.ll(end-1)
                 obj.td13high_ = tdhigh;
             end
@@ -388,6 +407,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 end
             else
                 if ~exceptionflag
+                    exceptionflag = ei.p(end,3) < ei.p(end-1,3) & ei.p(end,4) < ei.p(end-1,4) & ei.p(end-1,4) - ei.ll(end-2) < 2*trade.instrument_.tick_size;
+                end
+                if ~exceptionflag
                     unwindflag = true;
                     msg = 'conditional dntrendconfirmed failed:within2ticks1';
                     obj.status_ = 'closed';
@@ -408,6 +430,25 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     obj.closestr_ = msg;
                     return
                 end
+                %
+                if ei.p(end,4) < ei.p(end-1,4) && ...
+                        ei.p(end,3) > ei.p(end-1,3) && ...
+                        ei.p(end,5) > ei.p(end,2) && ...
+                        ei.p(end-1,4) <= ei.ll(end-2) && ...
+                        shadowlineratio > 0.8
+                    unwindflag = true;
+                    msg = 'conditional dntrendconfirmed failed:shadowline2';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                    return
+                end
+                %
+                if ~(ei.p(end,3) < ei.p(end-1,3) && ei.p(end,4) < ei.p(end-1,4)) && ei.p(end-1,4) <= ei.ll(end-1)
+                    obj.pxstoploss_ = ei.p(end,3)-2*trade.instrument_.tick_size;
+                    msg = 'conditional dntrendconfirmed failed:shadowline2';
+                    obj.closestr_ = msg; 
+                end
+                
             else
                 if strcmpi(trade.opensignal_.frequency_,'daily') || strcmpi(trade.opensignal_.frequency_,'1440m')
                     isopencandle = false;
@@ -419,7 +460,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     if ei.p(end,5) >= min(ei.lips(end),ei.teeth(end)) || ...
                             (~isnan(obj.tdhigh_) && ei.p(end,5) > obj.tdhigh_) || ...
                             (~isnan(obj.td13high_) && ei.p(end,5) > obj.td13high_) || ...
-                            (ei.p(end,3) >= ei.p(end-1,3) && shadowlineratio > 0.9)
+                            (ei.p(end,3) >= ei.p(end-1,3) && shadowlineratio > 0.9) || ...
+                            (ei.p(end,5) > ei.p(end-1,5) && shadowlineratio > 0.9)
                         unwindflag = true;
                         msg = 'conditional dntrendconfirmed failed:shadowline1';
                         obj.status_ = 'closed';
@@ -428,9 +470,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     end
                 else
                     %exception found on p2409 on 20240418
-                    exceptionflag = (ei.p(end,3) < ei.p(end-1,3) & ...
-                        shadowlineratio < 0.8) | ...
+                    exceptionflag = (ei.p(end,3) < ei.p(end-1,3) & shadowlineratio < 0.8) | ...
                         (ei.p(end,3) < ei.p(end-1,3) & ei.p(end-1,4) < ei.ll(end-2) & ei.p(end-1,5) >= ei.ll(end-2) & ei.ll(end-1) == ei.ll(end-2)) | ...
+                        (ei.p(end,3) < ei.p(end-1,3) & ei.p(end,4) < ei.p(end-1,4) & ei.p(end-1,4) - ei.ll(end-2) < 2*trade.instrument_.tick_size) | ...
+                        (ei.p(end,3) < ei.p(end-1,3) & ei.p(end,4) < ei.p(end-1,4) & ei.p(end,5) <= ei.p(end-1,5) & ei.bs(end) >= 2) | ...
                         ~isnan(obj.tdhigh_) | ~isnan(obj.td13high_);
                     if ~exceptionflag
                         unwindflag = true;
@@ -605,6 +648,23 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 (shadowlineratio >= 0.75 && ei.p(end,5) > ei.p(end-1,3) && ei.p(end-1,4) < ei.ll(end-2)))
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:mktclose';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+        %
+        if abs(ei.p(end,4) - ei.ll(end-1)) <= 2*trade.instrument_.tick_size && shadowlineratio > 0.618
+            unwindflag = true;
+            msg = 'conditional dntrendconfirmed failed:within2ticks2andshadowline2';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            return
+        end
+        %
+        if abs(ei.p(end,4) - ei.ll(end-1)) <= 2*trade.instrument_.tick_size && ...
+                ei.p(end,4) > ei.p(end-1,4) && ei.p(end,3) > ei.p(end-1,3)
+            unwindflag = true;
+            msg = 'conditional dntrendconfirmed failed:within2ticks2';
             obj.status_ = 'closed';
             obj.closestr_ = msg;
             return
