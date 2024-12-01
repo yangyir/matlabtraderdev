@@ -294,31 +294,56 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if ~isnan(obj.tdlow_)
             sshighidx = find(extrainfo.ss >=9,1,'last');
             sshigh = extrainfo.ss(sshighidx);
-            if sshigh > 16
-                exceptionflag = false;
-            elseif size(extrainfo.ss,1) - sshighidx > 13
-                %the sell sequential happens long time ago
+            if sshigh >= 16
                 exceptionflag = false;
             else
-                exceptionflag = true;
+                lasthhidx = find(extrainfo.hh(1:end-1) == 1,1,'last');
+                if lasthhidx < sshighidx
+                    exceptionflag = false;
+                else
+                    exceptionflag = true;
+                end
             end
         else
             exceptionflag = false;
         end
         if ~exceptionflag
             if extrainfo.p(end,5) >= extrainfo.hh(end-1)
-                if extrainfo.p(end,5) <= extrainfo.p(end,2)
+                %todo:
+                %trick part when extrainfo.p(end,5) == extrainfo.p(end,2)
+                if extrainfo.p(end,5) < extrainfo.p(end,2)
                     closeflag = true;
-                    obj.pxstoploss_ = min(extrainfo.hh(end-1),extrainfo.p(end,4));
+                    shadowlineratio = (extrainfo.p(end,3) - extrainfo.p(end,5))/(extrainfo.p(end,3) - extrainfo.p(end,4));
+                    if shadowlineratio > 0.618
+                        obj.pxstoploss_ = extrainfo.p(end,5);
+                    else
+                        obj.pxstoploss_ = extrainfo.p(end,4);
+                    end
                 else
-                    closeflag = false;
+                    lasthhidx = find(extrainfo.hh(1:end-1) == 1,1,'last');
+                    sshighidx = find(extrainfo.ss >=9,1,'last');
+                    if lasthhidx < sshighidx
+                        sshigh = extrainfo.ss(sshighidx);
+                        if sshigh >= 16
+                            closeflag = true;
+                            obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+                        else
+                            closeflag = false;
+                        end
+                    else
+                        closeflag = false;
+                    end
                 end
             else
                 closeflag = true;
                 if ~isempty(strfind(val,'conditional-'))
                     obj.pxstoploss_ = extrainfo.p(end,5);
                 else
-                    obj.pxstoploss_ = extrainfo.p(end,4);
+                    if extrainfo.sc(end) == 13 || extrainfo.ss(end) >= 9
+                        obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+                    else
+                        obj.pxstoploss_ = extrainfo.p(end,4) + ticksize;
+                    end
                 end
             end
             if closeflag
@@ -368,7 +393,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 if ~isempty(strfind(val,'conditional-'))
                     obj.pxstoploss_ = extrainfo.p(end,5);
                 else
-                    if extrainfo.p(end,5) > extrainfo.lips(end)
+                    if extrainfo.p(end,5) > extrainfo.lips(end) - instrument.tick_size
                         obj.pxstoploss_ = extrainfo.p(end,5) - 2*instrument.tick_size;
                     else
                         obj.pxstoploss_ = extrainfo.p(end,3);
