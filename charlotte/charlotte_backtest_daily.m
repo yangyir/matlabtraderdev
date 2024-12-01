@@ -181,16 +181,21 @@ while i <= idx2
                    if output.directionkellied == 0 && (strcmpi(output.op.comment,trade.opensignal_.mode_) || ...
                            (~strcmpi(output.op.comment,trade.opensignal_.mode_) && ...
                            (output.kelly < 0 || isnan(output.kelly))))
-                       trade.status_ = 'closed';
-                       trade.riskmanager_.status_ = 'closed';
-                       trade.riskmanager_.closestr_ = ['kelly is too low: ',num2str(output.kelly)];
-                       trade.runningpnl_ = 0;
-                       trade.closeprice_ = ei_j.latestopen;
-                       trade.closedatetime1_ = ei_j.latestdt;
-                       trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
-                       tradeout = trade;
-                       unwindedtrades.push(tradeout);
-                       break
+                       
+                       exceptionflag =  trade.opensignal_.kelly_ > 0.3 && ...
+                           ~isempty(strfind(trade.opensignal_.mode_,'volblowup'));
+                       if ~exceptionflag
+                           trade.status_ = 'closed';
+                           trade.riskmanager_.status_ = 'closed';
+                           trade.riskmanager_.closestr_ = ['kelly is too low: ',num2str(output.kelly)];
+                           trade.runningpnl_ = 0;
+                           trade.closeprice_ = ei_j.latestopen;
+                           trade.closedatetime1_ = ei_j.latestdt;
+                           trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
+                           tradeout = trade;
+                           unwindedtrades.push(tradeout);
+                           break
+                       end
                    end
                end
                %
