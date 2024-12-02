@@ -560,7 +560,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             flags.isbslowbreach = false;
             flags.isbclowbreach = false;            
             %1.check whether it is a conditional breachup-lvlup
-            flags.islvlupbreach = ei.hh(end)>=ei.lvlup(end)&ei.px(end,5)<ei.lvlup(end);
+            flags.islvlupbreach = ei.hh(end)>=ei.lvlup(end)&ei.px(end,5)<=ei.lvlup(end);
             %2.check whether it is a conditional breachup-sshighvalue
             sslastidx = find(ei.ss >= 9,1,'last');
             if isempty(sslastidx)
@@ -685,7 +685,7 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             flags.issshighbreach = false;
             flags.isschighbreach = false;
             %1.check whether it is a conditional breachdn-lvldn
-            flags.islvldnbreach = ei.ll(end)<=ei.lvldn(end)&ei.px(end,5)>ei.lvldn(end);
+            flags.islvldnbreach = ei.ll(end)<=ei.lvldn(end)&ei.px(end,5)>=ei.lvldn(end);
             %2.check whether it is a conditional breachdn-bshighvalue
             bslastidx = find(ei.bs >= 9,1,'last');
             if isempty(bslastidx)
