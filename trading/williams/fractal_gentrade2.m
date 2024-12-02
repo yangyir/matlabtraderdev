@@ -211,7 +211,7 @@ elseif condsignal.directionkellied == 1
             if pxopen >= condsignal.signalkellied(2)+fut.tick_size*tickratio_
                 lasttrade = pxopen;
                 retlast = lasttrade-px(end,5);
-                isvolblowup2 = retlast>0 & (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.99);
+                isvolblowup2 = retlast>0 & (retlast-mean(barsizerest))/std(barsizerest)>norminv(0.975);
             else
                 isvolblowup2 = false;
             end
@@ -375,7 +375,7 @@ elseif condsignal.directionkellied == -1
             if pxopen <= condsignal.signalkellied(3)-tickratio_*fut.tick_size
                 lasttrade = pxopen;
                 retlast = lasttrade-px(end,5);
-                isvolblowup2 = retlast<0 & (abs(retlast)-mean(barsizerest))/std(barsizerest)>norminv(0.99);
+                isvolblowup2 = retlast<0 & (abs(retlast)-mean(barsizerest))/std(barsizerest)>norminv(0.975);
             else
                 isvolblowup2 = false;
             end
