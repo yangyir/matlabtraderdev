@@ -5,7 +5,7 @@ dateto = cell(ncode,1);
 for i = 1:ncode
     idx = strcmpi(tblout2.code,codelistunique{i});
     tbl_i = tblout2(idx,:);
-    datefrom{i} = datestr(dateadd(tbl_i.opendatetime(1,1:end),'0b'),'yyyy-mm-dd');
+    datefrom{i} = datestr(dateadd(tbl_i.opendatetime(1,1:end),'-1b'),'yyyy-mm-dd');
     dateto{i} = datestr(dateadd(tbl_i.closedatetime(end,1:end),'0b'),'yyyy-mm-dd');
 end
 tblrecord = table(codelistunique,datefrom,dateto);
