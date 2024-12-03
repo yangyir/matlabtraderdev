@@ -165,7 +165,7 @@ function [] = setsignalinfo(obj,varargin)
         try
             signalinfo.kelly_ = info.kelly;
         catch
-            signalinfo.kelly_ = [];
+            signalinfo.kelly_ = -9.99;
         end
         obj.opensignal_ = signalinfo;
         return
