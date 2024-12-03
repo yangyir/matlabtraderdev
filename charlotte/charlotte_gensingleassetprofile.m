@@ -3,7 +3,7 @@ function [tblpnl,tblout,statsout] = charlotte_gensingleassetprofile(varargin)
 p = inputParser;
 p.KeepUnmatched = true;p.CaseSensitive = false;
 p.addParameter('assetname','',@ischar);
-p.addParameter('frequency','intraday',@ischar);
+p.addParameter('frequency','30m',@ischar);
 p.addParameter('extratrades',false,@islogical);
 p.parse(varargin{:});
 %
