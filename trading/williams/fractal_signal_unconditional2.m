@@ -164,6 +164,7 @@ function [output] = fractal_signal_unconditional2(varargin)
         if kelly >= 0.088 && useflag
             signal_i(1) = op.direction;
             signal_i(4) = op.direction;
+            signal_i(8) = kelly;
         else
             %do nothing
         end
@@ -184,7 +185,8 @@ function [output] = fractal_signal_unconditional2(varargin)
                     kelly = -9.99;
                     wprob = 0;
                 end
-            end            
+            end
+            signal_i(8) = kelly;
             %%NOTE:here kelly or wprob threshold shall be set
             %%via configuration files,TODO:
             if ~(kelly >= 0.088) && ~strcmpi(op.comment,'volblowup')
@@ -199,14 +201,17 @@ function [output] = fractal_signal_unconditional2(varargin)
                         if ~isempty(strfind(output_.opkellied,'breachup-lvlup'))
                             signal_i(1) = 1;
                             signal_i(4) = 1;
+                            signal_i(8) = output_.kelly;
                             op.comment = 'breachup-lvlup';
                         elseif ~isempty(strfind(output_.opkellied,'breachup-sshighvalue'))
                             signal_i(1) = 1;
                             signal_i(4) = 1;
+                            signal_i(8) = output_.kelly;
                             op.comment = 'breachup-sshighvalue';
                         elseif ~isempty(strfind(output_.opkellied,'breachup-highsc13'))
                             signal_i(1) = 1;
                             signal_i(4) = 1;
+                            signal_i(8) = output_.kelly;
                             op.comment = 'breachup-highsc13';
                         elseif ~isempty(strfind(output_.opkellied,'mediumbreach-trendconfirmed'))
                             signal_i(1) = 0;
@@ -236,9 +241,8 @@ function [output] = fractal_signal_unconditional2(varargin)
                     sshighpx = max(ei.px(end-sslastval:end-1,3));
                     sshighidx = find(ei.px(end-sslastval:end-1,3) == sshighpx,1,'last') + size(ei.px,1) - sslastval - 1;
                     sslowpx = ei.px(sshighidx,4);
-                    if ei.hh(end-1) <= sslowpx
-                        signal_i(1) = 0;
-                        signal_i(4) = 0; 
+                    if ei.hh(end-1) < sslowpx || (ei.hh(end-1) < sshighpx && ei.hh(end-1) >= sslowpx )
+                        signal_i(2) = sshighpx;
                     end
                 end
             end
@@ -251,6 +255,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = -9.99;
                 wprob = 0;
             end
+            signal_i(8) = kelly;
             if ~(kelly >= 0.088)
                 signal_i(1) = 0;
                 signal_i(4) = 0;
@@ -266,6 +271,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
@@ -283,6 +289,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
@@ -299,6 +306,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
@@ -312,6 +320,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
@@ -323,6 +332,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 try
                     kelly = kelly_k(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
                     wprob = kelly_w(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
+                    signal_i(8) = kelly;
                 catch
                     idx = strcmpi(op.comment,kellytables.kelly_table_l.opensignal_unique_l);
                     kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
@@ -331,6 +341,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     signal_i(1) = 0;
                     signal_i(4) = 0;
                 end
@@ -363,15 +374,15 @@ function [output] = fractal_signal_unconditional2(varargin)
         if strcmpi(op.comment,'volblowup') || strcmpi(op.comment,'volblowup2') || ...
                 strcmpi(op.comment,'strongbreach-trendconfirmed') || strcmpi(op.comment,'mediumbreach-trendconfirmed')
             %do nothing as this is for sure trending trades
-                try
-                    kelly = kelly_k(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
-                    wprob = kelly_w(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
-                catch
-                    idx = strcmpi(kellytables.kelly_table_s.opensignal_unique_s,op.comment);
-                    kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
-                    wprob = kellytables.kelly_table_s.winp_unique_s(idx);
-                end
-            
+            try
+                kelly = kelly_k(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
+                wprob = kelly_w(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
+            catch
+                idx = strcmpi(kellytables.kelly_table_s.opensignal_unique_s,op.comment);
+                kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
+                wprob = kellytables.kelly_table_s.winp_unique_s(idx);
+            end
+            signal_i(8) = kelly;
             if ~(kelly>=0.088) && ~strcmpi(op.comment,'volblowup')
                 %in case the conditional dntrend was opened with breachdnbshighvalue 
                 %but it turns out to be a normal trend trend, e.g zn2403 on 20240117
@@ -384,14 +395,17 @@ function [output] = fractal_signal_unconditional2(varargin)
                         if ~isempty(strfind(output_.opkellied,'breachdn-lvldn'))
                             signal_i(1) = -1;
                             signal_i(4) = -1;
+                            signal_i(8) = output_.kelly;
                             op.comment = 'breachdn-lvldn';
                         elseif ~isempty(strfind(output_.opkellied,'breachdn-bshighvalue'))
                             signal_i(1) = -1;
                             signal_i(4) = -1;
+                            signal_i(8) = output_.kelly;
                             op.comment = 'breachdn-bshighvalue';
                         elseif ~isempty(strfind(output_.opkellied,'breachdn-lowbc13'))
                             signal_i(1) = -1;
                             signal_i(4) = -1;
+                            signal_i(8) = output_.kelly;
                             op.comment = 'breachdn-lowbc13';
                         elseif ~isempty(strfind(output_.opkellied,'mediumbreach-trendconfirmed'))
                             signal_i(1) = 0;
@@ -420,9 +434,8 @@ function [output] = fractal_signal_unconditional2(varargin)
                     bslowpx = min(ei.px(end-bslastval:end-1,4));
                     bslowidx = find(ei.px(end-bslastval:end-1,4) == bslowpx,1,'last') + size(ei.px,1) - bslastval - 1;
                     bshighpx = ei.px(bslowidx,3);
-                    if ei.ll(end-1) >= bshighpx
-                        signal_i(1) = 0;
-                        signal_i(4) = 0;
+                    if ei.ll(end-1) > bshighpx || (ei.ll(end-1) > bslowpx && ei.ll(end-1) <= bshighpx)
+                        signal_i(3) = bslowpx;
                     end
                 end
             end
@@ -436,6 +449,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = -9.99;
                 wprob = 0;
             end
+            signal_i(8) = kelly;
             if ~(kelly >= 0.088)
                 signal_i(1) = 0;
                 signal_i(4) = 0;    
@@ -451,6 +465,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
@@ -468,6 +483,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
@@ -483,6 +499,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
@@ -496,6 +513,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     if ~(kelly >= 0.088)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
@@ -506,6 +524,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 try
                     kelly = kelly_k(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
                     wprob = kelly_w(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
+                    signal_i(8) = kelly;
                 catch
                     idx = strcmpi(op.comment,kellytables.kelly_table_s.opensignal_unique_s);
                     kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
@@ -514,6 +533,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         kelly = -9.99;
                         wprob = 0;
                     end
+                    signal_i(8) = kelly;
                     signal_i(1) = 0;
                     signal_i(4) = 0;
                 end
