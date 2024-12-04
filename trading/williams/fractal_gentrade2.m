@@ -115,9 +115,22 @@ if isempty(condsignal)
 %                 end
 %             end
         else
-            trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
-            trade.riskmanager_.setusefractalupdateflag(0);
-            trade.opensignal_.kelly_ = uncondsignal.kelly;
+            try
+                openpx = resstruct.px(idx+1,2);
+            catch
+                openpx = resstruct.px(idx,5);
+            end
+            if uncondsignal.directionkellied == 1 && openpx >= uncondsignal.signalkellied(2)
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                trade.riskmanager_.setusefractalupdateflag(0);
+                trade.opensignal_.kelly_ = uncondsignal.kelly;
+            elseif uncondsignal.directionkellied == -1 && openpx <= uncondsignal.signalkellied(3)
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                trade.riskmanager_.setusefractalupdateflag(0);
+                trade.opensignal_.kelly_ = uncondsignal.kelly;
+            else
+                trade = {};
+            end
             return
         end
     end
