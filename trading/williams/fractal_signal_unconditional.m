@@ -49,7 +49,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             %market breached up HH but still stayed below lvlup closely.we
             %shall, in this case, place a conditional entrust just one tick
             %above lvlup
-            signal = zeros(1,7);
+            signal = zeros(1,8);
             signal(1) = 1;                                                 %direction
             signal(2) = extrainfo.lvlup(end);                              %replace HH with lvlup
             signal(3) = extrainfo.ll(end);                                 %LL
@@ -57,6 +57,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             signal(5) = extrainfo.px(end,3);                               %candle high
             signal(6) = extrainfo.px(end,4);                               %candle low
             signal(7) = extrainfo.lips(end);
+            signal(8) = -9.99;                                             %default value of kelly
             return
         end
         %    
@@ -71,7 +72,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             flag3 = extrainfo.px(end,5)>extrainfo.lips(end)-2*ticksize;
             validlongopen = flag1&flag2&flag3;
             if validlongopen
-                signal = zeros(1,7);
+                signal = zeros(1,8);
                 signal(1) = 1;
                 signal(2) = extrainfo.hh(end-1);
                 signal(3) = extrainfo.ll(end);
@@ -79,8 +80,10 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                 signal(5) = extrainfo.px(end,3);
                 signal(6) = extrainfo.px(end,4);
                 signal(7) = extrainfo.lips(end);
+                signal(8) = -9.99;
             else
-                signal = zeros(1,6);
+                signal = zeros(1,8);
+                signal(8) = -9.99;
                 if ~flag1
                     op.comment = [op.comment,'-invalid long as close dumps from high'];
 %                     op.use = 0;
@@ -88,7 +91,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                 if ~flag2
                     op.comment = [op.comment,'-invalid long as close moves too high'];
 %                     op.use = 0;
-                    signal = zeros(1,7);
+                    signal = zeros(1,8);
                     signal(1) = 0;
                     signal(2) = extrainfo.hh(end-1);
                     signal(3) = extrainfo.ll(end);
@@ -96,6 +99,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                     signal(5) = extrainfo.px(end,3);
                     signal(6) = extrainfo.px(end,4);
                     signal(7) = extrainfo.lips(end);
+                    signal(8) = -9.99;
                 end
                 if ~flag3
                     op.comment = [op.comment,'-invalid long as close below alligator lips'];
@@ -104,12 +108,13 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             end
         else
             %~useflag
-            signal = zeros(1,7);
+            signal = zeros(1,8);
             signal(2) = extrainfo.hh(end-1);
             signal(3) = extrainfo.ll(end);
             signal(5) = extrainfo.px(end,3);
             signal(6) = extrainfo.px(end,4);
             signal(7) = extrainfo.lips(end);
+            signal(8) = -9.99;
         end
         return
     end
@@ -146,7 +151,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             %market breached dn LL but still stayed above lvldn closely.we
             %shall, in this case, place a conditional entrust just one tick
             %below lvldn
-            signal = zeros(1,7);
+            signal = zeros(1,8);
             signal(1) = -1;                                                 %direction
             signal(2) = extrainfo.hh(end);                                 %HH
             signal(3) = extrainfo.lvldn(end);                              %replace LL with lvldn
@@ -154,6 +159,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             signal(5) = extrainfo.px(end,3);                               %candle high
             signal(6) = extrainfo.px(end,4);                               %candle low
             signal(7) = extrainfo.lips(end);
+            signal(8) = -9.99;
             return
         end
         %
@@ -168,7 +174,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             flag3 = extrainfo.px(end,5)<extrainfo.lips(end)+2*ticksize;
             validshortopen = flag1&flag2&flag3;
             if validshortopen
-                signal = zeros(1,7);
+                signal = zeros(1,8);
                 signal(1) = -1;
                 signal(2) = extrainfo.hh(end);
                 signal(3) = extrainfo.ll(end-1);
@@ -176,8 +182,10 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                 signal(5) = extrainfo.px(end,3);
                 signal(6) = extrainfo.px(end,4);
                 signal(7) = extrainfo.lips(end);
+                signal(8) = -9.99;
             else
-                signal = zeros(1,7);
+                signal = zeros(1,8);
+                signal(8) = -9.99;
                 if ~flag1
                     op.comment = [op.comment,'-invalid short as close rallied from low'];
 %                     op.use = 0;
@@ -193,6 +201,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                     signal(5) = extrainfo.px(end,3);
                     signal(6) = extrainfo.px(end,4);
                     signal(7) = extrainfo.lips(end);
+                    signal(8) = -9.99;
                 end
                 if ~flag3
                     op.comment = [op.comment,'-invalid short as close above alligator lips'];
@@ -205,6 +214,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
                     signal(5) = extrainfo.px(end,3);
                     signal(6) = extrainfo.px(end,4);
                     signal(7) = extrainfo.lips(end);
+                    signal(8) = -9.99;
                 end
             end
         else
@@ -214,6 +224,7 @@ function [signal,op,status] = fractal_signal_unconditional(extrainfo,ticksize,nf
             signal(5) = extrainfo.px(end,3);
             signal(6) = extrainfo.px(end,4);
             signal(7) = extrainfo.lips(end);
+            signal(8) = -9.99;
         end
         return
     end 
