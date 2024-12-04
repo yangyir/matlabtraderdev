@@ -238,7 +238,7 @@ function [output] = fractal_signal_conditional2(varargin)
         output.op = op;
         output.flags = flags;
         output.directionkellied = signalkellied(1);
-        output.signalkellied = signalkellied;
+        output.signalkellied = [signalkellied,kelly];
         output.opkellied = opkellied;
         output.kelly = kelly;
         output.wprob = wprob;
@@ -263,7 +263,7 @@ function [output] = fractal_signal_conditional2(varargin)
             bslow = min(ei.px(lastbs-lastbsval+1:lastbs,4));
             bslowidx = find(ei.px(lastbs-lastbsval+1:lastbs,4) == bslow,1,'last')+lastbs-lastbsval;
             bshigh = ei.px(bslowidx,3);
-            if ei.ll(end) > bshigh
+            if ei.ll(end) > bshigh || (ei.ll(end) > bslow && ei.ll(end) <= bshigh)
                 signal{1,2}(3) = bslow;
 %                 output = {};
 %                 return
@@ -471,7 +471,7 @@ function [output] = fractal_signal_conditional2(varargin)
         output.op = op;
         output.flags = flags;
         output.directionkellied = signalkellied(1);
-        output.signalkellied = signalkellied;
+        output.signalkellied = [signalkellied,kelly];
         output.opkellied = opkellied;
         output.kelly = kelly;
         output.wprob = wprob;
