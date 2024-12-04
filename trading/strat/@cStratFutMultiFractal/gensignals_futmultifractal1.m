@@ -251,8 +251,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         if strcmpi(mode1,signaluncond.opkellied)
                             stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                         else
+                            exceptionflag =  tradeexist.opensignal_.kelly_ > 0.3 && ...
+                                ~isempty(strfind(mode1,'volblowup'));
                             kelly = signaluncond.kelly;
-                            if kelly < 0 || isnan(kelly)
+                            if (kelly < 0 || isnan(kelly)) && ~exceptionflag
                                 stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                             end
                         end
