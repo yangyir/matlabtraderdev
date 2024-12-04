@@ -3,7 +3,7 @@ function [tblrollrecord,tbl2check_] = charlotte_backtest_all(varargin)
 p = inputParser;
 p.KeepUnmatched = true;p.CaseSensitive = false;
 p.addParameter('assetname','',@ischar);
-p.addParameter('frequency','intraday',@ischar);
+p.addParameter('frequency','30m',@ischar);
 p.parse(varargin{:});
 %
 assetname = p.Results.assetname;
@@ -66,27 +66,8 @@ ncode = length(codelistunique);
 datefrom = zeros(ncode,1);
 dateto = zeros(ncode,1);
 for i = 1:ncode
-    [~,resstruct_i] = charlotte_loaddata('futcode',codelistunique{i},'frequency',freq);
-    dtstart = getlastbusinessdate(resstruct_i.px(1,1));
-    dsend = getlastbusinessdate(resstruct_i.px(end,1));
-    dts = gendates('fromdate',dtstart,'todate',dsend);
-    for j = 1:length(dts)
-        fn_j = [getenv('datapath'),'activefutures\activefutures_',datestr(dts(j),'yyyymmdd'),'.txt'];
-        data_j = cDataFileIO.loadDataFromTxtFile(fn_j);
-        found_j = sum(strcmpi(data_j,codelistunique{i})) > 0;
-        if found_j
-            datefrom(i) = dts(j);
-            break
-        end
-    end
-    if i >= 2
-        dateto(i-1) = datefrom(i);
-    end
-    if i == ncode
-        dateto(i) = dsend;
-    end
+    [datefrom(i),dateto(i)] = irene_findactiveperiod('code',codelistunique{i},'frequency',freq);
 end
-
 %
 unwindedtrades_ = cTradeOpenArray;
 tbl2check_ = {};
@@ -113,28 +94,33 @@ end
 
 if unwindedtrades_.latest_ > 0
     n = unwindedtrades_.latest_;
-    codes = cell(n,1);
-    bsflag = zeros(n,1);
-    opendt = cell(n,1);
-    openpx = zeros(n,1);
-    closedt = cell(n,1);
-    closepx = zeros(n,1);
+    code = cell(n,1);
+    direction = zeros(n,1);
+    opendatetime = cell(n,1);
+    openprice = zeros(n,1);
+    closedatetime = cell(n,1);
+    closeprice = zeros(n,1);
+    opennotional = zeros(n,1);
     opensignal = cell(n,1);
     closestr = cell(n,1);
     closepnl = zeros(n,1);
+    pnlrel = zeros(n,1);
+    use2 = ones(n,1);
     for i = 1:n
         t_i = unwindedtrades_.node_(i);
-        codes{i} = t_i.code_;
-        bsflag(i) = t_i.opendirection_;
-        opendt{i} = t_i.opendatetime2_;
-        openpx(i) = t_i.openprice_;
-        closedt{i} = t_i.closedatetime2_;
-        closepx(i) = t_i.closeprice_;
+        code{i} = t_i.code_;
+        direction(i) = t_i.opendirection_;
+        opendatetime{i} = t_i.opendatetime2_;
+        openprice(i) = t_i.openprice_;
+        closedatetime{i} = t_i.closedatetime2_;
+        closeprice(i) = t_i.closeprice_;
         opensignal{i} = t_i.opensignal_.mode_;
         closestr{i} = t_i.closestr_;
         closepnl(i) = t_i.closepnl_;
+        opennotional(i) = t_i.instrument_.tick_size * t_i.openprice_;
+        pnlrel(i) = closepnl(i)/opennotional(i);
     end
-    tbl2check_ = table(codes,bsflag,opendt,openpx,closedt,closepx,opensignal,closestr,closepnl);
+    tbl2check_ = table(code,direction,opendatetime,openprice,closedatetime,closeprice,opensignal,opennotional,closestr,closepnl,pnlrel,use2);
 end
 
 end
