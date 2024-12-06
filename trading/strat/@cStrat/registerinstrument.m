@@ -48,6 +48,9 @@ function [] = registerinstrument(strategy,instrument)
     %calcsignal_
     strategy.setcalcsignal(instrument,0);
     
+    %replaceconditionalsignal_
+    strategy.setreplaceconditionalsignal(instrument,0);
+    
 %     %executionperbucket_
 %     strategy.setexecutionperbucket(instrument,0);
 %     
