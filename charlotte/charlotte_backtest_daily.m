@@ -182,9 +182,9 @@ while i <= idx2
                            (~strcmpi(output.op.comment,trade.opensignal_.mode_) && ...
                            (output.kelly < 0 || isnan(output.kelly))))
                        
-                       exceptionflag =  trade.opensignal_.kelly_ > 0.3 && ...
-                           ~isempty(strfind(trade.opensignal_.mode_,'volblowup'));
-                       if ~exceptionflag
+%                        exceptionflag =  trade.opensignal_.kelly_ > 0.3 && ...
+%                            ~isempty(strfind(trade.opensignal_.mode_,'volblowup'));
+%                        if ~exceptionflag
                            trade.status_ = 'closed';
                            trade.riskmanager_.status_ = 'closed';
                            trade.riskmanager_.closestr_ = ['kelly is too low: ',num2str(output.kelly)];
@@ -195,7 +195,7 @@ while i <= idx2
                            tradeout = trade;
                            unwindedtrades.push(tradeout);
                            break
-                       end
+%                        end
                    end
                end
                %
