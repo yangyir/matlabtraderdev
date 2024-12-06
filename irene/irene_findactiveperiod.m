@@ -1,4 +1,4 @@
-function [datefrom,dateto] = irene_findactiveperiod(varargin)
+function [datefrom,dateto,resstruct] = irene_findactiveperiod(varargin)
 %
 p = inputParser;
 p.KeepUnmatched = true;p.CaseSensitive = false;
@@ -9,9 +9,9 @@ p.parse(varargin{:});
 code = p.Results.code;
 freq = p.Results.frequency;
 
-[~,resstruct_i] = charlotte_loaddata('futcode',code,'frequency',freq);
-dtstart = getlastbusinessdate(resstruct_i.px(1,1));
-dtsend = getlastbusinessdate(resstruct_i.px(end,1));
+[~,resstruct] = charlotte_loaddata('futcode',code,'frequency',freq);
+dtstart = getlastbusinessdate(resstruct.px(1,1));
+dtsend = getlastbusinessdate(resstruct.px(end,1));
 if isfx(code)
     datefrom = dtstart;
     dateto = dtsend;
@@ -27,6 +27,11 @@ else
             break
         end
     end
+    if ~found_i
+        datefrom = [];
+        dateto = [];
+        return
+    end
     %
     for j = i+1:length(dts)
         fn_j = [getenv('datapath'),'activefutures\activefutures_',datestr(dts(j),'yyyymmdd'),'.txt'];
@@ -38,6 +43,7 @@ else
         end
     end
     %
+    
 end
 
 
