@@ -293,73 +293,115 @@ function [] = riskmanagement(obj,dtnum)
     elseif isa(obj,'cStratFutMultiFractal')
         for i = 1:ntrades
             trade_i = obj.helper_.trades_.node_(i);
-            if strcmpi(trade_i.status_,'closed'), continue; end
-            
-            if strcmpi(trade_i.opensignal_.frequency_,'30m') || strcmpi(trade_i.opensignal_.frequency_,'5m') || ...
-                    strcmpi(trade_i.opensignal_.frequency_,'15m')
-                kellytables = obj.tbl_all_intraday_;
-            else
-                kellytables = obj.tbl_all_daily_;
-            end
-            unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
-                'UpdatePnLForClosedTrade',false,'Strategy',obj,'KellyTables',kellytables);
-        
-            if ~isempty(unwindtrade)
-                obj.unwindtrade(unwindtrade);
-                if ~isempty(strfind(unwindtrade.closestr_,'conditional')) || ...
-                        ~isempty(strfind(unwindtrade.closestr_,'conditional')) || ...
-                        ~isempty(strfind(unwindtrade.closestr_,'fractal:upupdate')) || ...
-                        ~isempty(strfind(unwindtrade.closestr_,'fractal:dnupdate')) || ...
-                        ~isempty(strfind(unwindtrade.closestr_,'wad'))
-                    instrument = unwindtrade.instrument_;
-                    flag = obj.helper_.book_.hasposition(instrument);
-                    nloopmax = 119;
-                    iloop = 0;
-                    while flag && iloop <= nloopmax
-                        obj.helper_.refresh;
-                        flag = obj.helper_.book_.hasposition(instrument);
-                        iloop = iloop + 1;
-                    end
-                    %make sure we are not gen any signals just before
-                    %market close in case there is any trade being unwinded
-                    %here
-                    if strcmpi(obj.mode_,'replay')
-                        runningt = obj.replay_time1_;
-                    else
-                        runningt = now;
-                    end
-                    lasttick = obj.mde_fut_.getlasttick(instrument);
-                    ticktime = lasttick(1);
-                    if ticktime - runningt < -1e-3
-                        fprintf('time discrepancy is found between tick and calendar time...\n');
-                        return;
-                    end
-                    runningmm = hour(runningt)*60+minute(runningt);
-                    tickm = hour(ticktime)*60+minute(ticktime);
-                    freq = obj.mde_fut_.getcandlefreq(instrument);
-                    runriskmanagementbeforemktclose = false;
-                    if freq ~= 1440
-                        if runningmm == unwindtrade.oneminb4close1_ && tickm == unwindtrade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
-                            runriskmanagementbeforemktclose = true;
-                        elseif runningmm == unwindtrade.oneminb4close2_ && tickm == unwindtrade.oneminb4close2_ && (second(runningt) >= 59 || second(ticktime) >= 59)
-                            runriskmanagementbeforemktclose = true;
-                        end
-                    else
-                        if runningmm == unwindtrade.oneminb4close1_ && tickm == unwindtrade.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
-                            runriskmanagementbeforemktclose = true;
+            %
+            %NOTE:the riskmanagement is called before the gensignals
+            %in case the trade is not closed due to market turbulence,
+            %e.g.the price jumps lower than the close price for long
+            %position trade;
+            %here we shall wait until the trade is fully closed, this
+            %is because the conditional signal might be canceled as
+            %position is still open,i.e the maximum position might be
+            %breached.
+            %
+            if strcmpi(trade_i.riskmanager_.status_,'closed') && ...
+                    ~isempty(strfind(trade_i.closestr_,'conditional'))
+                %a close entrust has already been placed for the trade with
+                %conditional open signal, HOWEVER, we are not certain
+                %whether the trade is closed or not
+                recalcflag = obj.getreplaceconditionalsignal(trade_i.instrument_);
+                if ~recalcflag, continue;end
+                
+                if strcmpi(trade_i.status_,'closed') && ...
+                        ~obj.helper_.book_.hasposition(trade_i.instrument_)
+                    %check whether any pending conditional entrust exists
+                    existflag = false;
+                    npending = obj.helper_.condentrustspending_.latest;
+                    for ipending = 1:npending
+                        epending = obj.helper_.condentrustspending_.node(ipending);
+                        if strcmpi(epending.instrumentCode,trade_i.instrument_.code_ctp) && ...
+                                epending.offsetFlag == 1
+                            existflag = true;
+                            break;
                         end
                     end
-                    if ~runriskmanagementbeforemktclose && isempty(strfind(unwindtrade.closestr_,'shadowline')) && ...
-                            isempty(strfind(unwindtrade.closestr_,'sc13')) && isempty(strfind(unwindtrade.closestr_,'bc13')) && ...
-                            isempty(strfind(unwindtrade.closestr_,'lowkelly'))
-                        %avoid to reopen conditional trade in case the
-                        %market is about to close or the previous unwinded
-                        %trade is due to shadowline
-                        signals_ = obj.gensignalssingle('instrument',instrument);
-                        obj.autoplacenewentrustssingle('instrument',instrument,'signals',signals_);
+                    if ~existflag
+                        %here a new conditional entrust shall be needed
+                        %make sure we are not gen any signals just before
+                        %market close in case there is any trade being unwinded
+                        %here
+                        if strcmpi(obj.mode_,'replay')
+                            runningt = obj.replay_time1_;
+                        else
+                            runningt = now;
+                        end
+                        lasttick = obj.mde_fut_.getlasttick(trade_i.instrument_);
+                        ticktime = lasttick(1);
+                        if ticktime - runningt < -1e-3
+                            fprintf('time discrepancy is found between tick and calendar time...\n');
+                            return;
+                        end
+                        runningmm = hour(runningt)*60+minute(runningt);
+                        tickm = hour(ticktime)*60+minute(ticktime);
+                        runriskmanagementbeforemktclose = false;
+                        if strcmpi(trade_i.opensignal_.frequency_,'30m') || ...
+                                strcmpi(trade_i.opensignal_.frequency_,'5m') || ...
+                                strcmpi(trade_i.opensignal_.frequency_,'15m')
+                            if runningmm == trade_i.oneminb4close1_ && tickm == trade_i.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+                                runriskmanagementbeforemktclose = true;
+                            elseif runningmm == trade_i.oneminb4close2_ && tickm == trade_i.oneminb4close2_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+                                runriskmanagementbeforemktclose = true;
+                            end
+                        else
+                            if runningmm == trade_i.oneminb4close1_ && tickm == trade_i.oneminb4close1_ && (second(runningt) >= 59 || second(ticktime) >= 59)
+                                runriskmanagementbeforemktclose = true;
+                            end
+                        end
+                        if ~runriskmanagementbeforemktclose
+                            signals_ = obj.gensignalssingle('instrument',trade_i.instrument_);
+                            obj.autoplacenewentrustssingle('instrument',trade_i.instrument_,'signals',signals_);
+                            %has already placed and no need to replace again!!!
+                            obj.setreplaceconditionalsignal(trade_i.instrument_,0);
+                        else
+                            %no need to replace again!!!
+                            obj.setreplaceconditionalsignal(trade_i.instrument_,0);
+                        end
+                    else
+                        obj.setreplaceconditionalsignal(trade_i.instrument_,0);
                     end
+                else
+                    %do nothing as the position is still open
                 end
             end
+            
+            if strcmpi(trade_i.status_,'closed'), continue; end
+            
+            if ~strcmpi(trade_i.riskmanager_.status_,'closed')
+                if strcmpi(trade_i.opensignal_.frequency_,'30m') || strcmpi(trade_i.opensignal_.frequency_,'5m') || ...
+                    strcmpi(trade_i.opensignal_.frequency_,'15m')
+                    kellytables = obj.tbl_all_intraday_;
+                else
+                    kellytables = obj.tbl_all_daily_;
+                end
+                unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
+                    'UpdatePnLForClosedTrade',false,'Strategy',obj,'KellyTables',kellytables);
+                if ~isempty(unwindtrade)
+                    obj.unwindtrade(unwindtrade);
+                    if ~isempty(strfind(unwindtrade.closestr_,'conditional'))
+                        exceptionflag = ~isempty(strfind(unwindtrade.closestr_,'shadowline1')) || ...
+                            ~isempty(strfind(unwindtrade.closestr_,'sc13')) || ...
+                            ~isempty(strfind(unwindtrade.closestr_,'bc13')) || ...
+                            ~isempty(strfind(unwindtrade.closestr_,'lowkelly'));
+                        if exceptionflag
+                            %no need to replace again!!!
+                            obj.setreplaceconditionalsignal(unwindtrade.instrument_,0);
+                        else
+                            obj.setreplaceconditionalsignal(unwindtrade.instrument_,1);
+                        end
+                    end
+                end
+                
+            end
+            
         end
     else
         for i = 1:ntrades
