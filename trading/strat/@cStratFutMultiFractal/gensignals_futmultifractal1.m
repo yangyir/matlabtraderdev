@@ -251,10 +251,10 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         if strcmpi(mode1,signaluncond.opkellied)
                             stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                         else
-                            exceptionflag =  tradeexist.opensignal_.kelly_ > 0.3 && ...
-                                ~isempty(strfind(mode1,'volblowup'));
+%                             exceptionflag =  tradeexist.opensignal_.kelly_ > 0.3 && ...
+%                                 ~isempty(strfind(mode1,'volblowup'));
                             kelly = signaluncond.kelly;
-                            if (kelly < 0 || isnan(kelly)) && ~exceptionflag
+                            if (kelly < 0 || isnan(kelly))
                                 stratfractal.unwindpositions(instruments{i},'closestr','kelly is too low');
                             end
                         end
@@ -382,12 +382,11 @@ function signals = gensignals_futmultifractal1(stratfractal)
                            e = stratfractal.helper_.condentrustspending_.node(jj);
                            if e.offsetFlag ~= 1, continue; end
                            if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
-                           if e.direction ~= -1,continue;end
                            condentrusts2remove.push(e);
                        end
                        if condentrusts2remove.latest > 0
                            stratfractal.removecondentrusts(condentrusts2remove);
-                           fprintf('\t%6s:%4s\t%10s cancled as new mode with low kelly....\n',instruments{i}.code_ctp,num2str(0),signalcond.opkellied);
+                           fprintf('\t%6s:\t%2d\t%10s cancled as new mode with low kelly....\n',instruments{i}.code_ctp,0,signalcond.opkellied);
                        end
                    end
                 else
