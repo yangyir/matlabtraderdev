@@ -55,7 +55,7 @@ function [output] = fractal_signal_conditional2(varargin)
             sshighidx = find(ei.px(lastss-lastssval+1:lastss,3) == sshigh,1,'last')+lastss-lastssval;
             sslow = ei.px(sshighidx,4);
 %             if ei.hh(end) <= 2*sslow-sshigh+1e-6 && ei.hh(end) < sshigh
-            if ei.hh(end) < sslow || (ei.hh(end) < sshigh && ei.hh(end) > sslow)
+            if ei.hh(end) <= sslow || (ei.hh(end) < sshigh && ei.hh(end) > sslow)
                 signal{1,1}(2) = sshigh;
 %                 return
             end
@@ -263,7 +263,7 @@ function [output] = fractal_signal_conditional2(varargin)
             bslow = min(ei.px(lastbs-lastbsval+1:lastbs,4));
             bslowidx = find(ei.px(lastbs-lastbsval+1:lastbs,4) == bslow,1,'last')+lastbs-lastbsval;
             bshigh = ei.px(bslowidx,3);
-            if ei.ll(end) > bshigh || (ei.ll(end) > bslow && ei.ll(end) <= bshigh)
+            if ei.ll(end) >= bshigh || (ei.ll(end) > bslow && ei.ll(end) < bshigh)
                 signal{1,2}(3) = bslow;
 %                 output = {};
 %                 return
@@ -465,6 +465,20 @@ function [output] = fractal_signal_conditional2(varargin)
                     signalkellied(1) = 0;
                     opkellied = [op{1,2},' not to place'];
                 end
+            end
+        end
+        %
+        if ei.px(end,5) > ei.lips(end) && ei.ll(end) > ei.lips(end) && ~isnan(ei.lvldn(end)) && ei.px(end,5) > ei.lvldn(end)
+            signal{1,2}(1) = 0;
+            signalkellied(1) = 0;
+            if isbreachdnlvldn
+                opkellied = 'conditional:breachdn-lvldn-tc not to placed as price and ll is above lips';
+            elseif isbreachdnbslow
+                opkellied = 'conditional:breachdn-bshighvalue-tc not to placed as price and ll is above lips';
+            elseif isbreachdnbclow
+                opkellied = 'conditional:breachdn-lowbc13-tc not to placed as price and ll is above lips';
+            else
+                opkellied = [op{1,1},' not to placed as price and ll is above lips'];
             end
         end
         output.signal = signal;
