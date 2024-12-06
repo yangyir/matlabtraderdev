@@ -10,6 +10,8 @@ classdef cStrat < cMyTimerObj
         calsignal_bucket_@double
         calcsignal_@double
         %
+        replaceconditionalsignal_@double
+        %
         preequity_@double
         currentequity_@double   %number
         currentmargin_@double   %number
@@ -45,6 +47,9 @@ classdef cStrat < cMyTimerObj
         %
         [] = setcalcsignal(obj,instrument,val)
         calcsignal = getcalcsignal(obj)
+        %
+        [] = setreplaceconditionalsignal(obj,instrument,val)
+        flag = getreplaceconditionalsignal(obj,instrument)
         %
         [flag] = istime2calcsignal(obj,t)
         %
