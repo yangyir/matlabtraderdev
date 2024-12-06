@@ -545,6 +545,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             this_signal(1,7) = ei.lips(end);
             this_signal(1,8) = ei.teeth(end);
             this_signal(1,4) = 2;
+            %
+            highs = ei.px(end-nfractal+1:end,3);
+            highest = max(highs);
+            if highs(1) == highest && highest > ei.hh(end) && nfractal ~= 6
+                this_signal(1,2) = highest;
+            end
+            %
             %special case found on backtest of y2409 on 20240802
             if longtrend && ei.ss(end) >= 9
                 sslastval = ei.ss(end);
@@ -671,6 +678,13 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
             this_signal(1,7) = ei.lips(end);
             this_signal(1,8) = ei.teeth(end);
             this_signal(1,4) = -2;
+            %
+            lows = ei.px(end-nfractal+1:end,4);
+            lowest = min(lows);
+            if lows(1) == lowest && lowest < ei.ll(end) && nfractal ~= 6
+                this_signal(1,3) = lowest;
+            end
+            %
             if ei.bs(end) >= 9
                 bslastval = ei.bs(end);
                 bslowpx = min(ei.px(end-bslastval+1:end,4));
