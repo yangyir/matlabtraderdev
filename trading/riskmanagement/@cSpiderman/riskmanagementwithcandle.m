@@ -139,9 +139,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if runriskmanagementbeforemktclose && hour(candleTime) < 21 && hour(candleTime) > 9
         %big uncertainty between pm market close and evening/next day
         %market open
+        isgovtbond = strcmpi(trade.instrument_.asset_name,'govtbond_10y') || ...
+            strcmpi(trade.instrument_.asset_name,'govtbond_30y');
+        
         if (trade.opendirection_ == 1 && strcmpi(obj.closestr_,'wad:new high price w/o wad being higher')) || ...
-                (trade.opendirection_ == 1 && strcmpi(obj.closestr_,'wad:new high wad w/o price being higher')) || ...
-                (trade.opendirection_ == -1 && strcmpi(obj.closestr_,'wad:new low wad w/o price being lower')) || ...
+                (trade.opendirection_ == 1 && strcmpi(obj.closestr_,'wad:new high wad w/o price being higher') && ~isgovtbond) || ...
+                (trade.opendirection_ == -1 && strcmpi(obj.closestr_,'wad:new low wad w/o price being lower') && ~isgovtbond) || ...
                 (trade.opendirection_ == -1 && strcmpi(obj.closestr_,'wad:new low price w/o wad being lower'))
             unwindtrade = trade;
             obj.status_ = 'closed';
@@ -319,7 +322,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 if extrainfo.p(end,5) < extrainfo.p(end,2)
                     closeflag = true;
                     shadowlineratio = (extrainfo.p(end,3) - extrainfo.p(end,5))/(extrainfo.p(end,3) - extrainfo.p(end,4));
-                    if shadowlineratio > 0.618
+                    if shadowlineratio > 0.5
                         obj.pxstoploss_ = extrainfo.p(end,5);
                     else
                         obj.pxstoploss_ = extrainfo.p(end,4);

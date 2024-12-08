@@ -214,7 +214,7 @@ elseif condsignal.directionkellied == 1
             tickratio_ = 1;
         end
         
-        if pxhigh>=condsignal.signalkellied(2)+fut.tick_size*tickratio_ && ...
+        if pxhigh-condsignal.signalkellied(2)-fut.tick_size*tickratio_ > -1e-6 && ...
                 pxopen<condsignal.signalkellied(2)+2.0*(condsignal.signalkellied(2)-condsignal.signalkellied(3))
             px = ei_.px;
             idxhh = ei_.idxhh;
@@ -269,7 +269,7 @@ elseif condsignal.directionkellied == 1
                 elseif uncondsignal.directionkellied == 1
                     %here due to conditional barrier shifting up
                     if condsignal.signalkellied(2) > uncondsignal.signalkellied(2) && ...
-                            pxhigh>=uncondsignal.signalkellied(2)+fut.tick_size*tickratio_ && ...
+                            pxhigh-uncondsignal.signalkellied(2)-fut.tick_size*tickratio_ >= -1e-6 && ...
                             pxopen<uncondsignal.signalkellied(2)+2.0*(uncondsignal.signalkellied(2)-uncondsignal.signalkellied(3))
                         trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
                         trade.riskmanager_.setusefractalupdateflag(0);
@@ -310,6 +310,14 @@ elseif condsignal.directionkellied == 1
             end
         end
         %
+        if ei_.sc(end) == 13
+            trade.riskmanager_.td13high_ = ei_.px(end,3);
+            trade.riskmanager_.td13low_ = ei_.px(end,4);
+            if trade.riskmanager_.td13low_ - (trade.riskmanager_.td13high_ - trade.riskmanager_.td13low_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.td13low_ - (trade.riskmanager_.td13high_ - trade.riskmanager_.td13low_);
+                trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+            end
+        end
         if resstruct.teeth(idx-1) > trade.riskmanager_.pxstoploss_
             trade.riskmanager_.pxstoploss_ = floor(resstruct.teeth(idx-1)/fut.tick_size)*fut.tick_size;
             trade.riskmanager_.closestr_ = 'fractal:teeth';
@@ -378,7 +386,7 @@ elseif condsignal.directionkellied == -1
             tickratio_ = 1;
         end
         %2.check whether volblowup2,i.e.market jumps at begining
-        if pxlow<=condsignal.signalkellied(3)-tickratio_*fut.tick_size && ...
+        if pxlow-condsignal.signalkellied(3)+tickratio_*fut.tick_size<=1e-6 && ...
                 pxopen>condsignal.signalkellied(3)-2.0*(condsignal.signalkellied(2)-condsignal.signalkellied(3))
             px = ei_.px;
             idxll = ei_.idxll;
@@ -432,7 +440,7 @@ elseif condsignal.directionkellied == -1
                     return
                 elseif uncondsignal.directionkellied == -1
                     if condsignal.signalkellied(3) < condsignal.signalkellied(3) && ...
-                          pxlow<=uncondsignal.signalkellied(3)-tickratio_*fut.tick_size && ...
+                          pxlow-uncondsignal.signalkellied(3)+tickratio_*fut.tick_size <= 1e-6 && ...
                           pxopen>uncondsignal.signalkellied(3)-2.0*(uncondsignal.signalkellied(2)-uncondsignal.signalkellied(3))
                       trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
                       trade.riskmanager_.setusefractalupdateflag(0);
@@ -470,6 +478,15 @@ elseif condsignal.directionkellied == -1
             if trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_) < trade.riskmanager_.pxstoploss_
                 trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_);
                 trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
+            end
+        end
+        %
+        if ei_.bc(end) == 13
+            trade.riskmanager_.td13low_ = ei_.px(end,4);
+            trade.riskmanager_.td13high_ = ei_.px(end,3);
+            if trade.riskmanager_.tdhigh_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_);
+                trade.riskmanager_.closestr_ = 'tdsq:bc13break';
             end
         end
         %

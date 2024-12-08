@@ -11,7 +11,11 @@ freq = p.Results.frequency;
 
 [~,resstruct] = charlotte_loaddata('futcode',code,'frequency',freq);
 dtstart = getlastbusinessdate(resstruct.px(1,1));
-dtsend = getlastbusinessdate(resstruct.px(end,1));
+if hour(resstruct.px(end,1)) < 9
+    dtsend = getlastbusinessdate(resstruct.px(end,1));
+else
+    dtsend = floor(resstruct.px(end,1));
+end
 if isfx(code)
     datefrom = dtstart;
     dateto = dtsend;

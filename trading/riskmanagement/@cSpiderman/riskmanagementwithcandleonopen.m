@@ -121,7 +121,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     if lflag && breachupfailed
         %
         if ei.sc(end) == 13
-            exceptionflag = strcmpi(val,'conditional-uptrendconfirmed-1') && ei.p(end,5) > ei.lvlup(end);
+            exceptionflag = (strcmpi(val,'conditional-uptrendconfirmed-1') && ei.p(end,5) > ei.lvlup(end)) || ...
+                (shadowlineratio < 0.382 && ei.p(end,5) > ei.p(end,2));
             if ~exceptionflag
                 unwindflag = true;
                 msg = 'conditional uptrendconfirmed failed:sc13break';
@@ -157,6 +158,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     return
                 end
             else
+                if ~exceptionflag
+                    exceptionflag = ei.p(end,4) > ei.p(end-1,4) & ei.p(end,5) > ei.p(end-1,5) & ei.p(end,3) > ei.p(end-1,3) & shadowlineratio < 0.382;
+                end
                 if ~exceptionflag
                     unwindflag = true;
                     msg = 'conditional uptrendconfirmed failed:within2ticks1';
@@ -426,7 +430,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %
-        if abs(ei.p(end,3) - ei.hh(end-1)) <= 2*trade.instrument_.tick_size && shadowlineratio > 0.618
+        isgovtbond = strcmpi(trade.instrument_.asset_name,'govtbond_30y') || ...
+            strcmpi(trade.instrument_.asset_name,'govtbond_10y');
+        
+        if abs(ei.p(end,3) - ei.hh(end-1)) <= 2*trade.instrument_.tick_size && shadowlineratio > 0.618 && ~isgovtbond
             unwindflag = true;
             msg = 'conditional uptrendconfirmed failed:within2ticks2andshadowline2';
             obj.status_ = 'closed';
@@ -830,7 +837,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             return
         end
         %
-        if abs(ei.p(end,4) - ei.ll(end-1)) <= 2*trade.instrument_.tick_size && shadowlineratio > 0.618
+        isgovtbond = strcmpi(trade.instrument_.asset_name,'govtbond_30y') || ...
+            strcmpi(trade.instrument_.asset_name,'govtbond_10y');
+        
+        if abs(ei.p(end,4) - ei.ll(end-1)) <= 2*trade.instrument_.tick_size && shadowlineratio > 0.618 && ~isgovtbond
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:within2ticks2andshadowline2';
             obj.status_ = 'closed';
@@ -840,7 +850,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         %
         if abs(ei.p(end,4) - ei.ll(end-1)) <= 2*trade.instrument_.tick_size && ...
                 ei.p(end,4) > ei.p(end-1,4) && ei.p(end,3) > ei.p(end-1,3) && ...
-                ~(~isnan(obj.tdhigh_) && obj.tdhigh_ - ei.p(end,5) <= 4*trade.instrument_.tick_size)
+                ~(~isnan(obj.tdhigh_) && obj.tdhigh_ - ei.p(end,5) <= 4*trade.instrument_.tick_size) && ...
+                ~isgovtbond
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:within2ticks2';
             obj.status_ = 'closed';
@@ -849,7 +860,8 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         end
         %
         if (ei.p(end,4) >= ei.p(end-1,3) && shadowlineratio >= 0.88) || ...
-                (ei.p(end,4) > ei.p(end-1,4) && ei.p(end,3) > ei.p(end-1,3) && ei.p(end,5) > ei.p(end-1,5) && shadowlineratio > 0.85)
+                (ei.p(end,4) > ei.p(end-1,4) && ei.p(end,3) > ei.p(end-1,3) && ei.p(end,5) > ei.p(end-1,5) && shadowlineratio > 0.85) && ...
+                ~isgovtbond
             unwindflag = true;
             msg = 'conditional dntrendconfirmed failed:shadowline2';
             obj.status_ = 'closed';

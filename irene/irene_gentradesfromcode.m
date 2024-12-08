@@ -86,10 +86,27 @@ for i = idx1:idx2
         else
             %untrended with no conditional signal generated beforehand,
             %APPARENTLY
-            trade = fractal_gentrade(datastruct,code,i,opuncond.comment,opuncond.direction,freq,0);
-            trade.bookname_ = 'tb';
-            trade.riskmanager_.setusefractalupdateflag(0);
-            trades.push(trade);
+            try
+                openpx = datastruct.px(i+1,2);
+            catch
+                openpx = ei2.px(end,2);
+            end
+            
+            if opuncond.direction == 1 && ...
+                    openpx - signaluncond(2) - ticksizeratio*ticksize >= -1e-6 && ...
+                    ei2.px(end,2) < signaluncond(2) + 2.0*(signaluncond(2)-signaluncond(3)) 
+                trade = fractal_gentrade(datastruct,code,i,opuncond.comment,1,freq,0);
+                trade.bookname_ = 'tb';
+                trade.riskmanager_.setusefractalupdateflag(0);
+                trades.push(trade);
+            elseif opuncond.direction == -1 && ...
+                    openpx - signaluncond(3) + ticksizeratio*ticksize <= 1e-6 && ...
+                    ei2.px(end,2) > signaluncond(3) - 2.0*(signaluncond(2)-signaluncond(3))
+                trade = fractal_gentrade(datastruct,code,i,opuncond.comment,-1,freq,0);
+                trade.bookname_ = 'tb';
+                trade.riskmanager_.setusefractalupdateflag(0);
+                trades.push(trade);
+            end
         end
     elseif ~isempty(signalcond) && isempty(signaluncond)
         %conditional signal generated beforehand without any valid breach
@@ -176,6 +193,16 @@ for i = idx1:idx2
                 trade.bookname_ = 'tc';
                 trade.riskmanager_.setusefractalupdateflag(0);
                 trades.push(trade);
+            else
+                %here due to conditional barrier shifting up
+                if signalcond{1,1}(2) > signaluncond(2) && ...
+                        ei2.px(end,3) - signaluncond(2) - ticksizeratio*ticksize >= -1e-6  && ...
+                        ei2.px(end,2) < signaluncond(2) + 2.0*(signaluncond(2)-signaluncond(3))
+                    trade = fractal_gentrade(datastruct,code,i,opuncond.comment,1,freq,0);
+                    trade.bookname_ = 'tc';
+                    trade.riskmanager_.setusefractalupdateflag(0);
+                    trades.push(trade);
+                end
             end
         elseif signaluncond(1) == 1 && ~isempty(signalcond{1,2}) && signalcond{1,2}(1) == -1
             %SHORT TREND HAS BROKEN
@@ -192,6 +219,17 @@ for i = idx1:idx2
                 trade.bookname_ = 'tc';
                 trade.riskmanager_.setusefractalupdateflag(0);
                 trades.push(trade);
+            else
+                %here duo to conditional barrier shifting down
+                if signalcond{1,2}(3) < signaluncond(3) && ...
+                        ei2.px(end,4) - signaluncond(3)+ ticksizeratio*ticksize <= 1e-6 && ...
+                        ei2.px(end,2) > signaluncond(3) - 2.0*(signaluncond(2)-signaluncond(3))
+                    trade = fractal_gentrade(datastruct,code,i,opuncond.comment,-1,freq,0);
+                    trade.bookname_ = 'tc';
+                    trade.riskmanager_.setusefractalupdateflag(0);
+                    trades.push(trade);
+                end
+                        
             end
         elseif signaluncond(1) == -1 && ~isempty(signalcond{1,1}) && signalcond{1,1}(1) == 1
             %LONG TREND HAS BROKEN
