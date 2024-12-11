@@ -91,8 +91,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = -9.99;
                 wprob = 0;
             end
-            if (status.istrendconfirmed && kelly >= 0.088) ||...
-                    (~status.istrendconfirmed && kelly >= 0.145)
+            if kelly >= 0.088 && wprob > 0.4
                 useflag = 1;
                 op.comment = 'breachup-lvlup';
                 output.op = op;
