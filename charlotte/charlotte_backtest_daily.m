@@ -58,6 +58,11 @@ if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30
         kellytables = data.strat_govtbondfut_5m;
         nfractal = 6;
         tickratio = 0;
+    elseif strcmpi(freq,'daily')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_daily.mat']);
+        kellytables = data.strat_govtbondfut_daily;
+        nfractal = 2;
+        tickratio = 1;
     end
 elseif ~isempty(strfind(fut.asset_name,'eqindex'))
     nfractal = 4;
@@ -84,8 +89,20 @@ if isfx(futcode)
     dt1 = [testdt,' 00:00:00'];
     dt2 = [testdt,' 23:59:59'];
 else
-    dt1 = [testdt,' 09:00:00'];
-    dt2 = [datestr(dateadd(datenum(testdt,'yyyy-mm-dd'),'1d'),'yyyy-mm-dd'),' 02:30:00'];
+    if strcmpi(freq,'daily')
+        if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30y')
+            dt1 = [testdt,' 00:00:00'];
+            dt2 = [testdt,' 23:59:59'];
+        elseif ~isempty(strfind(fut.asset_name,'eqindex'))
+            dt1 = [testdt,' 00:00:00'];
+            dt2 = [testdt,' 23:59:59'];
+        else
+            error('not implemented!!!');
+        end
+    else
+        dt1 = [testdt,' 09:00:00'];
+        dt2 = [datestr(dateadd(datenum(testdt,'yyyy-mm-dd'),'1d'),'yyyy-mm-dd'),' 02:30:00'];
+    end
 end
 dt1num = datenum(dt1,'yyyy-mm-dd HH:MM:SS');
 dt2num = datenum(dt2,'yyyy-mm-dd HH:MM:SS');
@@ -133,6 +150,8 @@ while i <= idx2
                     if hour(ei_j.px(end,1)) == 15, runflag = true;end
                 elseif strcmpi(freq,'5m')
                     if hour(ei_j.px(end,1)) == 15 && minute(ei_j.px(end,1)) == 10, runflag = true;end
+                elseif strcmpi(freq,'daily')
+                    runflag = true;
                 end
             elseif trade.oneminb4close1_ == 899 && isnan(trade.oneminb4close2_)
                 if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
