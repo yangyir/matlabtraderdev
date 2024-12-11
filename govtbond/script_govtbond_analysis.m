@@ -41,7 +41,7 @@ tools_technicalplot2(mat_gzhy_30y(end-nshift:end,:),4,'活跃30年国债收益率',true)
 %%
 output_gzhy10y = fractal_kelly_summary('codes',{'gzhy'},'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
 close all;
-[~,~,tbl_gzhy10y,~,~,~,~,strat_gzhy10y] = kellydistributionsummary(output_gzhy10y,true);
+[~,~,tbl_gzhy10y,~,~,~,~,strat_gzhy10y] = kellydistributionsummary(output_gzhy10y);
 [tblreport_gzhy10y,statsreport_gzhy10y] = kellydistributionreport(tbl_gzhy10y,strat_gzhy10y);
 save([dir_,'strat_gzhy10y.mat'],'strat_gzhy10y');
 save([dir_,'tblreport_gzhy10y.mat'],'tblreport_gzhy10y');
@@ -50,7 +50,7 @@ fprintf('file of 10y saved....\n');
 %%
 output_gzhy30y = fractal_kelly_summary('codes',{'gzhy_30y'},'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
 close all;
-[~,~,tbl_gzhy30y,~,~,~,~,strat_gzhy30y] = kellydistributionsummary(output_gzhy30y,true);
+[~,~,tbl_gzhy30y,~,~,~,~,strat_gzhy30y] = kellydistributionsummary(output_gzhy30y);
 [tblreport_gzhy30y,statsreport_gzhy30y] = kellydistributionreport(tbl_gzhy10y,strat_gzhy30y);
 save([dir_,'strat_gzhy30y.mat'],'strat_gzhy30y');
 save([dir_,'tblreport_gzhy30y.mat'],'tblreport_gzhy30y');
