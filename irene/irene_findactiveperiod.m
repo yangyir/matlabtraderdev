@@ -32,8 +32,25 @@ else
         end
     end
     if ~found_i
-        datefrom = [];
-        dateto = [];
+        if strcmpi(code,'T1512')
+            datefrom = 736188;
+            dateto = 736279;
+        elseif strcmpi(code,'T1603')
+            datefrom = 736280;
+            dateto = 736362;
+        elseif strcmpi(code,'T1606')
+            datefrom = 736363;
+            dateto = 736453;
+        elseif strcmpi(code,'T1609')
+            datefrom = 736454;
+            dateto = 736549;
+        elseif strcmpi(code,'T1612')
+            datefrom = 736550;
+            dateto = 736641;
+        else
+            datefrom = [];
+            dateto = [];
+        end
         return
     end
     %
