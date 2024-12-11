@@ -139,13 +139,14 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     if runriskmanagementbeforemktclose && hour(candleTime) < 21 && hour(candleTime) > 9
         %big uncertainty between pm market close and evening/next day
         %market open
-        isgovtbond = strcmpi(trade.instrument_.asset_name,'govtbond_10y') || ...
-            strcmpi(trade.instrument_.asset_name,'govtbond_30y');
+        isgovtbond = (strcmpi(trade.instrument_.asset_name,'govtbond_10y') || ...
+            strcmpi(trade.instrument_.asset_name,'govtbond_30y')) && ...
+            strcmpi(trade.opensignal_.frequency_,'5m');
         
-        if (trade.opendirection_ == 1 && strcmpi(obj.closestr_,'wad:new high price w/o wad being higher')) || ...
+        if (trade.opendirection_ == 1 && strcmpi(obj.closestr_,'wad:new high price w/o wad being higher') && ~isgovtbond ) || ...
                 (trade.opendirection_ == 1 && strcmpi(obj.closestr_,'wad:new high wad w/o price being higher') && ~isgovtbond) || ...
                 (trade.opendirection_ == -1 && strcmpi(obj.closestr_,'wad:new low wad w/o price being lower') && ~isgovtbond) || ...
-                (trade.opendirection_ == -1 && strcmpi(obj.closestr_,'wad:new low price w/o wad being lower'))
+                (trade.opendirection_ == -1 && strcmpi(obj.closestr_,'wad:new low price w/o wad being lower') && ~isgovtbond)
             unwindtrade = trade;
             obj.status_ = 'closed';
             trade.runningpnl_ = 0;
@@ -305,11 +306,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if sshigh >= 16
                 exceptionflag = false;
             else
-                lasthhidx = find(extrainfo.hh(1:end-1) == 1,1,'last');
+                lasthhidx = find(extrainfo.idxhh(1:end-1) == 1,1,'last');
                 if lasthhidx < sshighidx
-                    exceptionflag = false;
-                else
                     exceptionflag = true;
+                else
+                    exceptionflag = false;
                 end
             end
         else
@@ -323,12 +324,15 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     closeflag = true;
                     shadowlineratio = (extrainfo.p(end,3) - extrainfo.p(end,5))/(extrainfo.p(end,3) - extrainfo.p(end,4));
                     if shadowlineratio > 0.5
-                        obj.pxstoploss_ = extrainfo.p(end,5);
+                        obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
                     else
-                        obj.pxstoploss_ = extrainfo.p(end,4);
+                        obj.pxstoploss_ = extrainfo.p(end,4) + ticksize;
                     end
                 else
-                    lasthhidx = find(extrainfo.hh(1:end-1) == 1,1,'last');
+                    lasthhidx = find(extrainfo.idxhh(1:end-1) == 1,1,'last');
+                    if isempty(lasthhidx)
+                        lasthhidx = 1;
+                    end 
                     sshighidx = find(extrainfo.ss >=9,1,'last');
                     if lasthhidx < sshighidx
                         sshigh = extrainfo.ss(sshighidx);
@@ -345,7 +349,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             else
                 closeflag = true;
                 if ~isempty(strfind(val,'conditional-'))
-                    obj.pxstoploss_ = extrainfo.p(end,5);
+                    obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
                 else
                     if extrainfo.sc(end) == 13 || extrainfo.ss(end) >= 9
                         obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
@@ -354,22 +358,23 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     end
                 end
             end
-            if closeflag
-%                 obj.pxstoploss_ = 2*extrainfo.p(end,4) - extrainfo.p(end,3);
-%                 obj.trade_.closedatetime1_ = extrainfo.latestdt;
-%                 obj.trade_.closeprice_ = extrainfo.latestopen;
-%                 volume = trade.openvolume_;
-%                 obj.status_ = 'closed';
+            if closeflag          
                 obj.closestr_ = 'fractal:upupdate';
-%                 obj.trade_.runningpnl_ = 0;
-%                 instrument = trade.instrument_;
-%                 if isempty(instrument)
-%                     obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-%                 else
-%                     obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-%                 end
-%                 unwindtrade = obj.trade_;
-                return
+                if runriskmanagementbeforemktclose && extrainfo.p(end,5) < extrainfo.lips(end)
+                    obj.status_ = 'closed';
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    if isempty(instrument)
+                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                    else
+                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    end
+                    unwindtrade = obj.trade_;
+                    return
+                end
             end
         end
     end
@@ -391,38 +396,59 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if extrainfo.p(end,5) <= extrainfo.ll(end-1)
                 if extrainfo.p(end,5) >= extrainfo.p(end,2)
                     closeflag = true;
-                    obj.pxstoploss_ = 2*extrainfo.p(end,3) - extrainfo.p(end,4);
-                    obj.pxstoploss_ = extrainfo.p(end,5);
+                    shadowlineratio = (extrainfo.p(end,5) - extrainfo.p(end,4))/(extrainfo.p(end,3) - extrainfo.p(end,4));
+                    if shadowlineratio > 0.5
+                        obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
+                    else
+                        obj.pxstoploss_ = extrainfo.p(end,3) - ticksize;
+                    end
                 else
-                    closeflag = false;
+                    lastllidx = find(extrainfo.ll(1:end-1) == -1,1,'last');
+                    bshighidx = find(extrainfo.bs >= 9,1,'last');
+                    if isempty(lastllidx)
+                        lastllidx = 1;
+                    end
+                    if lastllidx < bshighidx
+                        bshigh = extrainfo.bs(bshighidx);
+                        if bshigh >= 16
+                            closeflag = true;
+                            obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
+                        else
+                            closeflag = false;
+                        end
+                    else
+                        closeflag = false;
+                    end
                 end
             else
                 closeflag = true;
                 if ~isempty(strfind(val,'conditional-'))
-                    obj.pxstoploss_ = extrainfo.p(end,5);
+                    obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
                 else
-                    if extrainfo.p(end,5) > extrainfo.lips(end) - instrument.tick_size
-                        obj.pxstoploss_ = extrainfo.p(end,5) - 2*instrument.tick_size;
+                    if extrainfo.bc(end) == 13 || extrainfo.bs(end) >= 9
+                        obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
                     else
-                        obj.pxstoploss_ = extrainfo.p(end,3);
+                        obj.pxstoploss_ = extrainfo.p(end,3) - ticksize;
                     end
                 end
             end
             if closeflag
-%                 obj.pxstoploss_ = 2*extrainfo.p(end,3) - extrainfo.p(end,4);
-%                 obj.trade_.closedatetime1_ = extrainfo.latestdt;
-%                 obj.trade_.closeprice_ = extrainfo.latestopen;
-%                 volume = trade.openvolume_;
-%                 obj.status_ = 'closed';
                 obj.closestr_ = 'fractal:dnupdate';
-%                 obj.trade_.runningpnl_ = 0;
-%                 instrument = trade.instrument_;
-%                 if isempty(instrument)
-%                     obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-%                 else
-%                     obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-%                 end
-%                 unwindtrade = obj.trade_;
+                if runriskmanagementbeforemktclose && extrainfo.p(end,5) > extrainfo.lips(end)
+                    obj.status_ = 'closed';
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                    volume = trade.openvolume_;
+                    obj.trade_.runningpnl_ = 0;
+                    instrument = trade.instrument_;
+                    if isempty(instrument)
+                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+                    else
+                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+                    end
+                    unwindtrade = obj.trade_;
+                    return
+                end
                 return
             end
         end
