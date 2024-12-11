@@ -123,11 +123,13 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                         closeflag = ret.inconsistence;
                         obj.closestr_ = ['wad:',ret.reason];
                     else
-                        obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
-                        obj.pxstoploss_ = floor(obj.pxstoploss_/ticksize)*ticksize+2*ticksize;
-                        if keepclosestr
+%                         obj.pxstoploss_ = max(2*extrainfo.p(end,4)-extrainfo.p(end,3),extrainfo.lips(end));
+%                         obj.pxstoploss_ = floor(obj.pxstoploss_/ticksize)*ticksize+2*ticksize;
+                        obj.pxstoploss_ = extrainfo.p(end,5);
+                        
+%                         if keepclosestr
                             obj.closestr_ = ['wad:',ret.reason];
-                        end
+%                         end
                     end
                 end
             else
