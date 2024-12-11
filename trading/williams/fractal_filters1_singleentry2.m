@@ -10,8 +10,8 @@ function [output] = fractal_filters1_singleentry2(s1type,nfractal,extrainfo,tick
     
     [hhstatus,llstatus] = fractal_barrier_status(extrainfo,ticksize);
     
-    hhdnward = strcmpi(hhstatus,'upward');
-    lldnward = strcmpi(llstatus,'dnward');
+    hhdnward = ~strcmpi(hhstatus,'upward');
+    lldnward = ~strcmpi(llstatus,'upward');
     variablenotused(hhdnward);
     %
     nonbreachhhflag = true;
