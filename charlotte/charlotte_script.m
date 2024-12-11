@@ -9,7 +9,7 @@ else
 end
 %%
 asset = 'govtbond_30y';
-dtfrom = '2024-11-13';
+dtfrom = '2024-07-31';
 [tblout,kellyout,tblout_notused,kellytables] = charlotte_kellycheck('assetname',asset,'datefrom',dtfrom,'frequency',freq,'reportunused',true);
 open tblout;open kellyout;open tblout_notused;
 %%
@@ -25,16 +25,17 @@ timeseries_plot([tblpnl_.dts,tblpnl_.runningnotional],'figureindex',1,'dateforma
 %%
 %%
 code = 'TL2503';
-dt1 = '2024-12-02';
-dt2 = '2024-12-03';
-% dt2 = dt1;
+% [dt1,dt2] = irene_findactiveperiod('code',code);
+% dt1 = datestr(dt1,'yyyy-mm-dd');
+% dt2 = datestr(dt2,'yyyy-mm-dd');
+dt1 = '2024-12-11';
+dt2 = '2024-12-11';
 [unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',true,'figureidx',4,'frequency',freq);
-% open tbl2check;
+open tbl2check;
 %%
-code_ = 'T2406';
-dt1_ = '2023-04-08';
-dt2_ = '2023-04-08';
-[~,~,tbl2check2] = charlotte_backtest_period('code',code_,'fromdate',dt1_,'todate',dt2_,'kellytables',kellytables,'showlogs',true,'figureidx',5);
+[trades,tblresults] = irene_backtesttradesfromcode('code','TL2312','frequency','30m');
+disp(tblresults);
+fprintf('done...\n');
 %%
 condup = strcmpi(tbl2check_.opensignal,'conditional-uptrendconfirmed') | ...
     strcmpi(tbl2check_.opensignal,'conditional-uptrendconfirmed-1') | ...
