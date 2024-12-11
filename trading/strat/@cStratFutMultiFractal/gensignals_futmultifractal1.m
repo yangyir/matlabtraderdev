@@ -267,6 +267,18 @@ function signals = gensignals_futmultifractal1(stratfractal)
                         stratfractal.stop;
                     end
                     fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                    %
+                    condentrusts2remove = EntrustArray;
+                    ne = stratfractal.helper_.condentrustspending_.latest;
+                    for jj = 1:ne
+                        e = stratfractal.helper_.condentrustspending_.node(jj);
+                        if e.offsetFlag ~= 1, continue; end
+                        if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
+                        condentrusts2remove.push(e);
+                    end
+                    if condentrusts2remove.latest > 0
+                        stratfractal.removecondentrusts(condentrusts2remove);
+                    end
                 end           
                 %
                 %
