@@ -10,12 +10,14 @@ end
 for i = 1:nfx
     if nfx > 0 && i == 1
         fprintf('FX daily report......\n');
-        fprintf('\t%8s\t%12s\t%10s\t%10s\n','NAME','DATE','CLOSE','CHG');
+        fprintf('\t%8s\t%12s\t%10s\t%10s\t%10s\t%10s\n','NAME','DATE','CLOSE','CHG','UPPER','LOWER');
     end
-    fprintf('\t%8s\t%12s\t%10s\t%9.1f%%\n',names_fx{i},...
+    fprintf('\t%8s\t%12s\t%10s\t%9.1f%%\t%10s\t%10s\n',names_fx{i},...
         datestr(resstruct_fx{i}.px(end,1),'yyyy-mm-dd'),...
         num2str(resstruct_fx{i}.px(end,5)),...
-        100*(resstruct_fx{i}.px(end,5)/resstruct_fx{i}.px(end-1,5)-1));
+        100*(resstruct_fx{i}.px(end,5)/resstruct_fx{i}.px(end-1,5)-1),...
+        num2str(resstruct_fx{i}.hh(end)),...
+        num2str(resstruct_fx{i}.ll(end)));
 end
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
@@ -33,9 +35,11 @@ for i = 1:nfx
 end
 %%
 fprintf('\n')
+ncount = 0;
 for i = 1:nfx
     if cts{i}.latest_ > 0
-        if i == 1
+        ncount = ncount + 1;
+        if ncount == 1
             fprintf('\t%6s\t%3s\t%12s\t%10s\t%10s\t%30s\t%9s\n',...
                 'Code',...
                 'B/S',...
@@ -52,6 +56,6 @@ for i = 1:nfx
     end
 end
 %%
-dt1 = '2024-11-11';
-dt2 = '2024-12-02';
- charlotte_backtest_period('code','eurusd','fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',true,'figureidx',2,'frequency','daily');
+dt1 = '2024-11-01';
+dt2 = '2024-12-10';
+ charlotte_backtest_period('code','gbpusd','fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',true,'figureidx',1,'frequency','daily');
