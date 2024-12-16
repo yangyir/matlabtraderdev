@@ -308,6 +308,10 @@ function [] = riskmanagement(obj,dtnum)
                 %a close entrust has already been placed for the trade with
                 %conditional open signal, HOWEVER, we are not certain
                 %whether the trade is closed or not
+                if ~obj.instruments_.hasinstrument(trade_i.instrument_)
+                    continue;
+                end
+                
                 recalcflag = obj.getreplaceconditionalsignal(trade_i.instrument_);
                 if ~recalcflag, continue;end
                 
