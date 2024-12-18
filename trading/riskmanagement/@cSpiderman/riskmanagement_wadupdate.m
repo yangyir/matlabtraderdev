@@ -15,6 +15,7 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
     direction = trade.opendirection_;
     p = extrainfo.p;
     wad = extrainfo.wad;
+    extrainfo.px = p;
     
     if ~isempty(trade.instrument_)
         ticksize = trade.instrument_.tick_size;
@@ -29,28 +30,38 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
             obj.wadhigh_ = wad(end);
             obj.wadopen_ = wad(end);
         else
-            if p(end,5) > obj.cphigh_ + ticksize
+            %first check whether it is valid breach of barrier
+            %the wad,cp shall updated in case it is a valid breach
+            [validbreachhh,~] = fractal_validbreach(extrainfo,ticksize);
+            if validbreachhh
                 obj.cphigh_ = p(end,5);
-                if wad(end) < obj.wadhigh_ - 2*ticksize
-                    ret = struct('inconsistence',1,...
-                        'reason','new high price w/o wad being higher');
-                    return
-                else
-                    if wad(end) >  obj.wadhigh_
-                        obj.wadhigh_ = wad(end);
+                obj.cpopen_ = p(end,5);
+                obj.wadhigh_ = wad(end);
+                obj.wadopen_ = wad(end);
+            else
+                if p(end,5) > obj.cphigh_ + ticksize
+                    obj.cphigh_ = p(end,5);
+                    if wad(end) < obj.wadhigh_ - 2*ticksize
+                        ret = struct('inconsistence',1,...
+                            'reason','new high price w/o wad being higher');
+                        return
+                    else
+                        if wad(end) >  obj.wadhigh_
+                            obj.wadhigh_ = wad(end);
+                        end
                     end
                 end
-            end
-            %
-            if wad(end) >= obj.wadhigh_
-                obj.wadhigh_ = wad(end);
-                if p(end,5) < obj.cphigh_ - 2*ticksize
-                    ret = struct('inconsistence',1,...
-                        'reason','new high wad w/o price being higher');
-                    return
-                else
-                    if p(end,5) > obj.cphigh_
-                        obj.cphigh_ = p(end,5);
+                %
+                if wad(end) >= obj.wadhigh_
+                    obj.wadhigh_ = wad(end);
+                    if p(end,5) < obj.cphigh_ - 2*ticksize
+                        ret = struct('inconsistence',1,...
+                            'reason','new high wad w/o price being higher');
+                        return
+                    else
+                        if p(end,5) > obj.cphigh_
+                            obj.cphigh_ = p(end,5);
+                        end
                     end
                 end
             end
@@ -75,28 +86,38 @@ function [ret] = riskmanagement_wadupdate(obj,varargin)
             obj.wadlow_ = wad(end);
             obj.wadlow_ = wad(end);
         else
-            if p(end,5) < obj.cplow_- ticksize
+            %first check whether it is valid breach of barrier
+            %the wad,cp shall updated in case it is a valid breach
+            [~,validbreachll] = fractal_validbreach(extrainfo,ticksize);
+            if validbreachll
                 obj.cplow_ = p(end,5);
-                if wad(end) > obj.wadlow_ + 2*ticksize
-                    ret = struct('inconsistence',1,...
-                        'reason','new low price w/o wad being lower');
-                    return
-                else
-                    if wad(end) <= obj.wadlow_
-                        obj.wadlow_ = wad(end);
+                obj.cpopen_ = p(end,5);
+                obj.wadlow_ = wad(end);
+                obj.wadlow_ = wad(end);
+            else
+                if p(end,5) < obj.cplow_- ticksize
+                    obj.cplow_ = p(end,5);
+                    if wad(end) > obj.wadlow_ + 2*ticksize
+                        ret = struct('inconsistence',1,...
+                            'reason','new low price w/o wad being lower');
+                        return
+                    else
+                        if wad(end) <= obj.wadlow_
+                            obj.wadlow_ = wad(end);
+                        end
                     end
                 end
-            end
             
-            if wad(end) <= obj.wadlow_
-                obj.wadlow_ = wad(end);
-                if p(end,5) > obj.cplow_ + 2*ticksize
-                    ret = struct('inconsistence',1,...
-                        'reason','new low wad w/o price being lower');
-                    return
-                else
-                    if p(end,5) <= obj.cplow_
-                        obj.cplow_ = p(end,5);
+                if wad(end) <= obj.wadlow_
+                    obj.wadlow_ = wad(end);
+                    if p(end,5) > obj.cplow_ + 2*ticksize
+                        ret = struct('inconsistence',1,...
+                            'reason','new low wad w/o price being lower');
+                        return
+                    else
+                        if p(end,5) <= obj.cplow_
+                            obj.cplow_ = p(end,5);
+                        end
                     end
                 end
             end
