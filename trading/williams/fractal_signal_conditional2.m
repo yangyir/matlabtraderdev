@@ -83,7 +83,7 @@ function [output] = fractal_signal_conditional2(varargin)
             if isempty(wprob), wprob = 0;end
             %
             if isbreachuplvlup
-                if kelly >= 0.088
+                if kelly >= 0.088 && wprob >= 0.3
                     signalkellied(1) = 1;
                     opkellied = 'conditional breachup-lvlup';
                 else
@@ -91,7 +91,7 @@ function [output] = fractal_signal_conditional2(varargin)
                     opkellied = 'conditional breachup-lvlup not to place';
                 end
             else
-                if kelly >= 0.088
+                if kelly >= 0.088 && wprob >= 0.3
                     signalkellied(1) = 1;
                     if isbreachupsshigh
                         %special treatment when sslow is close to fractal
@@ -122,8 +122,10 @@ function [output] = fractal_signal_conditional2(varargin)
                         vlookuptbl = kellytables.breachuplvlup_tc;
                         idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
                         if isempty(kelly), kelly = -9.99;end
-                        if kelly >= 0.088
+                        if isempty(wprob), wprob = 0;end
+                        if kelly >= 0.088 && wprob >= 0.3
                             signalkellied(1) = 1;
                             opkellied = 'conditional breachup-lvlup';
                         else
@@ -178,7 +180,7 @@ function [output] = fractal_signal_conditional2(varargin)
                 wprob3 = 0;
             end
             %
-            if kelly >= 0.088
+            if kelly >= 0.088 && wprob >= 0.3
                 signalkellied(1) = 1;
                 opkellied = op{1,1};
             else
@@ -311,7 +313,7 @@ function [output] = fractal_signal_conditional2(varargin)
             if isempty(wprob), wprob = 0;end
             %
             if isbreachdnlvldn
-                if kelly >= 0.088
+                if kelly >= 0.088 && wprob >= 0.3
                     signalkellied(1) = -1;
                     opkellied = 'conditional breachdn-lvldn';
                 else
@@ -319,7 +321,7 @@ function [output] = fractal_signal_conditional2(varargin)
                     opkellied = 'conditional breachdn-lvldn not to place';
                 end
             else
-                if kelly >= 0.088
+                if kelly >= 0.088 && wprob >= 0.3
                     signalkellied(1) = -1;
                     if isbreachdnbslow
                         if ~isbreachdnbclow
@@ -349,8 +351,10 @@ function [output] = fractal_signal_conditional2(varargin)
                         vlookuptbl = kellytables.breachdnlvldn_tc;
                         idx = strcmpi(vlookuptbl.asset,assetname);
                         kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
                         if isempty(kelly), kelly = -9.99;end
-                        if kelly >= 0.088
+                        if isempty(wprob), wprob = 0;end
+                        if kelly >= 0.088 && wprob >= 0.3
                             signalkellied(1) = -1;
                             opkellied = 'conditional breachdn-lvldn';
                         else
@@ -427,7 +431,7 @@ function [output] = fractal_signal_conditional2(varargin)
                 wprob3 = 0;
             end
             %
-            if kelly >= 0.088
+            if kelly >= 0.088 && wprob >= 0.3
                 signalkellied(1) = -1;
                 opkellied = op{1,2};
             else
