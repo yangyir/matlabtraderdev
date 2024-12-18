@@ -695,6 +695,11 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
                 end
             end
             %
+            if ei.bs(end) >= 16
+                this_signal(1,1) = 0;
+                this_signal(1,4) = 0;
+            end
+            %
             flags.islvlupbreach = false;
             flags.issshighbreach = false;
             flags.isschighbreach = false;
