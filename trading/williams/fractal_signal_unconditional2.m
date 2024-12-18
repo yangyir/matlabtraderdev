@@ -113,7 +113,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = -9.99;
                 wprob = 0;
             end
-            if (status.istrendconfirmed && kelly >= 0.088) ||...
+            if (status.istrendconfirmed && kelly >= 0.088 && wprob >= 0.3) ||...
                     (~status.istrendconfirmed && kelly >= 0.145)
                 useflag = 1;
                 op.comment = 'breachup-sshighvalue';
@@ -131,7 +131,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = -9.99;
                 wprob = 0;
             end
-            if kelly >= 0.088
+            if kelly >= 0.088 && wprob >= 0.3
                 useflag = 1;
                 op.comment = 'volblowup';
                 output.op = op;
@@ -148,7 +148,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = -9.99;
                 wprob = 0;
             end
-            if kelly >= 0.088
+            if kelly >= 0.088 && wprob >= 0.3
                 useflag = 1;
                 op.comment = 'volblowup';
                 output.op = op;
@@ -160,7 +160,7 @@ function [output] = fractal_signal_unconditional2(varargin)
         %NOTE:here kelly and wprob threshold shall be set
         %via configuration files, TODO:
         %in line with @kellydistributionreport
-        if kelly >= 0.088 && useflag
+        if kelly >= 0.088 && wprob >= 0.3 && useflag
             signal_i(1) = op.direction;
             signal_i(4) = op.direction;
             signal_i(8) = kelly;
@@ -188,7 +188,7 @@ function [output] = fractal_signal_unconditional2(varargin)
             signal_i(8) = kelly;
             %%NOTE:here kelly or wprob threshold shall be set
             %%via configuration files,TODO:
-            if ~(kelly >= 0.088) && ~strcmpi(op.comment,'volblowup')
+            if ~(kelly >= 0.088 && wprob >= 0.3) && ~strcmpi(op.comment,'volblowup')
                 %in case the condtional uptrend trade was opened with conditional breachsshighvalue 
                 %but it turns out to be a normal trend trade, e.g.check
                 ei_ = fractal_truncate(ei,size(ei.px,1)-1);
@@ -240,8 +240,14 @@ function [output] = fractal_signal_unconditional2(varargin)
                     sshighpx = max(ei.px(end-sslastval:end-1,3));
                     sshighidx = find(ei.px(end-sslastval:end-1,3) == sshighpx,1,'last') + size(ei.px,1) - sslastval - 1;
                     sslowpx = ei.px(sshighidx,4);
-                    if ei.hh(end-1) < sslowpx || (ei.hh(end-1) < sshighpx && ei.hh(end-1) >= sslowpx )
+                    if ei.hh(end-1) < sslowpx
                         signal_i(2) = sshighpx;
+                    elseif ei.hh(end-1) < sshighpx && ei.hh(end-1) >= sslowpx
+                        if nfractal < 6
+                            signal_i(2) = sshighpx;
+                        else
+                            %case found on TL2503 on 20241210
+                        end 
                     end
                 end
             end
@@ -255,7 +261,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 wprob = 0;
             end
             signal_i(8) = kelly;
-            if ~(kelly >= 0.088)
+            if ~(kelly >= 0.088 && wprob >= 0.3)
                 signal_i(1) = 0;
                 signal_i(4) = 0;
             end
@@ -271,7 +277,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         wprob = 0;
                     end
                     signal_i(8) = kelly;
-                    if ~(kelly >= 0.088)
+                    if ~(kelly >= 0.088 && wprob >= 0.3)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -289,7 +295,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         wprob = 0;
                     end
                     signal_i(8) = kelly;
-                    if ~(kelly >= 0.088)
+                    if ~(kelly >= 0.088 && wprob >= 0.3)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -306,7 +312,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         wprob = 0;
                     end
                     signal_i(8) = kelly;
-                    if ~(kelly >= 0.088)
+                    if ~(kelly >= 0.088 && wprob >= 0.3)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -320,7 +326,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         wprob = 0;
                     end
                     signal_i(8) = kelly;
-                    if ~(kelly >= 0.088)
+                    if ~(kelly >= 0.088 && wprob >= 0.3)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -354,7 +360,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                             signal_i(4) = 1;
                         end
                     else
-                        if ~(kelly >= 0.088)
+                        if ~(kelly >= 0.088 && wprob >= 0.3)
                             signal_i(1) = 0;
                             signal_i(4) = 0;
                         end
@@ -382,7 +388,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 wprob = kellytables.kelly_table_s.winp_unique_s(idx);
             end
             signal_i(8) = kelly;
-            if ~(kelly>=0.088) && ~strcmpi(op.comment,'volblowup')
+            if ~(kelly>=0.088 && wprob >= 0.3) && ~strcmpi(op.comment,'volblowup')
                 %in case the conditional dntrend was opened with breachdnbshighvalue 
                 %but it turns out to be a normal trend trend, e.g zn2403 on 20240117
                 ei_ = fractal_truncate(ei,size(ei.px,1)-1);
@@ -449,7 +455,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                 wprob = 0;
             end
             signal_i(8) = kelly;
-            if ~(kelly >= 0.088)
+            if ~(kelly >= 0.088 && wprob >= 0.3)
                 signal_i(1) = 0;
                 signal_i(4) = 0;    
             end
@@ -465,7 +471,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         wprob = 0;
                     end
                     signal_i(8) = kelly;
-                    if ~(kelly >= 0.088)
+                    if ~(kelly >= 0.088 && wprob >= 0.3)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -483,7 +489,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         wprob = 0;
                     end
                     signal_i(8) = kelly;
-                    if ~(kelly >= 0.088)
+                    if ~(kelly >= 0.088 && wprob >= 0.3)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -499,7 +505,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         wprob = 0;
                     end
                     signal_i(8) = kelly;
-                    if ~(kelly >= 0.088)
+                    if ~(kelly >= 0.088 && wprob >= 0.3)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
@@ -513,9 +519,14 @@ function [output] = fractal_signal_unconditional2(varargin)
                         wprob = 0;
                     end
                     signal_i(8) = kelly;
-                    if ~(kelly >= 0.088)
+                    if ~(kelly >= 0.088 && wprob >= 0.3)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
+                    end
+                    if signal_i(1) == -1 && ei.bs(end) >= 16
+                        signal_i(1) = 0;
+                        signal_i(4) = 0;
+                        op.comment = 'breachdn-bshighvalue-invalid with high bs';
                     end
                 end
             else
@@ -557,7 +568,7 @@ function [output] = fractal_signal_unconditional2(varargin)
             signal_i(7) = max(lowpx,signal_i(7));
         end
         
-    else
+    elseif signal_i(1) == -1
         if ~isempty(strfind(op.comment,'breachdn-bshighvalue'))
             bshighidx = find(ei.bs >= 9,1,'last');
             bshighval = ei.bs(bshighidx);
