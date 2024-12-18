@@ -142,16 +142,16 @@ for i = 1:n
                 runflag = true;
             end
         end
-        %here we only check whether it is a long holiday afterwards
-        if runflag && hour(extrainfo.px(end,1)) <= 15
-            lastbd = floor(extrainfo.px(end,1));
-            nextbd = dateadd(lastbd,'1b');
-            if nextbd - lastbd > 3
-                runflag = true;
-            else
-                runflag = false;
-            end
-        end
+%         %here we only check whether it is a long holiday afterwards
+%         if runflag && hour(extrainfo.px(end,1)) <= 15
+%             lastbd = floor(extrainfo.px(end,1));
+%             nextbd = dateadd(lastbd,'1b');
+%             if nextbd - lastbd > 3
+%                 runflag = true;
+%             else
+%                 runflag = false;
+%             end
+%         end
         
         %
         tradeout = trade.riskmanager_.riskmanagementwithcandle([],...
