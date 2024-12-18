@@ -190,7 +190,8 @@ if nRecords <= 15
             ~isempty(strfind(modeInput,'trendconfirmed')) || ...
             strcmpi(modeInput,'bmtc') || ...
             strcmpi(modeInput,'smtc')
-            if kelly_running(end) >= 0.088
+            if kelly_running(end) >= 0.145 || ...
+                    (kelly_running(end) >= 0.088 && winp_running(end) >= 0.3)
                 useOut = 1;
             else
                 useOut = 0;
@@ -280,7 +281,7 @@ else
             strcmpi(modeInput,'smtc') || ...
             strcmpi(modeInput,'sstc')
         %special modes and kelly is calculated seperately
-        if kelly_running(end) >= 0.088
+        if kelly_running(end) >= 0.088 && winp_running(end) >= 0.3 
             useOut = 1;
         else
             useOut = 0;
