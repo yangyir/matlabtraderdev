@@ -184,7 +184,7 @@ if showlogsflag
                     fprintf('%6s:\t%s:%2d\t%s\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),0,'no signal');
                 end
             else
-                fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,signaluncond.op.comment,100*signaluncond.kelly);
+                fprintf('%6s:\t%s:%2d\t%s:%2.1f%%\n',code,datestr(ei2.px(end,1),'yyyy-mm-dd HH:MM'),signaluncond.directionkellied,signaluncond.opkellied,100*signaluncond.kelly);
             end
         end
     end
@@ -198,13 +198,13 @@ carriedtrades = cTradeOpenArray;
 
 for i = 1:length(dts)
     if i == 1
-        [~,ct_i,ut_i] = charlotte_backtest_daily('code',code,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq);
+        [~,ct_i,ut_i] = charlotte_backtest_daily('code',code,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'kellytables',kellytables);
     else
         if ct_i.latest_ > 0
             carriedtrade = ct_i.node_(1);
-            [~,ct_i,ut_i] = charlotte_backtest_daily('code',code,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'carriedtrade',carriedtrade);
+            [~,ct_i,ut_i] = charlotte_backtest_daily('code',code,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'carriedtrade',carriedtrade,'kellytables',kellytables);
         else
-            [~,ct_i,ut_i] = charlotte_backtest_daily('code',code,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq);
+            [~,ct_i,ut_i] = charlotte_backtest_daily('code',code,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'kellytables',kellytables);
         end     
     end
     for j = 1:ut_i.latest_
