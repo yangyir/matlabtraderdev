@@ -159,16 +159,16 @@ for k = checkstartid:size(ei.px,1)
         end
     end
     
-    %here we only check whether it is a long holiday afterwards
-    if runflag && hour(ei_k.px(end,1)) <= 15
-        lastbd = floor(ei_k.px(end,1));
-        nextbd = dateadd(lastbd,'1b');
-        if nextbd - lastbd > 3
-            runflag = true;
-        else
-            runflag = false;
-        end
-    end
+%     %here we only check whether it is a long holiday afterwards
+%     if runflag && hour(ei_k.px(end,1)) <= 15
+%         lastbd = floor(ei_k.px(end,1));
+%         nextbd = dateadd(lastbd,'1b');
+%         if nextbd - lastbd > 3
+%             runflag = true;
+%         else
+%             runflag = false;
+%         end
+%     end
     
     unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
         'usecandlelastonly',false,...
