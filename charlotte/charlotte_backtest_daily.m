@@ -112,7 +112,8 @@ else
             dt1 = [testdt,' 00:00:00'];
             dt2 = [testdt,' 23:59:59'];
         else
-            error('not implemented!!!');
+            dt1 = [testdt,' 00:00:00'];
+            dt2 = [testdt,' 23:59:59'];
         end
     else
         dt1 = [testdt,' 09:00:00'];
@@ -211,8 +212,9 @@ while i <= idx2
                    'kellytables',kellytables,...
                    'ticksizeratio',tickratio);
                if ~isempty(output)
-                   if output.directionkellied ~= 0 && ...
-                           output.directionkellied == -tradeout.opendirection_
+%                    if output.directionkellied ~= 0 && ...
+%                            output.directionkellied == -tradeout.opendirection_
+                   if output.directionkellied ~= 0
                        j = j - 1;
                    end
                end
