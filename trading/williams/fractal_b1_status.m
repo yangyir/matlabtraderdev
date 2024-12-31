@@ -219,7 +219,17 @@ else
         end
     else
         schigh = px(lastsc13,3);
+        
         isschighbreach = schigh == HH(end-1) & idxhhlast - lastsc13 == nfractal;
+        if ~isschighbreach
+            if idxhhlast - lastsc13 < 2*nfractal && ...
+                    idxhhlast - lastsc13 > nfractal && ...
+                    HH(end-1) >= schigh
+                isschighbreach = true;
+            else
+                isschighbreach = false;
+            end
+        end
     end
 end
 
