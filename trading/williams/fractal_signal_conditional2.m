@@ -127,6 +127,7 @@ function [output] = fractal_signal_conditional2(varargin)
                         if isempty(wprob), wprob = 0;end
                         if kelly >= 0.088 && wprob >= 0.3
                             signalkellied(1) = 1;
+                            signalkellied(9) = 21;
                             opkellied = 'conditional breachup-lvlup';
                         else
                             signalkellied(1) = 0;
@@ -356,6 +357,7 @@ function [output] = fractal_signal_conditional2(varargin)
                         if isempty(wprob), wprob = 0;end
                         if kelly >= 0.088 && wprob >= 0.3
                             signalkellied(1) = -1;
+                            signalkellied(9) = -21;
                             opkellied = 'conditional breachdn-lvldn';
                         else
                             signalkellied(1) = 0;
