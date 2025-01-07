@@ -211,10 +211,10 @@ while i <= idx2
                    'assetname',fut.asset_name,...
                    'kellytables',kellytables,...
                    'ticksizeratio',tickratio);
-               if ~isempty(output)
+               if ~isempty(output) && ~runflag
 %                    if output.directionkellied ~= 0 && ...
 %                            output.directionkellied == -tradeout.opendirection_
-                   if output.directionkellied ~= 0
+                   if output.directionkellied ~= 0 && j ~= tradeout.id_
                        j = j - 1;
                    end
                end
