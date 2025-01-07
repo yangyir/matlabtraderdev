@@ -711,7 +711,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                         return
                     end
                 else
-                    trade.opensignal_.mode_ = signaluncond.opkellied;
+                    try
+                        trade.opensignal_.mode_ = signaluncond.opkellied;
+                    catch
+                    end
                     trade.opensignal_.kelly_ = signaluncond.kelly;
                     unwindflag = true;
                     msg = 'conditional dntrendconfirmed success:lowkelly';
