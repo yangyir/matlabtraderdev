@@ -1,6 +1,6 @@
 %%
-w = cWind;
-fprintf('wind instance initiated...\n');
+% w = cWind;
+% fprintf('wind instance initiated...\n');
 dir_ = getenv('DATAPATH');
 dir_data_ = [dir_,'dailybar\'];
 coldefs = {'date','open','high','low','close'};
@@ -38,6 +38,10 @@ tools_technicalplot2(mat_gzhy_10y(end-nshift:end,:),3,'活跃10年国债收益率',true)
 tools_technicalplot2(mat_gzhy_30y(end-nshift:end,:),4,'活跃30年国债收益率',true);
 % tools_technicalplot2(mat_gkhy_10y(end-nshift:end,:),5,'活跃10年国开收益率',true);
 
+%%
+output_gz = fractal_kelly_summary('codes',{'gzhy';'gzhy_30y'},'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
+[~,~,tbl_gz,~,~,~,~,strat_gz] = kellydistributionsummary(output_gz);
+[tblreport_gz,statsreport_gz] = kellydistributionreport(tbl_gz,strat_gz);
 %%
 output_gzhy10y = fractal_kelly_summary('codes',{'gzhy'},'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
 close all;
