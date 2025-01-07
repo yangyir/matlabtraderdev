@@ -34,6 +34,11 @@ if strcmpi(assetname,'govtbond_10y') || strcmpi(assetname,'govtbond_30y') || str
         strat_ = data.strat_govtbondfut_30m;
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_30m.mat']);
         tbl_report_ = data.tblreport_govtbondfut_30m;
+    elseif strcmpi(freq,'daily')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_daily.mat']);
+        strat_ = data.strat_govtbondfut_daily;
+%         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_30m.mat']);
+%         tbl_report_ = data.tblreport_govtbondfut_30m;
     end
 elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ...
         strcmpi(assetname,'eqindex_500') || strcmpi(assetname,'eqindex_1000')
