@@ -11,7 +11,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last');
     else
         if isempty(strfind(trade.opensignal_.mode_,'conditional'))
-            idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last')-1;
+            idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last');
         else
             idxopen = find(extrainfo.p(:,1) <= trade.opendatetime1_,1,'last');
         end
@@ -43,16 +43,6 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         ticksize = trade.instrument_.tick_size;
     catch
         ticksize = 0;
-    end
-    
-    if strcmpi(trade.opensignal_.frequency_,'daily')
-        openidx = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first');
-    else
-        if isempty(strfind(trade.opensignal_.mode_,'conditional'))
-            openidx = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
-        else
-            openidx = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
-        end
     end
        
     if direction == 1
@@ -173,7 +163,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 %add another condition after carefully restudy the perfect
                 %ss9 case, i.e. the market was below lvldn as the market
                 %firstly rallied
-                if extrainfo.lvldn(openidx) > extrainfo.hh(openidx)
+                if extrainfo.lvldn(idxopen) > extrainfo.hh(idxopen)
                     closeflag = 1;
                     trade.riskmanager_.closestr_ = 'tdsq:perfectss9';
                     closestr = trade.riskmanager_.closestr_;
@@ -199,7 +189,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
         %
         if ss(end) >= 16 && ...
                 (strcmpi(trade.opensignal_.mode_,'breachup-highsc13') ||...
-                (~isempty(find(extrainfo.sc==13,1,'last')) && find(extrainfo.sc==13,1,'last') >= openidx-1))
+                (~isempty(find(extrainfo.sc==13,1,'last')) && find(extrainfo.sc==13,1,'last') >= idxopen-1))
             %no more than ss16 in case it breached sc13
 %             closeflag = 1;
             trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss_,extrainfo.p(end,4)-(extrainfo.p(end,3)-extrainfo.p(end,4)));
