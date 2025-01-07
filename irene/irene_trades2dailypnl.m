@@ -16,6 +16,12 @@ freq = p.Results.frequency;
 ntrades = size(tblasset,1);
 use3 = ones(ntrades,1);
 
+try
+    tblasset.use2;
+catch
+    tblasset.use2 = ones(ntrades,1);
+end
+
 if strcmpi(freq,'daily') || strcmpi(freq,'1440m')
     tblasset.opendatetime = datenum(tblasset.opendatetime,'yyyy-mm-dd');
     tblasset.closedatetime = datenum(tblasset.closedatetime,'yyyy-mm-dd');
