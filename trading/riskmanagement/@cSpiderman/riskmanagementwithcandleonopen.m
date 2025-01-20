@@ -543,7 +543,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     return
                 end
                 %
-                if (~(ei.p(end,3) < ei.p(end-1,3) && ei.p(end,4) < ei.p(end-1,4)) || shadowlineratio > 0.8) && ei.p(end-1,4) <= ei.ll(end-1)
+                if (~(ei.p(end,3) < ei.p(end-1,3) && ei.p(end,4) < ei.p(end-1,4) && ei.p(end,5)-ei.p(end-1,5) - 2*trade.instrument_.tick_size<1e-5)) && ei.p(end-1,4) <= ei.ll(end-1)
                     obj.pxstoploss_ = ei.p(end,3)-2*trade.instrument_.tick_size;
                     msg = 'conditional dntrendconfirmed failed:shadowline2';
                     obj.closestr_ = msg; 
