@@ -195,7 +195,7 @@ set(0,'defaultfigurewindowstyle','docked');
 timeseries_plot([tblpnl.dts,tblpnl.runningnotional],'figureindex',2,'dateformat','yy-mmm-dd','title',asset);
 timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy-mmm-dd','title',asset);
 %%
-asset = 'eurusd';
-dt1 = '2024-05-03';
-dt2 = '2024-05-22';
+asset = 'usdjpy';
+dt1 = '2024-01-01';
+dt2 = '2024-11-19';
 [unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period('code',asset,'fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',true,'figureidx',4,'frequency',freq);
