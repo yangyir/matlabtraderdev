@@ -196,7 +196,13 @@ end
     
 %
 %
-dts = gendates('fromdate',dt1,'todate',dt2);
+if ~isfx(codein)
+    dts = gendates('fromdate',dt1,'todate',dt2);
+else
+    idxstart = find(resstruct.px(:,1) >= datenum(dt3,'yyyy-mm-dd HH:MM'),1,'first');
+    idxend = find(resstruct.px(:,1) <= datenum(dt4,'yyyy-mm-dd HH:MM'),1,'last');
+    dts = resstruct.px(idxstart:idxend,1);
+end
 unwindedtrades = cTradeOpenArray;
 carriedtrades = cTradeOpenArray;
 
