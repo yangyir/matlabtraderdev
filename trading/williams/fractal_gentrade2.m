@@ -268,13 +268,21 @@ elseif condsignal.directionkellied == 1
                     return
                 elseif uncondsignal.directionkellied == 1
                     %here due to conditional barrier shifting up
-                    if condsignal.signalkellied(2) > uncondsignal.signalkellied(2) && ...
-                            pxhigh-uncondsignal.signalkellied(2)-fut.tick_size*tickratio_ >= -1e-6 && ...
-                            pxopen<uncondsignal.signalkellied(2)+2.0*(uncondsignal.signalkellied(2)-uncondsignal.signalkellied(3))
-                        trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
-                        trade.riskmanager_.setusefractalupdateflag(0);
-                        trade.opensignal_.kelly_ = uncondsignal.kelly;
-                        return
+                    if condsignal.signalkellied(2) > uncondsignal.signalkellied(2)
+                        lastss = find(ei.ss >= 9,1,'last');
+                        if size(ei.ss,1) - lastss <= nfractal
+                            poptrade = false;
+                        else
+                            if pxhigh-uncondsignal.signalkellied(2)-fut.tick_size*tickratio_ >= -1e-6 && ...
+                                    pxopen<uncondsignal.signalkellied(2)+2.0*(uncondsignal.signalkellied(2)-uncondsignal.signalkellied(3))
+                                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
+                                trade.riskmanager_.setusefractalupdateflag(0);
+                                trade.opensignal_.kelly_ = uncondsignal.kelly;
+                                return
+                            else
+                                poptrade = false;
+                            end
+                        end
                     else
                         poptrade = false;
                     end
@@ -439,13 +447,21 @@ elseif condsignal.directionkellied == -1
                     trade.opensignal_.kelly_ = uncondsignal.kelly;
                     return
                 elseif uncondsignal.directionkellied == -1
-                    if condsignal.signalkellied(3) < uncondsignal.signalkellied(3) && ...
-                          pxlow-uncondsignal.signalkellied(3)+tickratio_*fut.tick_size <= 1e-6 && ...
-                          pxopen>uncondsignal.signalkellied(3)-2.0*(uncondsignal.signalkellied(2)-uncondsignal.signalkellied(3))
-                      trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
-                      trade.riskmanager_.setusefractalupdateflag(0);
-                      trade.opensignal_.kelly_ = uncondsignal.kelly;
-                      return
+                    if condsignal.signalkellied(3) < uncondsignal.signalkellied(3)
+                        lastbs = find(ei.bs >= 9,1,'last');
+                        if size(ei.bs,1) - lastbs <= nfractal
+                            poptrade = false;
+                        else
+                            if pxlow-uncondsignal.signalkellied(3)+tickratio_*fut.tick_size <= 1e-6 && ...
+                                    pxopen>uncondsignal.signalkellied(3)-2.0*(uncondsignal.signalkellied(2)-uncondsignal.signalkellied(3))
+                                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
+                                trade.riskmanager_.setusefractalupdateflag(0);
+                                trade.opensignal_.kelly_ = uncondsignal.kelly;
+                                return
+                            else
+                                poptrade = false;
+                            end
+                        end 
                     else
                         poptrade = false;
                     end 
