@@ -6,7 +6,7 @@ for i = 1:nfx
     fut_fx{i} = code2instrument(names_fx{i});
     resstruct_fx{i} = charlotte_plot('futcode',names_fx{i},'datefrom','2024-10-01','frequency','daily','doplot',false);
 end
-%%
+%
 for i = 1:nfx
     if nfx > 0 && i == 1
         fprintf('FX daily report......\n');
@@ -29,7 +29,7 @@ cts = cell(nfx,1);
 tbls = cell(nfx,1);
 for i = 1:nfx
     [uts{i},cts{i},tbls{i}] = charlotte_backtest_period('code',names_fx{i},...
-        'fromdate','2024-11-01',...
+        'fromdate','2024-12-01',...
         'todate',datestr(resstruct_fx{i}.px(end,1),'yyyy-mm-dd'),...
         'kellytables',kellytables,'showlogs',false,'figureidx',i+1,'frequency','daily');
     dt2 = datestr(resstruct_fx{i}.px(end,1),'yyyy-mm-dd');
@@ -64,8 +64,8 @@ for i = 1:nfx
     end
 end
 %%
-dt1 = '2024-12-05';
-dt2 = '2024-12-25';
- charlotte_backtest_period('code','eurusd','fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',true,'figureidx',1,'frequency','daily','doplot',false);
+dt1 = '2025-01-23';
+dt2 = '2025-01-30';
+[ut,ct] = charlotte_backtest_period('code','usdjpy','fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',true,'figureidx',1,'frequency','daily','doplot',true);
 %%
 charlotte_kellycheck('assetname','eurusd','datefrom',dt1,'frequency','daily');
