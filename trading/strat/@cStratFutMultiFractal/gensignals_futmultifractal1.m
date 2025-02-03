@@ -175,8 +175,28 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             if signalcond_.directionkellied == 1
                                 %due to low kelly reported on volblowup2 as
                                 %open price was high
-                                signals{i,1} = signal_i;
-                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                                lastss = find(extrainfo.ss >= 9,1,'last');
+                                if size(extrainfo.ss,1) - lastss <= nfractal
+                                    signal_i(1) = 0;
+                                    signal_i(4) = 0;
+                                    signals{i,1} = signal_i;
+                                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),[signaluncond.opkellied, ' not to place as tdsq sell setup'],100*signaluncond.kelly,100*signaluncond.wprob);
+                                    %
+                                    condentrusts2remove = EntrustArray;
+                                    ne = stratfractal.helper_.condentrustspending_.latest;
+                                    for jj = 1:ne
+                                        e = stratfractal.helper_.condentrustspending_.node(jj);
+                                        if e.offsetFlag ~= 1, continue; end
+                                        if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
+                                        condentrusts2remove.push(e);
+                                    end
+                                    if condentrusts2remove.latest > 0
+                                        stratfractal.removecondentrusts(condentrusts2remove);
+                                    end
+                                else
+                                    signals{i,1} = signal_i;
+                                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                                end
                             elseif signalcond_.directionkellied == -1
                                 fprintf('gensignal_futmultifractal1:further check with weired case...\n')
                             else
@@ -217,15 +237,35 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             if signalcond_.directionkellied == -1
                                 %due to low kelly reported on volblowup2 as
                                 %open price was low
-                                signals{i,2} = signal_i;
-                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                                lastbs = find(extrainfo.bs >= 9,1,'last');
+                                if size(extrainfo.bs,1) - lastbs <= nfractal
+                                    signal_i(1) = 0;
+                                    signal_i(4) = 0;
+                                    signals{i,2} = signal_i;
+                                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),[signaluncond.opkellied,' not to place as tdsq buy setup'],100*signaluncond.kelly,100*signaluncond.wprob);
+                                    %
+                                    condentrusts2remove = EntrustArray;
+                                    ne = stratfractal.helper_.condentrustspending_.latest;
+                                    for jj = 1:ne
+                                        e = stratfractal.helper_.condentrustspending_.node(jj);
+                                        if e.offsetFlag ~= 1, continue; end
+                                        if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
+                                        condentrusts2remove.push(e);
+                                    end
+                                    if condentrusts2remove.latest > 0
+                                        stratfractal.removecondentrusts(condentrusts2remove);
+                                    end
+                                else
+                                    signals{i,2} = signal_i;
+                                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                                end
                             elseif signalcond_.directionkellied == 1
                                 fprintf('gensignal_futmultifractal1:further check with weired case...\n')
                             else
                                 %there was a conditional signal with low kelly
                                 signal_i(1) = 0;
                                 signal_i(4) = 0;
-                                signals{i,1} = signal_i;
+                                signals{i,2} = signal_i;
                                 fprintf('\t%6s:%4s\tdn conditional:%10s with low kelly\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signalcond_.opkellied,100*signalcond_.kelly,100*signalcond_.wprob);
                             end
                         else
@@ -233,7 +273,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                             %signal,i.e.alligator lines crossed and etc
                             signal_i(1) = 0;
                             signal_i(4) = 0;
-                            signals{i,1} = signal_i;
+                            signals{i,2} = signal_i;
                             fprintf('\t%6s:%4s\tdn %10s was invalid\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
                         end
                     else
