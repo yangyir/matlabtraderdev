@@ -179,7 +179,15 @@ if nRecords <= 15
                 (kelly_running(end) >= 0.088 && winp_running(end) >= 0.45 && R_running(end) > 1.0)
                 useOut = 1;
             else
-                useOut = 0;
+                if strcmpi(modeInput,'volblowup-s1') || strcmpi(modeInput,'volblowup-s2') || strcmpi(modeInput,'volblowup-s3')
+                    if (kelly_running(end) >= 0.1 && winp_running(end) >= 0.3 && R_running(end) > 2.0)
+                        useOut = 1;
+                    else
+                        useOut = 0;
+                    end 
+                else
+                    useOut = 0;
+                end
             end
         else
             useOut = 0;
