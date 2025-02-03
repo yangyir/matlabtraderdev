@@ -50,9 +50,13 @@ output_govtbondfut_30m = fractal_kelly_summary('codes',codes_govtbondfut_tl,...
 [~,~,tbl_govtbondfut_30m,~,~,~,~,strat_govtbondfut_30m] = kellydistributionsummary(output_govtbondfut_30m,'useactiveonly',true);
 %
 [tblreport_govtbondfut_30m,statsreport_govtbondfut_30m] = kellydistributionreport(tbl_govtbondfut_30m,strat_govtbondfut_30m);
-save([dir_,'strat_govtbondfut_30m.mat'],'strat_govtbondfut_30m');
-save([dir_,'tblreport_govtbondfut_30m.mat'],'tblreport_govtbondfut_30m');
-fprintf('file of 30m-govtbond saved...\n');
+%compare with existing ones
+strat_govtbondfut_30m_existing = load([dir_,'strat_govtbondfut_30m.mat']);
+strat_govtbondfut_30m_existing = strat_govtbondfut_30m_existing.strat_govtbondfut_30m;
+charlotte_strat_compare('strat1',strat_govtbondfut_30m_existing,'strat2',strat_govtbondfut_30m,'assetname','govtbond_30y');
+% save([dir_,'strat_govtbondfut_30m.mat'],'strat_govtbondfut_30m');
+% save([dir_,'tblreport_govtbondfut_30m.mat'],'tblreport_govtbondfut_30m');
+% fprintf('file of 30m-govtbond saved...\n');
 %%
 % codes_govtbondfut_t_latest = {'T2312';'T2403';'T2406';'T2409';'T2412';'T2503'};
 output_govtbondfut_5m = fractal_kelly_summary('codes',codes_govtbondfut_tl,...
@@ -137,14 +141,14 @@ legend('exiting-15m','new-15m');hold off;
 % fprintf('file 15m-govtbond saved...\n');
 %%
 
-tbl2check_15m = cell(ntl,1);
+% tbl2check_15m = cell(ntl,1);
 tbl2check_30m = cell(ntl,1);
 for i = 1:ntl
     [dt1,dt2] = irene_findactiveperiod('code',codes_govtbondfut_tl{i});
     dt1 = datestr(dt1,'yyyy-mm-dd');
     dt2 = datestr(dt2,'yyyy-mm-dd');
     
-    [~,~,tbl2check_15m{i}] = charlotte_backtest_period('code',codes_govtbondfut_tl{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_govtbondfut_15m,'showlogs',false,'figureidx',5,'frequency','15m');
+%     [~,~,tbl2check_15m{i}] = charlotte_backtest_period('code',codes_govtbondfut_tl{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_govtbondfut_15m,'showlogs',false,'figureidx',5,'frequency','15m');
     [~,~,tbl2check_30m{i}] = charlotte_backtest_period('code',codes_govtbondfut_tl{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_govtbondfut_30m,'showlogs',false,'figureidx',6,'frequency','30m');
 end
 %%
@@ -154,8 +158,8 @@ tbl2check_30m_all = tbl2check_30m{1};
 for i = 2:ntl
 %     temp_5m = [tbl2check_5m_all;tbl2check_5m{i}];
 %     tbl2check_5m_all = temp_5m;
-    temp_15m = [tbl2check_15m_all;tbl2check_15m{i}];
-    tbl2check_15m_all = temp_15m;
+%     temp_15m = [tbl2check_15m_all;tbl2check_15m{i}];
+%     tbl2check_15m_all = temp_15m;
     temp_30m = [tbl2check_30m_all;tbl2check_30m{i}];
     tbl2check_30m_all = temp_30m;
 end
