@@ -194,8 +194,15 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                         stratfractal.removecondentrusts(condentrusts2remove);
                                     end
                                 else
-                                    signals{i,1} = signal_i;
-                                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                                    if ~signaluncond.status.isvolblowup2
+                                        signals{i,1} = signal_i;
+                                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                                    else
+                                        signal_i(1) = 0;
+                                        signal_i(4) = 0;
+                                        signals{i,1} = signal_i;
+                                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(1),[signaluncond.opkellied, ' not to place as volblowup2'],100*signaluncond.kelly,100*signaluncond.wprob);
+                                    end
                                 end
                             elseif signalcond_.directionkellied == -1
                                 fprintf('gensignal_futmultifractal1:further check with weired case...\n')
@@ -256,8 +263,15 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                         stratfractal.removecondentrusts(condentrusts2remove);
                                     end
                                 else
-                                    signals{i,2} = signal_i;
-                                    fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                                    if ~signaluncond.status.isvolblowup2
+                                        signals{i,2} = signal_i;
+                                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                                    else
+                                        signal_i(1) = 0;
+                                        signal_i(4) = 0;
+                                        signals{i,2} = signal_i;
+                                        fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),[signaluncond.opkellied,' not to place as volblowup2'],100*signaluncond.kelly,100*signaluncond.wprob);
+                                    end
                                 end
                             elseif signalcond_.directionkellied == 1
                                 fprintf('gensignal_futmultifractal1:further check with weired case...\n')
