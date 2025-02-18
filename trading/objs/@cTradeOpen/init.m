@@ -35,6 +35,9 @@ else
     elseif ~isempty(strfind(obj.instrument_.asset_name,'eqindex'))
         obj.oneminb4close1_ = 899;
         obj.oneminb4close2_ = NaN;
+    elseif isinequitypool(obj.code_)
+        obj.oneminb4close1_ = 899;
+        obj.oneminb4close2_ = NaN;
     elseif strcmpi(obj.instrument_.asset_name,'gold') ||...
             strcmpi(obj.instrument_.asset_name,'silver') ||...
             strcmpi(obj.instrument_.asset_name,'crude oil')
