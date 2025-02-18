@@ -140,6 +140,23 @@ function [output] = fractal_signal_unconditional2(varargin)
             end     
         end
         %
+        if status.istrendconfirmed && strcmpi(op.comment,'volblowup2-invalid long as close moves too high')
+            try
+                kelly = kelly_k('volblowup2',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
+                wprob = kelly_w('volblowup2',assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
+            catch
+                kelly = -9.99;
+                wprob = 0;
+            end
+            if kelly >= 0.088 && wprob >= 0.3
+                useflag = 1;
+                op.comment = 'volblowup2';
+                output.op = op;
+            else
+                useflag = 0;
+            end     
+        end
+        %
         if status.istrendconfirmed && strcmpi(op.comment,'volblowup-invalid short as close moves too low')
             try
                 kelly = kelly_k('volblowup',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
@@ -151,6 +168,23 @@ function [output] = fractal_signal_unconditional2(varargin)
             if kelly >= 0.088 && wprob >= 0.3
                 useflag = 1;
                 op.comment = 'volblowup';
+                output.op = op;
+            else
+                useflag = 0;
+            end     
+        end
+        %
+        if status.istrendconfirmed && strcmpi(op.comment,'volblowup2-invalid short as close moves too low')
+            try
+                kelly = kelly_k('volblowup2',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
+                wprob = kelly_w('volblowup2',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
+            catch
+                kelly = -9.99;
+                wprob = 0;
+            end
+            if kelly >= 0.088 && wprob >= 0.3
+                useflag = 1;
+                op.comment = 'volblowup2';
                 output.op = op;
             else
                 useflag = 0;
