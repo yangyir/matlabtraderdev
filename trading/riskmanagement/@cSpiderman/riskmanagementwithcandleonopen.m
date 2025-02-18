@@ -368,7 +368,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 if ~isempty(signaluncond)
                     if signaluncond.directionkellied == 1
                         kelly = signaluncond.kelly;
-                        trade.opensignal_.mode_ = signaluncond.opkellied;
+                        try
+                            trade.opensignal_.mode_ = signaluncond.opkellied;
+                        catch
+                        end
                         trade.opensignal_.kelly_ = kelly;
                         obj.wadopen_ = ei.wad(end);
                         %                     obj.wadlow_ = ei.wad(end);
@@ -383,7 +386,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                         end
                     else
                         kelly = signaluncond.kelly;
-                        trade.opensignal_.mode_ = signaluncond.opkellied;
+                        try
+                            trade.opensignal_.mode_ = signaluncond.opkellied;
+                        catch
+                        end
                         trade.opensignal_.kelly_ = kelly;
                         unwindflag = true;
                         msg = 'conditional uptrendconfirmed success:lowkelly';
