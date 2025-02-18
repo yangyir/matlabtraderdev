@@ -147,6 +147,8 @@ elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     nfractal = 2;
     if isfx(futcode)
         data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',futcode,'_daily.txt']);
+    elseif isinequitypool(futcode)
+        data = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',futcode,'_daily.txt']);
     else
         data = cDataFileIO.loadDataFromTxtFile([futcode,'_daily.txt']);
     end
