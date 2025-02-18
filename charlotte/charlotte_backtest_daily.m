@@ -88,6 +88,16 @@ elseif isfx(fut.asset_name)
     end
     nfractal = 2;
     tickratio = 1;
+elseif isinequitypool(futcode)
+    if ~strcmpi(freq,'daily')
+        error('charlotte_backtest_daily:invalid freq for etfs, only daily is supported now...');
+    end
+    if isempty(kellytables)
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\etfs\strat_daily_etfs.mat']);
+        kellytables = data.strat_daily_etfs;
+    end
+    nfractal = 2;
+    tickratio = 1;
 else
     nfractal = 4;
     tickratio = 0.5;
@@ -170,8 +180,13 @@ while i <= idx2
                     runflag = true;
                 end
             elseif trade.oneminb4close1_ == 899 && isnan(trade.oneminb4close2_)
-                if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
-                if hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30, runflag = true;end
+                if strcmpi(freq,'30m')
+                    if hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30, runflag = true;end
+                elseif strcmpi(freq,'daily')
+                    runflag = true;
+                else
+                    error('charlotte_backtest_daily:invalid freq input....');
+                end                  
             elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 1379
                 if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
                 if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
@@ -218,8 +233,24 @@ while i <= idx2
                        j = j - 1;
                    end
                end
-                %
-                break
+               %
+               if strcmpi(freq,'daily')
+                   ei_jminus1 = fractal_truncate(ei_j,size(ei_j.px,1)-1);
+                   output2 = fractal_signal_conditional2('extrainfo',ei_jminus1,...
+                       'ticksize',fut.tick_size,...
+                       'nfractal',nfractal,...
+                       'assetname',fut.asset_name,...
+                       'kellytables',kellytables,...
+                       'ticksizeratio',tickratio);
+                   if ~isempty(output2)
+                       if output2.directionkellied ~= 0 && j ~= tradeout.id_
+                           j = j - 1;
+                       end
+                   end
+               end
+               %
+               %
+               break
             else
                 output = fractal_signal_unconditional2('extrainfo',ei_j,...
                    'ticksize',fut.tick_size,...
