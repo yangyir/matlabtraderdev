@@ -40,6 +40,9 @@ dt2 = datenum(dt2,'yyyy-mm-dd');
 if isfx(codein)
     dt3 = [datestr(dt1,'yyyy-mm-dd'),' 00:00:00'];
     dt4 = [datestr(dt2,'yyyy-mm-dd'),' 23:59:59'];
+elseif isinequitypool(codein)
+    dt3 = [datestr(dt1,'yyyy-mm-dd'),' 00:00:00'];
+    dt4 = [datestr(dt2,'yyyy-mm-dd'),' 23:59:59'];
 else
     dt3 = [datestr(dt1,'yyyy-mm-dd'),' 09:00:00'];
     dt4 = [datestr(dateadd(dt2,'1d'),'yyyy-mm-dd'),' 02:30:00'];
