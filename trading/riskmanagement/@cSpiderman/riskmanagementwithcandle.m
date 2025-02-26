@@ -360,7 +360,15 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             else
                 closeflag = true;
                 if ~isempty(strfind(val,'conditional-'))
-                    obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+                    if ~strcmpi(obj.trade_.opensignal_.frequency_,'daily')
+                        obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+                    else
+                        if extrainfo.p(end,5) > extrainfo.p(end,2)
+                            obj.pxstoploss_ = extrainfo.p(end,4) + ticksize;
+                        else
+                            obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+                        end
+                    end
                 else
                     if extrainfo.sc(end) == 13 || extrainfo.ss(end) >= 9
                         obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
@@ -439,7 +447,15 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             else
                 closeflag = true;
                 if ~isempty(strfind(val,'conditional-'))
-                    obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
+                    if ~strcmpi(obj.trade_.opensignal_.frequency_,'daily')
+                        obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
+                    else
+                        if extrainfo.p(end,5) < extrainfo.p(end,2)
+                            obj.pxstoploss_ = extrainfo.p(end,3) - ticksize;
+                        else
+                            obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
+                        end
+                    end
                 else
                     if extrainfo.bc(end) == 13 || extrainfo.bs(end) >= 9
                         obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
