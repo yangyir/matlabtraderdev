@@ -245,7 +245,7 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 %due to low kelly reported on volblowup2 as
                                 %open price was low
                                 lastbs = find(extrainfo.bs >= 9,1,'last');
-                                if size(extrainfo.bs,1) - lastbs <= nfractal
+                                if size(extrainfo.bs,1) - lastbs <= nfractal && ~strcmpi(signaluncond.opkellied,'breachdn-bshighvalue')
                                     signal_i(1) = 0;
                                     signal_i(4) = 0;
                                     signals{i,2} = signal_i;
@@ -283,12 +283,17 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                 fprintf('\t%6s:%4s\tdn conditional:%10s with low kelly\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signalcond_.opkellied,100*signalcond_.kelly,100*signalcond_.wprob);
                             end
                         else
-                            %there wasn't any conditional
-                            %signal,i.e.alligator lines crossed and etc
-                            signal_i(1) = 0;
-                            signal_i(4) = 0;
-                            signals{i,2} = signal_i;
-                            fprintf('\t%6s:%4s\tdn %10s was invalid\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                            if signaluncond.status.islvldnbreach
+                                signals{i,2} = signal_i;
+                                fprintf('\t%6s:%4s\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(-1),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                            else
+                                %there wasn't any conditional
+                                %signal,i.e.alligator lines crossed and etc
+                                signal_i(1) = 0;
+                                signal_i(4) = 0;
+                                signals{i,2} = signal_i;
+                                fprintf('\t%6s:%4s\tdn %10s was invalid\tk:%2.1f%%\twinp:%2.1f%%\n',instruments{i}.code_ctp,num2str(0),signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+                            end
                         end
                     else
                         signals{i,2} = signal_i;
