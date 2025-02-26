@@ -27,3 +27,26 @@ output_daily_globalcomdty = fractal_kelly_summary('codes',global_comdty,...
 %%
 [~,~,tbl_globalcomdty_daily,~,~,~,~,strat_globalcomdty_daily] = kellydistributionsummary(output_daily_globalcomdty);
 %%
+global_crudeoil = {
+    'brent';...
+    'wti';
+    };
+output_daily_globalcrudeoil = fractal_kelly_summary('codes',global_crudeoil,...
+    'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
+[~,~,tbl_globalcrudeoil_daily,~,~,~,~,strat_globalcrudeoil_daily] = kellydistributionsummary(output_daily_globalcrudeoil);
+
+dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\globalcomdty\'];
+try
+    cd(dir_);
+catch
+    mkdir(dir_);
+    cd(dir_);
+end
+
+save([dir_,'strat_globalcrudeoil_daily.mat'],'strat_globalcrudeoil_daily');
+fprintf('strat M-file saved...\n');
+%
+save([dir_,'tbl_globalcrudeoil_daily.mat'],'tbl_globalcrudeoil_daily');
+fprintf('tbl report M-file saved...\n');
+
+%%
