@@ -89,7 +89,7 @@ if isempty(condsignal)
         if uncondsignal.status.istrendconfirmed
             %filter out case that the empty condsignal was returned because
             %of fractal barrier update
-%             if uncondsignal.directionkellied == 1
+            if uncondsignal.directionkellied == 1
 %                 highs = ei.px(end-nfractal:end-1,3);
 %                 highest = max(highs);
 %                 if highest == highs(1) && highest > ei.hh(end-1) && nfractal ~= 6
@@ -101,7 +101,7 @@ if isempty(condsignal)
                     trade = {};
                     return
 %                 end
-%             elseif uncondsignal.directionkellied == -1
+            elseif uncondsignal.directionkellied == -1
 %                 lows = ei.px(end-nfractal:end-1,4);
 %                 lowest = min(lows);
 %                 if lowest == lows(1) && lowest < ei.ll(end-1) && nfractal ~= 6
@@ -110,10 +110,17 @@ if isempty(condsignal)
 %                     trade.riskmanager_.setusefractalupdateflag(0);
 %                     return
 %                 else
-%                     trade = {};
-%                     return
+                if uncondsignal.status.islvldnbreach
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                    trade.riskmanager_.setusefractalupdateflag(0);
+                    trade.opensignal_.kelly_ = uncondsignal.kelly;
+                    return
+                else
+                    trade = {};
+                    return
 %                 end
-%             end
+                end
+            end
         else
             try
                 openpx = resstruct.px(idx+1,2);
@@ -144,7 +151,7 @@ if condsignal.directionkellied == 0
             return
         else
             if ~uncondsignal.status.istrendconfirmed
-                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
                 trade.riskmanager_.setusefractalupdateflag(0);
                 trade.opensignal_.kelly_ = uncondsignal.kelly;
                 return
@@ -449,7 +456,7 @@ elseif condsignal.directionkellied == -1
                 elseif uncondsignal.directionkellied == -1
                     if condsignal.signalkellied(3) < uncondsignal.signalkellied(3)
                         lastbs = find(ei.bs >= 9,1,'last');
-                        if size(ei.bs,1) - lastbs <= nfractal
+                        if size(ei.bs,1) - lastbs <= nfractal && ~strcmpi(uncondsignal.opkellied,'breachdn-bshighvalue')
                             poptrade = false;
                         else
                             if pxlow-uncondsignal.signalkellied(3)+tickratio_*fut.tick_size <= 1e-6 && ...
