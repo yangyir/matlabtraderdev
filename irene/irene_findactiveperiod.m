@@ -54,15 +54,18 @@ else
         return
     end
     %
-    for j = i+1:length(dts)
-        fn_j = [getenv('datapath'),'activefutures\activefutures_',datestr(dts(j),'yyyymmdd'),'.txt'];
-        data_j = cDataFileIO.loadDataFromTxtFile(fn_j);
-        dateto = dts(j);
-        if sum(strcmpi(data_j,code)) == 0
-            dateto = dts(j-1);
-            break
+    if i == length(dts)
+        dateto = dts(end);
+    else
+        for j = i+1:length(dts)
+            fn_j = [getenv('datapath'),'activefutures\activefutures_',datestr(dts(j),'yyyymmdd'),'.txt'];
+            data_j = cDataFileIO.loadDataFromTxtFile(fn_j);
+            dateto = dts(j);
+            if sum(strcmpi(data_j,code)) == 0
+                dateto = dts(j-1);
+                break
+            end
         end
-    end
     %
     
 end
