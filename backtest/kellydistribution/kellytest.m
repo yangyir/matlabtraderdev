@@ -241,12 +241,17 @@ else
     [rMu,rSigma] = normfit(rTrials,0.05);
     try
         kH = kstest((kTrials-mean(kTrials))/std(kTrials));
+        [kMu,kSigma] = normfit(kTrials,0.05);
     catch
         kH = 1;
+        kSigma = [];
     end
-    [kMu,kSigma] = normfit(kTrials,0.05);
     
     [winp_running,R_running,kelly_running] = calcrunningkelly(tblOut.pnlrel);
+    
+    if kH == 1
+        kMu = kelly_running(end);
+    end
     
     if kMu >= 0.088
         useOut = 1;
