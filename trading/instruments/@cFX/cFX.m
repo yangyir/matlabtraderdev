@@ -48,6 +48,14 @@ classdef cFX < cInstrument
                     obj.code_wind = upper(codestr);
                     obj.code_ctp = lower(codestr);
                     obj.asset_name = upper(obj.code_ctp);
+                elseif strcmpi(codestr,'wti') || strcmpi(codestr,'brent')
+                    if strcmpi(codestr,'wti')
+                        obj.code_wind = 'CL.NYM';
+                    else
+                        obj.code_wind = 'B00.IPE';
+                    end
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = upper(obj.code_ctp);
                 else
                     obj.code_wind = [upper(codestr),'.FX'];
                     obj.code_ctp = lower(codestr);
@@ -72,6 +80,10 @@ classdef cFX < cInstrument
                 obj.tick_size = 0.001;
                 obj.tick_value = 1;
             elseif strcmpi(codestr,'xau')
+                obj.contract_size = 100;
+                obj.tick_size = 0.01;
+                obj.tick_value = 1;
+            elseif strcmpi(codestr,'brent') || strcmpi(codestr,'wti')
                 obj.contract_size = 100;
                 obj.tick_size = 0.01;
                 obj.tick_value = 1;
