@@ -581,9 +581,26 @@ function [output] = fractal_signal_unconditional2(varargin)
                     signal_i(1) = 0;
                     signal_i(4) = 0;
                 end
-                if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
-                    signal_i(1) = 0;
-                    signal_i(4) = 0;
+                if ~isempty(strfind(op.comment,'volblowup-')) || strcmpi(op.comment,'strongbreach-trendbreak')
+                    if wprob > 0.5
+                        if kelly <= 0.05
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
+                        else
+                            signal_i(1) = -1;
+                            signal_i(4) = -1;
+                        end
+                    else
+                        if ~(kelly >= 0.088 && wprob >= 0.3)
+                            signal_i(1) = 0;
+                            signal_i(4) = 0;
+                        end
+                    end
+                else
+                    if ~(kelly >= 0.145 || (kelly > 0.1 && wprob > 0.41))
+                        signal_i(1) = 0;
+                        signal_i(4) = 0;
+                    end
                 end
             end
         end
