@@ -250,6 +250,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     %end of lflag && breachupfailed
     %
     if lflag && breachupsuccess
+        if ~isempty(strfind(obj.closestr_,'conditional uptrendconfirmed failed'))
+            obj.pxstoploss_ = floor(ei.teeth(end)/trade.instrument_.tick_size)*trade.instrument_.tick_size;
+            obj.closestr_ = 'teeth';
+        end
         if isempty(kellytables)
             [~,opuncond,~] = fractal_signal_unconditional(ei,ticksizeratio*trade.instrument_.tick_size,nfractal);
             try
@@ -667,6 +671,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     %end of sflag && breachdnfailed
     %
     if sflag && breachdnsuccess
+        if ~isempty(strfind(obj.closestr_,'conditional dntrendconfirmed failed'))
+            obj.pxstoploss_ = ceil(ei.teeth(end)/trade.instrument_.tick_size)*trade.instrument_.tick_size;
+            obj.closestr_ = 'teeth';
+        end
         if isempty(kellytables)
             [~,opuncond,~] = fractal_signal_unconditional(ei,ticksizeratio*trade.instrument_.tick_size,nfractal);
             try
