@@ -368,11 +368,12 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                e = stratfractal.helper_.condentrustspending_.node(jj);
                                if e.offsetFlag ~= 1, continue; end
                                if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
-                               if tickratio == 0
-                                   if e.price <= signalcond.signalkellied(2),continue;end
-                               else
-                                   if e.price <= signalcond.signalkellied(2)+ticksize,continue;end
-                               end
+                               if e.direction ~= 1, continue;end
+%                                if tickratio == 0
+%                                    if e.price <= signalcond.signalkellied(2),continue;end
+%                                else
+%                                    if e.price <= signalcond.signalkellied(2)+ticksize,continue;end
+%                                end
                                %if the code reaches here, the existing entrust shall be canceled
                                condentrusts2remove.push(e);
                            end
@@ -395,11 +396,11 @@ function signals = gensignals_futmultifractal1(stratfractal)
                                if e.offsetFlag ~= 1, continue; end
                                if ~strcmpi(e.instrumentCode,instruments{i}.code_ctp), continue;end%the same instrument
                                if e.direction ~= -1, continue;end %the same direction
-                               if tickratio == 0
-                                   if e.price >= signalcond.signalkellied(3),continue;end
-                               else
-                                   if e.price >= signalcond.signalkellied(3)-ticksize,continue;end
-                               end
+%                                if tickratio == 0
+%                                    if e.price >= signalcond.signalkellied(3),continue;end
+%                                else
+%                                    if e.price >= signalcond.signalkellied(3)-ticksize,continue;end
+%                                end
                                %if the code reaches here, the existing entrust shall be canceled
                                condentrusts2remove.push(e);
                            end
