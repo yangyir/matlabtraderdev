@@ -493,10 +493,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             end
             
             if ~exceptionflag
-                unwindflag = true;
+%                 unwindflag = true;
                 msg = 'conditional dntrendconfirmed failed:fractalllupdate';
-                obj.status_ = 'closed';
+%                 obj.status_ = 'closed';
                 obj.closestr_ = msg;
+                if ei.p(end,5) < ei.p(end,2)
+                    checkpx = ei.p(end,3) - trade.instrument_.tick_size;
+                else
+                    checkpx = ei.p(end,5) - trade.instrument_.tick_size;
+                end
+                obj.pxstoploss_ = min(obj.pxstoploss_,checkpx);
                 return
             end
         end
