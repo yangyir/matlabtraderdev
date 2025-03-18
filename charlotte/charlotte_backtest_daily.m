@@ -188,16 +188,32 @@ while i <= idx2
                     error('charlotte_backtest_daily:invalid freq input....');
                 end                  
             elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 1379
-                if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
-                if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
-                        (hour(ei_j.px(end,1)) == 22 && minute(ei_j.px(end,1)) == 30)
-                    runflag = true;
+                if strcmpi(freq,'30m')
+                    if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
+                            (hour(ei_j.px(end,1)) == 22 && minute(ei_j.px(end,1)) == 30)
+                        runflag = true;
+                    end
+                elseif strcmpi(freq,'15m')
+                    if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 45) || ...
+                            (hour(ei_j.px(end,1)) == 22 && minute(ei_j.px(end,1)) == 45)
+                        runflag = true;
+                    end
+                else
+                    error('charlotte_backtest_daily:invalid freq input....');
                 end
             elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 59
-                if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
-                if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
+                if strcmpi(freq,'30m')
+                    if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
                         (hour(ei_j.px(end,1)) == 0 && minute(ei_j.px(end,1)) == 30)
-                    runflag = true;
+                        runflag = true;
+                    end
+                elseif strcmpi(freq,'15m')
+                    if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 45) || ...
+                        (hour(ei_j.px(end,1)) == 0 && minute(ei_j.px(end,1)) == 45)
+                        runflag = true;
+                    end
+                else
+                    error('charlotte_backtest_daily:invalid freq input....');
                 end
             elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 149
                 if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
