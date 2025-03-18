@@ -29,7 +29,7 @@ strategyname = 'fractal';
 riskconfigfilename = ['config_',code,'_',freq,'.txt'];
 genconfigfile(strategyname,[path_,riskconfigfilename],'instruments',{code});
 
-if strcmpi('freq','5m')
+if strcmpi(freq,'5m')
     nfractal = 6;
     displayfreq = 5;
 elseif strcmpi(freq,'15m')
