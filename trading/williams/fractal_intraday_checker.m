@@ -124,10 +124,18 @@ for i = 1:n
             if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
             if hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30, runflag = true;end
         elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 1379
-            if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
-            if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
-                    (hour(extrainfo.px(end,1)) == 22 && minute(extrainfo.px(end,1)) == 30)
-                runflag = true;
+            if freq == 30
+                if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
+                        (hour(extrainfo.px(end,1)) == 22 && minute(extrainfo.px(end,1)) == 30)
+                    runflag = true;
+                end
+            elseif freq == 15
+                if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 45) || ...
+                        (hour(extrainfo.px(end,1)) == 22 && minute(extrainfo.px(end,1)) == 45)
+                    runflag = true;
+                end
+            else
+                error('fractal_intraday_check:invalid freq input....');
             end
         elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 59
             if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
