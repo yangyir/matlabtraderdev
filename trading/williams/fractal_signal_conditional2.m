@@ -189,15 +189,17 @@ function [output] = fractal_signal_conditional2(varargin)
                 %strongbreach-trendconfirmed as it is not known whether
                 %the conditional bid would turn out to be a volblowup
                 if kelly3 >= 0.145 || (kelly3 > 0.11 && wprob3 > 0.41)
-                    if kelly < 0
-                        extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)-ticksizeratio*ticksize<0,1,'first'));
-                        if extracheck
-                            signalkellied(1) = 1;
-                            opkellied = 'potential high kelly with volblowup breach up';
-                        else
-                            signalkellied(1) = 0;
-                            opkellied = [op{1,1},' not to place as extra check failed'];
-                        end
+                    if kelly2 < 0
+%                         extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)-ticksizeratio*ticksize<0,1,'first'));
+%                         if extracheck
+%                             signalkellied(1) = 1;
+%                             opkellied = 'potential high kelly with volblowup breach up';
+%                         else
+%                             signalkellied(1) = 0;
+%                             opkellied = [op{1,1},' not to place as extra check failed'];
+%                         end
+                        signalkellied(1) = 0;
+                        opkellied = [op{1,1},' not to place as negative kelly of bmtc/bstc '];
                     else
                         signalkellied(1) = 1;
                         opkellied = 'potential high kelly with volblowup breach up';
@@ -441,15 +443,17 @@ function [output] = fractal_signal_conditional2(varargin)
                 %strongbreach-trendconfirmed as it is not known whether
                 %the conditional bid would turn out to be a volblowup
                 if kelly3 >= 0.145 || (kelly3 > 0.11 && wprob3 > 0.41)
-                    if kelly < 0
-                        extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)+ticksizeratio*ticksize>0,1,'first'));
-                        if extracheck
-                            signalkellied(1) = -1;
-                            opkellied = 'potential high kelly with volblowup breach dn';
-                        else
-                            signalkellied(1) = 0;
-                            opkellied = [op{1,2},' not to place as extra check failed'];
-                        end 
+                    if kelly2 < 0
+%                         extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)+ticksizeratio*ticksize>0,1,'first'));
+%                         if extracheck
+%                             signalkellied(1) = -1;
+%                             opkellied = 'potential high kelly with volblowup breach dn';
+%                         else
+%                             signalkellied(1) = 0;
+%                             opkellied = [op{1,2},' not to place as extra check failed'];
+%                         end
+                        signalkellied(1) = 0;
+                        opkellied = [op{1,2},' as negative kelly of smtc/sstc '];
                     else
                         signalkellied(1) = -1;
                         opkellied = 'potential high kelly with volblowup breach dn';
