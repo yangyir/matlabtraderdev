@@ -26,8 +26,10 @@ for i = 1:length(shortcodes)
                 ncodes_oi = ncodes_oi + 1;
                 codes_oi{ncodes_oi,1} = fn_j(1:end-4);
             case 'p'
-                ncodes_p = ncodes_p + 1;
-                codes_p{ncodes_p,1} = fn_j(1:end-4);
+                if isempty(strfind(fn_j,'_15m'))
+                    ncodes_p = ncodes_p + 1;
+                    codes_p{ncodes_p,1} = fn_j(1:end-4);
+                end
             case 'y'
                 ncodes_y = ncodes_y + 1;
                 codes_y{ncodes_y,1} = fn_j(1:end-4);
@@ -52,6 +54,11 @@ codes_y = codes_y(1:ncodes_y,:);
 codes_m = codes_m(1:ncodes_m,:);
 codes_rm = codes_rm(1:ncodes_rm,:);
 codes_a = codes_a(1:ncodes_a,:);
+dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'];
+%%
+for i = 11:ncodes_p
+    db_intradayloader4(codes_p{i},15);
+end
 
 %%
 output_grease = fractal_kelly_summary('codes',codes_grease,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
@@ -60,37 +67,35 @@ output_grease = fractal_kelly_summary('codes',codes_grease,'frequency','intraday
 %
 [tbl_report_grease_i,stats_report_grease_i] = kellydistributionreport(tbl_grease_i,strat_intraday_grease);
 %
-dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'];
 save([dir_,'strat_intraday_grease.mat'],'strat_intraday_grease');
 fprintf('file saved...\n');
 %%
 output_p = fractal_kelly_summary('codes',codes_p,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
-[~,~,tbl_i_p,~,~,~,~,strat_i_p] = kellydistributionsummary(output_p);
+[~,~,tbl_p_30m,~,~,~,~,strat_p_30m] = kellydistributionsummary(output_p);
 %
-% [tbl_report_grease_i,stats_report_grease_i] = kellydistributionreport(tbl_grease_i,strat_intraday_grease);
+save([dir_,'strat_p_30m.mat'],'strat_p_30m');
+fprintf('file of palm oil 30m saved...\n');
+%%
+output_p_15m = fractal_kelly_summary('codes',codes_p,'frequency','intraday-15m','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
-dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'];
-save([dir_,'strat_i_p.mat'],'strat_i_p');
-fprintf('file saved...\n');
+[~,~,tbl_p_15m,~,~,~,~,strat_p_15m] = kellydistributionsummary(output_p_15m,'useactiveonly',true);
+%
+save([dir_,'strat_p_15m.mat'],'strat_p_15m');
+fprintf('file of palm oil 15m saved...\n');
 %%
 output_y = fractal_kelly_summary('codes',codes_y,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
 %
-[~,~,tbl_i_y,~,~,~,~,strat_i_y] = kellydistributionsummary(output_y);
+[~,~,tbl_y_30m,~,~,~,~,strat_y_30m] = kellydistributionsummary(output_y);
 %
-% [tbl_report_grease_i,stats_report_grease_i] = kellydistributionreport(tbl_grease_i,strat_intraday_grease);
-%
-dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\'];
-save([dir_,'strat_i_y.mat'],'strat_i_y');
-fprintf('file saved...\n');
-
-
+save([dir_,'strat_y_30m.mat'],'strat_y_30m');
+fprintf('file of soybean oil 30m saved...\n');
 %% palm oil
-data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\strat_intraday_grease.mat']);
-kellytables = data.strat_intraday_grease;
+data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\strat_p_30m.mat']);
+kellytables = data.strat_p_30m;
 tbl2check_30m_p = cell(ncodes_p,1);
 
-for i = 1:ncodes_p
+for i = ncodes_p:ncodes_p
     [dt1,dt2] = irene_findactiveperiod('code',codes_p{i});
     dt1 = datestr(dt1,'yyyy-mm-dd');
     dt2 = datestr(dt2,'yyyy-mm-dd');
@@ -103,10 +108,30 @@ for i = 1:ncodes_p
     end
 end
 [tblpnl_30m_p,~,statsout_30m_p] = irene_trades2dailypnl('tradestable',tbl2check_30m_all_p,'frequency','30m');
+%%
+data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\strat_p_15m.mat']);
+kellytables = data.strat_p_15m;
+tbl2check_15m_p = cell(ncodes_p,1);
+
+for i = 1:ncodes_p
+    [dt1,dt2] = irene_findactiveperiod('code',codes_p{i});
+    dt1 = datestr(dt1,'yyyy-mm-dd');
+    dt2 = datestr(dt2,'yyyy-mm-dd');
+    [~,~,tbl2check_15m_p{i}] = charlotte_backtest_period('code',codes_p{i},'fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',false,'figureidx',i+1,'frequency','15m');
+    if i == 1
+        tbl2check_15m_all_p = tbl2check_15m_p{i};
+    else
+        tmp = [tbl2check_15m_all_p;tbl2check_15m_p{i}];
+        tbl2check_15m_all_p = tmp;
+    end
+end
+[tblpnl_15m_p,~,statsout_15m_p] = irene_trades2dailypnl('tradestable',tbl2check_15m_all_p,'frequency','15m');
 
 %% soybean oil
+data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\grease\strat_y_30m.mat']);
+kellytables = data.strat_y_30m;
 tbl2check_30m_y = cell(ncodes_y,1);
-for i = 1:ncodes_y
+for i = ncodes_y:ncodes_y
     [dt1,dt2] = irene_findactiveperiod('code',codes_y{i});
     dt1 = datestr(dt1,'yyyy-mm-dd');
     dt2 = datestr(dt2,'yyyy-mm-dd');
