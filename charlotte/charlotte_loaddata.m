@@ -19,8 +19,9 @@ instrument = code2instrument(futcode);
 if strcmpi(freq,'5m') || strcmpi(freq,'15m')
     if ~(strcmpi(instrument.asset_name,'govtbond_5y') || ...
             strcmpi(instrument.asset_name,'govtbond_10y') || ...
-            strcmpi(instrument.asset_name,'govtbond_30y'))
-        error('charlotte_loaddata:5m or 15m is only supported with govtbond fut for now...')
+            strcmpi(instrument.asset_name,'govtbond_30y') || ...
+            strcmpi(instrument.asset_name,'palm oil'))
+        error('charlotte_loaddata:5m or 15m is only supported with govtbond and palmoil fut for now...')
     end
 end
 
@@ -42,6 +43,8 @@ elseif strcmpi(freq,'15m')
         data =load([getenv('onedrive'),'\matlabdev\govtbond\t\',futcode,'_15m.mat']);
     elseif strcmpi(instrument.asset_name,'govtbond_30y')
         data =load([getenv('onedrive'),'\matlabdev\govtbond\tl\',futcode,'_15m.mat']);
+    elseif strcmpi(instrument.asset_name,'palm oil')
+        data =load([getenv('onedrive'),'\matlabdev\agriculture\p\',futcode,'_15m.mat']);
     end
     p = data.data;
 elseif strcmpi(freq,'30m')
