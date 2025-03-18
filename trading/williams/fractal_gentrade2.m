@@ -456,7 +456,7 @@ elseif condsignal.directionkellied == -1
                 elseif uncondsignal.directionkellied == -1
                     if condsignal.signalkellied(3) < uncondsignal.signalkellied(3)
                         lastbs = find(ei.bs >= 9,1,'last');
-                        if size(ei.bs,1) - lastbs <= nfractal && ~strcmpi(uncondsignal.opkellied,'breachdn-bshighvalue')
+                        if ~isempty(lastbs) && size(ei.bs,1) - lastbs <= nfractal && ~strcmpi(uncondsignal.opkellied,'breachdn-bshighvalue')
                             poptrade = false;
                         else
                             if pxlow-uncondsignal.signalkellied(3)+tickratio_*fut.tick_size <= 1e-6 && ...
