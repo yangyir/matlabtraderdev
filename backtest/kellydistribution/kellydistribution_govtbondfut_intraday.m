@@ -59,6 +59,33 @@ output_govtbondfut_30m = fractal_kelly_summary('codes',codes_govtbondfut_tl,...
 %compare with existing ones
 
 charlotte_strat_compare('strat1',strat_govtbondfut_30m_existing,'strat2',strat_govtbondfut_30m,'assetname','govtbond_30y');
+%compare pnl profiles
+tbl2check_30m = cell(ntl,1);
+tbl2check_30m_existing = cell(ntl,1);
+for i = 1:ntl
+    [dt1,dt2] = irene_findactiveperiod('code',codes_govtbondfut_tl{i});
+    dt1 = datestr(dt1,'yyyy-mm-dd');
+    dt2 = datestr(dt2,'yyyy-mm-dd');
+    [~,~,tbl2check_30m{i}] = charlotte_backtest_period('code',codes_govtbondfut_tl{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_govtbondfut_30m,'showlogs',false,'figureidx',4,'frequency','30m');
+    [~,~,tbl2check_30m_existing{i}] = charlotte_backtest_period('code',codes_govtbondfut_tl{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_govtbondfut_30m_existing,'showlogs',false,'figureidx',4,'frequency','30m');
+end
+tbl2check_30m_all = tbl2check_30m{1};
+tbl2check_30m_existing_all = tbl2check_30m_existing{1};
+for i = 2:ntl
+    temp_30m = [tbl2check_30m_all;tbl2check_30m{i}];
+    tbl2check_30m_all = temp_30m;
+    temp_30m_existing = [tbl2check_30m_existing_all;tbl2check_30m_existing{i}];
+    tbl2check_30m_existing_all = temp_30m_existing;
+end
+[tblpnl_30m,~,statsout_30m] = irene_trades2dailypnl('tradestable',tbl2check_30m_all,'frequency','30m');
+[tblpnl_30m_existing,~,statsout_30m_existing] = irene_trades2dailypnl('tradestable',tbl2check_30m_existing_all,'frequency','30m');
+figure(10);
+plot(tblpnl_30m_existing.runningnotional,'b-');
+hold on;
+plot(tblpnl_30m.runningnotional,'r-');
+legend('exiting-30m','new-30m');hold off;
+
+
 % save([dir_,'strat_govtbondfut_30m.mat'],'strat_govtbondfut_30m');
 % save([dir_,'tblreport_govtbondfut_30m.mat'],'tblreport_govtbondfut_30m');
 % fprintf('file of 30m-govtbond saved...\n');
