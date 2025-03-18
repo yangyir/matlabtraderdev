@@ -157,6 +157,28 @@ function [output] = fractal_signal_unconditional2(varargin)
             end     
         end
         %
+        if status.istrendconfirmed && strcmpi(op.comment,'breachup-lvlup-invalid long as close moves too high')
+            if ei.hh(end-1) >= ei.lvlup(end-1)
+                vlookuptbl = kellytables.breachuplvlup_tc;
+            else
+                vlookuptbl = kellytables.breachuplvlup_tc_all;
+            end
+            idx = strcmpi(vlookuptbl.asset,assetname);
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+            if isempty(kelly)
+                kelly = -9.99;
+                wprob = 0;
+            end
+            if kelly >= 0.088 && wprob >= 0.3
+                useflag = 1;
+                op.comment = 'breachup-lvlup';
+                output.op = op;
+            else
+                useflag = 0;
+            end     
+        end
+        %
         if status.istrendconfirmed && strcmpi(op.comment,'volblowup-invalid short as close moves too low')
             try
                 kelly = kelly_k('volblowup',assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
@@ -185,6 +207,28 @@ function [output] = fractal_signal_unconditional2(varargin)
             if kelly >= 0.088 && wprob >= 0.3
                 useflag = 1;
                 op.comment = 'volblowup2';
+                output.op = op;
+            else
+                useflag = 0;
+            end     
+        end
+        %
+        if status.istrendconfirmed && strcmpi(op.comment,'breachdn-lvldn-invalid short as close moves too low')
+            if ei.ll(end-1) <= ei.lvldn(end-1)
+                vlookuptbl = kellytables.breachdnlvldn_tc;
+            else
+                vlookuptbl = kellytables.breachdnlvldn_tc_all;
+            end
+            idx = strcmpi(vlookuptbl.asset,assetname);
+            kelly = vlookuptbl.K(idx);
+            wprob = vlookuptbl.W(idx);
+            if isempty(kelly)
+                kelly = -9.99;
+                wprob = 0;
+            end
+            if kelly >= 0.088 && wprob >= 0.3
+                useflag = 1;
+                op.comment = 'breachdn-lvldn';
                 output.op = op;
             else
                 useflag = 0;
