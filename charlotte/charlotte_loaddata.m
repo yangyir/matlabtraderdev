@@ -3,13 +3,17 @@ p = inputParser;
 p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('futcode','',@ischar);
 p.addParameter('frequency','30m',@ischar);
+p.addParameter('source','',@ischar);
 p.parse(varargin{:});
 
 futcode = p.Results.futcode;
 freq = p.Results.frequency;
+source = p.Results.source;
 if ~(strcmpi(freq,'30m') || ...
         strcmpi(freq,'5m') || ...
         strcmpi(freq,'15m') || ...
+        strcmpi(freq,'60m') || ...
+        strcmpi(freq,'1h') || ...
         strcmpi(freq,'1440m') || ...
         strcmpi(freq,'daily')) 
     error('charlotte_loaddata:invalid frequency input,must be 30m,5m,15m,1440m and daily only...')
@@ -20,7 +24,9 @@ if strcmpi(freq,'5m') || strcmpi(freq,'15m')
     if ~(strcmpi(instrument.asset_name,'govtbond_5y') || ...
             strcmpi(instrument.asset_name,'govtbond_10y') || ...
             strcmpi(instrument.asset_name,'govtbond_30y') || ...
-            strcmpi(instrument.asset_name,'palm oil'))
+            strcmpi(instrument.asset_name,'palm oil') || ...
+            strcmpi(instrument.asset_name,'gold') || ...
+            isfx(futcode))
         error('charlotte_loaddata:5m or 15m is only supported with govtbond and palmoil fut for now...')
     end
 end
@@ -33,6 +39,10 @@ if strcmpi(freq,'5m')
         data =load([getenv('onedrive'),'\matlabdev\govtbond\t\',futcode,'_5m.mat']);
     elseif strcmpi(instrument.asset_name,'govtbond_30y')
         data =load([getenv('onedrive'),'\matlabdev\govtbond\tl\',futcode,'_5m.mat']);
+    elseif strcmpi(instrument.asset_name,'gold')
+        data =load([getenv('onedrive'),'\matlabdev\preciousmetal\au\',futcode,'_5m.mat']);
+    elseif isfx(futcode)
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_5m.mat']);
     end
     p = data.data;
 elseif strcmpi(freq,'15m')
@@ -45,6 +55,10 @@ elseif strcmpi(freq,'15m')
         data =load([getenv('onedrive'),'\matlabdev\govtbond\tl\',futcode,'_15m.mat']);
     elseif strcmpi(instrument.asset_name,'palm oil')
         data =load([getenv('onedrive'),'\matlabdev\agriculture\p\',futcode,'_15m.mat']);
+    elseif strcmpi(instrument.asset_name,'gold')
+        data =load([getenv('onedrive'),'\matlabdev\preciousmetal\au\',futcode,'_15m.mat']);
+    elseif isfx(futcode)
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_15m.mat']);
     end
     p = data.data;
 elseif strcmpi(freq,'30m')
@@ -139,6 +153,8 @@ elseif strcmpi(freq,'30m')
         data =load([getenv('onedrive'),'\matlabdev\industrial\v\',futcode,'.mat']);
     elseif strcmpi(instrument.asset_name,'carbamide')
         data =load([getenv('onedrive'),'\matlabdev\energy\ur\',futcode,'.mat']);
+    elseif isfx(futcode)
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_30m.mat']);
     else
         error('charlotte_loaddata:unsupported code %s...',futcode);
     end
@@ -146,10 +162,23 @@ elseif strcmpi(freq,'30m')
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
     p = data.data;
+elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
+    nfractal = 2;
+    if ~isfx(futcode)
+        error('charlotte_loaddata:intraday data load failure,pls check!!!')
+    end
+    data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_60m.mat']);
+    p = data.data;
 elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     nfractal = 2;
-    if isfx(futcode) || (strcmpi(futcode,'brent') || strcmpi(futcode,'wti'))
-        data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',futcode,'_daily.txt']);
+    if strcmpi(futcode,'brent') || strcmpi(futcode,'wti')
+    elseif isfx(futcode)
+        if strcmpi(source,'MT4')
+            data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_daily.mat']);
+            data = data.data;
+        else
+            data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',futcode,'_daily.txt']);
+        end
     elseif isinequitypool(futcode)
         data = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',futcode,'_daily.txt']);
     else
