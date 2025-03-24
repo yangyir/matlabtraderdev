@@ -79,15 +79,42 @@ elseif ~isempty(strfind(fut.asset_name,'eqindex'))
     nfractal = 4;
     tickratio = 0.5;
 elseif isfx(fut.asset_name)
-    if ~strcmpi(freq,'daily')
-        error('charlotte_backtest_daily:invalid freq for fx, only daily is supported now...');
+    if strcmpi(freq,'5m')
+        if isempty(kellytables)
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_5m.mat']);
+            kellytables = data.strat_fx_daily;
+        end
+        nfractal = 6;
+        tickratio = 0;
+    elseif strcmpi(freq,'15m')
+        if isempty(kellytables)
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_15m.mat']);
+            kellytables = data.strat_fx_daily;
+        end
+        nfractal = 4;
+        tickratio = 0.5;
+    elseif strcmpi(freq,'30m')
+        if isempty(kellytables)
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_30m.mat']);
+            kellytables = data.strat_fx_daily;
+        end
+        nfractal = 4;
+        tickratio = 0.5;
+    elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
+        if isempty(kellytables)
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_60m.mat']);
+            kellytables = data.strat_fx_daily;
+        end
+        nfractal = 4;
+        tickratio = 0.5;
+    elseif strcmpi(freq,'daily')
+        if isempty(kellytables)
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_daily.mat']);
+            kellytables = data.strat_fx_daily;
+        end
+        nfractal = 2;
+        tickratio = 1;
     end
-    if isempty(kellytables)
-        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_daily.mat']);
-        kellytables = data.strat_fx_daily;
-    end
-    nfractal = 2;
-    tickratio = 1;
 elseif isinequitypool(futcode)
     if ~strcmpi(freq,'daily')
         error('charlotte_backtest_daily:invalid freq for etfs, only daily is supported now...');
@@ -216,10 +243,23 @@ while i <= idx2
                     error('charlotte_backtest_daily:invalid freq input....');
                 end
             elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 149
-                if ~strcmpi(freq,'30m'), error('charlotte_backtest_daily:invalid freq input....');end
-                if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
-                        (hour(ei_j.px(end,1)) == 2 && minute(ei_j.px(end,1)) == 30)
-                    runflag = true;
+                if strcmpi(freq,'30m')
+                    if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30) || ...
+                            (hour(ei_j.px(end,1)) == 2 && minute(ei_j.px(end,1)) == 30)
+                        runflag = true;
+                    end
+                elseif strcmpi(freq,'15m')
+                    if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 45) || ...
+                            (hour(ei_j.px(end,1)) == 2 && minute(ei_j.px(end,1)) == 15)
+                        runflag = true;
+                    end
+                elseif strcmpi(freq,'5m')
+                    if (hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 55) || ...
+                            (hour(ei_j.px(end,1)) == 2 && minute(ei_j.px(end,1)) == 25)
+                        runflag = true;
+                    end
+                else
+                    error('charlotte_backtest_daily:invalid freq input....');
                 end
             end
                 
