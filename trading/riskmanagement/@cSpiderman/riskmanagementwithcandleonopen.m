@@ -47,6 +47,9 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     elseif strcmpi(freq_,'15m')
         nfractal = 4;
         ticksizeratio = 0.5;
+    elseif strcmpi(freq_,'60m')
+        nfractal = 4;
+        ticksizeratio = 0.5;
     elseif strcmpi(freq_,'5m')
         nfractal = 6;
         ticksizeratio = 0;
@@ -576,7 +579,11 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 if strcmpi(trade.opensignal_.frequency_,'daily') || strcmpi(trade.opensignal_.frequency_,'1440m')
                     isopencandle = false;
                 else
-                    isopencandle = abs(datenum([datestr(floor(ei.p(end,1)),'yyyy-mm-dd'), ' ',trade.instrument_.break_interval{1,1}],'yyyy-mm-dd HH:MM:SS')-ei.p(end,1)) < 1e-5;
+                    try
+                        isopencandle = abs(datenum([datestr(floor(ei.p(end,1)),'yyyy-mm-dd'), ' ',trade.instrument_.break_interval{1,1}],'yyyy-mm-dd HH:MM:SS')-ei.p(end,1)) < 1e-5;
+                    catch
+                        isopencandle = false;
+                    end
                 end
                 if isopencandle
                     %the open market vol might be too high
