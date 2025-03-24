@@ -71,8 +71,8 @@ classdef cFX < cInstrument
                     strcmpi(codestr,'audusd') || strcmpi(codestr,'usdcad') || ...
                     strcmpi(codestr,'usdchf') || strcmpi(codestr,'eurchf') || ...
                     strcmpi(codestr,'gbpeur') || strcmpi(codestr,'usdcnh')
-                obj.contract_size = 10000;
-                obj.tick_size = 0.0001;
+                obj.contract_size = 100000;
+                obj.tick_size = 0.00001;
                 obj.tick_value = 1;
             elseif strcmpi(codestr,'usdjpy') || strcmpi(codestr,'eurjpy') || ...
                     strcmpi(codestr,'gbpjpy') || strcmpi(codestr,'audjpy')
