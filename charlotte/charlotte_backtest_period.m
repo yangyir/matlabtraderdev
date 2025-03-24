@@ -205,6 +205,11 @@ else
     idxstart = find(resstruct.px(:,1) >= datenum(dt3,'yyyy-mm-dd HH:MM'),1,'first');
     idxend = find(resstruct.px(:,1) <= datenum(dt4,'yyyy-mm-dd HH:MM'),1,'last');
     dts = resstruct.px(idxstart:idxend,1);
+    if ~(strcmpi(freq,'daily') || strcmpi(freq,'1440m'))
+        dts = floor(dts);
+        dts = unique(dts);
+    end
+    
 end
 unwindedtrades = cTradeOpenArray;
 carriedtrades = cTradeOpenArray;
