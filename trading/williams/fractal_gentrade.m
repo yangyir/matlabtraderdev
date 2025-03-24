@@ -26,6 +26,9 @@ else
     if strcmpi(freq,'30m')
         nfractal = 4;
         ticksizeratio = 0.5;
+    elseif strcmpi(freq,'60m')
+        nfractal = 4;
+        ticksizeratio = 0.5;
     elseif strcmpi(freq,'15m')
         nfractal = 4;
         ticksizeratio = 0.5;
@@ -51,11 +54,11 @@ try
     if strcmpi(code,'audusd') || strcmpi(code,'eurusd') || strcmpi(code,'gbpusd') || ...
             strcmpi(code,'usdcad') || strcmpi(code,'usdchf') || strcmpi(code,'eurchf') || ...
             strcmpi(code,'gbpeur') || strcmpi(code,'usdcnh')
-        ticksize = 0.0001;%1bp
+        ticksize = 0.00001;%0.1bp
     elseif strcmpi(code,'usdjpy') || strcmpi(code,'eurjpy') || strcmpi(code,'gbpjpy') || strcmpi(code,'audjpy')
-        ticksize = 0.01;
+        ticksize = 0.001;
     elseif strcmpi(code,'usdx')
-        ticksize = 0.01;
+        ticksize = 0.001;
     elseif strcmpi(code,'gzhy')
         ticksize = 0.0025;
     elseif strcmpi(code,'tb01y') || strcmpi(code,'tb03y') || strcmpi(code,'tb05y') || ...
