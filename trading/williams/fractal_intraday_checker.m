@@ -42,6 +42,18 @@ else
         num(:,1) = x2mdate(num(:,1));
         idx = ~(isnan(num(:,2)) | isnan(num(:,3)) | isnan(num(:,4)) | isnan(num(:,5)));
         cp = num(idx,1:5);
+    elseif isfx(code)
+        if freq == 5
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_5m.mat'];
+        elseif freq == 15
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_15m.mat'];
+        elseif freq == 30
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_30m.mat'];
+        elseif freq == 60
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_60m.mat'];
+        end
+        data = load(fn);
+        cp = data.data;
     else
         instrument = code2instrument(code);
         assetinfo = getassetinfo(instrument.asset_name);
@@ -144,10 +156,23 @@ for i = 1:n
                 runflag = true;
             end
         elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 149
-            if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
-            if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
-                    (hour(extrainfo.px(end,1)) == 2 && minute(extrainfo.px(end,1)) == 00)
-                runflag = true;
+            if freq == 30
+                if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
+                        (hour(extrainfo.px(end,1)) == 2 && minute(extrainfo.px(end,1)) == 00)
+                    runflag = true;
+                end
+            elseif freq == 15
+                if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 45) || ...
+                        (hour(extrainfo.px(end,1)) == 2 && minute(extrainfo.px(end,1)) == 15)
+                    runflag = true;
+                end
+            elseif freq == 5
+                if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 55) || ...
+                        (hour(extrainfo.px(end,1)) == 2 && minute(extrainfo.px(end,1)) == 25)
+                    runflag = true;
+                end
+            else
+                error('fractal_intraday_check:invalid freq input....');
             end
         end
 %         %here we only check whether it is a long holiday afterwards
