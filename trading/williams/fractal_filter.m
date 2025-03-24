@@ -75,13 +75,13 @@ for i = 1:n
                 strcmpi(codes{i},'usdcad') || strcmpi(codes{i},'usdchf') || strcmpi(codes{i},'eurchf') || ...
                 strcmpi(codes{i},'gbpeur') || strcmpi(codes{i},'usdcnh')
             instrument = codes{i};
-            ticksize = 0.0001;%1bp
+            ticksize = 0.00001;%0.1bp
         elseif strcmpi(codes{i},'usdjpy') || strcmpi(codes{i},'eurjpy') || strcmpi(codes{i},'gbpjpy') || strcmpi(codes{i},'audjpy')
             instrument = codes{i};
-            ticksize = 0.01;
+            ticksize = 0.001;
         elseif strcmpi(codes{i},'usdx')
             instrument = codes{i};
-            ticksize = 0.01;
+            ticksize = 0.001;
         else
             try
                 instrument = code2instrument(codes{i});
@@ -104,6 +104,9 @@ for i = 1:n
         freqstr = '5m';
         nfractal = 6;
         ticksizeratio = 0;
+    elseif freq == 60
+        freqstr = '60m';
+        nfractal = 4;
     elseif freq == 1440
         freqstr = 'daily';
         nfractal = 2;
