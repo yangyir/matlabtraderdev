@@ -32,8 +32,28 @@ elseif isfx(assetname)
     if ~strcmpi(freq,'daily')
         error('charlotte_gensingleassetprofile:only daily frequency is supported for fx...')
     end
-    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\tbl_report_fx_daily.mat']);
-    tbl_report_ = data.tbl_report_fx_daily;
+    try
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\globalmacro\tblreport_fx_daily.mat']);
+        tbl_report_ = data.tblreport_fx_daily;
+    catch
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\tbl_report_fx_daily.mat']);
+        tbl_report_ = data.tbl_report_fx_daily;
+    end
+elseif isinglobalmacro(assetname) && ~isfx(assetname)
+    if ~strcmpi(freq,'daily')
+        error('charlotte_gensingleassetprofile:only daily frequency is supported for global macro names...')
+    end
+    if strcmpi(assetname,'xau') || strcmpi(assetname,'xag')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\globalmacro\tblreport_pm_daily.mat']);
+        tbl_report_ = data.tblreport_pm_daily;
+    elseif ~isempty(strfind(assetname,'lme'))
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\globalmacro\tblreport_bm_daily.mat']);
+        tbl_report_ = data.tblreport_bm_daily;
+    else
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\globalmacro\tblreport_ei_daily.mat']);
+        tbl_report_ = data.tblreport_ei_daily;
+    end
+    
 else
     if strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\tbl_report_comdty_i.mat']);
@@ -231,7 +251,7 @@ for i = 1:ndts
                     %trades carried furher and pnl is adjusted to the close
                     %price as of the cob date
                     code_j = opentradeinfo.code{j};
-                    if isfx(code_j)
+                    if isinglobalmacro(code_j)
                         data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',code_j,'_daily.txt']);
                     else
                         data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
@@ -252,7 +272,7 @@ for i = 1:ndts
         closedt_i = carrytradesinfo.closedatetime;
         for j = 1:size(closedt_i,1)
             code_j = carrytradesinfo.code{j};
-            if isfx(code_j)
+            if isinglobalmacro(code_j)
                 data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',code_j,'_daily.txt']);
             else
                 data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'dailybar\',code_j,'_daily.txt']);
