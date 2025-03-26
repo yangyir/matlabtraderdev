@@ -41,20 +41,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     end
     
     freq_ = trade.opensignal_.frequency_;
+    nfractal = trade.opensignal_.nfractal_;
     if strcmpi(freq_,'30m')
-        nfractal = 4;
         ticksizeratio = 0.5;
     elseif strcmpi(freq_,'15m')
-        nfractal = 4;
         ticksizeratio = 0.5;
     elseif strcmpi(freq_,'60m')
-        nfractal = 4;
         ticksizeratio = 0.5;
     elseif strcmpi(freq_,'5m')
-        nfractal = 6;
         ticksizeratio = 0;
     elseif strcmpi(freq_,'1440m') || strcmpi(freq_,'daily')
-        nfractal = 2;
         ticksizeratio = 1;
     end
     %
