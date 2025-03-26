@@ -42,6 +42,7 @@ p.addParameter('usefractalupdate',1,@isnumeric);
 p.addParameter('usefibonacci',1,@isnumeric);
 p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
 p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
+p.addParameter('nfractal',[],@isnumeric);
 
 p.parse(varargin{:});
 type = p.Results.type;
@@ -53,6 +54,8 @@ dt1 = p.Results.fromdate;
 if ~isempty(dt1) && ischar(dt1), dt1 = datenum(dt1);end
 dt2 = p.Results.todate;
 if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
+nfractal = p.Results.nfractal;
+if isempty(nfractal), nfractal = 2;end
 
 %load the data
 if ~isglobalmacro
@@ -79,7 +82,7 @@ else
 end
 if isempty(cp), error('fractal_daily_checker:invalid code input or data not stored');end
 
-[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2,1440);
+[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2,1440,nfractal);
 
 %backtest trade performance
 n = trades.latest_;

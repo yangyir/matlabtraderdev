@@ -259,7 +259,7 @@ for i = 1:n
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromhh_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 end
             end
-            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,1,freqstr,useconditionalopen);
+            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,1,freqstr,nfractal,useconditionalopen);
             trades.push(trade);
         end 
     end
@@ -343,7 +343,7 @@ for i = 1:n
                     tools_technicalplot2(resmat{i}(k-max(9,nkfromll_i(j))+1:jj,:),iplot,[codes{i},'-',num2str(k),'-',filterstr]);
                 end
             end
-            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,-1,freqstr,useconditionalopen);
+            trade = fractal_gentrade(resstruct{i},codes{i},k,op.comment,-1,freqstr,nfractal,useconditionalopen);
             trades.push(trade);
         end
         

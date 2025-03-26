@@ -1,6 +1,6 @@
-function [trade] = fractal_gentrade(resstruct,code,idx,mode,longshort,freq,useconditionalopen)
+function [trade] = fractal_gentrade(resstruct,code,idx,mode,longshort,freq,nfractal,useconditionalopen)
 
-if nargin < 7
+if nargin < 8
     useconditionalopen = 1;
 end
 
@@ -12,7 +12,6 @@ end
 
 
 if strcmpi(freq,'daily')
-    nfractal = 2;
     ticksizeratio = 1;
     signalinfo = struct('name','fractal',...
         'hh',resstruct.hh(idx),'ll',resstruct.ll(idx),...
@@ -24,20 +23,14 @@ if strcmpi(freq,'daily')
         'll1',resstruct.px(idx,4));
 else
     if strcmpi(freq,'30m')
-        nfractal = 4;
         ticksizeratio = 0.5;
     elseif strcmpi(freq,'60m')
-        nfractal = 4;
         ticksizeratio = 0.5;
     elseif strcmpi(freq,'15m')
-        nfractal = 4;
         ticksizeratio = 0.5;
     elseif strcmpi(freq,'5m')
-        nfractal = 6;
         ticksizeratio = 0;
     else
-        %default value of nfractal
-        nfractal = 4;
         ticksizeratio = 1;
     end
     signalinfo = struct('name','fractal',...

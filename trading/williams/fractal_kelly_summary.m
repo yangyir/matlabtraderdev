@@ -3,6 +3,7 @@ function [output] = fractal_kelly_summary(varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('codes',{},@iscell);
+    p.addParameter('parallelrun',true,@islogical);
 %     p.addParameter('frequency','daily',@ischar);
 %     p.addParameter('usefractalupdate',1,@isnumeric);
 %     p.addParameter('usefibonacci',1,@isnumeric);
@@ -13,6 +14,7 @@ function [output] = fractal_kelly_summary(varargin)
     p.parse(varargin{:});
 
     codes = p.Results.codes;
+    parallelrunflag = p.Results.parallelrun;
 %     freq = p.Results.frequency;
 %     usefractalupdateflag = p.Results.usefractalupdate;
 %     usefibonacciflag = p.Results.usefibonacci;
@@ -32,7 +34,7 @@ function [output] = fractal_kelly_summary(varargin)
     kellyscell = cell(ncodes,1);
     datacell = cell(ncodes,1);
     
-    if ncodes == 1
+    if ncodes == 1 || ~parallelrunflag
         for i = 1:ncodes
             [~,tblb_data,~,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary(codes{i},varargin{:});
             tblbcell{i} = tblb_data;
