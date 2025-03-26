@@ -33,7 +33,7 @@ function [ret] = mt4_dataupdate(code)
         end
         
         
-        table_i = readtable([folder,fns{i}]);
+        table_i = readtable([folder,fns{i}],'readvariablenames',0);
         n_i = size(table_i,1);
         datamat_new = zeros(n_i,6);
         datamat_new(:,1) = datenum(table_i.Var1,'yyyy.mm.dd');
