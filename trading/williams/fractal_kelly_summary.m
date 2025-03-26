@@ -3,23 +3,23 @@ function [output] = fractal_kelly_summary(varargin)
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('codes',{},@iscell);
-    p.addParameter('frequency','daily',@ischar);
-    p.addParameter('usefractalupdate',1,@isnumeric);
-    p.addParameter('usefibonacci',1,@isnumeric);
-    p.addParameter('useconditionalopen',1,@isnumeric);
-    p.addParameter('direction','both',@ischar);
-    p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
-    p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
+%     p.addParameter('frequency','daily',@ischar);
+%     p.addParameter('usefractalupdate',1,@isnumeric);
+%     p.addParameter('usefibonacci',1,@isnumeric);
+%     p.addParameter('useconditionalopen',1,@isnumeric);
+%     p.addParameter('direction','both',@ischar);
+%     p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
+%     p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
     p.parse(varargin{:});
 
     codes = p.Results.codes;
-    freq = p.Results.frequency;
-    usefractalupdateflag = p.Results.usefractalupdate;
-    usefibonacciflag = p.Results.usefibonacci;
-    useconditionalopen = p.Results.useconditionalopen;
-    directionin = p.Results.direction;
-    fromdate = p.Results.fromdate;
-    todate = p.Results.todate;
+%     freq = p.Results.frequency;
+%     usefractalupdateflag = p.Results.usefractalupdate;
+%     usefibonacciflag = p.Results.usefibonacci;
+%     useconditionalopen = p.Results.useconditionalopen;
+%     directionin = p.Results.direction;
+%     fromdate = p.Results.fromdate;
+%     todate = p.Results.todate;
 
     ncodes = length(codes);
     tblbcell = cell(ncodes,1);
@@ -31,50 +31,34 @@ function [output] = fractal_kelly_summary(varargin)
     kellybcell = cell(ncodes,1);
     kellyscell = cell(ncodes,1);
     datacell = cell(ncodes,1);
-    % use parallel computing with local CPU here...
-    parfor i = 1:ncodes
-        if isempty(fromdate) && isempty(todate)
-            [~,tblb_data,~,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary(codes{i},...
-                'frequency',freq,...
-                'usefractalupdate',usefractalupdateflag,...
-                'usefibonacci',usefibonacciflag,...
-                'useconditionalopen',useconditionalopen,...
-                'direction',directionin);
-        elseif ~isempty(fromdate) && isempty(todate)
-            [~,tblb_data,~,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary(codes{i},...
-                'frequency',freq,...
-                'usefractalupdate',usefractalupdateflag,...
-                'usefibonacci',usefibonacciflag,...
-                'useconditionalopen',useconditionalopen,...
-                'direction',directionin,...
-                'fromdate',fromdate);
-        elseif isempty(fromdate) && ~isempty(todate)
-            [~,tblb_data,~,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary(codes{i},...
-                'frequency',freq,...
-                'usefractalupdate',usefractalupdateflag,...
-                'usefibonacci',usefibonacciflag,...
-                'useconditionalopen',useconditionalopen,...
-                'direction',directionin,...
-                'todate',todate);
-        else
-            [~,tblb_data,~,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary(codes{i},...
-                'frequency',freq,...
-                'usefractalupdate',usefractalupdateflag,...
-                'usefibonacci',usefibonacciflag,...
-                'useconditionalopen',...
-                'direction',directionin,...
-                'fromdate',fromdate,...
-                'todate',todate);
+    
+    if ncodes == 1
+        for i = 1:ncodes
+            [~,tblb_data,~,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary(codes{i},varargin{:});
+            tblbcell{i} = tblb_data;
+            tblscell{i} = tbls_data;
+            datacell{i} = data;
+            tradesbcell{i} = tradesb;
+            tradesscell{i} = tradess;
+            validtradesbcell{i} = validtradesb;
+            validtradesscell{i} = validtradess;
+            kellybcell{i} = kellyb;
+            kellyscell{i} = kellys;
         end
-        tblbcell{i} = tblb_data;
-        tblscell{i} = tbls_data;
-        datacell{i} = data;
-        tradesbcell{i} = tradesb;
-        tradesscell{i} = tradess;
-        validtradesbcell{i} = validtradesb;
-        validtradesscell{i} = validtradess;
-        kellybcell{i} = kellyb;
-        kellyscell{i} = kellys;
+    else
+        % use parallel computing with local CPU here...
+        parfor i = 1:ncodes
+            [~,tblb_data,~,tbls_data,data,tradesb,tradess,validtradesb,validtradess,kellyb,kellys] = fractal_gettradesummary(codes{i},varargin{:});
+            tblbcell{i} = tblb_data;
+            tblscell{i} = tbls_data;
+            datacell{i} = data;
+            tradesbcell{i} = tradesb;
+            tradesscell{i} = tradess;
+            validtradesbcell{i} = validtradesb;
+            validtradesscell{i} = validtradess;
+            kellybcell{i} = kellyb;
+            kellyscell{i} = kellys;
+        end
     end
 
     output.tblb = tblbcell;
@@ -344,67 +328,4 @@ function [output] = fractal_kelly_summary(varargin)
     end
 
 end
-
-% %%
-% kellyb_unique = comdty_domestic_daily_.kellyb_unique;
-% nkellyb = size(kellyb_unique,1);
-% use_l = nan(nkellyb,1);
-% kelly_l = kellyb_unique.kelly_unique_l;
-% winp_l = kellyb_unique.winprob_unique_l;
-% winavgpnl_l = kellyb_unique.winavgpnl_unique_l;
-% lossavgpnl_l = kellyb_unique.lossavgpnl_unique_l;
-% expectedpnl_l = winp_l.*winavgpnl_l+(1-winp_l).*lossavgpnl_l;
-% stdevpnl_l = sqrt(winp_l.*winavgpnl_l.^2+(1-winp_l).*lossavgpnl_l.^2-expectedpnl_l.^2);
-% sharp_l = expectedpnl_l./stdevpnl_l;
-% 
-% for i = 1:nkellyb
-%     signal_i = kellyb_unique.opensignal_l_unique{i};
-%     if strcmpi(signal_i,'mediumbreach-sshighvalue') || strcmpi(signal_i,'breachup-highsc13-negative') || ...
-%             strcmpi(signal_i,'weakbreach') || strcmpi(signal_i,'strongbreach-trendbreak') || ...
-%             strcmpi(signal_i,'mediumbreach-trendbreak') || strcmpi(signal_i,'closetolvlup')
-%         use_l(i) = 0;
-%     elseif strcmpi(signal_i,'volblowup') || strcmpi(signal_i,'volblowup2') || ...
-%             strcmpi(signal_i,'breachup-lvlup') || strcmpi(signal_i,'breachup-sshighvalue') || ...
-%             strcmpi(signal_i,'breachup-highsc13') || strcmpi(signal_i,'strongbreach-trendconfirmed') || ...
-%             strcmpi(signal_i,'mediumbreach-trendconfirmed')
-%         use_l(i) = 1;
-%     else
-%         if kelly_l(i) >= 0.15 && sharp_l(i) >= 0.2 && winp_l(i) >= 0.4
-%             use_l(i) = 1;
-%         else
-%             use_l(i) = 0;
-%         end
-%     end
-% end
-% %
-% %
-% kellys_unique = comdty_domestic_daily_.kellys_unique;
-% nkellys = size(kellys_unique,1);
-% use_s = nan(nkellys,1);
-% kelly_s = kellys_unique.kelly_unique_s;
-% winp_s = kellys_unique.winprob_unique_s;
-% winavgpnl_s = kellys_unique.winavgpnl_unique_s;
-% lossavgpnl_s = kellys_unique.lossavgpnl_unique_s;
-% expectedpnl_s = winp_s.*winavgpnl_s+(1-winp_s).*lossavgpnl_s;
-% stdevpnl_s = sqrt(winp_s.*winavgpnl_s.^2+(1-winp_s).*lossavgpnl_s.^2-expectedpnl_s.^2);
-% sharp_s = expectedpnl_s./stdevpnl_s;
-% 
-% for i = 1:nkellys
-%     signal_i = kellys_unique.opensignal_s_unique{i};
-%     if strcmpi(signal_i,'mediumbreach-bshighvalue') || strcmpi(signal_i,'breachup-lowbc13-positive') || ...
-%             strcmpi(signal_i,'weakbreach') || strcmpi(signal_i,'strongbreach-trendbreak') || ...
-%             strcmpi(signal_i,'mediumbreach-trendbreak') || strcmpi(signal_i,'closetolvldn')
-%         use_s(i) = 0;
-%     elseif strcmpi(signal_i,'volblowup') || strcmpi(signal_i,'volblowup2') || ...
-%             strcmpi(signal_i,'breachdn-lvldn') || strcmpi(signal_i,'breachdn-bshighvalue') || ...
-%             strcmpi(signal_i,'breachup-lowbc13') || strcmpi(signal_i,'strongbreach-trendconfirmed') || ...
-%             strcmpi(signal_i,'mediumbreach-trendconfirmed')
-%         use_s(i) = 1;
-%     else
-%         if kelly_s(i) >= 0.15 && sharp_s(i) >= 0.2 && winp_s(i) >= 0.4
-%             use_s(i) = 1;
-%         else
-%             use_s(i) = 0;
-%         end
-%     end
-% end
+%

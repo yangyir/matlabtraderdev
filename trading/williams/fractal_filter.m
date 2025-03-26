@@ -1,4 +1,4 @@
-function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot,dt1,dt2,freq,useconditionalopen)
+function [tblb1,tbls1,trades,resmat,resstruct] = fractal_filter(codes,data_in,filterstr,direction,doplot,dt1,dt2,freq,nfractal,useconditionalopen)
 if length(codes) ~= size(data_in,1)
     error('fractal_filter:invalid codes and data_intraday inputs')
 end
@@ -16,6 +16,7 @@ if nargin == 4
     dt1 = [];
     dt2 = [];
     freq = 30;
+    nfractal = 4;
     useconditionalopen = 1;
 end
 
@@ -23,21 +24,29 @@ if nargin == 5
     dt1 = [];
     dt2 = [];
     freq = 30;
+    nfractal = 4;
     useconditionalopen = 1;
 end
 
 if nargin == 6
     dt2 = [];
     freq = 30;
+    nfractal = 4;
     useconditionalopen = 1;
 end
 
 if nargin == 7
     freq = 30;
+    nfractal = 4;
     useconditionalopen = 1;
 end
 
 if nargin == 8
+    nfractal = 4;
+    useconditionalopen = 1;
+end
+
+if nargin == 9
     useconditionalopen = 1;
 end
 
@@ -49,7 +58,6 @@ idxs1 = cell(n,1);
 % commentsb1 = cell(n,1);
 tblb1 = cell(n,1);
 tbls1 = cell(n,1);
-% nfractal = 4;
 
 trades = cTradeOpenArray;
 
@@ -66,11 +74,11 @@ for i = 1:n
     else
         if strcmpi(codes{i},'gzhy') || strcmpi(codes{i},'gzhy_30y')
             instrument = codes{i};
-            ticksize = 0.0025;%0.25bp
+            ticksize = 0.001;%0.1bp
         elseif strcmpi(codes{i},'tb01y') || strcmpi(codes{i},'tb03y') || strcmpi(codes{i},'tb05y') || ...
                 strcmpi(codes{i},'tb07y') || strcmpi(codes{i},'tb10y') || strcmpi(codes{i},'tb30y')
             instrument = codes{i};
-            ticksize = 0.0025;%0.25bp
+            ticksize = 0.001;%0.1bp
         elseif strcmpi(codes{i},'audusd') || strcmpi(codes{i},'eurusd') || strcmpi(codes{i},'gbpusd') || ...
                 strcmpi(codes{i},'usdcad') || strcmpi(codes{i},'usdchf') || strcmpi(codes{i},'eurchf') || ...
                 strcmpi(codes{i},'gbpeur') || strcmpi(codes{i},'usdcnh')
@@ -94,22 +102,17 @@ for i = 1:n
     
     if freq == 30
         freqstr = '30m';
-        nfractal = 4;
         ticksizeratio = 0.5;
     elseif freq == 15
         freqstr = '15m';
-        nfractal = 4;
         ticksizeratio = 0.5;
     elseif freq == 5
         freqstr = '5m';
-        nfractal = 6;
         ticksizeratio = 0;
     elseif freq == 60
         freqstr = '60m';
-        nfractal = 4;
     elseif freq == 1440
         freqstr = 'daily';
-        nfractal = 2;
         ticksizeratio = 1;
     end
     

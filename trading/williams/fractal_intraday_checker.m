@@ -10,6 +10,7 @@ p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'',
 p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
 p.addParameter('frequency',30,@isnumeric);
 p.addParameter('useconditionalopen',1,@isnumeric);
+p.addParameter('nfractal',[],@isnumeric);
 
 p.parse(varargin{:});
 type = p.Results.type;
@@ -23,6 +24,10 @@ dt2 = p.Results.todate;
 if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
 freq = p.Results.frequency;
 useconditionalopen = p.Results.useconditionalopen;
+nfractal = p.Results.nfractal;
+if isempty(nfractal)
+    error('fractal_intraday_checker:empty fractal input')
+end
 %
 %load the data
 isequity = isinequitypool(code);
@@ -51,6 +56,8 @@ else
             fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_30m.mat'];
         elseif freq == 60
             fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_60m.mat'];
+        elseif freq == 240
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_240m.mat'];
         end
         data = load(fn);
         cp = data.data;
@@ -71,7 +78,7 @@ else
 end
 if isempty(cp),error('fractal_intraday_checker:invalid code input or data not stored');end
 %generate trades and table
-[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2,freq);
+[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2,freq,nfractal);
 %
 %backtest trade performance
 n = trades.latest_;
