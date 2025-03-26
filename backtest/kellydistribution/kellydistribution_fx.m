@@ -3,9 +3,12 @@
 %     'usdcnh'};
 
 names_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf'; 'eurjpy';'audjpy';'xau'};
+% names_fx = {'xau'};
 %%
 output_fx_daily = fractal_kelly_summary('codes',names_fx,...
-    'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both');
+    'parallelrun',false,...
+    'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both',...
+    'nfractal',2);
 %
 [~,~,tbl_fx_daily,~,~,~,~,strat_fx_daily] = kellydistributionsummary(output_fx_daily);
 %
