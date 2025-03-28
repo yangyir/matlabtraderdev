@@ -4,6 +4,7 @@ function [unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period(va
 p = inputParser;
 p.addParameter('code','',@ischar);
 p.addParameter('frequency','30m',@ischar);
+p.addParameter('nfractal',[],@isnumeric);
 p.addParameter('fromdate','',@ischar);
 p.addParameter('todate','',@ischar);
 p.addParameter('kellytables','',@isstruct);
@@ -13,18 +14,19 @@ p.addParameter('doplot',true,@islogical);
 p.parse(varargin{:});
 codein = p.Results.code;
 freq = p.Results.frequency;
+nfractal = p.Results.nfractal;
 if strcmpi(freq,'30m') || strcmpi(freq,'15m')
-    nfractal = 4;
+    if isempty(nfractal), nfractal = 4;end
     tickratio = 0.5;
 elseif strcmpi(freq,'5m')
-    nfractal = 6;
+    if isempty(nfractal), nfractal = 6;end
     tickratio = 0;
 elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m')
-    nfractal = 2;
+    if isempty(nfractal), nfractal = 2;end
     tickratio = 1;
 else
     %default
-    nfractal = 4;
+    if isempty(nfractal), nfractal = 4;end
     tickratio = 0.5;
 end
 dt1 = p.Results.fromdate;
@@ -216,13 +218,13 @@ carriedtrades = cTradeOpenArray;
 
 for i = 1:length(dts)
     if i == 1
-        [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'kellytables',kellytables);
+        [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables);
     else
         if ct_i.latest_ > 0
             carriedtrade = ct_i.node_(1);
-            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'carriedtrade',carriedtrade,'kellytables',kellytables);
+            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'carriedtrade',carriedtrade,'kellytables',kellytables);
         else
-            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'kellytables',kellytables);
+            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables);
         end     
     end
     for j = 1:ut_i.latest_

@@ -3,11 +3,13 @@ p = inputParser;
 p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('futcode','',@ischar);
 p.addParameter('frequency','30m',@ischar);
+p.addParameter('nfractal',[],@isnumeric);
 p.addParameter('source','',@ischar);
 p.parse(varargin{:});
 
 futcode = p.Results.futcode;
 freq = p.Results.frequency;
+nfractal = p.Results.nfractal;
 source = p.Results.source;
 if ~(strcmpi(freq,'30m') || ...
         strcmpi(freq,'5m') || ...
@@ -32,7 +34,7 @@ if strcmpi(freq,'5m') || strcmpi(freq,'15m')
 end
 
 if strcmpi(freq,'5m')
-    nfractal = 6;
+    if isempty(nfractal),nfractal = 6;end
     if strcmpi(instrument.asset_name,'govtbond_5y')
         data =load([getenv('onedrive'),'\matlabdev\govtbond\tf\',futcode,'_5m.mat']);
     elseif strcmpi(instrument.asset_name,'govtbond_10y')
@@ -46,7 +48,7 @@ if strcmpi(freq,'5m')
     end
     p = data.data;
 elseif strcmpi(freq,'15m')
-    nfractal = 4;
+    if isempty(nfractal),nfractal = 4;end
     if strcmpi(instrument.asset_name,'govtbond_5y')
         data =load([getenv('onedrive'),'\matlabdev\govtbond\tf\',futcode,'_15m.mat']);
     elseif strcmpi(instrument.asset_name,'govtbond_10y')
@@ -62,7 +64,7 @@ elseif strcmpi(freq,'15m')
     end
     p = data.data;
 elseif strcmpi(freq,'30m')
-    nfractal = 4;
+    if isempty(nfractal),nfractal = 4;end
     if strcmpi(instrument.asset_name,'eqindex_300')
         data =load([getenv('onedrive'),'\matlabdev\eqindex\if\',futcode,'.mat']);
     elseif strcmpi(instrument.asset_name,'eqindex_50')
@@ -163,14 +165,14 @@ elseif strcmpi(freq,'30m')
     end
     p = data.data;
 elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
-    nfractal = 2;
+    if isempty(nfractal),nfractal = 2;end
     if ~isfx(futcode)
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
     data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_60m.mat']);
     p = data.data;
 elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
-    nfractal = 2;
+    if isempty(nfractal),nfractal = 2;end
     if strcmpi(futcode,'brent') || strcmpi(futcode,'wti')
     elseif isfx(futcode)
         if strcmpi(source,'MT4')

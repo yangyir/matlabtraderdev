@@ -1,19 +1,19 @@
-function [trade] = fractal_gentrade2(resstruct,code,idx,freq,kellytables)
+function [trade] = fractal_gentrade2(resstruct,code,idx,freq,nfractal,kellytables)
 
 if strcmpi(freq,'30m')
-    nfractal = 4;
+%     nfractal = 4;
     tickratio = 0.5;
 elseif strcmpi(freq,'15m')
-    nfractal = 4;
+%     nfractal = 4;
     tickratio = 0.5;
 elseif strcmpi(freq,'5m')
-    nfractal = 6;
+%     nfractal = 6;
     tickratio = 0;
 elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
-    nfractal = 2;
+%     nfractal = 2;
     tickratio = 1;
 else
-    nfractal = 4;
+%     nfractal = 4;
     tickratio = 0.5;
 end
 
@@ -53,7 +53,7 @@ if ~isempty(condsignal) && ~isempty(uncondsignal)
                 trade = {};
                 return
             else
-                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
                 return
             end
         elseif condsignal.directionkellied == -1 && uncondsignal.directionkellied == 1
@@ -65,7 +65,7 @@ if ~isempty(condsignal) && ~isempty(uncondsignal)
                 trade = {};
                 return
             else
-                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
                 return
             end
         end
@@ -111,7 +111,7 @@ if isempty(condsignal)
 %                     return
 %                 else
                 if uncondsignal.status.islvldnbreach
-                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
                     trade.riskmanager_.setusefractalupdateflag(0);
                     trade.opensignal_.kelly_ = uncondsignal.kelly;
                     return
@@ -128,11 +128,11 @@ if isempty(condsignal)
                 openpx = resstruct.px(idx,5);
             end
             if uncondsignal.directionkellied == 1 && openpx >= uncondsignal.signalkellied(2)
-                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
                 trade.riskmanager_.setusefractalupdateflag(0);
                 trade.opensignal_.kelly_ = uncondsignal.kelly;
             elseif uncondsignal.directionkellied == -1 && openpx <= uncondsignal.signalkellied(3)
-                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
                 trade.riskmanager_.setusefractalupdateflag(0);
                 trade.opensignal_.kelly_ = uncondsignal.kelly;
             else
@@ -151,7 +151,7 @@ if condsignal.directionkellied == 0
             return
         else
             if ~uncondsignal.status.istrendconfirmed
-                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
+                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal,0);
                 trade.riskmanager_.setusefractalupdateflag(0);
                 trade.opensignal_.kelly_ = uncondsignal.kelly;
                 return
@@ -269,7 +269,7 @@ elseif condsignal.directionkellied == 1
                 poptrade = false;
             else
                 if uncondsignal.directionkellied == -1
-                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
                     trade.riskmanager_.setusefractalupdateflag(0);
                     trade.opensignal_.kelly_ = uncondsignal.kelly;
                     return
@@ -282,7 +282,7 @@ elseif condsignal.directionkellied == 1
                         else
                             if pxhigh-uncondsignal.signalkellied(2)-fut.tick_size*tickratio_ >= -1e-6 && ...
                                     pxopen<uncondsignal.signalkellied(2)+2.0*(uncondsignal.signalkellied(2)-uncondsignal.signalkellied(3))
-                                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
+                                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal,0);
                                 trade.riskmanager_.setusefractalupdateflag(0);
                                 trade.opensignal_.kelly_ = uncondsignal.kelly;
                                 return
@@ -449,7 +449,7 @@ elseif condsignal.directionkellied == -1
                 poptrade = false;
             else
                 if uncondsignal.directionkellied == 1
-                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq);
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
                     trade.riskmanager_.setusefractalupdateflag(0);
                     trade.opensignal_.kelly_ = uncondsignal.kelly;
                     return
@@ -461,7 +461,7 @@ elseif condsignal.directionkellied == -1
                         else
                             if pxlow-uncondsignal.signalkellied(3)+tickratio_*fut.tick_size <= 1e-6 && ...
                                     pxopen>uncondsignal.signalkellied(3)-2.0*(uncondsignal.signalkellied(2)-uncondsignal.signalkellied(3))
-                                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,0);
+                                trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal,0);
                                 trade.riskmanager_.setusefractalupdateflag(0);
                                 trade.opensignal_.kelly_ = uncondsignal.kelly;
                                 return

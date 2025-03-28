@@ -34,6 +34,7 @@ p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('code','',@ischar);
 p.addParameter('date','',@ischar);
 p.addParameter('frequency','30m',@ischar);
+p.addParameter('nfractal',[],@isnumeric);
 p.addParameter('carriedtrade',{},@(x) validateattributes(x,{'cTradeOpen'},{},'','carriedtrade'));    
 p.addParameter('kellytables','',@isstruct);
 
@@ -41,6 +42,7 @@ p.parse(varargin{:});
 futcode = p.Results.code;
 testdt = p.Results.date;
 freq = p.Results.frequency;
+nfractal = p.Results.nfractal;
 carriedtrade = p.Results.carriedtrade;
 kellytables = p.Results.kellytables;
 
@@ -51,32 +53,32 @@ if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
             kellytables = data.strat_govtbondfut_30m;
         end
-        nfractal = 4;
+        if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;
     elseif strcmpi(freq,'15m')
         if isempty(kellytables)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_15m.mat']);
             kellytables = data.strat_govtbondfut_15m;
         end
-        nfractal = 4;
+        if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;
     elseif strcmpi(freq,'5m')
         if isempty(kellytables)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_5m.mat']);
             kellytables = data.strat_govtbondfut_5m;
         end
-        nfractal = 6;
+        if isempty(nfractal),nfractal = 6;end
         tickratio = 0;
     elseif strcmpi(freq,'daily')
         if isempty(kellytables)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_daily.mat']);
             kellytables = data.strat_govtbondfut_daily;
         end
-        nfractal = 2;
+        if isempty(nfractal),nfractal = 2;end
         tickratio = 1;
     end
 elseif ~isempty(strfind(fut.asset_name,'eqindex'))
-    nfractal = 4;
+    if isempty(nfractal),nfractal = 4;end
     tickratio = 0.5;
 elseif isfx(fut.asset_name)
     if strcmpi(freq,'5m')
@@ -84,35 +86,35 @@ elseif isfx(fut.asset_name)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_5m.mat']);
             kellytables = data.strat_fx_daily;
         end
-        nfractal = 6;
+        if isempty(nfractal),nfractal = 6;end
         tickratio = 0;
     elseif strcmpi(freq,'15m')
         if isempty(kellytables)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_15m.mat']);
             kellytables = data.strat_fx_daily;
         end
-        nfractal = 4;
+        if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;
     elseif strcmpi(freq,'30m')
         if isempty(kellytables)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_30m.mat']);
             kellytables = data.strat_fx_daily;
         end
-        nfractal = 4;
+        if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;
     elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
         if isempty(kellytables)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_60m.mat']);
             kellytables = data.strat_fx_daily;
         end
-        nfractal = 4;
+        if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;
     elseif strcmpi(freq,'daily')
         if isempty(kellytables)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_daily.mat']);
             kellytables = data.strat_fx_daily;
         end
-        nfractal = 2;
+        if isempty(nfractal),nfractal = 2;end
         tickratio = 1;
     end
 elseif isinequitypool(futcode)
@@ -123,10 +125,10 @@ elseif isinequitypool(futcode)
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\etfs\strat_daily_etfs.mat']);
         kellytables = data.strat_daily_etfs;
     end
-    nfractal = 2;
+    if isempty(nfractal),nfractal = 2;end
     tickratio = 1;
 else
-    nfractal = 4;
+    if isempty(nfractal),nfractal = 4;end
     tickratio = 0.5;
     if isempty(kellytables)
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\comdty\strat_comdty_i.mat']);
@@ -135,7 +137,7 @@ else
 end
 %        
 %
-[~,extrainfo] = charlotte_loaddata('futcode',futcode,'frequency',freq);
+[~,extrainfo] = charlotte_loaddata('futcode',futcode,'frequency',freq,'nfractal',nfractal);
 %
 if isfx(futcode)
     dt1 = [testdt,' 00:00:00'];
@@ -173,10 +175,10 @@ while i <= idx2
         if ~isempty(carriedtrade) && ~strcmpi(carriedtrade.status_,'closed')
             trade = carriedtrade;
         else
-            trade = fractal_gentrade2(extrainfo,futcode,i,freq,kellytables);
+            trade = fractal_gentrade2(extrainfo,futcode,i,freq,nfractal,kellytables);
         end
     else
-        trade = fractal_gentrade2(extrainfo,futcode,i,freq,kellytables);
+        trade = fractal_gentrade2(extrainfo,futcode,i,freq,nfractal,kellytables);
     end
     if ~isempty(trade)
         alltrades.push(trade);
