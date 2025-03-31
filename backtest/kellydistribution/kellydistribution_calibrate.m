@@ -5,6 +5,8 @@ p = inputParser;
 p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('assetname','',@ischar);
 p.addParameter('frequency','',@ischar);
+p.addParameter('recalibrate',true,@islogical);
+p.addParameter('kellytableoverride',[],@isstruct);
 p.parse(varargin{:});
 
 assetname = p.Results.assetname;
@@ -20,6 +22,9 @@ elseif strcmpi(freq,'daily')
 else
     error('kellydistribution_calibrate:invalid frequency input')
 end
+
+recalibrateflag = p.Results.recalibrate;
+kellytableoverride = p.Results.kellytableoverride;
 
 [assets,types,~,codes] = getassetmaptable();
 
@@ -46,9 +51,13 @@ if ~strcmpi(freq,'daily')
         kellytable = [];
         return;
     end
-    thisoutput = fractal_kelly_summary('codes',codes_list,'frequency',freqin,'usefractalupdate',0,'usefibonacci',1,'direction','both');
-    %lastest kelly table
-    [~,~,~,~,~,~,~,kellytable] = kellydistributionsummary(thisoutput);
+    if recalibrateflag
+        thisoutput = fractal_kelly_summary('codes',codes_list,'frequency',freqin,'usefractalupdate',0,'usefibonacci',1,'direction','both');
+        %lastest kelly table
+        [~,~,~,~,~,~,~,kellytable] = kellydistributionsummary(thisoutput);
+    else
+        kellytable = kellytableoverride;
+    end
 else
     error('kellydistribution_calibdate:to be implemented')
 end
