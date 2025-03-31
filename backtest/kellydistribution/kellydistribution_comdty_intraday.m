@@ -13,8 +13,9 @@ for i = 1:length(categories)
         subfolder_i = [folder_i,listing_i(j).name,'\'];
         listing_ij = dir(subfolder_i);
         for k = 3:size(listing_ij)
-            ncodes = ncodes + 1;
             fn_ij = listing_ij(k).name;
+            if ~isempty(strfind(fn_ij,'_')),continue;end
+            ncodes = ncodes + 1;
             codes_comdty{ncodes,1} = fn_ij(1:end-4);
             try
                 data = load([subfolder_i,fn_ij]);
@@ -34,6 +35,16 @@ if passcheck
     fprintf('all code pass pre-check\n');
 end
 codes_comdty = codes_comdty(1:ncodes,:);
+%%
+for i = 1:size(codes_comdty,1)
+    code_i = codes_comdty{i};
+    instrument_i = code2instrument(code_i);
+    try
+        getassetinfo(instrument_i.asset_name);
+    catch
+        fprintf('error in %s\n',code_i);
+    end
+end
 
 %%
 output_comdty_i = fractal_kelly_summary('codes',codes_comdty,'frequency','intraday','usefractalupdate',0,'usefibonacci',1,'direction','both');
@@ -47,7 +58,7 @@ try
     cd(dir_);
 catch
     mkdir(dir_);
-    cd(dir_);£»
+    cd(dir_);
 end
 save([dir_,'strat_comdty_i.mat'],'strat_comdty_i');
 fprintf('strat M-file saved...\n');
