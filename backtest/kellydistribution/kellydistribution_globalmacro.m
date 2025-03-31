@@ -4,6 +4,7 @@ names_pm = {'xau';'xag'};
 names_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf'; 'eurjpy';'audjpy';};
 names_bm = {'lmecopper';'lmealuminum';'lmezinic';'lmelead';'lmenickel';'lmetin'};
 names_ei = { 'dowjones';'nasdaq';'spx500';'ftse100';'cac40';'dax';'n225';'hsi'};
+names_co = {'wti';'brent';'naturalgas'};
 %%
 output_pm_daily = fractal_kelly_summary('codes',names_pm,...
     'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both','nfractal',2);
@@ -24,6 +25,11 @@ output_ei_daily = fractal_kelly_summary('codes',names_ei,...
     'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both','nfractal',2);
 [~,~,tbl_ei_daily,~,~,~,~,strat_ei_daily] = kellydistributionsummary(output_ei_daily);
 [tblreport_ei_daily,stats_report_ei_daily] = kellydistributionreport(tbl_ei_daily,strat_ei_daily);
+%
+output_co_daily = fractal_kelly_summary('codes',names_co,...
+    'frequency','daily','usefractalupdate',0,'usefibonacci',1,'direction','both','nfractal',2);
+[~,~,tbl_co_daily,~,~,~,~,strat_co_daily] = kellydistributionsummary(output_co_daily);
+[tblreport_co_daily,stats_report_co_daily] = kellydistributionreport(tbl_co_daily,strat_co_daily);
 %
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\globalmacro\'];
 try
@@ -51,13 +57,19 @@ save([dir_,'strat_ei_daily.mat'],'strat_ei_daily');
 save([dir_,'tblreport_ei_daily.mat'],'tblreport_ei_daily');
 save([dir_,'output_ei_daily.mat'],'output_ei_daily');
 fprintf('files of ei saved...\n');
+%
+save([dir_,'strat_co_daily.mat'],'strat_co_daily');
+save([dir_,'tblreport_co_daily.mat'],'tblreport_co_daily');
+save([dir_,'output_co_daily.mat'],'output_co_daily');
+fprintf('files of co saved...\n');
 
 %%
 n_pm = size(names_pm,1);
 n_fx = size(names_fx,1);
 n_bm = size(names_bm,1);
 n_ei = size(names_ei,1);
-for i = 1:4
+n_co = size(names_co,1);
+for i = 1:5
     if i == 1
         names2use = names_pm;
         n = n_pm;
@@ -70,6 +82,9 @@ for i = 1:4
     elseif i == 4
         names2use = names_ei;
         n = n_ei;
+    elseif i == 5
+        names2use = names_co;
+        n = n_co;
     end
     
     tblpnls = cell(n,1);
@@ -77,6 +92,10 @@ for i = 1:4
     statsouts = cell(n,1);
     for j = 1:n
         [tblpnls{j},tblout2s{j},statsouts{j}] = charlotte_gensingleassetprofile('assetname',names2use{j},'frequency','daily');
+        tblpnl_ = tblpnls{j};
+        tblout_ = tblout2s{j};
+        save([dir_,'tblpnl_',names2use{j},'_daily.mat'],'tblpnl_');
+        save([dir_,'tblout_',names2use{j},'_daily.mat'],'tblout_');         
     end
     maxpnldrawdown = zeros(n,1);varpnldrawdown = zeros(n,1);
     varpnl = zeros(n,1);avgpnl = zeros(n,1);stdpnl = zeros(n,1);
@@ -111,11 +130,10 @@ for i = 1:4
         maxtraderetdrawdown(j) = statsouts{j}.maxtraderetdrawdown;
         vartraderetdrawdown(j) = statsouts{j}.vartraderetdrawdown;
     end
-    statsreport_ = table(names_fx,maxpnldrawdown,varpnldrawdown,varpnl,avgpnl,stdpnl,...
+    statsreport_ = table(names2use,maxpnldrawdown,varpnldrawdown,varpnl,avgpnl,stdpnl,...
         sharpratio,maxtradepnldrawdown,vartradepnldrawdown,avgtradepnl,stdtradepnl,...
         Ns,Ws,Rs,Ks,maxretdrawdown,varretsdrawdown,varret,avgret,stdret,...
         maxtraderetdrawdown,vartraderetdrawdown);
-    %
     if i == 1
         save([dir_,'statsreport_pm_daily.mat'],'statsreport_');
         fprintf('stats report of pm saved...\n');
@@ -128,6 +146,9 @@ for i = 1:4
     elseif i == 4
         save([dir_,'statsreport_ei_daily.mat'],'statsreport_');
         fprintf('stats report of ei saved...\n');
+    elseif i == 5
+        save([dir_,'statsreport_co_daily.mat'],'statsreport_');
+        fprintf('stats report of co saved...\n');
     end
         
     
