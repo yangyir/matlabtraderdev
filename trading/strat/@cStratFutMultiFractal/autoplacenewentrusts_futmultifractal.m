@@ -224,8 +224,8 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     if bid <= signal_short(3) && lasttrade <= signal_short(3)
                         stratfractal.shortopen(instrument.code_ctp,volume,'signalinfo',info);
                     else
-                        info.mode = 'conditional-dntrendbreak';
-                        stratfractal.condshortopen(instrument.code_ctp,signal_short(3),volume,'signalinfo',info);
+%                         info.mode = 'conditional-dntrendbreak';
+%                         stratfractal.condshortopen(instrument.code_ctp,signal_short(3),volume,'signalinfo',info);
                     end
                 end
             end
@@ -335,8 +335,8 @@ function [] = autoplacenewentrusts_futmultifractal(stratfractal,signals)
                     if ask >= signal_long(2) && lasttrade >= signal_long(2)
                         stratfractal.longopen(instrument.code_ctp,volume,'signalinfo',info);
                     else
-                        info.mode = 'conditional-uptrendbreak';
-                        stratfractal.condlongopen(instrument.code_ctp,signal_long(2),volume,'signalinfo',info);
+%                         info.mode = 'conditional-uptrendbreak';
+%                         stratfractal.condlongopen(instrument.code_ctp,signal_long(2),volume,'signalinfo',info);
                     end
                 end
             end
