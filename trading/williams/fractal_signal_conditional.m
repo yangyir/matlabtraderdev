@@ -252,19 +252,19 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     %2)the latest sell sequential is greater than or equal 22(9+13)
     %3)the latest sc13 is included in the latest sell sequential
     %DO N0T place any order if the above 3 conditions hold
-    if longtrend
-        idx_sc13_last = find(ei.sc==13,1,'last');
-        idx_ss_last = find(ei.ss >= 9, 1,'last');
-        if ~isempty(idx_sc13_last) && ~isempty(idx_ss_last)
-            ss_last = ei.ss(idx_ss_last);
-            idx_ss_start = idx_ss_last-ss_last+1;
-            if size(ei.sc,1) - idx_sc13_last <= 12 && ...
-                    ss_last >= 22 && ...
-                    idx_ss_last >= idx_sc13_last && idx_ss_start < idx_sc13_last
-                longtrend = false;
-            end
-        end
-    end
+%     if longtrend
+%         idx_sc13_last = find(ei.sc==13,1,'last');
+%         idx_ss_last = find(ei.ss >= 9, 1,'last');
+%         if ~isempty(idx_sc13_last) && ~isempty(idx_ss_last)
+%             ss_last = ei.ss(idx_ss_last);
+%             idx_ss_start = idx_ss_last-ss_last+1;
+%             if size(ei.sc,1) - idx_sc13_last <= 12 && ...
+%                     ss_last >= 22 && ...
+%                     idx_ss_last >= idx_sc13_last && idx_ss_start < idx_sc13_last
+%                 longtrend = false;
+%             end
+%         end
+%     end
     if longtrend
         longtrend = ~(ei.px(end,5)-ei.ll(end-1)<=-ticksize);
     end
@@ -494,20 +494,20 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
     %2)the latest buy sequential is greater than or equal 22(9+13)
     %3)the latest buy count 13 is included in the latest buy sequential
     %DO NOT place any order if the above 3 conditions hold
-    if shorttrend
-        idx_bc13_last = find(ei.bc==13,1,'last');
-        idx_bs_last = find(ei.bs>=9,1,'last');
-        if ~isempty(idx_bc13_last) && ~isempty(idx_bs_last)
-            bs_last = ei.bs(idx_bs_last);
-            idx_bs_start = idx_bs_last-bs_last+1;
-            if size(ei.bc,1)-idx_bc13_last <= 12 && ...
-                    bs_last >= 22 &&...
-                    idx_bs_start < idx_bc13_last && idx_bs_last >= idx_bc13_last && ...
-                    ~(ei.lvldn(end) > ei.ll(end))
-                shorttrend = false;
-            end
-        end
-    end
+%     if shorttrend
+%         idx_bc13_last = find(ei.bc==13,1,'last');
+%         idx_bs_last = find(ei.bs>=9,1,'last');
+%         if ~isempty(idx_bc13_last) && ~isempty(idx_bs_last)
+%             bs_last = ei.bs(idx_bs_last);
+%             idx_bs_start = idx_bs_last-bs_last+1;
+%             if size(ei.bc,1)-idx_bc13_last <= 12 && ...
+%                     bs_last >= 22 &&...
+%                     idx_bs_start < idx_bc13_last && idx_bs_last >= idx_bc13_last && ...
+%                     ~(ei.lvldn(end) > ei.ll(end))
+%                 shorttrend = false;
+%             end
+%         end
+%     end
     if shorttrend
         shorttrend = ~(ei.px(end,5)-ei.hh(end-1)>=ticksize);
     end
