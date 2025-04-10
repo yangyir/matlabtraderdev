@@ -1,8 +1,5 @@
 function generateNewData(obj)
     try
-        % 模拟价格变动: 随机游走
-%         change = 0.5 - rand() + 0.2*(rand()-0.5);
-%         newPrice = obj.LastPrice + change;
         obj.QMS.refresh;
         quote = obj.QMS.getquote(obj.Symbol);
         newPrice = quote.last_trade;
