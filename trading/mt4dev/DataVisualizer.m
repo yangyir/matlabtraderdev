@@ -10,7 +10,7 @@ classdef DataVisualizer < handle
         function obj = DataVisualizer()
             obj.Figure = figure('Name', 'DataVisualizer', 'NumberTitle', 'off');
             ax = axes('Parent', obj.Figure);
-            obj.PricePlot = plot(ax, NaN, NaN, 'b-o');
+            obj.PricePlot = plot(ax, NaN, NaN, 'b-');
             xlabel(ax, 'Time');
             ylabel(ax, 'Price');
             title(ax, 'Live Markt Price');

@@ -1,6 +1,6 @@
 %function marketDataEventDemo
     % 创建市场数据源
-    feed = MarketDataFeed('AAPL');
+    feed = cMarketDataFeed('ag2506');
     feed.UpdateInterval = 0.5; % 每0.5秒更新一次
     
     % 创建两个数据处理器
@@ -12,7 +12,7 @@
     
     % 添加监听器
     addlistener(feed, 'NewDataArrived', @processor1.onNewData);
-    addlistener(feed, 'NewDataArrived', @processor2.onNewData);
+%     addlistener(feed, 'NewDataArrived', @processor2.onNewData);
     addlistener(feed, 'NewDataArrived', @visualizer.onNewData);
     
     % 错误处理监听器
@@ -22,8 +22,8 @@
     feed.start();
     
     % stop after running a while
-    pause(10); % stop for 10 secs
-    feed.stop();
+%     pause(10); % stop for 10 secs
+%     feed.stop();
     
     % 显示处理后的数据
     disp('Basic processor collect data:');
