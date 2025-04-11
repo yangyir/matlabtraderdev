@@ -13,21 +13,13 @@ classdef charlotteDataFeedFX < handle
     properties (Access = private)
         timer_
         lastbartime_@double
-        dir_ = 'C:\Users\yy\AppData\Roaming\MetaQuotes\Terminal\Common\Files\Data\'
+        dir_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\']
         fn_@cell
     end
     
     methods
         function obj = charlotteDataFeedFX()
-            obj.codes_ = {'EURUSD.lmx';...
-                'GBPUSD.lmx';...
-                'USDJPY.lmx';...
-                'USDCHF.lmx';...
-                'USDCAD.lmx';...
-                'AUDUSD.lmx';...
-                'EURGBP.lmx';...
-                'XAUUSD.lmx';...
-                'XAGUSD.lmx'};
+            obj.codes_ = charlotte_select_fx_pairs;
             
             try
                 ncodes = size(obj.codes_,1);
@@ -39,7 +31,7 @@ classdef charlotteDataFeedFX < handle
                 initData(obj);
             catch
                 notify(obj, 'ErrorOccurred', ...
-                    charlotteErrorEventData('Failed to login to CTP'));
+                    charlotteErrorEventData('Failed to create an instance of charlotteDataFeedFX'));
             end
         end
         %
