@@ -20,15 +20,16 @@ function [] = generateNewData(obj)
             currentbartimestr = lastrow{2};
             currentbartime = datenum([currentbardatestr,' ',currentbartimestr],'yyyymmdd HH:MM');
             
-            if currentbartime > obj.lastbartime_(i)
-                obj.lastbartime_(i) = currentbartime;
+            if currentbartime > obj.lastbartime_(i)                
                 nupdate = nupdate + 1;
                 data_i = struct('time',currentbartime,...
                     'open',str2double(lastrow{3}),...
                     'high',str2double(lastrow{4}),...
                     'low',str2double(lastrow{5}),...
-                    'close',str2double(lastrow{6}));
+                    'close',str2double(lastrow{6}),...
+                    'freq',obj.freq_{i});
                 data{i} = data_i;
+                obj.lastbartime_(i) = currentbartime;
             end
         end
         

@@ -13,6 +13,7 @@ classdef charlotteDataFeedFX < handle
     properties (Access = private)
         timer_
         lastbartime_@double
+        freq_@cell
         dir_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\']
         fn_@cell
     end
@@ -25,10 +26,8 @@ classdef charlotteDataFeedFX < handle
                 ncodes = size(obj.codes_,1);
                 obj.lastbartime_ = zeros(ncodes,1);
                 obj.fn_ = cell(ncodes,1);
-                for i = 1:ncodes
-                    obj.fn_{i} = [obj.dir_,obj.codes_{i},'_M5_running.csv'];
-                end
-                initData(obj);
+                obj.freq_ = cell(ncodes,1);
+%                 initData(obj);
             catch
                 notify(obj, 'ErrorOccurred', ...
                     charlotteErrorEventData('Failed to create an instance of charlotteDataFeedFX'));
@@ -51,6 +50,9 @@ classdef charlotteDataFeedFX < handle
         [] = start(obj)
         [] = stop(obj)
         [] = delete(obj)
+        [] = setFrequency(obj,code,freq)
+        [freq] = getFrequency(obj,code)
+        [lastbartime] = getLastBarTime(obj,code);
     end
     
     methods (Access = private)

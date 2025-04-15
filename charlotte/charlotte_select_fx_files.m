@@ -4,6 +4,6 @@ function filenames = charlotte_select_fx_files()
     npairs = size(pairs,1);
     filenames = cell(npairs,1);
     for i = 1:npairs
-        filenames{i} = [dir_,pairs{i},'_M5_running.csv'];
+        filenames{i} = [dir_,pairs{i},'.lmx_M5_running.csv'];
     end
 end

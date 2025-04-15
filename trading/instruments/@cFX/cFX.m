@@ -79,7 +79,7 @@ classdef cFX < cInstrument
                 obj.contract_size = 1000;
                 obj.tick_size = 0.001;
                 obj.tick_value = 1;
-            elseif strcmpi(codestr,'xau')
+            elseif strcmpi(codestr,'xau') || strcmpi(codestr,'xauusd')
                 obj.contract_size = 100;
                 obj.tick_size = 0.01;
                 obj.tick_value = 1;
