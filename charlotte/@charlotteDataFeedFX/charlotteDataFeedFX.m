@@ -11,6 +11,7 @@ classdef charlotteDataFeedFX < handle
     end
     
     properties (Access = private)
+        instruments_@cInstrumentArray
         timer_
         lastbartime_@double
         freq_@cell
@@ -52,7 +53,7 @@ classdef charlotteDataFeedFX < handle
         [] = delete(obj)
         [] = setFrequency(obj,code,freq)
         [freq] = getFrequency(obj,code)
-        [lastbartime] = getLastBarTime(obj,code);
+        [lastbartime] = getLastBarTime(obj,code)
     end
     
     methods (Access = private)
