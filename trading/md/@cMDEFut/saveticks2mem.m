@@ -8,6 +8,7 @@ function [] = saveticks2mem(mdefut)
     
     if strcmpi(mdefut.mode_,'realtime') || strcmpi(mdefut.mode_,'demo')
         qs = mdefut.qms_.getquote;
+        if isempty(qs),return;end
 %         for i = 1:ns
 %             count = mdefut.ticks_count_(i)+1;
 %             mdefut.ticks_{i}(count,1) = qs{i}.update_time1;
@@ -23,6 +24,7 @@ function [] = saveticks2mem(mdefut)
 %         end
         %
         for i = 1:ns
+            if isempty(qs{i}),continue;end
             count = mdefut.ticks_count_(i)+1;
             mdefut.ticksquick_(i,1) = qs{i}.update_time1;
             mdefut.ticksquick_(i,2) = qs{i}.bid1;
