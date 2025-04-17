@@ -16,14 +16,13 @@ function [] = onNewData(obj,~,eventData)
             else
                 obj.ticks_{i} = [obj.ticks_{i};newdata_i];
             end
-            fprintf('%6s\tticktime:%16s,lastrade:%4.2f\n',obj.codes_{i},datestr(data_i.time),data_i.lasttrade);
+%             fprintf('%6s\tticktime:%16s,lastrade:%4.2f\n',obj.codes_{i},datestr(data_i.time),data_i.lasttrade);
         else
             
         end
-        
-        
     end
+    obj.updatecandles;
     
-    fprintf('\n');
+%     fprintf('\n');
     
 end

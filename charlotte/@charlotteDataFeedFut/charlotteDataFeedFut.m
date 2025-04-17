@@ -2,6 +2,8 @@ classdef charlotteDataFeedFut < handle
     events
         NewDataArrived
         ErrorOccurred
+        MarketOpen
+        MarketClose
     end
     
     properties
@@ -58,6 +60,8 @@ classdef charlotteDataFeedFut < handle
         [] = stop(obj)
         [] = delete(obj)
         lastT = getLastTickTime(obj,code)
+        [] = onMarketOpen(obj,~,eventData)
+        [] = onMarketClose(obj,~,eventData) 
     end
     
     methods (Access = private)
