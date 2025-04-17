@@ -41,15 +41,16 @@ function [] = generateNewData(obj)
      
     for i = 1:ncodes
         quote = obj.qms_.getquote(obj.codes_{i});
-        if quote.last_trade <= 0, continue;end
+        lasttrade = quote.last_trade;
+        if lasttrade <= 0, continue;end
         currentticktime = quote.update_time1;
-        if currentticktime > obj.lastticktime_(i)
+        if (currentticktime > obj.lastticktime_(i)) || ...
+                (currentticktime - obj.lastticktime_(i) < 5e-6 && lasttrade ~= obj.lasttrade_(i))
             nupdate = nupdate + 1;
             obj.lastticktime_(i) = currentticktime;
+            obj.lasttrade_(i) = lasttrade;
             data_i = struct('time',currentticktime,...
-                    'bid1',quote.bid1,...
-                    'ask1',quote.ask1,...
-                    'lasttrade',quote.last_trade);
+                    'lasttrade',lasttrade);
             data{i} = data_i;
         end
     end

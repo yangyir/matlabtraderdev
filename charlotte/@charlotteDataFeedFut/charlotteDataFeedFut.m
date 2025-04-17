@@ -18,6 +18,7 @@ classdef charlotteDataFeedFut < handle
         qms_
         qmsconnected_@logical = false
         lastticktime_@double
+        lasttrade_@double
     end
     
     properties (GetAccess = private, SetAccess = private)

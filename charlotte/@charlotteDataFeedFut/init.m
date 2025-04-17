@@ -17,6 +17,7 @@ if ncodes > 0
     end
     
     obj.lastticktime_ = zeros(ncodes,1);
+    obj.lasttrade_ = zeros(ncodes,1);
 end
     
 t = now;
@@ -25,7 +26,7 @@ if ~obj.istime2sleep(t)
     if ~obj.qmsconnected_
         try 
             obj.qms_.ctplogin('CounterName','ccb_ly_fut');
-            obj.qmsconnected_ = obj.qms_.isconnect;
+            obj.qmsconnected_ = true;
         catch
             notify(obj, 'ErrorOccurred', ...
                     charlotteErrorEventData('Failed to connect to CTP server'));
@@ -41,6 +42,7 @@ if ~obj.istime2sleep(t)
                 end
                 quote = obj.qms_.getquote(obj.codes_{i});
                 obj.lastticktime_(i) = quote.update_time1;
+                obj.lasttrade_(i) = quote.last_trade;
             end
         catch
             notify(obj, 'ErrorOccurred', ...

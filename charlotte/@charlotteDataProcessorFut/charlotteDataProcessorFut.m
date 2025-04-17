@@ -1,4 +1,11 @@
 classdef charlotteDataProcessorFut < handle
+    events
+        NewBarSetM1
+        NewBarSetM5
+        NewBarSetM15
+        NewBarSetM30
+    end
+    
     properties
         codes_@cell
         ticks_@cell
@@ -56,7 +63,13 @@ classdef charlotteDataProcessorFut < handle
     end
     
     methods
-        [] = onNewData(obj,~,eventData)        
+        [] = onNewData(obj,~,eventData)
+        [] = onMarketClose(obj,~,eventData)
+        [] = onMarketOpen(obj,~,eventData)
+        [] = onNewBarSetM1(obj,~,eventData)
+        [] = onNewBarSetM5(obj,~,eventData)
+        [] = onNewBarSetM15(obj,~,eventData)
+        [] = onNewBarSetM30(obj,~,eventData)
     end
     
     methods
