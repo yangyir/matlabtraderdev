@@ -5,13 +5,10 @@ function [] = generateNewData(obj)
     
     mm = minute(now) + hour(now)*60;
     
-    if (mm >= obj.mm_02_40_ || mm >= obj.mm_15_25_) && obj.qmsconnected_
+    if ((mm >= obj.mm_02_40_ && mm <  obj.mm_08_50_) || ...
+           (mm >= obj.mm_15_25_ && mm < obj.mm_20_50_)) && obj.qmsconnected_
         data.time = now;
         notify(obj, 'MarketClose', charlotteDataFeedEventData(data));
-%         if obj.qmsconnected_
-%             obj.qms_.ctplogoff;
-%             obj.qmsconnected_ = false;
-%         end
     end
     
     if obj.istime2sleep(now), return;end
@@ -19,13 +16,6 @@ function [] = generateNewData(obj)
     if ~obj.qmsconnected_ && ~obj.istime2sleep(now)
         data.time = now;
         notify(obj, 'MarketOpen', charlotteDataFeedEventData(data));
-%         try 
-%             obj.qms_.ctplogin('CounterName','ccb_ly_fut');
-%             obj.qmsconnected_ = logical(obj.qms_.isconnect);
-%         catch
-%             notify(obj, 'ErrorOccurred', ...
-%                     charlotteErrorEventData('Failed to connect to CTP server'));
-%         end
     end
     
     data = cell(ncodes,1);

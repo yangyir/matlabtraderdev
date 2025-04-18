@@ -2,7 +2,11 @@ function [] = updatecandles(obj)
 % a charlotteDataProcessorFut function
     ncodes = size(obj.codes_,1);
     for i = 1:ncodes
-        lasttick = obj.ticks_{i}(end,:);
+        try
+            lasttick = obj.ticks_{i}(end,:);
+        catch
+            continue;
+        end
         lasttick_t = lasttick(1);
         lasttick_p = lasttick(2);
         if lasttick_p <= 0; continue; end
@@ -74,6 +78,16 @@ function [] = updatecandles(obj)
                 if this_count ~= obj.candles_m1_count_(i)
                     obj.newset_m1_(i) = 1;
                     obj.candles_m1_count_(i) = this_count;
+                    if this_count > 1
+                        data = struct('code',obj.codes_{i},...
+                            'datetime',obj.candles_m1_{i}(this_count-1,1),...
+                            'open',obj.candles_m1_{i}(this_count-1,2),...
+                            'high',obj.candles_m1_{i}(this_count-1,3),...
+                            'low',obj.candles_m1_{i}(this_count-1,4),...
+                            'close',obj.candles_m1_{i}(this_count-1,5));
+                        notify(obj, 'NewBarSetM1', charlotteDataFeedEventData(data));
+                    end
+                    
                     fprintf('%6s:candles_m1 set to bucket starting at %s\n',obj.codes_{i},datestr(obj.candles_m1_{i}(this_count,1)));
                     if i == ncodes
                         fprintf('\n');
@@ -97,6 +111,15 @@ function [] = updatecandles(obj)
                 if this_count ~= obj.candles_m5_count_(i)
                     obj.newset_m5_(i) = 1;
                     obj.candles_m5_count_(i) = this_count;
+                    if this_count > 1
+                        data = struct('code',obj.codes_{i},...
+                            'datetime',obj.candles_m5_{i}(this_count-1,1),...
+                            'open',obj.candles_m5_{i}(this_count-1,2),...
+                            'high',obj.candles_m5_{i}(this_count-1,3),...
+                            'low',obj.candles_m5_{i}(this_count-1,4),...
+                            'close',obj.candles_m5_{i}(this_count-1,5));
+                        notify(obj, 'NewBarSetM5', charlotteDataFeedEventData(data));
+                    end
                     fprintf('%6s:candles_m5 set to bucket starting at %s\n',obj.codes_{i},datestr(obj.candles_m5_{i}(this_count,1)));
                     if i == ncodes
                         fprintf('\n');
@@ -120,6 +143,15 @@ function [] = updatecandles(obj)
                 if this_count ~= obj.candles_m15_count_(i)
                     obj.newset_m15_(i) = 1;
                     obj.candles_m15_count_(i) = this_count;
+                    if this_count > 1
+                        data = struct('code',obj.codes_{i},...
+                            'datetime',obj.candles_m15_{i}(this_count-1,1),...
+                            'open',obj.candles_m15_{i}(this_count-1,2),...
+                            'high',obj.candles_m15_{i}(this_count-1,3),...
+                            'low',obj.candles_m15_{i}(this_count-1,4),...
+                            'close',obj.candles_m15_{i}(this_count-1,5));
+                        notify(obj, 'NewBarSetM15', charlotteDataFeedEventData(data));
+                    end
                 else
                     obj.newset_m15_(i) = 0;
                 end
@@ -139,6 +171,15 @@ function [] = updatecandles(obj)
                 if this_count ~= obj.candles_m30_count_(i)
                     obj.newset_m30_(i) = 1;
                     obj.candles_m30_count_(i) = this_count;
+                    if this_count > 1
+                        data = struct('code',obj.codes_{i},...
+                            'datetime',obj.candles_m30_{i}(this_count-1,1),...
+                            'open',obj.candles_m30_{i}(this_count-1,2),...
+                            'high',obj.candles_m30_{i}(this_count-1,3),...
+                            'low',obj.candles_m30_{i}(this_count-1,4),...
+                            'close',obj.candles_m30_{i}(this_count-1,5));
+                        notify(obj, 'NewBarSetM30', charlotteDataFeedEventData(data));
+                    end
                 else
                     obj.newset_m30_(i) = 0;
                 end

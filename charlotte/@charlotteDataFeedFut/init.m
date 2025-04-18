@@ -23,15 +23,8 @@ end
 t = now;
 
 if ~obj.istime2sleep(t)
-    if ~obj.qmsconnected_
-        try 
-            obj.qms_.ctplogin('CounterName','ccb_ly_fut');
-            obj.qmsconnected_ = true;
-        catch
-            notify(obj, 'ErrorOccurred', ...
-                    charlotteErrorEventData('Failed to connect to CTP server'));
-        end
-    end
+    data.time = t;
+    notify(obj, 'MarketOpen', charlotteDataFeedEventData(data));
     if obj.qmsconnected_
         try
             obj.qms_.refesh;

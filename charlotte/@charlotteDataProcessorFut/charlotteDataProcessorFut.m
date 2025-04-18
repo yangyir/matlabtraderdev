@@ -9,20 +9,24 @@ classdef charlotteDataProcessorFut < handle
     properties
         codes_@cell
         ticks_@cell
-        tickcounts_@double
+        candles_m1_@cell
+        candles_m5_@cell
+        candles_m15_@cell
+        candles_m30_@cell
     end
     
     properties (Access = private)
-        candles_m1_@cell
+        tickcounts_@double
+        %
         candles_m1_count_@double
         newset_m1_@double
-        candles_m5_@cell
+        %
         candles_m5_count_@double
         newset_m5_@double
-        candles_m15_@cell
+        %
         candles_m15_count_@double
         newset_m15_@double
-        candles_m30_@cell
+        %
         candles_m30_count_@double
         newset_m30_@double
         %

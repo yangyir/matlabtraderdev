@@ -1,5 +1,5 @@
 function [] = onNewData(obj,~,eventData)
-% a charlotteDataProcessorFut method
+% a charlotteDataProcessorFut function
     data = eventData.MarketData;
     ncodes = size(obj.codes_,1);
     for i = 1:ncodes
@@ -16,7 +16,6 @@ function [] = onNewData(obj,~,eventData)
             else
                 obj.ticks_{i} = [obj.ticks_{i};newdata_i];
             end
-%             fprintf('%6s\tticktime:%16s,lastrade:%4.2f\n',obj.codes_{i},datestr(data_i.time),data_i.lasttrade);
         else
             
         end
