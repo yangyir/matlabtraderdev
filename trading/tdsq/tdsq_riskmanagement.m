@@ -262,9 +262,16 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 highpx = extrainfo.p(end,3);
                 highidx = size(extrainfo.p,1);
             end
-            if highpx > trade.riskmanager_.tdhigh_ + 2*ticksize
-                trade.riskmanager_.tdhigh_ = highpx;
-                trade.riskmanager_.tdlow_ = extrainfo.p(highidx,4);
+            if ~strcmpi(trade.opensignal_.frequency_,'5m')
+                if highpx > trade.riskmanager_.tdhigh_ + 2*ticksize
+                    trade.riskmanager_.tdhigh_ = highpx;
+                    trade.riskmanager_.tdlow_ = extrainfo.p(highidx,4);
+                end
+            else
+                if highpx > trade.riskmanager_.tdhigh_
+                    trade.riskmanager_.tdhigh_ = highpx;
+                    trade.riskmanager_.tdlow_ = extrainfo.p(highidx,4);
+                end
             end
             if (ss(end) > 9 && p(end,5) - trade.riskmanager_.tdlow_+2*ticksize < 1e-6) || ...
                     (ss(end) == 9 && p(end,5) - (2*trade.riskmanager_.tdlow_-trade.riskmanager_.tdhigh_)+2*ticksize < 1e-6)
@@ -463,9 +470,16 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 lowpx = extrainfo.p(end,4);
                 lowidx = size(extrainfo.p,1);
             end
-            if lowpx < trade.riskmanager_.tdlow_ - 2*ticksize
-                trade.riskmanager_.tdlow_ = lowpx;
-                trade.riskmanager_.tdhigh_ = extrainfo.p(lowidx,3);
+            if ~strcmpi(trade.opensignal_.frequency_,'5m')
+                if lowpx < trade.riskmanager_.tdlow_ - 2*ticksize
+                    trade.riskmanager_.tdlow_ = lowpx;
+                    trade.riskmanager_.tdhigh_ = extrainfo.p(lowidx,3);
+                end
+            else
+                if lowpx < trade.riskmanager_.tdlow_
+                    trade.riskmanager_.tdlow_ = lowpx;
+                    trade.riskmanager_.tdhigh_ = extrainfo.p(lowidx,3);
+                end
             end
             if (bs(end) > 9 && p(end,5) - trade.riskmanager_.tdhigh_-2*ticksize > -1e-6) || ...
                    (bs(end) == 9 && p(end,5)-(2*trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_)-2*ticksize > -1e-6) 
