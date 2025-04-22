@@ -28,6 +28,7 @@ function [] = updatecandles(obj)
             end
         end
         if ~usetick, continue; end
+        if lasttick_t > datenum_close(end),continue;end
         
         tnow = now;
         if tnow <= datenum_open(1)-1/86400, continue; end

@@ -29,7 +29,7 @@ function [flag] = istime2sleep(obj,t)
    %market still open between 0:00am and 02:30am on Saturday unless
    %the next Monday is a public holiday
    if weekday(tnum) == 7    
-       if mm >= obj.mm_02_40_
+       if mm >= obj.mm_02_35_
            obj.status_ = 'sleep';
            flag = true;
        else
@@ -49,7 +49,7 @@ function [flag] = istime2sleep(obj,t)
    %there is no evening market in case the next Monday is a public holiday
    if weekday(tnum) == 6
        nextMonday = dnum + 3;
-       if isholiday(nextMonday) && mm >= obj.mm_15_25_
+       if isholiday(nextMonday) && mm >= obj.mm_15_20_
            obj.status_ = 'sleep';
            flag = true;
            return
@@ -67,9 +67,9 @@ function [flag] = istime2sleep(obj,t)
    
    %weekday = 2,3,4,5,6
    %Monday,Tuesday,Wednesday,Thursday and Friday
-   if (mm >= obj.mm_02_40_ && mm <  obj.mm_08_50_) || ...
+   if (mm >= obj.mm_02_35_ && mm <  obj.mm_08_50_) || ...
            (mm > obj.mm_11_31_ && mm < obj.mm_12_59_) || ...
-           (mm >= obj.mm_15_25_ && mm < obj.mm_20_50_)
+           (mm >= obj.mm_15_20_ && mm < obj.mm_20_50_)
        obj.status_ = 'sleep';
        flag = true;
    else

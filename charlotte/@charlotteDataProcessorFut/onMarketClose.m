@@ -20,9 +20,9 @@ function [] = onMarketClose(obj,~,eventData)
                     dtstr = datestr(floor(obj.ticks_{i}(1)),'yyyymmdd');
                     filename = [obj.codes_{i},'_',dtstr,'_tick.txt'];
                     cDataFileIO.saveDataToTxtFile([tickfoldername,filename],obj.ticks_{i},{'datetime','trade'},'w',true);
-                    fprintf('%s:tick data of %s has been successfully saved...\n',datestr(t),obj.ticks_{i});
-                    obj.ticks_{i} = [];
-                    obj.tickcounts_(i) = 0;
+                    fprintf('%s:tick data of %s has been successfully saved...\n',datestr(t),obj.codes_{i});
+%                     obj.ticks_{i} = [];
+%                     obj.tickcounts_(i) = 0;
                 end
             catch
                 fprintf('failed to save tick data on %s....\n',obj.codes_{i});

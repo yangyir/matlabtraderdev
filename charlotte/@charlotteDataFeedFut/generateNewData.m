@@ -1,19 +1,22 @@
 function [] = generateNewData(obj)
 %a charlotteDataFeedFut function
+    if obj.istime2sleep(now), return;end
+    
     ncodes = size(obj.codes_,1);
     if ncodes <= 0, return;end
     
     mm = minute(now) + hour(now)*60;
     
-    if ((mm >= obj.mm_02_40_ && mm <  obj.mm_08_50_) || ...
-           (mm >= obj.mm_15_25_ && mm < obj.mm_20_50_)) && obj.qmsconnected_
-        data.time = now;
-        notify(obj, 'MarketClose', charlotteDataFeedEventData(data));
+    if ((mm >= obj.mm_02_30_ + 1 && mm <  obj.mm_08_50_) || ...
+           (mm >= obj.mm_15_15_ + 1 && mm < obj.mm_20_50_))
+       % 1 minute after market closes and 10 minutes before market opens
+       data.time = now;
+       notify(obj, 'MarketClose', charlotteDataFeedEventData(data));
     end
     
-    if obj.istime2sleep(now), return;end
-    
-    if ~obj.qmsconnected_ && ~obj.istime2sleep(now)
+    if ((mm >= obj.mm_08_50_ && mm < obj.mm_09_00_) || ...
+           (mm >= obj.mm_20_50_ && mm < obj.mm_21_00_))
+       % 10 minutes before market opens
         data.time = now;
         notify(obj, 'MarketOpen', charlotteDataFeedEventData(data));
     end

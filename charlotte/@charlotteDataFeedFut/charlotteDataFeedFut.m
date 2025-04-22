@@ -23,7 +23,7 @@ classdef charlotteDataFeedFut < handle
     
     properties (GetAccess = private, SetAccess = private)
         mm_02_30_@double = 150   % all futures listed in china stop trading
-        mm_02_40_@double = 160   % timer sleeps during the night
+        mm_02_35_@double = 155   % timer sleeps during the night
         mm_08_50_@double = 530   % timer wakes up in the morning
         mm_09_00_@double = 540   % commodity futures start trading a.m 
         mm_09_30_@double = 570   % financial futures start trading a.m
@@ -34,7 +34,7 @@ classdef charlotteDataFeedFut < handle
         mm_13_30_@double = 810   % commodity futures start trading p.m
         mm_15_00_@double = 900   % commodity and eqindex futures stop trading p.m
         mm_15_15_@double = 915   % govtbond futures stop trading p.m
-        mm_15_25_@double = 925   % timer sleeps again and wait for the evening session if there is any
+        mm_15_20_@double = 920   % timer sleeps again and wait for the evening session if there is any
         mm_20_50_@double = 1250  % timer wakes up again for evening trading 
         mm_21_00_@double = 1260  % derivatives start trading evening 
     end
@@ -63,11 +63,11 @@ classdef charlotteDataFeedFut < handle
         lastT = getLastTickTime(obj,code)
         [] = onMarketOpen(obj,~,eventData)
         [] = onMarketClose(obj,~,eventData) 
+        [flag] = istime2sleep(obj,t)
     end
     
     methods (Access = private)
         obj = init(obj,varargin)
         [] = generateNewData(obj)
-        [flag] = istime2sleep(obj,t)
     end
 end

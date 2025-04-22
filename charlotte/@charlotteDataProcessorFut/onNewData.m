@@ -9,12 +9,17 @@ function [] = onNewData(obj,~,eventData)
             data_i = [];
         end
         if ~isempty(data_i)
-            obj.tickcounts_(i) = obj.tickcounts_(i) + 1;
-            newdata_i = [data_i.time,data_i.lasttrade];
-            if isempty(obj.ticks_{i})
-                obj.ticks_{i} = newdata_i;
-            else
-                obj.ticks_{i} = [obj.ticks_{i};newdata_i];
+            datenum_open = obj.datenum_open_{i};
+            datenum_close = obj.datenum_close_{i};
+            ticktime = data_i.time;
+            if ticktime >= datenum_open(1) && ticktime <= datenum_close(end)
+                obj.tickcounts_(i) = obj.tickcounts_(i) + 1;
+                newdata_i = [ticktime,data_i.lasttrade];
+                if isempty(obj.ticks_{i})
+                    obj.ticks_{i} = newdata_i;
+                else
+                    obj.ticks_{i} = [obj.ticks_{i};newdata_i];
+                end
             end
         else
             
