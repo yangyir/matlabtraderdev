@@ -1,7 +1,8 @@
 function [] = onNewData(obj,~,eventData)
-% a charlotteAutoTradeFX method
+% a charlotteSignalGeneratorFX method
     data = eventData.MarketData;
     ncodes = size(obj.codes_,1);
+    nsignal = 0;
     for i = 1:ncodes
         try
             data_i = data{i};
@@ -44,9 +45,9 @@ function [] = onNewData(obj,~,eventData)
             fn_i = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\',obj.codes_{i},fnappendix];
             data =  readtable(fn_i,'readvariablenames',1);
             idxlast = find(~isnan(data.Close),1,'last');
-            % for save memory, we cut the latest 220 candles
-            if idxlast >= 220
-                idxfirst = idxlast - 219;
+            % for save memory, we cut the latest 100 candles
+            if idxlast >= 100
+                idxfirst = idxlast - 99;
             else
                 idxfirst = 1;
             end
@@ -69,13 +70,18 @@ function [] = onNewData(obj,~,eventData)
         end
         %
         candles_i = obj.candles_{i};
-        obj.candles_{i} = [candles_i;newcandle_i];
-        %fprintf('%s latest bar time: %s and close at %s\n', ...
-%                 obj.codes_{i}, datestr(data_i.time,'yyyymmdd HH:MM'),num2str(data_i.close));
-        
-        
-        obj.genSignal(obj.codes_{i});
-%         updateTrade(obj.codes_{i});
+        obj.candles_{i} = [candles_i;newcandle_i];        
+        obj.signals_{i} = obj.genSignal(obj.codes_{i});
+        if ~isempty(obj.signals_{i})
+            nsignal = nsignal + 1;
+        end
+    end
+    
+    if nsignal > 0
+        data.signals_ = obj.signals_;
+        data.candles_ = obj.candles_;
+        data.codes_ = obj.codes_;
+        notify(obj,'NewSignalGenerated',charlotteDataFeedEventData(data));
     end
     
     fprintf('\n');

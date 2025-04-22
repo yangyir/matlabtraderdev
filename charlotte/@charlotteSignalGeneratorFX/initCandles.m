@@ -1,14 +1,14 @@
 function [] = initCandles(obj)
-% a charlotteAutoTradeFX method
+% a charlotteSignalGeneratorFX method
     try
         filenames = charlotte_select_fx_files;
         ncodes = size(obj.codes_,1);
         for i = 1:ncodes
             data =  readtable(filenames{i},'readvariablenames',1);
             idxlast = find(~isnan(data.Close),1,'last');
-            % for save memory, we cut the latest 220 candles
-            if idxlast >= 220
-                idxfirst = idxlast - 219;
+            % for save memory, we cut the latest 100 candles
+            if idxlast >= 100
+                idxfirst = idxlast - 99;
             else
                 idxfirst = 1;
             end
