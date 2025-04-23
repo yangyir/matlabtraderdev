@@ -6,20 +6,33 @@ function [] = onNewSignal(obj,~,eventData)
         if isempty(data.signals_{i}), continue;end
         code_i = data.codes_{i};
         signal_i = data.signals_{i};
+        ei_i = data.ei_{i};
+        freq_i = data.freq_{i};
+        nfractal = charlotte_freq2nfracal(freq_i);
         if isempty(strfind(signal_i.opkellied,'conditional'))
             %unconditional signal
             if signal_i.directionkellied == 1 && ~obj.hasLongPosition(code_i)
                 if ~signal_i.status.istrendconfirmed
-                    
+                    trade = fractal_gentrade(ei_i,code_i,size(ei_i.px,1),signal_i.opkellied,1,freq_i,nfractal);
+                    obj.book_.push(trade);
                 else
-                    %need to chec
+                    %need to check whether the conditional signal was
+                    %poped-up
                 end
+            elseif signal_i.directionkellied == 1 && obj.hasLongPosition(code_i)
+                %
             elseif signal_i.directionkellied == -1 && ~obj.hasShortPosition(code_i)
                 if ~signal_i.status.istrendconfirmed
+                    trade = fractal_gentrade(ei_i,code_i,size(ei_i.px,1),signal_i.opkellied,-1,freq_i,nfractal);
+                    obj.book_.push(trade);
                 else
+                    %need to check whether the conditional signal was
+                    %poped-up
+                    
                 end
             end
         else
+            %conditional signal
         end
     end
 end

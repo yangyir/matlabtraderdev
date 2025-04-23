@@ -28,7 +28,6 @@ classdef charlotteDataFeedFX < handle
                 obj.lastbartime_ = zeros(ncodes,1);
                 obj.fn_ = cell(ncodes,1);
                 obj.freq_ = cell(ncodes,1);
-%                 initData(obj);
             catch
                 notify(obj, 'ErrorOccurred', ...
                     charlotteErrorEventData('Failed to create an instance of charlotteDataFeedFX'));

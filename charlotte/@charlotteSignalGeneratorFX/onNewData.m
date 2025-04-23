@@ -78,9 +78,10 @@ function [] = onNewData(obj,~,eventData)
     end
     
     if nsignal > 0
-        data.signals_ = obj.signals_;
-        data.candles_ = obj.candles_;
-        data.codes_ = obj.codes_;
+        data = struct('signals_',{obj.signals_},...
+            'ei_',{obj.extrainfo_},...
+            'codes_',{obj.codes_},...
+            'freq_',{obj.freq_});
         notify(obj,'NewSignalGenerated',charlotteDataFeedEventData(data));
     end
     
