@@ -8,6 +8,7 @@ classdef charlotteSignalGeneratorFX < handle
         codes_@cell
         candles_@cell
         signals_@cell
+        extrainfo_@cell
     end
     
     properties (Access = private)
@@ -17,20 +18,9 @@ classdef charlotteSignalGeneratorFX < handle
     end
     
     methods
-        function obj = charlotteSignalGeneratorFX()
-            obj.codes_ = charlotte_select_fx_pairs;
-            ncodes = size(obj.codes_,1);
-            obj.candles_ = cell(ncodes,1);
-            obj.ticksize_ = zeros(ncodes,1);
-            obj.signals_ = cell(ncodes,1);
-            obj.freq_ = cell(ncodes,1);
-            obj.kellytables_ = cell(ncodes,1);
-            for i = 1:ncodes
-                fx_i = code2instrument(obj.codes_{i});
-                obj.ticksize_(i) = fx_i.tick_size;
-            end  
+        function obj = charlotteSignalGeneratorFX(varargin)
+            obj = init(obj,varargin{:});
         end
-        
     end
     
     methods
@@ -38,6 +28,7 @@ classdef charlotteSignalGeneratorFX < handle
     end
     
     methods (Access = private)
+        obj = init(obj,varargin)
         [] = initCandles(obj)
         [signal] = genSignal(obj,code)
     end
