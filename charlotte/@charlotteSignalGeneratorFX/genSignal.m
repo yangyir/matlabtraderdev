@@ -19,36 +19,8 @@ function [signal] = genSignal(obj,code)
     
     nfractal = charlotte_freq2nfracal(obj.freq_{idxfound});
     [~,ei] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
+    obj.extrainfo_{idxfound} = ei;
     %
-%     if strcmpi(code,'USDJPY')
-%         tools_technicalplot2(ei,4+idxfound,[code,'-',obj.freq_{idxfound}],true,2*obj.ticksize_(idxfound));
-%     end
-    %
-    if idxfound == 1
-        fprintf('%10s%10s%14s%10s%10s%8s%8s%10s%10s%10s%10s%10s\n',...
-                        'Code','Last','Datetime(ldn)','HH','LL','BS','SS','LevelUp','LevelDn','Jaw','Teeth','Lips');
-    end    
-    
-    if strcmpi(code,'USDJPY')
-        dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.3f%10.3f%10.3f\n';
-    elseif strcmpi(code,'XAUUSD')
-        dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.2f%10.2f%10.2f\n';
-    else
-        dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.4f%10.4f%10.4f\n';
-    end
-    fprintf(dataformat,code,...
-        num2str(ei.px(end,5)),...
-        datestr(ei.px(end,1),'dd-mmm HH:MM'),...
-        num2str(ei.hh(end)),num2str(ei.ll(end)),...
-        num2str(ei.bs(end)),num2str(ei.ss(end)),num2str(ei.lvlup(end)),num2str(ei.lvldn(end)),...
-        ei.jaw(end),ei.teeth(end),ei.lips(end));
-    if idxfound == size(obj.codes_,1)
-        fprintf('\n');
-    end
-    %
-    %
-%     if ~strcmpi(code,'USDJPY'), return;end
-    
     if strcmpi(obj.freq_{idxfound},'5m')
         tickratio = 0;
     elseif strcmpi(obj.freq_{idxfound},'15m') || strcmpi(obj.freq_{idxfound},'30m') 
@@ -73,7 +45,7 @@ function [signal] = genSignal(obj,code)
             signal = signaluncond;
         else
             fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,0,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
-            signal = [];
+            signal = signaluncond;
         end 
     else
         signalcond = fractal_signal_conditional2('extrainfo',ei,...
@@ -91,7 +63,7 @@ function [signal] = genSignal(obj,code)
                 signal = signalcond;
             else
                 fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,0,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
-                signal = [];
+                signal = signalcond;
             end
         else
             %EMPTY RETURNS FROM BOTH UNCONDITIONAL AND CONDITIONAL SIGNAL CALCULATION
