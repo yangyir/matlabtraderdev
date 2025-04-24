@@ -46,6 +46,10 @@ function [] = updatecandles(obj)
         %
         %
         for k = 1:4
+            if isempty(obj.candles_m1_{i})
+                continue;
+            end
+            
             if k == 1
                 buckets = obj.candles_m1_{i}(:,1);
             elseif k == 2
