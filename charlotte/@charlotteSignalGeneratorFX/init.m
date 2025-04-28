@@ -32,52 +32,62 @@ function obj = init(obj,varargin)
     %
     obj.candles_ = cell(ncodes,1);
     for i = 1:ncodes
-        if strcmpi(obj.freq_{i},'5m')
-            fnappendix = '.lmx_M5_running.csv';
-        elseif strcmpi(obj.freq_{i},'15m')
-            fnappendix = '.lmx_M15_running.csv';
-        elseif strcmpi(obj.freq_{i},'30m')
-            fnappendix = '.lmx_M30_running.csv';
-        elseif strcmpi(obj.freq_{i},'1h')
-            fnappendix = '.lmx_H1_running.csv';
-        elseif strcmpi(obj.freq_{i},'4h')
-            fnappendix = '.lmx_H4_running.csv';
-        elseif strcmpi(obj.freq_{i},'daily')
-            fnappendix = '.lmx_D1_running.csv';
-        else
-            fnappendix = '';
+        if strcmpi(datafeed.mode_,'realtime')
+            if strcmpi(obj.freq_{i},'5m')
+                fnappendix = '.lmx_M5_running.csv';
+            elseif strcmpi(obj.freq_{i},'15m')
+                fnappendix = '.lmx_M15_running.csv';
+            elseif strcmpi(obj.freq_{i},'30m')
+                fnappendix = '.lmx_M30_running.csv';
+            elseif strcmpi(obj.freq_{i},'1h')
+                fnappendix = '.lmx_H1_running.csv';
+            elseif strcmpi(obj.freq_{i},'4h')
+                fnappendix = '.lmx_H4_running.csv';
+            elseif strcmpi(obj.freq_{i},'daily')
+                fnappendix = '.lmx_D1_running.csv';
+            else
+                fnappendix = '';
+            end
+            fn_i = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\',obj.codes_{i},fnappendix];
+            data =  readtable(fn_i,'readvariablenames',1);
+            idxlast = find(~isnan(data.Close),1,'last');
+            % for save memory, we cut the latest 100 candles
+            if idxlast >= 100
+                idxfirst = idxlast - 99;
+            else
+                idxfirst = 1;
+            end
+            candleopen = data.Open(idxfirst:idxlast);
+            candlehigh = data.High(idxfirst:idxlast);
+            candlelow = data.Low(idxfirst:idxlast);
+            candleclose = data.Close(idxfirst:idxlast);
+            candledate = data.Date(idxfirst:idxlast);
+            candletime = data.Time(idxfirst:idxlast);
+            n = size(candledate,1);
+            candledatetime = zeros(n,1);
+            for j = 1:n
+                thisbardate = candledate{j};
+                thisbartime = candletime{j};
+                thisbardatestr = [thisbardate(1:4),thisbardate(6:7),thisbardate(9:10)];
+                candledatetime(j) = datenum([thisbardatestr,' ',thisbartime],'yyyymmdd HH:MM');
+            end
+            obj.candles_{i} = [candledatetime,candleopen,candlehigh,candlelow,candleclose];
+        elseif strcmpi(datafeed.mode_,'replay')
+            replaydata = datafeed.getReplayData(obj.codes_{i});
+            idx = datafeed.getReplayCount(obj.codes_{i});
+            replaydata = replaydata(1:idx,:);
+            idxlast = size(replaydata,1);
+            if idxlast >= 100
+                idxfirst = idxlast - 99;
+            else
+                idxfirst = 1;
+            end
+            obj.candles_{i} = replaydata(idxfirst:end,1:5);
         end
-        fn_i = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\',obj.codes_{i},fnappendix];
-        data =  readtable(fn_i,'readvariablenames',1);
-        idxlast = find(~isnan(data.Close),1,'last');
-        % for save memory, we cut the latest 100 candles
-        if idxlast >= 100
-            idxfirst = idxlast - 99;
-        else
-            idxfirst = 1;
-        end
-        candleopen = data.Open(idxfirst:idxlast);
-        candlehigh = data.High(idxfirst:idxlast);
-        candlelow = data.Low(idxfirst:idxlast);
-        candleclose = data.Close(idxfirst:idxlast);
-        candledate = data.Date(idxfirst:idxlast);
-        candletime = data.Time(idxfirst:idxlast);
-        n = size(candledate,1);
-        candledatetime = zeros(n,1);
-        for j = 1:n
-            thisbardate = candledate{j};
-            thisbartime = candletime{j};
-            thisbardatestr = [thisbardate(1:4),thisbardate(6:7),thisbardate(9:10)];
-            candledatetime(j) = datenum([thisbardatestr,' ',thisbartime],'yyyymmdd HH:MM');
-        end
-        obj.candles_{i} = [candledatetime,candleopen,candlehigh,candlelow,candleclose];
     end
     %
     obj.extrainfo_ = cell(ncodes,1);
     for i= 1:ncodes
-        nfractal = charlotte_freq2nfracal(obj.freq_{i});
-        p = obj.candles_{i};
-        [~,ei] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
-        obj.extrainfo_{i} = ei;
+        obj.signals_{i} = obj.genSignal(obj.codes_{i});
     end
 end

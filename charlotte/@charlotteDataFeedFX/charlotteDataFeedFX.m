@@ -8,6 +8,7 @@ classdef charlotteDataFeedFX < handle
         codes_@cell
         running_@logical = false
         updateinterval_@double = 1   % default interval of 1 second
+        mode_@char = 'realtime'
     end
     
     properties (Access = private)
@@ -17,6 +18,10 @@ classdef charlotteDataFeedFX < handle
         freq_@cell
         dir_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\']
         fn_@cell
+        replaydatefrom_@double
+        replaydateto_@double
+        replaycounts_@double
+        replaydata_@cell
     end
     
     methods
@@ -53,6 +58,9 @@ classdef charlotteDataFeedFX < handle
         [] = setFrequency(obj,code,freq)
         [freq] = getFrequency(obj,code)
         [lastbartime] = getLastBarTime(obj,code)
+        [] = setReplayPeriod(obj,rplfrom,rplto)
+        [data] = getReplayData(obj,code)
+        [idx] = getRepayCount(obj,code)
     end
     
     methods (Access = private)

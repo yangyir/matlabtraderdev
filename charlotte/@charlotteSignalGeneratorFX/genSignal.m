@@ -1,7 +1,8 @@
-function [signal] = genSignal(obj,code)
+function [signal,ei] = genSignal(obj,code)
 % a charlotteSignalGeneratorFX function
     idxfound = -1;
     signal = [];
+    ei = [];
     for i = 1:size(obj.codes_,1)
         if strcmpi(obj.codes_{i},code)
             idxfound = i;
@@ -19,6 +20,8 @@ function [signal] = genSignal(obj,code)
     
     nfractal = charlotte_freq2nfracal(obj.freq_{idxfound});
     [~,ei] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
+    ei.latestopen = ei.px(end,5);
+    ei.latestdt = ei.px(end,1);
     obj.extrainfo_{idxfound} = ei;
     %
     if strcmpi(obj.freq_{idxfound},'5m')
@@ -38,13 +41,13 @@ function [signal] = genSignal(obj,code)
     
     if ~isempty(signaluncond)
         if signaluncond.directionkellied == 1
-            fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,1,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+%             fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,1,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
             signal = signaluncond;
         elseif signaluncond.directionkellied == -1
-            fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,-1,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+%             fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,-1,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
             signal = signaluncond;
         else
-            fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,0,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
+%             fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,0,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
             signal = signaluncond;
         end 
     else
@@ -56,22 +59,20 @@ function [signal] = genSignal(obj,code)
             'ticksizeratio',tickratio);
         if ~isempty(signalcond)
             if signalcond.directionkellied == 1 && ei.px(end,5) > ei.teeth(end)
-                fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,1,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
+%                 fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,1,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
                 signal = signalcond;
             elseif signalcond.directionkellied == -1 && ei.px(end,5) < ei.teeth(end)
-                fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,-1,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
+%                 fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,-1,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
                 signal = signalcond;
             else
-                fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,0,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
+%                 fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,0,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
                 signal = signalcond;
             end
         else
             %EMPTY RETURNS FROM BOTH UNCONDITIONAL AND CONDITIONAL SIGNAL CALCULATION
         end
     end
-    
-%     if ~isempty(signal)
-        tools_technicalplot2(ei,4+idxfound,[code,'-',obj.freq_{idxfound}],true,2*obj.ticksize_(idxfound));
-%     end
+    ei2plot = fractal_truncate(ei,size(ei.px,1),max(size(ei.px,1)-100,1));
+    tools_technicalplot2(ei2plot,4+idxfound,[code,'-',obj.freq_{idxfound}],true,2*obj.ticksize_(idxfound));
     
 end

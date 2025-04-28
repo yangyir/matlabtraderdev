@@ -2,6 +2,7 @@ classdef charlotteTraderFX < handle
     events
         OpenNewTrade
         CloseExistingTrade
+        ErrorOccurred
     end
     
     properties
@@ -16,15 +17,19 @@ classdef charlotteTraderFX < handle
     end
     
     methods
-        onNewSignal(obj,~,eventData)
-        onOpenNewTrade(obj,~,eventData)
-        onCloseExistingTrade(obj,~,eventData)
+        [] = onNewSignal(obj,~,eventData)
+        [] = onNewIndicator(obj,~,eventData)
+        [] = onOpenNewTrade(obj,~,eventData)
+        [] = onCloseExistingTrade(obj,~,eventData)
         %
         [ret,trade] = hasLongPosition(obj,code)
         [ret,trade] = hasShortPosition(obj,code)
+        %
+        
     end
     
     methods (Access = private)
         [] = writeTrade2File(obj,code)
+        [] = manageRisk(obj,data)
     end
 end

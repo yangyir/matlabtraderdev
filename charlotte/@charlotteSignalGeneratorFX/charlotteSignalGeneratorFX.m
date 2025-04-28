@@ -1,17 +1,18 @@
 classdef charlotteSignalGeneratorFX < handle
     events
+        NewIndicatorGenerated
         NewSignalGenerated
         ErrorOccurred
     end
     
     properties
         codes_@cell
-        candles_@cell
         signals_@cell
         extrainfo_@cell
     end
     
     properties (Access = private)
+        candles_@cell
         ticksize_@double
         freq_@cell
         kellytables_@cell
@@ -30,7 +31,7 @@ classdef charlotteSignalGeneratorFX < handle
     methods (Access = private)
         obj = init(obj,varargin)
         [] = initCandles(obj)
-        [signal] = genSignal(obj,code)
+        [signal,ei] = genSignal(obj,code)
     end
 end
     

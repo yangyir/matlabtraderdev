@@ -5,7 +5,7 @@ function [ret,trade] = hasLongPosition(obj,code)
     trade = [];
     for i = 1:n
         trade_i = obj.book_.node_(i);
-        if strcmpi(trade_i.code_,code) && trade_i.opendirection_ == 1
+        if strcmpi(trade_i.code_,code) && trade_i.opendirection_ == 1 && ~strcmpi(trade_i.status_,'closed')
             ret = true;
             trade = trade_i;
             break
