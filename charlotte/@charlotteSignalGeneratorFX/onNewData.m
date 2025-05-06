@@ -90,7 +90,8 @@ function [] = onNewData(obj,~,eventData)
     if nindicator > 0
         data = struct('codes_',{obj.codes_},...
             'ei_',{obj.extrainfo_},...
-            'kellytables_',{obj.kellytables_});
+            'kellytables_',{obj.kellytables_},...
+            'signals_',{obj.signals_});
         notify(obj,'NewIndicatorGenerated',charlotteDataFeedEventData(data));
     end
     

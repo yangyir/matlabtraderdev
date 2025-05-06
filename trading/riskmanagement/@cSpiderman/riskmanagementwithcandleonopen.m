@@ -518,7 +518,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 (strcmpi(val,'conditional-dntrendconfirmed-1') && ei.p(end,4) < ei.lvldn(end));
             if ~onopenflag
                 if ~exceptionflag
-                    exceptionflag = ei.p(end,3) < ei.p(end-1,3) & ei.p(end-1,4) & ei.p(end-1,4) - ei.ll(end-2) < 2*trade.instrument_.tick_size;
+                    exceptionflag = ei.p(end,3) < ei.p(end-1,3) & ei.p(end-1,4) < ei.p(end,4) & ei.p(end-1,4) - ei.ll(end-2) < 2*trade.instrument_.tick_size;
                 end
                 if ~exceptionflag
                     unwindflag = true;
@@ -565,7 +565,12 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     return
                 end
                 %
-                if (~(ei.p(end,3) < ei.p(end-1,3) && ei.p(end,4) < ei.p(end-1,4) && ei.p(end,5)-ei.p(end-1,5) - 2*trade.instrument_.tick_size<1e-5)) && ei.p(end-1,4) <= ei.ll(end-1)
+                if isfx(trade.code_)
+                    multiplier = 4;
+                else
+                    multiplier = 2;
+                end
+                if (~(ei.p(end,3) < ei.p(end-1,3) && ei.p(end,4) < ei.p(end-1,4) && ei.p(end,5)-ei.p(end-1,5) - multiplier*trade.instrument_.tick_size<1e-5)) && ei.p(end-1,4) <= ei.ll(end-1)
                     obj.pxstoploss_ = ei.p(end,3)-2*trade.instrument_.tick_size;
                     msg = 'conditional dntrendconfirmed failed:shadowline2';
                     obj.closestr_ = msg; 
@@ -597,9 +602,15 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     end
                 else
                     %exception found on p2409 on 20240418
+                    if isfx(trade.code_)
+                        multiplier = 4;
+                    else
+                        multiplier = 2;
+                    end
+                    
                     exceptionflag = (ei.p(end,3) < ei.p(end-1,3) & shadowlineratio < 0.8) | ...
                         (ei.p(end,3) < ei.p(end-1,3) & ei.p(end-1,4) < ei.ll(end-2) & ei.p(end-1,5) >= ei.ll(end-2) & ei.ll(end-1) == ei.ll(end-2)) | ...
-                        (ei.p(end,3) < ei.p(end-1,3) & ei.p(end,4) < ei.p(end-1,4) & ei.p(end-1,4) - ei.ll(end-2) < 2*trade.instrument_.tick_size & ei.ll(end-1) == ei.ll(end-2))| ...
+                        (ei.p(end,3) < ei.p(end-1,3) & ei.p(end,4) < ei.p(end-1,4) & ei.p(end-1,4) - ei.ll(end-2) < multiplier*trade.instrument_.tick_size & ei.ll(end-1) == ei.ll(end-2))| ...
                         (ei.p(end,3) < ei.p(end-1,3) & ei.p(end,4) < ei.p(end-1,4) & ei.p(end,5) <= ei.p(end-1,5) & ei.bs(end) >= 2 & shadowlineratio < 0.8) | ...
                         ((~isnan(obj.tdhigh_) | ~isnan(obj.td13high_)) & shadowlineratio <= 0.88);
                     if ~exceptionflag

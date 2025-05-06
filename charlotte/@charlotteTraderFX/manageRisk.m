@@ -18,6 +18,7 @@ function [] = manageRisk(obj,data)
     codes = data.codes_;
     ei = data.ei_;
     kellytables = data.kellytables_;
+    signals = data.signals_;
     for i = 1:nLive
         trade_i = liveTrades.node_(i);
         idxfound = 0;
@@ -44,7 +45,27 @@ function [] = manageRisk(obj,data)
            %happens
            fprintf('trade closed at %4.2f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
        else
-           fprintf('stoploss:%4.2f\n',trade_i.riskmanager_.pxstoploss_);
+           if ~isempty(signals{idxfound})
+               signal = signals{idxfound};
+               if isempty(strfind(signal.opkellied,'conditional')) && isempty(strfind(signal.opkellied,'potential'))
+                   if signal.directionkellied == 0 && (strcmpi(signal.op.comment,trade_i.opensignal_.mode_) || ...
+                           (~strcmpi(signal.op.comment,trade_i.opensignal_.mode_) && ...
+                           (signal.kelly < 0 || isnan(signal.kelly))))
+                        trade_i.status_ = 'closed';
+                        trade_i.riskmanager_.status_ = 'closed';
+                        trade_i.riskmanager_.closestr_ = ['kelly is too low: ',num2str(signal.kelly)];
+                        trade_i.runningpnl_ = 0;
+                        trade_i.closeprice_ = ei{idxfound}.latestopen;
+                        trade_i.closedatetime1_ = ei{idxfound}.latestdt;
+                        fut = code2instrument(trade_i.code_);
+                        trade_i.closepnl_ = trade_i.opendirection_*(trade_i.closeprice_-trade_i.openprice_) /fut.tick_size * fut.tick_value;
+                   end
+               end
+           end
+           
+           if ~strcmpi(trade_i.status_,'closed')
+               fprintf('stoploss:%4.4f\n',trade_i.riskmanager_.pxstoploss_);
+           end
        end
         
     end

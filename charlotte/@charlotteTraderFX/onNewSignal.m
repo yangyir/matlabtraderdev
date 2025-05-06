@@ -9,13 +9,15 @@ function [] = onNewSignal(obj,~,eventData)
         code_i = data.codes_{i};
         signal_i = data.signals_{i};
         
-        if signal_i.directionkellied == 0, continue;end
+        if signal_i.directionkellied == 0
+            continue;
+        end
         
         ei_i = data.ei_{i};
         freq_i = data.freq_{i};
         nfractal = charlotte_freq2nfracal(freq_i);
         
-        if isempty(strfind(signal_i.opkellied,'conditional'))
+        if isempty(strfind(signal_i.opkellied,'conditional')) && isempty(strfind(signal_i.opkellied,'potential'))
             %unconditional signal
             if signal_i.directionkellied == 1 && ~obj.hasLongPosition(code_i)
                 if ~signal_i.status.istrendconfirmed
@@ -50,6 +52,12 @@ function [] = onNewSignal(obj,~,eventData)
             %conditional signal
             trade = fractal_gentrade2(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
             if ~isempty(trade)
+                if trade.opendirection_ == 1 && obj.hasLongPosition(code_i)
+                    continue;
+                end
+                if trade.opendirection_ == -1 && obj.hasShortPosition(code_i)
+                    continue;
+                end
                 unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
                     'usecandlelastonly',false,...
                     'debug',false,...
