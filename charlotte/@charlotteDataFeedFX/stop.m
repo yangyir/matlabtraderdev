@@ -4,5 +4,6 @@ function stop(obj)
         stop(obj.timer_);
         delete(obj.timer_);
         obj.running_ = false;
+        fprintf('fx feed stops...\n');
     end
 end

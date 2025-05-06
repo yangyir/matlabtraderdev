@@ -5,7 +5,7 @@ function nfractal = charlotte_freq2nfractal(freq)
         nfractal = 4;
     elseif strcmpi(freq,'30m')
         nfractal = 4;
-    elseif strcmpi(freq,'1h')
+    elseif strcmpi(freq,'1h') || strcmpi(freq,'60m')
         nfractal = 4;
     elseif strcmpi(freq,'4h')
         nfractal = 2;

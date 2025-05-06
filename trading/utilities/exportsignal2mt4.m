@@ -10,6 +10,22 @@ function exportsignal2mt4(signal,extrainfo,fn)
     end
     
     symbol = signal.code;
+    frequency = signal.frequency;
+    if strcmpi(frequency,'5m')
+        freqappendix = 'M5';
+    elseif strcmpi(frequency,'15m')
+        freqappendix = 'M15';
+    elseif strcmpi(frequency,'30m') 
+        freqappendix = 'M30';
+    elseif strcmpi(frequency,'60m')  || strcmpi(frequency,'1h')
+        freqappendix = 'H1';
+    elseif strcmpi(frequency,'4h')
+        freqappendix = 'H4';
+    else
+        freqappendix = 'D1';
+    end
+    
+    
     if isempty(strfind(signal.opkellied,'conditional'))
         if signal.directionkellied == 1
             cmd = 0;%OP_BUY
@@ -91,23 +107,28 @@ function exportsignal2mt4(signal,extrainfo,fn)
     end
     
     comment = signal.opkellied;
+    kelly = signal.kelly;
+    wprob = signal.wprob;
     
     if strcmpi(signal.code,'XAUUSD')
-        exportformat = '%s\t%s\t%d\t%4.2f\t%4.2f\t%s\n';
+        exportformat = '%s\t%s\t%s\t%d\t%4.2f\t%4.2f\t%s\t%4.4f\t%4.4f\n';
     elseif strcmpi(signal.code,'USDJPY')
-        exportformat = '%s\t%s\t%d\t%4.3f\t%4.3f\t%s\n';
+        exportformat = '%s\t%s\t%s\t%d\t%4.3f\t%4.3f\t%s\t%4.4f\t%4.4f\n';
     else
-        exportformat = '%s\t%s\t%d\t%4.4f\t%4.4f\t%s\n';
+        exportformat = '%s\t%s\t%s\t%d\t%4.4f\t%4.4f\t%s\t%4.4f\t%4.4f\n';
     end
     
     fid = fopen(fn,'a');
     fprintf(fid,exportformat,...
         datestr(extrainfo.px(end,1),'yyyy.mm.dd HH:MM'),...
         symbol,...
+        freqappendix,...
         cmd,...
         price,...
         stoploss,...
-        comment);
+        comment,...
+        kelly,...
+        wprob);
     
     fclose(fid);
     

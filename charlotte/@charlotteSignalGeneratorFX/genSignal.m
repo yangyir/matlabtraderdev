@@ -88,6 +88,7 @@ function [signal,ei] = genSignal(obj,code)
     
     if ~isempty(signal)
         signal.code = code;
+        signal.frequency = obj.freq_{idxfound};
         filename = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Signal\',code,'.lmx_',freqappendix,'_signals.txt'];
         exportsignal2mt4(signal,ei,filename);
     end

@@ -15,7 +15,12 @@ function [] = onNewData(obj,~,eventData)
             nindicator = nindicator + 1;
             candles_i = obj.candles_{i};
             obj.candles_{i} = [candles_i;newcandle_i];
-            if ~strcmpi(obj.codes_{i},'XAUUSD'),continue;end
+            if ~(strcmpi(obj.codes_{i},'XAUUSD') || ...
+                    strcmpi(obj.codes_{i},'EURUSD') || ...
+                    strcmpi(obj.codes_{i},'AUDUSD') || ...
+                    strcmpi(obj.codes_{i},'USDCHF')) 
+                continue;
+            end
             obj.signals_{i} = obj.genSignal(obj.codes_{i});
             if ~isempty(obj.signals_{i})
                 nsignal = nsignal + 1;
@@ -47,17 +52,22 @@ function [] = onNewData(obj,~,eventData)
             signal_name = '';
         end
         if i == 1
-            fprintf('%10s%10s%14s%10s%10s%8s%8s%10s%10s%10s%10s%10s%10s%11s%11s%20s\n',...
-                        'Code','Last','Datetime(ldn)','HH','LL','BS','SS','LevelUp','LevelDn','Jaw','Teeth','Lips','Signal','Kelly','WinP','OP');
+            fprintf('%10s%10s%14s%10s%10s%8s%8s%10s%10s%10s%10s%10s%10s%11s%11s%30s\n',...
+                        'Code','Last','Datetime(ldn)','HH','LL','BS','SS','LevelUp','LevelDn','Jaw','Teeth','Lips','Signal','Kelly','WinP','SignalName');
         end
         if strcmpi(obj.codes_{i},'USDJPY')
-            dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.3f%10.3f%10.3f%10d%10.1f%%%10.1f%%%20s\n';
+            dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.3f%10.3f%10.3f%10d%10.1f%%%10.1f%%%30s\n';
         elseif strcmpi(obj.codes_{i},'XAUUSD')
-            dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.2f%10.2f%10.2f%10d%10.1f%%%10.1f%%%20s\n';
+            dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.2f%10.2f%10.2f%10d%10.1f%%%10.1f%%%30s\n';
         else
-            dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.4f%10.4f%10.4f%10d%10.1f%%%10.1f%%%20s\n';
+            dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.4f%10.4f%10.4f%10d%10.1f%%%10.1f%%%30s\n';
         end
-        if ~strcmpi(obj.codes_{i},'XAUUSD'),continue;end
+        if ~(strcmpi(obj.codes_{i},'XAUUSD') || ...
+                    strcmpi(obj.codes_{i},'EURUSD') || ...
+                    strcmpi(obj.codes_{i},'AUDUSD') || ...
+                    strcmpi(obj.codes_{i},'USDCHF'))
+            continue;
+        end
         fprintf(dataformat,obj.codes_{i},...
             num2str(obj.extrainfo_{i}.px(end,5)),...
             datestr(obj.extrainfo_{i}.px(end,1),'dd-mmm HH:MM'),...

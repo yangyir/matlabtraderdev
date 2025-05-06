@@ -111,6 +111,7 @@ for i = 1:n
         ticksizeratio = 0;
     elseif freq == 60
         freqstr = '60m';
+        ticksizeratio = 1;
     elseif freq == 1440
         freqstr = 'daily';
         ticksizeratio = 1;

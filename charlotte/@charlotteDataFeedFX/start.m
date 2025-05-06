@@ -7,5 +7,6 @@ function start(obj)
             'Period', obj.updateinterval_, ...
             'TimerFcn', @(~,~)obj.generateNewData);
         start(obj.timer_);
+        fprintf('fx feed starts...\n');
     end
 end
