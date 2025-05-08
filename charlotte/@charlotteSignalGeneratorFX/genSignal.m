@@ -24,7 +24,6 @@ function [signal,ei] = genSignal(obj,code)
     ei.latestdt = ei.px(end,1);
     obj.extrainfo_{idxfound} = ei;
     %
-    freqappendix = '';
     if strcmpi(obj.freq_{idxfound},'5m')
         tickratio = 0;
         freqappendix = 'M5';
@@ -72,13 +71,10 @@ function [signal,ei] = genSignal(obj,code)
             'ticksizeratio',tickratio);
         if ~isempty(signalcond)
             if signalcond.directionkellied == 1 && ei.px(end,5) > ei.teeth(end)
-%                 fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,1,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
                 signal = signalcond;
             elseif signalcond.directionkellied == -1 && ei.px(end,5) < ei.teeth(end)
-%                 fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,-1,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
                 signal = signalcond;
             else
-%                 fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,0,signalcond.opkellied,100*signalcond.kelly,100*signalcond.wprob);
                 signal = signalcond;
             end
         else

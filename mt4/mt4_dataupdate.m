@@ -27,7 +27,7 @@ function [ret] = mt4_dataupdate(code)
     for i = 1:5
         try
             data = load([folder,fns_out{i}]);
-            datamat_existing = data.datamat;
+            datamat_existing = data.data;
         catch
             datamat_existing = [];
         end
@@ -53,12 +53,13 @@ function [ret] = mt4_dataupdate(code)
         %
         if ~isempty(datamat_existing)
             lastdt = datamat_existing(end,1);
-            idxadded = datamat_new(:,1) > lastdt;
+            idxadded = datamat_new(:,1) >= lastdt;
             datamat_added = datamat_new(idxadded,:);
             if isempty(datamat_added)
                 data = datamat_existing;
             else
-                data = [datamat_existing;datamat_added];
+                %the last bar might not be completed upon downloading
+                data = [datamat_existing(1:end-1,:);datamat_added];
             end
         else
             data = datamat_new;

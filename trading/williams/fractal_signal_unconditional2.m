@@ -310,6 +310,9 @@ function [output] = fractal_signal_unconditional2(varargin)
                     signal_i(1) = 0;
                     signal_i(4) = 0;
                 end
+            elseif ~(kelly >= 0.088 && wprob >= 0.3) && strcmpi(op.comment,'volblowup')
+                signal_i(1) = 0;
+                signal_i(4) = 0;
             else
                 %special case found on backest of y2409 on
                 %20240802
@@ -509,7 +512,10 @@ function [output] = fractal_signal_unconditional2(varargin)
                 else
                     signal_i(1) = 0;
                     signal_i(4) = 0;
-                end 
+                end
+            elseif ~(kelly>=0.088 && wprob >= 0.3) && strcmpi(op.comment,'volblowup')
+                signal_i(1) = 0;
+                signal_i(4) = 0;
             else
                 %special case
                 if ei.bs(end-1) >= 9

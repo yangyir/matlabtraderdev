@@ -43,7 +43,13 @@ function [] = manageRisk(obj,data)
            unwindtrade.status_ = 'closed';
            %note here:this shall be checked later in MT4 to make sure it
            %happens
-           fprintf('trade closed at %4.2f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+           if strcmpi(trade_i.code_,'XAUUSD')
+               fprintf('trade closed at %4.2f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+           elseif strcmpi(trade_i.code_,'USDJPY')
+               fprintf('trade closed at %4.3f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+           else
+               fprintf('trade closed at %4.4f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+           end
        else
            if ~isempty(signals{idxfound})
                signal = signals{idxfound};
@@ -59,6 +65,15 @@ function [] = manageRisk(obj,data)
                         trade_i.closedatetime1_ = ei{idxfound}.latestdt;
                         fut = code2instrument(trade_i.code_);
                         trade_i.closepnl_ = trade_i.opendirection_*(trade_i.closeprice_-trade_i.openprice_) /fut.tick_size * fut.tick_value;
+                        
+                        if strcmpi(trade_i.code_,'XAUUSD')
+                            fprintf('trade closed at %4.2f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+                        elseif strcmpi(trade_i.code_,'USDJPY')
+                            fprintf('trade closed at %4.3f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+                        else
+                            fprintf('trade closed at %4.4f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+                        end
+                        
                    end
                end
            end
@@ -66,7 +81,25 @@ function [] = manageRisk(obj,data)
            if ~strcmpi(trade_i.status_,'closed')
                fprintf('stoploss:%4.4f\n',trade_i.riskmanager_.pxstoploss_);
            end
+           
        end
+       %
+       freq_i = trade_i.opensignal_.frequency_;
+       if strcmpi(freq_i,'5m')
+           freqappendix = 'M5';
+       elseif strcmpi(freq_i,'15m')
+           freqappendix = 'M15';
+       elseif strcmpi(freq_i,'30m')
+           freqappendix = 'M30';
+       elseif strcmpi(freq_i,'60m')  || strcmpi(freq_i,'1h')
+           freqappendix = 'H1';
+       elseif strcmpi(freq_i,'4h')
+           freqappendix = 'H4';
+       else
+           freqappendix = 'D1';
+       end
+       filename = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Trade\',trade_i.code_,'.lmx_',freqappendix,'_trades.txt'];
+       exporttrade2mt4(trade_i,ei{idxfound},filename);
         
     end
     

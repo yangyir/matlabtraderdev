@@ -47,6 +47,8 @@ function [] = onNewSignal(obj,~,eventData)
                         obj.book_.push(trade);
                     end
                 end
+            elseif signal_i.directionkellied == -1 && obj.hasShortPosition(code_i)
+                %
             end
         else
             %conditional signal
@@ -70,6 +72,23 @@ function [] = onNewSignal(obj,~,eventData)
                     trade.status_ = 'closed';
                 end
                 obj.book_.push(trade);
+                
+                if strcmpi(freq_i,'5m')
+                    freqappendix = 'M5';
+                elseif strcmpi(freq_i,'15m')
+                    freqappendix = 'M15';
+                elseif strcmpi(freq_i,'30m')
+                    freqappendix = 'M30';
+                elseif strcmpi(freq_i,'60m')  || strcmpi(freq_i,'1h')
+                    freqappendix = 'H1';
+                elseif strcmpi(freq_i,'4h')
+                    freqappendix = 'H4';
+                else
+                    freqappendix = 'D1';
+                end
+                filename = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Trade\',code_i,'.lmx_',freqappendix,'_trades.txt'];
+                exporttrade2mt4(trade,ei_i,filename);
+                
             end
         end
     end
