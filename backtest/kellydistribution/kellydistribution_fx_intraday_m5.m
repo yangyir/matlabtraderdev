@@ -1,11 +1,11 @@
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 strat_fx_5m_existing = load([dir_,'strat_fx_5m.mat']);
 strat_fx_5m_existing = strat_fx_5m_existing.strat_fx_5m;
-%%
+%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
 freq_5m = '5m';
 nfractal_5m = charlotte_freq2nfracal(freq_5m);
-
+%%
 output_fx_5m = fractal_kelly_summary('codes',codes_fx,...
     'frequency',['intraday-',freq_5m],'usefractalupdate',0,'usefibonacci',1,'direction','both',...
     'nfractal',nfractal_5m);
@@ -18,7 +18,7 @@ parfor i = 1:size(codes_fx,1)
     [~,ei] = charlotte_loaddata('futcode',codes_fx{i},'frequency',freq_5m,'nfractal',nfractal_5m);
     dt1 = datestr(ei.px(1,1),'yyyy-mm-dd');
     dt2 = datestr(ei.px(end,1),'yyyy-mm-dd');
-    [~,~,tbl2check_fx_5m{i}] = charlotte_backtest_period('code',codes_fx{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_fx_5m,'showlogs',false,'doplot',false,'frequency',freq_5m,'nfractal',nfractal_5m);
+    [~,~,tbl2check_fx_5m{i}] = charlotte_backtest_period('code',codes_fx{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_fx_5m_existing,'showlogs',false,'doplot',false,'frequency',freq_5m,'nfractal',nfractal_5m);
 end
 tbl2check_fx_5m_all = tbl2check_fx_5m{1};
 for i = 2:size(codes_fx,1)
