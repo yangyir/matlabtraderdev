@@ -87,7 +87,11 @@ fn_ = [dir_data_,code_wind,'_daily.txt'];
 
 try
     wdata = w.ds_.wss(code_wind_,'ipo_date');
-    startdate = datenum(wdata{1});
+    try
+        startdate = datenum(wdata{1},'dd/mm/yyyy');
+    catch
+        startdate = datenum(wdata{1});
+    end
 catch
     startdate = datenum('2010-01-01','yyyy-mm-dd');
 end

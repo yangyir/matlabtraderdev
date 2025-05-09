@@ -37,9 +37,9 @@ function [] = init_wind(obj,w)
     obj.tick_size = tickSize;
     obj.tick_value = obj.contract_size*obj.tick_size;
     
-    obj.first_trade_date1 = datenum(wdata{1,3});
+    obj.first_trade_date1 = datenum(wdata{1,3},'dd/mm/yyyy');
     obj.first_trade_date2 = datestr(obj.first_trade_date1,'yyyy-mm-dd');
-    obj.last_trade_date1 = datenum(wdata{1,4});
+    obj.last_trade_date1 = datenum(wdata{1,4},'dd/mm/yyyy');
     obj.last_trade_date2 = datestr(obj.last_trade_date1,'yyyy-mm-dd');
     
     obj.first_notice_date1 = obj.last_trade_date1;
@@ -47,7 +47,7 @@ function [] = init_wind(obj,w)
     
     obj.first_dlv_date1 = dateadd(obj.last_trade_date1,'1b');
     obj.first_dlv_date2 = datestr(obj.first_dlv_date1,'yyyy-mm-dd');
-    obj.last_dlv_date1 = datenum(wdata{1,5});
+    obj.last_dlv_date1 = datenum(wdata{1,5},'dd/mm/yyyy');
     obj.last_dlv_date2 = datestr(obj.last_dlv_date1,'yyyy-mm-dd');
     
     try

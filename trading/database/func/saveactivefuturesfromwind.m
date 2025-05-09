@@ -31,6 +31,16 @@ assetlist = {'IF.CFE';'IH.CFE';'IC.CFE';'IM.CFE';...
 nasset = size(assetlist,1);
 wdata = w.ds_.wss(assetlist,'lastdelivery_date');
 
+for i = 1:size(wdata,1)
+    try
+        dnum_i = datenum(wdata{i,1},'dd/mm/yyyy');
+        wdata{i,1} = datestr(dnum_i,'yyyy-mm-dd');
+    catch
+        wdata{i,1} = datestr(wdata{i,1},'yyyy-mm-dd');
+    end
+    
+end
+
 % list the active contract names
 futs = cell(nasset,1);
 for iasset = 1:nasset
