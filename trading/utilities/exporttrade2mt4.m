@@ -6,6 +6,27 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
         return
     end
     
+    if nargin < 3
+        freq = trade.opensignal_.frequency_;
+       if strcmpi(freq,'5m')
+           freqappendix = 'M5';
+       elseif strcmpi(freq,'15m')
+           freqappendix = 'M15';
+       elseif strcmpi(freq,'30m')
+           freqappendix = 'M30';
+       elseif strcmpi(freq,'60m')  || strcmpi(freq,'1h')
+           freqappendix = 'H1';
+       elseif strcmpi(freq,'4h')
+           freqappendix = 'H4';
+       else
+           freqappendix = 'D1';
+       end
+       
+       opendtstr = datestr(trade.opendatetime1_,'yyyymmdd');
+       
+        fn = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Trade\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+    end
+    
     symbol = trade.code_;
     frequency = trade.opensignal_.frequency_;
     if strcmpi(frequency,'5m')
@@ -27,7 +48,7 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
     else
         cmd = 1;%OP_SELL
     end
-
+    
     fid = fopen(fn,'a');
     
     if strcmpi(symbol,'XAUUSD')
@@ -35,7 +56,7 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
     elseif strcmpi(symbol,'USDJPY')
         exportformat = '%s\t%s\t%3s\t%d\t%4.3f\t%4.3f\t%s\t%s\t%s\n';
     else
-        exportformat = '%s\t%s\t%3s%d\t%4.4f\t%4.4f\t%s\t%s\t%s\n';
+        exportformat = '%s\t%s\t%3s\t%d\t%4.4f\t%4.4f\t%s\t%s\t%s\n';
     end
     
     fprintf(fid,exportformat,...

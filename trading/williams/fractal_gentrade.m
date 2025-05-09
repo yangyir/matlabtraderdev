@@ -50,6 +50,8 @@ try
         ticksize = 0.00001;%0.1bp
     elseif strcmpi(code,'usdjpy') || strcmpi(code,'eurjpy') || strcmpi(code,'gbpjpy') || strcmpi(code,'audjpy')
         ticksize = 0.001;
+    elseif strcmpi(code,'xauusd') || strcmpi(code,'xagusd')
+        ticksize = 0.01;
     elseif strcmpi(code,'usdx')
         ticksize = 0.001;
     elseif strcmpi(code,'gzhy')
@@ -139,15 +141,27 @@ if longshort == 1
                 opendt = resstruct.px(idx,1);
             end
         else
-            try
-                opendt = resstruct.px(idx+1,1)+1/86400;
-            catch
+            if ~isfx(code)
+                try
+                    opendt = resstruct.px(idx+1,1)+1/86400;
+                catch
+                    opendt = resstruct.px(idx,1);
+                end
+            else
+                %candle time is the end of the bar not the start of the bar
+                %in fx data from MT4
+                %for backtest reasons, we assume the open time is the end of
+                %the bar time
                 opendt = resstruct.px(idx,1);
             end
         end
-        try
-            openpx = resstruct.px(idx+1,2);
-        catch
+        if ~isfx(code)
+            try
+                openpx = resstruct.px(idx+1,2);
+            catch
+                openpx = resstruct.px(idx,5);
+            end
+        else
             openpx = resstruct.px(idx,5);
         end
     end
@@ -265,15 +279,23 @@ elseif longshort == -1
                 opendt = resstruct.px(idx,1);
             end
         else
-            try
-                opendt = resstruct.px(idx+1,1)+1/86400;
-            catch
+            if ~isfx(code)
+                try
+                    opendt = resstruct.px(idx+1,1)+1/86400;
+                catch
+                    opendt = resstruct.px(idx,1);
+                end
+            else
                 opendt = resstruct.px(idx,1);
             end
         end
-        try
-            openpx = resstruct.px(idx+1,2);
-        catch
+        if ~isfx(code)
+            try
+                openpx = resstruct.px(idx+1,2);
+            catch
+                openpx = resstruct.px(idx,5);
+            end
+        else
             openpx = resstruct.px(idx,5);
         end
     end

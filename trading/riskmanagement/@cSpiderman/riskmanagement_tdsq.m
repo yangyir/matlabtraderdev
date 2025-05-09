@@ -34,12 +34,20 @@ function [ unwindtrade ] = riskmanagement_tdsq( obj,varargin )
                 trade.closeprice_ = extrainfo.p(end,5);
             else
                 try
-                    trade.closedatetime1_ = extrainfo.latestdt;
+                    if ~isfx(trade.code_)
+                        trade.closedatetime1_ = extrainfo.latestdt;
+                    else
+                        trade.closedatetime1_ = extrainfo.p(end,1);
+                    end
                 catch
                     trade.closedatetime1_ = extrainfo.p(end,1);
                 end
                 try
-                    trade.closeprice_ = extrainfo.latestopen;
+                    if ~isfx(trade.code_)
+                        trade.closeprice_ = extrainfo.latestopen;
+                    else
+                        trade.closeprice_ = extrainfo.p(end,5);
+                    end
                 catch
                     trade.closeprice_ = extrainfo.p(end,5);
                 end

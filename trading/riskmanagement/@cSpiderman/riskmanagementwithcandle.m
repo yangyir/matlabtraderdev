@@ -45,21 +45,43 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         obj.setspiderman('extrainfo',extrainfo);
     end
     
+    if ~isfx(trade.code_)
+        if strcmpi(trade.opensignal_.frequency_,'daily')
+            idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first')+1;
+        else
+            idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
+        end
+    else
+        if strcmpi(trade.opensignal_.frequency_,'daily')
+            idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first')+1;
+        else
+            if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+                idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
+            else
+                idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
+            end
+        end
+    end
+    if isempty(idxstart2check), return; end
+    if idxstart2check > size(extrainfo.p,1), return;end
+    
     if ~usecandlelastonly
-        unwindtrade = obj.candlehighlow(candleTime,candleOpen,candleHigh,candleLow,updatepnlforclosedtrade);
-        if ~isempty(unwindtrade)
-            return
-        end  
+        if size(extrainfo.p,1) > idxstart2check
+            unwindtrade = obj.candlehighlow(candleTime,candleOpen,candleHigh,candleLow,updatepnlforclosedtrade);
+            if ~isempty(unwindtrade)
+                return
+            end
+        elseif size(extrainfo.p,1) == idxstart2check
+            if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+                unwindtrade = obj.candlehighlow(candleTime,candleOpen,candleHigh,candleLow,updatepnlforclosedtrade);
+            else
+                %do nothing
+            end
+        end
     end
     % for cETFWatcher useage only
     if runhighlowonly, return;end
     
-    if strcmpi(trade.opensignal_.frequency_,'daily')
-        idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first')+1;
-    else
-        idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last')-1;
-    end
-    if isempty(idxstart2check), return; end
     
     %note:20200926:further check whether the trade is open with conditional
     %entrust executed but in fact the close price did not breach the
@@ -94,8 +116,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         end
         if unwindflag
             if ~runriskmanagementbeforemktclose
-                trade.closedatetime1_ = extrainfo.latestdt;
-                trade.closeprice_ = extrainfo.latestopen;
+                if ~isfx(trade.code_)
+                    trade.closedatetime1_ = extrainfo.latestdt;
+                    trade.closeprice_ = extrainfo.latestopen;
+                else
+                    trade.closedatetime1_ = extrainfo.p(end,1);
+                    trade.closeprice_ = extrainfo.p(end,5);
+                end
             else
                 trade.closedatetime1_ = extrainfo.p(end,1);
                 trade.closeprice_ = extrainfo.p(end,5);
@@ -288,8 +315,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             end
             %
             if closeflag
-                obj.trade_.closedatetime1_ = extrainfo.latestdt;
-                obj.trade_.closeprice_ = extrainfo.latestopen;
+                if ~isfx(trade.code_)
+                    obj.trade_.closedatetime1_ = extrainfo.latestdt;
+                    obj.trade_.closeprice_ = extrainfo.latestopen;
+                else
+                    obj.trade_.closedatetime1_ = extrainfo.p(end,1);
+                    obj.trade_.closeprice_ = extrainfo.p(end,5);
+                end
                 volume = trade.openvolume_;
                 obj.status_ = 'closed';
                 obj.closestr_ = closestr;

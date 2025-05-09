@@ -15,10 +15,8 @@ function [] = onNewData(obj,~,eventData)
             nindicator = nindicator + 1;
             candles_i = obj.candles_{i};
             obj.candles_{i} = [candles_i;newcandle_i];
-            if ~(strcmpi(obj.codes_{i},'XAUUSD') || ...
-                    strcmpi(obj.codes_{i},'EURUSD') || ...
-                    strcmpi(obj.codes_{i},'AUDUSD') || ...
-                    strcmpi(obj.codes_{i},'USDCHF')) 
+            if ~obj.calcflag_(i)
+%                 close(figure(i+4));
                 continue;
             end
             obj.signals_{i} = obj.genSignal(obj.codes_{i});
@@ -29,7 +27,35 @@ function [] = onNewData(obj,~,eventData)
         %
     end
     
+    if nindicator > 0
+        data = struct('codes_',{obj.codes_},...
+            'ei_',{obj.extrainfo_},...
+            'kellytables_',{obj.kellytables_},...
+            'signals_',{obj.signals_});
+        notify(obj,'NewIndicatorGenerated',charlotteDataFeedEventData(data));
+    end
+    
+    if nsignal > 0
+        data = struct('signals_',{obj.signals_},...
+            'ei_',{obj.extrainfo_},...
+            'codes_',{obj.codes_},...
+            'freq_',{obj.freq_},...
+            'kellytables_',{obj.kellytables_});
+        notify(obj,'NewSignalGenerated',charlotteDataFeedEventData(data));
+    end
+    
+    if ~obj.printSignal_, return; end
+    
     for i = 1:ncodes
+        %
+        if i == 1
+            fprintf('%10s%10s%14s%10s%10s%8s%8s%10s%10s%10s%10s%10s%10s%11s%11s%30s\n',...
+                        'Code','Last','Datetime(ldn)','HH','LL','BS','SS','LevelUp','LevelDn','Jaw','Teeth','Lips','Signal','Kelly','WinP','SignalName');
+        end
+        
+        if ~obj.calcflag_(i) 
+            continue;
+        end
         signal_i = obj.signals_{i};
         try
             signal_direction = signal_i.directionkellied;
@@ -51,10 +77,7 @@ function [] = onNewData(obj,~,eventData)
         catch
             signal_name = '';
         end
-        if i == 1
-            fprintf('%10s%10s%14s%10s%10s%8s%8s%10s%10s%10s%10s%10s%10s%11s%11s%30s\n',...
-                        'Code','Last','Datetime(ldn)','HH','LL','BS','SS','LevelUp','LevelDn','Jaw','Teeth','Lips','Signal','Kelly','WinP','SignalName');
-        end
+        
         if strcmpi(obj.codes_{i},'USDJPY')
             dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.3f%10.3f%10.3f%10d%10.1f%%%10.1f%%%30s\n';
         elseif strcmpi(obj.codes_{i},'XAUUSD')
@@ -62,12 +85,7 @@ function [] = onNewData(obj,~,eventData)
         else
             dataformat = '%10s%10s%14s%10s%10s%8s%8s%10s%10s%10.4f%10.4f%10.4f%10d%10.1f%%%10.1f%%%30s\n';
         end
-        if ~(strcmpi(obj.codes_{i},'XAUUSD') || ...
-                    strcmpi(obj.codes_{i},'EURUSD') || ...
-                    strcmpi(obj.codes_{i},'AUDUSD') || ...
-                    strcmpi(obj.codes_{i},'USDCHF'))
-            continue;
-        end
+        
         fprintf(dataformat,obj.codes_{i},...
             num2str(obj.extrainfo_{i}.px(end,5)),...
             datestr(obj.extrainfo_{i}.px(end,1),'dd-mmm HH:MM'),...
@@ -84,27 +102,11 @@ function [] = onNewData(obj,~,eventData)
             signal_kelly*100,...
             signal_wprob*100,...
             signal_name);
+        if i == ncodes
+            fprintf('\n');
+        end     
     end
     fprintf('\n');
     
-    if nindicator > 0
-        data = struct('codes_',{obj.codes_},...
-            'ei_',{obj.extrainfo_},...
-            'kellytables_',{obj.kellytables_},...
-            'signals_',{obj.signals_});
-        notify(obj,'NewIndicatorGenerated',charlotteDataFeedEventData(data));
-    end
-    
-    if nsignal > 0
-        data = struct('signals_',{obj.signals_},...
-            'ei_',{obj.extrainfo_},...
-            'codes_',{obj.codes_},...
-            'freq_',{obj.freq_},...
-            'kellytables_',{obj.kellytables_});
-        notify(obj,'NewSignalGenerated',charlotteDataFeedEventData(data));
-    end
-    
-    
-    fprintf('\n');
     
 end

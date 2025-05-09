@@ -9,6 +9,8 @@ classdef charlotteSignalGeneratorFX < handle
         codes_@cell
         signals_@cell
         extrainfo_@cell
+        calcflag_@double
+        printSignal_@logical
     end
     
     properties (Access = private)
@@ -26,6 +28,7 @@ classdef charlotteSignalGeneratorFX < handle
     
     methods
         [] = onNewData(obj,~,eventData)
+        [] = setCalcFlag(obj,code,flag)
     end
     
     methods (Access = private)

@@ -9,6 +9,7 @@ function exportsignal2mt4(signal,extrainfo,fn)
         return
     end
     
+        
     symbol = signal.code;
     frequency = signal.frequency;
     if strcmpi(frequency,'5m')
@@ -23,6 +24,10 @@ function exportsignal2mt4(signal,extrainfo,fn)
         freqappendix = 'H4';
     else
         freqappendix = 'D1';
+    end
+    
+    if nargin < 3
+        fn = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Signal\',symbol,'.lmx_',freqappendix,'_signals_',datestr(extrainfo.px(end,1),'yyyymmdd'),'.txt'];
     end
     
     

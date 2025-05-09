@@ -84,22 +84,7 @@ function [] = manageRisk(obj,data)
            
        end
        %
-       freq_i = trade_i.opensignal_.frequency_;
-       if strcmpi(freq_i,'5m')
-           freqappendix = 'M5';
-       elseif strcmpi(freq_i,'15m')
-           freqappendix = 'M15';
-       elseif strcmpi(freq_i,'30m')
-           freqappendix = 'M30';
-       elseif strcmpi(freq_i,'60m')  || strcmpi(freq_i,'1h')
-           freqappendix = 'H1';
-       elseif strcmpi(freq_i,'4h')
-           freqappendix = 'H4';
-       else
-           freqappendix = 'D1';
-       end
-       filename = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Trade\',trade_i.code_,'.lmx_',freqappendix,'_trades.txt'];
-       exporttrade2mt4(trade_i,ei{idxfound},filename);
+       exporttrade2mt4(trade_i,ei{idxfound});
         
     end
     

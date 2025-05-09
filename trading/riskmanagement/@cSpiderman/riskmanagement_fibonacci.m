@@ -69,8 +69,13 @@ function [ unwindtrade ] = riskmanagement_fibonacci( obj,varargin )
                 end
             end
             try
-                trade.closedatetime1_ = extrainfo.latestdt;
-                trade.closeprice_ = extrainfo.latestopen;
+                if ~isfx(trade.code_)
+                    trade.closedatetime1_ = extrainfo.latestdt;
+                    trade.closeprice_ = extrainfo.latestopen;
+                else
+                    trade.closedatetime1_ = extrainfo.p(end,1);
+                    trade.closeprice_ = extrainfo.p(end,5);
+                end
             catch
                 trade.closedatetime1_ = extrainfo.p(end,1);
                 trade.closeprice_ = extrainfo.p(end,5);

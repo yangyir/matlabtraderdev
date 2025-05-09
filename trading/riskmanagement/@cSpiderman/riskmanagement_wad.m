@@ -266,12 +266,21 @@ function [ unwindtrade ] = riskmanagement_wad( obj,varargin )
                 trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_);
             else
 %                 trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
-                trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                if ~isfx(trade.code_)
+                    trade.closepnl_ = direction*trade.openvolume_*(extrainfo.latestopen-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                else
+                    trade.closepnl_ = direction*trade.openvolume_*(extrainfo.p(end,5)-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                end
             end
 %             trade.closedatetime1_ = extrainfo.p(end,1);
 %             trade.closeprice_ = extrainfo.p(end,5);
-            trade.closedatetime1_ = extrainfo.latestdt;
-            trade.closeprice_ = extrainfo.latestopen;
+            if ~isfx(trade.code_)
+                trade.closedatetime1_ = extrainfo.latestdt;
+                trade.closeprice_ = extrainfo.latestopen;
+            else
+                trade.closedatetime1_ = extrainfo.p(end,1);
+                trade.closeprice_ = extrainfo.p(end,5);
+            end
         end
     end
 

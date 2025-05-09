@@ -22,8 +22,8 @@ classdef charlotteTraderFX < handle
         [] = onOpenNewTrade(obj,~,eventData)
         [] = onCloseExistingTrade(obj,~,eventData)
         %
-        [ret,trade] = hasLongPosition(obj,code)
-        [ret,trade] = hasShortPosition(obj,code)
+        [ret,trade] = hasLongPosition(obj,code,varargin)
+        [ret,trade] = hasShortPosition(obj,code,varargin)
         %
         
     end

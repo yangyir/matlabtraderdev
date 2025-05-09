@@ -26,22 +26,22 @@ function [signal,ei] = genSignal(obj,code)
     %
     if strcmpi(obj.freq_{idxfound},'5m')
         tickratio = 0;
-        freqappendix = 'M5';
+%         freqappendix = 'M5';
     elseif strcmpi(obj.freq_{idxfound},'15m')
         tickratio = 0.5;
-        freqappendix = 'M15';
+%         freqappendix = 'M15';
     elseif strcmpi(obj.freq_{idxfound},'30m') 
         tickratio = 0.5;
-        freqappendix = 'M30';
+%         freqappendix = 'M30';
     elseif strcmpi(obj.freq_{idxfound},'60m')  || strcmpi(obj.freq_{idxfound},'1h')
         tickratio = 1;
-        freqappendix = 'H1';
+%         freqappendix = 'H1';
     elseif strcmpi(obj.freq_{idxfound},'4h')
         tickratio = 1;
-        freqappendix = 'H4';
+%         freqappendix = 'H4';
     else
         tickratio = 1;
-        freqappendix = 'D1';
+%         freqappendix = 'D1';
     end
     
     signaluncond = fractal_signal_unconditional2('extrainfo',ei,...
@@ -85,8 +85,8 @@ function [signal,ei] = genSignal(obj,code)
     if ~isempty(signal)
         signal.code = code;
         signal.frequency = obj.freq_{idxfound};
-        filename = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Signal\',code,'.lmx_',freqappendix,'_signals.txt'];
-        exportsignal2mt4(signal,ei,filename);
+%         filename = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Signal\',code,'.lmx_',freqappendix,'_signals.txt'];
+        exportsignal2mt4(signal,ei);
     end
     
     ei2plot = fractal_truncate(ei,size(ei.px,1),max(size(ei.px,1)-100,1));

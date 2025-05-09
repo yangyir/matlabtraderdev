@@ -156,8 +156,13 @@ function [ unwindtrade ] = riskmanagement_fractal( obj,varargin )
         if updatepnlforclosedtrade
 %             trade.status_ = 'closed';
             trade.runningpnl_ = 0;
-            trade.closeprice_ = extrainfo.latestopen;
-            trade.closedatetime1_ = extrainfo.latestdt;
+            if ~isfx(trade.code_)
+                trade.closeprice_ = extrainfo.latestopen;
+                trade.closedatetime1_ = extrainfo.latestdt;
+            else
+                trade.closeprice_ = extrainfo.p(end,5);
+                trade.closedatetime1_ = extrainfo.p(end,1);
+            end
             if isempty(trade.instrument_)
                 trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_);
             else
