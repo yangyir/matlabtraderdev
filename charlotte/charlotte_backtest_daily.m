@@ -321,20 +321,25 @@ while i <= idx2
                            (~strcmpi(output.op.comment,trade.opensignal_.mode_) && ...
                            (output.kelly < 0 || isnan(output.kelly))))
                        
-%                        exceptionflag =  trade.opensignal_.kelly_ > 0.3 && ...
-%                            ~isempty(strfind(trade.opensignal_.mode_,'volblowup'));
-%                        if ~exceptionflag
-                           trade.status_ = 'closed';
-                           trade.riskmanager_.status_ = 'closed';
-                           trade.riskmanager_.closestr_ = ['kelly is too low: ',num2str(output.kelly)];
-                           trade.runningpnl_ = 0;
+                       %                        exceptionflag =  trade.opensignal_.kelly_ > 0.3 && ...
+                       %                            ~isempty(strfind(trade.opensignal_.mode_,'volblowup'));
+                       %                        if ~exceptionflag
+                       trade.status_ = 'closed';
+                       trade.riskmanager_.status_ = 'closed';
+                       trade.riskmanager_.closestr_ = ['kelly is too low: ',num2str(output.kelly)];
+                       trade.runningpnl_ = 0;
+                       if ~isfx(trade.code_)
                            trade.closeprice_ = ei_j.latestopen;
                            trade.closedatetime1_ = ei_j.latestdt;
-                           trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
-                           tradeout = trade;
-                           unwindedtrades.push(tradeout);
-                           break
-%                        end
+                       else
+                           trade.closeprice_ = ei_j.px(end,5);
+                           trade.closedatetime1_ = ei_j.px(end,1);
+                       end
+                       trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
+                       tradeout = trade;
+                       unwindedtrades.push(tradeout);
+                       break
+                       %                        end
                    end
                end
                %
@@ -368,13 +373,18 @@ while i <= idx2
                            samesignal = 0;
                        end
                            
-                       if samesignal || (~samesignal && (output2.kelly < 0 || isnan(output2.kelly))) 
+                       if samesignal || (~samesignal && (output2.kelly < 0 || isnan(output2.kelly)))
                            trade.status_ = 'closed';
                            trade.riskmanager_.status_ = 'closed';
                            trade.riskmanager_.closestr_ = ['conditional kelly is too low: ',num2str(output2.kelly)];
                            trade.runningpnl_ = 0;
-                           trade.closeprice_ = ei_j.latestopen;
-                           trade.closedatetime1_ = ei_j.latestdt;
+                           if ~isfx(trade.code_)
+                               trade.closeprice_ = ei_j.latestopen;
+                               trade.closedatetime1_ = ei_j.latestdt;
+                           else
+                               trade.closeprice_ = ei_j.px(end,5);
+                               trade.closedatetime1_ = ei_j.px(end,1);
+                           end
                            trade.closepnl_ = trade.opendirection_*(trade.closeprice_-trade.openprice_) /fut.tick_size * fut.tick_value;
                            tradeout = trade;
                            unwindedtrades.push(tradeout);

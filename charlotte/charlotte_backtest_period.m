@@ -260,7 +260,17 @@ else
     for i = 1:n
         t_i = unwindedtrades.node_(i);
         if showlogsflag
-            fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\t%40s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
+            if ~isfx(t_i.code_)
+                fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\t%40s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
+            else
+                if strcmpi(t_i.code_,'xauusd') || strcmpi(t_i.code_,'xagusd')
+                    fprintf('\t%6s\t%3d\t%20s\t%3.2f\t%20s\t%3.2f\t%30s\t%40s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
+                elseif strcmpi(t_i.code_,'usdjpy')
+                    fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\t%40s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
+                else
+                    fprintf('\t%6s\t%3d\t%20s\t%3.4f\t%20s\t%3.4f\t%30s\t%40s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
+                end
+            end
         end
         code{i} = t_i.code_;
         direction(i) = t_i.opendirection_;
@@ -280,7 +290,17 @@ else
         if showlogsflag, fprintf('carried trade:\n');end
         t_i = carriedtrades.node_(1);
         if showlogsflag
-            fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
+            if ~isfx(t_i.code_)
+                fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
+            else
+                if strcmpi(t_i.code_,'xauusd') || strcmpi(t_i.code_,'xagusd')
+                    fprintf('\t%6s\t%3d\t%20s\t%3.2f\t%20s\t%3.2f\t%30s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
+                elseif strcmpi(t_i.code_,'usdjpy')
+                    fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
+                else
+                    fprintf('\t%6s\t%3d\t%20s\t%3.4f\t%20s\t%3.4f\t%30s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
+                end
+            end
         end
     end
 end
