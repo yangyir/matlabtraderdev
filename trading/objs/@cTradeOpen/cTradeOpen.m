@@ -50,7 +50,9 @@ classdef cTradeOpen < handle
         
         function set.opendirection_(obj,direction)
             if ~isempty(direction)
-                if ~(direction == 1 || direction == -1), error('cTrade:invalid open direction');end
+                if ~(direction == 1 || direction == -1 || direction == 2 || direction == -2)
+                    error('cTrade:invalid open direction');
+                end
                 obj.opendirection_ = direction;
             end
         end

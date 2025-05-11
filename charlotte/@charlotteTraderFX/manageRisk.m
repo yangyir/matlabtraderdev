@@ -53,7 +53,7 @@ function [] = manageRisk(obj,data)
        else
            if ~isempty(signals{idxfound})
                signal = signals{idxfound};
-               if isempty(strfind(signal.opkellied,'conditional')) && isempty(strfind(signal.opkellied,'potential'))
+               if isempty(strfind(signal.opkellied,'conditional')) && isempty(strfind(signal.opkellied,'potential')) && isempty(strfind(signal.opkellied,'not to place'))
                    if signal.directionkellied == 0 && (strcmpi(signal.op.comment,trade_i.opensignal_.mode_) || ...
                            (~strcmpi(signal.op.comment,trade_i.opensignal_.mode_) && ...
                            (signal.kelly < 0 || isnan(signal.kelly))))
@@ -61,8 +61,8 @@ function [] = manageRisk(obj,data)
                         trade_i.riskmanager_.status_ = 'closed';
                         trade_i.riskmanager_.closestr_ = ['kelly is too low: ',num2str(signal.kelly)];
                         trade_i.runningpnl_ = 0;
-                        trade_i.closeprice_ = ei{idxfound}.latestopen;
-                        trade_i.closedatetime1_ = ei{idxfound}.latestdt;
+                        trade_i.closeprice_ = ei{idxfound}.px(end,5);
+                        trade_i.closedatetime1_ = ei{idxfound}.px(end,1);
                         fut = code2instrument(trade_i.code_);
                         trade_i.closepnl_ = trade_i.opendirection_*(trade_i.closeprice_-trade_i.openprice_) /fut.tick_size * fut.tick_value;
                         
@@ -74,6 +74,49 @@ function [] = manageRisk(obj,data)
                             fprintf('trade closed at %4.4f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
                         end
                         
+                   end
+               elseif ~isempty(strfind(signal.opkellied,'conditional')) || ~isempty(strfind(signal.opkellied,'potential')) || ~isempty(strfind(signal.opkellied,'not to place'))
+                   if signal.directionkellied == 0
+                       if strcmpi(trade_i.opensignal_.mode_,'breachup-lvlup')
+                           samesignal = signal.flags.islvlupbreach;
+                       elseif strcmpi(trade_i.opensignal_,'breachup-sshighvalue')
+                           samesignal = signal.flags.issshighbreach;
+                       elseif strcmpi(trade_i.opensignal_.mode_,'breachup-highsc13')
+                           samesignal = signal.flags.isschighbreach;
+                       elseif strcmpi(trade_i.opensignal_.mode_,'breachdn-lvldn')
+                           samesignal = signal.flags.islvldnbreach;
+                       elseif strcmpi(trade_i.opensignal_.mode_,'breachdn-bshighvalue')
+                           samesignal = signal.flags.isbslowbreach;
+                       elseif strcmpi(trade_i.opensignal_.mode_,'breachdn-lowbc13')
+                           samesignal = signal.flags.isbclowbreach;
+                       elseif ~isempty(strfind(trade_i.opensignal_.mode_,'-trendconfirmed'))
+                           samesignal = 1;
+                       elseif ~isempty(strfind(trade_i.opensignal_.mode_,'-conditional'))
+                           %not yet implemented correctly 
+                           samesignal = 1;
+                       else
+                           %other non-trended signal
+                           samesignal = 0;
+                       end
+                       if samesignal || (~samesignal && (signal.kelly < 0 || isnan(signal.kelly)))
+                           trade_i.status_ = 'closed';
+                           trade_i.riskmanager_.status_ = 'closed';
+                           trade_i.riskmanager_.closestr_ = ['conditional kelly is too low: ',num2str(signal.kelly)];
+                           trade_i.runningpnl_ = 0;
+                           trade_i.closeprice_ = ei{idxfound}.px(end,5);
+                           trade_i.closedatetime1_ = ei{idxfound}.px(end,1);
+                           fut = code2instrument(trade_i.code_);
+                           trade_i.closepnl_ = trade_i.opendirection_*(trade_i.closeprice_-trade_i.openprice_) /fut.tick_size * fut.tick_value;
+                           
+                           if strcmpi(trade_i.code_,'XAUUSD')
+                               fprintf('trade closed at %4.2f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+                           elseif strcmpi(trade_i.code_,'USDJPY')
+                               fprintf('trade closed at %4.3f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+                           else
+                               fprintf('trade closed at %4.4f with pnl:%4.2f\n',trade_i.closeprice_,trade_i.closepnl_);
+                           end
+                        
+                       end
                    end
                end
            end

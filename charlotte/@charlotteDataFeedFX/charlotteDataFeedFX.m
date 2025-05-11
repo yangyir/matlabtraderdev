@@ -43,7 +43,7 @@ classdef charlotteDataFeedFX < handle
             if interval > 0
                 obj.updateinterval_ = interval;
                 obj.stop();
-                obj.start();
+%                 obj.start();
             else
                 notify(obj, 'ErrorOccurred', ...
                     charlotteErrorEventData('Interval must be positive'));

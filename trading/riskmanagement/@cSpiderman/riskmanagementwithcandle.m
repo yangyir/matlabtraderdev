@@ -72,7 +72,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 return
             end
         elseif size(extrainfo.p,1) == idxstart2check
-            if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+            if ~isempty(strfind(trade.opensignal_.mode_,'conditional')) || ~isempty(strfind(trade.opensignal_.mode_,'potential')) || ~isempty(strfind(trade.opensignal_.mode_,'not to place'))
                 unwindtrade = obj.candlehighlow(candleTime,candleOpen,candleHigh,candleLow,updatepnlforclosedtrade);
             else
                 %do nothing

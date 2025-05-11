@@ -13,5 +13,7 @@ function [] = setReplayPeriod(obj,rplfrom,rplto)
     else
         obj.replaydateto_ = datenum(rplto);
     end
+    
+    obj.updateinterval_ = 0.02;
 
 end
