@@ -49,15 +49,15 @@ else
         cp = num(idx,1:5);
     elseif isfx(code)
         if freq == 5
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_5m.mat'];
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M5.mat'];
         elseif freq == 15
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_15m.mat'];
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M15.mat'];
         elseif freq == 30
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_30m.mat'];
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M30.mat'];
         elseif freq == 60
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_60m.mat'];
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_H1.mat'];
         elseif freq == 240
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_240m.mat'];
+            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_H4.mat'];
         end
         data = load(fn);
         cp = data.data;

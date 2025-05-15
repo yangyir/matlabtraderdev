@@ -45,8 +45,14 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
     
     if trade.opendirection_ == 1
         cmd = 0;%OP_BUY
-    else
+    elseif trade.opendirection_ == -1
         cmd = 1;%OP_SELL
+    elseif trade.opendirection_ == 2
+        cmd = 4;%OP_BUYSTOP
+    elseif trade.opendirection_ == -2
+        cmd = 5;%OP_SELLSTOP
+    else
+        'haha'
     end
     
     fid = fopen(fn,'a');
