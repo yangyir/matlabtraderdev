@@ -2,6 +2,8 @@ function [] = onNewData(obj,~,eventData)
 % a charlotteSignalGeneratorFX method
     data = eventData.MarketData;
     ncodes = size(obj.codes_,1);
+    newSignals = zeros(ncodes,1);
+    newIndicators = zeros(ncodes,1);
     nsignal = 0;
     nindicator = 0;
     for i = 1:ncodes
@@ -12,7 +14,7 @@ function [] = onNewData(obj,~,eventData)
         end
         if ~isempty(data_i)
             newcandle_i = [data_i.time,data_i.open,data_i.high,data_i.low,data_i.close];
-            nindicator = nindicator + 1;
+            newIndicators(i) = 1;
             candles_i = obj.candles_{i};
             obj.candles_{i} = [candles_i;newcandle_i];
             if ~obj.calcflag_(i)
@@ -21,17 +23,21 @@ function [] = onNewData(obj,~,eventData)
             end
             obj.signals_{i} = obj.genSignal(obj.codes_{i});
             if ~isempty(obj.signals_{i})
-                nsignal = nsignal + 1;
+                newSignals(i) = 1;
             end
         end
         %
     end
     
+    nindicator = sum(newIndicators);
+    nsignal = sum(newSignals);
+    
     if nindicator > 0
         data = struct('codes_',{obj.codes_},...
             'ei_',{obj.extrainfo_},...
             'kellytables_',{obj.kellytables_},...
-            'signals_',{obj.signals_});
+            'signals_',{obj.signals_},...
+            'newindicators_',{newIndicators});
         notify(obj,'NewIndicatorGenerated',charlotteDataFeedEventData(data));
     end
     
@@ -40,7 +46,8 @@ function [] = onNewData(obj,~,eventData)
             'ei_',{obj.extrainfo_},...
             'codes_',{obj.codes_},...
             'freq_',{obj.freq_},...
-            'kellytables_',{obj.kellytables_});
+            'kellytables_',{obj.kellytables_},...
+            'newsignals_',{newSignals});
         notify(obj,'NewSignalGenerated',charlotteDataFeedEventData(data));
     end
     

@@ -18,7 +18,7 @@ function [signal,ei] = genSignal(obj,code)
     if isempty(p), return; end
     if isempty(obj.freq_{idxfound}), return;end
     
-    nfractal = charlotte_freq2nfracal(obj.freq_{idxfound});
+    nfractal = charlotte_freq2nfractal(obj.freq_{idxfound});
     [~,ei] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
     ei.latestopen = ei.px(end,5);
     ei.latestdt = ei.px(end,1);
@@ -26,22 +26,16 @@ function [signal,ei] = genSignal(obj,code)
     %
     if strcmpi(obj.freq_{idxfound},'5m')
         tickratio = 0;
-%         freqappendix = 'M5';
     elseif strcmpi(obj.freq_{idxfound},'15m')
         tickratio = 0.5;
-%         freqappendix = 'M15';
     elseif strcmpi(obj.freq_{idxfound},'30m') 
         tickratio = 0.5;
-%         freqappendix = 'M30';
     elseif strcmpi(obj.freq_{idxfound},'60m')  || strcmpi(obj.freq_{idxfound},'1h')
         tickratio = 1;
-%         freqappendix = 'H1';
     elseif strcmpi(obj.freq_{idxfound},'4h')
         tickratio = 1;
-%         freqappendix = 'H4';
     else
         tickratio = 1;
-%         freqappendix = 'D1';
     end
     
     signaluncond = fractal_signal_unconditional2('extrainfo',ei,...

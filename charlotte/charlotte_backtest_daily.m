@@ -42,6 +42,17 @@ p.parse(varargin{:});
 futcode = p.Results.code;
 testdt = p.Results.date;
 freq = p.Results.frequency;
+if strcmpi(freq,'m5')
+    freq = '5m';
+elseif strcmpi(freq,'m15')
+    freq = '15m';
+elseif strcmpi(freq,'m30')
+    freq = '30m';
+elseif strcmpi(freq,'h1')
+    freq = '1h';
+elseif strcmpi(freq,'d1')
+    freq = 'daily';
+end
 nfractal = p.Results.nfractal;
 carriedtrade = p.Results.carriedtrade;
 kellytables = p.Results.kellytables;
@@ -83,29 +94,29 @@ elseif ~isempty(strfind(fut.asset_name,'eqindex'))
 elseif isfx(fut.asset_name)
     if strcmpi(freq,'5m')
         if isempty(kellytables)
-            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_5m.mat']);
-            kellytables = data.strat_fx_daily;
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_m5.mat']);
+            kellytables = data.strat_fx_m5;
         end
         if isempty(nfractal),nfractal = 6;end
         tickratio = 0;
     elseif strcmpi(freq,'15m')
         if isempty(kellytables)
-            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_15m.mat']);
-            kellytables = data.strat_fx_daily;
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_m15.mat']);
+            kellytables = data.strat_fx_m15;
         end
         if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;
     elseif strcmpi(freq,'30m')
         if isempty(kellytables)
-            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_30m.mat']);
-            kellytables = data.strat_fx_daily;
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_m30.mat']);
+            kellytables = data.strat_fx_m30;
         end
         if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;
     elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
         if isempty(kellytables)
-            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_60m.mat']);
-            kellytables = data.strat_fx_daily;
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_h1.mat']);
+            kellytables = data.strat_fx_h1;
         end
         if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;

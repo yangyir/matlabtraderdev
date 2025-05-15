@@ -23,12 +23,25 @@ function obj = init(obj,varargin)
     obj.kellytables_ = cell(ncodes,1);
     for i = 1:ncodes
         try
-            fn_i = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_',obj.freq_{i},'.mat'];
+            if strcmpi(obj.freq_{i},'5m')
+                freq_mt4 = 'm5';
+            elseif strcmpi(obj.freq_{i},'15m')
+                freq_mt4 = 'm15';
+            elseif strcmpi(obj.freq_{i},'30m')
+                freq_mt4 = 'm30';
+            elseif strcmpi(obj.freq_{i},'1h')
+                freq_mt4 = 'h1';
+            elseif strcmpi(obj.freq_{i},'4h')
+                freq_mt4 = 'h4';
+            elseif strcmpi(obj.freq_{i},'daily')
+                freq_mt4 = 'd1';
+            end
+            fn_i = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_',freq_mt4,'.mat'];
             data_i = load(fn_i);
-            obj.kellytables_{i} = data_i.(['strat_fx_',obj.freq_{i}]);
+            obj.kellytables_{i} = data_i.(['strat_fx_',freq_mt4]);
         catch ME
             notify(obj, 'ErrorOccurred', ...
-                    charlotteErrorEventData(ME.Message));
+                    charlotteErrorEventData(ME.message));
         end
     end
     %

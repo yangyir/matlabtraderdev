@@ -9,10 +9,14 @@ function [] = onNewSignal(obj,~,eventData)
             continue;
         end
         
+        if ~data.newsignals_(i)
+            continue;
+        end
+        
         code_i = data.codes_{i};
         ei_i = data.ei_{i};
         freq_i = data.freq_{i};
-        nfractal = charlotte_freq2nfracal(freq_i);
+        nfractal = charlotte_freq2nfractal(freq_i);
         
         if isempty(strfind(signal_i.opkellied,'conditional')) && isempty(strfind(signal_i.opkellied,'potential')) && isempty(strfind(signal_i.opkellied,'not to place'))
             %unconditional signal
@@ -173,6 +177,7 @@ function [] = onNewSignal(obj,~,eventData)
                         continue;
                     end
                     obj.pendingbook_.push(pendingtrade);
+                    exporttrade2mt4(pendingtrade,ei_i);
                 end
                 %the pending trade shall be updated when new market data
                 %arrived(shall be tick in reality)

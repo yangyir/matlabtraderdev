@@ -7,11 +7,16 @@ function [] = updatePendingBook(obj,data)
     ei = data.ei_;
     kellytables = data.kellytables_;
     signals = data.signals_;
+    newindicators = data.newindicators_;
     
-%     pendingtrades2remove = cTradeOpenArray;
+    pendingtrades2remove = cTradeOpenArray;
     
     for i = 1:obj.pendingbook_.latest_
-        trade_i = obj.pendingbook_.node_(i);
+        try
+            trade_i = obj.pendingbook_.node_(i);
+        catch
+            continue;
+        end
         idxfound = 0;
         for j = 1:size(codes,1)
             if strcmpi(codes{j},trade_i.code_)
@@ -23,8 +28,16 @@ function [] = updatePendingBook(obj,data)
             notify(obj,'ErrorOccurred',charlotteErrorEventData('internal error'));
         end
         
+        if ~newindicators(idxfound)
+            continue;
+        end
+        
+        if ei{idxfound}.px(end,1) <= trade_i.opendatetime1_
+            continue;
+        end
+        
         frequency = trade_i.opensignal_.frequency_;
-        nfractal = charlotte_freq2nfracal(frequency);
+        nfractal = charlotte_freq2nfractal(frequency);
         trade = fractal_gentrade2(ei{idxfound},trade_i.code_,size(ei{idxfound}.px,1),frequency,nfractal,kellytables{idxfound});
         
         if ~isempty(trade)
@@ -32,16 +45,51 @@ function [] = updatePendingBook(obj,data)
             %and add the new trade to book
             obj.book_.push(trade);
             exporttrade2mt4(trade,ei{idxfound});
-            obj.pendingbook_.removebyindex(i);
+            pendingtrades2remove.push(trade_i);
+%             obj.pendingbook_.removebyindex(i);
         else
             if isempty(signals{idxfound})
-                obj.pendingbook_.removebyindex(i);
+                pendingtrades2remove.push(trade_i);
+%                 obj.pendingbook_.removebyindex(i);
             else
                 if signals{idxfound}.directionkellied == 0
-                    obj.pendingbook_.removebyindex(i);
+                    pendingtrades2remove.push(trade_i);
+%                     obj.pendingbook_.removebyindex(i);
                 end
             end
         end
+    end
+    
+    n2remove = pendingtrades2remove.latest_;
+    for i = 1:n2remove
+        trade2remove_i = pendingtrades2remove.node_(i);
+        trade2remove_i.status_ = 'closed';
+        for j = 1:obj.pendingbook_.latest_
+            if strcmpi(trade2remove_i.code_,obj.pendingbook_.node_(j).code_)
+                obj.pendingbook_.removebyindex(j);
+                idxfound = 0;
+                for k = 1:size(codes,1)
+                    if strcmpi(codes{k},trade2remove_i.code_)
+                        idxfound = k;
+                        break
+                    end
+                end
+                exporttrade2mt4(trade2remove_i,ei{idxfound});
+                break;
+            end
+        end
+    end
+    %
+    for i = 1:obj.pendingbook_.latest_
+        trade_i = obj.pendingbook_.node_(i);
+        idxfound = 0;
+        for j = 1:size(codes,1)
+            if strcmpi(codes{j},trade_i.code_)
+                idxfound = j;
+                break
+            end
+        end
+        exporttrade2mt4(trade_i,ei{idxfound});
     end
     
     

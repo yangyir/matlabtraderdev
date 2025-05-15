@@ -57,17 +57,17 @@ function setFrequency(obj,code,freq)
         pathdir = [getenv('onedrive'),'\Documents\fx_mt4\'];
         
         if strcmpi(freq,'5m')
-            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_5m.mat'];
+            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_M5.mat'];
         elseif strcmpi(freq,'15m')
-            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_15m.mat'];
+            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_M15.mat'];
         elseif strcmpi(freq,'30m')
-            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_30m.mat'];
+            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_M30.mat'];
         elseif strcmpi(freq,'1h')
-            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_60m.mat'];
+            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_H1.mat'];
         elseif strcmpi(freq,'4h')
-            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_4h.mat'];
+            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_H4.mat'];
         elseif strcmpi(freq,'daily')
-            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_daily.mat'];
+            obj.fn_{idxfound} = [pathdir,obj.codes_{idxfound},'_MT4_D1.mat'];
         else
             notify(obj, 'ErrorOccurred', ...
                 charlotteErrorEventData('charlotteDataFeedFX:setFrequency:invalid freq input...'));

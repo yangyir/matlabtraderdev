@@ -11,6 +11,19 @@ futcode = p.Results.futcode;
 freq = p.Results.frequency;
 nfractal = p.Results.nfractal;
 source = p.Results.source;
+
+if strcmpi(freq,'m5')
+    freq = '5m';
+elseif strcmpi(freq,'m15')
+    freq = '15m';
+elseif strcmpi(freq,'m30')
+    freq = '30m';
+elseif strcmpi(freq,'h1')
+    freq = '1h';
+elseif strcmpi(freq,'d1')
+    freq = 'daily';
+end
+
 if ~(strcmpi(freq,'30m') || ...
         strcmpi(freq,'5m') || ...
         strcmpi(freq,'15m') || ...
@@ -44,7 +57,7 @@ if strcmpi(freq,'5m')
     elseif strcmpi(instrument.asset_name,'gold')
         data =load([getenv('onedrive'),'\matlabdev\preciousmetal\au\',futcode,'_5m.mat']);
     elseif isfx(futcode)
-        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_5m.mat']);
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M5.mat']);
     end
     p = data.data;
 elseif strcmpi(freq,'15m')
@@ -60,7 +73,7 @@ elseif strcmpi(freq,'15m')
     elseif strcmpi(instrument.asset_name,'gold')
         data =load([getenv('onedrive'),'\matlabdev\preciousmetal\au\',futcode,'_15m.mat']);
     elseif isfx(futcode)
-        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_15m.mat']);
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M15.mat']);
     end
     p = data.data;
 elseif strcmpi(freq,'30m')
@@ -156,7 +169,7 @@ elseif strcmpi(freq,'30m')
     elseif strcmpi(instrument.asset_name,'carbamide')
         data =load([getenv('onedrive'),'\matlabdev\energy\ur\',futcode,'.mat']);
     elseif isfx(futcode)
-        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_30m.mat']);
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M30.mat']);
     else
         error('charlotte_loaddata:unsupported code %s...',futcode);
     end
@@ -169,7 +182,7 @@ elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
     if ~isfx(futcode)
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
-    data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_60m.mat']);
+    data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H1.mat']);
     p = data.data;
 elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     if isempty(nfractal),nfractal = 2;end
