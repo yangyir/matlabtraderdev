@@ -17,10 +17,8 @@ function [ret,trade] = hasShortPosition(obj,code,varargin)
     ret = false;
     trade = [];
     if direction == -1
-        
-        
-        
-        for i = 1:obj.book_.latest_
+        n = obj.book_.latest_;
+        for i = 1:n
             trade_i = obj.book_.node_(i);
             if isempty(closedt)
                 closedtflag = true;
@@ -34,8 +32,9 @@ function [ret,trade] = hasShortPosition(obj,code,varargin)
                 break
             end
         end
-    else
-        for i = 1:obj.pendingbook_.latest_
+    elseif direction == -2
+        n = obj.pendingbook_.latest_;
+        for i = 1:n
             trade_i = obj.pendingbook_.node_(i);
             if isempty(closedt)
                 closedtflag = true;

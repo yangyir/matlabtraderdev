@@ -47,14 +47,20 @@ function [] = updatePendingBook(obj,data)
             exporttrade2mt4(trade,ei{idxfound});
             pendingtrades2remove.push(trade_i);
 %             obj.pendingbook_.removebyindex(i);
+            %note:pending trade is activated and no need to export its
+            %status anymore
         else
             if isempty(signals{idxfound})
                 pendingtrades2remove.push(trade_i);
+                trade_i.status_ = 'closed';
 %                 obj.pendingbook_.removebyindex(i);
+                exporttrade2mt4(trade_i,ei{idxfound});
             else
                 if signals{idxfound}.directionkellied == 0
+                    trade_i.status_ = 'closed';
                     pendingtrades2remove.push(trade_i);
 %                     obj.pendingbook_.removebyindex(i);
+                    exporttrade2mt4(trade_i,ei{idxfound});
                 end
             end
         end
@@ -63,18 +69,17 @@ function [] = updatePendingBook(obj,data)
     n2remove = pendingtrades2remove.latest_;
     for i = 1:n2remove
         trade2remove_i = pendingtrades2remove.node_(i);
-        trade2remove_i.status_ = 'closed';
         for j = 1:obj.pendingbook_.latest_
             if strcmpi(trade2remove_i.code_,obj.pendingbook_.node_(j).code_)
                 obj.pendingbook_.removebyindex(j);
-                idxfound = 0;
-                for k = 1:size(codes,1)
-                    if strcmpi(codes{k},trade2remove_i.code_)
-                        idxfound = k;
-                        break
-                    end
-                end
-                exporttrade2mt4(trade2remove_i,ei{idxfound});
+%                 idxfound = 0;
+%                 for k = 1:size(codes,1)
+%                     if strcmpi(codes{k},trade2remove_i.code_)
+%                         idxfound = k;
+%                         break
+%                     end
+%                 end
+%                 exporttrade2mt4(trade2remove_i,ei{idxfound});
                 break;
             end
         end

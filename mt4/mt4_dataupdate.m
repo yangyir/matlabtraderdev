@@ -18,11 +18,11 @@ function [ret] = mt4_dataupdate(code)
     fns{5} = [code,'.lmx1440.csv'];    %DAILY
     
     fns_out = cell(5,1);
-    fns_out{1} = [code,'_MT4_5m.mat'];
-    fns_out{2} = [code,'_MT4_15m.mat'];
-    fns_out{3} = [code,'_MT4_30m.mat'];
-    fns_out{4} = [code,'_MT4_60m.mat'];
-    fns_out{5} = [code,'_MT4_daily.mat'];
+    fns_out{1} = [code,'_MT4_M5.mat'];
+    fns_out{2} = [code,'_MT4_M15.mat'];
+    fns_out{3} = [code,'_MT4_M30.mat'];
+    fns_out{4} = [code,'_MT4_H1.mat'];
+    fns_out{5} = [code,'_MT4_D1.mat'];
     
     for i = 1:5
         try
