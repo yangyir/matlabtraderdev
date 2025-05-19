@@ -20,6 +20,8 @@ elseif strcmpi(freq,'m30')
     freq = '30m';
 elseif strcmpi(freq,'h1')
     freq = '1h';
+elseif strcmpi(freq,'h4')
+    freq = '4h';
 elseif strcmpi(freq,'d1')
     freq = 'daily';
 end
@@ -28,7 +30,9 @@ if ~(strcmpi(freq,'30m') || ...
         strcmpi(freq,'5m') || ...
         strcmpi(freq,'15m') || ...
         strcmpi(freq,'60m') || ...
+        strcmpi(freq,'240m') || ...
         strcmpi(freq,'1h') || ...
+        strcmpi(freq,'4h') || ...
         strcmpi(freq,'1440m') || ...
         strcmpi(freq,'daily')) 
     error('charlotte_loaddata:invalid frequency input,must be 30m,5m,15m,1440m and daily only...')
@@ -184,6 +188,13 @@ elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
     end
     data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H1.mat']);
     p = data.data;
+elseif strcmpi(freq,'240m') || strcmpi(freq,'4h')
+    if isempty(nfractal),nfractal = 2;end
+    if ~isfx(futcode)
+        error('charlotte_loaddata:intraday data load failure,pls check!!!')
+    end
+    data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H4.mat']);
+    p = data.data;    
 elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     if isempty(nfractal),nfractal = 2;end
     if strcmpi(futcode,'brent') || strcmpi(futcode,'wti')

@@ -112,6 +112,9 @@ for i = 1:n
     elseif freq == 60
         freqstr = '60m';
         ticksizeratio = 1;
+    elseif freq == 240
+        freqstr = '240m';
+        ticksizeratio = 1;
     elseif freq == 1440
         freqstr = 'daily';
         ticksizeratio = 1;

@@ -50,6 +50,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         ticksizeratio = 0.5;
     elseif strcmpi(freq_,'5m')
         ticksizeratio = 0;
+    elseif strcmpi(freq_,'1h') || strcmpi(freq_,'60m')
+        ticksizeratio = 1;
+    elseif strcmpi(freq_,'4h') || strcmpi(freq_,'240m')
+        ticksizeratio = 1;    
     elseif strcmpi(freq_,'1440m') || strcmpi(freq_,'daily')
         ticksizeratio = 1;
     end

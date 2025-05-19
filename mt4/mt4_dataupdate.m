@@ -10,21 +10,23 @@ function [ret] = mt4_dataupdate(code)
     
     folder = [getenv('onedrive'),'\Documents\fx_mt4\'];
     code = upper(code);
-    fns = cell(5,1);
+    fns = cell(6,1);
     fns{1} = [code,'.lmx5.csv'];       %5min
     fns{2} = [code,'.lmx15.csv'];      %15min
     fns{3} = [code,'.lmx30.csv'];      %30min
     fns{4} = [code,'.lmx60.csv'];      %1H
-    fns{5} = [code,'.lmx1440.csv'];    %DAILY
+    fns{5} = [code,'.lmx240.csv'];     %4H
+    fns{6} = [code,'.lmx1440.csv'];    %DAILY
     
-    fns_out = cell(5,1);
+    fns_out = cell(6,1);
     fns_out{1} = [code,'_MT4_M5.mat'];
     fns_out{2} = [code,'_MT4_M15.mat'];
     fns_out{3} = [code,'_MT4_M30.mat'];
     fns_out{4} = [code,'_MT4_H1.mat'];
-    fns_out{5} = [code,'_MT4_D1.mat'];
+    fns_out{5} = [code,'_MT4_H4.mat'];
+    fns_out{6} = [code,'_MT4_D1.mat'];
     
-    for i = 1:5
+    for i = 1:6
         try
             data = load([folder,fns_out{i}]);
             datamat_existing = data.data;

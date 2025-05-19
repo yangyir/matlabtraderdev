@@ -263,7 +263,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                     wprob = 0;
                 end
             end
-            signal_i(8) = kelly;
+            try
+                signal_i(8) = kelly;
+            catch
+                signal_i(8) = -9.99;
+            end
             %%NOTE:here kelly or wprob threshold shall be set
             %%via configuration files,TODO:
             if ~(kelly >= 0.088 && wprob >= 0.3) && ~strcmpi(op.comment,'volblowup')
@@ -468,7 +472,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
                 wprob = kellytables.kelly_table_s.winp_unique_s(idx);
             end
-            signal_i(8) = kelly;
+            try
+                signal_i(8) = kelly;
+            catch
+                signal_i(8) = -9.99;
+            end
             if ~(kelly>=0.088 && wprob >= 0.3) && ~strcmpi(op.comment,'volblowup')
                 %in case the conditional dntrend was opened with breachdnbshighvalue 
                 %but it turns out to be a normal trend trend, e.g zn2403 on 20240117

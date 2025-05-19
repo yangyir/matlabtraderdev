@@ -50,6 +50,8 @@ elseif strcmpi(freq,'m30')
     freq = '30m';
 elseif strcmpi(freq,'h1')
     freq = '1h';
+elseif strcmpi(freq,'h4')    
+    freq = '4h';
 elseif strcmpi(freq,'d1')
     freq = 'daily';
 end
@@ -120,6 +122,13 @@ elseif isfx(fut.asset_name)
         end
         if isempty(nfractal),nfractal = 4;end
         tickratio = 0.5;
+    elseif strcmpi(freq,'240m') || strcmpi(freq,'4h')
+        if isempty(kellytables)
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_h4.mat']);
+            kellytables = data.strat_fx_h4;
+        end
+        if isempty(nfractal),nfractal = 2;end
+        tickratio = 1;    
     elseif strcmpi(freq,'daily')
         if isempty(kellytables)
             data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_daily.mat']);

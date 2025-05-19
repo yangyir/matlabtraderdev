@@ -4,7 +4,7 @@ strat_fx_m15_existing = strat_fx_m15_existing.strat_fx_m15;
 %%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
 freq_m15 = '15m';
-nfractal_m15 = charlotte_freq2nfracal(freq_m15);
+nfractal_m15 = charlotte_freq2nfractal(freq_m15);
 output_fx_m15 = fractal_kelly_summary('codes',codes_fx,...
     'frequency',['intraday-',freq_m15],'usefractalupdate',0,'usefibonacci',1,'direction','both',...
     'nfractal',nfractal_m15);

@@ -90,7 +90,7 @@ if ~isempty(strfind(checkfreq,'intraday'))
             end
         elseif freq == 240
             if isempty(nfractal)
-                nfractal = 4;
+                nfractal = 2;
             end
         elseif freq == 1440
             if isempty(nfractal)

@@ -3,10 +3,10 @@ strat_fx_h1_existing = load([dir_,'strat_fx_h1.mat']);
 strat_fx_h1_existing = strat_fx_h1_existing.strat_fx_h1;
 %%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
-freq_h1 = '60m';
-nfractal_h1 = charlotte_freq2nfracal(freq_h1);
+freq_h1 = 'h1';
+nfractal_h1 = charlotte_freq2nfractal(freq_h1);
 output_fx_h1 = fractal_kelly_summary('codes',codes_fx,...
-    'frequency',['intraday-',freq_h1],'usefractalupdate',0,'usefibonacci',1,'direction','both',...
+    'frequency','intraday-60m','usefractalupdate',0,'usefibonacci',1,'direction','both',...
     'nfractal',nfractal_h1);
 [~,~,tbl_fx_h1,~,~,~,~,strat_fx_h1] = kellydistributionsummary(output_fx_h1);
 %%
