@@ -39,7 +39,14 @@ function [] = generateNewData(obj)
                     lastrow = [];
                 end
                 
-                if isempty(lastrow), continue; end
+                if isempty(lastrow)
+                    if obj.replaycounts_(i)+1 > size(obj.replaydata_{i},1)
+                        obj.stop;
+                        return;
+                    else
+                        continue; 
+                    end
+                end
                 
                 currentbartime = lastrow(1);
                 if currentbartime > obj.replaydateto_
