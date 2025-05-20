@@ -13,14 +13,13 @@ function [] = onNewData(obj,~,eventData)
             data_i = [];
         end
         if ~isempty(data_i)
+            if ~obj.calcflag_(i)
+                continue;
+            end
             newcandle_i = [data_i.time,data_i.open,data_i.high,data_i.low,data_i.close];
             newIndicators(i) = 1;
             candles_i = obj.candles_{i};
             obj.candles_{i} = [candles_i;newcandle_i];
-            if ~obj.calcflag_(i)
-%                 close(figure(i+4));
-                continue;
-            end
             obj.signals_{i} = obj.genSignal(obj.codes_{i});
             if ~isempty(obj.signals_{i})
                 newSignals(i) = 1;
@@ -53,6 +52,7 @@ function [] = onNewData(obj,~,eventData)
     
     if ~obj.printSignal_, return; end
     
+    if nindicator == 0,return;end
     for i = 1:ncodes
         %
         if i == 1
