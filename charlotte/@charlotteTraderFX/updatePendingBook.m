@@ -19,7 +19,7 @@ function [] = updatePendingBook(obj,data)
         end
         idxfound = 0;
         for j = 1:size(codes,1)
-            if strcmpi(codes{j},trade_i.code_)
+            if strcmpi(codes{j},[trade_i.code_,'-',trade_i.opensignal_.frequency_])
                 idxfound = j;
                 break
             end
@@ -89,7 +89,7 @@ function [] = updatePendingBook(obj,data)
         trade_i = obj.pendingbook_.node_(i);
         idxfound = 0;
         for j = 1:size(codes,1)
-            if strcmpi(codes{j},trade_i.code_)
+            if strcmpi(codes{j},[trade_i.code_,'-',trade_i.opensignal_.frequency_])
                 idxfound = j;
                 break
             end

@@ -22,7 +22,7 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
            freqappendix = 'D1';
        end
        
-       opendtstr = datestr(trade.opendatetime1_,'yyyymmdd');
+       opendtstr = datestr(extrainfo.px(end,1),'yyyymmdd');
        
         fn = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Trade\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
     end
@@ -62,7 +62,7 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
     elseif strcmpi(symbol,'USDJPY')
         exportformat = '%s\t%s\t%3s\t%d\t%4.3f\t%4.3f\t%s\t%s\t%s\t%4.4f\n';
     else
-        exportformat = '%s\t%s\t%3s\t%d\t%4.4f\t%4.4f\t%s\t%s\t%s\t%4.4f\n';
+        exportformat = '%s\t%s\t%3s\t%d\t%4.5f\t%4.5f\t%s\t%s\t%s\t%4.4f\n';
     end
     
     fprintf(fid,exportformat,...

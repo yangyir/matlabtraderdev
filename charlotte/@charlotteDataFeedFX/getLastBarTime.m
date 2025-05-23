@@ -1,9 +1,9 @@
-function lastbartime = getLastBarTime(obj,code)
+function lastbartime = getLastBarTime(obj,code,freq)
 %a charlotteDataFeedFX function
     idxfound = -1;
     lastbartime = [];
     for i = 1:size(obj.codes_,1)
-        if strcmpi(obj.codes_{i},code)
+        if strcmpi(obj.codes_{i},[code,'-',freq])
             idxfound = i;
             break
         end
@@ -14,7 +14,6 @@ function lastbartime = getLastBarTime(obj,code)
         return
     end
     
-    freq = obj.freq_{idxfound};
     if strcmpi(freq,'daily')
         lastbartime = datestr(obj.lastbartime_(idxfound),'yyyymmdd');
     else

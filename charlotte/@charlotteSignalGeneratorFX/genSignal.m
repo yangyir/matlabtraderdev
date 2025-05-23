@@ -1,38 +1,33 @@
-function [signal,ei] = genSignal(obj,code)
+function [signal,ei] = genSignal(obj,code,freq)
 % a charlotteSignalGeneratorFX function
     idxfound = -1;
     signal = [];
     ei = [];
     for i = 1:size(obj.codes_,1)
-        if strcmpi(obj.codes_{i},code)
+        if strcmpi(obj.codes_{i},[code,'-',freq])
             idxfound = i;
             break
         end
     end
-    if idxfound <= 0
-        notify(obj, 'ErrorOccurred', ...
-            charlotteErrorEventData('charlotteData:genSignal:invalid code input...'));
-        return
-    end
+    if idxfound == -1;return;end
     p = obj.candles_{idxfound};
     if isempty(p), return; end
-    if isempty(obj.freq_{idxfound}), return;end
     
-    nfractal = charlotte_freq2nfractal(obj.freq_{idxfound});
+    nfractal = charlotte_freq2nfractal(freq);
     [~,ei] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
     ei.latestopen = ei.px(end,5);
     ei.latestdt = ei.px(end,1);
     obj.extrainfo_{idxfound} = ei;
     %
-    if strcmpi(obj.freq_{idxfound},'5m')
+    if strcmpi(freq,'5m')
         tickratio = 0;
-    elseif strcmpi(obj.freq_{idxfound},'15m')
+    elseif strcmpi(freq,'15m')
         tickratio = 0.5;
-    elseif strcmpi(obj.freq_{idxfound},'30m') 
+    elseif strcmpi(freq,'30m') 
         tickratio = 0.5;
-    elseif strcmpi(obj.freq_{idxfound},'60m')  || strcmpi(obj.freq_{idxfound},'1h')
+    elseif strcmpi(freq,'60m')  || strcmpi(freq,'1h')
         tickratio = 1;
-    elseif strcmpi(obj.freq_{idxfound},'4h')
+    elseif strcmpi(freq,'4h')
         tickratio = 1;
     else
         tickratio = 1;
@@ -47,13 +42,10 @@ function [signal,ei] = genSignal(obj,code)
     
     if ~isempty(signaluncond)
         if signaluncond.directionkellied == 1
-%             fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,1,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
             signal = signaluncond;
         elseif signaluncond.directionkellied == -1
-%             fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,-1,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
             signal = signaluncond;
         else
-%             fprintf('\t%6s:\t%2d\t%10s\tk:%2.1f%%\twinp:%2.1f%%\n',code,0,signaluncond.opkellied,100*signaluncond.kelly,100*signaluncond.wprob);
             signal = signaluncond;
         end 
     else
@@ -78,12 +70,11 @@ function [signal,ei] = genSignal(obj,code)
     
     if ~isempty(signal)
         signal.code = code;
-        signal.frequency = obj.freq_{idxfound};
-%         filename = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Signal\',code,'.lmx_',freqappendix,'_signals.txt'];
+        signal.frequency = freq;
         exportsignal2mt4(signal,ei);
     end
     
     ei2plot = fractal_truncate(ei,size(ei.px,1),max(size(ei.px,1)-100,1));
-    tools_technicalplot2(ei2plot,4+idxfound,[code,'-',obj.freq_{idxfound}],true,2*obj.ticksize_(idxfound));
+    tools_technicalplot2(ei2plot,4+idxfound,[code,'-',freq],true,2*obj.ticksize_(idxfound));
     
 end

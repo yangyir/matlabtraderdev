@@ -1,4 +1,4 @@
-function [data] = getReplayCount(obj,code)
+function [data] = getReplayCount(obj,code,freq)
 % a charlotteDataFeedFX function
     if ~strcmpi(obj.mode_,'replay')
         data = [];
@@ -9,7 +9,7 @@ function [data] = getReplayCount(obj,code)
     idxfound = -1;
     data = [];
     for i = 1:size(obj.codes_,1)
-        if strcmpi(obj.codes_{i},code)
+        if strcmpi(obj.codes_{i},[code,'-',freq])
             idxfound = i;
             break
         end

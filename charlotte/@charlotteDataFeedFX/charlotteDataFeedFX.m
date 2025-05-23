@@ -25,18 +25,8 @@ classdef charlotteDataFeedFX < handle
     end
     
     methods
-        function obj = charlotteDataFeedFX()
-            obj.codes_ = charlotte_select_fx_pairs;
-            
-            try
-                ncodes = size(obj.codes_,1);
-                obj.lastbartime_ = zeros(ncodes,1);
-                obj.fn_ = cell(ncodes,1);
-                obj.freq_ = cell(ncodes,1);
-            catch
-                notify(obj, 'ErrorOccurred', ...
-                    charlotteErrorEventData('Failed to create an instance of charlotteDataFeedFX'));
-            end
+        function obj = charlotteDataFeedFX(varargin)
+            obj = init(obj,varargin{:});
         end
         %
         function set.updateinterval_(obj, interval)
@@ -57,14 +47,15 @@ classdef charlotteDataFeedFX < handle
         [] = delete(obj)
         [] = setFrequency(obj,code,freq)
         [freq] = getFrequency(obj,code)
-        [lastbartime] = getLastBarTime(obj,code)
+        [lastbartime] = getLastBarTime(obj,code,freq)
         [] = setReplayPeriod(obj,rplfrom,rplto)
-        [data] = getReplayData(obj,code)
-        [idx] = getRepayCount(obj,code)
+        [data] = getReplayData(obj,code,freq)
+        [idx] = getRepayCount(obj,code,freq)
     end
     
     methods (Access = private)
         [] = initData(obj)
         [] = generateNewData(obj)
+        obj = init(obj,varargin);
     end
 end

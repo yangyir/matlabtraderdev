@@ -1,4 +1,4 @@
-function [ret,trade] = hasLongPosition(obj,code,varargin)
+function [ret,trade] = hasLongPosition(obj,code,freq,varargin)
     % a charlotteTraderFX function
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
@@ -27,7 +27,7 @@ function [ret,trade] = hasLongPosition(obj,code,varargin)
                 closedtflag = strcmpi(trade_i.closedatetime2_,closedt);
             end
 
-            if strcmpi(trade_i.code_,code) && trade_i.opendirection_ == direction && strcmpi(trade_i.status_,status) && closedtflag
+            if strcmpi(trade_i.code_,code) && strcmpi(trade_i.opensignal_.frequency_,freq) && trade_i.opendirection_ == direction && strcmpi(trade_i.status_,status) && closedtflag
                 ret = true;
                 trade = trade_i;
                 break
@@ -43,7 +43,7 @@ function [ret,trade] = hasLongPosition(obj,code,varargin)
                 closedtflag = strcmpi(trade_i.closedatetime2_,closedt);
             end
 
-            if strcmpi(trade_i.code_,code) && trade_i.opendirection_ == direction && strcmpi(trade_i.status_,status) && closedtflag
+            if strcmpi(trade_i.code_,code) && strcmpi(trade_i.opensignal_.frequency_,freq) && trade_i.opendirection_ == direction && strcmpi(trade_i.status_,status) && closedtflag
                 ret = true;
                 trade = trade_i;
                 break

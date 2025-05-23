@@ -9,16 +9,17 @@ function obj = init(obj,varargin)
     ncodes = size(obj.codes_,1);
     obj.ticksize_ = zeros(ncodes,1);
     obj.calcflag_ = ones(ncodes,1);
-    obj.printSignal_ = true;
-    for i = 1:ncodes
-        fx_i = code2instrument(obj.codes_{i});
-        obj.ticksize_(i) = fx_i.tick_size;
-    end
-    obj.signals_ = cell(ncodes,1);
     obj.freq_ = cell(ncodes,1);
+    obj.printSignal_ = true;
+    symbols = cell(ncodes,1);
     for i = 1:ncodes
-        obj.freq_{i} = datafeed.getFrequency(obj.codes_{i});
+        strsplit = regexp(datafeed.codes_{i},'-','split');
+        symbols{i} = strsplit{1};
+        fx_i = code2instrument(symbols{i});
+        obj.ticksize_(i) = fx_i.tick_size;
+        obj.freq_{i} = strsplit{2};
     end
+    obj.signals_ = cell(ncodes,1);    
     %
     obj.kellytables_ = cell(ncodes,1);
     for i = 1:ncodes
@@ -63,7 +64,7 @@ function obj = init(obj,varargin)
             else
                 fnappendix = '';
             end
-            fn_i = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\',obj.codes_{i},fnappendix];
+            fn_i = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\',symbols{i},fnappendix];
             data =  readtable(fn_i,'readvariablenames',1);
             idxlast = find(~isnan(data.Close),1,'last');
             % for save memory, we cut the latest 100 candles
@@ -88,12 +89,12 @@ function obj = init(obj,varargin)
             end
             obj.candles_{i} = [candledatetime,candleopen,candlehigh,candlelow,candleclose];
         elseif strcmpi(datafeed.mode_,'replay')
-            replaydata = datafeed.getReplayData(obj.codes_{i});
-            idx = datafeed.getReplayCount(obj.codes_{i});
+            replaydata = datafeed.getReplayData(symbols{i},obj.freq_{i});
+            idx = datafeed.getReplayCount(symbols{i},obj.freq_{i});
             replaydata = replaydata(1:idx,:);
             idxlast = size(replaydata,1);
-            if idxlast >= 100
-                idxfirst = idxlast - 99;
+            if idxlast >= 200
+                idxfirst = idxlast - 199;
             else
                 idxfirst = 1;
             end
@@ -103,6 +104,6 @@ function obj = init(obj,varargin)
     %
     obj.extrainfo_ = cell(ncodes,1);
     for i= 1:ncodes
-        obj.signals_{i} = obj.genSignal(obj.codes_{i});
+        obj.signals_{i} = obj.genSignal(symbols{i},obj.freq_{i});
     end
 end

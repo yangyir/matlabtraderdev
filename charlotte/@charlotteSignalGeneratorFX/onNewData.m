@@ -4,9 +4,10 @@ function [] = onNewData(obj,~,eventData)
     ncodes = size(obj.codes_,1);
     newSignals = zeros(ncodes,1);
     newIndicators = zeros(ncodes,1);
-    nsignal = 0;
-    nindicator = 0;
+    symbols = cell(ncodes,1);
     for i = 1:ncodes
+        strsplit = regexp(obj.codes_{i},'-','split');
+        symbols{i} = strsplit{1};
         try
             data_i = data{i};
         catch
@@ -20,7 +21,9 @@ function [] = onNewData(obj,~,eventData)
             newIndicators(i) = 1;
             candles_i = obj.candles_{i};
             obj.candles_{i} = [candles_i;newcandle_i];
-            obj.signals_{i} = obj.genSignal(obj.codes_{i});
+            
+            
+            obj.signals_{i} = obj.genSignal(symbols{i},obj.freq_{i});
             if ~isempty(obj.signals_{i})
                 newSignals(i) = 1;
             end
@@ -56,8 +59,8 @@ function [] = onNewData(obj,~,eventData)
     for i = 1:ncodes
         %
         if i == 1
-            fprintf('%10s%10s%14s%10s%10s%8s%8s%10s%10s%10s%10s%10s%10s%11s%11s%30s\n',...
-                        'Code','Last','Datetime(ldn)','HH','LL','BS','SS','LevelUp','LevelDn','Jaw','Teeth','Lips','Signal','Kelly','WinP','SignalName');
+            fprintf('%10s%10s%10s%14s%10s%10s%8s%8s%10s%10s%10s%10s%10s%10s%11s%11s%30s\n',...
+                        'Code','Freq','Last','Datetime(ldn)','HH','LL','BS','SS','LevelUp','LevelDn','Jaw','Teeth','Lips','Signal','Kelly','WinP','SignalName');
         end
         
         if ~obj.calcflag_(i) 
@@ -85,15 +88,16 @@ function [] = onNewData(obj,~,eventData)
             signal_name = '';
         end
         
-        if strcmpi(obj.codes_{i},'USDJPY')
-            dataformat = '%10s%10.3f%14s%10.3f%10.3f%8d%8d%10.3f%10.3f%10.3f%10.3f%10.3f%10d%10.1f%%%10.1f%%%30s\n';
-        elseif strcmpi(obj.codes_{i},'XAUUSD')
-            dataformat = '%10s%10.2f%14s%10.2f%10.2f%8d%8d%10.2f%10.2f%10.2f%10.2f%10.2f%10d%10.1f%%%10.1f%%%30s\n';
+        if strcmpi(symbols{i},'USDJPY')
+            dataformat = '%10s%10s%10.3f%14s%10.3f%10.3f%8d%8d%10.3f%10.3f%10.3f%10.3f%10.3f%10d%10.1f%%%10.1f%%%30s\n';
+        elseif strcmpi(symbols{i},'XAUUSD')
+            dataformat = '%10s%10s%10.2f%14s%10.2f%10.2f%8d%8d%10.2f%10.2f%10.2f%10.2f%10.2f%10d%10.1f%%%10.1f%%%30s\n';
         else
-            dataformat = '%10s%10.5f%14s%10.5f%10.5f%8d%8d%10.5f%10.5f%10.5f%10.5f%10.4f%10d%10.1f%%%10.1f%%%30s\n';
+            dataformat = '%10s%10s%10.5f%14s%10.5f%10.5f%8d%8d%10.5f%10.5f%10.5f%10.5f%10.4f%10d%10.1f%%%10.1f%%%30s\n';
         end
         
-        fprintf(dataformat,obj.codes_{i},...
+        fprintf(dataformat,symbols{i},...
+            obj.freq_{i},...
             obj.extrainfo_{i}.px(end,5),...
             datestr(obj.extrainfo_{i}.px(end,1),'dd-mmm HH:MM'),...
             obj.extrainfo_{i}.hh(end),...

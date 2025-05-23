@@ -4,8 +4,9 @@ function [] = generateNewData(obj)
         ncodes = size(obj.codes_,1);
         data = cell(ncodes,1);
         nupdate = 0;
-        for i = 1:ncodes
-            if strcmpi(obj.mode_,'realtime')
+        
+        if strcmpi(obj.mode_,'realtime')
+            for i = 1:ncodes    
                 try
                     lastrow = readlastrowfromcsvfile(obj.fn_{i});
                 catch ME
@@ -32,7 +33,10 @@ function [] = generateNewData(obj)
                     data{i} = data_i;
                     obj.lastbartime_(i) = currentbartime;
                 end
-            elseif strcmpi(obj.mode_,'replay')
+            end
+        elseif strcmpi(obj.mode_,'replay')
+            %the code shall be tricky to handle different freq
+            for i = 1:ncodes
                 try
                     lastrow = obj.replaydata_{i}(obj.replaycounts_(i)+1,:);
                 catch
@@ -40,19 +44,11 @@ function [] = generateNewData(obj)
                 end
                 
                 if isempty(lastrow)
-                    if obj.replaycounts_(i)+1 > size(obj.replaydata_{i},1)
-                        obj.stop;
-                        return;
-                    else
-                        continue; 
-                    end
+                    continue;
                 end
                 
                 currentbartime = lastrow(1);
-                if currentbartime > obj.replaydateto_
-                    obj.stop;
-                    return
-                end
+
                 
                 if currentbartime > obj.lastbartime_(i)
                     nupdate = nupdate + 1;
@@ -67,6 +63,28 @@ function [] = generateNewData(obj)
                     obj.replaycounts_(i) = obj.replaycounts_(i) + 1;
                 end
             end             
+        end
+        
+        if strcmpi(obj.mode_,'replay')
+            stopFlag = true;
+            for i = 1:ncodes
+                try
+                    lastrow = obj.replaydata_{i}(obj.replaycounts_(i)+1,:);
+                catch
+                    lastrow = [];
+                end
+                if ~isempty(lastrow)
+                    currentbartime = lastrow(1);
+                    if currentbartime < obj.replaydateto_
+                        stopFlag = false;
+                        break
+                    end
+                end
+            end
+            if stopFlag
+                obj.stop;
+                return
+            end
         end
         
         if nupdate > 0

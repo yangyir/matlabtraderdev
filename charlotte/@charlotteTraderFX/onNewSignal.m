@@ -14,13 +14,15 @@ function [] = onNewSignal(obj,~,eventData)
         end
         
         code_i = data.codes_{i};
+        strsplit = regexp(code_i,'-','split');
+        code_i = strsplit{1};
         ei_i = data.ei_{i};
         freq_i = data.freq_{i};
         nfractal = charlotte_freq2nfractal(freq_i);
         
         if isempty(strfind(signal_i.opkellied,'conditional')) && isempty(strfind(signal_i.opkellied,'potential')) && isempty(strfind(signal_i.opkellied,'not to place'))
             %unconditional signal
-            if signal_i.directionkellied == 1 && ~obj.hasLongPosition(code_i)
+            if signal_i.directionkellied == 1 && ~obj.hasLongPosition(code_i,freq_i)
                 if ~signal_i.status.istrendconfirmed
                     % no conditional signal on the previous candle
                     trade = fractal_gentrade(ei_i,code_i,size(ei_i.px,1),signal_i.opkellied,1,freq_i,nfractal);
@@ -38,27 +40,11 @@ function [] = onNewSignal(obj,~,eventData)
                     obj.book_.push(trade);
                     exporttrade2mt4(trade,ei_i);
                 else
-%                     trade = fractal_gentrade2(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
-%                     if ~isempty(trade)
-% %                         trade.opensignal_.mode_ = signal_i.opkellied;
-%                         unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
-%                             'usecandlelastonly',false,...
-%                             'debug',false,...
-%                             'updatepnlforclosedtrade',true,...
-%                             'extrainfo',ei_i,...
-%                             'RunRiskManagementBeforeMktClose',false,...
-%                             'KellyTables',data.kellytables_{i},...
-%                             'CompulsoryCheckForConditional',true);
-%                         if ~isempty(unwindtrade)
-%                             trade.status_ = 'closed';
-%                         end
-%                         obj.book_.push(trade);
-%                         exporttrade2mt4(trade,ei_i);
-%                     end
+                    %
                 end
-            elseif signal_i.directionkellied == 1 && obj.hasLongPosition(code_i)
+            elseif signal_i.directionkellied == 1 && obj.hasLongPosition(code_i,freq_i)
                 %
-            elseif signal_i.directionkellied == -1 && ~obj.hasShortPosition(code_i)
+            elseif signal_i.directionkellied == -1 && ~obj.hasShortPosition(code_i,freq_i)
                 if ~signal_i.status.istrendconfirmed
                     % no conditional signal on the previous candle
                     trade = fractal_gentrade(ei_i,code_i,size(ei_i.px,1),signal_i.opkellied,-1,freq_i,nfractal);
@@ -76,25 +62,9 @@ function [] = onNewSignal(obj,~,eventData)
                     obj.book_.push(trade);
                     exporttrade2mt4(trade,ei_i);
                 else
-%                     trade = fractal_gentrade2(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
-%                     if ~isempty(trade)
-%                         %trade.opensignal_.mode_ = signal_i.opkellied;
-%                         unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
-%                             'usecandlelastonly',false,...
-%                             'debug',false,...
-%                             'updatepnlforclosedtrade',true,...
-%                             'extrainfo',ei_i,...
-%                             'RunRiskManagementBeforeMktClose',false,...
-%                             'KellyTables',data.kellytables_{i},...
-%                             'CompulsoryCheckForConditional',true);
-%                         if ~isempty(unwindtrade)
-%                             trade.status_ = 'closed';
-%                         end
-%                         obj.book_.push(trade);
-%                         exporttrade2mt4(trade,ei_i);
-%                     end
+                    %
                 end
-            elseif signal_i.directionkellied == -1 && obj.hasShortPosition(code_i)
+            elseif signal_i.directionkellied == -1 && obj.hasShortPosition(code_i,freq_i)
                 %
             elseif signal_i.directionkellied == 0
                 %conditional kelly breaks trades....
@@ -112,16 +82,16 @@ function [] = onNewSignal(obj,~,eventData)
                 
                 trade = fractal_gentrade2(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
                 if ~isempty(trade)
-                    if trade.opendirection_ == 1 && obj.hasLongPosition(code_i)
+                    if trade.opendirection_ == 1 && obj.hasLongPosition(code_i,freq_i)
                         continue;
                     end
-                    if trade.opendirection_ == 1 && obj.hasLongPosition(code_i,'status','closed','closedt',datestr(ei_i.px(end,1),'yyyy-mm-dd HH:MM:SS'))
+                    if trade.opendirection_ == 1 && obj.hasLongPosition(code_i,freq_i,'status','closed','closedt',datestr(ei_i.px(end,1),'yyyy-mm-dd HH:MM:SS'))
                         continue;
                     end
-                    if trade.opendirection_ == -1 && obj.hasShortPosition(code_i)
+                    if trade.opendirection_ == -1 && obj.hasShortPosition(code_i,freq_i)
                         continue;
                     end
-                    if trade.opendirection_ == -1 && obj.hasShortPosition(code_i,'status','closed','closedt',datestr(ei_i.px(end,1),'yyyy-mm-dd HH:MM:SS'))
+                    if trade.opendirection_ == -1 && obj.hasShortPosition(code_i,freq_i,'status','closed','closedt',datestr(ei_i.px(end,1),'yyyy-mm-dd HH:MM:SS'))
                         continue;
                     end
                     unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
@@ -143,16 +113,16 @@ function [] = onNewSignal(obj,~,eventData)
             %conditional signal
             trade = fractal_gentrade2(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
             if ~isempty(trade)
-                if trade.opendirection_ == 1 && obj.hasLongPosition(code_i)
+                if trade.opendirection_ == 1 && obj.hasLongPosition(code_i,freq_i)
                     continue;
                 end
-                if trade.opendirection_ == 1 && obj.hasLongPosition(code_i,'status','closed','closedt',datestr(ei_i.px(end,1),'yyyy-mm-dd HH:MM:SS'))
+                if trade.opendirection_ == 1 && obj.hasLongPosition(code_i,freq_i,'status','closed','closedt',datestr(ei_i.px(end,1),'yyyy-mm-dd HH:MM:SS'))
                     continue;
                 end
-                if trade.opendirection_ == -1 && obj.hasShortPosition(code_i)
+                if trade.opendirection_ == -1 && obj.hasShortPosition(code_i,freq_i)
                     continue;
                 end
-                if trade.opendirection_ == -1 && obj.hasShortPosition(code_i,'status','closed','closedt',datestr(ei_i.px(end,1),'yyyy-mm-dd HH:MM:SS'))
+                if trade.opendirection_ == -1 && obj.hasShortPosition(code_i,freq_i,'status','closed','closedt',datestr(ei_i.px(end,1),'yyyy-mm-dd HH:MM:SS'))
                     continue;
                 end
                 unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
@@ -171,9 +141,9 @@ function [] = onNewSignal(obj,~,eventData)
             else
                 pendingtrade = fractal_gentrade3_mt4(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
                 if ~isempty(pendingtrade) 
-                    if pendingtrade.opendirection_ == 2 && (obj.hasLongPosition(code_i,'direction',2,'status','unset') || obj.hasLongPosition(code_i))
+                    if pendingtrade.opendirection_ == 2 && (obj.hasLongPosition(code_i,freq_i,'direction',2,'status','unset') || obj.hasLongPosition(code_i,freq_i))
                         continue;
-                    elseif pendingtrade.opendirection_ == -2 && (obj.hasShortPosition(code_i,'direction',-2,'status','unset') || obj.hasShortPosition(code_i))
+                    elseif pendingtrade.opendirection_ == -2 && (obj.hasShortPosition(code_i,freq_i,'direction',-2,'status','unset') || obj.hasShortPosition(code_i,freq_i))
                         continue;
                     end
                     obj.pendingbook_.push(pendingtrade);
