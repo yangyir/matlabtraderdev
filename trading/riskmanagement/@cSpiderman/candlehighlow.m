@@ -25,8 +25,15 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
         ticksize = 0;
     end
     
-    if (lowp - obj.pxstoploss_ < -2*ticksize && direction == 1) || ...
-            (highp - obj.pxstoploss_ > 2*ticksize && direction == -1)
+    fxflag = isfx(trade.code_);
+    if fxflag
+        multiplier = 0;
+    else
+        multiplier = 2;
+    end
+    
+    if (lowp - obj.pxstoploss_ < -multiplier*ticksize && direction == 1) || ...
+            (highp - obj.pxstoploss_ > multiplier*ticksize && direction == -1)
         closeflag = 1;
     elseif (lowp < obj.pxtarget_ && direction == -1) ||...
             (highp > obj.pxtarget_ && direction == 1)
@@ -40,9 +47,9 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
     
     unwindtrade = obj.trade_;
     if closeflag == 1
-        if direction == 1 && openp < obj.pxstoploss_ - 2*ticksize
+        if direction == 1 && openp < obj.pxstoploss_ - multiplier*ticksize
             closeprice = openp;
-        elseif direction == -1 && openp > obj.pxstoploss_ + 2*ticksize
+        elseif direction == -1 && openp > obj.pxstoploss_ + multiplier*ticksize
             closeprice = openp;
         else
             if direction == 1
