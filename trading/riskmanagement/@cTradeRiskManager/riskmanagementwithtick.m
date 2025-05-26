@@ -41,10 +41,16 @@ function [unwindtrade] = riskmanagementwithtick(obj,tick,varargin)
     catch
         ticksize = 0;
     end
+    fxflag = isfx(obj.trade_.code_);
+    if fxflag
+        multiplier = 0;
+    else
+        multiplier = 2;
+    end
     %1.check whether either 1) stop loss is breached or 2) target is
     %breached
-    if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ < -2*ticksize ) ||...
-            (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ > 2*ticksize)
+    if (obj.trade_.opendirection_ == 1 && tickBid - obj.pxstoploss_ < -multiplier*ticksize ) ||...
+            (obj.trade_.opendirection_ == -1 && tickAsk - obj.pxstoploss_ > multiplier*ticksize)
 %             (obj.trade_.opendirection_ == 1 && tickBid > obj.pxtarget_) || ...
 %             (obj.trade_.opendirection_ == -1 && tickAsk < obj.pxtarget_)
         
