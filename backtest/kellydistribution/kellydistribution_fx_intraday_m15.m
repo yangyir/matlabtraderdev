@@ -10,7 +10,7 @@ output_fx_m15 = fractal_kelly_summary('codes',codes_fx,...
     'nfractal',nfractal_m15);
 [~,~,tbl_fx_m15,~,~,~,~,strat_fx_m15] = kellydistributionsummary(output_fx_m15);
 %%
-charlotte_strat_compare('strat1',strat_fx_m15_existing,'strat2',strat_fx_m15,'assetname','usdjpy');
+charlotte_strat_compare('strat1',strat_fx_m15_existing,'strat2',strat_fx_m15,'assetname','eurusd');
 %%
 tbl2check_fx_m15 = cell(size(codes_fx,1),1);
 parfor i = 1:size(codes_fx,1)
@@ -62,7 +62,6 @@ for i = 0:size(codes_fx,1)
 end
 fprintf('done with mt4 fx of %s time frame...\n',freq_m15);
 %%
-
 save([dir_,'strat_fx_m15.mat'],'strat_fx_m15');
 save([dir_,'tbl2check_fx_m15_all.mat'],'tbl2check_fx_m15_all');
 fprintf('strat fx 15m mat-file saved...\n');

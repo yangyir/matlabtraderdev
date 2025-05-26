@@ -27,7 +27,7 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
     
     fxflag = isfx(trade.code_);
     if fxflag
-        multiplier = 0;
+        multiplier = 2;
     else
         multiplier = 2;
     end

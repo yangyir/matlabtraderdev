@@ -10,7 +10,7 @@ output_fx_h1 = fractal_kelly_summary('codes',codes_fx,...
     'nfractal',nfractal_h1);
 [~,~,tbl_fx_h1,~,~,~,~,strat_fx_h1] = kellydistributionsummary(output_fx_h1);
 %%
-charlotte_strat_compare('strat1',strat_fx_h1_existing,'strat2',strat_fx_h1,'assetname','usdjpy');
+charlotte_strat_compare('strat1',strat_fx_h1_existing,'strat2',strat_fx_h1,'assetname','xauusd');
 %%
 tbl2check_fx_h1 = cell(size(codes_fx,1),1);
 parfor i = 1:size(codes_fx,1)

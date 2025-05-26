@@ -11,7 +11,7 @@ output_fx_m5 = fractal_kelly_summary('codes',codes_fx,...
     'nfractal',nfractal_m5);
 [~,~,tbl_fx_m5,~,~,~,~,strat_fx_m5] = kellydistributionsummary(output_fx_m5);
 %%
-charlotte_strat_compare('strat1',strat_fx_m5_existing,'strat2',strat_fx_m5,'assetname','usdjpy');
+charlotte_strat_compare('strat1',strat_fx_m5_existing,'strat2',strat_fx_m5,'assetname','eurusd');
 %%
 tbl2check_fx_m5 = cell(size(codes_fx,1),1);
 parfor i = 1:size(codes_fx,1)
