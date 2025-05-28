@@ -94,6 +94,9 @@ function [] = updatePendingBook(obj,data)
                 break
             end
         end
+        if ~newindicators(idxfound)
+            continue;
+        end
         exporttrade2mt4(trade_i,ei{idxfound});
     end
     
