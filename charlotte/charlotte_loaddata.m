@@ -182,7 +182,7 @@ elseif strcmpi(freq,'30m')
     end
     p = data.data;
 elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
-    if isempty(nfractal),nfractal = 2;end
+    if isempty(nfractal),nfractal = 4;end
     if ~isfx(futcode)
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
