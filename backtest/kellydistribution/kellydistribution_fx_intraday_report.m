@@ -1,27 +1,27 @@
-% code2check = 'GBPUSD';
-% freq2check = '4h';
-% replay1 = '2025-05-01';
-% replay2 = '2025-05-26';
-% 
-% if strcmpi(freq2check,'5m')
-%     appendix = 'm5';
-% elseif strcmpi(freq2check,'15m')
-%     appendix = 'm15';
-% elseif strcmpi(freq2check,'30m')
-%     appendix = 'm30';
-% elseif strcmpi(freq2check,'1h')
-%     appendix = 'h1';
-% elseif strcmpi(freq2check,'4h')
-%     appendix = 'h4';
-% end
-% 
+code2check = 'XAUUSD';
+freq2check = '15m';
+replay1 = '2025-06-04';
+replay2 = '2025-06-05';
+
+if strcmpi(freq2check,'5m')
+    appendix = 'm5';
+elseif strcmpi(freq2check,'15m')
+    appendix = 'm15';
+elseif strcmpi(freq2check,'30m')
+    appendix = 'm30';
+elseif strcmpi(freq2check,'1h')
+    appendix = 'h1';
+elseif strcmpi(freq2check,'4h')
+    appendix = 'h4';
+end
+
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
-% strat_fx_existing = load([dir_,'strat_fx_',appendix,'.mat']);
-% strat_fx_existing = strat_fx_existing.(['strat_fx_',appendix]);
-% %
-% nfractal2check = charlotte_freq2nfractal(freq2check);
-% [ut,ct,tbl2check_fx] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_existing,'showlogs',false,'doplot',false,'frequency',freq2check,'nfractal',nfractal2check);
-% open tbl2check_fx
+strat_fx_existing = load([dir_,'strat_fx_',appendix,'.mat']);
+strat_fx_existing = strat_fx_existing.(['strat_fx_',appendix]);
+%
+nfractal2check = charlotte_freq2nfractal(freq2check);
+[ut,ct,tbl2check_fx] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_existing,'showlogs',true,'doplot',true,'frequency',freq2check,'nfractal',nfractal2check);
+open tbl2check_fx
 %%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
 freqs = {'5m';'15m';'30m';'1h';'4h'};
@@ -82,6 +82,7 @@ maxDrawdown = maxDrawdown(1:count);
 annualRet = annualRet(1:count);
 tblreport = table(code,freqcol,nTotal,pWin,rRet,kRet,maxDrawdown,annualRet,cashpnl);
 tblreport = sortrows(tblreport,'code','ascend');
+open tblreport;
 %%
 path_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\'];
 fn_ = 'kellytable.txt';
@@ -112,5 +113,71 @@ if fid
       
 end
 fclose(fid);  
+%%
+n = size(tblreport,1);
+nSelect = 0;
+codesSelected = cell(n,5);
+%
+kThreshold = 0.15;
+pThreshold = 0.4;
+%
+for i = 1:n
+    if tblreport.kRet(i) > kThreshold && ...
+            tblreport.pWin(i) > pThreshold
+        nSelect = nSelect + 1;
+        codesSelected{nSelect,1} = tblreport.code{i};
+        codesSelected{nSelect,2} = tblreport.freqcol{i};
+        codesSelected{nSelect,3} = tblreport.cashpnl(i);
+    end        
+end
+codesSelected = codesSelected(1:nSelect,:);
+%
+%calculate the pnl with trading cost adjustments
+dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
+for i = 1:nSelect
+    data = load([dir_,'tbl2check_fx_',codesSelected{i,2},'_all.mat']);
+    tbl2check = data.(['tbl2check_fx_',codesSelected{i,2},'_all']);
+    idx2check = strcmpi(tbl2check.code,codesSelected{i,1});
+    pnl2check = tbl2check.closepnl(idx2check);
+    if strcmpi(codesSelected{i,1},'audusd') || ...
+            strcmpi(codesSelected{i,1},'eurusd') || ...
+            strcmpi(codesSelected{i,1},'gbpusd')
+        codesSelected{i,4} = 18*size(pnl2check,1);
+    elseif strcmpi(codesSelected{i,1},'xauusd')
+        codesSelected{i,4} = 15*size(pnl2check,1);
+    else
+        pnlrel2check = tbl2check.pnlrel(idx2check);
+        codesSelected{i,3} = 1e5*sum(pnlrel2check);
+        codesSelected{i,4} = 18*size(pnlrel2check,1);
+    end
+    if codesSelected{i,3} > codesSelected{i,4}
+        codesSelected{i,5} = 'select';
+    else
+        codesSelected{i,5} = 'high cost';
+    end
+end
+idxSelected = strcmpi(codesSelected(:,5),'select');
+codesSelected = codesSelected(idxSelected,:);
+%
+%
+nSelect = size(codesSelected,1);
+for i = 1:nSelect
+    data = load([dir_,'tbl2check_fx_',codesSelected{i,2},'_all.mat']);
+    tbl2check = data.(['tbl2check_fx_',codesSelected{i,2},'_all']);
+    idx2check = strcmpi(tbl2check.code,codesSelected{i,1});
+    tbl_i = tbl2check(idx2check,:);
+    tbl_i.freq = cell(size(tbl_i,1),1);
+    for j = 1:size(tbl_i,1)
+        tbl_i.freq{j} = codesSelected{i,2};
+    end
+    
+    if i == 1
+        tblSelected = tbl_i;
+    else
+        tblSelected = union(tblSelected,tbl_i);
+    end
+end
+ tblSelected = sortrows(tblSelected,'opendatetime','ascend');
+ writetable(tblSelected,'C:\tmp\tblselected.xlsx');
 
 
