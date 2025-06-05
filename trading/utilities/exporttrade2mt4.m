@@ -57,6 +57,11 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
     
     fid = fopen(fn,'a');
     
+    if fid < 0
+        fprintf('exporttrade2mt4:invalid file name...\n');
+        return
+    end
+    
     if strcmpi(symbol,'XAUUSD')
         exportformat = '%s\t%s\t%3s\t%d\t%4.2f\t%4.2f\t%s\t%s\t%s\t%4.4f\n';
     elseif strcmpi(symbol,'USDJPY')
