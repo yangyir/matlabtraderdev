@@ -122,10 +122,14 @@ if isempty(condsignal)
                 end
             end
         else
-            try
-                openpx = resstruct.px(idx+1,2);
-            catch
+            if isfx(code)
                 openpx = resstruct.px(idx,5);
+            else
+                try
+                    openpx = resstruct.px(idx+1,2);
+                catch
+                    openpx = resstruct.px(idx,5);
+                end
             end
             if uncondsignal.directionkellied == 1 && openpx >= uncondsignal.signalkellied(2)
                 trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
