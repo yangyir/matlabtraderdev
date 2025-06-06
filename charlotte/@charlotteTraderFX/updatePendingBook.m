@@ -44,7 +44,7 @@ function [] = updatePendingBook(obj,data)
             %remove the pending trade from pending book
             %and add the new trade to book
             obj.book_.push(trade);
-            exporttrade2mt4(trade,ei{idxfound});
+%             exporttrade2mt4(trade,ei{idxfound});
             pendingtrades2remove.push(trade_i);
 %             obj.pendingbook_.removebyindex(i);
             %note:pending trade is activated and no need to export its
