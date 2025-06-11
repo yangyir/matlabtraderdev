@@ -7,41 +7,16 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
     end
     
     if nargin < 3
-        freq = trade.opensignal_.frequency_;
-       if strcmpi(freq,'5m')
-           freqappendix = 'M5';
-       elseif strcmpi(freq,'15m')
-           freqappendix = 'M15';
-       elseif strcmpi(freq,'30m')
-           freqappendix = 'M30';
-       elseif strcmpi(freq,'60m')  || strcmpi(freq,'1h')
-           freqappendix = 'H1';
-       elseif strcmpi(freq,'4h')
-           freqappendix = 'H4';
-       else
-           freqappendix = 'D1';
-       end
-       
+       freq = trade.opensignal_.frequency_;
+       freqappendix = freq2mt4freq(freq);
        opendtstr = datestr(extrainfo.px(end,1),'yyyymmdd');
        
-        fn = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Trade\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+       fn = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Trade\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
     end
     
     symbol = trade.code_;
     frequency = trade.opensignal_.frequency_;
-    if strcmpi(frequency,'5m')
-        freqappendix = 'M5';
-    elseif strcmpi(frequency,'15m')
-        freqappendix = 'M15';
-    elseif strcmpi(frequency,'30m') 
-        freqappendix = 'M30';
-    elseif strcmpi(frequency,'60m')  || strcmpi(frequency,'1h')
-        freqappendix = 'H1';
-    elseif strcmpi(frequency,'4h')
-        freqappendix = 'H4';
-    else
-        freqappendix = 'D1';
-    end
+    freqappendix = freq2mt4freq(frequency);
     
     if trade.opendirection_ == 1
         cmd = 0;%OP_BUY

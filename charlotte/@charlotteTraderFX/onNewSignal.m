@@ -18,6 +18,7 @@ function [] = onNewSignal(obj,~,eventData)
         code_i = strsplit{1};
         ei_i = data.ei_{i};
         freq_i = data.freq_{i};
+        mode_i = data.modes_{i};
         nfractal = charlotte_freq2nfractal(freq_i);
         
         if isempty(strfind(signal_i.opkellied,'conditional')) && isempty(strfind(signal_i.opkellied,'potential')) && isempty(strfind(signal_i.opkellied,'not to place'))
@@ -38,7 +39,15 @@ function [] = onNewSignal(obj,~,eventData)
                         trade.status_ = 'closed';
                     end
                     obj.book_.push(trade);
-                    exporttrade2mt4(trade,ei_i);
+                    if strcmpi(mode_i,'realtime')
+                        exporttrade2mt4(trade,ei_i);
+                    else
+                        freq = trade.opensignal_.frequency_;
+                        freqappendix = freq2mt4freq(freq);
+                        opendtstr = datestr(ei_i.px(end,1),'yyyymmdd');
+                        fn = [getenv('OneDrive'),'\mt4\replay\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+                        exporttrade2mt4(trade,ei_i,fn);
+                    end
                 else
                     %
                 end
@@ -60,7 +69,15 @@ function [] = onNewSignal(obj,~,eventData)
                         trade.status_ = 'closed';
                     end
                     obj.book_.push(trade);
-                    exporttrade2mt4(trade,ei_i);
+                    if strcmpi(mode_i,'realtime')
+                        exporttrade2mt4(trade,ei_i);
+                    else
+                        freq = trade.opensignal_.frequency_;
+                        freqappendix = freq2mt4freq(freq);
+                        opendtstr = datestr(ei_i.px(end,1),'yyyymmdd');
+                        fn = [getenv('OneDrive'),'\mt4\replay\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+                        exporttrade2mt4(trade,ei_i,fn);
+                    end
                 else
                     %
                 end
@@ -106,7 +123,15 @@ function [] = onNewSignal(obj,~,eventData)
                         trade.status_ = 'closed';
                     end
                     obj.book_.push(trade);
-                    exporttrade2mt4(trade,ei_i);
+                    if strcmpi(mode_i,'realtime')
+                        exporttrade2mt4(trade,ei_i);
+                    else
+                        freq = trade.opensignal_.frequency_;
+                        freqappendix = freq2mt4freq(freq);
+                        opendtstr = datestr(ei_i.px(end,1),'yyyymmdd');
+                        fn = [getenv('OneDrive'),'\mt4\replay\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+                        exporttrade2mt4(trade,ei_i,fn);
+                    end
                 end
             end
         else
@@ -137,7 +162,15 @@ function [] = onNewSignal(obj,~,eventData)
                     trade.status_ = 'closed';
                 end
                 obj.book_.push(trade);
-                exporttrade2mt4(trade,ei_i);
+                if strcmpi(mode_i,'realtime')
+                    exporttrade2mt4(trade,ei_i);
+                else
+                    freq = trade.opensignal_.frequency_;
+                    freqappendix = freq2mt4freq(freq);
+                    opendtstr = datestr(ei_i.px(end,1),'yyyymmdd');
+                    fn = [getenv('OneDrive'),'\mt4\replay\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+                    exporttrade2mt4(trade,ei_i,fn);
+                end
             else
                 pendingtrade = fractal_gentrade3_mt4(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
                 if ~isempty(pendingtrade) 
@@ -146,8 +179,18 @@ function [] = onNewSignal(obj,~,eventData)
                     elseif pendingtrade.opendirection_ == -2 && (obj.hasShortPosition(code_i,freq_i,'direction',-2,'status','unset') || obj.hasShortPosition(code_i,freq_i))
                         continue;
                     end
+                    %the conditional order can be placed even if a same
+                    %directional trade was just unwinded
                     obj.pendingbook_.push(pendingtrade);
-                    exporttrade2mt4(pendingtrade,ei_i);
+                    if strcmpi(mode_i,'realtime')
+                        exporttrade2mt4(pendingtrade,ei_i);
+                    else
+                        freq = pendingtrade.opensignal_.frequency_;
+                        freqappendix = freq2mt4freq(freq);
+                        opendtstr = datestr(ei_i.px(end,1),'yyyymmdd');
+                        fn = [getenv('OneDrive'),'\mt4\replay\',pendingtrade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+                        exporttrade2mt4(pendingtrade,ei_i,fn);
+                    end
                 end
                 %the pending trade shall be updated when new market data
                 %arrived(shall be tick in reality)

@@ -5,6 +5,7 @@ function [] = onNewData(obj,~,eventData)
     newSignals = zeros(ncodes,1);
     newIndicators = zeros(ncodes,1);
     symbols = cell(ncodes,1);
+    modes = cell(ncodes,1);
     for i = 1:ncodes
         strsplit = regexp(obj.codes_{i},'-','split');
         symbols{i} = strsplit{1};
@@ -19,6 +20,7 @@ function [] = onNewData(obj,~,eventData)
             end
             newcandle_i = [data_i.time,data_i.open,data_i.high,data_i.low,data_i.close];
             newIndicators(i) = 1;
+            modes{i} = data_i.mode;
             candles_i = obj.candles_{i};
             obj.candles_{i} = [candles_i;newcandle_i];
             
@@ -36,10 +38,13 @@ function [] = onNewData(obj,~,eventData)
     
     if nindicator > 0
         data = struct('codes_',{obj.codes_},...
+            'freq_',{obj.freq_},...
             'ei_',{obj.extrainfo_},...
             'kellytables_',{obj.kellytables_},...
             'signals_',{obj.signals_},...
-            'newindicators_',{newIndicators});
+            'newindicators_',{newIndicators},...
+            'newsignals_',{newSignals},...
+            'modes_',{modes});
         notify(obj,'NewIndicatorGenerated',charlotteDataFeedEventData(data));
     end
     
@@ -49,7 +54,8 @@ function [] = onNewData(obj,~,eventData)
             'codes_',{obj.codes_},...
             'freq_',{obj.freq_},...
             'kellytables_',{obj.kellytables_},...
-            'newsignals_',{newSignals});
+            'newsignals_',{newSignals},...
+            'modes_',{modes});
         notify(obj,'NewSignalGenerated',charlotteDataFeedEventData(data));
     end
     

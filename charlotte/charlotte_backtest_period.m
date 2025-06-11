@@ -21,6 +21,12 @@ if strcmpi(freq,'30m') || strcmpi(freq,'15m') || strcmpi(freq,'m30') || strcmpi(
 elseif strcmpi(freq,'5m') || strcmpi(freq,'m5')
     if isempty(nfractal), nfractal = 6;end
     tickratio = 0;
+elseif strcmpi(freq,'1h') || strcmpi(freq,'h1')
+    if isempty(nfractal), nfractal = 4;end
+    tickratio = 0.5;
+elseif strcmpi(freq,'4h') || strcmpi(freq,'h4')    
+    if isempty(nfractal), nfractal = 2;end
+    tickratio = 1;
 elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m')
     if isempty(nfractal), nfractal = 2;end
     tickratio = 1;

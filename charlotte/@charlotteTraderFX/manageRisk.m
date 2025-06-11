@@ -20,6 +20,7 @@ function [] = manageRisk(obj,data)
     kellytables = data.kellytables_;
     signals = data.signals_;
     newindicators = data.newindicators_;
+    modes = data.modes_;
     for i = 1:nLive
         trade_i = liveTrades.node_(i);
         idxfound = 0;
@@ -133,7 +134,15 @@ function [] = manageRisk(obj,data)
             
         end
         %
-        exporttrade2mt4(trade_i,ei{idxfound});
+        if strcmpi(modes{idxfound},'realtime')
+            exporttrade2mt4(trade_i,ei{idxfound});
+        else
+            freq = trade_i.opensignal_.frequency_;
+            freqappendix = freq2mt4freq(freq);
+            opendtstr = datestr(ei{idxfound}.px(end,1),'yyyymmdd');
+            fn = [getenv('OneDrive'),'\mt4\replay\',trade_i.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+            exporttrade2mt4(trade_i,ei{idxfound},fn);
+        end
         
     end
     

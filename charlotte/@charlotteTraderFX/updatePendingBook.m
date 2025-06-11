@@ -8,6 +8,7 @@ function [] = updatePendingBook(obj,data)
     kellytables = data.kellytables_;
     signals = data.signals_;
     newindicators = data.newindicators_;
+    modes = data.modes_;
     
     pendingtrades2remove = cTradeOpenArray;
     
@@ -37,6 +38,9 @@ function [] = updatePendingBook(obj,data)
         end
         
         frequency = trade_i.opensignal_.frequency_;
+        freqappendix = freq2mt4freq(frequency);
+        opendtstr = datestr(ei{idxfound}.px(end,1),'yyyymmdd');
+        fn = [getenv('OneDrive'),'\mt4\replay\',trade_i.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
         nfractal = charlotte_freq2nfractal(frequency);
         trade = fractal_gentrade2(ei{idxfound},trade_i.code_,size(ei{idxfound}.px,1),frequency,nfractal,kellytables{idxfound});
         
@@ -54,13 +58,21 @@ function [] = updatePendingBook(obj,data)
                 pendingtrades2remove.push(trade_i);
                 trade_i.status_ = 'closed';
 %                 obj.pendingbook_.removebyindex(i);
-                exporttrade2mt4(trade_i,ei{idxfound});
+                if strcmpi(modes{idxfound},'realtime')
+                    exporttrade2mt4(trade_i,ei{idxfound});
+                else
+                    exporttrade2mt4(trade_i,ei{idxfound},fn);
+                end
             else
                 if signals{idxfound}.directionkellied == 0
                     trade_i.status_ = 'closed';
                     pendingtrades2remove.push(trade_i);
 %                     obj.pendingbook_.removebyindex(i);
-                    exporttrade2mt4(trade_i,ei{idxfound});
+                    if strcmpi(modes{idxfound},'realtime')
+                        exporttrade2mt4(trade_i,ei{idxfound});
+                    else
+                        exporttrade2mt4(trade_i,ei{idxfound},fn);
+                    end
                 end
             end
         end
@@ -97,7 +109,11 @@ function [] = updatePendingBook(obj,data)
         if ~newindicators(idxfound)
             continue;
         end
-        exporttrade2mt4(trade_i,ei{idxfound});
+        if strcmpi(modes{idxfound},'realtime')
+            exporttrade2mt4(trade_i,ei{idxfound});
+        else
+            exporttrade2mt4(trade_i,ei{idxfound},fn);
+        end
     end
     
     
