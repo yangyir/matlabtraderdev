@@ -16,11 +16,11 @@ elseif strcmpi(freq2check,'4h')
 end
 
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
-strat_fx_existing = load([dir_,'strat_fx_',appendix,'.mat']);
-strat_fx_existing = strat_fx_existing.(['strat_fx_',appendix]);
+strat_fx_i = load([dir_,'strat_fx_',appendix,'.mat']);
+strat_fx_i = strat_fx_i.(['strat_fx_',appendix]);
 %
 nfractal2check = charlotte_freq2nfractal(freq2check);
-[ut,ct,tbl2check_fx] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_existing,'showlogs',true,'doplot',true,'frequency',freq2check,'nfractal',nfractal2check);
+[ut,ct,tbl2check_fx] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',true,'doplot',true,'frequency',freq2check,'nfractal',nfractal2check);
 open tbl2check_fx
 %%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
@@ -178,6 +178,47 @@ for i = 1:nSelect
     end
 end
  tblSelected = sortrows(tblSelected,'opendatetime','ascend');
- writetable(tblSelected,'C:\tmp\tblselected.xlsx');
+ writetable(tblSelected,'C:\yangyiran\tblselected.xlsx');
+%%
+replay1 = '2025-06-09';
+replay2 = '2025-06-11';
+for i = 1:nSelect
+    strat_fx_i = load([dir_,'strat_fx_',codesSelected{i,2},'.mat']);
+    strat_fx_i = strat_fx_i.(['strat_fx_',codesSelected{i,2}]);
+    nfractal2check = charlotte_freq2nfractal(codesSelected{i,2});
+    [~,~,tbl2check_i] = charlotte_backtest_period('code',codesSelected{i,1},'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',false,'doplot',false,'frequency',codesSelected{i,2},'nfractal',nfractal2check);
+    ntrades = size(tbl2check_i,1);
+    freqs = cell(ntrades,1);
+    for j = 1:ntrades
+        freqs{j} = codesSelected{i,2};
+    end
+    if ~isempty(tbl2check_i)
+        tbl2check_i.freq = freqs;
+    end
+        
+    if i == 1
+        if ~isempty(tbl2check_i)
+            tbl2check_month = tbl2check_i;
+        else
+            tbl2check_month = [];
+        end
+    else
+        if ~isempty(tbl2check_month)
+            if ~isempty(tbl2check_i)
+                tbl2check_month = union(tbl2check_month,tbl2check_i);
+            end
+        else
+            if ~isempty(tbl2check_i)
+                tbl2check_month = tbl2check_i;
+            else
+                tbl2check_month = [];
+            end
+        end
+    end
+end
+tbl2check_month = sortrows(tbl2check_month,'opendatetime','ascend');
+writetable(tbl2check_month,'C:\yangyiran\tbl2check_month.xlsx');
+%%
+
 
 
