@@ -35,7 +35,7 @@ kRet = zeros(100,1);
 maxDrawdown = zeros(100,1);
 annualRet = zeros(100,1);
 freqcol = cell(100,1);
-cashpnl = zeros(100,1);
+% cashpnl = zeros(100,1);
 for ifreq = 1:length(freqs)
     data = load([dir_,'tbl2check_fx_',freqsmt4{ifreq},'_all.mat']);
     tbl2check = data.(['tbl2check_fx_',freqsmt4{ifreq},'_all']);
@@ -68,7 +68,7 @@ for ifreq = 1:length(freqs)
         t1 = datenum(t1(1),'yyyy-mm-dd HH:MM:SS');
         deltaT = (t2-t1)/365;
         annualRet(count) = pnlretcum(end)/deltaT;
-        cashpnl(count) = sum(tbl2check.closepnl(idxselect));
+%         cashpnl(count) = sum(tbl2check.closepnl(idxselect));
     end
 end
 code = code(1:count);
@@ -80,7 +80,8 @@ kRet = kRet(1:count);
 cashpnl = cashpnl(1:count);
 maxDrawdown = maxDrawdown(1:count);
 annualRet = annualRet(1:count);
-tblreport = table(code,freqcol,nTotal,pWin,rRet,kRet,maxDrawdown,annualRet,cashpnl);
+% tblreport = table(code,freqcol,nTotal,pWin,rRet,kRet,maxDrawdown,annualRet,cashpnl);
+tblreport = table(code,freqcol,nTotal,pWin,rRet,kRet,maxDrawdown,annualRet);
 tblreport = sortrows(tblreport,'code','ascend');
 open tblreport;
 %%
@@ -127,7 +128,7 @@ for i = 1:n
         nSelect = nSelect + 1;
         codesSelected{nSelect,1} = tblreport.code{i};
         codesSelected{nSelect,2} = tblreport.freqcol{i};
-        codesSelected{nSelect,3} = tblreport.cashpnl(i);
+%         codesSelected{nSelect,3} = tblreport.cashpnl(i);
     end        
 end
 codesSelected = codesSelected(1:nSelect,:);
@@ -138,17 +139,20 @@ for i = 1:nSelect
     data = load([dir_,'tbl2check_fx_',codesSelected{i,2},'_all.mat']);
     tbl2check = data.(['tbl2check_fx_',codesSelected{i,2},'_all']);
     idx2check = strcmpi(tbl2check.code,codesSelected{i,1});
-    pnl2check = tbl2check.closepnl(idx2check);
+    pnlrel2check = tbl2check.pnlrel(idx2check);
+    notional2check = tbl2check.opennotional(idx2check);
     if strcmpi(codesSelected{i,1},'audusd') || ...
             strcmpi(codesSelected{i,1},'eurusd') || ...
             strcmpi(codesSelected{i,1},'gbpusd')
-        codesSelected{i,4} = 18*size(pnl2check,1);
+        codesSelected{i,3} = sum(pnlrel2check);
+        codesSelected{i,4} = sum(18/notional2check);
     elseif strcmpi(codesSelected{i,1},'xauusd')
-        codesSelected{i,4} = 15*size(pnl2check,1);
+        codesSelected{i,3} = sum(pnl2check);
+        codesSelected{i,4} = sum(15/notional2check);
     else
-        pnlrel2check = tbl2check.pnlrel(idx2check);
-        codesSelected{i,3} = 1e5*sum(pnlrel2check);
-        codesSelected{i,4} = 18*size(pnlrel2check,1);
+        
+        codesSelected{i,3} = sum(pnlrel2check);
+        codesSelected{i,4} = size(pnlrel2check,1)*18/1e5;
     end
     if codesSelected{i,3} > codesSelected{i,4}
         codesSelected{i,5} = 'select';
