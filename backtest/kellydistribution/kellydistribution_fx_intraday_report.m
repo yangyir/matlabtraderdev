@@ -1,21 +1,11 @@
-code2check = 'USDJPY';
-freq2check = '4h';
+code2check = 'XAUUSD';
+freq2check = '30M';
 replay1 = '2025-06-11';
-replay2 = '2025-06-12';
+replay2 = '2025-06-13';
 showLogs = true;
 doPlot = true;
 
-if strcmpi(freq2check,'5m')
-    appendix = 'm5';
-elseif strcmpi(freq2check,'15m')
-    appendix = 'm15';
-elseif strcmpi(freq2check,'30m')
-    appendix = 'm30';
-elseif strcmpi(freq2check,'1h')
-    appendix = 'h1';
-elseif strcmpi(freq2check,'4h')
-    appendix = 'h4';
-end
+appendix = lower(freq2mt4freq(freq2check));
 
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 strat_fx_i = load([dir_,'strat_fx_',appendix,'.mat']);
@@ -36,8 +26,9 @@ rRet = zeros(100,1);
 kRet = zeros(100,1);
 maxDrawdown = zeros(100,1);
 annualRet = zeros(100,1);
-freqcol = cell(100,1);
+freq = cell(100,1);
 % cashpnl = zeros(100,1);
+riskLimit = zeros(100,1);
 for ifreq = 1:length(freqs)
     data = load([dir_,'tbl2check_fx_',freqsmt4{ifreq},'_all.mat']);
     tbl2check = data.(['tbl2check_fx_',freqsmt4{ifreq},'_all']);
@@ -58,7 +49,7 @@ for ifreq = 1:length(freqs)
         pnlretdrawdownmax = min(pnlretdrawdown);
         count = count + 1;
         code{count} = codes_fx{i};
-        freqcol{count} = freqsmt4{ifreq};
+        freq{count} = freqsmt4{ifreq};
         nTotal(count) = size(pnlret,1);
         pWin(count) = Wret;
         rRet(count) = Rret;
@@ -71,19 +62,25 @@ for ifreq = 1:length(freqs)
         deltaT = (t2-t1)/365;
         annualRet(count) = pnlretcum(end)/deltaT;
 %         cashpnl(count) = sum(tbl2check.closepnl(idxselect));
+        if strcmpi(codes_fx{i},'xauusd')
+            riskLimit(count) = 1000;
+        else
+            riskLimit(count) = 500;
+        end
     end
 end
 code = code(1:count);
-freqcol = freqcol(1:count);
+freq = freq(1:count);
 nTotal = nTotal(1:count);
 pWin = pWin(1:count);
 rRet = rRet(1:count);
 kRet = kRet(1:count);
-cashpnl = cashpnl(1:count);
+% cashpnl = cashpnl(1:count);
 maxDrawdown = maxDrawdown(1:count);
 annualRet = annualRet(1:count);
+riskLimit = riskLimit(1:count);
 % tblreport = table(code,freqcol,nTotal,pWin,rRet,kRet,maxDrawdown,annualRet,cashpnl);
-tblreport = table(code,freqcol,nTotal,pWin,rRet,kRet,maxDrawdown,annualRet);
+tblreport = table(code,freq,nTotal,pWin,rRet,kRet,maxDrawdown,annualRet,riskLimit);
 tblreport = sortrows(tblreport,'code','ascend');
 open tblreport;
 %%
@@ -91,7 +88,7 @@ path_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\'];
 fn_ = 'kellytable.txt';
 fid = fopen([path_,fn_],'w');
 if fid
-    fprintf(fid,'%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n',...
+    fprintf(fid,'%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n',...
         'code',...
         'freq',...
         'nTotal',...
@@ -99,17 +96,19 @@ if fid
         'rRet',...
         'kRet',...
         'maxDrawdownRet',...
-        'annualRet');
+        'annualRet',...
+        'riskLimit');
     for i = 1:size(tblreport,1)
-        fprintf(fid,'%s\t%s\t%d\t%f\t%f\t%f\t%f\t%f\n',...
+        fprintf(fid,'%s\t%s\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n',...
             [upper(code{i}),'.lmx'],...
-            upper(freqcol{i}),...
+            upper(freq{i}),...
             nTotal(i),...
             pWin(i),...
             rRet(i),...
             kRet(i),...
             maxDrawdown(i),...
-            annualRet(i));
+            annualRet(i),...
+            riskLimit(i));
             
         
     end
