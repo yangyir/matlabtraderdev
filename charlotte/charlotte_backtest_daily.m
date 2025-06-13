@@ -208,8 +208,13 @@ while i <= idx2
                 ei_j.latestopen = extrainfo.px(j,5);
                 ei_j.latestdt = extrainfo.px(j,1);
             else
-                ei_j.latestopen = extrainfo.px(j+1,2);
-                ei_j.latestdt = extrainfo.px(j+1,1);
+                if ~isfx(futcode)
+                    ei_j.latestopen = extrainfo.px(j+1,2);
+                    ei_j.latestdt = extrainfo.px(j+1,1);
+                else
+                    ei_j.latestopen = extrainfo.px(j,5);
+                    ei_j.latestdt = extrainfo.px(j,1);
+                end
             end
             %
             runflag = false;
