@@ -1,7 +1,9 @@
-code2check = 'XAUUSD';
-freq2check = '15m';
-replay1 = '2025-06-04';
-replay2 = '2025-06-05';
+code2check = 'USDJPY';
+freq2check = '4h';
+replay1 = '2025-06-11';
+replay2 = '2025-06-12';
+showLogs = true;
+doPlot = true;
 
 if strcmpi(freq2check,'5m')
     appendix = 'm5';
@@ -20,7 +22,7 @@ strat_fx_i = load([dir_,'strat_fx_',appendix,'.mat']);
 strat_fx_i = strat_fx_i.(['strat_fx_',appendix]);
 %
 nfractal2check = charlotte_freq2nfractal(freq2check);
-[ut,ct,tbl2check_fx] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',true,'doplot',true,'frequency',freq2check,'nfractal',nfractal2check);
+[ut,ct,tbl2check_fx] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',showLogs,'doplot',doPlot,'frequency',freq2check,'nfractal',nfractal2check);
 open tbl2check_fx
 %%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
