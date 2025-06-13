@@ -77,6 +77,9 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             else
                 %do nothing
             end
+            if ~isempty(unwindtrade)
+                return
+            end
         end
     end
     % for cETFWatcher useage only
