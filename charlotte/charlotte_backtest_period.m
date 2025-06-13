@@ -27,7 +27,7 @@ elseif strcmpi(freq,'1h') || strcmpi(freq,'h1')
 elseif strcmpi(freq,'4h') || strcmpi(freq,'h4')    
     if isempty(nfractal), nfractal = 2;end
     tickratio = 1;
-elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m')
+elseif strcmpi(freq,'daily') || strcmpi(freq,'1440m') || strcmpi(freq,'d1')
     if isempty(nfractal), nfractal = 2;end
     tickratio = 1;
 else
@@ -213,7 +213,7 @@ else
     idxstart = find(resstruct.px(:,1) >= datenum(dt3,'yyyy-mm-dd HH:MM'),1,'first');
     idxend = find(resstruct.px(:,1) <= datenum(dt4,'yyyy-mm-dd HH:MM'),1,'last');
     dts = resstruct.px(idxstart:idxend,1);
-    if ~(strcmpi(freq,'daily') || strcmpi(freq,'1440m'))
+    if ~(strcmpi(freq,'daily') || strcmpi(freq,'1440m') || strcmpi(freq,'d1'))
         dts = floor(dts);
         dts = unique(dts);
     end
