@@ -199,12 +199,12 @@ elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     if isempty(nfractal),nfractal = 2;end
     if strcmpi(futcode,'brent') || strcmpi(futcode,'wti')
     elseif isfx(futcode)
-        if strcmpi(source,'MT4')
-            data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_daily.mat']);
+%         if strcmpi(source,'MT4')
+            data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_D1.mat']);
             data = data.data;
-        else
-            data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',futcode,'_daily.txt']);
-        end
+%         else
+%             data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',futcode,'_daily.txt']);
+%         end
     elseif isinequitypool(futcode)
         data = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',futcode,'_daily.txt']);
     else
