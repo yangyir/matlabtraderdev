@@ -76,9 +76,14 @@ if ~isglobalmacro
         cp = cDataFileIO.loadDataFromTxtFile(fn);
     end
 else
-    fn = [code,'_daily.txt'];
-    datadir_ = [getenv('datapath'),'globalmacro\'];
-    cp = cDataFileIO.loadDataFromTxtFile([datadir_,fn]);
+    if isfx(code)
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',code,'_MT4_D1.mat']);
+        cp = data.data;
+    else
+        fn = [code,'_daily.txt'];
+        datadir_ = [getenv('datapath'),'globalmacro\'];
+        cp = cDataFileIO.loadDataFromTxtFile([datadir_,fn]);
+    end
 end
 if isempty(cp), error('fractal_daily_checker:invalid code input or data not stored');end
 
