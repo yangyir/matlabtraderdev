@@ -61,7 +61,11 @@ function [ret] = mt4_dataupdate(code)
                 data = datamat_existing;
             else
                 %the last bar might not be completed upon downloading
-                data = [datamat_existing(1:end-1,:);datamat_added];
+                if i ~= 6
+                    data = [datamat_existing(1:end-1,:);datamat_added];
+                else
+                    data = [datamat_existing(1:end-1,:);datamat_added(:,1:5)];
+                end
             end
         else
             data = datamat_new;
