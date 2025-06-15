@@ -187,6 +187,7 @@ elseif condsignal.directionkellied == 1
             mode = 'conditional-uptrendconfirmed-3';
             sclastidx = find(ei_.sc==13,1,'last');
             td13low_ = ei_.px(sclastidx,4);
+            td13high_ = ei_.px(sclastidx,3);
         else
             mode = 'conditional-uptrendconfirmed';
         end
@@ -329,6 +330,13 @@ elseif condsignal.directionkellied == 1
             end
         end
         %
+        if ~isnan(trade.riskmanager_.tdlow_)
+            if trade.riskmanager_.tdlow_ - (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdlow_ - (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_);
+                trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
+            end
+        end
+        %
         if ei_.sc(end) == 13
             trade.riskmanager_.td13high_ = ei_.px(end,3);
             trade.riskmanager_.td13low_ = ei_.px(end,4);
@@ -337,6 +345,14 @@ elseif condsignal.directionkellied == 1
                 trade.riskmanager_.closestr_ = 'tdsq:sc13break';
             end
         end
+        %
+        if ~isnan(trade.riskmanager_.td13low_)
+            if trade.riskmanager_.td13low_ - (trade.riskmanager_.td13high_ - trade.riskmanager_.td13low_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.td13low_ - (trade.riskmanager_.td13high_ - trade.riskmanager_.td13low_);
+                trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+            end
+        end
+        %
         if resstruct.teeth(idx-1) > trade.riskmanager_.pxstoploss_
             trade.riskmanager_.pxstoploss_ = floor(resstruct.teeth(idx-1)/fut.tick_size)*fut.tick_size;
             trade.riskmanager_.closestr_ = 'fractal:teeth';
@@ -366,6 +382,7 @@ elseif condsignal.directionkellied == -1
             mode = 'conditional-dntrendconfirmed-3';
             bclastidx = find(ei_.bc==13,1,'last');
             td13high_ = ei_.px(bclastidx,3);
+            td13low_ = ei_.px(bclastidx,4);
         else
             mode = 'conditional-dntrendconfirmed';
         end
@@ -508,11 +525,25 @@ elseif condsignal.directionkellied == -1
             end
         end
         %
+        if ~isnan(trade.riskmanager_.tdhigh_)
+            if trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_) < trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_);
+                trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
+            end
+        end
+        %
         if ei_.bc(end) == 13
             trade.riskmanager_.td13low_ = ei_.px(end,4);
             trade.riskmanager_.td13high_ = ei_.px(end,3);
-            if trade.riskmanager_.tdhigh_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_) > trade.riskmanager_.pxstoploss_
-                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_);
+            if trade.riskmanager_.td13high_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.td13high_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_);
+                trade.riskmanager_.closestr_ = 'tdsq:bc13break';
+            end
+        end
+        %
+        if ~isnan(trade.riskmanager_.td13low_)
+            if trade.riskmanager_.td13high_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.td13high_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_);
                 trade.riskmanager_.closestr_ = 'tdsq:bc13break';
             end
         end
