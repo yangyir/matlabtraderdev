@@ -53,6 +53,7 @@ elseif condsignal.directionkellied == 1
             mode = 'conditional-uptrendconfirmed-3';
             sclastidx = find(ei.sc==13,1,'last');
             td13low_ = ei.px(sclastidx,4);
+            td13high_ = ei.px(sclastidx,5);
         else
             mode = 'conditional-uptrendconfirmed';
         end
@@ -100,6 +101,19 @@ elseif condsignal.directionkellied == 1
         %
         trade.riskmanager_.pxstoploss_ = floor(resstruct.teeth(idx-1)/fut.tick_size)*fut.tick_size;
         trade.riskmanager_.closestr_ = 'fractal:teeth';
+        if ~isnan(trade.riskmanager_.tdlow_)
+            if trade.riskmanager_.tdlow_ - (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdlow_ - (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_);
+                trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
+            end
+        elseif ~isnan(trade.riskmanager_.td13low_)
+            if trade.riskmanager_.td13low_ - (trade.riskmanager_.td13high_ - trade.riskmanager_.td13low_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.td13low_ - (trade.riskmanager_.td13high_ - trade.riskmanager_.td13low_);
+                trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+            end
+        else
+            %
+        end
         %
         trade.status_ = 'unset';
         trade.riskmanager_.status_ = 'unset';
@@ -125,6 +139,7 @@ elseif condsignal.directionkellied == -1
             mode = 'conditional-dntrendconfirmed-3';
             bclastidx = find(ei.bc==13,1,'last');
             td13high_ = ei.px(bclastidx,3);
+            td13low_ = ei.px(bclastidx,4);
         else
             mode = 'conditional-dntrendconfirmed';
         end
@@ -173,6 +188,18 @@ elseif condsignal.directionkellied == -1
         %
         trade.riskmanager_.pxstoploss_ = ceil(resstruct.teeth(idx)/fut.tick_size)*fut.tick_size;
         trade.riskmanager_.closestr_ = 'fractal:teeth';
+        if ~isnan(trade.riskmanager_.tdlow_)
+            if trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_) < trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_ + (trade.riskmanager_.tdhigh_-trade.riskmanager_.tdlow_);
+                trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
+            end
+        elseif ~isnan(trade.riskmanager_.td13low_)
+            if trade.riskmanager_.td13high_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_) > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = trade.riskmanager_.td13high_ + (trade.riskmanager_.td13high_-trade.riskmanager_.td13low_);
+                trade.riskmanager_.closestr_ = 'tdsq:bc13break';
+            end
+        else
+        end
         %
         trade.status_ = 'unset';
         trade.riskmanager_.status_ = 'unset';
