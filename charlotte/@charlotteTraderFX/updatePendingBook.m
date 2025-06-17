@@ -82,7 +82,8 @@ function [] = updatePendingBook(obj,data)
     for i = 1:n2remove
         trade2remove_i = pendingtrades2remove.node_(i);
         for j = 1:obj.pendingbook_.latest_
-            if strcmpi(trade2remove_i.code_,obj.pendingbook_.node_(j).code_)
+            if strcmpi(trade2remove_i.code_,obj.pendingbook_.node_(j).code_) && ...
+                    strcmpi(trade2remove_i.opensignal_.frequency_,obj.pendingbook_.node_(j).opensignal_.frequency_)
                 obj.pendingbook_.removebyindex(j);
 %                 idxfound = 0;
 %                 for k = 1:size(codes,1)
