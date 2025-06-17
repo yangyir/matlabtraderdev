@@ -55,6 +55,7 @@ function [ret] = mt4_dataupdate(code)
         %
         if ~isempty(datamat_existing)
             lastdt = datamat_existing(end,1);
+            fprintf('%20s:last bar time:%s\n',fns_out{i},datestr(lastdt,'yyyy-mm-dd HH:MM'));
             idxadded = datamat_new(:,1) >= lastdt;
             datamat_added = datamat_new(idxadded,:);
             if isempty(datamat_added)
