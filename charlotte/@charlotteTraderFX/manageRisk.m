@@ -143,6 +143,36 @@ function [] = manageRisk(obj,data)
             fn = [getenv('OneDrive'),'\mt4\replay\',trade_i.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
             exporttrade2mt4(trade_i,ei{idxfound},fn);
         end
+        %
+        %here is a tricky part, i.e. the trade_i is closed but there still
+        %a (conditional) signal
+        if strcmpi(trade_i.status_,'closed') && ~isempty(signals{idxfound})
+            signal = signals{idxfound};
+            if ~(~isempty(strfind(signal.opkellied,'conditional')) || ~isempty(strfind(signal.opkellied,'potential')))
+                continue;
+            end
+            freq = trade_i.opensignal_.frequency_;
+            nfractal = charlotte_freq2nfractal(freq);
+            pendingtrade = fractal_gentrade3_mt4(ei{idxfound},trade_i.code_,size(ei{idxfound}.px,1),freq,nfractal,kellytables{idxfound});
+            if isempty(pendingtrade)
+                continue;
+            end
+            if pendingtrade.opendirection_ == 2 && (obj.hasLongPosition(trade_i.code_,freq) || obj.hasLongPosition(trade_i.code_,freq,'direction',2,'status','unset'))
+                continue;
+            elseif pendingtrade.opendirection_ == -2 && (obj.hasShortPosition(trade_i.code_,freq) || obj.hasShortPosition(trade_i.code_,freq,'direction',-2,'status','unset'))
+                continue;
+            end
+            obj.pendingbook_.push(pendingtrade);
+            if strcmpi(modes{idxfound},'realtime')
+                exporttrade2mt4(pendingtrade,ei{idxfound});
+            else
+                freqappendix = freq2mt4freq(freq);
+                opendtstr = datestr(ei{idxfound}.px(end,1),'yyyymmdd');
+                fn = [getenv('OneDrive'),'\mt4\replay\',trade_i.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+                exporttrade2mt4(pendingtrade,ei{idxfound},fn);
+            end
+        end
+        
         
     end
     
