@@ -15,6 +15,7 @@ nfractal2check = charlotte_freq2nfractal(freq2check);
 [ut,ct,tbl2check_fx] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',showLogs,'doplot',doPlot,'frequency',freq2check,'nfractal',nfractal2check);
 open tbl2check_fx
 %%
+dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
 freqs = {'5m';'15m';'30m';'1h';'4h'};
 freqsmt4 = {'m5';'m15';'m30';'h1';'h4'};
@@ -63,9 +64,9 @@ for ifreq = 1:length(freqs)
         annualRet(count) = pnlretcum(end)/deltaT;
 %         cashpnl(count) = sum(tbl2check.closepnl(idxselect));
         if strcmpi(codes_fx{i},'xauusd')
-            riskLimit(count) = 1000;
+            riskLimit(count) = 1300;
         else
-            riskLimit(count) = 500;
+            riskLimit(count) = 1000;
         end
     end
 end
@@ -128,7 +129,7 @@ for i = 1:n
             tblreport.pWin(i) > pThreshold
         nSelect = nSelect + 1;
         codesSelected{nSelect,1} = tblreport.code{i};
-        codesSelected{nSelect,2} = tblreport.freqcol{i};
+        codesSelected{nSelect,2} = tblreport.freq{i};
 %         codesSelected{nSelect,3} = tblreport.cashpnl(i);
     end        
 end
@@ -146,10 +147,10 @@ for i = 1:nSelect
             strcmpi(codesSelected{i,1},'eurusd') || ...
             strcmpi(codesSelected{i,1},'gbpusd')
         codesSelected{i,3} = sum(pnlrel2check);
-        codesSelected{i,4} = sum(18/notional2check);
+        codesSelected{i,4} = sum(18./notional2check);
     elseif strcmpi(codesSelected{i,1},'xauusd')
-        codesSelected{i,3} = sum(pnl2check);
-        codesSelected{i,4} = sum(15/notional2check);
+        codesSelected{i,3} = sum(pnlrel2check);
+        codesSelected{i,4} = sum(15./notional2check);
     else
         
         codesSelected{i,3} = sum(pnlrel2check);
@@ -164,7 +165,7 @@ end
 idxSelected = strcmpi(codesSelected(:,5),'select');
 codesSelected = codesSelected(idxSelected,:);
 %
-%
+%%
 nSelect = size(codesSelected,1);
 for i = 1:nSelect
     data = load([dir_,'tbl2check_fx_',codesSelected{i,2},'_all.mat']);
@@ -185,9 +186,9 @@ end
  tblSelected = sortrows(tblSelected,'opendatetime','ascend');
  writetable(tblSelected,'C:\yangyiran\tblselected.xlsx');
 %%
-replay1 = '2025-06-09';
-replay2 = '2025-06-11';
-for i = 1:nSelect
+replay1 = '2025-06-16';
+replay2 = '2025-06-17';
+for i = 1:size(codesSelected,1)
     strat_fx_i = load([dir_,'strat_fx_',codesSelected{i,2},'.mat']);
     strat_fx_i = strat_fx_i.(['strat_fx_',codesSelected{i,2}]);
     nfractal2check = charlotte_freq2nfractal(codesSelected{i,2});
