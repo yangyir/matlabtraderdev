@@ -1,7 +1,7 @@
-code2check = 'XAUUSD';
-freq2check = '30M';
-replay1 = '2025-06-11';
-replay2 = '2025-06-13';
+code2check = 'EURUSD';
+freq2check = '15m';
+replay1 = '2025-06-17';
+replay2 = '2025-06-18';
 showLogs = true;
 doPlot = true;
 
@@ -121,8 +121,8 @@ n = size(tblreport,1);
 nSelect = 0;
 codesSelected = cell(n,5);
 %
-kThreshold = 0.15;
-pThreshold = 0.4;
+kThreshold = -9.99;
+pThreshold = 0;
 %
 for i = 1:n
     if tblreport.kRet(i) > kThreshold && ...
@@ -147,14 +147,27 @@ for i = 1:nSelect
             strcmpi(codesSelected{i,1},'eurusd') || ...
             strcmpi(codesSelected{i,1},'gbpusd')
         codesSelected{i,3} = sum(pnlrel2check);
-        codesSelected{i,4} = sum(18./notional2check);
+        if strcmpi(codesSelected{i,1},'audusd')
+            baspread = 2;
+        elseif strcmpi(codesSelected{i,1},'eurusd')
+            baspread = 3;
+        elseif strcmpi(codesSelected{i,1},'gbpusd')
+            baspread = 4;
+        end
+        codesSelected{i,4} = sum((18+baspread)./notional2check);
     elseif strcmpi(codesSelected{i,1},'xauusd')
         codesSelected{i,3} = sum(pnlrel2check);
-        codesSelected{i,4} = sum(15./notional2check);
+        codesSelected{i,4} = sum((15+14)./notional2check);
     else
-        
+        if strcmpi(codesSelected{i,1},'usdcad')
+            baspread = 6;
+        elseif strcmpi(codesSelected{i,1},'usdchf')
+            baspread = 6;
+        elseif strcmpi(codesSelected{i,1},'usdjpy')
+            baspread = 5;
+        end
         codesSelected{i,3} = sum(pnlrel2check);
-        codesSelected{i,4} = size(pnlrel2check,1)*18/1e5;
+        codesSelected{i,4} = size(pnlrel2check,1)*(18+baspread)/1e5;
     end
     if codesSelected{i,3} > codesSelected{i,4}
         codesSelected{i,5} = 'select';
@@ -162,8 +175,8 @@ for i = 1:nSelect
         codesSelected{i,5} = 'high cost';
     end
 end
-idxSelected = strcmpi(codesSelected(:,5),'select');
-codesSelected = codesSelected(idxSelected,:);
+% idxSelected = strcmpi(codesSelected(:,5),'select');
+% codesSelected = codesSelected(idxSelected,:);
 %
 %%
 nSelect = size(codesSelected,1);
