@@ -178,10 +178,43 @@ function [] = onNewSignal(obj,~,eventData)
             else
                 pendingtrade = fractal_gentrade3_mt4(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
                 if ~isempty(pendingtrade) 
-                    if pendingtrade.opendirection_ == 2 && (obj.hasLongPosition(code_i,freq_i,'direction',2,'status','unset') || obj.hasLongPosition(code_i,freq_i))
-                        continue;
-                    elseif pendingtrade.opendirection_ == -2 && (obj.hasShortPosition(code_i,freq_i,'direction',-2,'status','unset') || obj.hasShortPosition(code_i,freq_i))
-                        continue;
+                    if pendingtrade.opendirection_ == 2
+                        if obj.hasLongPosition(code_i,freq_i)
+                            continue;
+                        else
+                            [flag,existingtrade] = obj.hasLongPosition(code_i,freq_i,'direction',2,'status','unset');
+                            if flag
+                                if existingtrade.openprice_ == pendingtrade.openprice_
+                                    continue;
+                                else
+                                    existingtrade.id_ = pendingtrade.id_;
+                                    existingtrade.openprice_ = pendingtrade.openprice_;
+                                    existingtrade.opensignal_ = pendingtrade.opensignal_;
+                                    existingtrade.riskmanager_ = pendingtrade.riskmanager_;
+                                    existingtrade.opendatetime1_ = pendingtrade.opendatetime1_;
+                                    continue;
+                                end
+                            end
+                        end
+                        %
+                    elseif pendingtrade.opendirection_ == -2 
+                        if obj.hasShortPosition(code_i,freq_i)
+                            continue;
+                        else
+                            [flag,existingtrade] = obj.hasShortPosition(code_i,freq_i,'direction',-2,'status','unset');
+                            if flag
+                                if existingtrade.openprice_ == pendingtrade.openprice_
+                                    continue;
+                                else
+                                    existingtrade.id_ = pendingtrade.id_;
+                                    existingtrade.openprice_ = pendingtrade.openprice_;
+                                    existingtrade.opensignal_ = pendingtrade.opensignal_;
+                                    existingtrade.riskmanager_ = pendingtrade.riskmanager_;
+                                    existingtrade.opendatetime1_ = pendingtrade.opendatetime1_;
+                                    continue;
+                                end
+                            end
+                        end
                     end
                     %the conditional order can be placed even if a same
                     %directional trade was just unwinded
