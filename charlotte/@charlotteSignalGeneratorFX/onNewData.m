@@ -25,7 +25,7 @@ function [] = onNewData(obj,~,eventData)
             obj.candles_{i} = [candles_i;newcandle_i];
             
             
-            obj.signals_{i} = obj.genSignal(symbols{i},obj.freq_{i});
+            obj.signals_{i} = obj.genSignal(symbols{i},obj.freq_{i},modes{i});
             if ~isempty(obj.signals_{i})
                 newSignals(i) = 1;
             end

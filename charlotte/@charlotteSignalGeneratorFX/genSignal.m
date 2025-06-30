@@ -1,4 +1,4 @@
-function [signal,ei] = genSignal(obj,code,freq)
+function [signal,ei] = genSignal(obj,code,freq,mode)
 % a charlotteSignalGeneratorFX function
     idxfound = -1;
     signal = [];
@@ -71,7 +71,14 @@ function [signal,ei] = genSignal(obj,code,freq)
     if ~isempty(signal)
         signal.code = code;
         signal.frequency = freq;
-        exportsignal2mt4(signal,ei);
+        if strcmpi(mode,'realtime')
+            exportsignal2mt4(signal,ei);
+        else
+            freqappendix = freq2mt4freq(freq);
+            opendtstr = datestr(ei.px(end,1),'yyyymmdd');
+            fn = [getenv('OneDrive'),'\mt4\replay\signals\',code,'.lmx_',freqappendix,'_signals_',opendtstr,'.txt'];
+            exportsignal2mt4(signal,ei,fn);
+        end
     end
     
     ei2plot = fractal_truncate(ei,size(ei.px,1),max(size(ei.px,1)-100,1));

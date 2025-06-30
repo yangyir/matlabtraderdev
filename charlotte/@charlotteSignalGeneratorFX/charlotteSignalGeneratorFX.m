@@ -34,7 +34,7 @@ classdef charlotteSignalGeneratorFX < handle
     methods (Access = private)
         obj = init(obj,varargin)
         [] = initCandles(obj)
-        [signal,ei] = genSignal(obj,code,freq)
+        [signal,ei] = genSignal(obj,code,freq,mode)
     end
 end
     
