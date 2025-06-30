@@ -116,11 +116,11 @@ function exportsignal2mt4(signal,extrainfo,fn)
     wprob = signal.wprob;
     
     if strcmpi(signal.code,'XAUUSD')
-        exportformat = '%s\t%s\t%s\t%d\t%4.2f\t%4.2f\t%s\t%4.4f\t%4.4f\n';
+        exportformat = '%s\t%s\t%s\t%d\t%4.2f\t%4.2f\t%s\t%4.4f\t%4.4f\t%4.2f\t%4.2f\n';
     elseif strcmpi(signal.code,'USDJPY')
-        exportformat = '%s\t%s\t%s\t%d\t%4.3f\t%4.3f\t%s\t%4.4f\t%4.4f\n';
+        exportformat = '%s\t%s\t%s\t%d\t%4.3f\t%4.3f\t%s\t%4.4f\t%4.4f\t%4.3f\t%4.3f\n';
     else
-        exportformat = '%s\t%s\t%s\t%d\t%4.4f\t%4.4f\t%s\t%4.4f\t%4.4f\n';
+        exportformat = '%s\t%s\t%s\t%d\t%4.4f\t%4.4f\t%s\t%4.4f\t%4.4f\t%4.4f\t%4.4f\n';
     end
     
     fid = fopen(fn,'a');
@@ -133,7 +133,9 @@ function exportsignal2mt4(signal,extrainfo,fn)
         stoploss,...
         comment,...
         kelly,...
-        wprob);
+        wprob,...
+        signal.signalkellied(2),...
+        signal.signalkellied(3));
     
     fclose(fid);
     
