@@ -6,10 +6,15 @@ codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
 freq_m5 = 'm5';
 nfractal_m5 = charlotte_freq2nfractal(freq_m5);
 %%
-output_fx_m5 = fractal_kelly_summary('codes',codes_fx,...
-    'frequency','intraday-5m','usefractalupdate',0,'usefibonacci',1,'direction','both',...
-    'nfractal',nfractal_m5);
-[~,~,tbl_fx_m5,~,~,~,~,strat_fx_m5] = kellydistributionsummary(output_fx_m5);
+recalib_flag = input('Recalibrate Kelly Tables?Y/N: ','s');
+if strcmpi(recalib_flag,'Y')
+    output_fx_m5 = fractal_kelly_summary('codes',codes_fx,...
+        'frequency','intraday-5m','usefractalupdate',0,'usefibonacci',1,'direction','both',...
+        'nfractal',nfractal_m5);
+    [~,~,tbl_fx_m5,~,~,~,~,strat_fx_m5] = kellydistributionsummary(output_fx_m5);
+else
+    strat_fx_m5 = strat_fx_m5_existing;
+end
 %%
 charlotte_strat_compare('strat1',strat_fx_m5_existing,'strat2',strat_fx_m5,'assetname','eurusd');
 %%
