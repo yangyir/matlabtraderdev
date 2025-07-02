@@ -11,11 +11,11 @@ classdef charlotteDataFeedFut < handle
         running_@logical = false
         status_@char = 'sleep';
         updateinterval_@double = 0.5    %default interval of 0.5 seconds
+        qms_
     end
     
     properties (Access = private)
         timer_
-        qms_
         qmsconnected_@logical = false
         lastticktime_@double
         lasttrade_@double
