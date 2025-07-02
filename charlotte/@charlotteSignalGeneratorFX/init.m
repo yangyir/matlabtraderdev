@@ -104,6 +104,6 @@ function obj = init(obj,varargin)
     %
     obj.extrainfo_ = cell(ncodes,1);
     for i= 1:ncodes
-        obj.signals_{i} = obj.genSignal(symbols{i},obj.freq_{i});
+        obj.signals_{i} = obj.genSignal(symbols{i},obj.freq_{i},datafeed.mode_);
     end
 end
