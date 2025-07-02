@@ -1,14 +1,19 @@
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 strat_fx_m30_existing = load([dir_,'strat_fx_m30.mat']);
 strat_fx_m30_existing = strat_fx_m30_existing.strat_fx_m30;
-%%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
 freq_m30 = '30m';
 nfractal_m30 = charlotte_freq2nfractal(freq_m30);
-output_fx_m30 = fractal_kelly_summary('codes',codes_fx,...
-    'frequency',['intraday-',freq_m30],'usefractalupdate',0,'usefibonacci',1,'direction','both',...
-    'nfractal',nfractal_m30);
-[~,~,tbl_fx_m30,~,~,~,~,strat_fx_m30] = kellydistributionsummary(output_fx_m30);
+%%
+recalib_flag = input('Recalibrate Kelly Tables?Y/N: ','s');
+if strcmpi(recalib_flag,'Y')
+    output_fx_m30 = fractal_kelly_summary('codes',codes_fx,...
+        'frequency',['intraday-',freq_m30],'usefractalupdate',0,'usefibonacci',1,'direction','both',...
+        'nfractal',nfractal_m30);
+    [~,~,tbl_fx_m30,~,~,~,~,strat_fx_m30] = kellydistributionsummary(output_fx_m30);
+else
+    strat_fx_m30 = strat_fx_m30_existing;
+end
 %%
 charlotte_strat_compare('strat1',strat_fx_m30_existing,'strat2',strat_fx_m30,'assetname','xauusd');
 %%
@@ -62,7 +67,6 @@ for i = 0:size(codes_fx,1)
 end
 fprintf('done with mt4 fx of %s time frame...\n',freq_m30);
 %%
-
 save([dir_,'strat_fx_m30.mat'],'strat_fx_m30');
 save([dir_,'tbl2check_fx_m30_all.mat'],'tbl2check_fx_m30_all');
 fprintf('strat fx 30m mat-file saved...\n');

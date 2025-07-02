@@ -1,10 +1,10 @@
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 strat_fx_h1_existing = load([dir_,'strat_fx_h1.mat']);
 strat_fx_h1_existing = strat_fx_h1_existing.strat_fx_h1;
-%%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
 freq_h1 = 'h1';
 nfractal_h1 = charlotte_freq2nfractal(freq_h1);
+%%
 recalibrate = input('do you want to recalibrate the kelly criteria table? Y/N: ','s');
 if strcmpi(recalibrate,'Y')
     output_fx_h1 = fractal_kelly_summary('codes',codes_fx,...

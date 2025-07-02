@@ -12,7 +12,7 @@ if strcmpi(recalib_flag,'Y')
         'nfractal',nfractal_m15);
     [~,~,tbl_fx_m15,~,~,~,~,strat_fx_m15] = kellydistributionsummary(output_fx_m15);
 else
-    strat_fx_m5 = strat_fx_m5_existing;
+    strat_fx_m15 = strat_fx_m15_existing;
 end
 %%
 charlotte_strat_compare('strat1',strat_fx_m15_existing,'strat2',strat_fx_m15,'assetname','eurusd');

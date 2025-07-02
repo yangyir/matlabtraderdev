@@ -21,7 +21,7 @@ else
     elseif strcmpi(code,'audusd') || strcmpi(code,'eurusd') || strcmpi(code,'gbpusd') || ...
                 strcmpi(code,'usdcad') || strcmpi(code,'usdchf') || strcmpi(code,'eurchf') || ...
                 strcmpi(code,'gbpeur') || strcmpi(code,'usdcnh')
-        ticksize = 0.0001;%1bp
+        ticksize = 0.00001;%1bp
     else
         try
             fut = code2instrument(code);
@@ -207,6 +207,10 @@ for i = 1:tradesb.latest_
         status = fractal_b1_status(4,extrainfo,0.5*ticksize);
     elseif strcmpi(trade_i.opensignal_.frequency_,'5m')
         status = fractal_b1_status(6,extrainfo,0);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'60m')
+        status = fractal_b1_status(4,extrainfo,ticksize);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'240m')
+        status = fractal_b1_status(2,extrainfo,ticksize);
     else
         status = fractal_b1_status(4,extrainfo,ticksize);
     end
@@ -247,6 +251,10 @@ for i = 1:tradess.latest_
         status = fractal_s1_status(4,extrainfo,0.5*ticksize);
     elseif strcmpi(trade_i.opensignal_.frequency_,'5m')
         status = fractal_s1_status(6,extrainfo,0);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'60m')
+        status = fractal_s1_status(4,extrainfo,ticksize);
+    elseif strcmpi(trade_i.opensignal_.frequency_,'240m')
+        status = fractal_s1_status(2,extrainfo,ticksize);
     else
         status = fractal_s1_status(4,extrainfo,ticksize);
     end

@@ -1,14 +1,19 @@
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 strat_fx_h4_existing = load([dir_,'strat_fx_h4.mat']);
 strat_fx_h4_existing = strat_fx_h4_existing.strat_fx_h4;
-%%
 codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
 freq_h4 = 'h4';
 nfractal_h4 = charlotte_freq2nfractal(freq_h4);
-output_fx_h4 = fractal_kelly_summary('codes',codes_fx,...
-    'frequency','intraday-240m','usefractalupdate',0,'usefibonacci',1,'direction','both',...
-    'nfractal',nfractal_h4);
-[~,~,tbl_fx_h4,~,~,~,~,strat_fx_h4] = kellydistributionsummary(output_fx_h4);
+%%
+recalibrate = input('do you want to recalibrate the kelly criteria table? Y/N: ','s');
+if strcmpi(recalibrate,'Y')
+    output_fx_h4 = fractal_kelly_summary('codes',codes_fx,...
+        'frequency','intraday-240m','usefractalupdate',0,'usefibonacci',1,'direction','both',...
+        'nfractal',nfractal_h4);
+    [~,~,tbl_fx_h4,~,~,~,~,strat_fx_h4] = kellydistributionsummary(output_fx_h4);
+else
+    strat_fx_h4 = strat_fx_h4_existing;
+end
 %%
 charlotte_strat_compare('strat1',strat_fx_h4_existing,'strat2',strat_fx_h4,'assetname','usdjpy');
 %%
