@@ -121,8 +121,8 @@ n = size(tblreport,1);
 nSelect = 0;
 codesSelected = cell(n,5);
 %
-kThreshold = -9.99;
-pThreshold = 0;
+kThreshold = 0.15;
+pThreshold = 0.40;
 %
 for i = 1:n
     if tblreport.kRet(i) > kThreshold && ...
@@ -175,8 +175,8 @@ for i = 1:nSelect
         codesSelected{i,5} = 'high cost';
     end
 end
-% idxSelected = strcmpi(codesSelected(:,5),'select');
-% codesSelected = codesSelected(idxSelected,:);
+idxSelected = strcmpi(codesSelected(:,5),'select');
+codesSelected = codesSelected(idxSelected,:);
 %
 %%
 nSelect = size(codesSelected,1);
@@ -199,8 +199,8 @@ end
  tblSelected = sortrows(tblSelected,'opendatetime','ascend');
  writetable(tblSelected,'C:\yangyiran\tblselected.xlsx');
 %%
-replay1 = '2025-06-16';
-replay2 = '2025-06-17';
+replay1 = '2025-07-01';
+replay2 = '2025-07-02';
 for i = 1:size(codesSelected,1)
     strat_fx_i = load([dir_,'strat_fx_',codesSelected{i,2},'.mat']);
     strat_fx_i = strat_fx_i.(['strat_fx_',codesSelected{i,2}]);

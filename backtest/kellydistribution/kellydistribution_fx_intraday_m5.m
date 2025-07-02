@@ -68,7 +68,6 @@ for i = 0:size(codes_fx,1)
 end
 fprintf('done with mt4 fx of %s time frame...\n',freq_m5);
 %%
-
 save([dir_,'strat_fx_m5.mat'],'strat_fx_m5');
 save([dir_,'tbl2check_fx_m5_all.mat'],'tbl2check_fx_m5_all');
 fprintf('strat fx M5 mat-file saved...\n');
