@@ -11,6 +11,7 @@ p.addParameter('kellytables','',@isstruct);
 p.addParameter('showlogs',true,@islogical);
 p.addParameter('figureidx',4,@isnumeric);
 p.addParameter('doplot',true,@islogical);
+p.addParameter('compulsorycheckforconditional',true,@islogical);
 p.parse(varargin{:});
 codein = p.Results.code;
 freq = p.Results.frequency;
@@ -41,6 +42,7 @@ kellytables = p.Results.kellytables;
 showlogsflag = p.Results.showlogs;
 figureidx = p.Results.figureidx;
 doplot = p.Results.doplot;
+compulsorycheckforconditional = p.Results.compulsorycheckforconditional;
 %
 dt1 = datenum(dt1,'yyyy-mm-dd');
 dt2 = datenum(dt2,'yyyy-mm-dd');
@@ -224,13 +226,13 @@ carriedtrades = cTradeOpenArray;
 
 for i = 1:length(dts)
     if i == 1
-        [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables);
+        [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional);
     else
         if ct_i.latest_ > 0
             carriedtrade = ct_i.node_(1);
-            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'carriedtrade',carriedtrade,'kellytables',kellytables);
+            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'carriedtrade',carriedtrade,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional);
         else
-            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables);
+            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional);
         end     
     end
     for j = 1:ut_i.latest_

@@ -37,6 +37,7 @@ p.addParameter('frequency','30m',@ischar);
 p.addParameter('nfractal',[],@isnumeric);
 p.addParameter('carriedtrade',{},@(x) validateattributes(x,{'cTradeOpen'},{},'','carriedtrade'));    
 p.addParameter('kellytables','',@isstruct);
+p.addParameter('compulsorycheckforconditional',true,@islogical);
 
 p.parse(varargin{:});
 futcode = p.Results.code;
@@ -58,6 +59,7 @@ end
 nfractal = p.Results.nfractal;
 carriedtrade = p.Results.carriedtrade;
 kellytables = p.Results.kellytables;
+compulsorycheckforconditional = p.Results.compulsorycheckforconditional;
 
 fut = code2instrument(futcode);
 if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30y')
@@ -297,7 +299,7 @@ while i <= idx2
                 'extrainfo',ei_j,...
                 'RunRiskManagementBeforeMktClose',runflag,...
                 'KellyTables',kellytables,...
-                'CompulsoryCheckForConditional',true);
+                'CompulsoryCheckForConditional',compulsorycheckforconditional);
         
             if ~isempty(tradeout)
                 tradeout.status_ = 'closed';
