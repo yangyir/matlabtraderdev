@@ -22,7 +22,7 @@ parfor i = 1:size(codes_fx,1)
     [~,ei] = charlotte_loaddata('futcode',codes_fx{i},'frequency',freq_h4,'nfractal',nfractal_h4);
     dt1 = datestr(ei.px(1,1),'yyyy-mm-dd');
     dt2 = datestr(ei.px(end,1),'yyyy-mm-dd');
-    [~,~,tbl2check_fx_h4{i}] = charlotte_backtest_period('code',codes_fx{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_fx_h4,'showlogs',false,'doplot',false,'frequency',freq_h4,'nfractal',nfractal_h4);
+    [~,~,tbl2check_fx_h4{i}] = charlotte_backtest_period('code',codes_fx{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_fx_h4,'showlogs',false,'doplot',false,'frequency',freq_h4,'nfractal',nfractal_h4,'compulsorycheckforconditional',true);
 end
 tbl2check_fx_h4_all = tbl2check_fx_h4{1};
 for i = 2:size(codes_fx,1)

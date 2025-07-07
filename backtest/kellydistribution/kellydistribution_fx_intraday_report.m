@@ -84,45 +84,14 @@ riskLimit = riskLimit(1:count);
 tblreport = table(code,freq,nTotal,pWin,rRet,kRet,maxDrawdown,annualRet,riskLimit);
 tblreport = sortrows(tblreport,'code','ascend');
 open tblreport;
-%%
-path_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\'];
-fn_ = 'kellytable.txt';
-fid = fopen([path_,fn_],'w');
-if fid
-    fprintf(fid,'%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n',...
-        'code',...
-        'freq',...
-        'nTotal',...
-        'pWin',...
-        'rRet',...
-        'kRet',...
-        'maxDrawdownRet',...
-        'annualRet',...
-        'riskLimit');
-    for i = 1:size(tblreport,1)
-        fprintf(fid,'%s\t%s\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n',...
-            [upper(code{i}),'.lmx'],...
-            upper(freq{i}),...
-            nTotal(i),...
-            pWin(i),...
-            rRet(i),...
-            kRet(i),...
-            maxDrawdown(i),...
-            annualRet(i),...
-            riskLimit(i));
-            
-        
-    end
-      
-end
-fclose(fid);  
+
 %%
 n = size(tblreport,1);
 nSelect = 0;
 codesSelected = cell(n,5);
 %
 kThreshold = 0.15;
-pThreshold = 0.40;
+pThreshold = 0.4;
 %
 for i = 1:n
     if tblreport.kRet(i) > kThreshold && ...
@@ -177,7 +146,86 @@ for i = 1:nSelect
 end
 idxSelected = strcmpi(codesSelected(:,5),'select');
 codesSelected = codesSelected(idxSelected,:);
+% open codesSelected;
 %
+code = codesSelected(:,1);
+freq = codesSelected(:,2);
+selected = table(code,freq);
+selected = join(selected,tblreport);
+open selected;
+%% portfolio optimization
+n = size(selected,1);
+names = cell(n,1);
+for i = 1:n
+    names{i} = [selected.code{i},'-',selected.freq{i}];
+end
+p = selected.pWin;
+b = selected.rRet;
+fprintf('sum of kellies: %.4f\n', sum(selected.kRet));
+
+% number of outcomes (2^n?)
+[outcomes{1:n}] = ndgrid([0,1]); % 0=?, 1=?
+outcome_mat = reshape(cat(n+1, outcomes{:}), [], n);
+num_outcomes = size(outcome_mat, 1);
+
+% probability of different scenarios
+prob = prod(outcome_mat .* p' + (1-outcome_mat) .* (1-p'), 2);
+
+% objective function
+objective = @(f) -kelly_calcgrowth(f,b,p);
+
+% constraints
+A = ones(1, n);  % ??????? (?f_i ? 1)
+b_sum = 1.0;
+lb = zeros(1, n);
+ub = ones(1,n);
+
+% initial value
+f0 = min(1, kelly_f / sum(kelly_f)) * 1.0;
+
+% calibration parameters
+options = optimoptions('fmincon', 'Display', 'iter', ...
+    'Algorithm', 'sqp', 'MaxFunctionEvaluations', 10000);
+
+% use fmincon to calibrate
+[f_opt, fval] = fmincon(objective, f0, A, b_sum, [], [], lb, ub, [], options);
+optimal_growth = -fval;
+selected.f_opt = f_opt;
+
+%%
+path_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\'];
+fn_ = 'kellytable.txt';
+fid = fopen([path_,fn_],'w');
+if fid
+    fprintf(fid,'%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n',...
+        'code',...
+        'freq',...
+        'nTotal',...
+        'pWin',...
+        'rRet',...
+        'kRet',...
+        'maxDrawdownRet',...
+        'annualRet',...
+        'riskLimit',...
+        'fOpt');
+    for i = 1:n
+        fprintf(fid,'%s\t%s\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n',...
+            [upper(selected.code{i}),'.lmx'],...
+            upper(selected.freq{i}),...
+            selected.nTotal(i),...
+            selected.pWin(i),...
+            selected.rRet(i),...
+            selected.kRet(i),...
+            selected.maxDrawdown(i),...
+            selected.annualRet(i),...
+            selected.riskLimit(i),...
+            selected.f_opt(i));
+            
+        
+    end
+      
+end
+fclose(fid);  
 %%
 nSelect = size(codesSelected,1);
 for i = 1:nSelect
@@ -200,7 +248,7 @@ end
  writetable(tblSelected,'C:\yangyiran\tblselected.xlsx');
 %%
 replay1 = '2025-07-01';
-replay2 = '2025-07-02';
+replay2 = '2025-07-06';
 for i = 1:size(codesSelected,1)
     strat_fx_i = load([dir_,'strat_fx_',codesSelected{i,2},'.mat']);
     strat_fx_i = strat_fx_i.(['strat_fx_',codesSelected{i,2}]);
