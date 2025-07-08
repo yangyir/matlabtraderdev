@@ -68,8 +68,8 @@ function obj = init(obj,varargin)
             data =  readtable(fn_i,'readvariablenames',1);
             idxlast = find(~isnan(data.Close),1,'last');
             % for save memory, we cut the latest 100 candles
-            if idxlast >= 100
-                idxfirst = idxlast - 99;
+            if idxlast >= 200
+                idxfirst = idxlast - 199;
             else
                 idxfirst = 1;
             end
