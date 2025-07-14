@@ -89,36 +89,20 @@ fprintf('Convergence: b = %.4f\n', b);
 %%
 %% portfolio analysis
 %clc; clear; close all;
+idx = ~strcmpi(selected.freq,'m5');
+port = selected(idx,:);
+% port = selected;
+n = size(port,1);
+names = cell(n,1);
+for i = 1:n
+    names{i} = [port.code{i},'-',port.freq{i}];
+end
+p = port.pWin;
+b = port.rRet;
+fprintf('sum of kellies: %.4f\n', sum(port.kRet));
 
-investments = {
-    % name     p      b
-    'eurusd-m15',   0.444,  2.29;
-    'xauusd-m15',   0.413,  2.55;
-    'gbpusd-m30',   0.500,  1.96;
-    'xauusd-m30',   0.429,  2.55;
-    'audusd-h1',   0.500,   1.89;   
-    'gbpusd-h1',   0.483,   2.01;   
-    'usdchf-h1',   0.471,   1.90;   
-    'usdjpy-h1',   0.485,   1.95;   
-    'xauusd-h1',   0.546,   2.08;   
-    'eurusd-h4',    0.608,  1.22;
-    'gbpusd-h4',    0.457,  1.83;
-    'usdcad-h4',    0.462,  2.06;
-    'usdjpy-h4',    0.500,  1.56;
-    'xauusd-h4',    0.490,  1.98;
-};
-% 0.2354+0.2251+0.2139+0.2164+0.3243 = 1.2151 > 1
-
-names = investments(:,1);
-p = cell2mat(investments(:,2));
-b = cell2mat(investments(:,3));
-n = length(p);
-
-kelly_f = (p.*b - (1-p)) ./ b;
-fprintf('sum of kellies: %.4f\n', sum(kelly_f));
-
-%% portfolio optimization
 % number of outcomes (2^n?)
+clear outcomes;
 [outcomes{1:n}] = ndgrid([0,1]); % 0=?, 1=?
 outcome_mat = reshape(cat(n+1, outcomes{:}), [], n);
 num_outcomes = size(outcome_mat, 1);
@@ -130,13 +114,15 @@ prob = prod(outcome_mat .* p' + (1-outcome_mat) .* (1-p'), 2);
 objective = @(f) -kelly_calcgrowth(f,b,p);
 
 % constraints
-A = ones(1, n);  % ??????? (?f_i ? 1)
-b_sum = 1.0;
+usage = 0.8;
+A = ones(1, n); 
+b_sum = usage;
 lb = zeros(1, n);
-ub = ones(1,n);
+ub = usage*ones(1,n);
 
 % initial value
-f0 = min(1, kelly_f / sum(kelly_f)) * 1.0;
+% f0 = min(1, selected.kRet / sum(selected.kRet)) * 1.0;
+f0 = usage*min(1, ones(n,1)/n);
 
 % calibration parameters
 options = optimoptions('fmincon', 'Display', 'iter', ...
@@ -145,13 +131,14 @@ options = optimoptions('fmincon', 'Display', 'iter', ...
 % use fmincon to calibrate
 [f_opt, fval] = fmincon(objective, f0, A, b_sum, [], [], lb, ub, [], options);
 optimal_growth = -fval;
+opt.f_opt = f_opt;
 
 %% Results Analysis
 % 1. The optimal asset allocation 
 fprintf('\n===== best strategy asset allocation =====\n');
 for i = 1:n
     fprintf('%s: %.2f%% (standalone: %.2f%%)\n', ...
-        names{i}, f_opt(i)*100, kelly_f(i)*100);
+        names{i}, f_opt(i)*100, port.kRet(i)*100);
 end
 fprintf('Total: %.2f%%\n', sum(f_opt)*100);
 
@@ -161,19 +148,24 @@ fprintf('\n');
 fprintf('expected log growth rate: %.6f\n', growth);
 
 % 3. compare different strategies
+[max_k, max_k_idx] = max(port.kRet);
+singlebest = zeros(1,n);
+singlebest(max_k_idx) = min(max_k,usage);
 strategies = {
-    'normalized', min(1, kelly_f/sum(kelly_f));
-    'equal', min(1, ones(n,1)/n);
-    'optimized',f_opt;
+    'normalized', usage*min(1, port.kRet/sum(port.kRet));
+%     'equal', usage*min(1, ones(n,1)/n);
+    'kelly',f_opt;
+    'singlebest',singlebest;
+    'overbet',port.kRet;
 };
 
 fprintf('\n===== Comparision of different Strategies =====\n');
 for s = 1:size(strategies,1)
     f_strategy = strategies{s,2};
     
-    if sum(f_strategy) > 0.9999
-        f_strategy = f_strategy / sum(f_strategy)*0.9999;
-    end
+%     if sum(f_strategy) > 0.9999
+%         f_strategy = f_strategy / sum(f_strategy)*0.9999;
+%     end
     
     [growth_rate, ~] = kelly_calcgrowth(f_strategy, b, p);
     
@@ -185,10 +177,10 @@ for s = 1:size(strategies,1)
             allocation_str);
 end
 
-%% Visualization
+% Visualization
 % 1. pie chart
 close all;
-figure('Position', [100, 100, 800, 600], 'Color', 'white');
+% figure('Position', [100, 100, 800, 600], 'Color', 'white');
 subplot(2,2,1);
 explode = double(f_opt == max(f_opt));
 pie(f_opt, explode, names);
@@ -196,10 +188,16 @@ title('Optimized Asset Allocation', 'FontSize', 12);
 
 % 2. distribution of wealth
 subplot(2,2,2);
+[growth,W] = kelly_calcgrowth(f_opt,b,p);
+[growth_1,W_1] = kelly_calcgrowth(strategies{1,2},b,p);
 [unique_W, ~, idx] = unique(round(W, 8));
+[unique_W_1, ~, idx_1] = unique(round(W_1, 8));
 prob_W = accumarray(idx, prob);
+prob_W_1 = accumarray(idx_1, prob);
 [sorted_W, sort_idx] = sort(unique_W);
+[sorted_W_1, sort_idx_1] = sort(unique_W_1);
 sorted_prob = prob_W(sort_idx);
+sorted_prob_1 = prob_W_1(sort_idx_1);
 if length(sorted_W) > 252
     histogram(sorted_W, 50, 'FaceColor', [0.2 0.6 0.9], 'Normalization', 'probability');
 else
@@ -208,7 +206,7 @@ end
 hold on;
 xline(1, 'r--', 'LineWidth', 2, 'Label', 'BreakEven');
 [max_prob, max_idx] = max(sorted_prob);
-plot(sorted_W(max_idx), max_prob, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
+% plot(sorted_W(max_idx), max_prob, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
 text(sorted_W(1), sorted_prob(1), sprintf('Worst: %.2f', sorted_W(1)), ...
     'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
 text(sorted_W(end), sorted_prob(end), sprintf('Best: %.2f', sorted_W(end)), ...
@@ -217,8 +215,8 @@ title('PDF of Wealth', 'FontSize', 12);
 xlabel('Log Wealth Multiplier');
 ylabel('Prob');
 grid on;
-set(gca, 'FontSize', 10, 'YScale', 'log');
-% set(gca, 'FontSize', 10);
+% set(gca, 'FontSize', 10, 'YScale', 'log');
+set(gca, 'FontSize', 10);
 
 % 3. comparison of different strategies
 subplot(2,2,3);
@@ -226,9 +224,6 @@ strategy_names = strategies(:,1);
 growth_rates = zeros(size(strategies,1),1);
 for s = 1:size(strategies,1)
     f_s = strategies{s,2};
-    if sum(f_s) >= 0.9999
-        f_s = f_s / sum(f_s)*0.9999;
-    end
     [growth_rates(s), ~] = kelly_calcgrowth(f_s, b, p);
 end
 bar(growth_rates, 'FaceColor', [0.8 0.4 0.1]);
@@ -240,15 +235,19 @@ ylabel('E[log(W)]');
 % 4. wealth distribution function
 subplot(2,2,4);
 cdf_prob = cumsum(sorted_prob);
+cdf_prob_1 = cumsum(sorted_prob_1);
 stairs(sorted_W, cdf_prob, 'LineWidth', 2, 'Color', 'b');
+hold on;
+stairs(sorted_W_1, cdf_prob_1, 'LineWidth', 2, 'Color', 'r');
 yline(0.95, 'g--', '95%Pecentile', 'LineWidth', 1.5);
 xline(1, 'r--', 'BreakEven', 'LineWidth', 1.5);
 title('CDF of Wealth', 'FontSize', 12);
 xlabel('Log Wealth Multiplier');
-ylabel('E[log(W)]');
-grid on;
+ylabel('CDF');
+grid on;hold off;
 set(gca, 'FontSize', 10);
-set(gca, 'FontSize', 10, 'YScale', 'log');
+legend('optimal','normalized');
+% set(gca, 'FontSize', 10, 'YScale', 'log');
 
 
 %% Monte Carlo

@@ -284,16 +284,22 @@ function [output] = fractal_signal_unconditional2(varargin)
                             signal_i(4) = 1;
                             signal_i(8) = output_.kelly;
                             op.comment = 'breachup-lvlup';
+                            kelly = output_.kelly;
+                            wprob = output_.wprob;
                         elseif ~isempty(strfind(output_.opkellied,'breachup-sshighvalue'))
                             signal_i(1) = 1;
                             signal_i(4) = 1;
                             signal_i(8) = output_.kelly;
                             op.comment = 'breachup-sshighvalue';
+                            kelly = output_.kelly;
+                            wprob = output_.wprob;
                         elseif ~isempty(strfind(output_.opkellied,'breachup-highsc13'))
                             signal_i(1) = 1;
                             signal_i(4) = 1;
                             signal_i(8) = output_.kelly;
                             op.comment = 'breachup-highsc13';
+                            kelly = output_.kelly;
+                            wprob = output_.wprob;
                         elseif ~isempty(strfind(output_.opkellied,'mediumbreach-trendconfirmed'))
                             signal_i(1) = 0;
                             signal_i(4) = 0;
@@ -491,16 +497,22 @@ function [output] = fractal_signal_unconditional2(varargin)
                             signal_i(4) = -1;
                             signal_i(8) = output_.kelly;
                             op.comment = 'breachdn-lvldn';
+                            kelly = output_.kelly;
+                            wprob = output_.wprob;
                         elseif ~isempty(strfind(output_.opkellied,'breachdn-bshighvalue'))
                             signal_i(1) = -1;
                             signal_i(4) = -1;
                             signal_i(8) = output_.kelly;
                             op.comment = 'breachdn-bshighvalue';
+                            kelly = output_.kelly;
+                            wprob = output_.wprob;
                         elseif ~isempty(strfind(output_.opkellied,'breachdn-lowbc13'))
                             signal_i(1) = -1;
                             signal_i(4) = -1;
                             signal_i(8) = output_.kelly;
                             op.comment = 'breachdn-lowbc13';
+                            kelly = output_.kelly;
+                            wprob = output_.wprob;
                         elseif ~isempty(strfind(output_.opkellied,'mediumbreach-trendconfirmed'))
                             signal_i(1) = 0;
                             signal_i(4) = 0;
@@ -689,7 +701,7 @@ function [output] = fractal_signal_unconditional2(varargin)
         
     end
     
-    
+    output.op = op;
     output.directionkellied = signal_i(1);
     output.signalkellied = signal_i;
     output.opkellied = op.comment;

@@ -1,7 +1,7 @@
-code2check = 'EURUSD';
-freq2check = '15m';
-replay1 = '2025-06-17';
-replay2 = '2025-06-18';
+code2check = 'XAUUSD';
+freq2check = '4H';
+replay1 = '2025-07-08';
+replay2 = '2025-07-10';
 showLogs = true;
 doPlot = true;
 
@@ -64,9 +64,9 @@ for ifreq = 1:length(freqs)
         annualRet(count) = pnlretcum(end)/deltaT;
 %         cashpnl(count) = sum(tbl2check.closepnl(idxselect));
         if strcmpi(codes_fx{i},'xauusd')
-            riskLimit(count) = 1300;
+            riskLimit(count) = 500;
         else
-            riskLimit(count) = 1000;
+            riskLimit(count) = 500;
         end
     end
 end
@@ -123,10 +123,11 @@ for i = 1:nSelect
         elseif strcmpi(codesSelected{i,1},'gbpusd')
             baspread = 4;
         end
-        codesSelected{i,4} = sum((18+baspread)./notional2check);
+        codesSelected{i,4} = sum((2+baspread)./notional2check);
     elseif strcmpi(codesSelected{i,1},'xauusd')
+        baspread = 14;
         codesSelected{i,3} = sum(pnlrel2check);
-        codesSelected{i,4} = sum((15+14)./notional2check);
+        codesSelected{i,4} = sum((2+baspread)./notional2check);
     else
         if strcmpi(codesSelected{i,1},'usdcad')
             baspread = 6;
@@ -136,7 +137,7 @@ for i = 1:nSelect
             baspread = 5;
         end
         codesSelected{i,3} = sum(pnlrel2check);
-        codesSelected{i,4} = size(pnlrel2check,1)*(18+baspread)/1e5;
+        codesSelected{i,4} = size(pnlrel2check,1)*(2+baspread)/1e5;
     end
     if codesSelected{i,3} > codesSelected{i,4}
         codesSelected{i,5} = 'select';
@@ -145,25 +146,29 @@ for i = 1:nSelect
     end
 end
 idxSelected = strcmpi(codesSelected(:,5),'select');
-codesSelected = codesSelected(idxSelected,:);
+% codesSelected = codesSelected(idxSelected,:);
 % open codesSelected;
 %
-code = codesSelected(:,1);
-freq = codesSelected(:,2);
+code = codesSelected(idxSelected,1);
+freq = codesSelected(idxSelected,2);
 selected = table(code,freq);
 selected = join(selected,tblreport);
 open selected;
 %% portfolio optimization
-n = size(selected,1);
+idx = ~strcmpi(selected.freq,'m5');
+port = selected(idx,:);
+% port = selected;
+n = size(port,1);
 names = cell(n,1);
 for i = 1:n
-    names{i} = [selected.code{i},'-',selected.freq{i}];
+    names{i} = [port.code{i},'-',port.freq{i}];
 end
-p = selected.pWin;
-b = selected.rRet;
-fprintf('sum of kellies: %.4f\n', sum(selected.kRet));
+p = port.pWin;
+b = port.rRet;
+fprintf('sum of kellies: %.4f\n', sum(port.kRet));
 
 % number of outcomes (2^n?)
+clear outcomes;
 [outcomes{1:n}] = ndgrid([0,1]); % 0=?, 1=?
 outcome_mat = reshape(cat(n+1, outcomes{:}), [], n);
 num_outcomes = size(outcome_mat, 1);
@@ -175,13 +180,15 @@ prob = prod(outcome_mat .* p' + (1-outcome_mat) .* (1-p'), 2);
 objective = @(f) -kelly_calcgrowth(f,b,p);
 
 % constraints
-A = ones(1, n);  % ??????? (?f_i ? 1)
-b_sum = 1.0;
+usage = 0.8;
+A = ones(1, n); 
+b_sum = usage;
 lb = zeros(1, n);
-ub = ones(1,n);
+ub = usage*ones(1,n);
 
 % initial value
-f0 = min(1, kelly_f / sum(kelly_f)) * 1.0;
+% f0 = min(1, selected.kRet / sum(selected.kRet)) * 1.0;
+f0 = usage*min(1, ones(n,1)/n);
 
 % calibration parameters
 options = optimoptions('fmincon', 'Display', 'iter', ...
@@ -190,7 +197,9 @@ options = optimoptions('fmincon', 'Display', 'iter', ...
 % use fmincon to calibrate
 [f_opt, fval] = fmincon(objective, f0, A, b_sum, [], [], lb, ub, [], options);
 optimal_growth = -fval;
-selected.f_opt = f_opt;
+port.f_opt = f_opt;
+port = port(port.f_opt > 0.01,:);
+
 
 %%
 path_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\'];
@@ -208,18 +217,18 @@ if fid
         'annualRet',...
         'riskLimit',...
         'fOpt');
-    for i = 1:n
+    for i = 1:size(port,1)
         fprintf(fid,'%s\t%s\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n',...
-            [upper(selected.code{i}),'.lmx'],...
-            upper(selected.freq{i}),...
-            selected.nTotal(i),...
-            selected.pWin(i),...
-            selected.rRet(i),...
-            selected.kRet(i),...
-            selected.maxDrawdown(i),...
-            selected.annualRet(i),...
-            selected.riskLimit(i),...
-            selected.f_opt(i));
+            [upper(port.code{i}),'.lmx'],...
+            upper(port.freq{i}),...
+            port.nTotal(i),...
+            port.pWin(i),...
+            port.rRet(i),...
+            port.kRet(i),...
+            port.maxDrawdown(i),...
+            port.annualRet(i),...
+            port.riskLimit(i),...
+            port.f_opt(i));
             
         
     end
@@ -247,17 +256,17 @@ end
  tblSelected = sortrows(tblSelected,'opendatetime','ascend');
  writetable(tblSelected,'C:\yangyiran\tblselected.xlsx');
 %%
-replay1 = '2025-07-01';
-replay2 = '2025-07-06';
-for i = 1:size(codesSelected,1)
-    strat_fx_i = load([dir_,'strat_fx_',codesSelected{i,2},'.mat']);
-    strat_fx_i = strat_fx_i.(['strat_fx_',codesSelected{i,2}]);
-    nfractal2check = charlotte_freq2nfractal(codesSelected{i,2});
-    [~,~,tbl2check_i] = charlotte_backtest_period('code',codesSelected{i,1},'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',false,'doplot',false,'frequency',codesSelected{i,2},'nfractal',nfractal2check);
+replay1 = '2025-07-10';
+replay2 = '2025-07-12';
+for i = 1:size(port,1)
+    strat_fx_i = load([dir_,'strat_fx_',port.freq{i},'.mat']);
+    strat_fx_i = strat_fx_i.(['strat_fx_',port.freq{i}]);
+    nfractal2check = charlotte_freq2nfractal(port.freq{i});
+    [~,~,tbl2check_i] = charlotte_backtest_period('code',port.code{i},'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',false,'doplot',false,'frequency',port.freq{i},'nfractal',nfractal2check);
     ntrades = size(tbl2check_i,1);
     freqs = cell(ntrades,1);
     for j = 1:ntrades
-        freqs{j} = codesSelected{i,2};
+        freqs{j} = port.freq{i};
     end
     if ~isempty(tbl2check_i)
         tbl2check_i.freq = freqs;
