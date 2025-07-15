@@ -53,7 +53,8 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         ei.teeth(end-2*nfractal+1:end)+2*ticksize<0,1,'first'));
     lflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
     lflag3 = hhupward;
-    lflag4 = (~hhupward & ei.hh(end)>=ei.lvlup(end) & ei.px(end,5)<=ei.lvlup(end));
+    lflag4 = ~hhupward & ei.hh(end)>=ei.lvlup(end) & ...
+        (ei.px(end,5)<=ei.lvlup(end) | (ei.px(end,5) > ei.lvlup(end) & ei.px(end-1,5) <= ei.lvlup(end) & ei.px(end,5) < ei.hh(end)));
     if isdaily
         longtrend = lflag1 &  lflag2;
     else
@@ -302,7 +303,8 @@ function [signal,op,flags] = fractal_signal_conditional(ei,ticksize,nfractal,var
         ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'first'));
     sflag2 = ~isteethjawcrossed & ~isteethlipscrossed;
     sflag3 = lldnward;
-    sflag4 = ~lldnward & ei.ll(end)<=ei.lvldn(end) & ei.px(end,5)>=ei.lvldn(end);
+    sflag4 = ~lldnward & ei.ll(end)<=ei.lvldn(end) & ...
+        (ei.px(end,5)>=ei.lvldn(end) | (ei.px(end,5)<ei.lvldn(end) & ei.px(end-1,5)>=ei.lvldn(end) & ei.px(end,5)>ei.ll(end)));
     shorttrend = sflag1 & (sflag2 | sflag4) & (sflag3 | sflag4);
     %
     lipsbelowteeth = isempty(find(ei.lips(end-2*nfractal+1:end)-ei.teeth(end-2*nfractal+1:end)-2*ticksize>0,1,'last'));
