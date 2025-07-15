@@ -83,6 +83,10 @@ classdef cFX < cInstrument
                 obj.contract_size = 100;
                 obj.tick_size = 0.01;
                 obj.tick_value = 1;
+            elseif strcmpi(codestr,'xag') || strcmpi(codestr,'xagusd')
+                obj.contract_size = 5000;
+                obj.tick_size = 0.001;
+                obj.tick_value = 5;
             elseif strcmpi(codestr,'brent') || strcmpi(codestr,'wti')
                 obj.contract_size = 100;
                 obj.tick_size = 0.01;
