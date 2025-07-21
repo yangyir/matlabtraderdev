@@ -161,7 +161,8 @@ end
 %
 [~,extrainfo] = charlotte_loaddata('futcode',futcode,'frequency',freq,'nfractal',nfractal);
 %
-if isfx(futcode)
+if isfx(futcode) || strcmpi(futcode,'UK100') || strcmpi(futcode,'AUS200') || strcmpi(futcode,'J225') || ...
+                    strcmpi(futcode,'GER30m') || strcmpi(futcode,'SPX500m') || strcmpi(futcode,'HK50')
     dt1 = [testdt,' 00:00:00'];
     dt2 = [testdt,' 23:59:59'];
 else

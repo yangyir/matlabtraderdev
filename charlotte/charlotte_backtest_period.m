@@ -47,7 +47,8 @@ compulsorycheckforconditional = p.Results.compulsorycheckforconditional;
 dt1 = datenum(dt1,'yyyy-mm-dd');
 dt2 = datenum(dt2,'yyyy-mm-dd');
 %
-if isfx(codein)
+if isfx(codein) || strcmpi(codein,'UK100') || strcmpi(codein,'AUS200') || strcmpi(codein,'J225') || ...
+        strcmpi(codein,'GER30m') || strcmpi(codein,'SPX500m') || strcmpi(codein,'HK50')
     dt3 = [datestr(dt1,'yyyy-mm-dd'),' 00:00:00'];
     dt4 = [datestr(dt2,'yyyy-mm-dd'),' 23:59:59'];
 elseif isinequitypool(codein)
@@ -209,7 +210,8 @@ end
     
 %
 %
-if ~isfx(codein)
+if ~(isfx(codein) || strcmpi(codein,'UK100') || strcmpi(codein,'AUS200') || strcmpi(codein,'J225') || ...
+        strcmpi(codein,'GER30m') || strcmpi(codein,'SPX500m') || strcmpi(codein,'HK50'))
     dts = gendates('fromdate',dt1,'todate',dt2);
 else
     idxstart = find(resstruct.px(:,1) >= datenum(dt3,'yyyy-mm-dd HH:MM'),1,'first');

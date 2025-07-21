@@ -76,7 +76,8 @@ if ~isglobalmacro
         cp = cDataFileIO.loadDataFromTxtFile(fn);
     end
 else
-    if isfx(code)
+    if isfx(code) || strcmpi(code,'UK100') || strcmpi(code,'AUS200') || strcmpi(code,'J225') || ...
+        strcmpi(code,'GER30m') || strcmpi(code,'SPX500m') || strcmpi(code,'HK50')
         data = load([getenv('onedrive'),'\Documents\fx_mt4\',code,'_MT4_D1.mat']);
         cp = data.data;
     else

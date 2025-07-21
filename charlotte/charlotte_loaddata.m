@@ -183,14 +183,16 @@ elseif strcmpi(freq,'30m')
     p = data.data;
 elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
     if isempty(nfractal),nfractal = 4;end
-    if ~isfx(futcode)
+    if ~(isfx(futcode) || strcmpi(futcode,'UK100') || strcmpi(futcode,'AUS200') || strcmpi(futcode,'J225') || ...
+                    strcmpi(futcode,'GER30m') || strcmpi(futcode,'SPX500m') || strcmpi(futcode,'HK50'))
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
     data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H1.mat']);
     p = data.data;
 elseif strcmpi(freq,'240m') || strcmpi(freq,'4h')
     if isempty(nfractal),nfractal = 2;end
-    if ~isfx(futcode)
+    if ~(isfx(futcode) || strcmpi(futcode,'UK100') || strcmpi(futcode,'AUS200') || strcmpi(futcode,'J225') || ...
+                    strcmpi(futcode,'GER30m') || strcmpi(futcode,'SPX500m') || strcmpi(futcode,'HK50'))
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
     data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H4.mat']);
@@ -198,7 +200,8 @@ elseif strcmpi(freq,'240m') || strcmpi(freq,'4h')
 elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     if isempty(nfractal),nfractal = 2;end
     if strcmpi(futcode,'brent') || strcmpi(futcode,'wti')
-    elseif isfx(futcode)
+    elseif isfx(futcode) || strcmpi(futcode,'UK100') || strcmpi(futcode,'AUS200') || strcmpi(futcode,'J225') || ...
+                    strcmpi(futcode,'GER30m') || strcmpi(futcode,'SPX500m') || strcmpi(futcode,'HK50')
 %         if strcmpi(source,'MT4')
             data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_D1.mat']);
             data = data.data;

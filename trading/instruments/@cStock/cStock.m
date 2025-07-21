@@ -78,6 +78,10 @@ classdef cStock < cInstrument
             elseif strcmpi(codestr,'tb01y') || strcmpi(codestr,'tb03y') || strcmpi(codestr,'tb05y') || ...
                     strcmpi(codestr,'tb07y') || strcmpi(codestr,'tb10y') || strcmpi(codestr,'tb30y')
                 obj.code_wind = [upper(codestr),'.WI'];
+            elseif strcmpi(codestr,'UK100') || strcmpi(codestr,'AUS200') || strcmpi(codestr,'J225') || ...
+                    strcmpi(codestr,'GER30m') || strcmpi(codestr,'SPX500m') || strcmpi(codestr,'HK50')
+                obj.code_wind = codestr;
+                obj.asset_name = codestr;
             else
                 if length(codestr) == 6 && isempty(strfind(obj.code_ctp,'.WI'))
                     if strcmpi(codestr(1),'6') || strcmpi(codestr(1),'5')
@@ -102,6 +106,24 @@ classdef cStock < cInstrument
             elseif strcmpi(codestr,'tb01y') || strcmpi(codestr,'tb03y') || strcmpi(codestr,'tb05y') || ...
                     strcmpi(codestr,'tb07y') || strcmpi(codestr,'tb10y') || strcmpi(codestr,'tb30y')
                 obj.tick_size = 0.001;
+            elseif strcmpi(codestr,'UK100')
+                obj.contract_size = 10;%gbp
+                obj.tick_size = 0.1;
+            elseif strcmpi(codestr,'AUS200')
+                obj.contract_size = 10;%aud
+                obj.tick_size = 0.1;
+            elseif strcmpi(codestr,'J225')
+                obj.contract_size = 1000;%yen
+                obj.tick_size = 1;
+            elseif strcmpi(codestr,'GER30m')
+                obj.contract_size = 10;%eur
+                obj.tick_size = 0.1;
+            elseif strcmpi(codestr,'SPX500m')
+                obj.contract_size = 10;%usd
+                obj.tick_size = 0.1;
+            elseif strcmpi(codestr,'HK50')
+                obj.contract_size = 10;%hkd
+                obj.tick_size = 0.1;
             else
                 if strcmpi(codestr(1),'1') || strcmpi(codestr(1),'5')
                     obj.tick_size = 0.001;
@@ -131,6 +153,11 @@ classdef cStock < cInstrument
             end
             if strcmpi(codestr,'GDAXI')
                 obj.holidays = 'frankfurt';
+                obj.trading_hours = '';
+            end
+            if strcmpi(codestr,'UK100') || strcmpi(codestr,'AUS200') || strcmpi(codestr,'J225') || ...
+                    strcmpi(codestr,'GER30m') || strcmpi(codestr,'SPX500m') || strcmpi(codestr,'HK50')
+                obj.holidays = 'MT4';
                 obj.trading_hours = '';
             end
             

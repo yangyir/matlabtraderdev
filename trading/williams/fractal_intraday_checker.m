@@ -47,7 +47,8 @@ else
         num(:,1) = x2mdate(num(:,1));
         idx = ~(isnan(num(:,2)) | isnan(num(:,3)) | isnan(num(:,4)) | isnan(num(:,5)));
         cp = num(idx,1:5);
-    elseif isfx(code)
+    elseif isfx(code) || strcmpi(code,'UK100') || strcmpi(code,'AUS200') || strcmpi(code,'J225') || ...
+        strcmpi(code,'GER30m') || strcmpi(code,'SPX500m') || strcmpi(code,'HK50')
         if freq == 5
             fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M5.mat'];
         elseif freq == 15

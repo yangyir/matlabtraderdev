@@ -1,32 +1,53 @@
 function [ret] = mt4_dataupdate(code)
 %MT4_DATAUPDATE Summary of this function goes here
 % to update data on ONEDRIVE with latest data downloaded from MT4 server
-    
-    if ~isfx(code)
+    if strcmpi(code,'UK100') || strcmpi(code,'AUS200') || strcmpi(code,'J225') || ...
+        strcmpi(code,'GER30m') || strcmpi(code,'SPX500m') || strcmpi(code,'HK50')
+        ismt4eqcfd = true;
+    else
+        ismt4eqcfd = false;
+    end
+
+    if ~(isfx(code) || ismt4eqcfd)
         ret = 0;
         fprintf('mt4_dataupdate:invalid fx code input\n');
         return
     end
     
     folder = [getenv('onedrive'),'\Documents\fx_mt4\'];
-    code = upper(code);
-    fns = cell(6,1);
-    fns{1} = [code,'.lmx5.csv'];       %5min
-    fns{2} = [code,'.lmx15.csv'];      %15min
-    fns{3} = [code,'.lmx30.csv'];      %30min
-    fns{4} = [code,'.lmx60.csv'];      %1H
-    fns{5} = [code,'.lmx240.csv'];     %4H
-    fns{6} = [code,'.lmx1440.csv'];    %DAILY
+    if isfx(code)
+        code = upper(code);
+        nperiod = 6;
+        fns = cell(nperiod,1);
+        fns{1} = [code,'.lmx5.csv'];       %5min
+        fns{2} = [code,'.lmx15.csv'];      %15min
+        fns{3} = [code,'.lmx30.csv'];      %30min
+        fns{4} = [code,'.lmx60.csv'];      %1H
+        fns{5} = [code,'.lmx240.csv'];     %4H
+        fns{6} = [code,'.lmx1440.csv'];    %DAILY
     
-    fns_out = cell(6,1);
-    fns_out{1} = [code,'_MT4_M5.mat'];
-    fns_out{2} = [code,'_MT4_M15.mat'];
-    fns_out{3} = [code,'_MT4_M30.mat'];
-    fns_out{4} = [code,'_MT4_H1.mat'];
-    fns_out{5} = [code,'_MT4_H4.mat'];
-    fns_out{6} = [code,'_MT4_D1.mat'];
+        fns_out = cell(nperiod,1);
+        fns_out{1} = [code,'_MT4_M5.mat'];
+        fns_out{2} = [code,'_MT4_M15.mat'];
+        fns_out{3} = [code,'_MT4_M30.mat'];
+        fns_out{4} = [code,'_MT4_H1.mat'];
+        fns_out{5} = [code,'_MT4_H4.mat'];
+        fns_out{6} = [code,'_MT4_D1.mat'];
+    elseif ismt4eqcfd
+        code = upper(code);
+        nperiod = 3;
+        fns = cell(nperiod,1);
+        fns{1} = [code,'.lmx60.csv'];      %1H
+        fns{2} = [code,'.lmx240.csv'];     %4H
+        fns{3} = [code,'.lmx1440.csv'];    %DAILY
     
-    for i = 1:6
+        fns_out = cell(nperiod,1);
+        fns_out{1} = [code,'_MT4_H1.mat'];
+        fns_out{2} = [code,'_MT4_H4.mat'];
+        fns_out{3} = [code,'_MT4_D1.mat'];
+    end
+    
+    for i = 1:nperiod
         try
             data = load([folder,fns_out{i}]);
             datamat_existing = data.data;
@@ -62,10 +83,10 @@ function [ret] = mt4_dataupdate(code)
                 data = datamat_existing;
             else
                 %the last bar might not be completed upon downloading
-                if i ~= 6
+                if i ~= nperiod
                     data = [datamat_existing(1:end-1,:);datamat_added];
                 else
-                    data = [datamat_existing(1:end-1,:);datamat_added(:,1:5)];
+                    data = [datamat_existing(1:end-1,1:5);datamat_added(:,1:5)];
                 end
             end
         else

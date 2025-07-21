@@ -1,7 +1,7 @@
-code2check = 'XAUUSD';
+code2check = 'eurUSD';
 freq2check = '4H';
-replay1 = '2025-07-08';
-replay2 = '2025-07-10';
+replay1 = '2025-07-15';
+replay2 = '2025-07-16';
 showLogs = true;
 doPlot = true;
 
@@ -90,12 +90,12 @@ n = size(tblreport,1);
 nSelect = 0;
 codesSelected = cell(n,5);
 %
-kThreshold = 0.15;
-pThreshold = 0.4;
+kThreshold = [0.135,0.15];
+pThreshold = [0.5,0.4];
 %
 for i = 1:n
-    if tblreport.kRet(i) > kThreshold && ...
-            tblreport.pWin(i) > pThreshold
+    if (tblreport.kRet(i) > kThreshold(1) && tblreport.pWin(i) > pThreshold(1)) || ...
+            (tblreport.kRet(i) > kThreshold(2) && tblreport.pWin(i) > pThreshold(2))
         nSelect = nSelect + 1;
         codesSelected{nSelect,1} = tblreport.code{i};
         codesSelected{nSelect,2} = tblreport.freq{i};
@@ -128,6 +128,10 @@ for i = 1:nSelect
         baspread = 14;
         codesSelected{i,3} = sum(pnlrel2check);
         codesSelected{i,4} = sum((2+baspread)./notional2check);
+    elseif strcmpi(codesSelected{i,1},'xagusd')
+        baspread = 15;
+        codesSelected{i,3} = sum(pnlrel2check);
+        codesSelected{i,4} = sum((2+baspread)*5./notional2check);
     else
         if strcmpi(codesSelected{i,1},'usdcad')
             baspread = 6;
@@ -256,8 +260,8 @@ end
  tblSelected = sortrows(tblSelected,'opendatetime','ascend');
  writetable(tblSelected,'C:\yangyiran\tblselected.xlsx');
 %%
-replay1 = '2025-07-10';
-replay2 = '2025-07-12';
+replay1 = '2025-07-16';
+replay2 = '2025-07-19';
 for i = 1:size(port,1)
     strat_fx_i = load([dir_,'strat_fx_',port.freq{i},'.mat']);
     strat_fx_i = strat_fx_i.(['strat_fx_',port.freq{i}]);
