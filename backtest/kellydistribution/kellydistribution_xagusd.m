@@ -20,9 +20,12 @@ if strcmpi(recalib_flag,'Y')
         [~,~,~,~,~,~,~,strat_xagusd{i}] = kellydistributionsummary(output_xagusd{i});
     end
 else
-    strat_i = load([dir_,'strat_ag_',freq2mt4freq(freq{i}),'.mat']);
-    strat_i = strat_i.(['strat_ag_',freq2mt4freq(freq{i})]);
-    strat_xagusd{i} = strat_i;
+    output_xagusd = cell(length(freqs),1);
+    for i = 1:length(freqs)
+        strat_i = load([dir_,'strat_xagusd_',lower(freq2mt4freq(freqs{i})),'.mat']);
+        strat_i = strat_i.(['strat_xagusd_',freq2mt4freq(freqs{i})]);
+        strat_xagusd{i} = strat_i;
+    end
 end
 %%
 % charlotte_strat_compare('strat1',strat_fx_m15_existing,'strat2',strat_fx_m15,'assetname','eurusd');
