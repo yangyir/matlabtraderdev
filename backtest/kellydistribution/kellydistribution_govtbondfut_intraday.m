@@ -199,6 +199,90 @@ end
 [tblpnl_5m_existing,~,statsout_5m_existing] = irene_trades2dailypnl('tradestable',tbl2check_5m_all_existing,'frequency','5m');
 [tblpnl_15m_existing,~,statsout_15m_existing] = irene_trades2dailypnl('tradestable',tbl2check_15m_all_existing,'frequency','15m');
 [tblpnl_30m_existing,~,statsout_30m_existing] = irene_trades2dailypnl('tradestable',tbl2check_30m_all_existing,'frequency','30m');
+%%
+[p_running,r_running,k_running] = calcrunningkelly(tbl2check_15m_all.pnlrel);
+
+%
+chooseFlag = input("Choose P/R/K?: ",'s');
+if strcmpi(chooseFlag,'P')
+    cumulativeMeans = p_running;
+    title1 = 'Convergence of Win Ratio';
+    title2 = 'Distribution of Win Ratio';
+    ylabel1 = 'Win Ratio';
+elseif strcmpi(chooseFlag,'R')
+    cumulativeMeans = r_running;
+    title1 = 'Convergence of Fractional Odds';
+    title2 = 'Distribution of Fractional Odds';
+    ylabel1 = 'Fractional Odds';
+elseif strcmpi(chooseFlag,'K')
+    title1 = 'Convergence of  Kelly Criterion';
+    title2 = 'Distribution of Kelly Criterion';
+    ylabel1 = 'Kelly Criterion';
+    cumulativeMeans = k_running;
+end
+n = length(cumulativeMeans);
+fit_start = 50;
+x_fit = cumulativeMeans(fit_start:n);
+x = (x_fit - mean(x_fit))/std(x_fit);
+h = kstest(x,'tail','larger');
+[xMu,xSigma] = normfit(x_fit,0.01);
+
+close all;
+figure('Color','White');
+subplot(3,1,1);
+plot(1:fit_start-1, cumulativeMeans(1:fit_start-1), 'b--', 'LineWidth', 1.8);
+hold on;
+plot(fit_start:n, x_fit, 'b', 'LineWidth', 1.8);
+
+% yline(xMu+xSigma, 'r--', 'LineWidth', 1.5, 'Label', '+stdev','LabelVerticalAlignment','top');
+yline(cumulativeMeans(end), 'r--', 'LineWidth', 1.5, 'Label', 'lastvalue');
+% yline(xMu-xSigma, 'r--', 'LineWidth', 1.5, 'Label', '-stdev','LabelVerticalAlignment','bottom');
+hold off;
+title(title1, 'FontSize', 10, 'FontWeight', 'bold');
+xlabel('#Trades', 'FontSize', 10);
+ylabel(ylabel1, 'FontSize', 10);
+grid on;
+% set(gca, 'FontSize', 11, 'XScale', 'log');
+
+subplot(3,1,2);
+[f,x_values] = ecdf(x);
+J = plot(x_values,f);
+hold on;
+K = plot(x_values,normcdf(x_values),'r--');
+set(J,'LineWidth',2);
+set(K,'LineWidth',2);
+legend([J K],'Empirical CDF','Standard Normal CDF','Location','Best','FontSize',8);
+legend('boxoff');
+title(title2,'FontSize', 10, 'FontWeight', 'bold');
+
+
+subplot(3,1,3);
+relative_error = abs(cumulativeMeans - xMu) / xMu * 100; 
+plot(1:fit_start-1, relative_error(1:fit_start-1), 'LineWidth', 1.8, 'Color', [0.9, 0.4, 0.1],'LineStyle','--');
+hold on;
+plot(fit_start:n, relative_error(fit_start:n), 'LineWidth', 1.8, 'Color', [0.9, 0.4, 0.1]);
+hold off;
+title('Relative Error', 'FontSize', 10, 'FontWeight', 'bold');
+xlabel('#Trades', 'FontSize', 10);
+ylabel('Relative Error(%)', 'FontSize', 10);
+grid on;
+set(gca, 'FontSize', 10);
+yline(xSigma*100, 'g--', 'stdev', 'LineWidth', 1.5, 'LabelHorizontalAlignment', 'right');
+
+% error = a * n^(-b)
+y_fit = relative_error(1:n);
+log_x = log(1:n);log_x = log_x';
+log_y = log(y_fit);
+coeffs = polyfit(log_x, log_y, 1);
+b = -coeffs(1);
+a = exp(coeffs(2));
+fprintf('===== Summary =====\n');
+fprintf('Number of Trades: %d\n', n);
+fprintf('Theoritical: %.4f\n', xMu);
+fprintf('LastObsevation: %.4f\n', cumulativeMeans(end));
+fprintf('Stdev: %.4f\n', xSigma);
+fprintf('RelativeError = %.4f * n^{-%.4f}\n', a, b);
+fprintf('Convergence: b = %.4f\n', b);
 
 
 
