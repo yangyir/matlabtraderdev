@@ -746,7 +746,10 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
             if ~isempty(signaluncond)
                 if signaluncond.directionkellied == -1
                     kelly = signaluncond.kelly;
-                    trade.opensignal_.mode_ = signaluncond.opkellied;
+                    try
+                        trade.opensignal_.mode_ = signaluncond.opkellied;
+                    catch
+                    end
                     trade.opensignal_.kelly_ = signaluncond.kelly;
                     if kelly < 0.088
                         unwindflag = true;
