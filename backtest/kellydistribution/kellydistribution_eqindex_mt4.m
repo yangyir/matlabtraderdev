@@ -20,9 +20,12 @@ if strcmpi(recalib_flag,'Y')
         [~,~,~,~,~,~,~,strat_eqindex{i}] = kellydistributionsummary(output_eqindex{i});
     end
 else
-    strat_i = load([dir_,'strat_eqindex_',freq2mt4freq(freq{i}),'.mat']);
-    strat_i = strat_i.(['strat_eqindex_',freq2mt4freq(freq{i})]);
-    strat_eqindex{i} = strat_i;
+    strat_eqindex = cell(length(freqs),1);
+    for i = 1:length(freqs)
+        strat_i = load([dir_,'strat_eqindex_',lower(freq2mt4freq(freqs{i})),'.mat']);
+        strat_i = strat_i.(['strat_eqindex_',lower(freq2mt4freq(freqs{i}))]);
+        strat_eqindex{i} = strat_i;
+    end
 end
 %%
 % charlotte_strat_compare('strat1',strat_fx_m15_existing,'strat2',strat_fx_m15,'assetname','eurusd');
@@ -78,16 +81,17 @@ save([dir_,'strat_eqindex_d1.mat'],'strat_eqindex_d1');
 fprintf('strat tables saved\n');
 %%
 statsout = cell(length(freqs),1);
+code2check = 'hk50';
 for i = 1:length(freqs)
     if i == 1
-        pnlret = tbl2check_h1.pnlrel;
-        opendt = tbl2check_h1.opendatetime;
+        pnlret = tbl2check_h1.pnlrel(strcmpi(tbl2check_h1.code,code2check));
+        opendt = tbl2check_h1.opendatetime(strcmpi(tbl2check_h1.code,code2check));
     elseif i == 2
-        pnlret = tbl2check_h4.pnlrel;
-        opendt = tbl2check_h4.opendatetime;
+        pnlret = tbl2check_h4.pnlrel(strcmpi(tbl2check_h4.code,code2check));
+        opendt = tbl2check_h4.opendatetime(strcmpi(tbl2check_h4.code,code2check));
     else
-        pnlret = tbl2check_d1.pnlrel;
-        opendt = tbl2check_d1.opendatetime;
+        pnlret = tbl2check_d1.pnlrel(strcmpi(tbl2check_d1.code,code2check));
+        opendt = tbl2check_d1.opendatetime(strcmpi(tbl2check_d1.code,code2check));
     end
     
     opendt = datestr(opendt,'yyyymm');
@@ -156,7 +160,7 @@ for i = 1:length(freqs)
         end
     end
 
-    statsout{i} = struct('code','eqindex',...
+    statsout{i} = struct('code',code2check,...
         'freqs',freqs{i},...
         'nTotal',size(pnlret,1),...
         'Pwin',Wret,...
@@ -175,7 +179,7 @@ end
 fprintf('done...\n');
 %% visualization
 for i = 1:length(freqs)
-    cumulativeMeans = statsout{i}.PRunning;
+    cumulativeMeans = statsout{i}.KRunning;
     if i == 1
         figure('color','white');
     end
