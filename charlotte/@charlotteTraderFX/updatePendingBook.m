@@ -8,6 +8,7 @@ function [] = updatePendingBook(obj,data)
     kellytables = data.kellytables_;
     signals = data.signals_;
     newindicators = data.newindicators_;
+    newsignals = data.newsignals_;
     modes = data.modes_;
     
     pendingtrades2remove = cTradeOpenArray;
@@ -109,6 +110,19 @@ function [] = updatePendingBook(obj,data)
         end
         if ~newindicators(idxfound)
             continue;
+        end
+        if newsignals(idxfound)
+            pendingtrade = fractal_gentrade3_mt4(ei{idxfound},trade_i.code_,size(ei{idxfound}.px,1),frequency,nfractal,kellytables{idxfound});
+            if ~isempty(pendingtrade)
+                if trade_i.opendirection_ == pendingtrade.opendirection_ && ...
+                        trade_i.openprice_ ~= pendingtrade.openprice_
+                    trade_i.id_ = pendingtrade.id_;
+                    trade_i.openprice_ = pendingtrade.openprice_;
+                    trade_i.opensignal_ = pendingtrade.opensignal_;
+                    trade_i.riskmanager_ = pendingtrade.riskmanager_;
+                    trade_i.opendatetime1_ = pendingtrade.opendatetime1_; 
+                end
+            end
         end
         if strcmpi(modes{idxfound},'realtime')
             exporttrade2mt4(trade_i,ei{idxfound});
