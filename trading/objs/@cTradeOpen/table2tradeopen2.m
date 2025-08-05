@@ -40,6 +40,14 @@ function [obj] = table2tradeopen2(obj,headers,data)
                 end
                 continue;
             end
+            if ~isempty(strfind(headers{i},'oneminb4close1_'))
+                if ~isempty(data{i}) && ~strcmpi(data{i},'NaN')
+                    obj.(headers{i}) = data{i};
+                else
+                    obj.(headers{i}) = NaN;
+                end
+                continue;
+            end
             if isempty(data{i})
                 continue;
             end
