@@ -56,6 +56,14 @@ function [flag] = istime2sleep(obj,t)
        end
    end
    
+   %there is no evening market in case the next day is a public holiday
+   nextDay = dnum + 1;
+   if weekday(tnum) ~= 6 && isholiday(nextDay) && mm >= obj.mm_15_20_
+       obj.status_ = 'sleep';
+       flag = true;
+       return
+   end
+   
    %market reopens on 9:00 am every week and mytimerobj restarts to work
    %from 8:50 am on Mondays
    if weekday(tnum) == 2 && mm < obj.mm_08_50_
