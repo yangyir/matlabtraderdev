@@ -28,7 +28,7 @@ else
     opt = false;
 end
 
-if strcmpi(assetshortcode,'IO')
+if strcmpi(assetshortcode,'IO') || strcmpi(assetshortcode,'MO') || strcmpi(assetshortcode,'HO')
     idx = strfind(upper(tenor),'C');
     if isempty(idx)
         idx = strfind(upper(tenor),'P');

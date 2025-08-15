@@ -35,6 +35,10 @@ if idx == 0, return; end
 assetshortcode = codestr(1:idx);
 if strcmpi(assetshortcode,'IO')
     assetshortcode = 'IF';
+elseif strcmpi(assetshortcode,'MO')
+    assetshortcode = 'IM';
+elseif strcmpi(assetshortcode,'HO')
+    assetshortcode = 'IH';    
 end
 
 tenor = codestr(idx+1:end);
