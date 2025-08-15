@@ -10,6 +10,7 @@ classdef charlotteDataFeedFut < handle
         codes_@cell
         running_@logical = false
         status_@char = 'sleep';
+        mode_@char = 'realtime';
         updateinterval_@double = 0.5    %default interval of 0.5 seconds
         qms_
     end
@@ -19,6 +20,10 @@ classdef charlotteDataFeedFut < handle
         qmsconnected_@logical = false
         lastticktime_@double
         lasttrade_@double
+        %
+        %replay related
+        replaycounts_@double
+        replaydata_@cell
     end
     
     properties (GetAccess = private, SetAccess = private)
@@ -53,6 +58,13 @@ classdef charlotteDataFeedFut < handle
                 notify(obj, 'ErrorOccurred', ...
                     charlotteErrorEventData('Interval must be positive'));
             end
+        end
+        %
+        function [] = set.mode_(obj,modein)
+            if ~(strcmpi(modein,'realtime') || strcmpi(modein,'replay'))
+                error('mode of timer object can be realtime or replay only')
+            end
+            obj.mode_ = modein;
         end
     end
     
