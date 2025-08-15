@@ -1,11 +1,25 @@
 function [] = generateNewData(obj)
 %a charlotteDataFeedFut function
-    if obj.istime2sleep(now), return;end
-    
     ncodes = size(obj.codes_,1);
     if ncodes <= 0, return;end
     
-    mm = minute(now) + hour(now)*60;
+    if strcmpi(obj.mode_,'realtime')
+        t = now;
+    elseif strcmpi(obj.mode_,'replay')
+        obj.replaycounts_(1) = obj.replaycounts_(1) + 1;
+        try
+            t = obj.replaydata_{1}(obj.replaycounts_(1),1);
+        catch
+            
+        end
+        
+        
+    end
+    
+    if obj.istime2sleep(t), return;end
+    
+    
+    mm = minute(t) + hour(t)*60;
     
     if ((mm >= obj.mm_02_30_ + 1 && mm <  obj.mm_08_50_) || ...
            (mm >= obj.mm_15_15_ + 1 && mm < obj.mm_20_50_))
