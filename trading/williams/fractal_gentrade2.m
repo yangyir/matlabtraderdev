@@ -111,7 +111,7 @@ if isempty(condsignal)
 %                     return
 %                 else
                 if uncondsignal.status.islvldnbreach
-                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal);
+                    trade = fractal_gentrade(resstruct,code,idx,uncondsignal.op.comment,uncondsignal.directionkellied,freq,nfractal,0);
                     trade.riskmanager_.setusefractalupdateflag(0);
                     trade.opensignal_.kelly_ = uncondsignal.kelly;
                     return
