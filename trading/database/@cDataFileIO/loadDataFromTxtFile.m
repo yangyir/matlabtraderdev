@@ -14,7 +14,7 @@ function [data,coldefs,textdata] = loadDataFromTxtFile(fn_)
         error(['cDataFileIO:loadDataFromTxtFile:',errmsg,' in ',fn_])
     end
 
-    A = importdata(fn_);
+    A = importdata(fn_,'\t',1);
     if isstruct(A)
         flds = fields(A);
         hascolheaders = false;
@@ -55,6 +55,7 @@ function [data,coldefs,textdata] = loadDataFromTxtFile(fn_)
     else
         data = A;
         coldefs = {};
+        textdata = {};
     end
 
     fclose(fid);
