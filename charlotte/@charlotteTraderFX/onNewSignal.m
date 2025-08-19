@@ -84,29 +84,32 @@ function [] = onNewSignal(obj,~,eventData)
                     end
                 else
                     if signal_i.status.islvldnbreach
-                        trade = fractal_gentrade(ei_i,code_i,size(ei_i.px,1),signal_i.opkellied,-1,freq_i,nfractal,0);
-                        trade.riskmanager_.setusefractalupdateflag(0);
-                        trade.riskmanager_.setusefibonacciflag(1);
-                        unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
-                            'usecandlelastonly',true,...
-                            'debug',false,...
-                            'updatepnlforclosedtrade',true,...
-                            'extrainfo',ei_i,...
-                            'RunRiskManagementBeforeMktClose',false,...
-                            'KellyTables',data.kellytables_{i},...
-                            'CompulsoryCheckForConditional',true);
-                        if ~isempty(unwindtrade)
-                            trade.status_ = 'closed';
-                        end
-                        obj.book_.push(trade);
-                        if strcmpi(mode_i,'realtime')
-                            exporttrade2mt4(trade,ei_i);
-                        else
-                            freq = trade.opensignal_.frequency_;
-                            freqappendix = freq2mt4freq(freq);
-                            opendtstr = datestr(ei_i.px(end,1),'yyyymmdd');
-                            fn = [getenv('OneDrive'),'\mt4\replay\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
-                            exporttrade2mt4(trade,ei_i,fn);
+%                         trade = fractal_gentrade(ei_i,code_i,size(ei_i.px,1),signal_i.opkellied,-1,freq_i,nfractal,0);
+                        trade = fractal_gentrade2(ei_i,code_i,size(ei_i.px,1),freq_i,nfractal,data.kellytables_{i});
+                        if ~isempty(trade)
+                            trade.riskmanager_.setusefractalupdateflag(0);
+                            trade.riskmanager_.setusefibonacciflag(1);
+                            unwindtrade = trade.riskmanager_.riskmanagementwithcandle([],...
+                                'usecandlelastonly',true,...
+                                'debug',false,...
+                                'updatepnlforclosedtrade',true,...
+                                'extrainfo',ei_i,...
+                                'RunRiskManagementBeforeMktClose',false,...
+                                'KellyTables',data.kellytables_{i},...
+                                'CompulsoryCheckForConditional',true);
+                            if ~isempty(unwindtrade)
+                                trade.status_ = 'closed';
+                            end
+                            obj.book_.push(trade);
+                            if strcmpi(mode_i,'realtime')
+                                exporttrade2mt4(trade,ei_i);
+                            else
+                                freq = trade.opensignal_.frequency_;
+                                freqappendix = freq2mt4freq(freq);
+                                opendtstr = datestr(ei_i.px(end,1),'yyyymmdd');
+                                fn = [getenv('OneDrive'),'\mt4\replay\',trade.code_,'.lmx_',freqappendix,'_trades_',opendtstr,'.txt'];
+                                exporttrade2mt4(trade,ei_i,fn);
+                            end
                         end
                     end
                     %
