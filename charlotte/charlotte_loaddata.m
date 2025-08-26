@@ -48,6 +48,7 @@ if strcmpi(freq,'5m') || strcmpi(freq,'15m')
             strcmpi(instrument.asset_name,'eqindex_1000') || ...
             strcmpi(instrument.asset_name,'eqindex_300') || ...
             strcmpi(instrument.asset_name,'eqindex_50') || ...
+            strcmpi(instrument.asset_name,'eqindex_500') || ...
             isfx(futcode))
         error('charlotte_loaddata:5m or 15m is only supported with govtbond and palmoil fut for now...')
     end
@@ -65,6 +66,14 @@ if strcmpi(freq,'5m')
         data =load([getenv('onedrive'),'\matlabdev\preciousmetal\au\',futcode,'_5m.mat']);
     elseif strcmpi(instrument.asset_name,'eqindex_1000')
         data =load([getenv('onedrive'),'\matlabdev\eqindex\im\',futcode,'_5m.mat']);
+    elseif strcmpi(instrument.asset_name,'eqindex_500')
+        data =load([getenv('onedrive'),'\matlabdev\eqindex\ic\',futcode,'_5m.mat']);
+    elseif strcmpi(instrument.asset_name,'eqindex_50')
+        data =load([getenv('onedrive'),'\matlabdev\eqindex\ih\',futcode,'_5m.mat']);
+    elseif strcmpi(instrument.asset_name,'eqindex_300')
+        data =load([getenv('onedrive'),'\matlabdev\eqindex\if\',futcode,'_5m.mat']);
+    elseif isinequitypool(futcode)
+        data = load([getenv('onedrive'),'\matlabdev\equity\',futcode,'\',futcode,'_5m.mat']);
     elseif isfx(futcode)
         data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M5.mat']);
     end
@@ -179,6 +188,8 @@ elseif strcmpi(freq,'30m')
         data =load([getenv('onedrive'),'\matlabdev\energy\ur\',futcode,'.mat']);
     elseif isfx(futcode)
         data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M30.mat']);
+    elseif isinequitypool(futcode)
+        data = load([getenv('onedrive'),'\matlabdev\equity\',futcode,'\',futcode,'.mat']);
     else
         error('charlotte_loaddata:unsupported code %s...',futcode);
     end
