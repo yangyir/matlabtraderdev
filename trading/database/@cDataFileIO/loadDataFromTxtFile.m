@@ -13,8 +13,12 @@ function [data,coldefs,textdata] = loadDataFromTxtFile(fn_)
     if fid < 0
         error(['cDataFileIO:loadDataFromTxtFile:',errmsg,' in ',fn_])
     end
-
-    A = importdata(fn_,'\t',1);
+    
+    if isempty(strfind(fn_,'activefutures'))
+        A = importdata(fn_,'\t',1);
+    else
+        A = importdata(fn_);
+    end
     if isstruct(A)
         flds = fields(A);
         hascolheaders = false;
