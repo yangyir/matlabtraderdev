@@ -140,15 +140,20 @@ elseif isfx(fut.asset_name)
         tickratio = 1;
     end
 elseif isinequitypool(futcode)
-    if ~strcmpi(freq,'daily')
-        error('charlotte_backtest_daily:invalid freq for etfs, only daily is supported now...');
+    if strcmpi(freq,'daily')
+        if isempty(kellytables)
+            data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\etfs\strat_daily_etfs.mat']);
+            kellytables = data.strat_daily_etfs;
+        end
+        if isempty(nfractal),nfractal = 2;end
+        tickratio = 1;
+    elseif strcmpi(freq,'5m')
+        if isempty(nfractal),nfractal = 6;end
+        tickratio = 0;
+    elseif strcmpi(freq,'30m')
+        if isempty(nfractal),nfractal = 4;end
+        tickratio = 0.5;
     end
-    if isempty(kellytables)
-        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\etfs\strat_daily_etfs.mat']);
-        kellytables = data.strat_daily_etfs;
-    end
-    if isempty(nfractal),nfractal = 2;end
-    tickratio = 1;
 else
     if isempty(nfractal),nfractal = 4;end
     tickratio = 0.5;
