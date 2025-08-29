@@ -51,6 +51,7 @@ function [] = generateNewData(obj)
         lasttrade = quote.last_trade;
         if lasttrade <= 0, continue;end
         if isnan(lasttrade), continue;end
+        if isempty(lasttrade),continue;end
         currentticktime = quote.update_time1;
         if (currentticktime > obj.lastticktime_(i)) || ...
                 (currentticktime - obj.lastticktime_(i) < 5e-6 && lasttrade ~= obj.lasttrade_(i))
