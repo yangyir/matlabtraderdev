@@ -25,4 +25,8 @@ classdef charlotteDataVisualizerFut < handle
         [] = onNewBarSetM15(obj,~,eventData)
         [] = onNewBarSetM30(obj,~,eventData)
     end
+    
+    methods
+        [] = loadHistoricalData(obj,varargin)
+    end
 end

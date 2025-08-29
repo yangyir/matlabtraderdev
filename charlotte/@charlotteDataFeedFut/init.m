@@ -34,7 +34,7 @@ if ncodes > 0
             instrument_i = code2instrument(codes{i});
             obj.qms_.registerinstrument(instrument_i);
         end
-    elseif strcmpi(mode,'relpay')
+    elseif strcmpi(mode,'replay')
         if ncodes > 1
             obj.stop;
             error('charlotteDataFeedFut::init::only one code is supported in replay mode...')
