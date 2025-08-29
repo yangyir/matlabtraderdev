@@ -2,6 +2,16 @@ function [] = onMarketClose(obj,~,eventData)
 % a charlotteDataProcessorFut function
     data = eventData.MarketData;
     t = data.time;
+    try
+        mode = data.mode;
+    catch
+        mode = 'realtime';
+    end
+    
+    if strcmpi(mode,'replay')
+        return
+    end
+    
     ncodes = size(obj.codes_,1);
     for i = 1:ncodes
         if obj.fut_categories_(i) <= 3
