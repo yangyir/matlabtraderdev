@@ -50,6 +50,7 @@ function [] = generateNewData(obj)
         quote = obj.qms_.getquote(obj.codes_{i});
         lasttrade = quote.last_trade;
         if lasttrade <= 0, continue;end
+        if isnan(lasttrade), continue;end
         currentticktime = quote.update_time1;
         if (currentticktime > obj.lastticktime_(i)) || ...
                 (currentticktime - obj.lastticktime_(i) < 5e-6 && lasttrade ~= obj.lasttrade_(i))

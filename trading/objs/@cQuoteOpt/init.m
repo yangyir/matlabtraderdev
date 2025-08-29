@@ -22,7 +22,7 @@ function [] = init(obj,codestr)
 
         obj.init_flag = true;
         
-        if ~isempty(strfind(codestr,'cu')) || ~isempty(strfind(codestr,'IO')) || ~isempty(strfind(codestr,'MO')) || || ~isempty(strfind(codestr,'HO'))
+        if ~isempty(strfind(codestr,'cu')) || ~isempty(strfind(codestr,'IO')) || ~isempty(strfind(codestr,'MO')) ||  ~isempty(strfind(codestr,'HO'))
             obj.opt_american = false;
         end
         
