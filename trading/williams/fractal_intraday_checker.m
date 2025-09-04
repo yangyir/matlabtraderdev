@@ -141,8 +141,21 @@ for i = 1:n
                 if hour(extrainfo.px(end,1)) == 15 && minute(extrainfo.px(end,1)) == 10, runflag = true;end
             end
         elseif trade.oneminb4close1_ == 899 && isnan(trade.oneminb4close2_)
-            if freq ~= 30, error('fractal_intraday_check:invalid freq input....');end
-            if hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30, runflag = true;end
+            if freq == 30
+                if hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30
+                    runflag = true;
+                end
+            elseif freq == 15
+                if hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 45
+                    runflag = true;
+                end
+            elseif freq == 5
+                if hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 55
+                    runflag = true;
+                end
+            else
+                error('fractal_intraday_check:invalid freq input....');
+            end
         elseif trade.oneminb4close1_ == 899 && trade.oneminb4close2_ == 1379
             if freq == 30
                 if (hour(extrainfo.px(end,1)) == 14 && minute(extrainfo.px(end,1)) == 30) || ...
