@@ -25,10 +25,7 @@ if strcmpi(assetname,'govtbond_10y') || strcmpi(assetname,'govtbond_30y') || str
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_5m.mat']);
         tbl_report_ = data.tblreport_govtbondfut_5m;
     elseif strcmpi(freq,'15m')
-        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_15m.mat']);
-        strat_ = data.strat_govtbondfut_15m;
-        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\tblreport_govtbondfut_15m.mat']);
-        tbl_report_ = data.tblreport_govtbondfut_15m;
+        error('not implemented for 15m....')
     elseif strcmpi(freq,'30m')
         data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
         strat_ = data.strat_govtbondfut_30m;
@@ -42,10 +39,20 @@ if strcmpi(assetname,'govtbond_10y') || strcmpi(assetname,'govtbond_30y') || str
     end
 elseif strcmpi(assetname,'eqindex_300') || strcmpi(assetname,'eqindex_50') || ...
         strcmpi(assetname,'eqindex_500') || strcmpi(assetname,'eqindex_1000')
-    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\strat_eqindexfut.mat']);
-    strat_ = data.strat_eqindexfut;
-    data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut.mat']);
-    tbl_report_ = data.tblreport_eqindexfut;
+    if strcmpi(freq,'5m')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\strat_eqindexfut_m5.mat']);
+        strat_ = data.strat_eqindexfut_m5;
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut_m5.mat']);
+        tbl_report_ = data.tblreport_eqindexfut_m5;
+    elseif strcmpi(freq,'15m')
+    elseif strcmpi(freq,'30m')
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\strat_eqindexfut_m30.mat']);
+        strat_ = data.strat_eqindexfut_m30;
+        data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\tblreport_eqindexfut_m30.mat']);
+        tbl_report_ = data.tblreport_eqindexfut_m30;
+    elseif strcmpi(freq,'daily')
+    end
+    
 elseif isfx(assetname)
     data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_daily.mat']);
     strat_ = data.strat_fx_daily;
