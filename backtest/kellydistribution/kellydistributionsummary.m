@@ -564,29 +564,43 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     %
     %
     signal_l_valid = kelly_table_l.opensignal_unique_l(logical(kelly_table_l.use_unique_l));
-    idx_signal_l_valid = strcmpi(tbl_extractedinfo.opensignal,signal_l_valid{1}) & tbl_extractedinfo.direction == 1;
-    for iSignal = 2:length(signal_l_valid)
-        idx_i = strcmpi(tbl_extractedinfo.opensignal,signal_l_valid{iSignal}) & tbl_extractedinfo.direction == 1;
-        idx_signal_l_valid = idx_signal_l_valid | idx_i;
+    if ~isempty(signal_l_valid)
+        idx_signal_l_valid = strcmpi(tbl_extractedinfo.opensignal,signal_l_valid{1}) & tbl_extractedinfo.direction == 1;
+        for iSignal = 2:length(signal_l_valid)
+            idx_i = strcmpi(tbl_extractedinfo.opensignal,signal_l_valid{iSignal}) & tbl_extractedinfo.direction == 1;
+            idx_signal_l_valid = idx_signal_l_valid | idx_i;
+        end
+        pnl_l_valid = tbl_extractedinfo.pnlrel(idx_signal_l_valid);
+        [w_l_valid,r_l_valid,k_l_valid] = calcrunningkelly(pnl_l_valid);
+        W_L_ALL = w_l_valid(end);
+        R_L_ALL = r_l_valid(end);
+        K_L_ALL = k_l_valid(end);
+    else
+        idx_signal_l_valid = strcmpi(tbl_extractedinfo.opensignal,'') & tbl_extractedinfo.direction == 1;
+        W_L_ALL = 0;
+        R_L_ALL = 0;
+        K_L_ALL = -9.99;
     end
-    pnl_l_valid = tbl_extractedinfo.pnlrel(idx_signal_l_valid);
-    [w_l_valid,r_l_valid,k_l_valid] = calcrunningkelly(pnl_l_valid);
-    W_L_ALL = w_l_valid(end);
-    R_L_ALL = r_l_valid(end);
-    K_L_ALL = k_l_valid(end);
     %
     signal_s_valid = kelly_table_s.opensignal_unique_s(logical(kelly_table_s.use_unique_s));
-    idx_signal_s_valid = strcmpi(tbl_extractedinfo.opensignal,signal_s_valid{1}) & tbl_extractedinfo.direction == -1;
-    for iSignal = 2:length(signal_s_valid)
-        idx_i = strcmpi(tbl_extractedinfo.opensignal,signal_s_valid{iSignal}) & tbl_extractedinfo.direction == -1;
-        idx_signal_s_valid = idx_signal_s_valid | idx_i;
+    if ~isempty(signal_s_valid)
+        idx_signal_s_valid = strcmpi(tbl_extractedinfo.opensignal,signal_s_valid{1}) & tbl_extractedinfo.direction == -1;
+        for iSignal = 2:length(signal_s_valid)
+            idx_i = strcmpi(tbl_extractedinfo.opensignal,signal_s_valid{iSignal}) & tbl_extractedinfo.direction == -1;
+            idx_signal_s_valid = idx_signal_s_valid | idx_i;
+        end
+        pnl_s_valid = tbl_extractedinfo.pnlrel(idx_signal_s_valid);
+        [w_s_valid,r_s_valid,k_s_valid] = calcrunningkelly(pnl_s_valid);
+        W_S_ALL = w_s_valid(end);
+        R_S_ALL = r_s_valid(end);
+        K_S_ALL = k_s_valid(end);
+    else
+        idx_signal_s_valid = strcmpi(tbl_extractedinfo.opensignal,'') & tbl_extractedinfo.direction == -1;
+        W_S_ALL = 0;
+        R_S_ALL = 0;
+        K_S_ALL = -9.99;
     end
-    pnl_s_valid = tbl_extractedinfo.pnlrel(idx_signal_s_valid);
-    [w_s_valid,r_s_valid,k_s_valid] = calcrunningkelly(pnl_s_valid);
-    W_S_ALL = w_s_valid(end);
-    R_S_ALL = r_s_valid(end);
-    K_S_ALL = k_s_valid(end);
-    %
+        %
     idx_signal_valid = idx_signal_l_valid | idx_signal_s_valid;
     pnl_valid = tbl_extractedinfo.pnlrel(idx_signal_valid);
     [w_valid,r_valid,k_valid] = calcrunningkelly(pnl_valid);
