@@ -244,6 +244,10 @@ while i <= idx2
             elseif trade.oneminb4close1_ == 899 && isnan(trade.oneminb4close2_)
                 if strcmpi(freq,'30m')
                     if hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 30, runflag = true;end
+                elseif strcmpi(freq,'15m')
+                    if hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 45, runflag = true;end
+                elseif strcmpi(freq,'5m')
+                    if hour(ei_j.px(end,1)) == 14 && minute(ei_j.px(end,1)) == 55, runflag = true;end    
                 elseif strcmpi(freq,'daily')
                     runflag = true;
                 else
