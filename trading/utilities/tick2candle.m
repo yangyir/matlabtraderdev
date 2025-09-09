@@ -1,17 +1,22 @@
-function [candlesout] = tick2candle(code,datein)
+function [candlesout] = tick2candle(code,datein,tickdatain)
     try
         instrument = code2instrument(code);
     catch
         instrument = [];
     end
-    tickpath = [getenv('datapath'),'ticks\',code,'\'];
-    tickfile = [code,'_',datestr(datein,'yyyymmdd'),'_tick.txt'];
-    try
-        tickdata = cDataFileIO.loadDataFromTxtFile([tickpath,tickfile]);
-    catch
-        candlesout = [];
-        fprintf('tick2candle:load tick data of %s failed\n',code);
-        return
+    
+    if nargin < 3
+        tickpath = [getenv('datapath'),'ticks\',code,'\'];
+        tickfile = [code,'_',datestr(datein,'yyyymmdd'),'_tick.txt'];
+        try
+            tickdata = cDataFileIO.loadDataFromTxtFile([tickpath,tickfile]);
+        catch
+            candlesout = [];
+            fprintf('tick2candle:load tick data of %s failed\n',code);
+            return
+        end
+    else
+        tickdata = tickdatain;
     end
     %
     if ~isempty(instrument)
