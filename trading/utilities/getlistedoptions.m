@@ -44,6 +44,36 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
         bucketsize = 200;
     elseif ~isempty(strfind(code_ctp_underlier,'i'))
         bucketsize = 20;
+    elseif ~isempty(strfind(code_ctp_underlier,'IM'))
+        if pclose <= 2500
+            bucketsize = 25;
+        elseif pclose > 2500 && pclose <= 5000
+            bucketsize = 50;
+        elseif pclose > 5000 && pclose <= 10000
+            bucketsize = 100;
+        else
+            bucketsize = 200;
+        end
+    elseif ~isempty(strfind(code_ctp_underlier,'IH'))
+        if pclose <= 2500
+            bucketsize = 25;
+        elseif pclose > 2500 && pclose <= 5000
+            bucketsize = 50;
+        elseif pclose > 5000 && pclose <= 10000
+            bucketsize = 100;
+        else
+            bucketsize = 200;
+        end
+    elseif ~isempty(strfind(code_ctp_underlier,'IF'))
+        if pclose <= 2500
+            bucketsize = 25;
+        elseif pclose > 2500 && pclose <= 5000
+            bucketsize = 50;
+        elseif pclose > 5000 && pclose <= 10000
+            bucketsize = 100;
+        else
+            bucketsize = 200;
+        end    
     else
         error('getlistedoptions:unknown underlier')
     end
@@ -69,8 +99,7 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
             %
             code_p{i} = [code_ctp_underlier,'-P-',num2str(strikes(i))];
             puts{i} = cOption(code_p{i});
-            puts{i}.loadinfo([code_p{i},'_info.txt']);
-            
+            puts{i}.loadinfo([code_p{i},'_info.txt']);         
         end
     elseif ~isempty(strfind(code_ctp_underlier,'SR')) || ~isempty(strfind(code_ctp_underlier,'CF'))
         for i = 1:numstrikes
@@ -90,6 +119,30 @@ function [calls,puts,underlier] = getlistedoptions(code_ctp_underlier,numstrikes
             code_p{i} = [code_ctp_underlier,'P',num2str(strikes(i))];
             puts{i} = code2instrument(code_p{i});
         end
+    elseif ~isempty(strfind(code_ctp_underlier,'IM'))    
+        for i = 1:numstrikes
+            code_c{i} = ['MO',code_ctp_underlier(end-3:end),'-C-',num2str(strikes(i))];
+            calls{i} = code2instrument(code_c{i});
+            %
+            code_p{i} = ['MO',code_ctp_underlier(end-3:end),'-P-',num2str(strikes(i))];
+            puts{i} = code2instrument(code_p{i});
+        end
+    elseif ~isempty(strfind(code_ctp_underlier,'IF'))    
+        for i = 1:numstrikes
+            code_c{i} = ['IO',code_ctp_underlier(end-3:end),'-C-',num2str(strikes(i))];
+            calls{i} = code2instrument(code_c{i});
+            %
+            code_p{i} = ['IO',code_ctp_underlier(end-3:end),'-P-',num2str(strikes(i))];
+            puts{i} = code2instrument(code_p{i});
+        end
+    elseif ~isempty(strfind(code_ctp_underlier,'IH'))    
+        for i = 1:numstrikes
+            code_c{i} = ['HO',code_ctp_underlier(end-3:end),'-C-',num2str(strikes(i))];
+            calls{i} = code2instrument(code_c{i});
+            %
+            code_p{i} = ['HO',code_ctp_underlier(end-3:end),'-P-',num2str(strikes(i))];
+            puts{i} = code2instrument(code_p{i});
+        end    
     else
         error('getlistedoptions:unknown underlier')
     end
