@@ -141,6 +141,8 @@ function [rtt_output] = rtt_setup(varargin)
         rtt_strategy = cStratFutMultiTDSQ;
     elseif strcmpi(stratname,'fractal')
         rtt_strategy = cStratFutMultiFractal;
+    elseif strcmpi(stratname,'fractalopt')
+        rtt_strategy = cStratOptMultiFractal;
     else
     end
     
@@ -153,20 +155,38 @@ function [rtt_output] = rtt_setup(varargin)
     speedadj = 1;
     if strcmpi(mode,'replay')
         replaydts = gendates('fromdate',replayfromdate,'todate',replaytodate);
-        try
-            instruments = rtt_strategy.getinstruments;
-            ninstruments = size(instruments,1);
-            for i = 1:ninstruments
-                code = instruments{i}.code_ctp;
-                filenames = cell(size(replaydts,1),1);
-                for j = 1:size(replaydts,1)
-                    filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
+        if ~strcmpi(stratname,'fractalopt')
+            try
+                instruments = rtt_strategy.getinstruments;
+                ninstruments = size(instruments,1);
+                for i = 1:ninstruments
+                    code = instruments{i}.code_ctp;
+                    filenames = cell(size(replaydts,1),1);
+                    for j = 1:size(replaydts,1)
+                        filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
+                    end
+                    fprintf('load tick data of %s in replay mode...\n',code);
+                    rtt_mdefut.initreplayer('code',code,'filenames',filenames);
                 end
-                fprintf('load tick data of %s in replay mode...\n',code);
-                rtt_mdefut.initreplayer('code',code,'filenames',filenames);
+            catch err
+                error('rtt_setup:%s\n',err.message)
             end
-        catch err
-            error('rtt_setup:%s\n',err.message)
+        else
+            try
+                underliers = rtt_strategy.getunderliers;
+                nu = rtt_strategy.countunderliers;
+                for i = 1:nu
+                    code = underliers{i}.code_ctp;
+                    filenames = cell(size(replaydts,1),1);
+                    for j = 1:size(replaydts,1)
+                        filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
+                    end
+                    fprintf('load tick data of %s in replay mode...\n',code);
+                    rtt_mdefut.initreplayer('code',code,'filenames',filenames);
+                end
+            catch err
+                error('rtt_setup:%s\n',err.message)
+            end
         end
         speedadj = p.Results.ReplaySpeed;
         fprintf('set replay speed to %s...\n',num2str(speedadj));
