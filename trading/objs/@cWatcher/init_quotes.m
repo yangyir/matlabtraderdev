@@ -19,7 +19,7 @@ function [] = init_quotes(watcher)
                         data = watcher.ds.realtime('CCSWOC CMPN Curncy','px_last');
                         q.riskless_rate = data.px_last/100;
                     else
-                        q.riskless_rate = 0.035;
+                        q.riskless_rate = 0.01;
                     end
                 end
             elseif strcmpi(watcher.types{i},'stock')
