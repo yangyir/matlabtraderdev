@@ -43,20 +43,27 @@ function [] = registerinstrument(strategy,instrument)
     end
     
     %calsignal_bucket_
-    strategy.setcalcsignalbucket(instrument,0);
+    if ~optflag
+        strategy.setcalcsignalbucket(instrument,0);
+    else
+        strategy.setcalcsignalbucket2(u,0);
+    end
     
     %calcsignal_
-    strategy.setcalcsignal(instrument,0);
+    if ~optflag
+        strategy.setcalcsignal(instrument,0);
+    else
+        strategy.setcalcsignal2(u,0);
+    end
     
     %replaceconditionalsignal_
-    strategy.setreplaceconditionalsignal(instrument,0);
+    if ~optflag
+        strategy.setreplaceconditionalsignal(instrument,0);
+    else
+        strategy.setreplaceconditionalsignal2(u,0);
+    end
     
-%     %executionperbucket_
-%     strategy.setexecutionperbucket(instrument,0);
-%     
-%     %executionbucketnumber_
-%     strategy.setexecutionbucketnumber(instrument,1);
-    
+        
     if ~optflag
         strategy.mde_fut_.registerinstrument(instrument);
     else
@@ -66,7 +73,11 @@ function [] = registerinstrument(strategy,instrument)
     
     samplefreq = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','samplefreq');
     samplefreqnum = str2double(samplefreq(1:end-1));
-    strategy.mde_fut_.setcandlefreq(samplefreqnum,instrument);
+    if ~optflag
+        strategy.mde_fut_.setcandlefreq(samplefreqnum,instrument);
+    else
+        strategy.mde_fut_.setcandlefreq(samplefreqnum,u);
+    end
     
     try
         np = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','numofperiod');
@@ -74,7 +85,11 @@ function [] = registerinstrument(strategy,instrument)
         np = 144;
     end
     param = struct('name','WilliamR','values',{{'numofperiods',np}});
-    strategy.mde_fut_.settechnicalindicator(instrument,param);
+    if ~optflag
+        strategy.mde_fut_.settechnicalindicator(instrument,param);
+    else
+        strategy.mde_fut_.settechnicalindicator(u,param);
+    end
     
 end
 %end of 'registerinstrument'

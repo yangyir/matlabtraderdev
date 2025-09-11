@@ -1,17 +1,34 @@
 function calcflag = getcalcsignalflag(strategy,instrument)
 %cStrategy
-    [flag,idx_instrument] = strategy.instruments_.hasinstrument(instrument);
+    [flag,idx_instrument] = strategy.hasinstrument(instrument);
     if ~flag
-        error('%s:getcalcsignalflag:instrument not found',class(strategy))
+        [flag,idx_instrument] = strategy.hasunderlier(instrument);
+        if ~flag
+            error('%s:getcalcsignalflag:instrument not found',class(strategy))
+        else
+            isunderlier = true;
+        end
+    else
+        isunderlier = false;
     end
     
-    autotrade = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','autotrade');
+    if ~isunderlier
+        autotrade = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','autotrade');
+    else
+        %here it may needs further enhancement
+        autotrade = 1;
+    end
     if ~autotrade
         calcflag = 0;
         return
     end
-%     inst = obj.instruments_.getinstrument;
-    inst = strategy.getinstruments;
+    
+    if ~isunderlier
+        inst = strategy.getinstruments;
+    else
+        inst = strategy.getunderliers;
+    end
+    
     if strcmpi(strategy.status_,'working')
         candles = strategy.mde_fut_.candles_{idx_instrument};
         buckets = candles(:,1);

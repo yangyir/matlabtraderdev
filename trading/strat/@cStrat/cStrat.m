@@ -44,12 +44,18 @@ classdef cStrat < cMyTimerObj
         %
         [] = setcalcsignalbucket(obj,instrument,val)
         calcsignalbucket = getcalcsignalbucket(obj,instrument)
+        [] = setcalcsignalbucket2(obj,underlier,val)
+        calcsignalbucket = getcalcsignalbucket2(obj,underlier)
         %
         [] = setcalcsignal(obj,instrument,val)
-        calcsignal = getcalcsignal(obj)
+        calcsignal = getcalcsignal(obj,instrument)
+        [] = setcalcsignal2(obj,underlier,val)
+        calcsignal = getcalcsignal2(obj,underlier)
         %
         [] = setreplaceconditionalsignal(obj,instrument,val)
         flag = getreplaceconditionalsignal(obj,instrument)
+        [] = setreplaceconditionalsignal2(obj,underlier,val)
+        flag = getreplaceconditionalsignal2(obj,underlier)
         %
         [flag] = istime2calcsignal(obj,t)
         %
@@ -70,6 +76,8 @@ classdef cStrat < cMyTimerObj
         [] = removeinstrument(obj,instrument)
         [flag,idx] = hasinstrument(obj,instrument)
         [instruments] = getinstruments(obj)
+        [underliers] = getunderliers(obj)
+        [flag,idx] = hasunderlier(obj,underlier)
         [] = clear(obj)
         [n] = count(obj)
         [n] = countunderliers(obj)
