@@ -3,7 +3,8 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
            strcmpi(stratname,'batman') || ...
            strcmpi(stratname,'wlpr') || ...
            strcmpi(stratname,'wlprbatman') || ...
-           strcmpi(stratname,'fractal'))
+           strcmpi(stratname,'fractal') || ...
+           strcmpi(stratname,'fractalopt'))
         error('genconfigfile:invalid stratname input:must either be manual,batman,wlpr or wlprbatman')
     end
     
@@ -22,6 +23,9 @@ function [instruments] = genconfigfile(stratname,filename,varargin)
     elseif strcmpi(stratname,'fractal')
         rownames = properties(cStratConfigFractal);
         classname = 'cStratConfigFractal';
+    elseif strcmpi(stratname,'fractalopt')
+        rownames = properties(cStratConfigFractalOpt);
+        classname = 'cStratConfigFractalOpt';
     end
     
     nrows = size(rownames,1);
