@@ -1,19 +1,24 @@
 function [] = initcandles(obj)
 % a charlotteDataProcessorFut function
-    hh = hour(now);
-    if hh < 2
-        cobdate = today - 1;
-    elseif hh  == 2
-        mm = minute(now);
-        if mm > 30
-            cobdate = today;
-        else
+    if strcmpi(obj.mode_,'realtime')
+        hh = hour(now);
+        if hh < 2
             cobdate = today - 1;
+        elseif hh  == 2
+            mm = minute(now);
+            if mm > 30
+                cobdate = today;
+            else
+                cobdate = today - 1;
+            end
+        else
+            cobdate = today;
         end
     else
-        cobdate = today;
+        cobdate = floor(datenum(obj.feed_.getLastTickTime(obj.codes_{1}),'yyyy-mm-dd HH:MM:SS'));
     end
-
+    
+    
     ncodes = size(obj.codes_,1);
     for i = 1:ncodes
         fut_i = code2instrument(obj.codes_{i});

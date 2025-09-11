@@ -13,6 +13,7 @@ classdef charlotteDataProcessorFut < handle
         candles_m5_@cell
         candles_m15_@cell
         candles_m30_@cell
+        mode_@char
     end
     
     properties (Access = private)
@@ -37,12 +38,18 @@ classdef charlotteDataProcessorFut < handle
         num21_00_00_@double
         num21_00_0_5_@double
         num00_00_00_@double
-        num00_00_0_5_@double
+        num00_00_0_5_@double%
+        %
+        feed_@charlotteDataFeedFut
     end
     
     methods
-        function obj = charlotteDataProcessorFut(codes)
-            obj.codes_ = codes;
+        function obj = charlotteDataProcessorFut(feed)
+            if ~isa(feed,'charlotteDataFeedFut')
+                error('constructor requires a charlotteDataFeedFut instance...')
+            end
+            obj.codes_ = feed.codes_;
+            obj.mode_ = feed.mode_;
             ncodes = size(obj.codes_,1);
             obj.ticks_ = cell(ncodes,1);
             obj.tickcounts_ = zeros(ncodes,1);
@@ -61,6 +68,8 @@ classdef charlotteDataProcessorFut < handle
             obj.fut_categories_ = zeros(ncodes,1);
             obj.datenum_open_ = cell(ncodes,1);
             obj.datenum_close_ = cell(ncodes,1);
+            %
+            obj.feed_ = feed;
             %
             obj.initcandles;
         end
