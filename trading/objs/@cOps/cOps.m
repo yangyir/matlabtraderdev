@@ -18,7 +18,7 @@ classdef cOps < cMyTimerObj
     properties (Access = private, Hidden = true)
         %
         mdefut_@cMDEFut
-        mdeopt_@cMDEFut
+        mdeopt_@cMDEOpt
         counterCTP_@CounterCTP
         counterHSO32_@CounterHSO32
 %         counterRH_@cCounterRH
