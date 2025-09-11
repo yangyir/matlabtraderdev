@@ -151,7 +151,7 @@ function [] = setcandlefreq(mdefut,freq,instrument)
         end
     end
 
-    if ~flag, error('cMDEFut:setcandlefreq:instrument not foung'); end
+    if ~flag, error('cMDEFut:setcandlefreq:instrument not found'); end
 
 end
 %end of setcandlefreq
