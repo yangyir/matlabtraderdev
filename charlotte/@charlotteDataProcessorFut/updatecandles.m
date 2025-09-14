@@ -1,6 +1,14 @@
 function [] = updatecandles(obj)
 % a charlotteDataProcessorFut function
     ncodes = size(obj.codes_,1);
+    nupdate_m1 = 0;
+    nupdate_m5 = 0;
+    nupdate_m15 = 0;
+    nupdate_m30 = 0;
+    data_m1 = cell(ncodes,1);
+    data_m5 = cell(ncodes,1);
+    data_m15 = cell(ncodes,1);
+    data_m30 = cell(ncodes,1);
     for i = 1:ncodes
         try
             lasttick = obj.ticks_{i}(end,:);
@@ -90,7 +98,9 @@ function [] = updatecandles(obj)
                             'high',obj.candles_m1_{i}(this_count-1,3),...
                             'low',obj.candles_m1_{i}(this_count-1,4),...
                             'close',obj.candles_m1_{i}(this_count-1,5));
-                        notify(obj, 'NewBarSetM1', charlotteDataFeedEventData(data));
+                        data_m1{i} = data;
+                        nupdate_m1 = nupdate_m1 + 1;
+%                         notify(obj, 'NewBarSetM1', charlotteDataFeedEventData(data));
                     end
                     
                     fprintf('%6s:candles_m1 set to bucket starting at %s\n',obj.codes_{i},datestr(obj.candles_m1_{i}(this_count,1)));
@@ -123,7 +133,9 @@ function [] = updatecandles(obj)
                             'high',obj.candles_m5_{i}(this_count-1,3),...
                             'low',obj.candles_m5_{i}(this_count-1,4),...
                             'close',obj.candles_m5_{i}(this_count-1,5));
-                        notify(obj, 'NewBarSetM5', charlotteDataFeedEventData(data));
+                        data_m5{i} = data;
+                        nupdate_m5 = nupdate_m5 + 1;
+%                         notify(obj, 'NewBarSetM5', charlotteDataFeedEventData(data));
                     end
                     fprintf('%6s:candles_m5 set to bucket starting at %s\n',obj.codes_{i},datestr(obj.candles_m5_{i}(this_count,1)));
                     if i == ncodes
@@ -155,7 +167,9 @@ function [] = updatecandles(obj)
                             'high',obj.candles_m15_{i}(this_count-1,3),...
                             'low',obj.candles_m15_{i}(this_count-1,4),...
                             'close',obj.candles_m15_{i}(this_count-1,5));
-                        notify(obj, 'NewBarSetM15', charlotteDataFeedEventData(data));
+                        data_m15{i} = data;
+                        nupdate_m15 = nupdate_m15 + 1;
+%                         notify(obj, 'NewBarSetM15', charlotteDataFeedEventData(data));
                     end
                 else
                     obj.newset_m15_(i) = 0;
@@ -183,7 +197,9 @@ function [] = updatecandles(obj)
                             'high',obj.candles_m30_{i}(this_count-1,3),...
                             'low',obj.candles_m30_{i}(this_count-1,4),...
                             'close',obj.candles_m30_{i}(this_count-1,5));
-                        notify(obj, 'NewBarSetM30', charlotteDataFeedEventData(data));
+                        data_m30{i} = data;
+                        nupdate_m30 = nupdate_m30 + 1;
+%                         notify(obj, 'NewBarSetM30', charlotteDataFeedEventData(data));
                     end
                 else
                     obj.newset_m30_(i) = 0;
@@ -202,8 +218,25 @@ function [] = updatecandles(obj)
                 %
             end
         end
-        
-        
+        %end of for k = 1:4
         
     end
+    %end of for i = 1:ncodes
+    
+    if nupdate_m1 > 0
+        notify(obj, 'NewBarSetM1', charlotteDataFeedEventData(data_m1));
+    end
+    
+    if nupdate_m5 > 0
+        notify(obj, 'NewBarSetM5', charlotteDataFeedEventData(data_m5));
+    end
+    
+    if nupdate_m15 > 0
+        notify(obj, 'NewBarSetM15', charlotteDataFeedEventData(data_m15));
+    end
+    
+    if nupdate_m30 > 0
+        notify(obj, 'NewBarSetM30', charlotteDataFeedEventData(data_m30));
+    end
+    
 end
