@@ -1,32 +1,32 @@
 function [] = onNewBarSetM5(obj,~,eventData)
+% a charlotteDataVisualizerFut function
     data = eventData.MarketData;
-    code = data.code;
     ncodes = size(obj.codes_,1);
-    idxfound = -1;
+    
     for i = 1:ncodes
-        if strcmpi(obj.codes_{i},code)
-            idxfound = i;
-            break;
+        data_i = data{i};
+        if isempty(data_i)
+            continue;
+        end
+        
+        newBar = [data_i.datetime,data_i.open,data_i.high,data_i.low,data_i.close];
+        lastT = obj.candles_m5_{i}(end,1);
+        if lastT >= newBar(1)
+            continue;
+        end
+        
+        obj.candles_m5_{i} = [obj.candles_m5_{i};newBar];
+        [resmat,~] = tools_technicalplot1(obj.candles_m5_{i},6,0,'volatilityperiod',0,'tolerance',0);
+        
+        code = data_i.code;
+        fut = code2instrument(code);
+    
+        n = size(resmat,1);
+        if n <= 60
+            tools_technicalplot2(resmat(1:end,:),i*(ncodes-1)+2,[code,'-5m'],true,2.0*fut.tick_size);
+        else
+            tools_technicalplot2(resmat(end-59:end,:),i*(ncodes-1)+2,[code,'-5m'],true,2.0*fut.tick_size);
         end
     end
-    if idxfound == -1, return;end
-    newBar = [data.datetime,data.open,data.high,data.low,data.close];
-    lastT = obj.candles_m5_{idxfound}(end,1);
-    if lastT >= newBar(1)
-        return;
-    end
     
-    obj.candles_m5_{idxfound} = [obj.candles_m5_{idxfound};newBar];
-    %the follow line is for testing purpose
-%     fprintf('%6s last bar close:%s\n',obj.codes_{idxfound},num2str(data.close));
-    [resmat,~] = tools_technicalplot1(obj.candles_m5_{idxfound},6,0,'volatilityperiod',0,'tolerance',0);
-    
-    fut = code2instrument(code);
-    
-    n = size(resmat,1);
-    if n <= 60
-        tools_technicalplot2(resmat(1:end,:),idxfound*(ncodes-1)+2,[code,'-5m'],true,2.0*fut.tick_size);
-    else
-        tools_technicalplot2(resmat(end-59:end,:),idxfound*(ncodes-1)+2,[code,'-5m'],true,2.0*fut.tick_size);
-    end
 end
