@@ -73,6 +73,7 @@ classdef charlotteDataFeedFut < handle
         [] = stop(obj)
         [] = delete(obj)
         lastT = getLastTickTime(obj,code)
+        lastTrade = getLastTick(obj,code)
         [] = onMarketOpen(obj,~,eventData)
         [] = onMarketClose(obj,~,eventData) 
         [flag] = istime2sleep(obj,t)
