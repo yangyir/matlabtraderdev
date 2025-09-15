@@ -17,21 +17,26 @@ for i = 1:length(codes)
         'propvalues',{6;'5m';baseunits;baseunits;'spiderman';1;0});
 end
 %%
-strat = cStratOptMultiFractal;
+% strat = cStratOptMultiFractal;
 
-mdefut = cMDEFut;
-mdeopt = cMDEOpt;
+% mdefut = cMDEFut;
+% mdeopt = cMDEOpt;
 
-strat.registermdefut(mdefut);
-strat.registermdeopt(mdeopt);
+% strat.registermdefut(mdefut);
+% strat.registermdeopt(mdeopt);
 
 
-strat.loadriskcontrolconfigfromfile('filename',[path_,riskconfigfilename]);
+% strat.loadriskcontrolconfigfromfile('filename',[path_,riskconfigfilename]);
 %%
-strat.initdata;
+% strat.initdata;
 %%
-dt1 = '2025-09-10';
-dt2 = '2025-09-10';
+try
+    delete(timerfindall);
+catch
+end
+
+dt1 = '2025-09-11';
+dt2 = '2025-09-11';
 regressiontestcombo = rtt_setup('countername','ccb_ly_fut',...
     'bookname','fractaloptdemo',...
     'strategyname','fractalopt',...
@@ -52,13 +57,11 @@ regressiontestcombo.strategy.printflag_ = false;
 
 set(0,'DefaultFigureWindowStyle','docked');
 
-try
-    delete(timerfindall);
-catch
-end
 
+%%
 regressiontestcombo.mdefut.start;
+regressiontestcombo.mdeopt.start;
 regressiontestcombo.ops.start;
 regressiontestcombo.strategy.start;
 %%
-regressiontestcombo.mdefut.sT;
+regressiontestcombo.mdefut.stop;

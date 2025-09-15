@@ -69,7 +69,7 @@ classdef cStratOptMultiFractal < cStrat
     methods (Access = private)
         signals = gensignals_optmultifractal(obj)
         [] = autoplacenewentrusts_optmultifractal(obj,signals)
-        [] = updategreeks_optmultifracta(obj)
+        [] = updategreeks_optmultifractal(obj)
         [] = riskmanagement_optmultifractal(obj,dtnum)
         [] = initdata_optmultifractal(obj)
     end
