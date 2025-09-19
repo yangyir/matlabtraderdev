@@ -4,15 +4,37 @@ classdef cMDEOpt < cMyTimerObj
         qms_@cQMS
         %
         options_@cInstrumentArray
-        underliers_@cInstrumentArray
+        underlier_@cInstrument
         %
         %
-        %for underliers
+        %for underlier (only 1) and rest options
+        ticksquick_@double
         candles_@cell
-        datenum_open_@cell
-        datenum_close_@cell
+        candle_freq_@double
+        candles4save_@cell
+        hist_candles_@cell
+        %
+        %Williams Fractals
+        nfractals_@double
+        
+        datenum_open_@double
+        datenum_close_@double
         %
         
+    end
+    
+    properties (Hidden = true)
+        %MACD
+        macdlead_@double
+        macdlag_@double
+        macdavg_@double
+        %TDSQ
+        tdsqlag_@double
+        tdsqconsecutive_@double
+    end
+    
+    properties (GetAccess = public, SetAccess = private)
+        newset_@double
     end
     
     properties
@@ -33,13 +55,24 @@ classdef cMDEOpt < cMyTimerObj
         thetacarryyesterday_@double
         impvolcarryyesterday_@double
         pvcarryyesterday_@double
+        %
+        replayer_@cReplayer
+        replay_datetimevec_@double
+        replay_idx_@double
+        replay_updatetime_@logical = true
         
     end
     
     properties (Access = private)
         quotes_@cell
         pivottable_@cell
+        candles_count_@double
+        candles4save_count_@double
         categories_@double
+        num21_00_00_@double
+        num21_00_0_5_@double
+        num00_00_00_@double
+        num00_00_0_5_@double
     end
     
     methods
@@ -52,6 +85,24 @@ classdef cMDEOpt < cMyTimerObj
         %login/logout
         [ret] = login(obj,varargin)
         [ret] = logoff(obj)
+        %
+        %replay
+        [] = initreplayer(obj,varargin)
+        
+        %set/get
+        [] = setcandlefreq(obj,freq,instrument)
+        freq_ = getcandlefreq(obj,instrument)
+        n = getcandlecount(obj,instrument)
+        candlesticks = getcandles(obj,instrument)
+        candlesticks = getlastcandle(obj,instrument)
+        [] = loadhistcandles(obj,instrument,histcandles)
+        histcandles = gethistcandles(obj,instrument)
+        candlesticks = getallcandles(obj,instrument)
+        tick = getlasttick(obj,instrument)
+        
+        %init data
+        [ret] = initcandles(obj,instrument,varargin)
+        
     end
     
     methods
@@ -77,6 +128,7 @@ classdef cMDEOpt < cMyTimerObj
         [] = loadtrades(obj,varargin)
         [t] = getreplaytime(obj,varargin)
         %
+        
         
     end
     

@@ -1,4 +1,5 @@
 function [] = refresh(obj,varargin)
+% a cMDEOpt function
     if ~isempty(obj.qms_)
         if strcmpi(obj.mode_,'realtime')
             obj.qms_.refresh;
@@ -33,7 +34,7 @@ function [] = refresh(obj,varargin)
             pxdn = px*(1-bump);
             k = options{i}.opt_strike;
             iv = q.impvol;
-            r = 0.035;
+            r = 0.02;
             if options{i}.opt_american
                 if strcmpi(options{i}.opt_type,'C')
                     pvcarry = bjsprice(px,k,r,nextdate,expirydate,iv,r);

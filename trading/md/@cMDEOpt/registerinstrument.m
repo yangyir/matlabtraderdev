@@ -1,5 +1,5 @@
 function [] = registerinstrument(obj,instrument)
-%cMDEOpt
+%a cMDEOpt function
     if ~isa(instrument,'cInstrument')
         instrument = code2instrument(instrument);
     end
@@ -7,7 +7,86 @@ function [] = registerinstrument(obj,instrument)
     codestr = instrument.code_ctp;
     [isopt,~,~,underlierstr] = isoptchar(codestr);
     if ~isopt, return; end
-
+    
+    underlier = code2instrument(underlierstr);
+    if isempty(obj.underlier_)
+        obj.underlier_ = underlier;
+        obj.ticksquick_ = [obj.ticksquick_;0];
+        obj.macdlead_ = [obj.macdlead_;12];
+        obj.macdlag_ = [obj.macdlag_;26];
+        obj.macdavg_ = [obj.macdavg_;9];
+        obj.tdsqlag_ = [obj.tdsqlag_;4];
+        obj.tdsqconsecutive_ = [obj.tdsqconsecutive_;9];
+        obj.nfractals_ = [obj.nfractals_;6];
+        obj.candle_freq_ = [obj.candle_freq_;1];
+        obj.newset_ = [obj.newset_;0];
+        obj.candles_count_ = [obj.candles_count_;0];
+        obj.candles4save_count_ = [obj.candles4save_count_;0];
+        %
+        if strcmpi(obj.mode_,'realtime')
+            hh = hour(now);
+            if hh < 2
+                cobdate = today - 1;
+            elseif hh == 2
+                mm = minute(now);
+                if mm > 30
+                    cobdate = today;
+                else
+                    cobdate = today - 1;
+                end
+            else
+                cobdate = today;
+            end
+        else
+            cobdate = obj.replay_date1_;
+        end
+        buckets = getintradaybuckets2('date',cobdate,...
+                    'frequency',[num2str(obj.candle_freq_(end)),'m'],...
+                    'tradinghours',underlier.trading_hours,...
+                    'tradingbreak',underlier.trading_break);
+        candle = [buckets,zeros(size(buckets,1),4)];
+        obj.candles_ = {candle};
+        buckets4save = getintradaybuckets2('date',cobdate,...
+                    'frequency','1m',...
+                    'tradinghours',underlier.trading_hours,...
+                    'tradingbreak',underlier.trading_break);
+        candle4save = [buckets4save,zeros(size(buckets4save,1),4)];
+        obj.candles4save_ = {candle4save};
+        obj.categories_ = getfutcategory(underlier);
+        %
+        blankstr = ' ';
+        nintervals = size(underlier.break_interval,1);
+        datenum_open = zeros(nintervals,1);
+        datenum_close = zeros(nintervals,1);
+        datestr_start = datestr(floor(candle(1,1)));
+        datestr_end = datestr(floor(candle(end,1)));
+        for i = 1:nintervals
+            datenum_open(i,1) = datenum([datestr_start,blankstr,underlier.break_interval{i,1}]);
+            if obj.categories_ ~= 5
+                datenum_close(i,1) = datenum([datestr_start,blankstr,underlier.break_interval{i,2}]);
+            else
+                if i == nintervals
+                    datenum_close(i,1) = datenum([datestr_end,blankstr,underlier.break_interval{i,2}]);
+                else
+                    datenum_close(i,1) = datenum([datestr_start,blankstr,underlier.break_interval{i,2}]);
+                end
+            end
+        end
+        %
+        if isempty(obj.datenum_open_)
+            obj.datenum_open_ = datenum_open;
+            obj.datenum_close_ = datenum_close;
+        end
+    else
+        if ~strcmpi(obj.underlier_.code_ctp,underlierstr)
+            error('ERROR:%s:registerinstrument:only option on %s can be registed...\n',class(obj),underlierstr)
+        end
+    end
+    %
+    if ~obj.qms_.instruments_.hasinstrument(underlier)
+        obj.qms_.registerinstrument(underlier);
+    end
+    
     obj.qms_.registerinstrument(instrument);
     if isempty(obj.options_)
         obj.options_ = cInstrumentArray;
@@ -15,6 +94,7 @@ function [] = registerinstrument(obj,instrument)
     
     if ~obj.options_.hasinstrument(instrument)
         obj.options_.addinstrument(instrument);
+        obj.ticksquick_ = [obj.ticksquick_;0];
         obj.delta_ = [obj.delta_;0];
         obj.gamma_ = [obj.gamma_;0];
         obj.vega_ = [obj.vega_;0];
@@ -25,6 +105,9 @@ function [] = registerinstrument(obj,instrument)
         obj.gammacarry_ = [obj.gammacarry_;0];
         obj.vegacarry_ = [obj.vegacarry_;0];
         obj.thetacarry_ = [obj.thetacarry_;0];
+        %candle tenors shall be the same as the underlier
+        obj.candles_ = [obj.candles_;obj.candles_{1}];
+        obj.candles4save_ = [obj.candles4save_;obj.candles4save_{1}];
         %
         try
             pnlriskoutput = pnlriskbreakdown1(instrument,getlastbusinessdate);
@@ -42,81 +125,34 @@ function [] = registerinstrument(obj,instrument)
             obj.impvolcarryyesterday_ = [obj.impvolcarryyesterday_;0];
             obj.pvcarryyesterday_ = [obj.pvcarryyesterday_;0];
         end
-    end
-    
-    if isempty(obj.underliers_)
-        obj.underliers_ = cInstrumentArray;
-    end
-
-    underlier = cFutures(underlierstr);
-    underlier.loadinfo([underlierstr,'_info.txt']);
-    
-    
-    if ~obj.underliers_.hasinstrument(underlier)
-        obj.underliers_.addinstrument(underlier);
-        if strcmpi(obj.mode_,'realtime')
-            cobdate = today;
-        else
-            cobdate = obj.replay_date1_;
-        end
-                
-        buckets = getintradaybuckets2('date',cobdate,...
-                    'frequency','15m',...
-                    'tradinghours',underlier.trading_hours,...
-                    'tradingbreak',underlier.trading_break);
-        candle = [buckets,zeros(size(buckets,1),4)];
-        if isempty(obj.candles_)
-            obj.candles_ = cell(1,1);
-            obj.candles_{1} = candle;
-        else
-            nu_ = size(obj.candles_,1);
-            candles = cell(nu_+1,1);
-            for i = 1:nu_, candles{i} = obj.candles_{i};end
-            candles{i+1} = candle;
-            obj.candles_ = candles;
-        end
         %
-        category = getfutcategory(underlier);
-        obj.categories_ = [obj.categories_,category];
-        %
-        blankstr = ' ';
-        nintervals = size(underlier.break_interval,1);
-        datenum_open = zeros(nintervals,1);
-        datenum_close = zeros(nintervals,1);
-        datestr_start = datestr(floor(candle(1,1)));
-        datestr_end = datestr(floor(candle(end,1)));
-        for i = 1:nintervals
-            datenum_open(i,1) = datenum([datestr_start,blankstr,underlier.break_interval{i,1}]);
-            if category ~= 5
-                datenum_close(i,1) = datenum([datestr_start,blankstr,underlier.break_interval{i,2}]);
-            else
-                if i == nintervals
-                    datenum_close(i,1) = datenum([datestr_end,blankstr,underlier.break_interval{i,2}]);
-                else
-                    datenum_close(i,1) = datenum([datestr_start,blankstr,underlier.break_interval{i,2}]);
-                end
-            end
-        end
-        %
-        if isempty(obj.datenum_open_)
-            obj.datenum_open_ = cell(1,1);
-            obj.datenum_close_ = cell(1,1);
-            obj.datenum_open_{1,1} = datenum_open;
-            obj.datenum_close_{1,1} = datenum_close;
-        else
-            nu_ = size(obj.datenum_open_,1);
-            datenum_open_new = cell(nu_+1,1);
-            datenum_close_new = cell(nu_+1,1);
-            for i = 1:nu_
-                datenum_open_new{i} = obj.datenum_open_{i};
-                datenum_close_new{i} = obj.datenum_close_{i};
-            end
-            datenum_open_new{i+1} = datenum_open;
-            datenum_close_new{i+1} = datenum_close;
-            obj.datenum_open_ = datenum_open_new;
-            obj.datenum_close_ = datenum_close_new;
-        end
+        obj.ticksquick_ = [obj.ticksquick_;0];
+        obj.macdlead_ = [obj.macdlead_;12];
+        obj.macdlag_ = [obj.macdlag_;26];
+        obj.macdavg_ = [obj.macdavg_;9];
+        obj.tdsqlag_ = [obj.tdsqlag_;4];
+        obj.tdsqconsecutive_ = [obj.tdsqconsecutive_;9];
+        obj.nfractals_ = [obj.nfractals_;6];
+        obj.candle_freq_ = [obj.candle_freq_;1];
+        obj.newset_ = [obj.newset_;0];
+        obj.candles_count_ = [obj.candles_count_;0];
+        obj.candles4save_count_ = [obj.candles4save_count_;0];
         
     end
+    
+    % compute num21_00_00_; num21_00_0_5_;num00_00_00_;num00_00_0_5_ if it
+    % is required
+    
+    if obj.categories_ > 3
+        datestr_start = datestr(floor(obj.candles4save_{1}(1,1)));
+        obj.num21_00_00_ = datenum([datestr_start,' 21:00:00']);
+        obj.num21_00_0_5_ = datenum([datestr_start,' 21:00:0.5']);
+    end
+    if obj.categories_ == 5
+        datestr_end = datestr(floor(obj.candles4save_{1}(end,1)));
+        obj.num00_00_00_ = datenum([datestr_end,' 00:00:00']);
+        obj.num00_00_0_5_ = datenum([datestr_end,' 00:00:0.5']);
+    end
+    
 end
 %end of registerinstrument
