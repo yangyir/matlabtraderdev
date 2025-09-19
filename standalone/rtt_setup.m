@@ -155,42 +155,30 @@ function [rtt_output] = rtt_setup(varargin)
     speedadj = 1;
     if strcmpi(mode,'replay')
         replaydts = gendates('fromdate',replayfromdate,'todate',replaytodate);
-        if ~strcmpi(stratname,'fractalopt')
-            try
-                instruments = rtt_strategy.getinstruments;
-                ninstruments = size(instruments,1);
-                for i = 1:ninstruments
-                    code = instruments{i}.code_ctp;
-                    filenames = cell(size(replaydts,1),1);
-                    for j = 1:size(replaydts,1)
-                        filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
-                    end
-                    fprintf('load tick data of %s in replay mode...\n',code);
-                    rtt_mdefut.initreplayer('code',code,'filenames',filenames);
+        
+        try
+            instruments = rtt_strategy.getinstruments;
+            ninstruments = size(instruments,1);
+            for i = 1:ninstruments
+                code = instruments{i}.code_ctp;
+                filenames = cell(size(replaydts,1),1);
+                for j = 1:size(replaydts,1)
+                    filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
                 end
-            catch err
-                error('rtt_setup:%s\n',err.message)
+                fprintf('load tick data of %s in replay mode...\n',code);
+                rtt_mdefut.initreplayer('code',code,'filenames',filenames);
             end
-        else
-            try
-                underliers = rtt_strategy.getunderliers;
-                nu = rtt_strategy.countunderliers;
-                for i = 1:nu
-                    code = underliers{i}.code_ctp;
-                    filenames = cell(size(replaydts,1),1);
-                    for j = 1:size(replaydts,1)
-                        filenames{j} = [code,'_',datestr(replaydts(j),'yyyymmdd'),'_tick.txt'];
-                    end
-                    fprintf('load tick data of %s in replay mode...\n',code);
-                    rtt_mdefut.initreplayer('code',code,'filenames',filenames);
-                end
-            catch err
-                error('rtt_setup:%s\n',err.message)
-            end
+        catch err
+            error('rtt_setup:%s\n',err.message)
         end
+        
         speedadj = p.Results.ReplaySpeed;
         fprintf('set replay speed to %s...\n',num2str(speedadj));
         rtt_mdefut.mode_ = 'replay';
+        try
+           rtt_mdeopt.mode_ = 'replay'; 
+        catch
+        end
         rtt_helper.mode_ = 'replay';
         rtt_strategy.mode_ = 'replay';
         rtt_helper.replay_date1_ = rtt_mdefut.replay_date1_;
@@ -199,11 +187,19 @@ function [rtt_output] = rtt_setup(varargin)
         rtt_helper.replay_time2_ = rtt_mdefut.replay_time2_;
     elseif strcmpi(mode,'demo')
         rtt_mdefut.mode_ = 'demo';
+        try
+            rtt_mdeopt.mode_ = 'demo';
+        catch
+        end
         rtt_helper.mode_ = 'demo';
         rtt_strategy.mode_ = 'demo';
     end
 
     rtt_mdefut.settimerinterval(0.5/speedadj);
+    try
+        rtt_mdeopt.settimerinterval(0.5/speedadj);
+    catch
+    end
     rtt_helper.settimerinterval(0.1/speedadj);
     rtt_strategy.settimerinterval(0.5/speedadj);
     
