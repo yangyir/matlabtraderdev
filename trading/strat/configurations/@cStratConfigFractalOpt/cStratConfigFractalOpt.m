@@ -26,10 +26,10 @@ classdef cStratConfigFractalOpt < cStratConfig
             
             [optflag,~,~,underlierstr,~] = isoptchar(obj.codectp_);
             if ~optflag
-                error('%s:%s:option input is required...',class(cStratConfigFractalOpt),'loadfromfile')
+                obj.underliercodectp_ = obj.codectp_;
+            else
+                obj.underliercodectp_ = underlierstr;
             end
-            
-            obj.underliercodectp_ = underlierstr;
         end
     end
 end
