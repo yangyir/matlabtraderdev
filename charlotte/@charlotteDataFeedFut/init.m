@@ -60,6 +60,7 @@ end
 
 if ~obj.istime2sleep(t)
     data.time = t;
+    data.mode = mode;
     notify(obj, 'MarketOpen', charlotteDataFeedEventData(data));
     if strcmpi(mode,'realtime')
         if obj.qmsconnected_
