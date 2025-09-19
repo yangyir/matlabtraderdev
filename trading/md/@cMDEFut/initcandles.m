@@ -43,7 +43,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                 end
                 date1str = [datestr(date1,'yyyy-mm-dd'),' 09:00:00'];
                 candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
-                mdefut.hist_candles_{i} = candles;
+                mdefut.hist_candles_{i,1} = candles;
             else
                 %add daily buckets
                 %best to use in-house build index for equity index as it
@@ -70,7 +70,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     candles(2:end,1) = candles(1:end-1,1)+(mdefut.candles_{i}(1,1)-date2);
                     candles = candles(2:end,:);
                 end
-                mdefut.hist_candles_{i} = candles;
+                mdefut.hist_candles_{i,1} = candles;
             end
             
             %fill the live candles in case it is missing
@@ -213,7 +213,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                 end
                 date1str = [datestr(date1,'yyyy-mm-dd'),' ',instruments{i}.break_interval{1,1}];
                 candles = ds.intradaybar(instruments{i},date1str,date2str,mdefut.candle_freq_(i),'trade');
-                mdefut.hist_candles_{i} = candles;
+                mdefut.hist_candles_{i,1} = candles;
             else
                 %add daily buckets
                 assetname = instruments{i}.asset_name;
@@ -236,7 +236,7 @@ function [ret] = initcandles(mdefut,instrument,varargin)
                     candles(2:end,1) = candles(1:end-1,1)+(mdefut.candles_{i}(1,1)-date2);
                     candles = candles(2:end,:);
                 end
-                mdefut.hist_candles_{i} = candles;
+                mdefut.hist_candles_{i,1} = candles;
             end
             
             %fill the live candles in case it is missing
