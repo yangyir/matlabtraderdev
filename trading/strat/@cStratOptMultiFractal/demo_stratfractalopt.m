@@ -1,9 +1,9 @@
 strategyname = 'fractalopt';
 path_ = [getenv('HOME'),'\trading\strat\@cStratOptMultiFractal\'];
 riskconfigfilename = 'config_eqindexfutwithopt_5m.txt';
-codes = {'MO2509-C-7300';'MO2509-P-7100'};
-addpath([getenv('DATAPATH'),'ticks\IM2509\']);
-addpath([getenv('DATAPATH'),'intradaybar\IM2509\']);
+call = 'MO2509-C-7300';
+put = 'MO2509-P-7100';
+codes = {'IM2509'};
 baseunits = 1;
 for i = 1:length(codes)
     addpath([getenv('DATAPATH'),'ticks\',codes{i}]);
@@ -17,19 +17,6 @@ for i = 1:length(codes)
         'propvalues',{6;'5m';baseunits;baseunits;'spiderman';1;0});
 end
 %%
-% strat = cStratOptMultiFractal;
-
-% mdefut = cMDEFut;
-% mdeopt = cMDEOpt;
-
-% strat.registermdefut(mdefut);
-% strat.registermdeopt(mdeopt);
-
-
-% strat.loadriskcontrolconfigfromfile('filename',[path_,riskconfigfilename]);
-%%
-% strat.initdata;
-%%
 try
     delete(timerfindall);
 catch
@@ -40,13 +27,13 @@ dt2 = '2025-09-11';
 regressiontestcombo = rtt_setup('countername','ccb_ly_fut',...
     'bookname','fractaloptdemo',...
     'strategyname','fractalopt',...
-    'markettype','options',...
+    'markettype','futures',...
     'riskconfigfilename',[path_,riskconfigfilename],...
     'initialfundlevel',1e6,...
     'mode','replay',...
     'replayfromdate',dt1,'replaytodate',dt2);
 
-regressiontestcombo.strategy.loadkellytable('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\'],...
+regressiontestcombo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\'],...
     'filename','strat_eqindexfut_m5.mat');
 
 regressiontestcombo.mdefut.printflag_ = true;
@@ -60,7 +47,6 @@ set(0,'DefaultFigureWindowStyle','docked');
 
 %%
 regressiontestcombo.mdefut.start;
-regressiontestcombo.mdeopt.start;
 regressiontestcombo.ops.start;
 regressiontestcombo.strategy.start;
 %%
