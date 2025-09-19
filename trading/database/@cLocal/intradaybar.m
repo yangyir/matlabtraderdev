@@ -12,7 +12,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
     if ~isnumeric(interval), error('cLocal:intradaybar:interval must be scalar'); end
     if isempty(interval), interval = 1; end
 
-    if isa(instrument,'cFutures') || isa(instrument,'cStock')
+    if isa(instrument,'cFutures') || isa(instrument,'cStock') || isa(instrument,'cOption')
         code_ctp = instrument.code_ctp;
         bds = gendates('fromdate',datenum(startdate,'yyyy-mm-dd'),...
             'todate',datenum(enddate,'yyyy-mm-dd'));
