@@ -34,7 +34,7 @@ function [] = loadtickdata(obj,varargin)
                     data_timevec(i) = 3600*hour(data(i,1))+60*minute(data(i,1))+second(data(i,1))+86400;
                 end
             end
-            obj.ticktimevec_{idx} = data_timevec;
+            obj.ticktimevec_{idx,1} = data_timevec;
         else
             obj.tickdata_{idx} = d;
             data_timevec = zeros(size(d,1),1);
@@ -47,7 +47,7 @@ function [] = loadtickdata(obj,varargin)
                     data_timevec(i) = 3600*hour(d(i,1))+60*minute(d(i,1))+second(d(i,1))+86400;
                 end
             end
-            obj.ticktimevec_{idx} = data_timevec;
+            obj.ticktimevec_{idx,1} = data_timevec;
             
         end
     catch e
