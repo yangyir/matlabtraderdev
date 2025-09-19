@@ -8,10 +8,12 @@ classdef cMDEOpt < cMyTimerObj
         %
         %
         %for underlier (only 1) and rest options
+        ticks_@cell
         ticksquick_@double
         candles_@cell
         candle_freq_@double
         candles4save_@cell
+        %historical data,which is used for technical indicator calculation
         hist_candles_@cell
         %
         %Williams Fractals
@@ -20,6 +22,11 @@ classdef cMDEOpt < cMyTimerObj
         datenum_open_@double
         datenum_close_@double
         %
+        lastclose_@double
+        %
+        savetick_@logical = false
+        %
+        showfigures_@logical = true
         
     end
     
@@ -66,6 +73,7 @@ classdef cMDEOpt < cMyTimerObj
     properties (Access = private)
         quotes_@cell
         pivottable_@cell
+        ticks_count_@double
         candles_count_@double
         candles4save_count_@double
         categories_@double
@@ -128,6 +136,8 @@ classdef cMDEOpt < cMyTimerObj
         [] = loadtrades(obj,varargin)
         [t] = getreplaytime(obj,varargin)
         %
+        [] = refreshreplaymode(obj,varargin)
+        [ret] = ismarketopen(obj,varargin)
         
         
     end
@@ -135,6 +145,8 @@ classdef cMDEOpt < cMyTimerObj
     methods (Access = private)
         obj = init(obj,varargin)
         [] = savequotes2mem(obj) 
+        [] = saveticks2mem(obj)
+        [] = updatecandleinmem(obj)
         tbl = genpivottable(obj)
         tbl = displaypivottable(obj)
     end

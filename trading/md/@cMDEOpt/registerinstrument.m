@@ -11,7 +11,7 @@ function [] = registerinstrument(obj,instrument)
     underlier = code2instrument(underlierstr);
     if isempty(obj.underlier_)
         obj.underlier_ = underlier;
-        obj.ticksquick_ = [obj.ticksquick_;0];
+        obj.ticksquick_ = [obj.ticksquick_;zeros(1,4)];
         obj.macdlead_ = [obj.macdlead_;12];
         obj.macdlag_ = [obj.macdlag_;26];
         obj.macdavg_ = [obj.macdavg_;9];
@@ -22,6 +22,7 @@ function [] = registerinstrument(obj,instrument)
         obj.newset_ = [obj.newset_;0];
         obj.candles_count_ = [obj.candles_count_;0];
         obj.candles4save_count_ = [obj.candles4save_count_;0];
+        obj.ticks_count_ = [obj.ticks_count_;0];
         %
         if strcmpi(obj.mode_,'realtime')
             hh = hour(now);
@@ -53,6 +54,12 @@ function [] = registerinstrument(obj,instrument)
         candle4save = [buckets4save,zeros(size(buckets4save,1),4)];
         obj.candles4save_ = {candle4save};
         obj.categories_ = getfutcategory(underlier);
+        filename = [underlierstr,'_daily.txt'];
+        dailypx = cDataFileIO.loadDataFromTxtFile(filename);
+        idx = find(dailypx(:,1) <= cobdate,1,'last');
+        if ~isempty(idx)
+            obj.lastclose_ = [obj.lastclose_;dailypx(idx,5)];
+        end
         %
         blankstr = ' ';
         nintervals = size(underlier.break_interval,1);
@@ -77,6 +84,11 @@ function [] = registerinstrument(obj,instrument)
             obj.datenum_open_ = datenum_open;
             obj.datenum_close_ = datenum_close;
         end
+        %
+        if obj.savetick_
+            n = 1e5;%note this size sall be enough for day trading
+            obj.ticks_ = {zeros(n,2)};
+        end
     else
         if ~strcmpi(obj.underlier_.code_ctp,underlierstr)
             error('ERROR:%s:registerinstrument:only option on %s can be registed...\n',class(obj),underlierstr)
@@ -94,7 +106,7 @@ function [] = registerinstrument(obj,instrument)
     
     if ~obj.options_.hasinstrument(instrument)
         obj.options_.addinstrument(instrument);
-        obj.ticksquick_ = [obj.ticksquick_;0];
+        obj.ticksquick_ = [obj.ticksquick_;zeros(1,4)];
         obj.delta_ = [obj.delta_;0];
         obj.gamma_ = [obj.gamma_;0];
         obj.vega_ = [obj.vega_;0];
@@ -108,6 +120,9 @@ function [] = registerinstrument(obj,instrument)
         %candle tenors shall be the same as the underlier
         obj.candles_ = [obj.candles_;obj.candles_{1}];
         obj.candles4save_ = [obj.candles4save_;obj.candles4save_{1}];
+        if obj.savetick_
+            obj.ticks_ = [obj.ticks_;obj.ticks_{1}];
+        end
         %
         try
             pnlriskoutput = pnlriskbreakdown1(instrument,getlastbusinessdate);
@@ -126,7 +141,6 @@ function [] = registerinstrument(obj,instrument)
             obj.pvcarryyesterday_ = [obj.pvcarryyesterday_;0];
         end
         %
-        obj.ticksquick_ = [obj.ticksquick_;0];
         obj.macdlead_ = [obj.macdlead_;12];
         obj.macdlag_ = [obj.macdlag_;26];
         obj.macdavg_ = [obj.macdavg_;9];
@@ -137,7 +151,30 @@ function [] = registerinstrument(obj,instrument)
         obj.newset_ = [obj.newset_;0];
         obj.candles_count_ = [obj.candles_count_;0];
         obj.candles4save_count_ = [obj.candles4save_count_;0];
-        
+        obj.ticks_count_ = [obj.ticks_count_;0];
+        if strcmpi(obj.mode_,'realtime')
+            hh = hour(now);
+            if hh < 2
+                cobdate = today - 1;
+            elseif hh == 2
+                mm = minute(now);
+                if mm > 30
+                    cobdate = today;
+                else
+                    cobdate = today - 1;
+                end
+            else
+                cobdate = today;
+            end
+        else
+            cobdate = obj.replay_date1_;
+        end
+        filename = [instrument.code_ctp,'_daily.txt'];
+        dailypx = cDataFileIO.loadDataFromTxtFile(filename);
+        idx = find(dailypx(:,1) <= cobdate,1,'last');
+        if ~isempty(idx)
+            obj.lastclose_ = [obj.lastclose_;dailypx(idx,5)];
+        end
     end
     
     % compute num21_00_00_; num21_00_0_5_;num00_00_00_;num00_00_0_5_ if it

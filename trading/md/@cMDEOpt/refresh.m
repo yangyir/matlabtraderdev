@@ -1,30 +1,35 @@
-function [] = refresh(obj,varargin)
+function [] = refresh(mdeopt,varargin)
 % a cMDEOpt function
-    if ~isempty(obj.qms_)
-        if strcmpi(obj.mode_,'realtime')
-            obj.qms_.refresh;
+    if ~isempty(mdeopt.qms_)
+        if strcmpi(mdeopt.mode_,'realtime')
+            mdeopt.qms_.refresh;
+            %
+            mdeopt.savequotes2mem;
+            %
+            mdeopt.saveticks2mem;
+            %
+            mdeopt.updatecandleinmem
         else
-            return
-%                     error('to be finished')
+            mdeopt.refreshreplaymode;
+            
         end
 
-        obj.savequotes2mem;
         
         fprintf('%s mdeopt runs......\n',datestr(now,'yyyy-mm-dd HH:MM:SS'));
 %         if obj.printflag_, obj.displaypivottable; end
-        if ~obj.qms_.watcher_.calcgreeks,return;end
+        if ~mdeopt.qms_.watcher_.calcgreeks,return;end
 
         %fill greeks
-        options = obj.options_.getinstrument;
+        options = mdeopt.options_.getinstrument;
         for i = 1:size(options,1)
-            q = obj.qms_.getquote(options{i});
+            q = mdeopt.qms_.getquote(options{i});
             mult = options{i}.contract_size;
             if isempty(q), continue;end
-            obj.delta_(i,1) = q.delta*mult*q.last_trade_underlier;
-            obj.gamma_(i,1) = q.gamma*mult*q.last_trade_underlier;
-            obj.vega_(i,1) = q.vega*mult;
-            obj.theta_(i,1) = q.theta*mult;
-            obj.impvol_(i,1) = q.impvol;
+            mdeopt.delta_(i,1) = q.delta*mult*q.last_trade_underlier;
+            mdeopt.gamma_(i,1) = q.gamma*mult*q.last_trade_underlier;
+            mdeopt.vega_(i,1) = q.vega*mult;
+            mdeopt.theta_(i,1) = q.theta*mult;
+            mdeopt.impvol_(i,1) = q.impvol;
             %carry
             nextdate = businessdate(q.update_date1,1);
             expirydate = options{i}.opt_expiry_date1;
@@ -58,11 +63,11 @@ function [] = refresh(obj,varargin)
                     [~,pvcarrydn] = blkprice(pxdn,k,r,tau,iv);
                 end
             end
-            obj.thetacarry_(i,1) = q.theta*mult;
+            mdeopt.thetacarry_(i,1) = q.theta*mult;
             deltacarry = (pvcarryup-pvcarrydn)/(pxup-pxdn);
             gammacarry = (pvcarryup+pvcarrydn-2*pvcarry)/(bump*px)^2*px/100;
-            obj.deltacarry_(i,1) = deltacarry*mult*px;
-            obj.gammacarry_(i,1) = gammacarry*mult*px;
+            mdeopt.deltacarry_(i,1) = deltacarry*mult*px;
+            mdeopt.gammacarry_(i,1) = gammacarry*mult*px;
             %vegacarry
             if options{i}.opt_american
                 if strcmpi(options{i}.opt_type,'C')
@@ -82,7 +87,7 @@ function [] = refresh(obj,varargin)
                 end
             end
             vegacarry = pvvolup - pvvoldn;
-            obj.vegacarry_(i,1) = vegacarry*mult;
+            mdeopt.vegacarry_(i,1) = vegacarry*mult;
         end
 
     end

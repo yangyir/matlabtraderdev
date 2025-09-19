@@ -122,7 +122,7 @@ function [ret] = initcandles(mdeopt,instrument,varargin)
                                 end
                             end
                         else
-                            error('not implemented pls check code')    
+                            warning('not implemented pls check code')    
                         end
                         %
                         if mdeopt.candle_freq_(i) ~= 1440

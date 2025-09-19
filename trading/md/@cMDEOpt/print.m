@@ -1,28 +1,27 @@
-function [] = print(obj,varargin)
+function [] = print(mdeopt,varargin)
 %cMDEOpt
-    if ~obj.printflag_, return; end
+    if ~mdeopt.printflag_, return; end
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('Time',now,@isnumeric);
     p.parse(varargin{:});
     time = p.Results.Time;
-    if strcmpi(obj.status_,'sleep')
+    if strcmpi(mdeopt.status_,'sleep')
         fprintf('%s:mdeopt sleeps......\n',datestr(time,'yyyy-mm-dd HH:MM:SS'));
-    elseif strcmpi(obj.status_,'working')
+    elseif strcmpi(mdeopt.status_,'working')
         isanyinstrumenttrading = false;
-        n = obj.underliers_.count;
-        for i = 1:n
-            dtnum_open = obj.datenum_open_{i};
-            dtnum_close = obj.datenum_close_{i};
-            for j = 1:size(dtnum_open,1)
-                if time >= dtnum_open(j) && time <= dtnum_close(j)
-                    isanyinstrumenttrading = true;
-                    break
-                end
+        dtnum_open = mdeopt.datenum_open_;
+        dtnum_close = mdeopt.datenum_close_;
+        for j = 1:size(dtnum_open,1)
+            if time >= dtnum_open(j) && time <= dtnum_close(j)
+                isanyinstrumenttrading = true;
+                break
             end
         end
         if isanyinstrumenttrading
-            obj.displaypivottable;
+            mdeopt.displaypivottable;
+        else
+%             mdeopt.displaypivottable;
         end
         
     end
