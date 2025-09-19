@@ -14,12 +14,21 @@ dt2 = datenum(fn2(length(code)+2:length(code)+9),'yyyymmdd');
 dts = gendates('fromdate',dt1,'todate',dt2);
 dailybar = zeros(length(dts),5);
 for i = 1:length(dts)
-    data = cDataFileIO.loadDataFromTxtFile([path_,code,'_',datestr(dts(i),'yyyymmdd'),'_1m.txt']);
-    dailybar(i,1) = floor(data(1,1));
-    dailybar(i,2) = data(1,2);
-    dailybar(i,3) = max(data(:,3));
-    dailybar(i,4) = min(data(:,4));
-    dailybar(i,5) = data(end,5);
+    try
+        data = cDataFileIO.loadDataFromTxtFile([path_,code,'_',datestr(dts(i),'yyyymmdd'),'_1m.txt']);
+        dailybar(i,1) = floor(data(1,1));
+        dailybar(i,2) = data(1,2);
+        dailybar(i,3) = max(data(:,3));
+        dailybar(i,4) = min(data(:,4));
+        dailybar(i,5) = data(end,5);
+    catch
+        dailybar(i,1) = dts(i);
+        dailybar(i,2) = NaN;
+        dailybar(i,3) = NaN;
+        dailybar(i,4) = NaN;
+        dailybar(i,5) = NaN;
+    end
+            
 end
 
 coldefs = {'date','open','high','low','close'};
