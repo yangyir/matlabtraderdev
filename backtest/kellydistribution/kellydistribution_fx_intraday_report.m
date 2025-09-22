@@ -1,7 +1,7 @@
-code2check = 'eurUSD';
-freq2check = '4H';
-replay1 = '2025-07-15';
-replay2 = '2025-07-16';
+code2check = 'XAUUSD';
+freq2check = '1h';
+replay1 = '2025-09-14';
+replay2 = '2025-09-21';
 showLogs = true;
 doPlot = true;
 
@@ -16,7 +16,7 @@ nfractal2check = charlotte_freq2nfractal(freq2check);
 open tbl2check_fx
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
-codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
+codes_fx = {'audusd';'eurusd';'gbpusd';'usdcad';'usdchf';'usdjpy';'xauusd'};
 freqs = {'5m';'15m';'30m';'1h';'4h'};
 freqsmt4 = {'m5';'m15';'m30';'h1';'h4'};
 count = 0;
@@ -90,8 +90,8 @@ n = size(tblreport,1);
 nSelect = 0;
 codesSelected = cell(n,5);
 %
-kThreshold = [0.135,0.15];
-pThreshold = [0.5,0.4];
+kThreshold = [0.167,0.144];
+pThreshold = [0.5,0.45];
 %
 for i = 1:n
     if (tblreport.kRet(i) > kThreshold(1) && tblreport.pWin(i) > pThreshold(1)) || ...
@@ -99,7 +99,6 @@ for i = 1:n
         nSelect = nSelect + 1;
         codesSelected{nSelect,1} = tblreport.code{i};
         codesSelected{nSelect,2} = tblreport.freq{i};
-%         codesSelected{nSelect,3} = tblreport.cashpnl(i);
     end        
 end
 codesSelected = codesSelected(1:nSelect,:);
@@ -149,9 +148,10 @@ for i = 1:nSelect
         codesSelected{i,5} = 'high cost';
     end
 end
+%
 idxSelected = strcmpi(codesSelected(:,5),'select');
-% codesSelected = codesSelected(idxSelected,:);
-% open codesSelected;
+codesSelected = codesSelected(idxSelected,:);
+open codesSelected;
 %
 code = codesSelected(idxSelected,1);
 freq = codesSelected(idxSelected,2);
@@ -159,9 +159,9 @@ selected = table(code,freq);
 selected = join(selected,tblreport);
 open selected;
 %% portfolio optimization
-idx = ~strcmpi(selected.freq,'m5');
-port = selected(idx,:);
-% port = selected;
+% idx = ~strcmpi(selected.freq,'m5');
+% port = selected(idx,:);
+port = selected;
 n = size(port,1);
 names = cell(n,1);
 for i = 1:n
@@ -184,16 +184,16 @@ prob = prod(outcome_mat .* p' + (1-outcome_mat) .* (1-p'), 2);
 objective = @(f) -kelly_calcgrowth(f,b,p);
 
 % constraints
-usage = 0.8;
+usage = 0.9;
 A = ones(1, n); 
 b_sum = usage;
 lb = zeros(1, n);
 ub = usage*ones(1,n);
 
 % initial value
-% f0 = min(1, selected.kRet / sum(selected.kRet)) * 1.0;
+f0 = min(1, selected.kRet / sum(selected.kRet)) * 1.0;
 f0 = usage*min(1, ones(n,1)/n);
-
+% f0 = selected.kRet;
 % calibration parameters
 options = optimoptions('fmincon', 'Display', 'iter', ...
     'Algorithm', 'sqp', 'MaxFunctionEvaluations', 10000);
@@ -202,8 +202,8 @@ options = optimoptions('fmincon', 'Display', 'iter', ...
 [f_opt, fval] = fmincon(objective, f0, A, b_sum, [], [], lb, ub, [], options);
 optimal_growth = -fval;
 port.f_opt = f_opt;
-port = port(port.f_opt > 0.01,:);
-
+% port = port(port.f_opt > 0.01,:);
+open port
 
 %%
 path_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\'];
@@ -240,15 +240,15 @@ if fid
 end
 fclose(fid);  
 %%
-nSelect = size(codesSelected,1);
+nSelect = size(port,1);
 for i = 1:nSelect
     data = load([dir_,'tbl2check_fx_',codesSelected{i,2},'_all.mat']);
     tbl2check = data.(['tbl2check_fx_',codesSelected{i,2},'_all']);
-    idx2check = strcmpi(tbl2check.code,codesSelected{i,1});
+    idx2check = strcmpi(tbl2check.code,port.code{i,1});
     tbl_i = tbl2check(idx2check,:);
     tbl_i.freq = cell(size(tbl_i,1),1);
     for j = 1:size(tbl_i,1)
-        tbl_i.freq{j} = codesSelected{i,2};
+        tbl_i.freq{j} = port.freq{i,1};
     end
     
     if i == 1
@@ -260,8 +260,8 @@ end
  tblSelected = sortrows(tblSelected,'opendatetime','ascend');
  writetable(tblSelected,'C:\yangyiran\tblselected.xlsx');
 %%
-replay1 = '2025-07-16';
-replay2 = '2025-07-19';
+replay1 = '2025-08-22';
+replay2 = '2025-08-29';
 for i = 1:size(port,1)
     strat_fx_i = load([dir_,'strat_fx_',port.freq{i},'.mat']);
     strat_fx_i = strat_fx_i.(['strat_fx_',port.freq{i}]);

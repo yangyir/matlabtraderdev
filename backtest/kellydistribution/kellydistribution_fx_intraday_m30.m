@@ -1,7 +1,7 @@
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 strat_fx_m30_existing = load([dir_,'strat_fx_m30.mat']);
 strat_fx_m30_existing = strat_fx_m30_existing.strat_fx_m30;
-codes_fx = {'eurusd';'usdjpy';'gbpusd';'audusd';'usdcad';'usdchf';'xauusd'};
+codes_fx = {'audusd';'eurusd';'gbpusd';'usdcad';'usdchf';'usdjpy';'xauusd'};
 freq_m30 = '30m';
 nfractal_m30 = charlotte_freq2nfractal(freq_m30);
 %%
