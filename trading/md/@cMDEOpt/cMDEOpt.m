@@ -110,6 +110,7 @@ classdef cMDEOpt < cMyTimerObj
         
         %init data
         [ret] = initcandles(obj,instrument,varargin)
+
         
     end
     
@@ -121,6 +122,18 @@ classdef cMDEOpt < cMyTimerObj
         res = getgreeks(obj,instrument)
         res = getatmgreeks(obj,code_ctp_underlier,varargin)
         res = getportfoliogreeks(obj,instruments,weights)
+        %underlier specific ones
+        % MACD
+        [macdvec,sig,diffbar] = calc_macd_(obj,varargin)
+        % TDSQ
+        [buysetup,sellsetup,levelup,leveldn,buycountdown,sellcountdown,p] = calc_tdsq_(obj,varargin)
+        % William's fractal
+        [idxHH,idxLL,HH,LL] = calc_fractal_(obj,varargin)
+        % William's alligator
+        [jaw,teeth,lips] = calc_alligator_(obj,varargin)
+        %William's accumulate/distribute
+        [wad,p] = calc_wad_(obj,varargin)
+        
     end
     
     
@@ -145,10 +158,12 @@ classdef cMDEOpt < cMyTimerObj
     methods (Access = private)
         obj = init(obj,varargin)
         [] = savequotes2mem(obj) 
+        [] = savequotes2memreplay(obj)
         [] = saveticks2mem(obj)
         [] = updatecandleinmem(obj)
         tbl = genpivottable(obj)
         tbl = displaypivottable(obj)
+        [] = printunderlier(obj)
     end
     
     methods (Static = true)

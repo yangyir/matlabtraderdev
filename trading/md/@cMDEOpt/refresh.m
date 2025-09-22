@@ -11,20 +11,21 @@ function [] = refresh(mdeopt,varargin)
             mdeopt.updatecandleinmem
         else
             mdeopt.refreshreplaymode;
-            
         end
 
-        
-        fprintf('%s mdeopt runs......\n',datestr(now,'yyyy-mm-dd HH:MM:SS'));
-%         if obj.printflag_, obj.displaypivottable; end
         if ~mdeopt.qms_.watcher_.calcgreeks,return;end
 
         %fill greeks
         options = mdeopt.options_.getinstrument;
         for i = 1:size(options,1)
-            q = mdeopt.qms_.getquote(options{i});
-            mult = options{i}.contract_size;
+            if strcmpi(mdeopt.mode_,'realtime')
+                q = mdeopt.qms_.getquote(options{i});
+            else
+                if isempty(mdeopt.quotes_),return;end
+                q = mdeopt.quotes_{i+1};
+            end
             if isempty(q), continue;end
+            mult = options{i}.contract_size;
             mdeopt.delta_(i,1) = q.delta*mult*q.last_trade_underlier;
             mdeopt.gamma_(i,1) = q.gamma*mult*q.last_trade_underlier;
             mdeopt.vega_(i,1) = q.vega*mult;

@@ -20,7 +20,7 @@ function tbl = genpivottable(mdeopt)
             strike = o.opt_strike;
             flag = false;
             for k = 1:count
-                if strcmpi(tbl{k,1},u_) && tbl{k,2} == strike
+                if strcmpi(tbl{k,1},u.code_ctp) && tbl{k,2} == strike
                     flag = true;
                     if strcmpi(o.opt_type,'C'),tbl{k,3} = o.code_ctp;else tbl{k,4} = o.code_ctp;end
                     break
@@ -29,7 +29,7 @@ function tbl = genpivottable(mdeopt)
             end
             if ~flag
                 count = count + 1;
-                tbl{count,1} = u_;
+                tbl{count,1} = u.code_ctp;
                 tbl{count,2} = strike;
                 if strcmpi(o.opt_type,'C'), tbl{count,3} = o.code_ctp;else tbl{count,4} = o.code_ctp;end
             end

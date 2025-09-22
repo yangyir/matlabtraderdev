@@ -1,14 +1,18 @@
 function tbl = displaypivottable(mdeopt)
     tbl = {};
     if isempty(mdeopt.options_), return; end
-    if isempty(mdeopt.pivottable_), mdeopt.genpivottable; end
+    
 
-    fprintf('\t%s','ticker');
-    fprintf('\t%8s','bid(c)');fprintf('%7s','ask(c)');fprintf('%8s','ivm(c)');fprintf('%8s','d(c)');
-    fprintf('\t%s','strike');
-    fprintf('\t%9s','ticker');
-    fprintf('\t%8s','bid(p)');fprintf('%7s','ask(p)');fprintf('%8s','ivm(p)');fprintf('%8s','d(p)');
-    fprintf('\t%8s','mid(u)');
+    if isempty(mdeopt.pivottable_), mdeopt.genpivottable; end
+    
+    fprintf('\n');
+    fprintf('%14s','ticker');
+    fprintf('\t%6s','bid(c)');fprintf('\t%6s','ask(c)');fprintf('\t%6s','ivm(c)');fprintf('\t%6s','d(c)');
+    fprintf('\t%6s','strike');
+    fprintf('\t%14s','ticker');
+    fprintf('\t%6s','bid(p)');fprintf('\t%6s','ask(p)');fprintf('\t%6s','ivm(p)');fprintf('\t%6s','d(p)');
+    fprintf('\t%6s','mid(u)');
+    fprintf('\t%9s','time');
     fprintf('\n');
 
     tbl = cell(size(mdeopt.pivottable_,1),12);
@@ -70,18 +74,23 @@ function tbl = displaypivottable(mdeopt)
         %add a blank line when underlying changed
         if i > 1 && ~strcmpi(mdeopt.pivottable_{i,1},mdeopt.pivottable_{i-1,1}) ,fprintf('\n'); end
 
-        fprintf('%12s ', mdeopt.pivottable_{i,3});
-        fprintf('%6s ',num2str(bc));
-        fprintf('%6s ',num2str(ac));
-        fprintf('%6.1f%% ',ivc*100);
-        fprintf('%6.1f%% ',deltac*100);
-        fprintf('%6s ',num2str(strike));
-        fprintf('%14s ', mdeopt.pivottable_{i,4});
-        fprintf('%6s ',num2str(bp));
-        fprintf('%6s ',num2str(ap));
-        fprintf('%6.1f%% ',ivp*100);
-        fprintf('%6.1f%% ',deltap*100);
-        fprintf('%9s ',num2str(um));
+        fprintf('%14s ', mdeopt.pivottable_{i,3});
+        fprintf('\t%6s ',num2str(bc));
+        fprintf('\t%6s ',num2str(ac));
+        fprintf('\t%5.1f%% ',ivc*100);
+        fprintf('\t%5.1f%% ',deltac*100);
+        fprintf('\t%6s ',num2str(strike));
+        fprintf('\t%14s ', mdeopt.pivottable_{i,4});
+        fprintf('\t%6s ',num2str(bp));
+        fprintf('\t%6s ',num2str(ap));
+        fprintf('\t%5.1f%% ',ivp*100);
+        fprintf('\t%5.1f%% ',deltap*100);
+        fprintf('\t%6s ',num2str(um));
+        if strcmpi(mdeopt.mode_,'replay')
+            fprintf('\t%9s',datestr(mdeopt.replay_time1_,'HH:MM:SS'));
+        else
+            fprintf('\t%9s',datestr(now,'HH:MM:SS'));
+        end
         fprintf('\n');
 
     end

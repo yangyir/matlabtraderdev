@@ -19,6 +19,10 @@ function [] = print(mdeopt,varargin)
             end
         end
         if isanyinstrumenttrading
+            if strcmpi(mdeopt.mode_,'replay')
+                mdeopt.savequotes2memreplay;
+            end
+            mdeopt.printunderlier;
             mdeopt.displaypivottable;
         else
 %             mdeopt.displaypivottable;
