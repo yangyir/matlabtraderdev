@@ -66,6 +66,11 @@ function [] = generateNewData(obj)
                 end
             end             
         end
+        %
+        if nupdate > 0
+        % event triggered
+            notify(obj, 'NewDataArrived', charlotteDataFeedEventData(data));
+        end
         
         if strcmpi(obj.mode_,'replay')
             stopFlag = true;
@@ -89,10 +94,6 @@ function [] = generateNewData(obj)
             end
         end
         
-        if nupdate > 0
-        % event triggered
-            notify(obj, 'NewDataArrived', charlotteDataFeedEventData(data));
-        end
     catch ME
         % error event triggered
         notify(obj, 'ErrorOccurred', ...
