@@ -158,6 +158,7 @@ classdef cOption < cInstrument
         [] = init_bbg(obj,conn)
         [] = init_wind(obj,conn)
         [assetname,exch] = getexchangestr(obj)
+        [ret] = isable2trade(obj,t)
         
     end
         
