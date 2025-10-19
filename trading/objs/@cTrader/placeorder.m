@@ -62,9 +62,25 @@ function [ret,entrust,msg] = placeorder(obj,codestr,bsflag,ocflag,px,lots,ops,va
     end
     
     warning('off');
+    
+    isOptFractal = strcmpi(ops.stratname_,'cStratOptMultiFractal');
+    
     if strcmpi(modestr,'realtime')
-        counter = ops.getcounter;
-        ret = counter.placeEntrust(entrust);
+        if isOptFractal
+            if ~isopt
+                %assuming the underlier futures is always successfuly placed
+                ret = 1;
+                n = ops.entrusts_.latest;
+                entrust.entrustNo = n+1;
+            else
+                %in realtime trading, we only place entrusts on options
+                counter = ops.getcounter;
+                ret = counter.placeEntrust(entrust);
+            end
+        else
+            counter = ops.getcounter;
+            ret = counter.placeEntrust(entrust);
+        end
     elseif strcmpi(modestr,'replay') || strcmpi(modestr,'demo')
         %in the replay mode we assume the entrust is always placed
         ret = 1;
