@@ -29,6 +29,25 @@ function [] = refresh(obj,varargin)
             return
         end
     end
+    
+    if ~isempty(obj.mdeopt_)
+        try
+            if strcmpi(obj.mdeopt_.timer_.running,'off')
+                fprintf('%s stops because %s is off\n',obj.timer_.Name,obj.mdeopt_.timer_.Name);
+                obj.stop;
+                if ~isempty(obj.gui_)
+                    set(obj.gui_.tradingstats.opsstatus_edit,'string',obj.status_);
+                    set(obj.gui_.tradingstats.opsrunning_edit,'string',obj.timer_.running);
+                end
+                return
+            end 
+        catch e
+            msg = ['error:cOps:refresh:check mdeopt timer running or not:',e.message,'\n'];
+            fprintf(msg);
+            return
+        end
+    end
+
 
     try
 %         updateentrustsandbook(obj);

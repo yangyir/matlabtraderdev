@@ -12,13 +12,33 @@ function [] = print(obj,varargin)
         fprintf('%s:ops sleeps......\n',datestr(time,'yyyy-mm-dd HH:MM:SS'));
     elseif strcmpi(obj.status_,'working')
         if strcmpi(obj.mode_,'replay')
-            ismarketopen = sum(obj.mdefut_.ismarketopen('time',obj.replay_time1_));
+            if ~isempty(obj.mdefut_)
+                ismarketopen = sum(obj.mdefut_.ismarketopen('time',obj.replay_time1_));
+            else
+                if ~isempty(obj.mdeopt_)
+                    ismarketopen = obj.mdeopt_.ismarketopen('time',obj.replay_time1_);
+                else
+                    ismarketopen = 0;
+                end
+            end
         else
-            ismarketopen = sum(obj.mdefut_.ismarketopen('time',time));
+            if ~isempty(obj.mdefut_)
+                ismarketopen = sum(obj.mdefut_.ismarketopen('time',time));
+            else
+                if ~isempty(obj.mdeopt_)
+                    ismarketopen = obj.mdeopt_.ismarketopen('time',time);
+                else
+                    ismarketopen = 0;
+                end
+            end
         end
         try
             if ismarketopen
-                obj.printrunningpnl('mdefut',obj.mdefut_);
+                if ~isempty(obj.mdefut_)
+                    obj.printrunningpnl('mdefut',obj.mdefut_);
+                else
+                    obj.printrunningpnl('mdeopt',obj.mdeopt_);
+                end
             end
         catch e
             fprintf('error:cOps:printrunningpnl:%s\n',e.message);

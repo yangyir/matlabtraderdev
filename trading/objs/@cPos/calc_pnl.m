@@ -10,20 +10,23 @@ function [pnl] = calc_pnl(obj,varargin)
     mdeopt = p.Results.MDEOpt;
     
     
-    if ~obj.is_opt_ && isempty(mdefut), pnl = NaN;return;end
+    if ~obj.is_opt_ && isempty(mdefut) && isempty(mdeopt), pnl = NaN;return;end
     
     if obj.is_opt_ && isempty(mdeopt), pnl = NaN;return;end
     
 %     if isempty(mdefut.ticks_), pnl = NaN; return;end
-    if isempty(mdefut.ticksquick_), pnl = NaN; return;end
+    if ~isempty(mdefut)
+        if isempty(mdefut.ticksquick_) && isempty(mdeopt), pnl = NaN; return;end
+    end
 
     if ~obj.is_opt_
-        tick = mdefut.getlasttick(obj.code_ctp_);
+        if ~isempty(mdefut)
+            tick = mdefut.getlasttick(obj.code_ctp_);
+        else
+            tick = mdeopt.getlasttick(obj.code_ctp_);
+        end
     else
-        q = mdeopt.qms_.getquote(obj.code_ctp_);
-        tick(1) = q.last_trade;
-        tick(2) = q.bid1;
-        tick(3) = q.ask1;
+        tick = mdeopt.getlasttick(obj.code_ctp_);
     end
 
     if isempty(tick), pnl = NaN;return;end

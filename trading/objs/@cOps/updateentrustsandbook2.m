@@ -77,7 +77,11 @@ function [] = updateentrustsandbook2(obj)
                     if isopt
                         ticks = obj.mdeopt_.getlasttick(codestr);
                     else
-                        ticks = obj.mdefut_.getlasttick(codestr);
+                        try
+                            ticks = obj.mdefut_.getlasttick(codestr);
+                        catch
+                            ticks = obj.mdeopt_.getlasttick(codestr);
+                        end
                     end
                     if isempty(ticks), continue; end
                     if ticks(4) == 0, continue; end
@@ -89,7 +93,7 @@ function [] = updateentrustsandbook2(obj)
                         if abs(log(px/ticks(4))) >= 0.01
                             fprintf('cOps:updateentrustsandbook2:incorrect deal price returned\n');
                         end
-                        e.dealPrice = e.price;
+                        e.dealPrice = px;
                     end
                 end
             elseif strcmpi(obj.mode_,'replay') || strcmpi(obj.mode_,'demo')
@@ -98,7 +102,11 @@ function [] = updateentrustsandbook2(obj)
                 if isopt
                     ticks = obj.mdeopt_.getlasttick(codestr);
                 else
-                    ticks = obj.mdefut_.getlasttick(codestr);
+                    try
+                        ticks = obj.mdefut_.getlasttick(codestr);
+                    catch
+                        ticks = obj.mdeopt_.getlasttick(codestr);
+                    end
                 end
                 %note:the entrust is always placed in 'replay' mode
                 f0 = 1;
