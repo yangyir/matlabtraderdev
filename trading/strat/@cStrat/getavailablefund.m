@@ -17,7 +17,11 @@ function val = getavailablefund(obj)
         fprintf('%s:getavailablefund:initial level of fund not set,pls call setavailablefund func\n',class(obj));
     else
         try
-            [runningpnl,closedpnl] = obj.helper_.calcpnl('mdefut',obj.mde_fut_);
+            if isa(obj,'cStratOptMultiFractal')
+                [runningpnl,closedpnl] = obj.helper_.calcpnl('mdeopt',obj.mde_opt_);
+            else
+                [runningpnl,closedpnl] = obj.helper_.calcpnl('mdefut',obj.mde_fut_);
+            end
         catch err
             error('error in ops.calcpnl:%s',err.message)
         end

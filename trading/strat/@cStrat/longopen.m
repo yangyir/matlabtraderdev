@@ -36,6 +36,7 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
     end
             
     isopt = isoptchar(ctp_code);
+    isopt2 = isa(strategy,'cStratOptMultiFractal');
     instrument = code2instrument(ctp_code);
     
     if isempty(ordertime)
@@ -55,7 +56,7 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
     end
     
     if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
-        if isopt
+        if isopt || isopt2
             q = strategy.mde_opt_.qms_.getquote(ctp_code);
         else
             q = strategy.mde_fut_.qms_.getquote(ctp_code);
@@ -76,19 +77,19 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
             return
         end
     elseif strcmpi(strategy.mode_,'replay')
-        if isopt
-            error('cStrat:longopen:not implemented yet for option in replay mode')
-        else
-            try
+        try
+            if isopt || isopt2
+                tick = strategy.mde_opt_.getlasttick(ctp_code);
+            else
                 tick = strategy.mde_fut_.getlasttick(ctp_code);
-                askpx = tick(3);
-            catch err
-                ret = 0;
-                e = [];
-                msg = sprintf('%s',err.message);
-                fprintf('%s\n',msg);
-                return
-            end       
+            end
+            askpx = tick(3);
+        catch err
+            ret = 0;
+            e = [];
+            msg = sprintf('%s',err.message);
+            fprintf('%s\n',msg);
+            return
         end
     end
     
@@ -110,7 +111,11 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
         if ~isempty(spread)
             spread2use = spread;
         else
-            spread2use = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','askopenspread');
+            try
+                spread2use = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','askopenspread');
+            catch
+                spread2use = 0;
+            end
         end
         if spread2use == 0
             entrusttype = 'market';
@@ -126,7 +131,12 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
         %walk off the riskcontrol for now
         flag = 1;
     else
-        [flag,errmsg] = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
+        if isopt2 && ~isopt
+            %for the underlier in cStratOptMultiFractal
+            flag = 1;
+        else
+            [flag,errmsg] = strategy.riskcontrol2placeentrust(ctp_code,'price',price,'volume',lots,'direction',1);
+        end
     end
     if flag
         if isempty(signalinfo) && strcmpi(class(strategy),'cStratManual')
@@ -137,6 +147,11 @@ function [ret,e,msg] = longopen(strategy,ctp_code,lots,varargin)
             freq = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','samplefreq');
             signalinfo.frequency = freq;
         end
+        if ~isempty(signalinfo) && isopt2
+            freq = [num2str(strategy.mde_opt_.getcandlefreq(ctp_code)),'m'];
+            signalinfo.frequency = freq;
+        end
+        
         [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'b','o',price,lots,strategy.helper_,'time',ordertime,'signalinfo',signalinfo);
         if ret
             e.date = floor(ordertime);

@@ -3,6 +3,7 @@ function [] = updatecondentrusts(strategy)
     if isempty(strategy.helper_), return; end
     
     isfractal = isa(strategy,'cStratFutMultiFractal');
+    isfractalopt = isa(strategy,'cStratOptMultiFractal');
 
     try
         ncondpending = strategy.helper_.condentrustspending_.latest;
@@ -32,23 +33,33 @@ function [] = updatecondentrusts(strategy)
                 volume = condentrust.volume;
                 direction = condentrust.direction;
                 volume2check = volume*direction + volume_exist*direction_exist;
-                try
-                    maxvolume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','maxunits');
-                catch
-                    maxvolume = 0;
+                if isfractalopt
+                    %a dummy position of the underlier for now
+                    %and a maximum volume of 1 is allowed
+                    maxvolume = 1;
+                else
+                    try
+                        maxvolume = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','maxunits');
+                    catch
+                        maxvolume = 0;
+                    end
                 end
                 if abs(volume2check) > maxvolume, continue;end
                 
                 signalinfo = condentrust.signalinfo_;
                 condpx = condentrust.price;
                 
-                lasttick = strategy.mde_fut_.getlasttick(codestr);
+                if isfractalopt
+                    lasttick = strategy.mde_opt_.getlasttick(codestr);
+                else
+                    lasttick = strategy.mde_fut_.getlasttick(codestr);
+                end
                 
                 if isempty(lasttick), continue; end
                 ticktime = lasttick(1);
                 if ordertime - ticktime > 1/1440, continue;end
                 
-                if ~isfractal
+                if ~isfractal && ~isfractalopt
                     if ~isempty(signalinfo)
                         try
                             isflash = strcmpi(signalinfo.wrmode,'flash');
@@ -102,12 +113,24 @@ function [] = updatecondentrusts(strategy)
                 %
                 %
                 if direction == 1
-                    sprd = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','bidopenspread');
+                    if isfractalopt
+                        sprd = 0;
+                    else
+                        sprd = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','bidopenspread');
+                    end
                 else
-                    sprd = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','askopenspread');
+                    if isfractalopt
+                       sprd = 0; 
+                    else
+                        sprd = strategy.riskcontrols_.getconfigvalue('code',codestr,'propname','askopenspread');
+                    end
                 end
                 ticksize = instrument.tick_size;
-                lasttick = strategy.mde_fut_.getlasttick(codestr);
+                if isfractalopt
+                    lasttick = strategy.mde_opt_.getlasttick(codestr);
+                else
+                    lasttick = strategy.mde_fut_.getlasttick(codestr);
+                end
                 bid = lasttick(3);
                 ask = lasttick(4);
                 
@@ -116,6 +139,9 @@ function [] = updatecondentrusts(strategy)
                         'signalinfo',condentrust.signalinfo_);
                     if ret
                         condentrusts2remove.push(condentrust);
+                        if isfractalopt && ~strategy.helper_.book_.hasposition(strategy.call_)
+                            strategy.longopen(strategy.call_,volume,'signalinfo',condentrust.signalinfo_);
+                        end
                     else
                         if ~isempty(strfind(errmsg,'max allowance'))
                             condentrusts2remove.push(condentrust);
@@ -126,6 +152,9 @@ function [] = updatecondentrusts(strategy)
                         'signalinfo',condentrust.signalinfo_);
                     if ret
                         condentrusts2remove.push(condentrust);
+                        if isfractalopt && ~strategy.helper_.book_.hasposition(strategy.put_)
+                            strategy.longopen(strategy.put_,volume,'signalinfo',condentrust.signalinfo_);
+                        end
                     else
                         if ~isempty(strfind(errmsg,'max allowance'))
                             condentrusts2remove.push(condentrust);

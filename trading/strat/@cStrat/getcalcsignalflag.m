@@ -30,9 +30,15 @@ function calcflag = getcalcsignalflag(strategy,instrument)
     end
     
     if strcmpi(strategy.status_,'working')
-        candles = strategy.mde_fut_.candles_{idx_instrument};
-        buckets = candles(:,1);
-        tick = strategy.mde_fut_.getlasttick(inst{idx_instrument});
+        if ~isunderlier
+            candles = strategy.mde_fut_.candles_{idx_instrument};
+            buckets = candles(:,1);
+            tick = strategy.mde_fut_.getlasttick(inst{idx_instrument});
+        else
+            candles = strategy.mde_opt_.candles_{1};
+            buckets = candles(:,1);
+            tick = strategy.mde_opt_.getlasttick(inst{1});
+        end
         %yangyiran:20180722
         %note:tick might be empty since mdefut runs a bit late than the
         %strategy. this is completely due to different timer associated

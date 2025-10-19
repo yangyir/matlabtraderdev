@@ -2,6 +2,7 @@ function [] = registerhelper(strategy,helper)
 %cStrat
     if ~isa(helper,'cOps'), error('cStrat:registerhelper:invalid ops input');end
     strategy.helper_ = helper;
+    strategy.helper_.stratname_ = class(strategy);
     
     try
         counter = helper.getcounter;

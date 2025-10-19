@@ -11,7 +11,11 @@ function [ret,e,msg] = unwindtrade(strategy,tradein,varargin)
     direction = tradein.opendirection_;
     code = instrument.code_ctp;
     volume = tradein.openvolume_;
-    lasttick = strategy.mde_fut_.getlasttick(instrument);
+    if isa(strategy,'cStratOptMultiFractal')
+        lasttick = strategy.mde_opt_.getlasttick(instrument);
+    else    
+        lasttick = strategy.mde_fut_.getlasttick(instrument);
+    end
     if isempty(lasttick)
         ret = 0;
         e = [];
@@ -38,7 +42,11 @@ function [ret,e,msg] = unwindtrade(strategy,tradein,varargin)
 %                 ret = strategy.withdrawentrusts(tradein.code_,'tradeid',tradeid);
 %                 if ret == -1; break;end
 %             end
-            bidclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
+            if isa(strategy,'cStratOptMultiFractal')
+                bidclosespread = 0;
+            else
+                bidclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','bidclosespread');
+            end
             overridepx = lasttick(2) + bidclosespread*instrument.tick_size;
 %             if strcmpi(tradein.status_,'closed'),break;end
             [ret,e,msg] = strategy.shortclose(code,...
@@ -65,7 +73,11 @@ function [ret,e,msg] = unwindtrade(strategy,tradein,varargin)
 %                 strategy.withdrawentrusts(tradein.code_,'tradeid',tradeid);
 %                 if ret == -1; break;end
 %             end
-            askclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
+            if isa(strategy,'cStratOptMultiFractal')
+                askclosespread = 0;
+            else
+                askclosespread = strategy.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','askclosespread');
+            end
             overridepx = lasttick(3) - askclosespread*instrument.tick_size;
 %             if strcmpi(tradein.status_,'closed'),break;end
             [ret,e,msg] = strategy.longclose(code,...

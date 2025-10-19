@@ -39,6 +39,7 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
     if nargin < 4, closetodayFlag = 0;end
 
     isopt = isoptchar(ctp_code);
+    isopt2 = isa(strategy,'cStratOptMultiFractal');
     instrument = code2instrument(ctp_code);
     
     if isempty(ordertime)
@@ -58,7 +59,15 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
         return
     end
     
-    f1 = strategy.instruments_.hasinstrument(instrument);
+    if isopt2
+        if isopt
+            f1 = strategy.instruments_.hasinstrument(instrument);
+        else
+            f1 = strategy.underliers_.hasinstrument(instrument);
+        end
+    else
+        f1 = strategy.instruments_.hasinstrument(instrument);
+    end
     if ~f1
         ret = 0;
         e = [];
@@ -130,7 +139,7 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
     end
     
     if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
-        if isopt
+        if isopt || isopt2
             q = strategy.mde_opt_.qms_.getquote(ctp_code);
         else
             q = strategy.mde_fut_.qms_.getquote(ctp_code);
@@ -138,9 +147,13 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
         bidpx = q.bid1;
     elseif strcmpi(strategy.mode_,'replay')
         if isopt
-            error('cStrat:shortopen:not implemented yet for option in replay mode')
+            tick = strategy.mde_opt_.getlasttick(ctp_code);
         else
-            tick = strategy.mde_fut_.getlasttick(ctp_code);
+            if isopt2
+                tick = strategy.mde_opt_.getlasttick(ctp_code);
+            else
+                tick = strategy.mde_fut_.getlasttick(ctp_code);
+            end
         end
         bidpx = tick(2);
     end
@@ -163,7 +176,11 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
         if ~isempty(spread)
             spread2use = spread;
         else
-            spread2use = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','bidclosespread');
+            try
+                spread2use = strategy.riskcontrols_.getconfigvalue('code',ctp_code,'propname','bidclosespread');
+            catch
+                spread2use = 0;
+            end
         end
         if spread2use == 0
             entrusttype = 'market';
@@ -174,9 +191,6 @@ function [ret,e,msg] = shortclose(strategy,ctp_code,lots,closetodayFlag,varargin
         end
         price = bidpx + spread2use*instrument.tick_size;
     end
-
-    
- 
     
     if closetodayFlag
         [ret,e,msg] = strategy.trader_.placeorder(ctp_code,'s','ct',price,lots,strategy.helper_,'time',ordertime);

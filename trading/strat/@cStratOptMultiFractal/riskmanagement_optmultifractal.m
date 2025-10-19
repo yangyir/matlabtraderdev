@@ -1,5 +1,5 @@
-function [] = riskmanagement_optmultifractal(obj,dtnum)
+function [] = riskmanagement_optmultifractal(stratoptfractal,dtnum)
 % a cStratOptMultiFractal method
-    variablenotused(obj);
-    variablenotused(dtnum);
+    riskmanagement@cStrat(dtnum);
+    variablenotused(stratoptfractal);
 end

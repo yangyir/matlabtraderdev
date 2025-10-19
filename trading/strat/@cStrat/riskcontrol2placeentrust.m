@@ -112,10 +112,17 @@ end
 
 %fourth to check whether margin is sufficient to place an entrust
 if ischar(instrument), instrument = code2instrument(instrument);end
-marginratio = instrument.init_margin_rate;
-ticksize = instrument.tick_size;
-tickvalue = instrument.tick_value;
-marginrequirement = marginratio * price * volume /ticksize*tickvalue;
+if isoptchar(instrument.code_ctp)
+    %note here we shall work with buy option only
+    ticksize = instrument.tick_size;
+    tickvalue = instrument.tick_value;
+    marginrequirement =  price * volume /ticksize*tickvalue;
+else
+    marginratio = instrument.init_margin_rate;
+    ticksize = instrument.tick_size;
+    tickvalue = instrument.tick_value;
+    marginrequirement = marginratio * price * volume /ticksize*tickvalue;
+end
 availablefund = obj.getavailablefund;
 
 if marginrequirement > availablefund

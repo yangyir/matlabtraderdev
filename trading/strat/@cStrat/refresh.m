@@ -7,11 +7,11 @@ function [] = refresh(strategy,varargin)
         error('%s:refresh:mdefut or mdeopt not registed in strategy......\n',class(strategy))
     end
     
-    if isempty(strategy.mde_fut_) && ~isempty(strategy.mde_opt_)
-        %note:here we must stop the strategy
-        strategy.stop;
-        error('%s:refresh:mdeopt case not fully implemented yet......\n',class(strategy))
-    end
+%     if isempty(strategy.mde_fut_) && ~isempty(strategy.mde_opt_)
+%         %note:here we must stop the strategy
+%         strategy.stop;
+%         error('%s:refresh:mdeopt case not fully implemented yet......\n',class(strategy))
+%     end
     
     if isempty(strategy.helper_)
         %note:here we must stop the strategy
@@ -19,20 +19,38 @@ function [] = refresh(strategy,varargin)
         error('%s:refresh:ops not registed in strategy......\n',class(strategy))
     end
     
-    try
-        if strcmpi(strategy.mde_fut_.timer_.running,'off')
-            fprintf('%s stops because MDE %s is off\n',class(strategy),strategy.mde_fut_.timer_.Name);
-            strategy.stop;
+    if ~isempty(strategy.mde_fut_)
+        try
+            if strcmpi(strategy.mde_fut_.timer_.running,'off')
+                fprintf('%s stops because MDE %s is off\n',class(strategy),strategy.mde_fut_.timer_.Name);
+                strategy.stop;
+                return
+            end 
+        catch e
+            fprintf('error:%s::refresh::%s\n',class(strategy),e.message);
+            if strcmpi(strategy.onerror_,'stop')
+                strategy.stop;
+            end
             return
-        end 
-    catch e
-        fprintf('error:%s::refresh::%s\n',class(strategy),e.message);
-        if strcmpi(strategy.onerror_,'stop')
-            strategy.stop;
         end
-        return
     end
-    
+    %
+    if ~isempty(strategy.mde_opt_)
+        try
+            if strcmpi(strategy.mde_opt_.timer_.running,'off')
+                fprintf('%s stops because MDE %s is off\n',class(strategy),strategy.mde_opt_.timer_.Name);
+                strategy.stop;
+                return
+            end 
+        catch e
+            fprintf('error:%s::refresh::%s\n',class(strategy),e.message);
+            if strcmpi(strategy.onerror_,'stop')
+                strategy.stop;
+            end
+            return
+        end
+    end
+    %
     %do nothing if mdefut is sleeping
     if ~isempty(strategy.mde_fut_)
         if strcmpi(strategy.mde_fut_.status_,'sleep'), return; end

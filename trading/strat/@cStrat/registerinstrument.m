@@ -67,7 +67,7 @@ function [] = registerinstrument(strategy,instrument)
     if ~optflag
         strategy.mde_fut_.registerinstrument(instrument);
     else
-        strategy.mde_fut_.registerinstrument(u);
+%         strategy.mde_fut_.registerinstrument(u);
         strategy.mde_opt_.registerinstrument(instrument);
     end
     
@@ -76,19 +76,18 @@ function [] = registerinstrument(strategy,instrument)
     if ~optflag
         strategy.mde_fut_.setcandlefreq(samplefreqnum,instrument);
     else
-        strategy.mde_fut_.setcandlefreq(samplefreqnum,u);
+        strategy.mde_opt_.setcandlefreq(samplefreqnum,u);
+        strategy.mde_opt_.setcandlefreq(samplefreqnum,instrument);
     end
     
-    try
-        np = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','numofperiod');
-    catch
-        np = 144;
-    end
-    param = struct('name','WilliamR','values',{{'numofperiods',np}});
     if ~optflag
-        strategy.mde_fut_.settechnicalindicator(instrument,param);
-    else
-        strategy.mde_fut_.settechnicalindicator(u,param);
+        try
+            np = strategy.riskcontrols_.getconfigvalue('code',ctpcode,'propname','numofperiod');
+        catch
+            np = 144;
+        end
+        param = struct('name','WilliamR','values',{{'numofperiods',np}});
+        strategy.mde_fut_.settechnicalindicator(instrument,param);       
     end
     
 end

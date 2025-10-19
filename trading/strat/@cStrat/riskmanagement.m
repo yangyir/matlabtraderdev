@@ -11,6 +11,8 @@ function [] = riskmanagement(obj,dtnum)
     if sum(ismarketopen) == 0, return; end
     
     ntrades = obj.helper_.trades_.latest_;
+    
+    if ntrades == 0, return;end
     %set risk manager
     for i = 1:ntrades
         trade_i = obj.helper_.trades_.node_(i);
@@ -18,6 +20,12 @@ function [] = riskmanagement(obj,dtnum)
         if strcmpi(trade_i.status_,'closed'), continue; end
         if ~isempty(trade_i.riskmanager_), continue;end
         if isempty(trade_i.opensignal_) && isa(obj,'cStratFutPairCointegration'), continue;end
+        
+        if isa(obj,'cStratOptMultiFractal')
+            isopt = isoptchar(instrument.code_ctp);
+            %no need to set risk 
+            if isopt, continue;end
+        end
         
         if isa(trade_i.opensignal_,'cManualInfo')
             pxtarget = trade_i.opensignal_.pxtarget_;
@@ -53,7 +61,12 @@ function [] = riskmanagement(obj,dtnum)
             ll = trade_i.opensignal_.ll_;
             type = trade_i.opensignal_.type_;
             instrument = trade_i.instrument_;
-            riskmanagername = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmanagername');
+            if isa(obj,'cStratOptMultiFractal')
+                options = obj.getinstruments;
+                riskmanagername = obj.riskcontrols_.getconfigvalue('code',options{1}.code_ctp,'propname','riskmanagername');
+            else
+                riskmanagername = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','riskmanagername');
+            end
             if strcmpi(riskmanagername,'standard')
                 if strcmpi(type,'breachup-B')
                     pxstoploss = hh-(hh-ll)*0.382;
@@ -74,7 +87,11 @@ function [] = riskmanagement(obj,dtnum)
                         strcmpi(trade_i.opensignal_.mode_,'conditional-uptrendconfirmed-3') || ...
                         strcmpi(trade_i.opensignal_.mode_,'conditional-dntrendconfirmed-2') || ...
                         strcmpi(trade_i.opensignal_.mode_,'conditional-dntrendconfirmed-3')
-                    [bs,ss,~,~,bc,sc,px] = obj.mde_fut_.calc_tdsq_(instrument,'includelastcandle',0,'removelimitprice',0);
+                    if isa(obj,'cStratOptMultiFractal')
+                        [bs,ss,~,~,bc,sc,px] = obj.mde_opt_.calc_tdsq_('includelastcandle',0,'removelimitprice',0);
+                    else
+                        [bs,ss,~,~,bc,sc,px] = obj.mde_fut_.calc_tdsq_(instrument,'includelastcandle',0,'removelimitprice',0);
+                    end
                     if strcmpi(trade_i.opensignal_.mode_,'conditional-uptrendconfirmed-2')
                         sslastidx = find(ss>=9,1,'last');
                         sslastval = ss(sslastidx);
@@ -146,8 +163,14 @@ function [] = riskmanagement(obj,dtnum)
                 error('ERROR:%s;riskmanagement:unsupported risk manger name for FRACTAL...',class(obj))
             end
             trade_i.setriskmanager('name',riskmanagername,'extrainfo',extrainfo);
-            usefracalupdateflag = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','usefractalupdate');
-            usefibonacciflag = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','usefibonacci');
+            if isa(obj,'cStratOptMultiFractal')
+                options = obj.getinstruments;
+                usefracalupdateflag = obj.riskcontrols_.getconfigvalue('code',options{1}.code_ctp,'propname','usefractalupdate');
+                usefibonacciflag = obj.riskcontrols_.getconfigvalue('code',options{1}.code_ctp,'propname','usefibonacci');
+            else
+                usefracalupdateflag = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','usefractalupdate');
+                usefibonacciflag = obj.riskcontrols_.getconfigvalue('code',instrument.code_ctp,'propname','usefibonacci');
+            end
             trade_i.riskmanager_.setusefractalupdateflag(usefracalupdateflag);
             trade_i.riskmanager_.setusefibonacciflag(usefibonacciflag);
             %    
@@ -290,9 +313,12 @@ function [] = riskmanagement(obj,dtnum)
     %
     %set status of trade with risk management in place
     if isa(obj,'cStratFutPairCointegration')
-    elseif isa(obj,'cStratFutMultiFractal')
+    elseif isa(obj,'cStratFutMultiFractal') || isa(obj,'cStratOptMultiFractal')
         for i = 1:ntrades
             trade_i = obj.helper_.trades_.node_(i);
+            if isa(obj,'cStratOptMultiFractal') && isoptchar(trade_i.instrument_.code_ctp)
+                continue;
+            end
             %
             %NOTE:the riskmanagement is called before the gensignals
             %in case the trade is not closed due to market turbulence,
@@ -308,8 +334,10 @@ function [] = riskmanagement(obj,dtnum)
                 %a close entrust has already been placed for the trade with
                 %conditional open signal, HOWEVER, we are not certain
                 %whether the trade is closed or not
-                if ~obj.instruments_.hasinstrument(trade_i.instrument_)
-                    continue;
+                if isa(obj,'cStratOptMultiFractal')
+                    if ~obj.underliers_.hasinstrument(trade_i.instrument_), continue;end
+                else
+                    if ~obj.instruments_.hasinstrument(trade_i.instrument_), continue;end
                 end
                 
                 recalcflag = obj.getreplaceconditionalsignal(trade_i.instrument_);
@@ -338,7 +366,11 @@ function [] = riskmanagement(obj,dtnum)
                         else
                             runningt = now;
                         end
-                        lasttick = obj.mde_fut_.getlasttick(trade_i.instrument_);
+                        if isa(obj,'cStratOptMultiFractal')
+                            lasttick = obj.mde_opt_.getlasttick(trade_i.instrument_);
+                        else
+                            lasttick = obj.mde_fut_.getlasttick(trade_i.instrument_);
+                        end
                         ticktime = lasttick(1);
                         if ticktime - runningt < -1e-3
                             fprintf('time discrepancy is found between tick and calendar time...\n');
@@ -386,10 +418,23 @@ function [] = riskmanagement(obj,dtnum)
                 else
                     kellytables = obj.tbl_all_daily_;
                 end
-                unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
-                    'UpdatePnLForClosedTrade',false,'Strategy',obj,'KellyTables',kellytables);
+                if isa(obj,'cStratOptMultiFractal')
+                    unwindtrade = trade_i.riskmanager_.riskmanagement('MDEOpt',obj.mde_opt_,...
+                        'UpdatePnLForClosedTrade',false,'Strategy',obj,'KellyTables',kellytables);
+                else
+                    unwindtrade = trade_i.riskmanager_.riskmanagement('MDEFut',obj.mde_fut_,...
+                        'UpdatePnLForClosedTrade',false,'Strategy',obj,'KellyTables',kellytables);
+                end
                 if ~isempty(unwindtrade)
                     obj.unwindtrade(unwindtrade);
+                    if isa(obj,'cStratOptMultiFractal')
+                        if unwindtrade.opendirection_ == 1
+                            obj.unwindpositions(obj.call_);
+                        elseif unwindtrade.opendirection_ == -1
+                            obj.unwindpositions(obj.put_);
+                        end                    
+                    end
+                    
                     if ~isempty(strfind(unwindtrade.closestr_,'conditional'))
                         exceptionflag = ~isempty(strfind(unwindtrade.closestr_,'shadowline1')) || ...
                             ~isempty(strfind(unwindtrade.closestr_,'sc13')) || ...
@@ -402,11 +447,10 @@ function [] = riskmanagement(obj,dtnum)
                             obj.setreplaceconditionalsignal(unwindtrade.instrument_,1);
                         end
                     end
-                end
-                
-            end
-            
+                end 
+            end   
         end
+        %
     else
         for i = 1:ntrades
             trade_i = obj.helper_.trades_.node_(i);

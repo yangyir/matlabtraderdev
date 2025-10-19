@@ -14,10 +14,14 @@ function val = getfrozenmargin(obj)
             price = e.price;
             volume = e.volume;
             instrument = code2instrument(e.instrumentCode);
-            marginrate = instrument.init_margin_rate;
             ticksize = instrument.tick_size;
             tickvalue = instrument.tick_value;
-            val = val + price*volume*marginrate/ticksize*tickvalue;
+            if isoptchar(e.instrumentCode)
+                val = val + price*volume/ticksize*tickvalue;
+            else
+                marginrate = instrument.init_margin_rate;
+                val = val + price*volume*marginrate/ticksize*tickvalue;
+            end
         else
             val = val + 0;
         end

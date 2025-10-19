@@ -31,6 +31,7 @@ function [ret,e,msg] = condshortopen(strategy,code_ctp,condpx,lots,varargin)
    end
     
    isopt = isoptchar(code_ctp);
+   isopt2 = isa(strategy,'cStratOptMultiFractal');
    instrument = code2instrument(code_ctp);
 
    if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
@@ -48,7 +49,7 @@ function [ret,e,msg] = condshortopen(strategy,code_ctp,condpx,lots,varargin)
    end
    
    if strcmpi(strategy.mode_,'realtime') || strcmpi(strategy.mode_,'demo')
-        if isopt
+        if isopt || isopt2
             q = strategy.mde_opt_.qms_.getquote(code_ctp);
         else
             q = strategy.mde_fut_.qms_.getquote(code_ctp);
@@ -66,7 +67,11 @@ function [ret,e,msg] = condshortopen(strategy,code_ctp,condpx,lots,varargin)
             error('%s:condshortopen:not implemented yet for option in replay mode',class(strategy))
         else
             try
-                tick = strategy.mde_fut_.getlasttick(code_ctp);
+                if isopt2
+                    tick = strategy.mde_opt_.getlasttick(code_ctp);
+                else
+                    tick = strategy.mde_fut_.getlasttick(code_ctp);
+                end
                 bidpx = tick(2);
             catch err
                 ret = 0;
@@ -86,7 +91,11 @@ function [ret,e,msg] = condshortopen(strategy,code_ctp,condpx,lots,varargin)
        fprintf('%s\n',msg);
        return
    else
-       [flag,errmsg] = strategy.riskcontrol2placeentrust(code_ctp,'price',condpx,'volume',lots,'direction',-1);
+       if isopt2 && ~isopt
+           flag = 1;
+       else
+           [flag,errmsg] = strategy.riskcontrol2placeentrust(code_ctp,'price',condpx,'volume',lots,'direction',-1);
+       end
        if flag
            cs = instrument.contract_size;
            if ~isempty(strfind(instrument.code_bbg,'TFC')) || ~isempty(strfind(instrument.code_bbg,'TFT'))
