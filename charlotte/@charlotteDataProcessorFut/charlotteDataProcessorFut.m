@@ -71,7 +71,7 @@ classdef charlotteDataProcessorFut < handle
             %
             obj.feed_ = feed;
             %
-            obj.initcandles;
+%             obj.initcandles;
         end
     end
     

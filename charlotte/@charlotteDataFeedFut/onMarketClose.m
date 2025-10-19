@@ -17,5 +17,7 @@ function [] = onMarketClose(obj,~,eventData)
                 obj.stop;    
             end
         end
+    elseif strcmpi(obj.mode_,'replay')
+        obj.stop;
     end
 end

@@ -68,6 +68,11 @@ function [] = generateNewData(obj)
     if strcmpi(obj.mode_,'replay')
         totalCount = size(obj.replaydata_{1},1);
         thisCount = obj.replaycounts_(1);
+        if thisCount == 1
+            data.time = obj.replaydata_{1}(thisCount,1);
+            data.mode = 'replay';
+            notify(obj, 'MarketOpen', charlotteDataFeedEventData(data));
+        end
         if thisCount < totalCount
             t = obj.replaydata_{1}(thisCount,1);
             lasttrade = obj.replaydata_{1}(thisCount,2);

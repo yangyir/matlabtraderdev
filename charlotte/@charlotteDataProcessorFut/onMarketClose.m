@@ -98,6 +98,15 @@ function [] = onMarketClose(obj,~,eventData)
                     obj.candles_m1_{i} = [];
                     obj.candles_m1_count_(i) = 0;
                     obj.newset_m1_(i) = 0;
+                    %
+                    if ~isoptchar(obj.codes_{i})
+                        db_intradayloader4(obj.codes_{i},5);
+                        db_intradayloader4(obj.codes_{i},15);
+                        db_intradayloader4(obj.codes_{i},30);
+                        intraday2daily(obj.codes_{i});
+                    else
+                        intraday2daily(obj.codes_{i});
+                    end
                 end
             catch
                 fprintf('failed to save intraday bar data on %s....\n',obj.codes_{i});
