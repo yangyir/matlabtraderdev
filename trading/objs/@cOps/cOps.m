@@ -13,6 +13,11 @@ classdef cOps < cMyTimerObj
         %
         condentrustspending_@EntrustArray
         trades_@cTradeOpenArray
+        
+    end
+    
+    properties
+        stratname_@char
     end
     
     properties (Access = private, Hidden = true)
