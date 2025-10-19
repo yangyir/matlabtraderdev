@@ -189,7 +189,7 @@ function [output] = fractal_signal_conditional2(varargin)
                 %strongbreach-trendconfirmed as it is not known whether
                 %the conditional bid would turn out to be a volblowup
                 if kelly3 >= 0.145 || (kelly3 > 0.101 && wprob3 > 0.41)
-                    if kelly2 < 0
+                    if kelly2 < 0.02
 %                         extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)-ticksizeratio*ticksize<0,1,'first'));
 %                         if extracheck
 %                             signalkellied(1) = 1;
@@ -205,7 +205,7 @@ function [output] = fractal_signal_conditional2(varargin)
                         opkellied = 'potential high kelly with volblowup breach up';
                     end
                 elseif kelly2 >= 0.145 || (kelly2 > 0.101 && wprob2 > 0.41)
-                    if kelly < 0
+                    if kelly < 0.02
                         extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)-ticksizeratio*ticksize<0,1,'first'));
                         if extracheck
                             signalkellied(1) = 1;
@@ -443,7 +443,7 @@ function [output] = fractal_signal_conditional2(varargin)
                 %strongbreach-trendconfirmed as it is not known whether
                 %the conditional bid would turn out to be a volblowup
                 if kelly3 >= 0.145 || (kelly3 > 0.101 && wprob3 > 0.41)
-                    if kelly2 < 0
+                    if kelly2 < 0.02
 %                         extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)+ticksizeratio*ticksize>0,1,'first'));
 %                         if extracheck
 %                             signalkellied(1) = -1;
@@ -459,7 +459,7 @@ function [output] = fractal_signal_conditional2(varargin)
                         opkellied = 'potential high kelly with volblowup breach dn';
                     end
                 elseif kelly2 >= 0.145 || (kelly2 > 0.101 && wprob2 > 0.41)
-                    if kelly < 0
+                    if kelly < 0.02
                         extracheck = isempty(find(ei.px(end-2*nfractal+1:end,5)-ei.teeth(end-2*nfractal+1:end)+ticksizeratio*ticksize>0,1,'first'));
                         if extracheck
                             signalkellied(1) = -1;
