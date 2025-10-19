@@ -22,7 +22,7 @@ function [idxHH,idxLL,HH,LL] = calc_fractal_(mdeopt,varargin)
     end
     
     try
-        nperiod = mdefut.nfractals_(1);
+        nperiod = mdeopt.nfractals_(1);
     catch
         nperiod = 2;
     end

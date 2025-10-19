@@ -50,6 +50,7 @@ function tbl = displaypivottable(mdeopt)
             ivp = mdeopt.quotes_{idxp}.impvol;
             bp = mdeopt.quotes_{idxp}.bid1;
             ap = mdeopt.quotes_{idxp}.ask1;
+            um = 0.5*(mdeopt.quotes_{idxp}.bid_underlier + mdeopt.quotes_{idxp}.ask_underlier);
             deltap = mdeopt.quotes_{idxp}.delta;
         else
             ivp = NaN;

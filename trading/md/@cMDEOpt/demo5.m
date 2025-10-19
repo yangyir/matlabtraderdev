@@ -25,3 +25,5 @@ mdeopt.setcandlefreq(5,'IM2510');
 mdeopt.setcandlefreq(5,'MO2510-C-7400');
 mdeopt.setcandlefreq(5,'MO2510-P-7400');
 mdeopt.initcandles;
+mdeopt.settimerinterval(0.5);
+mdeopt.printflag_ = true;mdeopt.print_timeinterval_ = 5*60;

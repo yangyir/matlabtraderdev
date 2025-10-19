@@ -4,7 +4,7 @@ function [] = printunderlier(mdeopt)
     instruments = mdeopt.qms_.instruments_.getinstrument;
     if strcmpi(mdeopt.mode_,'realtime') || strcmpi(mdeopt.mode_,'demo')
         try
-            quotes = obj.qms_.getquote;
+            quotes = mdeopt.qms_.getquote;
         catch
             fprintf('ERROR:%s:printunderlier:no quote returns...\n',class(mdeopt));
             return
@@ -51,7 +51,7 @@ function [] = printunderlier(mdeopt)
         end
         
         timet = datestr(quotes{1}.update_time1,'HH:MM:SS');
-        delta = ((lasttrade/obj.lastclose_(1))-1)*100;
+        delta = ((lasttrade/mdeopt.lastclose_(1))-1)*100;
         
         
         if ~isempty(mdeopt.hist_candles_) && ~isempty(mdeopt.hist_candles_{1})

@@ -11,6 +11,10 @@ function [ret] = initcandles(mdeopt,instrument,varargin)
     
     if nargin < 2
         for i = 1:ns
+            if isa(instruments{i},'cOption')
+                mdeopt.hist_candles_{i,1} = [];
+                continue;
+            end
             date2 = floor(mdeopt.candles_{i}(1,1));
             if mdeopt.candle_freq_(i) ~= 1440
                 count = 1;
@@ -18,11 +22,13 @@ function [ret] = initcandles(mdeopt,instrument,varargin)
                 foldername = [getenv('DATAPATH'),'intradaybar\',instruments{i}.code_ctp];
                 filelist = ls(foldername);
                 if mdeopt.candle_freq_(i) == 30
-                    nop = 20;
-                elseif mdeopt.candle_freq_(i) == 15
                     nop = 10;
-                elseif mdeopt.candle_freq_(i) == 5 || mdeopt.candle_freq_(i) == 1
+                elseif mdeopt.candle_freq_(i) == 15
                     nop = 5;
+                elseif mdeopt.candle_freq_(i) == 5 
+                    nop = 3;
+                elseif mdeopt.candle_freq_(i) == 1
+                    nop = 1;
                 end
                 
                 while count <= nop
@@ -157,10 +163,16 @@ function [ret] = initcandles(mdeopt,instrument,varargin)
             error('%s:initcandles:invalid instrument input',class(mdeopt))
         end
     end
+    
     flag = false;
     for i = 1:ns
         if strcmpi(instruments{i}.code_ctp,instrument.code_ctp)
             flag = true;
+            if isa(instrument,'cOption')
+                mdeopt.hist_candles_{i,1} = [];
+                break;
+            end
+            
             date2 = floor(mdeopt.candles_{i}(1,1));
             if mdeopt.candle_freq_(i) ~= 1440
                 %intraday candles for the last 10 business dates
@@ -169,11 +181,13 @@ function [ret] = initcandles(mdeopt,instrument,varargin)
                 foldername = [getenv('DATAPATH'),'intradaybar\',instrument.code_ctp];
                 filelist = ls(foldername);
                 if mdeopt.candle_freq_(i) == 30
-                    nop = 20;
-                elseif mdeopt.candle_freq_(i) == 15
                     nop = 10;
-                elseif mdeopt.candle_freq_(i) == 5 || mdeopt.candle_freq_(i) == 1
+                elseif mdeopt.candle_freq_(i) == 15
                     nop = 5;
+                elseif mdeopt.candle_freq_(i) == 5 
+                    nop = 3;
+                elseif mdeopt.candle_freq_(i) == 1
+                    nop = 1;
                 end
                 while count <= nop
                     date1 = businessdate(date1,-1);

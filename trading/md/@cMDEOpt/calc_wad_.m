@@ -8,7 +8,7 @@ function [wad,data] = calc_wad_(mdeopt,varargin)
     includeLastCandle = p.Results.IncludeLastCandle;
     removeLimitPrice = p.Results.RemoveLimitPrice;
     
-    candlesticks = mdefut.getallcandles(mdeopt);
+    candlesticks = mdeopt.getallcandles(mdeopt.underlier_);
     data = candlesticks{1};
     
     if ~includeLastCandle && ~isempty(data); data = data(1:end-1,:);end

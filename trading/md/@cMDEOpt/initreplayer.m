@@ -155,6 +155,13 @@ function [] = initreplayer(obj,varargin)
     end
     obj.datenum_open_ = datenum_open_new;
     obj.datenum_close_ = datenum_close_new;
+    
+    filename = [codestr,'_daily.txt'];
+    dailypx = cDataFileIO.loadDataFromTxtFile(filename);
+    idx = find(dailypx(:,1) < obj.replay_date1_,1,'last');
+    if ~isempty(idx)
+        obj.lastclose_(idx2) = dailypx(idx,5);
+    end
     %
     %
 %     if obj.replayer_.instruments_.count == 1

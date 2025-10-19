@@ -1,7 +1,7 @@
 function [] = refresh(mdeopt,varargin)
 % a cMDEOpt function
     if ~isempty(mdeopt.qms_)
-        if strcmpi(mdeopt.mode_,'realtime')
+        if strcmpi(mdeopt.mode_,'realtime') || strcmpi(mdeopt.mode_,'demo')
             mdeopt.qms_.refresh;
             %
             mdeopt.savequotes2mem;

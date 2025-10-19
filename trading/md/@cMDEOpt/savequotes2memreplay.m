@@ -42,9 +42,14 @@ function [] = savequotes2memreplay(mdeopt)
         qo.ask1 = qo.last_trade;
         qo.bid_size1 = 1;
         qo.ask_size1 = 1;
-        qo.update_date1 = floor(mdeopt.ticksquick_(1+i,1));
+        if mdeopt.ticksquick_(1+i,1) == 0
+            qo.update_date1 = qu.update_date1;
+            qo.update_time1 = qu.update_time1;
+        else
+            qo.update_date1 = floor(mdeopt.ticksquick_(1+i,1));
+            qo.update_time1 = mdeopt.ticksquick_(1+i,1);
+        end
         qo.update_date2 = datestr(qo.update_date1,'yyyy-mm-dd');
-        qo.update_time1 = mdeopt.ticksquick_(1+i,1);
         qo.update_time2 = datestr(qo.update_time1,'yyyy-mm-dd HH:MM:SS');
         
         hh = hour(qo.update_time1);
