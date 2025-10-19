@@ -354,10 +354,10 @@ while i <= idx2
                    'kellytables',kellytables,...
                    'ticksizeratio',tickratio);
                if ~isempty(output)
-                   if output.directionkellied == 0 && (strcmpi(output.op.comment,trade.opensignal_.mode_) || ...
-                           (~strcmpi(output.op.comment,trade.opensignal_.mode_) && ...
-                           (output.kelly < 0 || isnan(output.kelly))))
-                       
+%                    if output.directionkellied == 0 && (strcmpi(output.op.comment,trade.opensignal_.mode_) || ...
+%                            (~strcmpi(output.op.comment,trade.opensignal_.mode_) && ...
+%                            (output.kelly < 0 || isnan(output.kelly))))
+                   if output.directionkellied == 0                     
                        %                        exceptionflag =  trade.opensignal_.kelly_ > 0.3 && ...
                        %                            ~isempty(strfind(trade.opensignal_.mode_,'volblowup'));
                        %                        if ~exceptionflag
@@ -410,7 +410,8 @@ while i <= idx2
                            samesignal = 0;
                        end
                            
-                       if samesignal || (~samesignal && (output2.kelly < 0 || isnan(output2.kelly)))
+%                        if samesignal || (~samesignal && (output2.kelly < 0 || isnan(output2.kelly)))
+                       if samesignal || (~samesignal && (output2.directionkellied == 0))
                            trade.status_ = 'closed';
                            trade.riskmanager_.status_ = 'closed';
                            trade.riskmanager_.closestr_ = ['conditional kelly is too low: ',num2str(output2.kelly)];
