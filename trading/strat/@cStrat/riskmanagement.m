@@ -340,7 +340,15 @@ function [] = riskmanagement(obj,dtnum)
                     if ~obj.instruments_.hasinstrument(trade_i.instrument_), continue;end
                 end
                 
-                recalcflag = obj.getreplaceconditionalsignal(trade_i.instrument_);
+                if isa(obj,'cStratOptMultiFractal')
+                    if isa(trade_i.instrument_,'cOption')
+                        recalcflag = obj.getreplaceconditionalsignal(trade_i.instrument_);
+                    else
+                        recalcflag = false;
+                    end
+                else
+                    recalcflag = obj.getreplaceconditionalsignal(trade_i.instrument_);
+                end
                 if ~recalcflag, continue;end
                 
                 if strcmpi(trade_i.status_,'closed') && ...
