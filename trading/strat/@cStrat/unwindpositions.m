@@ -15,7 +15,15 @@ function [] = unwindpositions(strategy,instrument,varargin)
     %check whether the instrument has been registered with the
     %strategy
     flag = strategy.hasinstrument(instrument);
-    if ~flag, return; end
+    isstratopt = isa(strategy,'cStratOptMultiFractal');
+    if ~flag
+        if isstratopt && ~isoptchar(instrument.code_ctp)
+            %do nothing
+        else
+        
+            return; 
+        end
+    end
 
     %check whether the instrument has been traded already
 %     [flag,idxp] = strategy.helper_.book_.hasposition(instrument);
@@ -39,6 +47,16 @@ function [] = unwindpositions(strategy,instrument,varargin)
             strategy.unwindtrade(trade_i);
             if ~isempty(closestr)
                 trade_i.riskmanager_.closestr_ = closestr;
+            end
+        else
+            if isstratopt && isa(trade_i.instrument_,'cOption')
+                if strcmpi(trade_i.instrument_.code_ctp_underlier,instrument.code_ctp) && ...
+                        ~strcmpi(trade_i.status_,'closed')
+                    strategy.unwindtrade(trade_i);
+                    if ~isempty(closestr)
+                        trade_i.riskmanager_.closestr_ = closestr;
+                    end 
+                end
             end
         end
     end
