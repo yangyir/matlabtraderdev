@@ -91,6 +91,7 @@ function signals = gensignals_optmultifractal(stratoptfractal)
     if ~strcmpi(freq,'1440m')
         kellytables = stratoptfractal.tbl_all_intraday_;
         if strcmpi(freq,'5m')
+            
             tickratio = 0;
         elseif strcmpi(freq,'15m')
             tickratio = 0.5;
