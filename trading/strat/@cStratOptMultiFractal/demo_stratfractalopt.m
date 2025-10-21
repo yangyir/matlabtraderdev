@@ -1,8 +1,8 @@
 strategyname = 'fractalopt';
 path_ = [getenv('HOME'),'\trading\strat\@cStratOptMultiFractal\'];
 riskconfigfilename = 'config_eqindexfutwithopt_5m.txt';
-options = {'MO2510-C-7600';'MO2510-P-7500'};
-underlier = 'IM2510';
+options = {'MO2511-C-7200';'MO2511-P-7100'};
+underlier = 'IM2511';
 baseunits = 1;
 for i = 1:length(options)
     addpath([getenv('DATAPATH'),'ticks\',options{i}]);
@@ -25,7 +25,7 @@ strat.registermdeopt(mdeopt);
 strat.loadriskcontrolconfigfromfile('filename',[path_,riskconfigfilename]);
 strat.call_ = options{1};
 strat.put_ = options{2};
-dt = '20251010';
+dt = '20251020';
 fn1 = [getenv('datapath'),'ticks\',underlier,'\',underlier,'_',dt,'_tick.txt'];
 fn2 = [getenv('datapath'),'ticks\',options{1},'\',options{1},'_',dt,'_tick.txt'];
 fn3 = [getenv('datapath'),'ticks\',options{2},'\',options{2},'_',dt,'_tick.txt'];
@@ -52,7 +52,7 @@ speedadj = 50;
 mdeopt.settimerinterval(0.5/speedadj);
 helper.settimerinterval(0.1/speedadj);
 strat.settimerinterval(0.5/speedadj);
-mdeopt.showfigures_ = false;
+mdeopt.showfigures_ = true;
 mdeopt.printflag_ = true;mdeopt.print_timeinterval_ = 5*60;
 helper.printflag_ = true;helper.print_timeinterval_ = 5*60;
 strat.printflag_ = false;
@@ -65,25 +65,12 @@ try
 catch
 end
 
-dt1 = '2025-09-11';
-dt2 = '2025-09-11';
-regressiontestcombo = rtt_setup('countername','ccb_ly_fut',...
-    'bookname','fractaloptdemo',...
-    'strategyname','fractalopt',...
-    'markettype','futures',...
-    'riskconfigfilename',[path_,riskconfigfilename],...
-    'initialfundlevel',1e6,...
-    'mode','replay',...
-    'replayfromdate',dt1,'replaytodate',dt2);
-
-regressiontestcombo.strategy.load_kelly_intraday('directory',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\'],...
-    'filename','strat_eqindexfut_m5.mat');
-
-regressiontestcombo.mdefut.printflag_ = true;
-regressiontestcombo.mdefut.print_timeinterval_ =  5*60;
-regressiontestcombo.ops.printflag_ = true;
-regressiontestcombo.ops.print_timeinterval_ = 5*60;
-regressiontestcombo.strategy.printflag_ = false;
+regressiontestcombo = regressiontest_fractal('code','IM2511',...
+    'datefrom','2025-10-15',...
+    'dateto','2025-10-15',...
+    'frequency','5m',...
+    'kellytabledir',[getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\'],...
+    'kellytablename','strat_eqindexfut_m5.mat');
 
 set(0,'DefaultFigureWindowStyle','docked');
 
