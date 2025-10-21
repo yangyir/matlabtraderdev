@@ -237,7 +237,29 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                 else
                     trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
                 end
-            end 
+            end
+            %
+            if strcmpi(trade.opensignal_.frequency_,'5m') && ...
+                    ((direction == 1 && strcmpi(trade.opensignal_.mode_,'breachup-sshighvalue')) || ...
+                    (direction == -1 && strcmpi(trade.opensignal_.mode_,'breachdn-bshighvalue')))
+                unwindtrade = trade;
+                if direction == 1
+                    obj.closestr_ = 'tdsq:weekend';
+                else
+                    obj.closestr_ = 'tdsq:weekend';
+                end
+                obj.status_ = 'closed';
+                trade.runningpnl_ = 0;
+                trade.closeprice_ = extrainfo.p(end,5);
+                trade.closedatetime1_ = extrainfo.p(end,1);
+                if isempty(trade.instrument_)
+                    trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_);
+                else
+                    trade.closepnl_ = direction*trade.openvolume_*(trade.closeprice_-trade.openprice_)/trade.instrument_.tick_size * trade.instrument_.tick_value;
+                end
+                    
+            end
+            
         end
     end
     %
