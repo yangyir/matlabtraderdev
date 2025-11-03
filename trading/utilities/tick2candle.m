@@ -218,5 +218,5 @@ function [candlesout] = tick2candle(code,datein,tickdatain)
         end
     end
         
-    fprintf('tick2candle:done with %s\n',code);      
+    fprintf('tick2candle:done with %s on %s\n',code,datestr(datein,'yyyymmdd'));      
 end
