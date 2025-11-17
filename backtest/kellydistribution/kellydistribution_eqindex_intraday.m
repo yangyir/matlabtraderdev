@@ -24,7 +24,7 @@ for j = 3:size(listing_eqindex,1)
         
         if ~isempty(strfind(fn_ij,'2509')),continue;end
         
-        if  ~isempty(strfind(lower(fn_ij),'im')) ||~isempty(strfind(lower(fn_ij),'im')) 
+        if  ~isempty(strfind(lower(fn_ij),'ic')) ||~isempty(strfind(lower(fn_ij),'im')) ||~isempty(strfind(lower(fn_ij),'ih')) ||~isempty(strfind(lower(fn_ij),'if')) 
             ncodes = ncodes + 1;
             codes_eqindex{ncodes,1} = fn_ij(1:end-4);
         end
@@ -32,6 +32,7 @@ for j = 3:size(listing_eqindex,1)
     end
 end
 codes_eqindex = codes_eqindex(1:ncodes,:);
+open codes_eqindex
 %%
 for i = 1:length(codes_eqindex)
     db_intradayloader4(codes_eqindex{i},5);
@@ -71,7 +72,7 @@ end
 pnlretdrawdown_m30 = pnlretcum_m30 - pnlretmax_m30;
 pnlretdrawdownmax_m30 = min(pnlretdrawdown_m30);
    
-statsout_m30 = struct('asset','eqindex_1000',...
+statsout_m30 = struct('asset','eqindex',...
     'nTotal',size(tbl2check_eqindexfut_m30_all.pnlrel,1),...
     'Pwin',Wret_m30,...
     'Rret',Rret_m30,...
