@@ -213,7 +213,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             if isnan(trade.riskmanager_.td13low_)
                 trade.riskmanager_.td13low_ = extrainfo.p(end,4);
             else
-                if extrainfo.p(end,4) < trade.riskmanager_.td13low_
+                if extrainfo.p(end,4) > trade.riskmanager_.td13low_
                     trade.riskmanager_.td13low_ = extrainfo.p(end,4);
                 end
             end
@@ -421,7 +421,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             if isnan(trade.riskmanager_.td13high_)
                 trade.riskmanager_.td13high_ = extrainfo.p(end,3);
             else
-                if extrainfo.p(end,3) > trade.riskmanager_.td13high_
+                if extrainfo.p(end,3) < trade.riskmanager_.td13high_
                     trade.riskmanager_.td13high_ = extrainfo.p(end,3);
                 end
             end
@@ -430,7 +430,7 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 p(idxopen,5)>ll(idxopen-1) && p(idxopen,4)<hh(idxopen-1) && ...
                 p(end,5)>p(end,2)      
                 closeflag = 1;
-                trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+                trade.riskmanager_.closestr_ = 'tdsq:bc13break';
                 closestr = trade.riskmanager_.closestr_;
                 return
             end
