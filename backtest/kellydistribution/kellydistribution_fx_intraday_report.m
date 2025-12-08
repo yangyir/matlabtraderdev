@@ -1,7 +1,7 @@
 code2check = 'XAUUSD';
-freq2check = '1h';
-replay1 = '2025-09-14';
-replay2 = '2025-09-21';
+freq2check = '15m';
+replay1 = '2025-01-01';
+replay2 = '2025-11-16';
 showLogs = true;
 doPlot = true;
 
@@ -17,8 +17,11 @@ open tbl2check_fx
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 codes_fx = {'audusd';'eurusd';'gbpusd';'usdcad';'usdchf';'usdjpy';'xauusd'};
-freqs = {'5m';'15m';'30m';'1h';'4h'};
-freqsmt4 = {'m5';'m15';'m30';'h1';'h4'};
+% codes_fx = {'xauusd';};
+% freqs = {'15m';'30m';'1h';'4h'};
+% freqsmt4 = {'m15';'m30';'h1';'h4'};
+freqs = {'1h';'4h'};
+freqsmt4 = {'h1';'h4'};
 count = 0;
 code = cell(100,1);
 nTotal = zeros(100,1);
@@ -64,9 +67,9 @@ for ifreq = 1:length(freqs)
         annualRet(count) = pnlretcum(end)/deltaT;
 %         cashpnl(count) = sum(tbl2check.closepnl(idxselect));
         if strcmpi(codes_fx{i},'xauusd')
-            riskLimit(count) = 500;
+            riskLimit(count) = 1000;
         else
-            riskLimit(count) = 500;
+            riskLimit(count) = 1000;
         end
     end
 end
@@ -90,8 +93,8 @@ n = size(tblreport,1);
 nSelect = 0;
 codesSelected = cell(n,5);
 %
-kThreshold = [0.167,0.144];
-pThreshold = [0.5,0.45];
+kThreshold = [0.167,0.14];
+pThreshold = [0.5,0.42];
 %
 for i = 1:n
     if (tblreport.kRet(i) > kThreshold(1) && tblreport.pWin(i) > pThreshold(1)) || ...
@@ -184,7 +187,7 @@ prob = prod(outcome_mat .* p' + (1-outcome_mat) .* (1-p'), 2);
 objective = @(f) -kelly_calcgrowth(f,b,p);
 
 % constraints
-usage = 0.9;
+usage = 0.95;
 A = ones(1, n); 
 b_sum = usage;
 lb = zeros(1, n);
