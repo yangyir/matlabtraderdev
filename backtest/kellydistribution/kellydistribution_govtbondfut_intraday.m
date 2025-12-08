@@ -11,7 +11,7 @@ foldername_tf = [foldername,shortcodes{1}];
 listing_tf = dir(foldername_tf);
 for j = 3:size(listing_tf,1)
     fn_j = listing_tf(j).name;
-    if isempty(strfind(fn_j,'_'))
+    if isempty(strfind(fn_j,'_')) && isempty(strfind(fn_j,'.DialogRsp')) && isempty(strfind(fn_j,'.QueryRsp')) && isempty(strfind(fn_j,'.TradingDay'))
         ncodes = ncodes + 1;
         codes_govtbondfut_tf{ncodes,1} = fn_j(1:end-4);
     end
@@ -23,7 +23,7 @@ foldername_t = [foldername,shortcodes{2}];
 listing_t = dir(foldername_t);
 for j = 3:size(listing_t,1)
     fn_j = listing_t(j).name;
-    if isempty(strfind(fn_j,'_'))
+    if isempty(strfind(fn_j,'_')) && isempty(strfind(fn_j,'.DialogRsp')) && isempty(strfind(fn_j,'.QueryRsp')) && isempty(strfind(fn_j,'.TradingDay'))
         ncodes = ncodes + 1;
         codes_govtbondfut_t{ncodes,1} = fn_j(1:end-4);
     end
@@ -35,7 +35,7 @@ foldername_tl = [foldername,shortcodes{3}];
 listing_tl = dir(foldername_tl);
 for j = 3:size(listing_tl,1)
     fn_j = listing_tl(j).name;
-    if isempty(strfind(fn_j,'_'))
+    if isempty(strfind(fn_j,'_')) && isempty(strfind(fn_j,'.DialogRsp')) && isempty(strfind(fn_j,'.QueryRsp')) && isempty(strfind(fn_j,'.TradingDay'))
         ncodes = ncodes + 1;
         codes_govtbondfut_tl{ncodes,1} = fn_j(1:end-4);
     end
