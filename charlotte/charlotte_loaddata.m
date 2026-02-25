@@ -5,12 +5,14 @@ p.addParameter('futcode','',@ischar);
 p.addParameter('frequency','30m',@ischar);
 p.addParameter('nfractal',[],@isnumeric);
 p.addParameter('source','',@ischar);
+p.addParameter('useMT5',0,@isnumeric);
 p.parse(varargin{:});
 
 futcode = p.Results.futcode;
 freq = p.Results.frequency;
 nfractal = p.Results.nfractal;
 source = p.Results.source;
+useMT5 = p.Results.useMT5;
 
 if strcmpi(freq,'m5')
     freq = '5m';
@@ -75,7 +77,11 @@ if strcmpi(freq,'5m')
     elseif isinequitypool(futcode)
         data = load([getenv('onedrive'),'\matlabdev\equity\',futcode,'\',futcode,'_5m.mat']);
     elseif isfx(futcode)
-        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M5.mat']);
+        if ~useMT5
+            data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M5.mat']);
+        else
+            data = load([getenv('onedrive'),'\Documents\fx_mt5\',futcode,'_MT5_M5.mat']);
+        end
     end
     p = data.data;
 elseif strcmpi(freq,'15m')
@@ -91,7 +97,11 @@ elseif strcmpi(freq,'15m')
     elseif strcmpi(instrument.asset_name,'gold')
         data =load([getenv('onedrive'),'\matlabdev\preciousmetal\au\',futcode,'_15m.mat']);
     elseif isfx(futcode)
-        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M15.mat']);
+        if ~useMT5
+            data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M15.mat']);
+        else
+            data = load([getenv('onedrive'),'\Documents\fx_mt5\',futcode,'_MT5_M15.mat']);
+        end
     end
     p = data.data;
 elseif strcmpi(freq,'30m')
@@ -187,7 +197,11 @@ elseif strcmpi(freq,'30m')
     elseif strcmpi(instrument.asset_name,'carbamide')
         data =load([getenv('onedrive'),'\matlabdev\energy\ur\',futcode,'.mat']);
     elseif isfx(futcode)
-        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M30.mat']);
+        if ~useMT5
+            data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_M30.mat']);
+        else
+            data = load([getenv('onedrive'),'\Documents\fx_mt5\',futcode,'_MT5_M30.mat']);
+        end
     elseif isinequitypool(futcode)
         data = load([getenv('onedrive'),'\matlabdev\equity\',futcode,'\',futcode,'.mat']);
     else
@@ -203,27 +217,38 @@ elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
                     strcmpi(futcode,'GER30m') || strcmpi(futcode,'SPX500m') || strcmpi(futcode,'HK50'))
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
-    data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H1.mat']);
-    p = data.data;
+    if ~useMT5
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H1.mat']);
+        p = data.data;
+    else
+        data = load([getenv('onedrive'),'\Documents\fx_mt5\',futcode,'_MT5_H1.mat']);
+        p = data.datamath1;
+    end
 elseif strcmpi(freq,'240m') || strcmpi(freq,'4h')
     if isempty(nfractal),nfractal = 2;end
     if ~(isfx(futcode) || strcmpi(futcode,'UK100') || strcmpi(futcode,'AUS200') || strcmpi(futcode,'J225') || ...
                     strcmpi(futcode,'GER30m') || strcmpi(futcode,'SPX500m') || strcmpi(futcode,'HK50'))
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
-    data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H4.mat']);
-    p = data.data;    
+    if ~useMT5
+        data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_H4.mat']);
+        p = data.data;
+    else
+        data = load([getenv('onedrive'),'\Documents\fx_mt5\',futcode,'_MT5_H4.mat']);
+        p = data.datamath4;
+    end
 elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
     if isempty(nfractal),nfractal = 2;end
     if strcmpi(futcode,'brent') || strcmpi(futcode,'wti')
     elseif isfx(futcode) || strcmpi(futcode,'UK100') || strcmpi(futcode,'AUS200') || strcmpi(futcode,'J225') || ...
                     strcmpi(futcode,'GER30m') || strcmpi(futcode,'SPX500m') || strcmpi(futcode,'HK50')
-%         if strcmpi(source,'MT4')
+        if ~useMT5
             data = load([getenv('onedrive'),'\Documents\fx_mt4\',futcode,'_MT4_D1.mat']);
             data = data.data;
-%         else
-%             data = cDataFileIO.loadDataFromTxtFile([getenv('datapath'),'globalmacro\',futcode,'_daily.txt']);
-%         end
+        else
+            data = load([getenv('onedrive'),'\Documents\fx_mt5\',futcode,'_MT5_D1.mat']);
+            data = data.datamatd1;
+        end
     elseif isinequitypool(futcode)
         data = cDataFileIO.loadDataFromTxtFile(['C:\Database\AShare\ETFs\',futcode,'_daily.txt']);
     else

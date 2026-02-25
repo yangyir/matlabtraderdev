@@ -9,6 +9,7 @@ p.addParameter('figureindex',2,@isnumeric);
 p.addParameter('doplot',true,@islogical);
 p.addParameter('plotshift',0.005,@isnumeric);
 p.addParameter('source','',@ischar);
+p.addParameter('useMT5',0,@isnumeric);
 p.parse(varargin{:});
 
 futcode = p.Results.futcode;
@@ -19,6 +20,7 @@ figureindex = p.Results.figureindex;
 doplot = p.Results.doplot;
 shift = p.Results.plotshift;
 source = p.Results.source;
+useMT5 = p.Results.useMT5;
 
 % if strcmpi(freq,'intraday-5m')
 %     nfractal = 6;
@@ -134,7 +136,7 @@ source = p.Results.source;
 % [res,resstruct] = tools_technicalplot1(p,nfractal,0,'volatilityperiod',0,'tolerance',0);
 % res(:,1) = x2mdate(res(:,1));
 
-[res,resstruct] = charlotte_loaddata('futcode',futcode,'frequency',freq,'source',source);
+[res,resstruct] = charlotte_loaddata('futcode',futcode,'frequency',freq,'source',source,'useMT5',useMT5);
 
 if doplot
     set(0,'defaultfigurewindowstyle','docked');

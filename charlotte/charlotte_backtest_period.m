@@ -12,6 +12,7 @@ p.addParameter('showlogs',true,@islogical);
 p.addParameter('figureidx',4,@isnumeric);
 p.addParameter('doplot',true,@islogical);
 p.addParameter('compulsorycheckforconditional',true,@islogical);
+p.addParameter('useMT5',0,@isnumeric);
 p.parse(varargin{:});
 codein = p.Results.code;
 freq = p.Results.frequency;
@@ -43,6 +44,7 @@ showlogsflag = p.Results.showlogs;
 figureidx = p.Results.figureidx;
 doplot = p.Results.doplot;
 compulsorycheckforconditional = p.Results.compulsorycheckforconditional;
+useMT5 = p.Results.useMT5;
 %
 dt1 = datenum(dt1,'yyyy-mm-dd');
 dt2 = datenum(dt2,'yyyy-mm-dd');
@@ -65,7 +67,7 @@ if isfx(codein)
 else
     plotshift = 0.005;
 end
-resstruct = charlotte_plot('futcode',codein,'figureindex',figureidx,'datefrom',dt3,'dateto',dt4,'frequency',freq,'doplot',doplot,'plotshift',plotshift);
+resstruct = charlotte_plot('futcode',codein,'figureindex',figureidx,'datefrom',dt3,'dateto',dt4,'frequency',freq,'doplot',doplot,'plotshift',plotshift,'useMT5',useMT5);
 if doplot
     grid off;
 end

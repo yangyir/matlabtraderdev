@@ -11,6 +11,7 @@ p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','t
 p.addParameter('frequency',30,@isnumeric);
 p.addParameter('useconditionalopen',1,@isnumeric);
 p.addParameter('nfractal',[],@isnumeric);
+p.addParameter('useMT5',0,@isnumeric)
 
 p.parse(varargin{:});
 type = p.Results.type;
@@ -25,6 +26,7 @@ if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
 freq = p.Results.frequency;
 useconditionalopen = p.Results.useconditionalopen;
 nfractal = p.Results.nfractal;
+useMT5 = p.Results.useMT5;
 if isempty(nfractal)
     error('fractal_intraday_checker:empty fractal input')
 end
@@ -50,18 +52,49 @@ else
     elseif isfx(code) || strcmpi(code,'UK100') || strcmpi(code,'AUS200') || strcmpi(code,'J225') || ...
         strcmpi(code,'GER30m') || strcmpi(code,'SPX500m') || strcmpi(code,'HK50')
         if freq == 5
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M5.mat'];
+            if ~useMT5
+                fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M5.mat'];
+            else
+                fn = [getenv('onedrive'),'\Documents\fx_mt5\',upper(code),'_MT5_M5.mat'];
+            end
         elseif freq == 15
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M15.mat'];
+            if ~useMT5
+                fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M15.mat'];
+            else
+                fn = [getenv('onedrive'),'\Documents\fx_mt5\',upper(code),'_MT5_M15.mat'];
+            end
         elseif freq == 30
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M30.mat'];
+            if ~useMT5
+                fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_M30.mat'];
+            else
+                fn = [getenv('onedrive'),'\Documents\fx_mt5\',upper(code),'_MT5_M30.mat'];
+            end
         elseif freq == 60
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_H1.mat'];
+            if ~useMT5
+                fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_H1.mat'];
+            else
+                fn = [getenv('onedrive'),'\Documents\fx_mt5\',upper(code),'_MT5_H1.mat'];
+            end
         elseif freq == 240
-            fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_H4.mat'];
+            if ~useMT5
+                fn = [getenv('onedrive'),'\Documents\fx_mt4\',upper(code),'_MT4_H4.mat'];
+            else
+                fn = [getenv('onedrive'),'\Documents\fx_mt5\',upper(code),'_MT5_H4.mat'];
+            end
         end
         data = load(fn);
-        cp = data.data;
+        if ~useMT5
+            cp = data.data;
+        else
+            if freq == 60
+                cp = data.datamath1;
+            elseif freq == 240
+                cp = data.datamath4;
+            else
+                error('not implemented yet')
+            end
+
+        end
     else
         instrument = code2instrument(code);
         assetinfo = getassetinfo(instrument.asset_name);
