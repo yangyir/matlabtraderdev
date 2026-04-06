@@ -1,4 +1,4 @@
-function [resOut] = kellytest(tblInput,modeInput,directionInput,doPlot) 
+function [resOut,tblOut] = kellytest(tblInput,modeInput,directionInput,doPlot) 
 % kelly utility function
 % to test whether winning,odds rates and kelly are stable, i.e. followed a
 % normal distribution as sample size goes larger
