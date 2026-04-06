@@ -14,6 +14,10 @@ classdef charlotteDataProcessorFut < handle
         candles_m15_@cell
         candles_m30_@cell
         mode_@char
+        %
+        fut_categories_@double
+        datenum_open_@cell
+        datenum_close_@cell
     end
     
     properties (Access = private)
@@ -31,9 +35,7 @@ classdef charlotteDataProcessorFut < handle
         candles_m30_count_@double
         newset_m30_@double
         %
-        fut_categories_@double
-        datenum_open_@cell
-        datenum_close_@cell
+        
         %
         num21_00_00_@double
         num21_00_0_5_@double
@@ -89,7 +91,7 @@ classdef charlotteDataProcessorFut < handle
         k = getcandles(obj,code,freq)
     end
     
-    methods (Access = private)
+    methods
         [] = initcandles(obj)
         [] = updatecandles(obj)
     end
