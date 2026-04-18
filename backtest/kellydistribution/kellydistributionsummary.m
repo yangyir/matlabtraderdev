@@ -287,9 +287,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     fprintf('\t%25s\t%5s\t%3s%9s%9s%9s%9s\n','type','winp','R','kelly','#trades','use','kstest')
     %
     modeSpecial = {'breachup-lvlup-tc';...
-        'breachup-lvlup-tc-all';
         'breachdn-lvldn-tc';...
-        'breachdn-lvldn-tc-all';...
         'breachup-sshighvalue-tc';...
         'breachdn-bshighvalue-tc';...
         'breachup-highsc13';...
@@ -336,6 +334,8 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         W = zeros(nasset,1);
         R = zeros(nasset,1);
         K = zeros(nasset,1);
+        winavg = zeros(nasset,1);
+        lossavg = zeros(nasset,1);
         runningw = cell(nasset,1);
         ruuningr = cell(nasset,1);
         runningk = cell(nasset,1);
@@ -350,9 +350,12 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             runningw{j} = w_j;
             ruuningr{j} = r_j;
             runningk{j} = k_j;
+            output_j = kellyratio2(pnl_j);
+            winavg(j) = output_j.winavg;
+            lossavg(j) = output_j.lossavg;
         end
-        tblreport = table(asset,N,W,R,K);
-        tblreport = sortrows(tblreport,'K','descend');
+        tblreport = table(asset,N,W,R,K,winavg,lossavg);
+        tblreport = sortrows(tblreport,'asset','ascend');
         reportbyasset_tc{iMode}.table = tblreport;
         reportbyasset_tc{iMode}.runningw = runningw;
         reportbyasset_tc{iMode}.runningr = ruuningr;
@@ -403,6 +406,8 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         W = zeros(nasset,1);
         R = zeros(nasset,1);
         K = zeros(nasset,1);
+        winavg = zeros(nasset,1);
+        lossavg = zeros(nasset,1);
         runningw = cell(nasset,1);
         ruuningr = cell(nasset,1);
         runningk = cell(nasset,1);
@@ -417,9 +422,12 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             runningw{j} = w_j;
             ruuningr{j} = r_j;
             runningk{j} = k_j;
+            output_j = kellyratio2(pnl_j);
+            winavg(j) = output_j.winavg;
+            lossavg(j) = output_j.lossavg;
         end
-        tblreport = table(asset,N,W,R,K);
-        tblreport = sortrows(tblreport,'K','descend');
+        tblreport = table(asset,N,W,R,K,winavg,lossavg);
+        tblreport = sortrows(tblreport,'asset','ascend');
         reportbyasset_tc{iMode+nSpecial}.table = tblreport;
         reportbyasset_tc{iMode+nSpecial}.runningw = runningw;
         reportbyasset_tc{iMode+nSpecial}.runningr = ruuningr;
@@ -464,6 +472,8 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         W = zeros(nasset,1);
         R = zeros(nasset,1);
         K = zeros(nasset,1);
+        winavg = zeros(nasset,1);
+        lossavg = zeros(nasset,1);
         runningw = cell(nasset,1);
         ruuningr = cell(nasset,1);
         runningk = cell(nasset,1);
@@ -478,9 +488,12 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             runningw{j} = w_j;
             ruuningr{j} = r_j;
             runningk{j} = k_j;
+            output_j = kellyratio2(pnl_j);
+            winavg(j) = output_j.winavg;
+            lossavg(j) = output_j.lossavg;
         end
-        tblreport = table(asset,N,W,R,K);
-        tblreport = sortrows(tblreport,'K','descend');
+        tblreport = table(asset,N,W,R,K,winavg,lossavg);
+        tblreport = sortrows(tblreport,'asset','ascend');
         reportbyasset_tb{iMode}.table = tblreport;
         reportbyasset_tb{iMode}.runningw = runningw;
         reportbyasset_tb{iMode}.runningr = ruuningr;
@@ -733,13 +746,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         'breachupsshighvalue_tb',reportbyasset_tb{3}.table,...
         'breachdnbshighvalue_tb',reportbyasset_tb{4}.table,...
         'breachuplvlup_tc',reportbyasset_tc{1}.table,...
-        'breachuplvlup_tc_all',reportbyasset_tc{2}.table,...
-        'breachdnlvldn_tc',reportbyasset_tc{3}.table,...
-        'breachdnlvldn_tc_all',reportbyasset_tc{4}.table,...
-        'breachupsshighvalue_tc',reportbyasset_tc{5}.table,...
-        'breachdnbshighvalue_tc',reportbyasset_tc{6}.table,...
-        'breachuphighsc13',reportbyasset_tc{7}.table,...
-        'breachdnlowbc13',reportbyasset_tc{8}.table,...
+        'breachdnlvldn_tc',reportbyasset_tc{2}.table,...
+        'breachupsshighvalue_tc',reportbyasset_tc{3}.table,...
+        'breachdnbshighvalue_tc',reportbyasset_tc{4}.table,...
+        'breachuphighsc13',reportbyasset_tc{5}.table,...
+        'breachdnlowbc13',reportbyasset_tc{6}.table,...
         'kelly_matrix_l',KMat_L_,...
         'kelly_matrix_s',KMat_S_,...
         'winprob_matrix_l',WMat_L_,...
