@@ -230,13 +230,13 @@ carriedtrades = cTradeOpenArray;
 
 for i = 1:length(dts)
     if i == 1
-        [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional);
+        [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional,'useMT5',useMT5);
     else
         if ct_i.latest_ > 0
             carriedtrade = ct_i.node_(1);
-            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'carriedtrade',carriedtrade,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional);
+            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'carriedtrade',carriedtrade,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional,'useMT5',useMT5);
         else
-            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional);
+            [~,ct_i,ut_i] = charlotte_backtest_daily('code',codein,'date',datestr(dts(i),'yyyy-mm-dd'),'frequency',freq,'nfractal',nfractal,'kellytables',kellytables,'compulsorycheckforconditional',compulsorycheckforconditional,'useMT5',useMT5);
         end     
     end
     for j = 1:ut_i.latest_
