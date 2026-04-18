@@ -33,6 +33,8 @@ function [output] = fractal_kelly_summary(varargin)
     kellybcell = cell(ncodes,1);
     kellyscell = cell(ncodes,1);
     datacell = cell(ncodes,1);
+
+    warning('off')
     
     if ncodes == 1 || ~parallelrunflag
         for i = 1:ncodes
