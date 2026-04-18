@@ -161,7 +161,11 @@ function [output] = fractal_signal_unconditional2(varargin)
             if ei.hh(end-1) >= ei.lvlup(end-1)
                 vlookuptbl = kellytables.breachuplvlup_tc;
             else
-                vlookuptbl = kellytables.breachuplvlup_tc_all;
+                if status.b1type == 2
+                    vlookuptbl = kellytables.bmtc;
+                else
+                    vlookuptbl = kellytables.bstc;
+                end
             end
             idx = strcmpi(vlookuptbl.asset,assetname);
             kelly = vlookuptbl.K(idx);
@@ -217,7 +221,11 @@ function [output] = fractal_signal_unconditional2(varargin)
             if ei.ll(end-1) <= ei.lvldn(end-1)
                 vlookuptbl = kellytables.breachdnlvldn_tc;
             else
-                vlookuptbl = kellytables.breachdnlvldn_tc_all;
+                if status.s1type == 2
+                    vlookuptbl = kellytables.smtc;
+                else
+                    vlookuptbl = kellytables.sstc;
+                end
             end
             idx = strcmpi(vlookuptbl.asset,assetname);
             kelly = vlookuptbl.K(idx);
@@ -376,7 +384,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                     if ei.hh(end-1) >= ei.lvlup(end-1)
                         vlookuptbl = kellytables.breachuplvlup_tc;
                     else
-                        vlookuptbl = kellytables.breachuplvlup_tc_all;
+                        if status.b1type == 2
+                            vlookuptbl = kellytables.bmtc;
+                        else
+                            vlookuptbl = kellytables.bstc;
+                        end
                     end
                     idx = strcmpi(vlookuptbl.asset,assetname);
                     kelly = vlookuptbl.K(idx);
@@ -583,7 +595,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                     if ei.ll(end-1) <= ei.lvldn(end-1)
                         vlookuptbl = kellytables.breachdnlvldn_tc;
                     else
-                        vlookuptbl = kellytables.breachdnlvldn_tc_all;
+                        if status.s1type == 2
+                            vlookuptbl = kellytables.smtc;
+                        else
+                            vlookuptbl = kellytables.sstc;
+                        end
                     end
                     idx = strcmpi(vlookuptbl.asset,assetname);
                     kelly = vlookuptbl.K(idx);
