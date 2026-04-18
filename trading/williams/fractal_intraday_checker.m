@@ -43,12 +43,13 @@ if isequity
     cp = data.data;
 else
     if strcmpi(code,'gzhy')
-        path = [getenv('onedrive'),'\ea\govtbond\'];
-        xlfn = 'wind_gyhy10y_yield.xlsx';
-        [num,~,~] = xlsread([path,xlfn]);
-        num(:,1) = x2mdate(num(:,1));
-        idx = ~(isnan(num(:,2)) | isnan(num(:,3)) | isnan(num(:,4)) | isnan(num(:,5)));
-        cp = num(idx,1:5);
+        error('not support anymore!!!')
+%         path = [getenv('onedrive'),'\ea\govtbond\'];
+%         xlfn = 'wind_gyhy10y_yield.xlsx';
+%         [num,~,~] = xlsread([path,xlfn]);
+%         num(:,1) = x2mdate(num(:,1));
+%         idx = ~(isnan(num(:,2)) | isnan(num(:,3)) | isnan(num(:,4)) | isnan(num(:,5)));
+%         cp = num(idx,1:5);
     elseif isfx(code) || strcmpi(code,'UK100') || strcmpi(code,'AUS200') || strcmpi(code,'J225') || ...
         strcmpi(code,'GER30m') || strcmpi(code,'SPX500m') || strcmpi(code,'HK50')
         if freq == 5
@@ -112,7 +113,7 @@ else
 end
 if isempty(cp),error('fractal_intraday_checker:invalid code input or data not stored');end
 %generate trades and table
-[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2,freq,nfractal);
+[tblb,tbls,trades,~,resstruct] = fractal_filter({code},{cp},type,direction,doplot,dt1,dt2,freq,nfractal,useconditionalopen);
 %
 %backtest trade performance
 n = trades.latest_;
