@@ -1,4 +1,6 @@
 function instrument = code2instrument(codestr)
+    
+    warning off;
     if ~ischar(codestr)
         error('code2instrument:invalid code input')
     end
