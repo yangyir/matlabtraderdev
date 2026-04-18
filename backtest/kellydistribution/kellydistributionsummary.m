@@ -507,11 +507,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     r_unique_l = use_unique_l;r_unique_l_sample = r_unique_l;
     kelly_unique_l = use_unique_l;kelly_unique_l_sample = kelly_unique_l;
     kstest_unique_l = cell(nsignal_l,1);
-    asset_unique_l = unique(tbl_extractedinfo.assetname(idx_l));
     
+
     for iSignal = 1:nsignal_l
         signal_l_i = opensignal_unique_l{iSignal};
-        [resSignal_l_i,tbl_extractedinfo_signal_l_i] = kellytest(tbl_extractedinfo,signal_l_i,1);
+        resSignal_l_i = kellytest(tbl_extractedinfo,signal_l_i,1);
         ntrades_unique_l(iSignal) = size(resSignal_l_i.tblout,1);
         use_unique_l(iSignal) = resSignal_l_i.use;
         if strcmpi(signal_l_i,'volblowup2') || strcmpi(signal_l_i,'volblowup') || ...
@@ -526,22 +526,6 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         winp_unique_l_sample(iSignal) = resSignal_l_i.wSample;
         r_unique_l_sample(iSignal) = resSignal_l_i.rSample;
         kelly_unique_l_sample(iSignal) = resSignal_l_i.kSample;
-%         if use_unique_l(iSignal) == 0 && resSignal_l_i.kSample > 0.05
-%             %loop through each asset and set use flag to 1 if kelly of any
-%             %asset is greater than or equal to 0.15
-%             for iAsset = 1:length(asset_unique_l)
-%                 idx_iAsset = strcmpi(tbl_extractedinfo_signal_l_i.assetname,asset_unique_l{iAsset});
-%                 tblSignal_l_i_iAsset = tbl_extractedinfo_signal_l_i(idx_iAsset,:);
-%                 if size(tblSignal_l_i_iAsset,1) < 5
-%                     continue;
-%                 end
-%                 resSignal_l_i_iAsset = kellytest(tblSignal_l_i_iAsset,signal_l_i,1);
-%                 if resSignal_l_i_iAsset.use && resSignal_l_i_iAsset.kSample > 0.15 && resSignal_l_i_iAsset.wSample > 0.45
-%                     use_unique_l(iSignal) = 1;
-%                     break
-%                 end
-%             end
-%         end
     end
      
     kelly_table_l = table(opensignal_unique_l,ntrades_unique_l,winp_unique_l,r_unique_l,kelly_unique_l,use_unique_l,kstest_unique_l,winp_unique_l_sample,r_unique_l_sample,kelly_unique_l_sample);
@@ -556,11 +540,10 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     r_unique_s = use_unique_s;r_unique_s_sample = r_unique_s;
     kelly_unique_s = use_unique_s;kelly_unique_s_sample = kelly_unique_s;
     kstest_unique_s = cell(nsignal_s,1);
-    asset_unique_s = unique(tbl_extractedinfo.assetname(idx_s));
 
     for iSignal = 1:nsignal_s
         signal_s_i = opensignal_unique_s{iSignal};
-        [resSignal_s_i,tbl_extractedinfo_signal_s_i] = kellytest(tbl_extractedinfo,signal_s_i,-1);
+        resSignal_s_i = kellytest(tbl_extractedinfo,signal_s_i,-1);
         ntrades_unique_s(iSignal) = size(resSignal_s_i.tblout,1);
         use_unique_s(iSignal) = resSignal_s_i.use;
         if strcmpi(signal_s_i,'volblowup2') || strcmpi(signal_s_i,'volblowup') || ...
@@ -575,22 +558,6 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         winp_unique_s_sample(iSignal) = resSignal_s_i.wSample;
         r_unique_s_sample(iSignal) = resSignal_s_i.rSample;
         kelly_unique_s_sample(iSignal) = resSignal_s_i.kSample;
-%         if use_unique_s(iSignal) == 0 && resSignal_s_i.kSample > 0.05
-%             %loop through each asset and set use flag to 1 if kelly of any
-%             %asset is greater than or equal to 0.15
-%             for iAsset = 1:length(asset_unique_s)
-%                 idx_iAsset = strcmpi(tbl_extractedinfo_signal_s_i.assetname,asset_unique_s{iAsset});
-%                 tblSignal_s_i_iAsset = tbl_extractedinfo_signal_s_i(idx_iAsset,:);
-%                 if size(tblSignal_s_i_iAsset,1) < 5
-%                     continue;
-%                 end
-%                 resSignal_s_i_iAsset = kellytest(tblSignal_s_i_iAsset,signal_s_i,-1);
-%                 if resSignal_s_i_iAsset.use && resSignal_s_i_iAsset.kSample > 0.15 && resSignal_s_i_iAsset.wSample > 0.45
-%                     use_unique_s(iSignal) = 1;
-%                     break
-%                 end
-%             end
-%         end
     end
     kelly_table_s = table(opensignal_unique_s,ntrades_unique_s,winp_unique_s,r_unique_s,kelly_unique_s,use_unique_s,kstest_unique_s,winp_unique_s_sample,r_unique_s_sample,kelly_unique_s_sample);
     %
