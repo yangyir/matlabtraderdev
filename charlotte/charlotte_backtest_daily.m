@@ -38,6 +38,7 @@ p.addParameter('nfractal',[],@isnumeric);
 p.addParameter('carriedtrade',{},@(x) validateattributes(x,{'cTradeOpen'},{},'','carriedtrade'));    
 p.addParameter('kellytables','',@isstruct);
 p.addParameter('compulsorycheckforconditional',true,@islogical);
+p.addParameter('useMT5',0,@isnumeric);
 
 p.parse(varargin{:});
 futcode = p.Results.code;
@@ -60,6 +61,7 @@ nfractal = p.Results.nfractal;
 carriedtrade = p.Results.carriedtrade;
 kellytables = p.Results.kellytables;
 compulsorycheckforconditional = p.Results.compulsorycheckforconditional;
+useMT5 = p.Results.useMT5;
 
 fut = code2instrument(futcode);
 if strcmpi(fut.asset_name,'govtbond_10y') || strcmpi(fut.asset_name,'govtbond_30y')
@@ -164,7 +166,7 @@ else
 end
 %        
 %
-[~,extrainfo] = charlotte_loaddata('futcode',futcode,'frequency',freq,'nfractal',nfractal);
+[~,extrainfo] = charlotte_loaddata('futcode',futcode,'frequency',freq,'nfractal',nfractal,'useMT5',useMT5);
 %
 if isfx(futcode) || strcmpi(futcode,'UK100') || strcmpi(futcode,'AUS200') || strcmpi(futcode,'J225') || ...
                     strcmpi(futcode,'GER30m') || strcmpi(futcode,'SPX500m') || strcmpi(futcode,'HK50')
