@@ -29,7 +29,9 @@ for i = 1:nsymbols
     datamath1(:,6) = tableh1.Var7;
     for j = 1:nh1
         intradaydtstr = char(tableh1.Var2(j));
-        datamath1(i,1) = datamath1(i,1) +(str2double(intradaydtstr(1:2))*60+str2double(intradaydtstr(end-1:end)))/1440;
+        hhstr = intradaydtstr(1:2);
+        mmstr = intradaydtstr(4:5);
+        datamath1(j,1) = datamath1(j,1) +(str2double(hhstr)*60+str2double(mmstr))/1440;
     end
     %
     nh4 = size(tableh4,1);
@@ -42,7 +44,9 @@ for i = 1:nsymbols
     datamath4(:,6) = tableh4.Var7;
     for j = 1:nh4
         intradaydtstr = char(tableh4.Var2(j));
-        datamath4(j,1) = datamath4(j,1) +(str2double(intradaydtstr(1:2))*60+str2double(intradaydtstr(end-1:end)))/1440;
+        hhstr = intradaydtstr(1:2);
+        mmstr = intradaydtstr(4:5);
+        datamath4(j,1) = datamath4(j,1) +(str2double(hhstr)*60+str2double(mmstr))/1440;
     end
     
     save([foldername,fileouth1],"datamath1");
