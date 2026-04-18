@@ -319,7 +319,7 @@ for i = 1:n
     %             useflags_i(j) = 0;
     %             continue;
     %         end
-            if p(k+1,2) > resstruct{i}.lips(k) > 0
+            if p(k+1,2) > resstruct{i}.lips(k)
                 commentss1_i{j,1} = 'breachs1 break:next open above lips';
                 useflags_i(j) = 0;
                 continue;
