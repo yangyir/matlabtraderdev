@@ -45,15 +45,15 @@ function [output] = fractal_signal_unconditional2(varargin)
                 wprob = kelly_w(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
                 useflag = 1;
             catch
-                idx = strcmpi(op.comment,kellytables.kelly_table_l.opensignal_unique_l);
-                kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
-                wprob = kellytables.kelly_table_l.winp_unique_l(idx);
-                useflag = kellytables.kelly_table_l.use_unique_l(idx);
-                if isempty(kelly)
+%                 idx = strcmpi(op.comment,kellytables.kelly_table_l.opensignal_unique_l);
+%                 kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
+%                 wprob = kellytables.kelly_table_l.winp_unique_l(idx);
+%                 useflag = kellytables.kelly_table_l.use_unique_l(idx);
+%                 if isempty(kelly)
                     kelly = -9.99;
                     wprob = 0;
                     useflag = 0;
-                end
+%                 end
             end
         elseif op.direction == -1
             try
@@ -61,15 +61,15 @@ function [output] = fractal_signal_unconditional2(varargin)
                 wprob = kelly_w(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
                 useflag = 1;
             catch
-                idx = strcmpi(op.comment,kellytables.kelly_table_s.opensignal_unique_s);
-                kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
-                wprob = kellytables.kelly_table_s.winp_unique_s(idx);
-                useflag = kellytables.kelly_table_s.use_unique_s(idx);
-                if isempty(kelly)
+%                 idx = strcmpi(op.comment,kellytables.kelly_table_s.opensignal_unique_s);
+%                 kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
+%                 wprob = kellytables.kelly_table_s.winp_unique_s(idx);
+%                 useflag = kellytables.kelly_table_s.use_unique_s(idx);
+%                 if isempty(kelly)
                     kelly = -9.99;
                     wprob = 0;
                     useflag = 0;
-                end
+%                 end
             end
         else
             %op.direction = 0
@@ -263,13 +263,15 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = kelly_k(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.kelly_matrix_l,0);
                 wprob = kelly_w(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
             catch
-                idx = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
-                kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
-                wprob = kellytables.kelly_table_l.winp_unique_l(idx);
-                if isempty(kelly)
-                    kelly = -9.99;
-                    wprob = 0;
-                end
+%                 idx = strcmpi(kellytables.kelly_table_l.opensignal_unique_l,op.comment);
+%                 kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
+%                 wprob = kellytables.kelly_table_l.winp_unique_l(idx);
+%                 if isempty(kelly)
+%                     kelly = -9.99;
+%                     wprob = 0;
+%                 end
+                kelly = -9.99;
+                wprob = 0;
             end
             try
                 signal_i(8) = kelly;
@@ -380,6 +382,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
+                    op.extra = 'tb';
                 else
                     if ei.hh(end-1) >= ei.lvlup(end-1)
                         vlookuptbl = kellytables.breachuplvlup_tc;
@@ -402,6 +405,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
+                    op.extra = 'tc';
                 end
                 %
             elseif ~isempty(strfind(op.comment,'breachup-sshighvalue'))
@@ -419,6 +423,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
+                    op.extra = 'tb';
                 else
                     vlookuptbl = kellytables.breachupsshighvalue_tc;
                     idx = strcmpi(vlookuptbl.asset,assetname);
@@ -433,6 +438,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
+                    op.extra = 'tc';
                 end
                 %
             else
@@ -442,9 +448,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                     wprob = kelly_w(op.comment,assetname,kellytables.signal_l,kellytables.asset_list,kellytables.winprob_matrix_l,0);
                     signal_i(8) = kelly;
                 catch
-                    idx = strcmpi(op.comment,kellytables.kelly_table_l.opensignal_unique_l);
-                    kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
-                    wprob = kellytables.kelly_table_l.winp_unique_l(idx);
+%                     idx = strcmpi(op.comment,kellytables.kelly_table_l.opensignal_unique_l);
+%                     kelly = kellytables.kelly_table_l.kelly_unique_l(idx);
+%                     wprob = kellytables.kelly_table_l.winp_unique_l(idx);
+                    kelly = -9.99;
+                    wprob = 0;
                     if isempty(kelly)
                         kelly = -9.99;
                         wprob = 0;
@@ -486,9 +494,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                 kelly = kelly_k(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.kelly_matrix_s,0);
                 wprob = kelly_w(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
             catch
-                idx = strcmpi(kellytables.kelly_table_s.opensignal_unique_s,op.comment);
-                kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
+%                 idx = strcmpi(kellytables.kelly_table_s.opensignal_unique_s,op.comment);
+%                 kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
                 wprob = kellytables.kelly_table_s.winp_unique_s(idx);
+                kelly = -9.99;
+                wprob = 0;
             end
             try
                 signal_i(8) = kelly;
@@ -591,6 +601,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
+                    op.extra = 'tb';
                 else
                     if ei.ll(end-1) <= ei.lvldn(end-1)
                         vlookuptbl = kellytables.breachdnlvldn_tc;
@@ -613,6 +624,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
+                    op.extra = 'tc';
                 end
             elseif ~isempty(strfind(op.comment,'breachdn-bshighvalue'))
                 if ~status.istrendconfirmed
@@ -629,6 +641,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         signal_i(1) = 0;
                         signal_i(4) = 0;
                     end
+                    op.extra = 'tb';
                 else
                     vlookuptbl = kellytables.breachdnbshighvalue_tc;
                     idx = strcmpi(vlookuptbl.asset,assetname);
@@ -648,6 +661,7 @@ function [output] = fractal_signal_unconditional2(varargin)
                         signal_i(4) = 0;
                         op.comment = 'breachdn-bshighvalue-invalid with high bs';
                     end
+                    op.extra = 'tc';
                 end
             else
                 %not trending signals
@@ -656,9 +670,11 @@ function [output] = fractal_signal_unconditional2(varargin)
                     wprob = kelly_w(op.comment,assetname,kellytables.signal_s,kellytables.asset_list,kellytables.winprob_matrix_s,0);
                     signal_i(8) = kelly;
                 catch
-                    idx = strcmpi(op.comment,kellytables.kelly_table_s.opensignal_unique_s);
-                    kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
-                    wprob = kellytables.kelly_table_s.winp_unique_s(idx);
+%                     idx = strcmpi(op.comment,kellytables.kelly_table_s.opensignal_unique_s);
+%                     kelly = kellytables.kelly_table_s.kelly_unique_s(idx);
+%                     wprob = kellytables.kelly_table_s.winp_unique_s(idx);
+                    kelly = -9.99;
+                    wprob = 0;
                     if isempty(kelly)
                         kelly = -9.99;
                         wprob = 0;
