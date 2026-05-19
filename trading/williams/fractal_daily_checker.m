@@ -43,6 +43,7 @@ p.addParameter('usefibonacci',1,@isnumeric);
 p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
 p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','todate'));
 p.addParameter('nfractal',[],@isnumeric);
+p.addParameter('useMT5',0,@isnumeric);
 
 p.parse(varargin{:});
 type = p.Results.type;
@@ -56,6 +57,7 @@ dt2 = p.Results.todate;
 if ~isempty(dt2) && ischar(dt2), dt2 = datenum(dt2);end
 nfractal = p.Results.nfractal;
 if isempty(nfractal), nfractal = 2;end
+useMT5 = p.Results.useMT5;
 
 %load the data
 if ~isglobalmacro
@@ -78,8 +80,13 @@ if ~isglobalmacro
 else
     if isfx(code) || strcmpi(code,'UK100') || strcmpi(code,'AUS200') || strcmpi(code,'J225') || ...
         strcmpi(code,'GER30m') || strcmpi(code,'SPX500m') || strcmpi(code,'HK50')
-        data = load([getenv('onedrive'),'\Documents\fx_mt4\',code,'_MT4_D1.mat']);
-        cp = data.data;
+        if ~useMT5
+            data = load([getenv('onedrive'),'\Documents\fx_mt4\',code,'_MT4_D1.mat']);
+            cp = data.data;
+        else
+            data = load([getenv('onedrive'),'\Documents\fx_mt5\',upper(code),'_MT5_D1.mat']);
+            cp = data.datamatd1;
+        end
     else
         fn = [code,'_daily.txt'];
         datadir_ = [getenv('datapath'),'globalmacro\'];
