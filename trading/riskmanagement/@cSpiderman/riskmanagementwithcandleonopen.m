@@ -288,47 +288,50 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 return
             end
         else
-            signaluncond = fractal_signal_unconditional2('extrainfo',ei,...
-                'ticksize',trade.instrument_.tick_size,...
-                'nfractal',nfractal,...
-                'assetname',trade.instrument_.asset_name,...
-                'kellytables',kellytables,...
-                'ticksizeratio',ticksizeratio);
-            if ~isempty(signaluncond)
-                if signaluncond.directionkellied == 1
-                    kelly = signaluncond.kelly;
-                    trade.opensignal_.mode_ = signaluncond.opkellied;
-                    trade.opensignal_.kelly_ = kelly;
-                    if kelly < 0.088
+            if ei.hh(end) > ei.hh(end-1)
+            else
+                signaluncond = fractal_signal_unconditional2('extrainfo',ei,...
+                    'ticksize',trade.instrument_.tick_size,...
+                    'nfractal',nfractal,...
+                    'assetname',trade.instrument_.asset_name,...
+                    'kellytables',kellytables,...
+                    'ticksizeratio',ticksizeratio);
+                if ~isempty(signaluncond)
+                    if signaluncond.directionkellied == 1
+                        kelly = signaluncond.kelly;
+                        trade.opensignal_.mode_ = signaluncond.opkellied;
+                        trade.opensignal_.kelly_ = kelly;
+                        if kelly < 0.088
+                            unwindflag = true;
+                            msg = 'conditional uptrendconfirmed success:lowkelly';
+                            obj.status_ = 'closed';
+                            obj.closestr_ = msg;
+                        end
+                    else
+                        try
+                            trade.opensignal_.mode_ = signaluncond.opkellied;
+                        catch
+                            invalidindex = strfind(signaluncond.opkellied,'-invalid');
+                            if ~isempty(invalidindex)
+                                trade.opensignal_.mode_ = signaluncond.opkellied(1:invalidindex-1);
+                            end
+                        end
+                        trade.opensignal_.kelly_ = signaluncond.kelly;
                         unwindflag = true;
                         msg = 'conditional uptrendconfirmed success:lowkelly';
                         obj.status_ = 'closed';
                         obj.closestr_ = msg;
                     end
                 else
-                    try
-                        trade.opensignal_.mode_ = signaluncond.opkellied;
-                    catch
-                        invalidindex = strfind(signaluncond.opkellied,'-invalid');
-                        if ~isempty(invalidindex)
-                            trade.opensignal_.mode_ = signaluncond.opkellied(1:invalidindex-1);
-                        end
-                    end
-                    trade.opensignal_.kelly_ = signaluncond.kelly;
                     unwindflag = true;
                     msg = 'conditional uptrendconfirmed success:lowkelly';
                     obj.status_ = 'closed';
                     obj.closestr_ = msg;
+                    return
                 end
-            else
-                unwindflag = true;
-                msg = 'conditional uptrendconfirmed success:lowkelly';
-                obj.status_ = 'closed';
-                obj.closestr_ = msg;
-                return
             end
+            %
         end
-        %
     end
     %end of lflag && breachupsuccess
     %
@@ -688,7 +691,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                 tbl2lookup = kellytables.breachdnbshighvalue_tc;
                 idx = strcmpi(tbl2lookup.asset,trade.instrument_.asset_name);
                 kelly = tbl2lookup.K(idx);
-                if kelly < 0.145
+                if kelly < 0.088
                     unwindflag = true;
                     msg = 'conditional dntrendconfirmed failed:lowkelly:breachdnbshighvalue';
                     obj.status_ = 'closed';
