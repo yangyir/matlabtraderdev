@@ -203,10 +203,10 @@ if nRecords <= 15
         'rSample',R_running(end),...
         'kSample',kelly_running(end));
 else
-    nTrials = 200;
+    nTrials = 100;
     rng(100);
     if nRecords > 50
-        nSample = ceil(nRecords/5);
+        nSample = max(ceil(nRecords/3),30);
     else
         nSample = ceil(nRecords/2);
     end
@@ -253,7 +253,15 @@ else
     end
     
     if kMu >= 0.088
-        useOut = 1;
+        if strcmpi(modeInput,'mediumbreach-trendbreak') || strcmpi(modeInput,'strongbreach-trendbreak')
+            if wMu >= 0.45 && rMu > 1.0
+                useOut = 1;
+            else
+                useOut = 0;
+            end
+        else
+            useOut = 1;
+        end
     else
         if kelly_running(end) >= 0.088 && winp_running(end) >= 0.45 && R_running(end) > 1.0
             useOut = 1;
