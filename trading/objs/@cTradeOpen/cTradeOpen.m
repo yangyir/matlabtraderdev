@@ -66,7 +66,9 @@ classdef cTradeOpen < handle
         
         function set.openprice_(obj,price)
             if ~isempty(price)
-                if price <= 0, error('cTrade:invalid open price');end
+                if price <= 0
+                    error('cTrade:invalid open price');
+                end
                 obj.openprice_ = price;
             end
         end
