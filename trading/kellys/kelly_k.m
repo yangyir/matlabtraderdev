@@ -41,7 +41,9 @@ function k = kelly_k(signalStr,assetStr,signallistCell,assetlistCell,kMat,useall
         end
     end
     if idxSignal <= 0
-        error('kelly_k:invalid signal or signallist input as signal cannot be found')
+%         error('kelly_k:invalid signal or signallist input as signal cannot be found')
+        k = 0;
+        return
     end
     idxAsset = 0;
     for i = 1:n
