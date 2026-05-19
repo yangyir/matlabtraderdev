@@ -55,16 +55,17 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if strcmpi(trade.opensignal_.frequency_,'daily')
             idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first')+1;
         else
-            if isempty(strfind(trade.opensignal_.mode_,'conditional'))
-                idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
-            else
-                idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
-            end
+%             if isempty(strfind(trade.opensignal_.mode_,'conditional'))
+%                 idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
+%             else
+%                 idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
+%             end
+            idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
         end
     end
     if isempty(idxstart2check), return; end
     if idxstart2check > size(extrainfo.p,1), return;end
-    
+
     if ~usecandlelastonly
         if size(extrainfo.p,1) > idxstart2check
             unwindtrade = obj.candlehighlow(candleTime,candleOpen,candleHigh,candleLow,updatepnlforclosedtrade);
@@ -243,11 +244,11 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     ((direction == 1 && strcmpi(trade.opensignal_.mode_,'breachup-sshighvalue')) || ...
                     (direction == -1 && strcmpi(trade.opensignal_.mode_,'breachdn-bshighvalue')))
                 unwindtrade = trade;
-                if direction == 1
+%                 if direction == 1
+%                     obj.closestr_ = 'tdsq:weekend';
+%                 else
                     obj.closestr_ = 'tdsq:weekend';
-                else
-                    obj.closestr_ = 'tdsq:weekend';
-                end
+%                 end
                 obj.status_ = 'closed';
                 trade.runningpnl_ = 0;
                 trade.closeprice_ = extrainfo.p(end,5);
@@ -371,11 +372,16 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if sshigh >= 16
                 exceptionflag = false;
             else
-                lasthhidx = find(extrainfo.idxhh(1:end-1) == 1,1,'last');
-                if lasthhidx < sshighidx
-                    exceptionflag = true;
+                sslast = extrainfo.ss(end);
+                if sslast >= 9
+                    lasthhidx = find(extrainfo.idxhh(1:end-1) == 1,1,'last');
+                    if lasthhidx < sshighidx
+                        exceptionflag = true;
+                    else
+                        exceptionflag = false;
+                    end
                 else
-                    exceptionflag = false;
+                    exceptionflag = (extrainfo.p(end,3) - extrainfo.p(end,5))/(extrainfo.p(end,3) - extrainfo.p(end,4)) > 0.5;
                 end
             end
         else
@@ -460,11 +466,16 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             if bslow >= 16
                 exceptionflag = false;
             else
-                lastllidx = find(extrainfo.idxll(1:end-1) == -1,1,'last');
-                if lastllidx < bslowidx
-                    exceptionflag = true;
+                bslast = extrainfo.bs(end);
+                if bslast >= 9
+                    lastllidx = find(extrainfo.idxll(1:end-1) == -1,1,'last');
+                    if lastllidx < bslowidx
+                        exceptionflag = true;
+                    else
+                        exceptionflag = false;
+                    end
                 else
-                    exceptionflag = false;
+                    exceptionflag = (extrainfo.p(end,5) - extrainfo.p(end,4))/(extrainfo.p(end,3) - extrainfo.p(end,4)) < 0.5;
                 end
             end
         else
@@ -544,6 +555,28 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_);
     else
         obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+    end
+    %
+    if size(extrainfo.p,1) >= idxstart2check && size(extrainfo.p,1) > 50
+        %calculate ATR
+        try
+            highpx = extrainfo.p(end-100:end-1,3);
+            lowpx = extrainfo.p(end-100:end-1,4);
+            closepx = extrainfo.p(end-100:end-1,5);
+        catch
+            highpx = extrainfo.p(1:end-1,3);
+            lowpx = extrainfo.p(1:end-1,4);
+            closepx = extrainfo.p(1:end-1,5);
+        end
+        atrvalue = calculateATR(highpx,lowpx,closepx);
+        atrvalue_mean = mean(atrvalue(14:end));
+        atrvalue_std = std(atrvalue(14:end));
+        atrvalue_zscore = abs(atrvalue(end)-atrvalue_mean)/atrvalue_std;
+        if atrvalue_zscore > 3.
+            trade.riskmanager_.pxtarget_ = trade.openprice_ + 3.*trade.opendirection_ * atrvalue_mean;
+            trade.riskmanager_.pxstoploss_ = trade.openprice_ - trade.opendirection_ * atrvalue_mean;
+            trade.riskmanager_.closestr_ = '3 times atr breach';
+        end
     end
     
 end
