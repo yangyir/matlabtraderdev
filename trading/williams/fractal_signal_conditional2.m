@@ -184,6 +184,9 @@ function [output] = fractal_signal_conditional2(varargin)
             if kelly >= 0.088 && wprob >= 0.3
                 signalkellied(1) = 1;
                 opkellied = op{1,1};
+            elseif kelly < 0
+                signalkellied(1) = 0;
+                opkellied = [op{1,1},' not to place as negative kelly of bmtc/bstc '];
             else
                 %here we shall compare with unconditional mediumbreach or
                 %strongbreach-trendconfirmed as it is not known whether
@@ -438,6 +441,9 @@ function [output] = fractal_signal_conditional2(varargin)
             if kelly >= 0.088 && wprob >= 0.3
                 signalkellied(1) = -1;
                 opkellied = op{1,2};
+            elseif kelly < 0
+                signalkellied(1) = 0;
+                opkellied = [op{1,2},' as negative kelly of smtc/sstc '];
             else
                 %here we shall compare with unconditional mediumbreach or
                 %strongbreach-trendconfirmed as it is not known whether
