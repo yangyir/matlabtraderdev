@@ -306,7 +306,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             resOut = kellytest(tbl_extractedinfo,modeSpecial{iMode},-1);
         end
         if isnan(resOut.wMu)
-            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wSample*100,resOut.rSample,resOut.kSample*100,size(resOut.tblout,1),resOut.use,...
+            fprintf('\t%25s\t%3.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wSample*100,resOut.rSample,resOut.kSample*100,size(resOut.tblout,1),resOut.use,...
                 [num2str(0),'-',num2str(0),'-',num2str(0)]);
         else
             if resOut.kMu < 0.088 && resOut.kSample >= 0.088
@@ -314,7 +314,7 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
             else
                 kPrint =  resOut.kMu;
             end
-            fprintf('\t%25s\t%2.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wMu*100,resOut.rMu,kPrint*100,size(resOut.tblout,1),resOut.use,...
+            fprintf('\t%25s\t%3.1f%%\t%1.1f%8.1f%%%9d%9d%9s\n',modeSpecial{iMode},resOut.wMu*100,resOut.rMu,kPrint*100,size(resOut.tblout,1),resOut.use,...
                 [num2str(resOut.wH),'-',num2str(resOut.rH),'-',num2str(resOut.kH)]);
         end
         pnl2check = resOut.tblout.pnlrel;
@@ -339,20 +339,42 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         runningw = cell(nasset,1);
         ruuningr = cell(nasset,1);
         runningk = cell(nasset,1);
-        for j = 1:nasset
-            idx_j = strcmpi(asset2check,asset{j});
-            pnl_j = pnl2check(idx_j);
-            [w_j,r_j,k_j] = calcrunningkelly(pnl_j);
-            N(j) = size(w_j,1);
-            W(j) = w_j(end);
-            R(j) = r_j(end);
-            K(j) = k_j(end);
-            runningw{j} = w_j;
-            ruuningr{j} = r_j;
-            runningk{j} = k_j;
-            output_j = kellyratio2(pnl_j);
-            winavg(j) = output_j.winavg;
-            lossavg(j) = output_j.lossavg;
+        if nasset == 1
+            N(1) = size(pnl2check,1);
+            if isnan(resOut.wMu)
+                W(1) = resOut.wSample;
+            else
+                W(1) = resOut.wMu;
+            end
+            if isnan(resOut.rMu)
+                R(1) = resOut.rSample;
+            else
+                R(1) = resOut.rMu;
+            end
+            if isnan(resOut.kMu)
+                K(1) = resOut.kSample;
+            else
+                K(1) = resOut.kMu;
+            end
+            output_ = kellyratio2(pnl2check);
+            winavg(1) = output_.winavg;
+            lossavg(1) = output_.lossavg;
+        else
+            for j = 1:nasset
+                idx_j = strcmpi(asset2check,asset{j});
+                pnl_j = pnl2check(idx_j);
+                [w_j,r_j,k_j] = calcrunningkelly(pnl_j);
+                N(j) = size(w_j,1);
+                W(j) = w_j(end);
+                R(j) = r_j(end);
+                K(j) = k_j(end);
+                runningw{j} = w_j;
+                ruuningr{j} = r_j;
+                runningk{j} = k_j;
+                output_j = kellyratio2(pnl_j);
+                winavg(j) = output_j.winavg;
+                lossavg(j) = output_j.lossavg;
+            end
         end
         tblreport = table(asset,N,W,R,K,winavg,lossavg);
         tblreport = sortrows(tblreport,'asset','ascend');
@@ -411,20 +433,42 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         runningw = cell(nasset,1);
         ruuningr = cell(nasset,1);
         runningk = cell(nasset,1);
-        for j = 1:nasset
-            idx_j = strcmpi(asset2check,asset{j});
-            pnl_j = pnl2check(idx_j);
-            [w_j,r_j,k_j] = calcrunningkelly(pnl_j);
-            N(j) = size(w_j,1);
-            W(j) = w_j(end);
-            R(j) = r_j(end);
-            K(j) = k_j(end);
-            runningw{j} = w_j;
-            ruuningr{j} = r_j;
-            runningk{j} = k_j;
-            output_j = kellyratio2(pnl_j);
-            winavg(j) = output_j.winavg;
-            lossavg(j) = output_j.lossavg;
+        if nasset == 1
+           N(1) = size(pnl2check,1);
+            if isnan(resOut.wMu)
+                W(1) = resOut.wSample;
+            else
+                W(1) = resOut.wMu;
+            end
+            if isnan(resOut.rMu)
+                R(1) = resOut.rSample;
+            else
+                R(1) = resOut.rMu;
+            end
+            if isnan(resOut.kMu)
+                K(1) = resOut.kSample;
+            else
+                K(1) = resOut.kMu;
+            end
+            output_ = kellyratio2(pnl2check);
+            winavg(1) = output_.winavg;
+            lossavg(1) = output_.lossavg;
+        else
+            for j = 1:nasset
+                idx_j = strcmpi(asset2check,asset{j});
+                pnl_j = pnl2check(idx_j);
+                [w_j,r_j,k_j] = calcrunningkelly(pnl_j);
+                N(j) = size(w_j,1);
+                W(j) = w_j(end);
+                R(j) = r_j(end);
+                K(j) = k_j(end);
+                runningw{j} = w_j;
+                ruuningr{j} = r_j;
+                runningk{j} = k_j;
+                output_j = kellyratio2(pnl_j);
+                winavg(j) = output_j.winavg;
+                lossavg(j) = output_j.lossavg;
+            end
         end
         tblreport = table(asset,N,W,R,K,winavg,lossavg);
         tblreport = sortrows(tblreport,'asset','ascend');
@@ -477,20 +521,42 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         runningw = cell(nasset,1);
         ruuningr = cell(nasset,1);
         runningk = cell(nasset,1);
-        for j = 1:nasset
-            idx_j = strcmpi(asset2check,asset{j});
-            pnl_j = pnl2check(idx_j);
-            [w_j,r_j,k_j] = calcrunningkelly(pnl_j);
-            N(j) = size(w_j,1);
-            W(j) = w_j(end);
-            R(j) = r_j(end);
-            K(j) = k_j(end);
-            runningw{j} = w_j;
-            ruuningr{j} = r_j;
-            runningk{j} = k_j;
-            output_j = kellyratio2(pnl_j);
-            winavg(j) = output_j.winavg;
-            lossavg(j) = output_j.lossavg;
+        if nasset == 1
+            N(1) = size(pnl2check,1);
+            if isnan(resOut.wMu)
+                W(1) = resOut.wSample;
+            else
+                W(1) = resOut.wMu;
+            end
+            if isnan(resOut.rMu)
+                R(1) = resOut.rSample;
+            else
+                R(1) = resOut.rMu;
+            end
+            if isnan(resOut.kMu)
+                K(1) = resOut.kSample;
+            else
+                K(1) = resOut.kMu;
+            end
+            output_ = kellyratio2(pnl2check);
+            winavg(1) = output_.winavg;
+            lossavg(1) = output_.lossavg;
+        else
+            for j = 1:nasset
+                idx_j = strcmpi(asset2check,asset{j});
+                pnl_j = pnl2check(idx_j);
+                [w_j,r_j,k_j] = calcrunningkelly(pnl_j);
+                N(j) = size(w_j,1);
+                W(j) = w_j(end);
+                R(j) = r_j(end);
+                K(j) = k_j(end);
+                runningw{j} = w_j;
+                ruuningr{j} = r_j;
+                runningk{j} = k_j;
+                output_j = kellyratio2(pnl_j);
+                winavg(j) = output_j.winavg;
+                lossavg(j) = output_j.lossavg;
+            end
         end
         tblreport = table(asset,N,W,R,K,winavg,lossavg);
         tblreport = sortrows(tblreport,'asset','ascend');
@@ -513,6 +579,11 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
     idx_l = tbl_extractedinfo.direction == 1;
     signal_l = tbl_extractedinfo.opensignal(idx_l);
     opensignal_unique_l = unique(signal_l);
+    idx_use = ~strcmpi(opensignal_unique_l,'breachup-lvlup') & ...
+        ~strcmpi(opensignal_unique_l,'breachup-sshighvalue') & ...
+        ~strcmpi(opensignal_unique_l,'breachup-highsc13');
+    opensignal_unique_l = opensignal_unique_l(idx_use,:);
+
     nsignal_l = length(opensignal_unique_l);
     ntrades_unique_l = zeros(nsignal_l,1);
     use_unique_l = zeros(nsignal_l,1);
@@ -540,12 +611,17 @@ function [reportbyasset_tc,reportbyasset_tb,tbl_extractedinfo,kelly_table_l,kell
         r_unique_l_sample(iSignal) = resSignal_l_i.rSample;
         kelly_unique_l_sample(iSignal) = resSignal_l_i.kSample;
     end
-     
+    
     kelly_table_l = table(opensignal_unique_l,ntrades_unique_l,winp_unique_l,r_unique_l,kelly_unique_l,use_unique_l,kstest_unique_l,winp_unique_l_sample,r_unique_l_sample,kelly_unique_l_sample);
     %
     idx_s = tbl_extractedinfo.direction == -1;
     signal_s = tbl_extractedinfo.opensignal(idx_s);
     opensignal_unique_s = unique(signal_s);
+    idx_use = ~strcmpi(opensignal_unique_s,'breachdn-lvldn') & ...
+        ~strcmpi(opensignal_unique_s,'breachdn-bshighvalue') & ...
+        ~strcmpi(opensignal_unique_s,'breachdn-lowbc13');
+    opensignal_unique_s = opensignal_unique_s(idx_use,:);
+
     nsignal_s = length(opensignal_unique_s);
     ntrades_unique_s = zeros(nsignal_s,1);
     use_unique_s = zeros(nsignal_s,1);
