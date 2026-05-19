@@ -165,11 +165,23 @@ if longshort == 1
             openpx = resstruct.px(idx,5);
         end
     end
+
+    if resstruct.hh(idx) - resstruct.teeth(idx) > -ticksize
+        if resstruct.teeth(idx) > resstruct.jaw(idx)
+            tradername = 'strong';
+        else
+            tradername = 'medium';
+        end
+    else
+        tradername = 'weak';
+    end
     
     trade = cTradeOpen('id',idx,'code',code,...
         'opendatetime',opendt,...
         'openprice',openpx,'opendirection',longshort,...
         'openvolume',1);
+
+    trade.tradername_ = tradername;
     
     trade.setsignalinfo('name','fractal','extrainfo',signalinfo);
     trade.setriskmanager('name','spiderman','extrainfo',riskmanager);
@@ -299,11 +311,24 @@ elseif longshort == -1
             openpx = resstruct.px(idx,5);
         end
     end
+
+    if resstruct.ll(idx) - resstruct.teeth(idx) < ticksize
+        if resstruct.teeth(idx) < resstruct.jaw(idx)
+            tradername = 'strong';
+        else
+            tradername = 'medium';
+        end
+    else
+        tradername = 'weak';
+    end
     
     trade = cTradeOpen('id',idx,'code',code,...
         'opendatetime',opendt,...
         'openprice',openpx,'opendirection',longshort,...
         'openvolume',1);
+    
+    trade.tradername_ = tradername;
+
     trade.setsignalinfo('name','fractal','extrainfo',signalinfo);
     trade.setriskmanager('name','spiderman','extrainfo',riskmanager);
     if resstruct.bs(idx) >= 9
