@@ -37,8 +37,12 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
         closeflag = 1;
     elseif (lowp < obj.pxtarget_ && direction == -1) ||...
             (highp > obj.pxtarget_ && direction == 1)
+        if strcmpi(obj.closestr_,'3 times atr breach')
+            closeflag = 2;
+        else
 %         closeflag = 2;
-        closeflag = 0;
+            closeflag = 0;
+        end
     else
         closeflag = 0;
     end
@@ -69,7 +73,9 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
         else
             closeprice = obj.pxtarget_;
         end
-        obj.closestr_ = 'fibonacci:1.618';
+        if ~strcmpi(obj.closestr_,'3 times atr breach')
+            obj.closestr_ = 'fibonacci:1.618';
+        end
     end
 
     closetime = t;
