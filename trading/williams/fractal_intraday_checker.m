@@ -11,7 +11,7 @@ p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','t
 p.addParameter('frequency',30,@isnumeric);
 p.addParameter('useconditionalopen',1,@isnumeric);
 p.addParameter('nfractal',[],@isnumeric);
-p.addParameter('useMT5',0,@isnumeric)
+p.addParameter('useMT5',0,@isnumeric);
 
 p.parse(varargin{:});
 type = p.Results.type;
