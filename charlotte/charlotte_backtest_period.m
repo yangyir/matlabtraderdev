@@ -269,6 +269,8 @@ else
     opennotional = zeros(n,1);
     pnlrel = zeros(n,1);
     kelly = zeros(n,1);
+    tradername = cell(n,1);
+    countername = cell(n,1);
     if showlogsflag,fprintf('unwinded trades:\n');end
     for i = 1:n
         t_i = unwindedtrades.node_(i);
@@ -297,8 +299,10 @@ else
         opennotional(i) = t_i.openprice_*t_i.instrument_.contract_size;
         pnlrel(i) = closepnl(i)/opennotional(i);
         kelly(i) = t_i.opensignal_.kelly_;
+        tradername{i} = t_i.tradername_;
+        countername{i} = t_i.countername_;
     end
-    tbl2check = table(code,direction,opendatetime,openprice,closedatetime,closeprice,opensignal,closestr,closepnl,pnlrel,opennotional,kelly);
+    tbl2check = table(code,direction,opendatetime,openprice,closedatetime,closeprice,opensignal,closestr,closepnl,pnlrel,opennotional,kelly,tradername,countername);
     %
     if carriedtrades.latest_ > 0
         if showlogsflag, fprintf('carried trade:\n');end
