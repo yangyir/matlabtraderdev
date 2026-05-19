@@ -40,7 +40,9 @@ function w = kelly_w(signalStr,assetStr,signallistCell,assetlistCell,wMat,useall
         end
     end
     if idxSignal <= 0
-        error('kelly_w:invalid signal or signallist input as signal cannot be found')
+%         error('kelly_w:invalid signal or signallist input as signal cannot be found')
+        w = 0;
+        return
     end
     idxAsset = 0;
     for i = 1:n
