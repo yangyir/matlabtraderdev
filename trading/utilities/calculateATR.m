@@ -23,7 +23,8 @@ function atrvalue = calculateATR(high,low,close,period)
     end
     tr(1) = high(1)-low(1); %First bar no prev close
 
-    atrvalue = movavg(tr,'simple',period);
+    warning off;
+    [atrvalue,~] = movavg(tr,period,period,0);
 
     atrvalue(1:period-1) = NaN;
 
