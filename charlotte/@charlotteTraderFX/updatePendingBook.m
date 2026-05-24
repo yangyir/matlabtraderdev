@@ -122,6 +122,12 @@ function [] = updatePendingBook(obj,data)
                     trade_i.riskmanager_ = pendingtrade.riskmanager_;
                     trade_i.opendatetime1_ = pendingtrade.opendatetime1_; 
                 end
+                %
+                if trade_i.opendirection_ == pendingtrade.opendirection_ && ...
+                        trade_i.openprice_ == pendingtrade.openprice_
+                    trade_i.riskmanager_ = pendingtrade.riskmanager_;
+                end
+                %
             end
         end
         if strcmpi(modes{idxfound},'realtime')
