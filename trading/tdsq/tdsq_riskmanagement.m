@@ -252,6 +252,11 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 closestr = trade.riskmanager_.closestr_;
                 return
             end
+            %
+            if 2*trade.riskmanager_.tdlow_ - trade.riskmanager_.tdhigh_ -2*ticksize > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = 2*trade.riskmanager_.tdlow_ - trade.riskmanager_.tdhigh_;
+                trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
+            end
         end
         if ~isnan(trade.riskmanager_.tdhigh_) && ss(end) >= 9
             if ss(end) == 9
@@ -279,6 +284,11 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
                 closestr = trade.riskmanager_.closestr_;
                 return
+            end
+            %
+            if 2*trade.riskmanager_.tdlow_ - trade.riskmanager_.tdhigh_ -2*ticksize > trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = 2*trade.riskmanager_.tdlow_ - trade.riskmanager_.tdhigh_;
+                trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
             end
         end
     elseif direction == -1
@@ -460,6 +470,12 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 closestr = trade.riskmanager_.closestr_;
                 return
             end
+            %
+            if 2*trade.riskmanager_.tdhigh_ -trade.riskmanager_.tdlow_ + 2*ticksize < trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = 2*trade.riskmanager_.tdhigh_ - trade.riskmanager_.tdlow_;
+                trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
+            end
+            %
         end
         if ~isnan(trade.riskmanager_.tdlow_) && bs(end)>=9
             if bs(end) == 9
@@ -487,6 +503,11 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
                 closestr = trade.riskmanager_.closestr_;
                 return
+            end
+            %
+            if 2*trade.riskmanager_.tdhigh_ -trade.riskmanager_.tdlow_ + 2*ticksize < trade.riskmanager_.pxstoploss_
+                trade.riskmanager_.pxstoploss_ = 2*trade.riskmanager_.tdhigh_ - trade.riskmanager_.tdlow_;
+                trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
             end
         end
 
