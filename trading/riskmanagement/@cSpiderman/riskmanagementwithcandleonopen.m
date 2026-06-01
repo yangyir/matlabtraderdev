@@ -123,6 +123,17 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     
     if lflag && breachupfailed
         %
+        if strcmpi(trade.riskmanager_.closestr_,'conditional:atr')
+            if ei.p(end,4) < trade.riskmanager_.pxstoploss_
+                unwindflag = true;
+                msg = 'condtional uptrendconfirmed failed:atr';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                trade.closeprice_ = trade.riskmanager_.pxstoploss_;
+                return;
+            end
+        end
+        %
         if ei.sc(end) == 13
             exceptionflag = (strcmpi(val,'conditional-uptrendconfirmed-1') && ei.p(end,5) > ei.lvlup(end)) || ...
                 (shadowlineratio < 0.618 && ei.p(end,5) > ei.p(end,2));
@@ -491,6 +502,17 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     end
     
     if sflag && breachdnfailed
+        %
+        if strcmpi(trade.riskmanager_.closestr_,'conditional:atr')
+            if ei.p(end,3) > trade.riskmanager_.pxstoploss_
+                unwindflag = true;
+                msg = 'condtional uptrendconfirmed failed:atr';
+                obj.status_ = 'closed';
+                obj.closestr_ = msg;
+                trade.closeprice_ = trade.riskmanager_.pxstoploss_;
+                return;
+            end
+        end
         %
         if fractalupdate
             if ~isnan(obj.tdhigh_)
