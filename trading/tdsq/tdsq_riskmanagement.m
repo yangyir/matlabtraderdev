@@ -238,6 +238,12 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     closestr = trade.riskmanager_.closestr_;
                 end
             end
+            wick = calcwick(extrainfo.p(end,2),extrainfo.p(end,3),extrainfo.p(end,4),extrainfo.p(end,5));
+            if wick > 0.7
+                trade.riskmanager_.pxstoploss_ = extrainfo.p(end,4);
+                trade.riskmanager_.closestr_ = 'tdsq:sc13break';
+                closestr = trade.riskmanager_.closestr_;
+            end
         end
         %
         if ss(end) >= 9 && isnan(trade.riskmanager_.tdhigh_)
@@ -455,6 +461,12 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                     trade.riskmanager_.closestr_ = 'tdsq:bc13break';
                     closestr = trade.riskmanager_.closestr_;
                 end
+            end
+            wick = calcwick(extrainfo.p(end,2),extrainfo.p(end,3),extrainfo.p(end,4),extrainfo.p(end,5));
+            if wick > 0.7
+                trade.riskmanager_.pxstoploss_ = extrainfo.p(end,3);
+                trade.riskmanager_.closestr_ = 'tdsq:bc13break';
+                closestr = trade.riskmanager_.closestr_;
             end
         end
         %
