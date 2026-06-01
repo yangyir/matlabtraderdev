@@ -125,11 +125,15 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
                     trade.closeprice_ = extrainfo.latestopen;
                 else
                     trade.closedatetime1_ = extrainfo.p(end,1);
-                    trade.closeprice_ = extrainfo.p(end,5);
+                    if isempty(trade.closeprice_)
+                        trade.closeprice_ = extrainfo.p(end,5);
+                    end
                 end
             else
                 trade.closedatetime1_ = extrainfo.p(end,1);
-                trade.closeprice_ = extrainfo.p(end,5);
+                if isempty(trade.closeprice_)
+                    trade.closeprice_ = extrainfo.p(end,5);
+                end
             end
             volume = trade.openvolume_;
             obj.status_ = 'closed';
