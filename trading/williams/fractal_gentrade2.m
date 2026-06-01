@@ -375,6 +375,12 @@ elseif condsignal.directionkellied == 1
             end
         end
         %
+%         atr = calculateATR(ei_.px(:,3),ei_.px(:,4),ei_.px(:,5));
+%         if trade.openprice_ - 1.5*atr(end) > trade.riskmanager_.pxstoploss_
+%             trade.riskmanager_.pxstoploss_ = floor((trade.openprice_ - 1.5*atr(end))/fut.tick_size)*fut.tick_size;
+%             trade.riskmanager_.closestr_ = 'conditional:atr';
+%         end
+        %
         if resstruct.teeth(idx-1) > trade.riskmanager_.pxstoploss_
             trade.riskmanager_.pxstoploss_ = floor(resstruct.teeth(idx-1)/fut.tick_size)*fut.tick_size;
             trade.riskmanager_.closestr_ = 'fractal:teeth';
@@ -586,6 +592,12 @@ elseif condsignal.directionkellied == -1
                 trade.riskmanager_.closestr_ = 'tdsq:bc13break';
             end
         end
+        %
+%         atr = calculateATR(ei_.px(:,3),ei_.px(:,4),ei_.px(:,5));
+%         if trade.openprice_ + 1.5*atr(end) < trade.riskmanager_.pxstoploss_
+%             trade.riskmanager_.pxstoploss_ = floor((trade.openprice_ + 1.5*atr(end))/fut.tick_size)*fut.tick_size;
+%             trade.riskmanager_.closestr_ = 'conditional:atr';
+%         end
         %
         if resstruct.teeth(idx) < trade.riskmanager_.pxstoploss_
             trade.riskmanager_.pxstoploss_ = ceil(resstruct.teeth(idx)/fut.tick_size)*fut.tick_size;
