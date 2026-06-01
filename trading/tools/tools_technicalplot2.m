@@ -32,7 +32,10 @@ end
 if nargin < 6
     extraindicatorname = 'none';
 else
-    if ~(strcmpi(extraindicatorname,'rsi') || strcmpi(extraindicatorname,'macd') || strcmpi(extraindicatorname,'none'))
+    if ~(strcmpi(extraindicatorname,'rsi') || ...
+            strcmpi(extraindicatorname,'macd') || ...
+            strcmpi(extraindicatorname,'adx') || ...
+            strcmpi(extraindicatorname,'none'))
         error('tools_technicalplot2:invalid extraindicatorname input')
     end
 end
@@ -53,14 +56,14 @@ if strcmpi(extraindicatorname,'none')
     stairs(LL,'g--');
     stairs(lvlup,'color',[0.75 0 0],'linewidth',1.5);
     stairs(lvldn,'color',[0 0.75 0],'linewidth',1.5);
-    for i = 1:length(px)
+    for i = 1:size(px,1)
         if bs(i) == 9
             for k = 1:9
                 if i-1+2-k < 1, continue;end
                 text(i-1+2-k,px(i+1-k,4)-shift,num2str(bs(i+1-k) ),'color','r','fontweight','bold','fontsize',7);
             end
             %add more points beyond bs = 9
-            if i < length(px)
+            if i < size(px,1)
                 k = i+1;
                 bs_k = bs(k,1);
                 while bs_k ~= 0 && k < length(px)
@@ -75,7 +78,7 @@ if strcmpi(extraindicatorname,'none')
                 if i-1+2-k < 1, continue;end
                 text(i-1+2-k,px(i+1-k,3)+shift,num2str(ss(i+1-k) ),'color','g','fontweight','bold','fontsize',7);
             end
-            if i < length(px)
+            if i < size(px,1)
                 k = i+1;
                 ss_k = ss(k,1);
                 while ss_k ~= 0 && k < length(px)
@@ -95,9 +98,9 @@ if strcmpi(extraindicatorname,'none')
         end
     end
     
-    if bs(length(px)) ~= 0
-        i = length(px);
-        for k = 1:bs(length(px))
+    if bs(size(px,1)) ~= 0
+        i = size(px,1);
+        for k = 1:bs(size(px,1))
             if i-k+1 <= 0, continue;end
             if bs(i-k+1) ~= 0
                 text(i-1+2-k,px(i+1-k,4)-shift,num2str(bs(i+1-k) ),'color','r','fontweight','bold','fontsize',7);
@@ -107,9 +110,9 @@ if strcmpi(extraindicatorname,'none')
         end
     end
     
-    if ss(length(px)) ~= 0
-        i = length(px);
-        for k = 1:ss(length(px))
+    if ss(size(px,1)) ~= 0
+        i = size(px,1);
+        for k = 1:ss(size(px,1))
             if i-k+1 <= 0, continue;end
             if ss(i-k+1) ~= 0
                 text(i-1+2-k,px(i+1-k,3)+shift,num2str(ss(i+1-k) ),'color','g','fontweight','bold','fontsize',7);
@@ -129,6 +132,7 @@ if strcmpi(extraindicatorname,'none')
         xticklabel = cell(nxtick,1);
         for i = 1:nxtick
             if xtick(i) > size(px,1), continue;end
+            if xtick(i) < 1, continue;end
             if xtick(i) == 0
                 xticklabel{i} = datestr(px(1,1),'dd-mmm-yy');
             else
@@ -138,7 +142,7 @@ if strcmpi(extraindicatorname,'none')
         set(gca,'XTickLabel',xticklabel,'fontsize',8);
     end
 else
-    subplot(211);
+    ax1 = subplot(211);
     if strcmpi(version('-release'),'2014a')
         candle(px(:,3),px(:,4),px(:,5),px(:,2),[0.75,0.75,0.75]);hold on;
     else
@@ -239,30 +243,45 @@ else
         set(gca,'XTickLabel',xticklabel,'fontsize',8);
     end
     %
-    subplot(212);
-    idx = find(extraindicatorval(:,1) >= px(1,1),1,'first');
-    plot(extraindicatorval(idx:end,2),'b');
-    hold on;
-    stairs(20*ones(size(px)),'r-*');
-    stairs(80*ones(size(px)),'r-*');
-    hold off;
+    ax2 = subplot(212);
+    if strcmpi(extraindicatorname,'adx')
+        idx1 = find(extraindicatorval(:,1) >= px(1,1),1,'first');
+        idx2 = find(extraindicatorval(:,1) <= px(end,1),1,'last');
+        plot(extraindicatorval(idx1:idx2,2),'b');
+        set(gca,'XTick',xtick);
+        hold on;
+        plot(extraindicatorval(idx1:idx2,3),'r');
+        plot(extraindicatorval(idx1:idx2,4),'g');
+        legend('ADX','DI+','DI-');
+        hold off;
+    else
+        idx = find(extraindicatorval(:,1) >= px(1,1),1,'first');
+        plot(extraindicatorval(idx:end,2),'b');
+        hold on;
+        stairs(20*ones(size(px)),'r-*');
+        stairs(80*ones(size(px)),'r-*');
+        hold off;
+    end
     
     if nargin >= 3, title(upper(extraindicatorname));end
     
     if nargin >= 4 && usedatelabel
-        xtick = get(gca,'XTick');
-        nxtick = length(xtick);
-        xticklabel = cell(nxtick,1);
-        for i = 1:nxtick
-            if xtick(i) > size(px,1), continue;end
-            if xtick(i) == 0
-                xticklabel{i} = datestr(px(1,1),'dd-mmm-yy');
-            else
-                xticklabel{i}= datestr(px(xtick(i),1),'dd-mmm-yy');
-            end
-        end
+%         xtick = get(gca,'XTick');
+%         nxtick = length(xtick);
+%         xticklabel = cell(nxtick,1);
+%         for i = 1:nxtick
+%             if xtick(i) > size(px,1), continue;end
+%             if xtick(i) == 0
+%                 xticklabel{i} = datestr(px(1,1),'dd-mmm-yy');
+%             else
+%                 xticklabel{i}= datestr(px(xtick(i),1),'dd-mmm-yy');
+%             end
+%         end
+        
         set(gca,'XTickLabel',xticklabel,'fontsize',8);
     end
+     
+    linkaxes([ax1,ax2],'x');
     
     
     
