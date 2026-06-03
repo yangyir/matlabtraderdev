@@ -18,7 +18,9 @@ function [ret] = mt5_dataupdate(code,fileappendix)
     elseif contains(upper(fileappendix),'M15')
         matfilename = [upper(code),'_MT5_M15.mat'];
     elseif contains(upper(fileappendix),'M30')
-        matfilename = [upper(code),'_MT5_M30.mat'];    
+        matfilename = [upper(code),'_MT5_M30.mat'];
+    elseif contains(upper(fileappendix),'D1')
+        matfilename = [upper(code),'_MT5_D1.mat'];
     else
         ret = 0;
         return;
@@ -29,18 +31,25 @@ function [ret] = mt5_dataupdate(code,fileappendix)
         nnew = size(csvtable,1);
         matdatanew = zeros(nnew,6);
         matdatanew(:,1) = datenum(csvtable.Var1,'yyyy.mm.dd');
-        matdatanew(:,2) = csvtable.Var3;
-        matdatanew(:,3) = csvtable.Var4;
-        matdatanew(:,4) = csvtable.Var5;
-        matdatanew(:,5) = csvtable.Var6;
-        matdatanew(:,6) = csvtable.Var7;
-        for i = 1:nnew
-            intradaydtstr = char(csvtable.Var2(i));
-            hhstr = intradaydtstr(1:2);
-            mmstr = intradaydtstr(4:5);
-            matdatanew(i,1) = matdatanew(i,1) +(str2double(hhstr)*60+str2double(mmstr))/1440;
+        if contains(upper(fileappendix),'D1')
+            matdatanew(:,2) = csvtable.Var2;
+            matdatanew(:,3) = csvtable.Var3;
+            matdatanew(:,4) = csvtable.Var4;
+            matdatanew(:,5) = csvtable.Var5;
+            matdatanew(:,6) = csvtable.Var6;
+        else
+            matdatanew(:,2) = csvtable.Var3;
+            matdatanew(:,3) = csvtable.Var4;
+            matdatanew(:,4) = csvtable.Var5;
+            matdatanew(:,5) = csvtable.Var6;
+            matdatanew(:,6) = csvtable.Var7;
+            for i = 1:nnew
+                intradaydtstr = char(csvtable.Var2(i));
+                hhstr = intradaydtstr(1:2);
+                mmstr = intradaydtstr(4:5);
+                matdatanew(i,1) = matdatanew(i,1) +(str2double(hhstr)*60+str2double(mmstr))/1440;
+            end
         end
-
     catch
         matdatanew = [];
     end
@@ -57,6 +66,8 @@ function [ret] = mt5_dataupdate(code,fileappendix)
             matdataexisting = data.datamatm15;
         elseif contains(upper(fileappendix),'M30')
             matdataexisting = data.datamatm30;
+        elseif contains(upper(fileappendix),'D1')
+            matdataexisting = data.datamatd1;
         end
     catch
         matdataexisting = [];
@@ -97,6 +108,10 @@ function [ret] = mt5_dataupdate(code,fileappendix)
     elseif contains(upper(fileappendix),'M30')
         datamatm30 = data;
         save([foldername,matfilename],"datamatm30");
+        ret = 1;
+    elseif contains(upper(fileappendix),'D1')
+        datamatd1 = data;
+        save([foldername,matfilename],"datamatd1");
         ret = 1;
     end
 
