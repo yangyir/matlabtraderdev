@@ -1,4 +1,4 @@
-function atrvalue = calculateATR(high,low,close,period)
+function [atrvalue,tr] = calculateATR(highpx,lowpx,closepx,period)
     %inputs: high/low/close as vectors (same length), period = 14 as
     %default
     %output: ATR vector (NaN first period-1 bars)
@@ -7,21 +7,23 @@ function atrvalue = calculateATR(high,low,close,period)
         period = 14;
     end
 
-    n = length(high);
-    if n ~= length(low) || n ~= length(close)
+    n = length(highpx);
+    if n ~= length(lowpx) || n ~= length(closepx)
         error('calculateATR:different lengths of high,low and close...')
     end
 
     
     %True range calculation
-    tr = zeros(n,1);
-    for i = 2:n
-        tr1 = high(i) - low(i);
-        tr2 = abs(high(i) - close(i-1));
-        tr3 = abs(low(i) - close(i-1));
-        tr(i) = max([tr1,tr2,tr3]);
-    end
-    tr(1) = high(1)-low(1); %First bar no prev close
+%     tr = zeros(n,1);
+%     for i = 2:n
+%         tr1 = highpx(i) - lowpx(i);
+%         tr2 = abs(highpx(i) - closepx(i-1));
+%         tr3 = abs(lowpx(i) - closepx(i-1));
+%         tr(i) = max([tr1,tr2,tr3]);
+%     end
+%     tr(1) = highpx(1)-lowpx(1); %First bar no prev close
+    prevClosepx = [closepx(1);closepx(1:end-1)];
+    tr = max([highpx-lowpx,abs(highpx-prevClosepx),abs(lowpx-prevClosepx)],[],2);
     
     try
         atrvalue = movavg(tr,'simple',period);

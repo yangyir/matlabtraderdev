@@ -121,8 +121,12 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if unwindflag
             if ~runriskmanagementbeforemktclose
                 if ~isfx(trade.code_)
-                    trade.closedatetime1_ = extrainfo.latestdt;
-                    trade.closeprice_ = extrainfo.latestopen;
+                    if isempty(trade.closeprice_)
+                        trade.closedatetime1_ = extrainfo.latestdt;
+                        trade.closeprice_ = extrainfo.latestopen;
+                    else
+                        trade.closedatetime1_ = extrainfo.p(end,1);
+                    end
                 else
                     trade.closedatetime1_ = extrainfo.p(end,1);
                     if isempty(trade.closeprice_)

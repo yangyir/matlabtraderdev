@@ -20,6 +20,7 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
     if ~(strcmpi(level,'weak') || strcmpi(level,'medium') || strcmpi(level,'strong'))
         error('fractal_isbreachb:invalid level input')
     end
+    BUZZ__ = 1e-6;
     if isempty(instrument)
         ticksize = 0;
     else
@@ -42,6 +43,18 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
                 ticksize = 1e-3;
             elseif strcmpi(instrument,'gzhy')
                 ticksize = 0.0025;
+            elseif strcmpi(instrument,'AD') || strcmpi(instrument,'EC') || strcmpi(instrument,'BP') || ...
+                    strcmpi(instrument,'CD') || strcmpi(instrument,'SF')
+                ticksize = 0.00005;
+            elseif strcmpi(instrument,'JY')
+                ticksize = 0.0000005;
+                BUZZ__ = 1e-8;
+            elseif strcmpi(instrument,'GC')
+                ticksize = 0.1;
+            elseif strcmpi(instrument,'SI')
+                ticksize = 0.005;
+            elseif strcmpi(instrument,'NQ') || strcmpi(instrument,'ES')
+                ticksize = 0.25;    
             else
                 ticksize = 0;
             end
@@ -58,9 +71,9 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
 %                 px(2:end,3)>lips(2:end) &...
 %                 ~isnan(lips(1:end-1)) & ~isnan(teeth(1:end-1)) & ~isnan(jaw(1:end-1));
             flag = px(1:end-1,5) < HH(1:end-1) & ...
-                px(2:end,5)-HH(1:end-1)-ticksizeratio*ticksize >= -1e-6 &...
+                px(2:end,5)-HH(1:end-1)-ticksizeratio*ticksize >= -BUZZ__ &...
                 px(2:end,3)>lips(2:end) &...
-                abs(HH(2:end) - HH(1:end-1)) - ticksize <= -1e-6 & ...
+                abs(HH(2:end) - HH(1:end-1)) - ticksize <= -BUZZ__ & ...
                 ~isnan(lips(1:end-1)) & ~isnan(teeth(1:end-1)) & ~isnan(jaw(1:end-1));
         else
 %             flag = px(1:end-1,5) <= HH(1:end-1) & ...
@@ -69,8 +82,8 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
 %                 px(2:end,3)>lips(2:end) &...
 %                 ~isnan(lips(1:end-1)) & ~isnan(teeth(1:end-1)) & ~isnan(jaw(1:end-1));
             flag = px(1:end-1,5) <= HH(1:end-1) & ...
-                px(2:end,5)-HH(1:end-1)-ticksizeratio*ticksize >= -1e-6 &...
-                abs(HH(2:end) - HH(1:end-1)) - ticksize <= -1e-6 & ...
+                px(2:end,5)-HH(1:end-1)-ticksizeratio*ticksize >= -BUZZ__ &...
+                abs(HH(2:end) - HH(1:end-1)) - ticksize <= -BUZZ__ & ...
                 px(2:end,3)>lips(2:end) &...
                 ~isnan(lips(1:end-1)) & ~isnan(teeth(1:end-1)) & ~isnan(jaw(1:end-1));
         end
@@ -93,7 +106,7 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
     if strcmpi(level,'medium')
         %in the medium level we require an additional condition,i.e.
         %HH shall above alligator's teeth
-        flag = flag & (HH(2:end) - teeth(2:end) - ticksizeratio*ticksize >= -1e-6);
+        flag = flag & (HH(2:end) - teeth(2:end) - ticksizeratio*ticksize >= -BUZZ__);
         flag = [0;flag];
         return
     end
@@ -101,7 +114,7 @@ function flag = fractal_isbreachb(px,HH,LL,jaw,teeth,lips,varargin)
     if strcmpi(level,'strong')
         %in the strong level we require alligator's teeth is above
         %alligator's jaw
-        flag = flag & (HH(2:end) - teeth(2:end) - ticksizeratio*ticksize >= -1e-6) & ...
+        flag = flag & (HH(2:end) - teeth(2:end) - ticksizeratio*ticksize >= -BUZZ__) & ...
             teeth(2:end) > jaw(2:end);
         flag = [0;flag];
         return

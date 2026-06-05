@@ -123,6 +123,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     
     if lflag && breachupfailed
         %
+        [atrvalue,tr] = calculateATR(ei.p(:,3),ei.p(:,4),ei.p(:,5));
+        if tr(end) > norminv(0.99)*atrvalue(end)
+            unwindflag = true;
+            msg = 'condtional uptrendconfirmed failed:tr significantly exceed atr';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            trade.closeprice_ = trade.riskmanager_.pxstoploss_;
+            return;
+        end
+        
         if strcmpi(trade.riskmanager_.closestr_,'conditional:atr')
             if ei.p(end,4) < trade.riskmanager_.pxstoploss_
                 unwindflag = true;
@@ -149,11 +159,13 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
         if fractalupdate
             exceptionflag = strcmpi(val,'conditional-uptrendconfirmed-1') && ei.p(end,3) > ei.lvlup(end);
             if ~exceptionflag
-                unwindflag = true;
-                msg = 'conditional uptrendconfirmed failed:fractalhhupdate';
-                obj.status_ = 'closed';
-                obj.closestr_ = msg;
-                return
+                if isempty(obj.tdhigh_)
+                    unwindflag = true;
+                    msg = 'conditional uptrendconfirmed failed:fractalhhupdate';
+                    obj.status_ = 'closed';
+                    obj.closestr_ = msg;
+                    return
+                end
             end
         end
         %        
@@ -223,7 +235,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     exceptionflag = (ei.p(end,4) > ei.p(end-1,4) & shadowlineratio <= 0.75) | ...
                         (ei.p(end,4) > ei.p(end-1,4) & ei.p(end,5) > ei.p(end-1,3) & shadowlineratio <= 0.85) | ...
                         (ei.p(end,4) > ei.p(end-1,4) & ei.p(end-1,3) > ei.hh(end-2) & ei.p(end-1,5) <= ei.hh(end-2) & ei.hh(end-1) >= ei.hh(end-2)) | ...
-                        (strcmpi(val,'conditional-uptrendconfirmed-1') & ei.p(end,3) > ei.lvlup(end)) | ...
+                        (strcmpi(val,'conditional-uptrendconfirmed-1') & ei.p(end,3) > ei.lvlup(end) & shadowlineratio <= 0.85) | ...
                         (ei.p(end,5) > ei.lvlup(end-1) & ei.p(end-1,5) < ei.lvlup(end-1)) | ...
                         ((~isnan(obj.tdlow_) | ~isnan(obj.td13low_)) & shadowlineratio <= 0.88);
                     if ~exceptionflag
@@ -502,6 +514,16 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     end
     
     if sflag && breachdnfailed
+        %
+        [atrvalue,tr] = calculateATR(ei.p(:,3),ei.p(:,4),ei.p(:,5));
+        if tr(end) > norminv(0.99)*atrvalue(end)
+            unwindflag = true;
+            msg = 'condtional uptrendconfirmed failed:tr signficantly exceed atr';
+            obj.status_ = 'closed';
+            obj.closestr_ = msg;
+            trade.closeprice_ = trade.riskmanager_.pxstoploss_;
+            return;
+        end
         %
         if strcmpi(trade.riskmanager_.closestr_,'conditional:atr')
             if ei.p(end,3) > trade.riskmanager_.pxstoploss_

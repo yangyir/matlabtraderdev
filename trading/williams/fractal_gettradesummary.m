@@ -22,6 +22,17 @@ else
                 strcmpi(code,'usdcad') || strcmpi(code,'usdchf') || strcmpi(code,'eurchf') || ...
                 strcmpi(code,'gbpeur') || strcmpi(code,'usdcnh')
         ticksize = 0.00001;%1bp
+    elseif strcmpi(code,'AD') || strcmpi(code,'EC') || strcmpi(code,'BP') || ...
+            strcmpi(code,'CD') || strcmpi(code,'SF')
+        ticksize = 0.00005;
+    elseif strcmpi(code,'JY')
+        ticksize = 0.0000005;
+    elseif strcmpi(code,'GC')
+        ticksize = 0.1;
+    elseif strcmpi(code,'SI')
+        ticksize = 0.005;
+    elseif strcmpi(code,'NQ') || strcmpi(code,'ES')
+        ticksize = 0.25;      
     else
         try
             fut = code2instrument(code);

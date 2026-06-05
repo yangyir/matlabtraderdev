@@ -96,6 +96,21 @@ else
             end
 
         end
+    elseif strcmpi(code,'AD') || strcmpi(code,'EC') || strcmpi(code,'BP') || ...
+        strcmpi(code,'CD') || strcmpi(code,'SF') || strcmpi(code,'JY') || strcmpi(code,'NE') || ...
+        strcmpi(code,'GC') || strcmpi(code,'SI') || ...
+        strcmpi(code,'NQ') || strcmpi(code,'ES')
+        if freq == 15
+            fn = [getenv('onedrive'),'\mt5\futuresfx\',upper(code),'_MT5_M15.mat'];
+        elseif freq == 30
+            fn = [getenv('onedrive'),'\mt5\futuresfx\',upper(code),'_MT5_M30.mat'];
+        elseif freq == 60
+            fn = [getenv('onedrive'),'\mt5\futuresfx\',upper(code),'_MT5_H1.mat'];
+        elseif freq == 240
+            fn = [getenv('onedrive'),'\mt5\futuresfx\',upper(code),'_MT5_H4.mat'];
+        end
+        data = load(fn);
+        cp = data.data;
     else
         instrument = code2instrument(code);
         assetinfo = getassetinfo(instrument.asset_name);

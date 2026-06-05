@@ -41,7 +41,8 @@ la_l(2) = output_l_2.lossavg;
 %
 %breachup-lvlup
 idx_l_3 = inputtable.direction == 1 & ...
-    (strcmpi(inputtable.opensignal,'breachup-lvlup') | strcmpi(inputtable.opensignal,'conditional-uptrendconfirmed-1'));
+    (strcmpi(inputtable.opensignal,'breachup-lvlup') | strcmpi(inputtable.opensignal,'conditional-uptrendconfirmed-1')) & ...
+    strcmpi(inputtable.countername,'tc');
 output_l_3 = kellyratio2(inputtable.pnlrel(idx_l_3,:));
 n_l(3) = output_l_3.n;
 p_l(3) = output_l_3.w;
@@ -54,7 +55,8 @@ la_l(3) = output_l_3.lossavg;
 %
 %breachup-sshighvalue
 idx_l_4 = inputtable.direction == 1 & ...
-    (strcmpi(inputtable.opensignal,'breachup-sshighvalue') | strcmpi(inputtable.opensignal,'conditional-uptrendconfirmed-2'));
+    (strcmpi(inputtable.opensignal,'breachup-sshighvalue') | strcmpi(inputtable.opensignal,'conditional-uptrendconfirmed-2')) & ...
+    strcmpi(inputtable.countername,'tc');
 output_l_4 = kellyratio2(inputtable.pnlrel(idx_l_4,:));
 n_l(4) = output_l_4.n;
 p_l(4) = output_l_4.w;
@@ -120,7 +122,8 @@ la_s(2) = output_s_2.lossavg;
 %
 %breachdn-lvldn
 idx_s_3 = inputtable.direction == -1 & ...
-    (strcmpi(inputtable.opensignal,'breachdn-lvldn') | strcmpi(inputtable.opensignal,'conditional-dntrendconfirmed-1'));
+    (strcmpi(inputtable.opensignal,'breachdn-lvldn') | strcmpi(inputtable.opensignal,'conditional-dntrendconfirmed-1')) & ...
+    strcmpi(inputtable.countername,'tc');
 output_s_3 = kellyratio2(inputtable.pnlrel(idx_s_3,:));
 n_s(3) = output_s_3.n;
 p_s(3) = output_s_3.w;
@@ -133,7 +136,8 @@ la_s(3) = output_s_3.lossavg;
 %
 %breachdn-bshighvalue
 idx_s_4 = inputtable.direction == -1 & ...
-    (strcmpi(inputtable.opensignal,'breachdn-bshighvalue') | strcmpi(inputtable.opensignal,'conditional-dntrendconfirmed-2'));
+    (strcmpi(inputtable.opensignal,'breachdn-bshighvalue') | strcmpi(inputtable.opensignal,'conditional-dntrendconfirmed-2')) & ...
+    strcmpi(inputtable.countername,'tc');
 output_s_4 = kellyratio2(inputtable.pnlrel(idx_s_4,:));
 n_s(4) = output_s_4.n;
 p_s(4) = output_s_4.w;

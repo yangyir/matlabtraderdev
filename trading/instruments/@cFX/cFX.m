@@ -56,6 +56,61 @@ classdef cFX < cInstrument
                     end
                     obj.code_ctp = lower(codestr);
                     obj.asset_name = upper(obj.code_ctp);
+                elseif strcmpi(codestr,'AD')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'AD';
+                    obj.exchange = 'CME';
+                elseif strcmpi(codestr,'EC')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'EC';
+                    obj.exchange = 'CME';
+                elseif strcmpi(codestr,'BP')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'BP';
+                    obj.exchange = 'CME';
+                elseif strcmpi(codestr,'CD')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'CD';
+                    obj.exchange = 'CME';
+                elseif strcmpi(codestr,'SF')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'SF';
+                    obj.exchange = 'CME';
+                elseif strcmpi(codestr,'JY')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'JY';
+                    obj.exchange = 'CME';
+                elseif strcmpi(codestr,'NE')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'NE';
+                    obj.exchange = 'CME';
+                elseif strcmpi(codestr,'GC')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'GC';
+                    obj.exchange = 'COMEX';
+                elseif strcmpi(codestr,'SI')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'SI';
+                    obj.exchange = 'COMEX';
+                elseif strcmpi(codestr,'NQ')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'NQ';
+                    obj.exchange = 'CME';
+                elseif strcmpi(codestr,'ES')
+                    obj.code_wind = 'n/a';
+                    obj.code_ctp = lower(codestr);
+                    obj.asset_name = 'ES';
+                    obj.exchange = 'CME';
                 else
                     obj.code_wind = [upper(codestr),'.FX'];
                     obj.code_ctp = lower(codestr);
@@ -91,6 +146,31 @@ classdef cFX < cInstrument
                 obj.contract_size = 100;
                 obj.tick_size = 0.01;
                 obj.tick_value = 1;
+            elseif strcmpi(codestr,'AD') || strcmpi(codestr,'EC') || strcmpi(codestr,'BP') || ...
+                    strcmpi(codestr,'CD') || strcmpi(codestr,'SF') || strcmpi(codestr,'NE')
+                obj.contract_size = 100000;
+                obj.tick_size = 0.00005;
+                obj.tick_value = 5;
+            elseif strcmpi(codestr,'JY')
+                obj.contract_size = 12500000;
+                obj.tick_size = 0.0000005;
+                obj.tick_value = 6.25;
+            elseif strcmpi(codestr,'GC')
+                obj.contract_size = 100;
+                obj.tick_size = 0.1;
+                obj.tick_value = 10;
+            elseif strcmpi(codestr,'SI')
+                obj.contract_size = 5000;
+                obj.tick_size = 0.005;
+                obj.tick_value = 25;
+            elseif strcmpi(codestr,'NQ')
+                obj.contract_size = 20;
+                obj.tick_size = 0.25;
+                obj.tick_value = 5;
+            elseif strcmpi(codestr,'ES')
+                obj.contract_size = 50;
+                obj.tick_size = 0.25;
+                obj.tick_value = 12.5;            
             end
         end
         %end of constructor

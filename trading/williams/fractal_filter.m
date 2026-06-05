@@ -90,6 +90,22 @@ for i = 1:n
         elseif strcmpi(codes{i},'usdx')
             instrument = codes{i};
             ticksize = 0.001;
+        elseif strcmpi(codes{i},'AD') || strcmpi(codes{i},'EC') || strcmpi(codes{i},'BP') || ...
+            strcmpi(codes{i},'CD') || strcmpi(codes{i},'SF')
+            instrument = codes{i};
+            ticksize = 0.00005;
+        elseif strcmpi(codes{i},'JY')
+            instrument = codes{i};
+            ticksize = 0.0000005;
+        elseif strcmpi(codes{i},'GC')
+            instrument = codes{i};
+            ticksize = 0.1;
+        elseif strcmpi(codes{i},'SI')
+            instrument = codes{i};
+            ticksize = 0.005;
+        elseif strcmpi(codes{i},'NQ') || strcmpi(codes{i},'ES')
+            instrument = codes{i};
+            ticksize = 0.25;    
         else
             try
                 instrument = code2instrument(codes{i});

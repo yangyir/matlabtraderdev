@@ -39,7 +39,15 @@ end
 %islvldnbreach = 3 indicates that the latest TDST buy sequential has
 %beached dn lvldn
 islvldnbreach = 0;
-if px(end,5)<=lvldn(end) && px(end-1,5)>lvldn(end)
+if px(end,5)<lvldn(end) && px(end-1,5)>=lvldn(end) && LL(end)<=lvldn(end)
+    if px(end-1,5) > lvldn(end)
+        islvldnbreach = 1;
+    elseif px(end-1,5) > lvldn(end) - ticksize
+        islvldnbreach = 1;
+    elseif px(end-1,5) < lvldn(end) && px(end-1,5) == lvldn(end)-ticksize
+        islvldnbreach = 0;
+    end
+elseif px(end,5)==lvldn(end) && px(end-1,5)>lvldn(end) && LL(end)<=lvldn(end)
     islvldnbreach = 1;
 end
 % 20230517:case 2 and case 3 may be removed

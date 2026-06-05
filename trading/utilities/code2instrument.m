@@ -14,6 +14,11 @@ function instrument = code2instrument(codestr)
         catch
             if isfx(codestr)
                 instrument = cFX(codestr);
+            elseif strcmpi(codestr,'AD') || strcmpi(codestr,'EC') || strcmpi(codestr,'BP') || ...
+                    strcmpi(codestr,'CD') || strcmpi(codestr,'SF') || strcmpi(codestr,'JY') || strcmpi(codestr,'NE') || ...
+                    strcmpi(codestr,'GC') || strcmpi(codestr,'SI') || ...
+                    strcmpi(codestr,'NQ') || strcmpi(codestr,'ES')
+                instrument = cFX(codestr);
             else
                 instrument = cStock(codestr);
             end

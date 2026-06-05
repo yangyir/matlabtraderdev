@@ -40,7 +40,7 @@ end
 %islvlupbreach = 3 indicates that the latest TDST sell sequential has
 %breached up lvlup;
 islvlupbreach = 0;
-if px(end,5)> lvlup(end) && px(end-1,5)<=lvlup(end)+ticksize
+if px(end,5)> lvlup(end) && px(end-1,5)<=lvlup(end)+ticksize && HH(end)>=lvlup(end)
     if px(end-1,5) < lvlup(end)
         islvlupbreach = 1;
     elseif px(end-1,5) < lvlup(end) + ticksize
@@ -48,18 +48,18 @@ if px(end,5)> lvlup(end) && px(end-1,5)<=lvlup(end)+ticksize
     elseif px(end-1,5) > lvlup(end) && px(end-1,5) == lvlup(end)+ticksize
         islvlupbreach = 0;
     end
-elseif px(end,5)==lvlup(end) && px(end-1,5)<lvlup(end)
+elseif px(end,5)==lvlup(end) && px(end-1,5)<lvlup(end) && HH(end)>=lvlup(end)
     islvlupbreach = 1;
 end
 % 20230517:case 2 and case 3 may be removed
 % if ~islvlupbreach && (px(end,5)>=lvlup(end) && px(end,4)<lvlup(end))
 %     islvlupbreach = 2;
 % end
-if ~islvlupbreach && ss(end) <= 5 && px(end,5) >= lvlup(end)
-    if  ~isempty(find(px(end-ss(end)+1:end,5)-lvlup(end)+ticksize<0,1,'first'))
-        islvlupbreach = 3;
-    end
-end
+% if ~islvlupbreach && ss(end) <= 5 && px(end,5) >= lvlup(end) && HH(end)>=lvlup(end)
+%     if  ~isempty(find(px(end-ss(end)+1:end,5)-lvlup(end)+ticksize<0,1,'first'))
+%         islvlupbreach = 3;
+%     end
+% end
 
 %isclose2lvlup
 isclose2lvlup = ~isnan(lvlup(end)) && ~isnan(lvldn(end)) && ...
