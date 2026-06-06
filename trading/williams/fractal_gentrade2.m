@@ -324,7 +324,7 @@ elseif condsignal.directionkellied == 1
             'opendirection',1,...
             'openvolume',1);
         if resstruct.hh(idx) - resstruct.teeth(idx) > -fut.tick_size
-            if resstruct.teeth(idx) > resstruct.jaw(idx)
+            if ~isempty(strfind(condsignal.op{1},'strong'))
                 tradername = 'strong';
             else
                 tradername = 'medium';
@@ -542,7 +542,7 @@ elseif condsignal.directionkellied == -1
             'openvolume',1);
 
         if resstruct.ll(idx) - resstruct.teeth(idx) < fut.tick_size
-            if resstruct.teeth(idx) < resstruct.jaw(idx)
+            if ~isempty(strfind(condsignal.op{2},'strong'))
                 tradername = 'strong';
             else
                 tradername = 'medium';
