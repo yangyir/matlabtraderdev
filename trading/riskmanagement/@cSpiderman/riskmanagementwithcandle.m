@@ -576,7 +576,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             lowpx = extrainfo.p(1:end-1,4);
             closepx = extrainfo.p(1:end-1,5);
         end
-        atrvalue = calculateATR(highpx,lowpx,closepx);
+        atrvalue = calcATR(highpx,lowpx,closepx);
         atrvalue_mean = mean(atrvalue(14:end));
         atrvalue_std = std(atrvalue(14:end));
         atrvalue_zscore = abs(atrvalue(end)-atrvalue_mean)/atrvalue_std;
