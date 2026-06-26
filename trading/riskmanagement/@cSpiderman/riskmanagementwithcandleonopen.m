@@ -123,7 +123,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     
     if lflag && breachupfailed
         %
-        [atrvalue,tr] = calculateATR(ei.p(:,3),ei.p(:,4),ei.p(:,5));
+        [atrvalue,tr] = calcATR(ei.p(:,3),ei.p(:,4),ei.p(:,5));
         if tr(end) > norminv(0.99)*atrvalue(end)
             unwindflag = true;
             msg = 'condtional uptrendconfirmed failed:tr significantly exceed atr';
@@ -515,7 +515,7 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
     
     if sflag && breachdnfailed
         %
-        [atrvalue,tr] = calculateATR(ei.p(:,3),ei.p(:,4),ei.p(:,5));
+        [atrvalue,tr] = calcATR(ei.p(:,3),ei.p(:,4),ei.p(:,5));
         if tr(end) > norminv(0.99)*atrvalue(end)
             unwindflag = true;
             msg = 'condtional uptrendconfirmed failed:tr signficantly exceed atr';
@@ -622,9 +622,25 @@ function [unwindflag,msg] = riskmanagementwithcandleonopen(obj, varargin)
                     multiplier = 2;
                 end
                 if (~(ei.p(end,3) < ei.p(end-1,3) && ei.p(end,4) < ei.p(end-1,4) && ei.p(end,5)-ei.p(end-1,5) - multiplier*trade.instrument_.tick_size<1e-5)) && ei.p(end-1,4) <= ei.ll(end-1)
-                    obj.pxstoploss_ = ei.p(end,3)-2*trade.instrument_.tick_size;
-                    msg = 'conditional dntrendconfirmed failed:shadowline2';
-                    obj.closestr_ = msg; 
+                    if ~isnan(obj.td13high_)
+                        atrratio = (obj.td13high_ - ei.ll(end-1))/ei.atr(end-1);
+                        if atrratio > 1.5
+                            obj.pxstoploss_ = ei.ll(end-1) + 1.5*ei.atr(end-1);
+                        else
+                            obj.pxstoploss_ = obj.td13high_;
+                        end
+                        msg = 'conditional dntrendconfirmed failed:shadowline2';
+                        obj.closestr_ = msg;
+                    else
+                        atrratio = (ei.p(end,3) - ei.ll(end-1))/ei.atr(end-1);
+                        if atrratio < 1.5
+                            obj.pxstoploss_ = ei.ll(end-1) + 1.5*ei.atr(end-1);
+                        else
+                            obj.pxstoploss_ = ei.p(end,3);
+                        end
+                        msg = 'conditional dntrendconfirmed failed:shadowline2';
+                        obj.closestr_ = msg;
+                    end
                 end
                 
             else
