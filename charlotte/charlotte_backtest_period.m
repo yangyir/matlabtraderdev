@@ -1,4 +1,4 @@
-function [unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period(varargin)
+function [unwindedtrades,carriedtrades,tbl2check,resstruct] = charlotte_backtest_period(varargin)
 %function to run the backest for an instrument within a specified period of
 %time
 p = inputParser;
@@ -296,7 +296,7 @@ else
                 elseif strcmpi(t_i.code_,'usdjpy')
                     fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\t%40s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
                 else
-                    fprintf('\t%6s\t%3d\t%20s\t%3.4f\t%20s\t%3.4f\t%30s\t%40s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
+                    fprintf('\t%6s\t%3d\t%20s\t%3.5f\t%20s\t%3.5f\t%30s\t%40s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,t_i.closedatetime2_,t_i.closeprice_,t_i.opensignal_.mode_,t_i.closestr_);
                 end
             end
         end
@@ -329,7 +329,7 @@ else
                 elseif strcmpi(t_i.code_,'usdjpy')
                     fprintf('\t%6s\t%3d\t%20s\t%3.3f\t%20s\t%3.3f\t%30s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
                 else
-                    fprintf('\t%6s\t%3d\t%20s\t%3.4f\t%20s\t%3.4f\t%30s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
+                    fprintf('\t%6s\t%3d\t%20s\t%3.5f\t%20s\t%3.5f\t%30s\n',t_i.code_,t_i.opendirection_,t_i.opendatetime2_,t_i.openprice_,'still live',9.99,t_i.opensignal_.mode_);
                 end
             end
         end
