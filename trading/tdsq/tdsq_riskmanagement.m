@@ -429,6 +429,17 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             end
             %
         end
+
+        if bs(end) == 15
+            if extrainfo.p(end,5) > extrainfo.p(end,2) && ...
+                    calcwick(extrainfo.p(end,2),extrainfo.p(end,3),extrainfo.p(end,4),extrainfo.p(end,5)) < 0.2 && ...
+                    extrainfo.p(end,3) < trade.riskmanager_.tdhigh_
+                trade.riskmanager_.pxstoploss_  = trade.riskmanager_.tdhigh_;
+                trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
+                closestr = trade.riskmanager_.closestr_;
+                return
+            end
+        end
         
         if bs(end) >= 16
             closeflag = 1;
