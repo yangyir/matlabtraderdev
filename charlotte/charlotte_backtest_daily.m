@@ -394,6 +394,7 @@ while i <= idx2
                    'ticksizeratio',tickratio);
                if ~isempty(output2)
                    if output2.directionkellied == 0
+                       exceptionflag = false;
                        if strcmpi(trade.opensignal_.mode_,'breachup-lvlup')
                            samesignal = output2.flags.islvlupbreach;
                        elseif strcmpi(trade.opensignal_,'breachup-sshighvalue')
@@ -406,18 +407,39 @@ while i <= idx2
                            samesignal = output2.flags.isbslowbreach;
                        elseif strcmpi(trade.opensignal_.mode_,'breachdn-lowbc13')
                            samesignal = output2.flags.isbclowbreach;
-                       elseif ~isempty(strfind(trade.opensignal_.mode_,'-trendconfirmed'))
+                       elseif strcmpi(trade.opensignal_.mode_,'mediumbreach-trendconfirmed')
+                            if ~isempty(strfind(output2.opkellied,'mediumbreach-trendconfirmed'))
+                                samesignal = 1;
+                            elseif ~isempty(strfind(output2.opkellied,'strongbreach-trendconfirmed'))
+                                samesignal = 0;
+                                exceptionflag = true;
+                            else
+                                samesignal = 0;
+                            end
+                       elseif strcmpi(trade.opensignal_.mode_,'strongbreach-trendconfirmed')
+                           if ~isempty(strfind(output2.opkellied,'strongbreach-trendconfirmed'))
+                               samesignal = 1;
+                           elseif ~isempty(strfind(output2.opkellied,'mediumbreach-trendconfirmed'))
+                               samesignal = 0;
+                               exceptionflag = true;
+                           else
+                               samesignal = 0;
+                           end
+                       elseif ~isempty(strfind(trade.opensignal_.mode_,'conditional'))
                            samesignal = 1;
-                       elseif ~isempty(strfind(trade.opensignal_.mode_,'-conditional'))
-                           %not yet implemented correctly 
-                           samesignal = 1;
+                           if output2.directionkellied == 0
+                               if ~isempty(strfind(output2.opkellied,'strongbreach-trendconfirmed'))
+                                   samesignal = 0;
+                                   exceptionflag = true;
+                               end
+                           end
                        else
                            %other non-trended signal
                            samesignal = 0;
                        end
                            
 %                        if samesignal || (~samesignal && (output2.kelly < 0 || isnan(output2.kelly)))
-                       if samesignal || (~samesignal && (output2.directionkellied == 0))
+                       if ~exceptionflag && (samesignal || (~samesignal && (output2.directionkellied == 0)))
                            trade.status_ = 'closed';
                            trade.riskmanager_.status_ = 'closed';
                            trade.riskmanager_.closestr_ = ['conditional kelly is too low: ',num2str(output2.kelly)];
