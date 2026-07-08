@@ -1,21 +1,23 @@
 function structuresUpdated = updatestructurelevels(varargin)
-    % 动态更新结构位：处理二次测试与级别升级
+    % update structure levels with second test and updates
     %
-    % 三种失效方式：
-    % 1. 时间过期（time_expired)
-    % 2. 被有效突破 (broken_up / broken_down)
-    % 3. 被反向结构否定 （negated_by_support / negated_by_resistance)
+    % the structure became invalid because
+    % 1. time_expired
+    % 2. broken_up / broken_down
+    % 3. negated_by_support / negated_by_resistance
     
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
     p.addParameter('structures',{},@isstruct);
     p.addParameter('px',[],@isnumeric);
     p.addParameter('atr',[],@isnumeric);
-    p.addParameter('maxstructureage',100,@isnumeric);  % 结构位回溯期
-    p.addParameter('invalidationATR',1,@isnumeric);    % 结构位失效ATR倍数
+    p.addParameter('maxstructureage',100,@isnumeric);  % structure look backs
+    p.addParameter('invalidationATR',1,@isnumeric);    % invalidation multiplier
     p.addParameter('topF',[],@isnumeric);
     p.addParameter('botF',[],@isnumeric);
-    p.addParameter('referenceIdx',[],@isnumeric);      % 当前回测时间点（K线索引）
+    p.addParameter('nfractal',2,@isnumeric);
+    p.addParameter('referenceIdx',[],@isnumeric);      % idx of current candle
+    p.addParameter('proximityatr',1,@isnumeric);
     p.parse(varargin{:});
     structures = p.Results.structures;
     px = p.Results.px;
@@ -24,89 +26,102 @@ function structuresUpdated = updatestructurelevels(varargin)
     invalidationatr = p.Results.invalidationATR;
     topF = p.Results.topF;
     botF = p.Results.botF;
+    nfractal = p.Results.nfractal;
     referenceIdx = p.Results.referenceIdx;
+    proximityatr = p.Results.proximityatr;
     
     H = px(:,3);O = px(:,2); L = px(:,4); C = px(:,5);
     n = length(H);
     if isempty(referenceIdx)
-        referenceIdx = n;   % 默认实盘模式
+        referenceIdx = n;   % default:real-time trading mode
     end
     
+    useflag = ones(length(structures),1);
+
     for s = 1:length(structures)
         if ~structures(s).isactive
+            useflag(s) = 0;
             continue;
         end
         
         formidx = structures(s).formationidx;
         
-        % 结构位还没形成 （在referenceIdx之后才出现）
+        % the structure has not formed yet (this happens in backtesting
+        % code execution)
         if formidx > referenceIdx
-            continue;   % 不做任何判断，保持原状态
+            useflag(s) = 0;
+            continue;
         end
         
-        % 检查时间过期
+        % check whether the structure is expired
         age = referenceIdx - formidx;
         if age > maxstructureage
             structures(s).isactive = false;
             structures(s).terminationreason = 'time_expired';
             structures(s).terminationidx = referenceIdx;
+            useflag(s) = 0;
             continue;
         end
         
-        % 检查是否被有效突破（结构位失效）
+        % check1: whethet the structure has been breached in the past
         isInvalidated = false;
         currentprice = structures(s).price;
-        if strcmpi(structures(s).type, 'resistance_rejection') % 压力位
-            % 压力位失效：价格有效突破该压力位          
+        if strcmpi(structures(s).type, 'resistance_rejection') % resistance
+            % the strcuture becomes invalid if the price is breached
             for k = formidx+1:referenceIdx
-                % 收盘价突破，且不是毛刺(有实体突破）
-                if C(k) > currentprice && C(k) > O(k) % 阳线突破
-                    % 检查突破的持续性：后续K线没有立刻跌回
+                % check by the close price rather than the high price
+                if C(k) > currentprice && C(k) > O(k) % also with px closed above open
+                    % check whether the price is consistently above the
+                    % resistance level in the next 2 candles
                     if k+2 <= referenceIdx
                         if C(k+1) > currentprice || C(k+2) > currentprice
                             isInvalidated = true;
                             structures(s).terminationreason = 'broken_up';
                             structures(s).terminationidx = k;
+                            useflag(s) = 0;
                             break;
                         end
                     else
-                        % 确认K线不足，保守处理：不判定失效
+                        % insufficient candle sticks
                         continue;
                     end
                 end
                 
-                % 大幅跳空突破
+                % if the close is well above the resistance
                 if C(k) > currentprice + atr(k) * invalidationatr
                     isInvalidated = true;
                     structures(s).terminationreason = 'broken_up_strong';
                     structures(s).terminationidx = k;
+                    useflag(s) = 0;
                     break;
                 end
             end
             %         
-        elseif strcmpi(structures(s).type, 'support_rejection') % 支撑位
-            % 支撑位失效：价格有效跌破该支撑位
+        elseif strcmpi(structures(s).type, 'support_rejection') % support
+            % the structure becomes invalid if the price is breached
             for k = formidx+1:referenceIdx
-                % 收盘价突破，且不是毛刺（有实体突破）
-                if C(k) < currentprice && C(k) < O(k) % 阴线突破
+                % check by the close price rather than the low price
+                if C(k) < currentprice && C(k) < O(k) % also with px closes below open
                     if k+2 <= referenceIdx
                         if C(k+1) < currentprice || C(k+2) < currentprice
                             isInvalidated = true;
                             structures(s).terminationreason = 'broken_down';
                             structures(s).terminationidx = k;
+                            useflag(s) = 0;
                             break;
                         end
                     else
-                        % 确认K线不足，保守处理：不判定失效
+                        % insufficient candle sticks
                         continue;
                     end
                 end
                 
-                % 大幅跳空突破
+                % if the close is well below the support
                 if C(k) < currentprice - atr(k) * invalidationatr
                     isInvalidated = true;
                     structures(s).terminationreason = 'broken_down_strong';
                     structures(s).terminationidx = k;
+                    useflag(s) = 0;
                     break;
                 end
             end 
@@ -114,35 +129,54 @@ function structuresUpdated = updatestructurelevels(varargin)
         
         if isInvalidated
             structures(s).isactive = false;
-            continue;  % 已失效，跳过后续升级检查
+            if useflag(s), useflag(s) = 0; end
+            continue;  % forget about further check once the structure is invalid
         end
         
-        % 检查2
+        % check 2: whether the structure has been negated  (acitve +
+        % dormant)
         isNegated = false;
-        if strcmpi(structures(s).type, 'resistance_rejection') % 压力位
-            % 检查是否在下方形成了有效的支撑结构
+        if strcmpi(structures(s).type, 'resistance_rejection')
+            % check whether a strong support is formed
             for k = formidx+1:referenceIdx
                 if botF(k) == 1
-                    % 底分型形成，且离当前结构位够远
+                    % a bottom fractal is formed within the distance
+                    totalrange = H(k) - L(k);
+                    avgatrwindow = mean(atr(max(1,k-2*nfractal-1):min(referenceIdx,k+nfractal)));
+                    if totalrange < avgatrwindow * 0.6
+                        continue;
+                    end
+
                     if L(k) < currentprice - atr(k)*0.5
-                        % 下方形成了有深度的反向结构
+                        % the fractal price is lower enough, e.g. 0..5atr
+                        % from current price
+                        structures(s).isdormant = true;
+                        structures(s).dormantreason = 'negated_by_support';
+                        structures(s).dormantnegateidx = k;
+                        structures(s).dormantnegateprice = L(k);
                         isNegated = true;
-                        structures(s).terminationreason = 'negated_by_support';
-                        structures(s).terminationidx = k;
                         break;
                     end
                 end
             end
-        elseif strcmpi(structures(s).type, 'support_rejection') % 支撑位
-            % 检查是否在上方形成了有效的压力结构
+        elseif strcmpi(structures(s).type, 'support_rejection')
+            % check whether a strong resistance is formed
             for k = formidx+1:referenceIdx
                 if topF(k) == 1
-                    % 顶分型形成，且离当前结构位够远
+                    % a top fractal is formed within the distance
+                    totalrange = H(k) - L(k);
+                    avgatrwindow = mean(atr(max(1,k-2*nfractal-1):min(referenceIdx,k+nfractal)));
+                    if totalrange < avgatrwindow * 0.6
+                        continue;
+                    end
+                    
                     if H(k) > currentprice + atr(k)*0.5
-                        % 上方形成了有深度的反向结构
+                        % the fractal price is higher enough,
+                        structures(s).isdormant = true;
+                        structures(s).dormantreason = 'negated_by_resistance';
+                        structures(s).dormantnegateidx = k;
+                        structures(s).dormantnegateprice = H(k);
                         isNegated = true;
-                        structures(s).terminationreason = 'negated_by_resistance';
-                        structures(s).terminationidx = k;
                         break;
                     end
                 end
@@ -150,29 +184,55 @@ function structuresUpdated = updatestructurelevels(varargin)
         end
         
         if isNegated
-            structures(s).isactive = false;
-            continue; % 已失效，跳过后续升级检查
+            if strcmpi(structures(s).type, 'resistance_rejection')
+                for k = structures(s).dormantnegateidx+1:referenceIdx
+                    distancetoresistance = structures(s).price - C(k);
+                    if distancetoresistance > 0 && distancetoresistance < proximityatr*atr(k) && ...
+                            C(k) > O(k)
+                        structures(s).isdormant = false;
+                        structures(s).dormantreason = '';
+                        structures(s).strength = structures(s).strength * 0.8;
+                        break
+                    end
+                end
+            elseif strcmpi(structures(s).type, 'support_rejection')
+                for k = structures(s).dormantnegateidx+1:referenceIdx
+                    distancetosupport = C(k) - structures(s).price;
+                    if distancetosupport > 0 && distancetosupport < proximityatr*atr(k) && ...
+                            C(k) < O(k)
+                        structures(s).isdormant = false;
+                        structures(s).dormantreason = '';
+                        structures(s).strength = structures(s).strength * 0.8;
+                        break
+                    end
+                end
+            end 
+        end
+
+        if structures(s).isdormant
+            continue;% forget about further check once the structure is dormant
         end
         
-        % 检查从形成后至今的K线，寻找二次测试
+        % ADDITIONAL CEHCK
         for i = formidx+1:referenceIdx
-            if strcmpi(structures(s).type, 'resistance_rejection') % 压力位
-                % 寻找向上测试该结构位的K线
+            if strcmpi(structures(s).type, 'resistance_rejection') % resistance
+                % find any candle stick with high price breached
                 if H(i) > structures(s).price
-                    % 计算穿透度
+                    % calculate how much breached w.r.t.atr
                     penetration = (H(i) - structures(s).price) / atr(i);
                     
-                    % 分析这次测试的质量
-                    isQualityTest = C(i) > O(i) && ... % 阳线
-                        (C(i)-O(i)) / (H(i)-L(i)+0.0001) > 0.5;  % 实体占比大
+                    % the quality
+                    isQualityTest = C(i) > O(i) && ... % close > open
+                        (C(i)-O(i)) / (H(i)-L(i)+0.0001) > 0.5;  % body > 0.5totalrange
                     
                     if isQualityTest && penetration > 0.2
-                        % 这是一次有质量的深入测试
-                        % 检查后续2根K线是否出现反包 （空头防守反击成功）
+                        % this is a breach with good quality
+                        % check what happens in the next 2 candle sticks
                         if i+2 <= referenceIdx && ...
-                                C(i+1) < O(i+1) && ... % 第一根确认K线为阴线
+                                C(i+1) < O(i+1) && ... % close < open
                                 (C(i+2) < C(i+1) || C(i+1) < structures(s).price)
-                            % 防守反击成功：升级结构位到新的高点
+                            % failed to breach, the bear wins
+                            % the structure is upgrated with new highs
                             structures(s).price = H(i);
                             structures(s).strength = structures(s).strength + 1;
                             structures(s).retestcount = structures(s).retestcount + 1;
@@ -181,26 +241,26 @@ function structuresUpdated = updatestructurelevels(varargin)
                             continue;
                         end
                     else
-                        % 无力的毛刺测试，强化原结构位
+                        % this a breach with bad (not good enough) quanlity
                         structures(s).strength = structures(s).strength + 0.5;
                         structures(s).retestcount = structures(s).retestcount + 0.5;
                     end
                 end
-            elseif strcmpi(structures(s).type, 'support_rejection') % 支撑位
-                % 寻找向下测试该结构位的K线
+            elseif strcmpi(structures(s).type, 'support_rejection') % support
+                % find any candle stick with low price breached
                 if L(i) < structures(s).price
-                    % 计算穿透度
+                    % calculate how much breached w.r.t. atr
                     penetration = (structures(s).price - L(i)) / atr(i);
                     
-                    % 分析这次测试的质量
-                    isQualityTest = C(i) < O(i) && ... % 阴线
+                    % the quality
+                    isQualityTest = C(i) < O(i) && ... % close < open
                         (O(i) - C(i)) / (H(i)-L(i)+0.0001) > 0.5;
                     
                     if isQualityTest && penetration > 0.2
-                        % 这是一次有质量的深入测试
-                        % 检查后续2根K线是否出现反包 （空头防守反击成功）
+                        % this is a breach with good quality
+                        % check what happens in the next 2 candle stick
                         if i+2 <= referenceIdx && ...
-                                C(i+1) > O(i+1) && ... % 第一根确认K线为阳线
+                                C(i+1) > O(i+1) && ... % close > open
                                 (C(i+2) > C(i+1) || C(i+1) > structures(s).price)
                             structures(s).price = L(i);
                             structures(s).strength = structures(s).strength + 1;
@@ -210,7 +270,8 @@ function structuresUpdated = updatestructurelevels(varargin)
                             continue;
                         end
                     else
-                        % 无力的毛刺测试，强化原结构位
+                        % this is a breach with bad (not good enough)
+                        % quality
                         structures(s).strength = structures(s).strength + 0.5;
                         structures(s).retestcount = structures(s).retestcount + 0.5;
                     end
@@ -219,6 +280,11 @@ function structuresUpdated = updatestructurelevels(varargin)
         end
     end
     
-    structuresUpdated = structures;
+
+    idx = 1:length(structures);
+    idx = idx';
+    idx = idx(useflag~=0);
+
+    structuresUpdated = structures(idx);
     
 end
