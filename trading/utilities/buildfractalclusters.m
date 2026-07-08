@@ -22,9 +22,9 @@ function clusters = buildfractalclusters(varargin)
     p.addParameter('botF',[],@isnumeric);
     p.addParameter('atr',[],@isnumeric);
     p.addParameter('nfractal',2,@isnumeric);
-    p.addParameter('tolerance',0.25,@isnumeric);    % 集群容差（ATR倍数）
-    p.addParameter('nlookback',200,@isnumeric);     % 集群回溯K线数
-    p.addParameter('maxtimegap',30,@isnumeric);     % 集群合并最大时间间隔
+    p.addParameter('tolerance',0.25,@isnumeric);    % tolerance of price difference in terms of atr between clusters
+    p.addParameter('nlookback',200,@isnumeric);     % number of candle sticks to look back when build a particular cluster
+    p.addParameter('maxtimegap',30,@isnumeric);     % number of candle stick difference when merge clusters
     p.parse(varargin{:});
     
     px = p.Results.px;
@@ -38,10 +38,6 @@ function clusters = buildfractalclusters(varargin)
     
     highpx = px(:,3);
     lowpx = px(:,4);
-%     closepx = px(:,5);
-
-
-%     atr = calcATR(highpx,lowpx,closepx,14);
 
     n = size(px,1);
     clusters = struct('type',{},'upperbound',{},'lowerbound',{},...
