@@ -1,9 +1,9 @@
 function structures = buildrejectionstructures(varargin)
-    % 基于强拒绝行为构建结构体
-    % 基于分型位置及其右眼的强拒绝行为构建结构位
-    % 两种检测模式：分型自身强拒绝  + 右眼强拒绝
-    % 返回值：包含拒绝时间的结构体数组
-    % 模式：'self' = 自身拒绝， 'early' = 右眼早期拒绝， ’defensive' = 防守反击
+    % build strcutures based on rejection
+    % all the structures are at the fractal points
+    % and how the price evolves right after the fractal points
+    % either rejected on the fractal point or in later candle sticks
+    % mode：'self' = on itself， 'early' = with later candles， 'defensive'
     
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
@@ -11,12 +11,10 @@ function structures = buildrejectionstructures(varargin)
     p.addParameter('topF',[],@isnumeric);
     p.addParameter('botF',[],@isnumeric);
     p.addParameter('atr',[],@isnumeric);
-    p.addParameter('nlookback',100,@isnumeric); % 结构位回溯期
+    p.addParameter('nlookback',100,@isnumeric); % structure look backs
     p.addParameter('nfractal',2,@isnumeric);
-    p.addParameter('scoreThreshold',4,@isnumeric); % 强拒绝最低得分
-    p.addParameter('rightEyeWindowLength',3,@isnumeric);    % 右眼观察窗口长度 
-    p.addParameter('referenceIdx',[],@isnumeric);
-    p.addParameter('maxStructureAge',[],@isnumeric);
+    p.addParameter('scoreThreshold',4,@isnumeric); % least score
+    p.addParameter('rightEyeWindowLength',3,@isnumeric);    % length on the right
     p.parse(varargin{:});
     px = p.Results.px;
     O = px(:,2);H = px(:,3);L = px(:,4);C = px(:,5);
@@ -33,17 +31,17 @@ function structures = buildrejectionstructures(varargin)
     nlookback = p.Results.nlookback;
     scorethreshold = p.Results.scoreThreshold;
     righteyewindowlength = p.Results.rightEyeWindowLength;
-    referenceIdx = p.Results.referenceIdx;
+    
     n = length(H);
-    if isempty(referenceIdx)
-        referenceIdx = n;
-    end
-    maxstructureage = p.Results.maxStructureAge;
     
     structures = struct('price',{},'type',{},'strength',{},...
-        'formationidx',{},'fractalidx',{},'isactive',{},'retestcount',{});
+        'formationidx',{},'fractalidx',{},'isactive',{},...
+        'isdormant',{},'dormantreason',{},...
+        'dormantnegateidx',{},'dormantnegateprice',{},...
+        'retestcount',{},'rejectionmode',{},...
+        'terminationreason',{},'terminationidx',{});
     
-    for i = nlookback+1:min(n,referenceIdx-nfractal)
+    for i = nlookback+1:n-nfractal
         % only deal with fractals
         istopF = topF(i) == 1;
         isbotF = botF(i) == 1;
@@ -52,33 +50,27 @@ function structures = buildrejectionstructures(varargin)
             continue;
         end
         
-        if ~isempty(maxstructureage)
-            age = referenceIdx - i;
-            if age > maxstructureage
-                continue;
-            end
-        end
         
-        % =========== 低波动率环境过滤 =================
+        % =========== filter out low-vol regime =================
         totalrange = H(i) - L(i);
-        % 这里针对JPYUSD可能需要做修改
+        % note:implementation for JPYUSD futures
         if totalrange < 0.0001
-%             fprintf('total range is %4.4f on %s\n',totalrange,datestr(px(i,1),'yyyy-mm-dd HH:MM'));
             continue;
         end
-        % 取当前K线附近的ATR均值
-        avgatrwindow = mean(atr(max(1,i-2*nfractal-1):min(referenceIdx,i+nfractal)));
-        % 如果整根K线的波幅连平均ATR的60%都不到，
-        % 说明市场处于低波动状态，长影线可能只是随机噪声
+        % take the average atr around the point
+        avgatrwindow = mean(atr(max(1,i-2*nfractal-1):min(n,i+nfractal)));
+        % in case the candle range is less than 60% of the average atr,
+        % it might be just a noise and shall be eliminated from future
+        % analysis
         if totalrange < avgatrwindow * 0.6
             continue;
         end
         
-        % ============ 分型K线本身形态 ===========
+        % ============ fractal candle itself ===========
         body = abs(C(i) - O(i));
         realbodyratio = body / totalrange;
         
-        % ------顶分型：检查是否有长上影（自身就是强拒绝）--------
+        % ----- top fractal：check for upper shadow line and reject--------
         if istopF
             currentatr = atr(i);
             if currentatr < 0.0001, continue;end
@@ -87,44 +79,40 @@ function structures = buildrejectionstructures(varargin)
             rejectionscore = 0;
             rejectionmode = '';
             
-            % 模式1：分型K线自身强拒绝（长上影）
+            % ---- mode1：self rejection -----
             uppershadow = H(i) - max(O(i),C(i));
             uppershadowatr = uppershadow / currentatr;
             if realbodyratio < 0.4 && uppershadowatr > 0.3
                 isrejection = true;
-                % 自身强拒绝得分
+                % score if it rejects
                 rejectionscore = rejectionscore + 3;
                 if C(i) < O(i)
-                    rejectionscore = rejectionscore + 1;%阴线加分
+                    rejectionscore = rejectionscore + 1;% score in case the close is below the open
                 end
                 if uppershadowatr > 0.5
-                    rejectionscore = rejectionscore + 1; %极长上影额外加分
+                    rejectionscore = rejectionscore + 1; % extra score for long upper shadow line
                 end
                 rejectionmode = 'self';
             end
             
-            % ---- 模式2+3：顶分型右眼强拒绝检测 ----
-            % 分型K线本身不是长上影，但右眼出现了反包
-            for k = i+1:min(referenceIdx,i+righteyewindowlength)
-                if k > referenceIdx
-                    break;
-                end
-                
+            % ---- mode2+3：right rejection ----
+            % fractal candle is not rejected but on its RHs
+            for k = i+1:min(n,i+righteyewindowlength)
+                                
                 isbearish = C(k) < O(k);
-                brokebelow = C(k) < H(i);
                 
-                if isbearish && brokebelow
-                    % 计算右眼K线的下跌力度(ATR归一化）
+                if isbearish
+                    % normarlized with current atr
                     declineatr = (H(i) - C(k)) / currentatr;
                     
                     if k <= i+2
-                        % 右眼早期 （分型后1-2根）
+                        % early within 2 candle sticks
                         if ~isrejection || strcmpi(rejectionmode,'self')
                             isrejection = true;
                             rejectionscore = rejectionscore + 4;
                             rejectionmode = 'early';
                             
-                            % 下跌力度加分
+                            % extra score for a bigger price drop
                             if declineatr > 0.5
                                 rejectionscore = rejectionscore + 1;
                             end
@@ -132,7 +120,7 @@ function structures = buildrejectionstructures(varargin)
                     end
                     
                     if k > i+2
-                        % 右眼后期（防守反击）
+                        % after 2 candle sticks
                         rejectionscore = rejectionscore + 2;
                         if strcmpi(rejectionmode,'early')
                             rejectionmode = 'early_defensive';
@@ -143,7 +131,7 @@ function structures = buildrejectionstructures(varargin)
                     end
                 end
                 
-                % 如果出现阳线创新高，拒绝失败
+                % rejection fails if new high was achieved
                 if ~isbearish && H(k) > H(i)
                     isrejection = false;
                     rejectionscore = 0;
@@ -153,7 +141,7 @@ function structures = buildrejectionstructures(varargin)
             end
             
             if isrejection && rejectionscore >= scorethreshold
-                structures(end+1).price = H(i); % 结构位取分型的最高点
+                structures(end+1).price = H(i);
                 structures(end).type = 'resistance_rejection';
                 structures(end).strength = rejectionscore;
                 structures(end).formationidx = i;
@@ -162,10 +150,12 @@ function structures = buildrejectionstructures(varargin)
                 structures(end).retestcount = 0;
                 structures(end).rejectionmode = rejectionmode;
                 structures(end).terminationreason = '';
+                structures(end).isdormant = false;
+                structures(end).dormantreason = '';
             end
         end
         
-        % -----底分型：检查是否有长下影 （自身就是强拒绝）--------
+        % ----- bottom fractal：check for lower shadow line and reject--------
         if isbotF
             currentatr = atr(i);
             if currentatr < 0.0001, continue;end
@@ -174,7 +164,7 @@ function structures = buildrejectionstructures(varargin)
             rejectionscore = 0;
             rejectionmode = '';
             
-            % 模式1：分型K线自身强拒绝（长下影）
+            % ---- mode1：self rejection -----
             lowershadow = min(O(i),C(i)) - L(i);
             lowershadowatr = lowershadow / currentatr;
             
@@ -182,25 +172,21 @@ function structures = buildrejectionstructures(varargin)
                 isrejection = true;
                 rejectionscore = rejectionscore + 3;
                 if C(i) > O(i)
-                    rejectionscore = rejectionscore + 1; % 阳线加分
+                    rejectionscore = rejectionscore + 1;
                 end
                 if lowershadowatr > 0.5
-                    rejectionscore = rejectionscore + 1; % 极长下影线加分
+                    rejectionscore = rejectionscore + 1;
                 end
                 rejectionmode = 'self';
             end
             
-            % ---- 模式2+3：顶分型右眼强拒绝检测 ----
-            % 分型K线本身不是长上影，但右眼出现了反包
-            for k = i+1:min(referenceIdx,i+righteyewindowlength)
-                if k > referenceIdx
-                    break;
-                end
+            % ---- mode2+3：right rejection ----
+            % fractal candle is not rejected but on its RHs
+            for k = i+1:min(n,i+righteyewindowlength)
                 
                 isbullish = C(k) > O(k);
-                brokeabove = C(k) > L(i);
                 
-                if isbullish && brokeabove
+                if isbullish
                     rallyatr = (C(k) - L(i)) / currentatr;
                     
                     if k <= i+2
@@ -235,7 +221,7 @@ function structures = buildrejectionstructures(varargin)
             end
             
             if isrejection && rejectionscore >= scorethreshold
-                structures(end+1).price = L(i); % 结构位取分型的最低点
+                structures(end+1).price = L(i);
                 structures(end).type = 'support_rejection';
                 structures(end).strength = rejectionscore;
                 structures(end).formationidx = i;
@@ -244,6 +230,8 @@ function structures = buildrejectionstructures(varargin)
                 structures(end).retestcount = 0;
                 structures(end).rejectionmode = rejectionmode;
                 structures(end).terminationreason = '';
+                structures(end).isdormant = false;
+                structures(end).dormantreason = '';
             end
             
         end
