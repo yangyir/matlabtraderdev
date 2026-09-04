@@ -10,7 +10,7 @@ end
 %%
 asset = 'govtbond_30y';
 dtfrom = '2024-07-31';
-[tblout,kellyout,tblout_notused,kellytables] = charlotte_kellycheck('assetname',asset,'datefrom',dtfrom,'frequency',freq,'reportunused',true);
+[tblout,kellyout,tblout_notused,kellytables_govtbond30y_m5] = charlotte_kellycheck('assetname',asset,'datefrom',dtfrom,'frequency',freq,'reportunused',true);
 open tblout;open kellyout;open tblout_notused;
 %%
 [tblpnl,tblout2,statsout] = charlotte_gensingleassetprofile('assetname',asset,'frequency',freq);
@@ -23,15 +23,50 @@ timeseries_plot([tblpnl.dts,tblpnl.runningrets],'figureindex',3,'dateformat','yy
 [tblpnl_,tblout_,statsout_] = irene_trades2dailypnl('tradestable',tblcheck_);
 timeseries_plot([tblpnl_.dts,tblpnl_.runningnotional],'figureindex',1,'dateformat','yy-mmm-dd','title',asset);
 %%
+%% govtbond30y_m5
+code = 'TL2606';
+% [dt1,dt2] = irene_findactiveperiod('code',code);dt1 = datestr(dt1,'yyyy-mm-dd');dt2 = datestr(dt2,'yyyy-mm-dd');
+dt1 = '2026-04-13';
+dt2 = '2026-04-17';
+%
+data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_5m.mat']);
+kellytables_govtbond30y_m5 = data.strat_govtbondfut_5m;
+[ut_govtbond30y_m5,ct_govtbond30y_m5,tbl2check_govtbond30y_m5] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables_govtbond30y_m5,'showlogs',true,'figureidx',4,'frequency','5m');
+open tbl2check_govtbond30y_m5;
+%% govtbond30y_m30
+code = 'TL2606';
+% [dt1,dt2] = irene_findactiveperiod('code',code);dt1 = datestr(dt1,'yyyy-mm-dd');dt2 = datestr(dt2,'yyyy-mm-dd');
+dt1 = '2026-04-13';
+dt2 = '2026-04-17';
+%
+data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\govtbondfut\strat_govtbondfut_30m.mat']);
+kellytables_govtbond30y_m30 = data.strat_govtbondfut_30m;
+[ut_govtbond30y_m30,ct_govtbond30y_m30,tbl2check_govtbond30y_m30] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables_govtbond30y_m30,'showlogs',true,'figureidx',5,'frequency','30m');
+open tbl2check_govtbond30y_m30;
+%% eqindex1000_m5
+code = 'IM2604';
+% [dt1,dt2] = irene_findactiveperiod('code',code);dt1 = datestr(dt1,'yyyy-mm-dd');dt2 = datestr(dt2,'yyyy-mm-dd');
+dt1 = '2026-04-13';
+dt2 = '2026-04-10';
+%
+data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\strat_eqindexfut_m5.mat']);
+kellytables_eqindexfut_m5 = data.strat_eqindexfut_m5;
+[ut_eqindexfut_m5,ct_eqindexfut_m5,tbl2check_eqindexfut_m5] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables_eqindexfut_m5,'showlogs',true,'figureidx',6,'frequency','5m');
+open tbl2check_eqindexfut_m5;
 %%
-code = 'TL2503';
-% [dt1,dt2] = irene_findactiveperiod('code',code);
-% dt1 = datestr(dt1,'yyyy-mm-dd');
-% dt2 = datestr(dt2,'yyyy-mm-dd');
-dt1 = '2024-12-11';
-dt2 = '2024-12-11';
-[unwindedtrades,carriedtrades,tbl2check] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables,'showlogs',true,'figureidx',4,'frequency',freq);
-open tbl2check;
+%% eqindex1000_m30
+code = 'IM2604';
+% [dt1,dt2] = irene_findactiveperiod('code',code);dt1 = datestr(dt1,'yyyy-mm-dd');dt2 = datestr(dt2,'yyyy-mm-dd');
+dt1 = '2026-04-06';
+dt2 = '2026-04-17';
+%
+data = load([getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\eqindexfut\strat_eqindexfut_m30.mat']);
+kellytables_eqindexfut_m30 = data.strat_eqindexfut_m30;
+[ut_eqindexfut_m30,ct_eqindexfut_m30,tbl2check_eqindexfut_m30] = charlotte_backtest_period('code',code,'fromdate',dt1,'todate',dt2,'kellytables',kellytables_eqindexfut_m30,'showlogs',true,'figureidx',6,'frequency','30m');
+open tbl2check_eqindexfut_m30;
+
+
+
 %%
 [trades,tblresults] = irene_backtesttradesfromcode('code','TL2312','frequency','30m');
 disp(tblresults);
@@ -66,7 +101,7 @@ for i = 1:n
     code_i = trades2check.codes{i};
     dt1_i = datestr(floor(datenum(dateadd(trades2check.opendt(i),'-0b'))),'yyyy-mm-dd');
     dt2_i = datestr(floor(datenum(dateadd(trades2check.closedt(i),'0b'))),'yyyy-mm-dd');
-    [ut_i,~,~] = charlotte_backtest_period('code',code_i,'fromdate',dt1_i,'todate',dt2_i,'kellytables',kellytables,'showlogs',false,'figureidx',5+i);
+    [ut_i,~,~] = charlotte_backtest_period('code',code_i,'fromdate',dt1_i,'todate',dt2_i,'kellytables',kellytables_govtbond30y_m5,'showlogs',false,'figureidx',5+i);
 %     for j = 1:ut_i.latest_
 %         fprintf('%20s\t%60s\t%4.2f\n',ut_i.node_(j).opendatetime2_,ut_i.node_(j).closestr_,ut_i.node_(j).closepnl_);
 %     end
