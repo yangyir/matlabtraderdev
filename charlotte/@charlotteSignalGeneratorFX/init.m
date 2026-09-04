@@ -2,108 +2,80 @@ function obj = init(obj,varargin)
 % a charlotteSignalGenerator (private) function
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
+    p.addParameter('codes',{},@iscell);
+    p.addParameter('freqs',{},@iscell);
     p.addParameter('datafeed',{},@(x) validateattributes(x,{'charlotteDataFeedFX'},{},'','datafeed'));
     p.parse(varargin{:});
-    datafeed = p.Results.datafeed;
-    obj.codes_ = datafeed.codes_;
+    obj.codes_ = p.Results.codes;
+    obj.freqs_ = p.Results.freqs;
+    
     ncodes = size(obj.codes_,1);
-    obj.ticksize_ = zeros(ncodes,1);
-    obj.calcflag_ = ones(ncodes,1);
-    obj.freq_ = cell(ncodes,1);
-    obj.printSignal_ = true;
-    symbols = cell(ncodes,1);
-    for i = 1:ncodes
-        strsplit = regexp(datafeed.codes_{i},'-','split');
-        symbols{i} = strsplit{1};
-        fx_i = code2instrument(symbols{i});
-        obj.ticksize_(i) = fx_i.tick_size;
-        obj.freq_{i} = strsplit{2};
+    if ncodes ~= size(obj.freqs_,1)
+        error('charlotteSignalGeneratorFX:init:mismatch between input codes and freqs')
     end
+    datafeed = p.Results.datafeed;
+    % also need to check whether input codes are listed in the datafeed
+    obj.extrainfo_ = cell(ncodes,1); 
+    obj.ticksize_ = zeros(ncodes,1);
+    for i = 1:ncodes
+        ei_i = datafeed.getExtraInfo(obj.codes_{i},obj.freqs_{i});
+        if isempty(ei_i)
+            error('charlotteSignalGeneratorFX:init:%s not found in the datafeed',[obj.codes{i},'-',obj.freqs_{i}]);
+        end
+        obj.extrainfo_{i} = ei_i;
+        %
+        fx_i = code2instrument(obj.codes_{i});
+        obj.ticksize_(i) = fx_i.tick_size;
+    end
+    
+    obj.calcflag_ = ones(ncodes,1);
+    obj.printSignal_ = true;
     obj.signals_ = cell(ncodes,1);    
     %
-    obj.kellytables_ = cell(ncodes,1);
-    for i = 1:ncodes
+    for i = 1:4
+        if i == 1
+            strappendix = 'm15';
+        elseif i == 2
+            strappendix = 'm30';
+        elseif i == 3
+            strappendix = 'h1';
+        elseif i == 4
+            strappendix = 'h4';
+        end
         try
-            if strcmpi(obj.freq_{i},'5m')
-                freq_mt4 = 'm5';
-            elseif strcmpi(obj.freq_{i},'15m')
-                freq_mt4 = 'm15';
-            elseif strcmpi(obj.freq_{i},'30m')
-                freq_mt4 = 'm30';
-            elseif strcmpi(obj.freq_{i},'1h')
-                freq_mt4 = 'h1';
-            elseif strcmpi(obj.freq_{i},'4h')
-                freq_mt4 = 'h4';
-            elseif strcmpi(obj.freq_{i},'daily')
-                freq_mt4 = 'd1';
-            end
-            fn_i = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_',freq_mt4,'.mat'];
+            fn_i = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\strat_fx_',strappendix,'.mat'];
             data_i = load(fn_i);
-            obj.kellytables_{i} = data_i.(['strat_fx_',freq_mt4]);
-        catch ME
-            notify(obj, 'ErrorOccurred', ...
-                    charlotteErrorEventData(ME.message));
+            props = fieldnames(data_i);
+            if i == 1
+                obj.kellytables_m15_ = data_i.(props{1});
+            elseif i == 2
+                obj.kellytables_m30_ = data_i.(props{1});
+            elseif i == 3
+                obj.kellytables_h1_ = data_i.(props{1});
+            elseif i == 4
+                obj.kellytables_h4_ = data_i.(props{1});
+            end
+        catch
+            %do nothing for now
         end
     end
     %
-    obj.candles_ = cell(ncodes,1);
-    for i = 1:ncodes
-        if strcmpi(datafeed.mode_,'realtime')
-            if strcmpi(obj.freq_{i},'5m')
-                fnappendix = '.lmx_M5_running.csv';
-            elseif strcmpi(obj.freq_{i},'15m')
-                fnappendix = '.lmx_M15_running.csv';
-            elseif strcmpi(obj.freq_{i},'30m')
-                fnappendix = '.lmx_M30_running.csv';
-            elseif strcmpi(obj.freq_{i},'1h')
-                fnappendix = '.lmx_H1_running.csv';
-            elseif strcmpi(obj.freq_{i},'4h')
-                fnappendix = '.lmx_H4_running.csv';
-            elseif strcmpi(obj.freq_{i},'daily')
-                fnappendix = '.lmx_D1_running.csv';
-            else
-                fnappendix = '';
-            end
-            fn_i = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\',symbols{i},fnappendix];
-            data =  readtable(fn_i,'readvariablenames',1);
-            idxlast = find(~isnan(data.Close),1,'last');
-            % for save memory, we cut the latest 100 candles
-            if idxlast >= 200
-                idxfirst = idxlast - 199;
-            else
-                idxfirst = 1;
-            end
-            candleopen = data.Open(idxfirst:idxlast);
-            candlehigh = data.High(idxfirst:idxlast);
-            candlelow = data.Low(idxfirst:idxlast);
-            candleclose = data.Close(idxfirst:idxlast);
-            candledate = data.Date(idxfirst:idxlast);
-            candletime = data.Time(idxfirst:idxlast);
-            n = size(candledate,1);
-            candledatetime = zeros(n,1);
-            for j = 1:n
-                thisbardate = candledate{j};
-                thisbartime = candletime{j};
-                thisbardatestr = [thisbardate(1:4),thisbardate(6:7),thisbardate(9:10)];
-                candledatetime(j) = datenum([thisbardatestr,' ',thisbartime],'yyyymmdd HH:MM');
-            end
-            obj.candles_{i} = [candledatetime,candleopen,candlehigh,candlelow,candleclose];
-        elseif strcmpi(datafeed.mode_,'replay')
-            replaydata = datafeed.getReplayData(symbols{i},obj.freq_{i});
-            idx = datafeed.getReplayCount(symbols{i},obj.freq_{i});
-            replaydata = replaydata(1:idx,:);
-            idxlast = size(replaydata,1);
-            if idxlast >= 200
-                idxfirst = idxlast - 199;
-            else
-                idxfirst = 1;
-            end
-            obj.candles_{i} = replaydata(idxfirst:end,1:5);
-        end
-    end
-    %
-    obj.extrainfo_ = cell(ncodes,1);
+    newSignals = zeros(ncodes,1);
     for i= 1:ncodes
-        obj.signals_{i} = obj.genSignal(symbols{i},obj.freq_{i},datafeed.mode_);
+        obj.signals_{i} = obj.genSignal(obj.codes_{i},obj.freqs_{i},datafeed.mode_);
+        if ~isempty(obj.signals_{i})
+            newSignals(i) = 1;
+        end
+    end
+    
+    nsignal = sum(newSignals);
+    if nsignal > 0
+        data = struct('signals',{obj.signals_},...
+            'extrainfo',{obj.extrainfo_},...
+            'codes',{obj.codes_},...
+            'freqs',{obj.freqs_},...
+            'newsignals',{newSignals},...
+            'mode',datafeed.mode_);
+        notify(obj,'NewSignalGenerated',charlotteDataFeedEventData(data));
     end
 end

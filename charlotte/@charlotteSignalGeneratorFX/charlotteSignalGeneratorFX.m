@@ -1,23 +1,25 @@
 classdef charlotteSignalGeneratorFX < handle
     events
-        NewIndicatorGenerated
-        NewSignalGenerated
         ErrorOccurred
+        NewSignalGenerated
     end
     
     properties
-        codes_@cell
-        signals_@cell
-        extrainfo_@cell
-        calcflag_@double
-        printSignal_@logical
+        codes_
+        freqs_
+        signals_
+        extrainfo_
+        calcflag_
+        printSignal_
     end
     
     properties (Access = private)
-        candles_@cell
-        ticksize_@double
-        freq_@cell
-        kellytables_@cell
+        ticksize_
+        kellytables_m15_
+        kellytables_m30_
+        kellytables_h1_
+        kellytables_h4_
+        %
     end
     
     methods
@@ -27,13 +29,15 @@ classdef charlotteSignalGeneratorFX < handle
     end
     
     methods
-        [] = onNewData(obj,~,eventData)
+        [] = OnNewCandle_M15(obj,~,eventData)
+        [] = OnNewCandle_H30(obj,~,eventData)
+        [] = OnNewCandle_H1(obj,~,eventData)
+        [] = OnNewCandle_H4(obj,~,eventData)
         [] = setCalcFlag(obj,code,flag)
     end
     
     methods (Access = private)
         obj = init(obj,varargin)
-        [] = initCandles(obj)
         [signal,ei] = genSignal(obj,code,freq,mode)
     end
 end
