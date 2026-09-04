@@ -120,7 +120,11 @@ elseif strcmpi(freq,'15m')
         data = load([getenv('onedrive'),'\mt5\futuresfx\',futcode,'_MT5_M15.mat']);
     else
     end
-    p = data.data;
+    if ~useMT5
+        p = data.data;
+    else
+        p = data.datamatm15;
+    end
 elseif strcmpi(freq,'30m')
     if isempty(nfractal),nfractal = 4;end
     if strcmpi(instrument.asset_name,'eqindex_300')
@@ -232,7 +236,12 @@ elseif strcmpi(freq,'30m')
     if isempty(data)
         error('charlotte_loaddata:intraday data load failure,pls check!!!')
     end
-    p = data.data;
+    if ~useMT5
+        p = data.data;
+    else
+        p = data.datamatm30;
+    end
+        
 elseif strcmpi(freq,'60m') || strcmpi(freq,'1h')
     if isempty(nfractal),nfractal = 4;end
     if ~(isfx(futcode) || strcmpi(futcode,'UK100') || strcmpi(futcode,'AUS200') || strcmpi(futcode,'J225') || ...
