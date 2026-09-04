@@ -72,6 +72,9 @@ function structures = buildrejectionstructures(varargin)
         
         % ----- top fractal£ºcheck for upper shadow line and reject--------
         if istopF
+            if i == 330
+                'stop'
+            end
             currentatr = atr(i);
             if currentatr < 0.0001, continue;end
             
