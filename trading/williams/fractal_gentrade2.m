@@ -1,20 +1,61 @@
-function [trade] = fractal_gentrade2(resstruct,code,idx,freq,nfractal,kellytables)
+function [trade] = fractal_gentrade2(resstruct,code,idx,freq,nfractal,kellytables,useMT5)
 
-if strcmpi(freq,'30m')
+if nargin < 7
+    useMT5  = 0;
+end
+
+if strcmpi(freq,'30m') || strcmpi(freq,'m30')
 %     nfractal = 4;
     tickratio = 0.5;
-elseif strcmpi(freq,'15m')
+elseif strcmpi(freq,'15m') || strcmpi(freq,'m15')
 %     nfractal = 4;
     tickratio = 0.5;
-elseif strcmpi(freq,'5m')
+elseif strcmpi(freq,'5m') || strcmpi(freq,'m5')
 %     nfractal = 6;
     tickratio = 0;
-elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily')
+elseif strcmpi(freq,'1440m') || strcmpi(freq,'daily') || strcmpi(freq,'4h') || strcmpi(freq,'h4')
 %     nfractal = 2;
+    tickratio = 1;
+elseif strcmpi(freq,'1h') || strcmpi(freq,'h1')
     tickratio = 1;
 else
 %     nfractal = 4;
     tickratio = 0.5;
+end
+
+if strcmpi(freq,'240m') || strcmpi(freq,'4h') || strcmpi(freq,'h4')
+    if strcmpi(code,'audusd')
+        atrsl = 1.5;
+        atrtp = 4.2;
+    elseif strcmpi(code,'eurusd')
+        atrsl = 1.5;
+        atrtp = 3.0;
+    elseif strcmpi(code,'gbpusd')
+        atrsl = 1.5;
+        atrtp = 3.4;
+    elseif strcmpi(code,'usdcad')
+        atrsl = 1.8;
+        atrtp = 4.8;
+    elseif strcmpi(code,'usdchf')
+        atrsl = 1.7;
+        atrtp = 3.5;
+    elseif strcmpi(code,'usdjpy')
+        atrsl = 1.6;
+        atrtp = 3.5;
+    elseif strcmpi(code,'xauusd')
+        atrsl = 1.8;
+        atrtp = 3.5;
+    else
+        atrsl = 2.0;
+        atrtp = 4.0;
+    end
+elseif strcmpi(freq,'60m') || strcmpi(freq,'1h') || strcmpi(freq,'h1')
+    %TO UPDATE LATER
+    atrsl = 1.8;
+    atrtp = 5.0;
+else
+    atrsl = 1.8;
+    atrtp = 5.0;
 end
 
 fut = code2instrument(code);
@@ -209,9 +250,9 @@ elseif condsignal.directionkellied == 1
         riskmanager = struct('hh0_',signalinfo.hh,'hh1_',signalinfo.hh,...
             'll0_',signalinfo.ll,'ll1_',signalinfo.ll,...
             'type_','breachup-B',...
-            'wadopen_',resstruct.wad(idx),...
-            'cpopen_',resstruct.px(idx,5),'wadhigh_',resstruct.wad(idx),...
-            'cphigh_',resstruct.px(idx,5),'wadlow_',resstruct.wad(idx),...
+            'wadopen_',ei_.wad(end),'cpopen_',ei_.px(end,5),...
+            'wadhigh_',ei_.wad(end),'cphigh_',ei_.px(end,5),...
+            'wadlow_',ei_.wad(end),'cplow_',ei_.px(end,5),...
             'fibonacci1_',0.618*signalinfo.hh+0.382*signalinfo.hh1,...
             'fibonacci0_',signalinfo.ll,...
             'status_','unset',...
@@ -221,7 +262,8 @@ elseif condsignal.directionkellied == 1
             'tdhigh_',tdhigh_,...
             'td13high_',td13high_,...
             'td13low_',td13low_,...
-            'closestr_','none');
+            'closestr_','none',...
+            'atropen_',ei_.atr(end));
         %
         pxhigh = resstruct.px(idx,3);
         pxopen = resstruct.px(idx,2);
@@ -318,9 +360,53 @@ elseif condsignal.directionkellied == 1
             return
         end
         %
+        if poptrade
+            % additional check
+            if strcmpi(freq,'240m') || strcmpi(freq,'4h') || strcmpi(freq,'h4')
+                [~,ei_m30] = charlotte_loaddata('futcode',code,'frequency','m30','nfractal',4,'usemt5',useMT5);
+                opendt = resstruct.px(idx,1);
+                idx1 = find(ei_m30.px(:,1) >= opendt,1,'first');
+                if idx+1 <= size(resstruct.px,1)
+                    idx2 = find(ei_m30.px(:,1) < resstruct.px(idx+1,1),1,'last');
+                else
+                    idx2 = min(idx1+8,size(ei_m30.px,1));
+                end
+
+                ei_m30_ = fractal_truncate(ei_m30,idx2,idx1);
+                idx3 = find(ei_m30_.px(:,5) > condsignal.signalkellied(2)+fut.tick_size*6,1,'first');
+                if isempty(idx3)
+                    trade = {};
+                    return
+                end
+            elseif strcmpi(freq,'60m') || strcmpi(freq,'1h') || strcmpi(freq,'h1') 
+                [~,ei_m15] = charlotte_loaddata('futcode',code,'frequency','m15','nfractal',4,'usemt5',useMT5);
+                opendt = resstruct.px(idx,1);
+                idx1 = find(ei_m15.px(:,1) >= opendt,1,'first');
+                if idx+1 <= size(resstruct.px,1)
+                    idx2 = find(ei_m15.px(:,1) < resstruct.px(idx+1,1),1,'last');
+                else
+                    idx2 = min(idx1+4,size(ei_m15.px,1));
+                end
+                
+                ei_m15_ = fractal_truncate(ei_m15,idx2,idx1);
+                
+                idx3 = find(ei_m15_.px(:,5) > condsignal.signalkellied(2)+fut.tick_size*6,1,'first');
+                if isempty(idx3)
+                    trade = {};
+                    return
+                end
+                
+            end
+        end
+        %
+        tradeopenpx = max(pxopen,condsignal.signalkellied(2)+tickratio_*fut.tick_size);
+        riskmanager.pxstoploss2_ = tradeopenpx - atrsl*riskmanager.atropen_;
+        riskmanager.pxtarget_ = tradeopenpx + atrtp*riskmanager.atropen_;
+        riskmanager.pxstoploss_ = resstruct.teeth(idx-1);
+        
         trade = cTradeOpen('id',idx,'code',code,...
             'opendatetime', resstruct.px(idx,1),...
-            'openprice',max(pxopen,condsignal.signalkellied(2)+tickratio_*fut.tick_size),...
+            'openprice',tradeopenpx,...
             'opendirection',1,...
             'openvolume',1);
         if resstruct.hh(idx) - resstruct.teeth(idx) > -fut.tick_size
@@ -340,6 +426,7 @@ elseif condsignal.directionkellied == 1
         trade.setriskmanager('name','spiderman','extrainfo',riskmanager);
         trade.riskmanager_.setusefractalupdateflag(0);
         trade.riskmanager_.setusefibonacciflag(1);
+        trade.riskmanager_.atropen_ = riskmanager.atropen_;
         %
         if ei_.ss(end) >= 9
             ssreached = ei_.ss(end);
@@ -381,8 +468,8 @@ elseif condsignal.directionkellied == 1
 %             trade.riskmanager_.closestr_ = 'conditional:atr';
 %         end
         %
-        if resstruct.teeth(idx-1) > trade.riskmanager_.pxstoploss_
-            trade.riskmanager_.pxstoploss_ = floor(resstruct.teeth(idx-1)/fut.tick_size)*fut.tick_size;
+        if ei_.teeth(end) > trade.riskmanager_.pxstoploss_
+            trade.riskmanager_.pxstoploss_ = floor(ei_.teeth(end)/fut.tick_size)*fut.tick_size;
             trade.riskmanager_.closestr_ = 'fractal:teeth';
         end
         %
@@ -426,10 +513,10 @@ elseif condsignal.directionkellied == -1
         riskmanager = struct('hh0_',signalinfo.hh,'hh1_',signalinfo.hh,...
             'll0_',signalinfo.ll,'ll1_',signalinfo.ll,...
             'type_','breachdn-S',...
-            'wadopen_',resstruct.wad(idx),...
-            'cpopen_',resstruct.px(idx,5),'wadhigh_',resstruct.wad(idx),...
-            'cphigh_',resstruct.px(idx,5),'wadlow_',resstruct.wad(idx),...
-            'cplow_',resstruct.px(idx,5),...
+            'wadopen_',ei_.wad(end),...
+            'cpopen_',ei_.px(end,5),'wadhigh_',ei_.wad(end),...
+            'cphigh_',ei_.px(end,5),'wadlow_',ei_.wad(end),...
+            'cplow_',ei_.px(end,5),...
             'fibonacci1_',signalinfo.hh,...
             'fibonacci0_',0.618*signalinfo.ll+0.382*signalinfo.ll1,...
             'status_','unset',...
@@ -439,7 +526,8 @@ elseif condsignal.directionkellied == -1
             'tdhigh_',tdhigh_,...
             'td13high_',td13high_,...
             'td13low_',td13low_,...
-            'closestr_','none');
+            'closestr_','none',...
+            'atropen_',ei_.atr(end));
         %
         pxlow = resstruct.px(idx,4);
         pxopen = resstruct.px(idx,2);
@@ -535,6 +623,46 @@ elseif condsignal.directionkellied == -1
             return
         end
         %
+        if poptrade
+            % additional check
+            if strcmpi(freq,'240m') || strcmpi(freq,'4h') || strcmpi(freq,'h4')
+                [~,ei_m30] = charlotte_loaddata('futcode',code,'frequency','m30','nfractal',4,'usemt5',useMT5);
+                opendt = resstruct.px(idx,1);
+                idx1 = find(ei_m30.px(:,1) >= opendt,1,'first');
+                if idx+1 <= size(resstruct.px,1)
+                    idx2 = find(ei_m30.px(:,1) < resstruct.px(idx+1,1),1,'last');
+                else
+                    idx2 = min(idx1+8,size(ei_m30.px,1));
+                end
+                ei_m30_ = fractal_truncate(ei_m30,idx2,idx1);
+                idx3 = find(ei_m30_.px(:,5) < condsignal.signalkellied(3)-fut.tick_size*6,1,'first');
+                if isempty(idx3)
+                    trade = {};
+                    return
+                end
+            elseif strcmpi(freq,'60m') || strcmpi(freq,'1h') || strcmpi(freq,'h1')
+                [~,ei_m15] = charlotte_loaddata('futcode',code,'frequency','m15','nfractal',4,'usemt5',useMT5);
+                opendt = resstruct.px(idx,1);
+                idx1 = find(ei_m15.px(:,1) >= opendt,1,'first');
+                if idx+1 <= size(resstruct.px,1)
+                    idx2 = find(ei_m15.px(:,1) < resstruct.px(idx+1,1),1,'last');
+                else
+                    idx2 = min(idx1+4,size(ei_m15.px,1));
+                end
+                ei_m15_ = fractal_truncate(ei_m15,idx2,idx1);
+                idx3 = find(ei_m15_.px(:,5) < condsignal.signalkellied(3)-fut.tick_size*6,1,'first');
+                if isempty(idx3)
+                    trade = {};
+                    return
+                end
+            end
+        end
+        %
+        tradeopenpx = min(pxopen,condsignal.signalkellied(3)-tickratio_*fut.tick_size);
+        riskmanager.pxstoploss2_ = tradeopenpx + atrsl*riskmanager.atropen_;
+        riskmanager.pxtarget_ = tradeopenpx - atrtp*riskmanager.atropen_;
+        riskmanager.pxstoploss_ = resstruct.teeth(idx-1);
+
         trade = cTradeOpen('id',idx,'code',code,...
             'opendatetime', resstruct.px(idx,1),...
             'openprice',min(pxopen,condsignal.signalkellied(3)-tickratio_*fut.tick_size),...
@@ -558,6 +686,8 @@ elseif condsignal.directionkellied == -1
         trade.setriskmanager('name','spiderman','extrainfo',riskmanager);
         trade.riskmanager_.setusefractalupdateflag(0);
         trade.riskmanager_.setusefibonacciflag(1);
+        trade.riskmanager_.atropen_ = riskmanager.atropen_;
+
         %
         if ei_.bs(end) >= 9
             bsreached = ei_.bs(end);
@@ -599,8 +729,8 @@ elseif condsignal.directionkellied == -1
 %             trade.riskmanager_.closestr_ = 'conditional:atr';
 %         end
         %
-        if resstruct.teeth(idx) < trade.riskmanager_.pxstoploss_
-            trade.riskmanager_.pxstoploss_ = ceil(resstruct.teeth(idx)/fut.tick_size)*fut.tick_size;
+        if ei_.teeth(end) < trade.riskmanager_.pxstoploss_
+            trade.riskmanager_.pxstoploss_ = ceil(ei_.teeth(end)/fut.tick_size)*fut.tick_size;
             trade.riskmanager_.closestr_ = 'fractal:teeth';
         end
         %

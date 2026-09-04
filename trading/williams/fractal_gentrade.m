@@ -22,13 +22,13 @@ if strcmpi(freq,'daily')
         'hh1',resstruct.px(idx,3),...
         'll1',resstruct.px(idx,4));
 else
-    if strcmpi(freq,'30m')
+    if strcmpi(freq,'30m') || strcmpi(freq,'m30')
         ticksizeratio = 0.5;
-    elseif strcmpi(freq,'60m')
+    elseif strcmpi(freq,'60m') || strcmpi(freq,'h1') || strcmpi(freq,'1h')
+        ticksizeratio = 1;
+    elseif strcmpi(freq,'15m') || strcmpi(freq,'m15')
         ticksizeratio = 0.5;
-    elseif strcmpi(freq,'15m')
-        ticksizeratio = 0.5;
-    elseif strcmpi(freq,'5m')
+    elseif strcmpi(freq,'5m') || strcmpi(freq,'m5')
         ticksizeratio = 0;
     else
         ticksizeratio = 1;
@@ -77,6 +77,39 @@ try
 catch
     ticksize = 0;
 end
+
+if strcmpi(freq,'240m') || strcmpi(freq,'4h') || strcmpi(freq,'h4')
+    if strcmpi(code,'audusd')
+        atrsl = 1.5;
+        atrtp = 4.2;
+    elseif strcmpi(code,'eurusd')
+        atrsl = 1.5;
+        atrtp = 3.0;
+    elseif strcmpi(code,'gbpusd')
+        atrsl = 1.5;
+        atrtp = 3.4;
+    elseif strcmpi(code,'usdcad')
+        atrsl = 1.8;
+        atrtp = 4.8;
+    elseif strcmpi(code,'usdchf')
+        atrsl = 1.7;
+        atrtp = 3.5;
+    elseif strcmpi(code,'usdjpy')
+        atrsl = 1.6;
+        atrtp = 3.5;
+    elseif strcmpi(code,'xauusd')
+        atrsl = 1.8;
+        atrtp = 3.5;
+    else
+        atrsl = 2.0;
+        atrtp = 4.0;
+    end
+else
+    atrsl = 1.8;
+    atrtp = 5.0;
+end
+
+
 
 if longshort == 1
     riskmanager = struct('hh0_',resstruct.hh(idx),'hh1_',resstruct.hh(idx),...
@@ -140,7 +173,11 @@ if longshort == 1
             if strcmpi(freq,'5m')
                 openpx = max(resstruct.px(idx,2),signal{1,1}(2));
             else
-                openpx = max(resstruct.px(idx,2),signal{1,1}(2)+ticksize);
+                if resstruct.px(idx,4) < signal{1,1}(2)
+                    openpx = signal{1,1}(2)+ticksize;
+                else
+                    openpx = resstruct.px(idx,2);
+                end
             end
         end
     else
@@ -175,6 +212,16 @@ if longshort == 1
             openpx = resstruct.px(idx,5);
         end
     end
+    
+    riskmanager.atropen_ = resstruct.atr(idx-1);
+    if cond1
+        riskmanager.pxstoploss2_ = signal{1,1}(2) - atrsl*resstruct.atr(idx-1);
+        riskmanager.pxtarget_ = signal{1,1}(2) + atrtp*resstruct.atr(idx-1);
+    else
+        riskmanager.pxstoploss2_ = openpx - atrsl*resstruct.atr(idx-1);
+        riskmanager.pxtarget_ = openpx + atrtp*resstruct.atr(idx-1);
+    end
+    riskmanager.pxstoploss_ = resstruct.teeth(idx-1);
 
     if resstruct.hh(idx) - resstruct.teeth(idx) > -ticksize
         if resstruct.teeth(idx) > resstruct.jaw(idx)
@@ -195,6 +242,7 @@ if longshort == 1
     
     trade.setsignalinfo('name','fractal','extrainfo',signalinfo);
     trade.setriskmanager('name','spiderman','extrainfo',riskmanager);
+    trade.riskmanager_.atropen_ = riskmanager.atropen_;
 
     if resstruct.ss(idx) >= 9
         ssreached = resstruct.ss(idx);
@@ -290,7 +338,11 @@ elseif longshort == -1
             if strcmpi(freq,'5m')
                 openpx = min(resstruct.px(idx,2),signal{1,2}(3));
             else
-                openpx = min(resstruct.px(idx,2),signal{1,2}(3)-ticksize);
+                if resstruct.px(idx,3) > signal{1,2}(3)
+                    openpx = signal{1,2}(3)-ticksize;
+                else
+                    openpx = resstruct.px(idx,2);
+                end
             end
         end
     else
@@ -322,6 +374,17 @@ elseif longshort == -1
         end
     end
 
+    riskmanager.atropen_ = resstruct.atr(idx-1);
+    if cond1
+        riskmanager.pxstoploss2_ = signal{1,2}(3) + atrsl*resstruct.atr(idx-1);
+        riskmanager.pxtarget_ = signal{1,2}(3) - atrtp*resstruct.atr(idx-1);
+    else
+        riskmanager.pxstoploss2_ = openpx + atrsl*resstruct.atr(idx-1);
+        riskmanager.pxtarget_ = openpx - atrtp*resstruct.atr(idx-1);
+    end
+        
+    riskmanager.pxstoploss_ = resstruct.teeth(idx-1);
+
     if resstruct.ll(idx) - resstruct.teeth(idx) < ticksize
         if resstruct.teeth(idx) < resstruct.jaw(idx)
             tradername = 'strong';
@@ -341,6 +404,8 @@ elseif longshort == -1
 
     trade.setsignalinfo('name','fractal','extrainfo',signalinfo);
     trade.setriskmanager('name','spiderman','extrainfo',riskmanager);
+    trade.riskmanager_.atropen_ = riskmanager.atropen_;
+
     if resstruct.bs(idx) >= 9
         bsreached = resstruct.bs(idx);
         trade.riskmanager_.tdlow_ = min(resstruct.px(idx-bsreached+1:idx,4));
