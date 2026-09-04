@@ -164,9 +164,10 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 %ss9 case, i.e. the market was below lvldn as the market
                 %firstly rallied
                 if extrainfo.lvldn(idxopen) > extrainfo.hh(idxopen)
-                    closeflag = 1;
+%                     closeflag = 1;
                     trade.riskmanager_.closestr_ = 'tdsq:perfectss9';
                     closestr = trade.riskmanager_.closestr_;
+                    trade.riskmanager_.pxstoploss_ = max(trade.riskmanager_.pxstoploss2_,trade.riskmanager_.tdlow_);
                     return
                 end
             end

@@ -18,7 +18,7 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     p.addParameter('CompulsoryCheckForConditional',true,@islogical);
     p.parse(varargin{:});
     usecandlelastonly = p.Results.UseCandleLastOnly;
-    doprint = p.Results.Debug;
+%     doprint = p.Results.Debug;
     updatepnlforclosedtrade = p.Results.UpdatePnLForClosedTrade;
     extrainfo = p.Results.ExtraInfo;
     runhighlowonly = p.Results.RunHighLowOnly;
@@ -55,14 +55,10 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         if strcmpi(trade.opensignal_.frequency_,'daily')
             idxstart2check = find(extrainfo.p(:,1)>=trade.opendatetime1_,1,'first')+1;
         else
-%             if isempty(strfind(trade.opensignal_.mode_,'conditional'))
-%                 idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
-%             else
-%                 idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
-%             end
             idxstart2check = find(extrainfo.p(:,1)<=trade.opendatetime1_,1,'last');
         end
     end
+
     if isempty(idxstart2check), return; end
     if idxstart2check > size(extrainfo.p,1), return;end
 
@@ -154,6 +150,13 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
             return
         end
     end
+
+    [ unwindtrade ] = obj.riskmanagement_atr('extrainfo',extrainfo,...
+        'updatepnlforclosedtrade',updatepnlforclosedtrade);
+    if ~isempty(unwindtrade)
+        return
+    end
+
             
     [ unwindtrade ] = obj.riskmanagement_tdsq('extrainfo',extrainfo,...
         'updatepnlforclosedtrade',updatepnlforclosedtrade);
@@ -374,189 +377,189 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
     end
     %
     if direction == 1 && extrainfo.hh(end) > extrainfo.hh(end-1) && abs(extrainfo.hh(end)/extrainfo.hh(end-1)-1)>0.0003
-        if ~isnan(obj.tdlow_)
-            sshighidx = find(extrainfo.ss >=9,1,'last');
-            sshigh = extrainfo.ss(sshighidx);
-            if sshigh >= 16
-                exceptionflag = false;
-            else
-                sslast = extrainfo.ss(end);
-                if sslast >= 9
-                    lasthhidx = find(extrainfo.idxhh(1:end-1) == 1,1,'last');
-                    if lasthhidx < sshighidx
-                        exceptionflag = true;
-                    else
-                        exceptionflag = false;
-                    end
-                else
-                    exceptionflag = (extrainfo.p(end,3) - extrainfo.p(end,5))/(extrainfo.p(end,3) - extrainfo.p(end,4)) > 0.5;
-                end
-            end
-        else
-            exceptionflag = false;
-        end
-        if ~exceptionflag
-            if extrainfo.p(end,5) >= extrainfo.hh(end-1)
-                %todo:
-                %trick part when extrainfo.p(end,5) == extrainfo.p(end,2)
-                if extrainfo.p(end,5) < extrainfo.p(end,2)
-                    closeflag = true;
-                    shadowlineratio = (extrainfo.p(end,3) - extrainfo.p(end,5))/(extrainfo.p(end,3) - extrainfo.p(end,4));
-                    if shadowlineratio > 0.5
-                        obj.pxstoploss_ = extrainfo.p(end,5);
-                    else
-                        obj.pxstoploss_ = extrainfo.p(end,4);
-                    end
-                else
-                    lasthhidx = find(extrainfo.idxhh(1:end-1) == 1,1,'last');
-                    if isempty(lasthhidx)
-                        lasthhidx = 1;
-                    end 
-                    sshighidx = find(extrainfo.ss >=9,1,'last');
-                    if lasthhidx < sshighidx
-                        sshigh = extrainfo.ss(sshighidx);
-                        if sshigh >= 16
-                            closeflag = true;
-                            obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
-                        else
-                            closeflag = false;
-                        end
-                    else
-                        closeflag = false;
-                    end
-                end
-            else
-                closeflag = true;
-                if ~isempty(strfind(val,'conditional-'))
-                    if ~strcmpi(obj.trade_.opensignal_.frequency_,'daily')
-                        obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
-                    else
-                        if extrainfo.p(end,5) > extrainfo.p(end,2)
-                            obj.pxstoploss_ = extrainfo.p(end,4) + ticksize;
-                        else
-                            obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
-                        end
-                    end
-                else
-                    if extrainfo.sc(end) == 13 || extrainfo.ss(end) >= 9
-                        obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
-                    else
-                        obj.pxstoploss_ = extrainfo.p(end,4) + ticksize;
-                    end
-                end
-            end
-            if closeflag          
-                obj.closestr_ = 'fractal:upupdate';
-                if runriskmanagementbeforemktclose && extrainfo.p(end,5) < extrainfo.lips(end)
-                    obj.status_ = 'closed';
-                    obj.trade_.closedatetime1_ = extrainfo.p(end,1);
-                    obj.trade_.closeprice_ = extrainfo.p(end,5);
-                    volume = trade.openvolume_;
-                    obj.trade_.runningpnl_ = 0;
-                    instrument = trade.instrument_;
-                    if isempty(instrument)
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-                    else
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-                    end
-                    unwindtrade = obj.trade_;
-                    return
-                end
-            end
-        end
+%         if ~isnan(obj.tdlow_)
+%             sshighidx = find(extrainfo.ss >=9,1,'last');
+%             sshigh = extrainfo.ss(sshighidx);
+%             if sshigh >= 16
+%                 exceptionflag = false;
+%             else
+%                 sslast = extrainfo.ss(end);
+%                 if sslast >= 9
+%                     lasthhidx = find(extrainfo.idxhh(1:end-1) == 1,1,'last');
+%                     if lasthhidx < sshighidx
+%                         exceptionflag = true;
+%                     else
+%                         exceptionflag = false;
+%                     end
+%                 else
+%                     exceptionflag = (extrainfo.p(end,3) - extrainfo.p(end,5))/(extrainfo.p(end,3) - extrainfo.p(end,4)) > 0.5;
+%                 end
+%             end
+%         else
+%             exceptionflag = false;
+%         end
+%         if ~exceptionflag
+%             if extrainfo.p(end,5) >= extrainfo.hh(end-1)
+%                 %todo:
+%                 %trick part when extrainfo.p(end,5) == extrainfo.p(end,2)
+%                 if extrainfo.p(end,5) < extrainfo.p(end,2)
+%                     closeflag = true;
+%                     shadowlineratio = (extrainfo.p(end,3) - extrainfo.p(end,5))/(extrainfo.p(end,3) - extrainfo.p(end,4));
+%                     if shadowlineratio > 0.5
+%                         obj.pxstoploss_ = extrainfo.p(end,5);
+%                     else
+%                         obj.pxstoploss_ = extrainfo.p(end,4);
+%                     end
+%                 else
+%                     lasthhidx = find(extrainfo.idxhh(1:end-1) == 1,1,'last');
+%                     if isempty(lasthhidx)
+%                         lasthhidx = 1;
+%                     end 
+%                     sshighidx = find(extrainfo.ss >=9,1,'last');
+%                     if lasthhidx < sshighidx
+%                         sshigh = extrainfo.ss(sshighidx);
+%                         if sshigh >= 16
+%                             closeflag = true;
+%                             obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+%                         else
+%                             closeflag = false;
+%                         end
+%                     else
+%                         closeflag = false;
+%                     end
+%                 end
+%             else
+%                 closeflag = true;
+%                 if ~isempty(strfind(val,'conditional-'))
+%                     if ~strcmpi(obj.trade_.opensignal_.frequency_,'daily')
+%                         obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+%                     else
+%                         if extrainfo.p(end,5) > extrainfo.p(end,2)
+%                             obj.pxstoploss_ = extrainfo.p(end,4) + ticksize;
+%                         else
+%                             obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+%                         end
+%                     end
+%                 else
+%                     if extrainfo.sc(end) == 13 || extrainfo.ss(end) >= 9
+%                         obj.pxstoploss_ = extrainfo.p(end,5) + ticksize;
+%                     else
+%                         obj.pxstoploss_ = extrainfo.p(end,4) + ticksize;
+%                     end
+%                 end
+%             end
+%             if closeflag          
+%                 obj.closestr_ = 'fractal:upupdate';
+%                 if runriskmanagementbeforemktclose && extrainfo.p(end,5) < extrainfo.lips(end)
+%                     obj.status_ = 'closed';
+%                     obj.trade_.closedatetime1_ = extrainfo.p(end,1);
+%                     obj.trade_.closeprice_ = extrainfo.p(end,5);
+%                     volume = trade.openvolume_;
+%                     obj.trade_.runningpnl_ = 0;
+%                     instrument = trade.instrument_;
+%                     if isempty(instrument)
+%                         obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+%                     else
+%                         obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+%                     end
+%                     unwindtrade = obj.trade_;
+%                     return
+%                 end
+%             end
+%         end
     end
     %
     %
     if direction == -1 && extrainfo.ll(end) < extrainfo.ll(end-1) && abs(extrainfo.ll(end)/extrainfo.ll(end-1)-1)>0.0003
-        if ~isnan(obj.tdhigh_)
-            bslowidx = find(extrainfo.bs >= 9,1,'last');
-            bslow = extrainfo.bs(bslowidx);
-            if bslow >= 16
-                exceptionflag = false;
-            else
-                bslast = extrainfo.bs(end);
-                if bslast >= 9
-                    lastllidx = find(extrainfo.idxll(1:end-1) == -1,1,'last');
-                    if lastllidx < bslowidx
-                        exceptionflag = true;
-                    else
-                        exceptionflag = false;
-                    end
-                else
-                    exceptionflag = (extrainfo.p(end,5) - extrainfo.p(end,4))/(extrainfo.p(end,3) - extrainfo.p(end,4)) < 0.5;
-                end
-            end
-        else
-            exceptionflag = false;
-        end
-        if ~exceptionflag
-            if extrainfo.p(end,5) <= extrainfo.ll(end-1)
-                if extrainfo.p(end,5) >= extrainfo.p(end,2)
-                    closeflag = true;
-                    shadowlineratio = (extrainfo.p(end,5) - extrainfo.p(end,4))/(extrainfo.p(end,3) - extrainfo.p(end,4));
-                    if shadowlineratio > 0.5
-                        obj.pxstoploss_ = extrainfo.p(end,5);
-                    else
-                        obj.pxstoploss_ = extrainfo.p(end,3);
-                    end
-                else
-                    lastllidx = find(extrainfo.idxll(1:end-1) == -1,1,'last');
-                    if isempty(lastllidx)
-                        lastllidx = 1;
-                    end
-                    bshighidx = find(extrainfo.bs >= 9,1,'last');
-                    if lastllidx < bshighidx
-                        bshigh = extrainfo.bs(bshighidx);
-                        if bshigh >= 16
-                            closeflag = true;
-                            obj.pxstoploss_ = extrainfo.p(end,5) -ticksize;
-                        else
-                            closeflag = false;
-                        end
-                    else
-                        closeflag = false;
-                    end
-                end
-            else
-                closeflag = true;
-                if ~isempty(strfind(val,'conditional-'))
-                    if ~strcmpi(obj.trade_.opensignal_.frequency_,'daily')
-                        obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
-                    else
-                        if extrainfo.p(end,5) < extrainfo.p(end,2)
-                            obj.pxstoploss_ = extrainfo.p(end,3) - ticksize;
-                        else
-                            obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
-                        end
-                    end
-                else
-                    if extrainfo.bc(end) == 13 || extrainfo.bs(end) >= 9
-                        obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
-                    else
-                        obj.pxstoploss_ = extrainfo.p(end,3) - ticksize;
-                    end
-                end
-            end
-            if closeflag
-                obj.closestr_ = 'fractal:dnupdate';
-                if runriskmanagementbeforemktclose && extrainfo.p(end,5) > extrainfo.lips(end)
-                    obj.status_ = 'closed';
-                    obj.trade_.closedatetime1_ = extrainfo.p(end,1);
-                    obj.trade_.closeprice_ = extrainfo.p(end,5);
-                    volume = trade.openvolume_;
-                    obj.trade_.runningpnl_ = 0;
-                    instrument = trade.instrument_;
-                    if isempty(instrument)
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
-                    else
-                        obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
-                    end
-                    unwindtrade = obj.trade_;
-                    return
-                end
-                return
-            end
-        end
+%         if ~isnan(obj.tdhigh_)
+%             bslowidx = find(extrainfo.bs >= 9,1,'last');
+%             bslow = extrainfo.bs(bslowidx);
+%             if bslow >= 16
+%                 exceptionflag = false;
+%             else
+%                 bslast = extrainfo.bs(end);
+%                 if bslast >= 9
+%                     lastllidx = find(extrainfo.idxll(1:end-1) == -1,1,'last');
+%                     if lastllidx < bslowidx
+%                         exceptionflag = true;
+%                     else
+%                         exceptionflag = false;
+%                     end
+%                 else
+%                     exceptionflag = (extrainfo.p(end,5) - extrainfo.p(end,4))/(extrainfo.p(end,3) - extrainfo.p(end,4)) < 0.5;
+%                 end
+%             end
+%         else
+%             exceptionflag = false;
+%         end
+%         if ~exceptionflag
+%             if extrainfo.p(end,5) <= extrainfo.ll(end-1)
+%                 if extrainfo.p(end,5) >= extrainfo.p(end,2)
+%                     closeflag = true;
+%                     shadowlineratio = (extrainfo.p(end,5) - extrainfo.p(end,4))/(extrainfo.p(end,3) - extrainfo.p(end,4));
+%                     if shadowlineratio > 0.5
+%                         obj.pxstoploss_ = extrainfo.p(end,5);
+%                     else
+%                         obj.pxstoploss_ = extrainfo.p(end,3);
+%                     end
+%                 else
+%                     lastllidx = find(extrainfo.idxll(1:end-1) == -1,1,'last');
+%                     if isempty(lastllidx)
+%                         lastllidx = 1;
+%                     end
+%                     bshighidx = find(extrainfo.bs >= 9,1,'last');
+%                     if lastllidx < bshighidx
+%                         bshigh = extrainfo.bs(bshighidx);
+%                         if bshigh >= 16
+%                             closeflag = true;
+%                             obj.pxstoploss_ = extrainfo.p(end,5) -ticksize;
+%                         else
+%                             closeflag = false;
+%                         end
+%                     else
+%                         closeflag = false;
+%                     end
+%                 end
+%             else
+%                 closeflag = true;
+%                 if ~isempty(strfind(val,'conditional-'))
+%                     if ~strcmpi(obj.trade_.opensignal_.frequency_,'daily')
+%                         obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
+%                     else
+%                         if extrainfo.p(end,5) < extrainfo.p(end,2)
+%                             obj.pxstoploss_ = extrainfo.p(end,3) - ticksize;
+%                         else
+%                             obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
+%                         end
+%                     end
+%                 else
+%                     if extrainfo.bc(end) == 13 || extrainfo.bs(end) >= 9
+%                         obj.pxstoploss_ = extrainfo.p(end,5) - ticksize;
+%                     else
+%                         obj.pxstoploss_ = extrainfo.p(end,3) - ticksize;
+%                     end
+%                 end
+%             end
+%             if closeflag
+%                 obj.closestr_ = 'fractal:dnupdate';
+%                 if runriskmanagementbeforemktclose && extrainfo.p(end,5) > extrainfo.lips(end)
+%                     obj.status_ = 'closed';
+%                     obj.trade_.closedatetime1_ = extrainfo.p(end,1);
+%                     obj.trade_.closeprice_ = extrainfo.p(end,5);
+%                     volume = trade.openvolume_;
+%                     obj.trade_.runningpnl_ = 0;
+%                     instrument = trade.instrument_;
+%                     if isempty(instrument)
+%                         obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+%                     else
+%                         obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+%                     end
+%                     unwindtrade = obj.trade_;
+%                     return
+%                 end
+%                 return
+%             end
+%         end
     end
     %
     if isempty(instrument)
@@ -565,25 +568,50 @@ function [unwindtrade] = riskmanagementwithcandle(obj,candlek,varargin)
         obj.trade_.runningpnl_ = direction*volume*(candleClose-trade.openprice_)/instrument.tick_size * instrument.tick_value;
     end
     %
-    if size(extrainfo.p,1) >= idxstart2check && size(extrainfo.p,1) > 50
-        %calculate ATR
-        try
-            highpx = extrainfo.p(end-100:end-1,3);
-            lowpx = extrainfo.p(end-100:end-1,4);
-            closepx = extrainfo.p(end-100:end-1,5);
-        catch
-            highpx = extrainfo.p(1:end-1,3);
-            lowpx = extrainfo.p(1:end-1,4);
-            closepx = extrainfo.p(1:end-1,5);
+    if size(extrainfo.p,1) > idxstart2check && size(extrainfo.p,1) > 30
+        if strcmpi(obj.trade_.countername_,'tb')
+            if extrainfo.p(end,1) <= obj.trade_.opendatetime1_
+                return
+            end
         end
-        atrvalue = calcATR(highpx,lowpx,closepx);
-        atrvalue_mean = mean(atrvalue(14:end));
-        atrvalue_std = std(atrvalue(14:end));
-        atrvalue_zscore = abs(atrvalue(end)-atrvalue_mean)/atrvalue_std;
-        if atrvalue_zscore > 3.
-            trade.riskmanager_.pxtarget_ = trade.openprice_ + 3.*trade.opendirection_ * atrvalue_mean;
-            trade.riskmanager_.pxstoploss_ = trade.openprice_ - trade.opendirection_ * atrvalue_mean;
-            trade.riskmanager_.closestr_ = '3 times atr breach';
+
+        %calculate ATR
+        tr1 = extrainfo.p(end,3) - extrainfo.p(end,4);
+        tr2 = abs(extrainfo.p(end,3) - extrainfo.p(end-1,5));
+        tr3 = abs(extrainfo.p(end,4) - extrainfo.p(end-1,5));
+        tr = max([tr1,tr2,tr3]);
+
+        atr = extrainfo.atr;
+        atr_mean = mean(atr(end-30:end-1));
+        atr_std = std(atr(end-30:end-1));
+        atr_zscore = abs(atr(end)-atr_mean)/atr_std;
+        if atr_zscore > 3 || tr >= 5 * atr_mean          
+            obj.status_ = 'closed';
+            obj.closestr_ = '3 times atr breach';
+            obj.trade_.closedatetime1_ = extrainfo.p(end,1);
+            obj.trade_.closeprice_ = extrainfo.p(end,5);
+            volume = trade.openvolume_;
+            obj.trade_.runningpnl_ = 0;
+
+            instrument = trade.instrument_;
+            if isempty(instrument)
+                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_);
+            else
+                obj.trade_.closepnl_ = direction*volume*(trade.closeprice_-trade.openprice_)/instrument.tick_size * instrument.tick_value;
+            end
+            unwindtrade = obj.trade_;
+            return
+        else
+            %always to set up a new target with 3 times atr breach
+            tp = extrainfo.p(end,5) + 3*direction*atr_mean;
+            if direction == 1
+                obj.pxtarget_ = min(tp,obj.pxtarget_);
+                obj.pxtarget_ = floor(obj.pxtarget_/trade.instrument_.tick_size) * trade.instrument_.tick_size; 
+            else
+                obj.pxtarget_ = max(tp,obj.pxtarget_);
+                obj.pxtarget_ = ceil(obj.pxtarget_/trade.instrument_.tick_size) * trade.instrument_.tick_size; 
+            end
+%             obj.closestr_ = '3 times atr take profit';
         end
     end
     

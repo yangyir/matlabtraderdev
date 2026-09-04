@@ -31,18 +31,16 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
     else
         multiplier = 2;
     end
-    
+    %
+    % intra candle stop loss reached: closeflag = 1
+    % take profit hit atr limit: closeflag = 2
+    % take profit otherwise: closeflag = 0
     if (lowp - obj.pxstoploss_ < -multiplier*ticksize && direction == 1) || ...
             (highp - obj.pxstoploss_ > multiplier*ticksize && direction == -1)
         closeflag = 1;
     elseif (lowp < obj.pxtarget_ && direction == -1) ||...
             (highp > obj.pxtarget_ && direction == 1)
-        if strcmpi(obj.closestr_,'3 times atr breach')
-            closeflag = 2;
-        else
-%         closeflag = 2;
-            closeflag = 0;
-        end
+        closeflag = 2;
     else
         closeflag = 0;
     end
@@ -57,9 +55,9 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
             closeprice = openp;
         else
             if direction == 1
-                closeprice = obj.pxstoploss_ -3*ticksize;
+                closeprice = obj.pxstoploss_ -(multiplier+1)*ticksize;
             else
-                closeprice = obj.pxstoploss_ +3*ticksize;
+                closeprice = obj.pxstoploss_ +(multiplier+1)*ticksize;
             end
         end
         if strcmpi(obj.closestr_,'n/a')
@@ -74,7 +72,7 @@ function [unwindtrade] = candlehighlow( obj,t,openp,highp,lowp,updateinfo )
             closeprice = obj.pxtarget_;
         end
         if ~strcmpi(obj.closestr_,'3 times atr breach')
-            obj.closestr_ = 'fibonacci:1.618';
+            obj.closestr_ = 'atr';
         end
     end
 
