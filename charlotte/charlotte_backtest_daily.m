@@ -209,10 +209,10 @@ while i <= idx2
         if ~isempty(carriedtrade) && ~strcmpi(carriedtrade.status_,'closed')
             trade = carriedtrade;
         else
-            trade = fractal_gentrade2(extrainfo,futcode,i,freq,nfractal,kellytables);
+            trade = fractal_gentrade2(extrainfo,futcode,i,freq,nfractal,kellytables,useMT5);
         end
     else
-        trade = fractal_gentrade2(extrainfo,futcode,i,freq,nfractal,kellytables);
+        trade = fractal_gentrade2(extrainfo,futcode,i,freq,nfractal,kellytables,useMT5);
     end
     if ~isempty(trade)
         alltrades.push(trade);
