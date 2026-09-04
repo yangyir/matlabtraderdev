@@ -18,7 +18,11 @@ function [] = initreplayer(obj,varargin)
         obj.replayer_ = cReplayer;
     end
     
-    [flag,idx] = obj.replayer_.instruments_.hasinstrument(codestr);
+    try
+        [flag,idx] = obj.replayer_.instruments_.hasinstrument(codestr);
+    catch
+        flag = false;
+    end
     if ~flag
         obj.replayer_.registerinstrument(codestr);
         idx = obj.replayer_.instruments_.count;
