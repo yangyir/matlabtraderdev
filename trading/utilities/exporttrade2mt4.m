@@ -26,8 +26,11 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
         cmd = 4;%OP_BUYSTOP
     elseif trade.opendirection_ == -2
         cmd = 5;%OP_SELLSTOP
+    elseif trade.opendirection_ == 3
+        cmd = 2;%OP_BUYLIMIT
+    elseif trade.opendirection_ == -3
+        cmd = 3;%OP_SELLLIMIT
     else
-        'haha'
     end
     
     fid = fopen(fn,'a');
@@ -38,11 +41,11 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
     end
     
     if strcmpi(symbol,'XAUUSD')
-        exportformat = '%s\t%s\t%3s\t%d\t%4.2f\t%4.2f\t%s\t%s\t%s\t%4.4f\n';
+        exportformat = '%s\t%s\t%3s\t%d\t%4.2f\t%4.2f\t%4.2f\t%s\t%s\t%s\t%4.4f\n';
     elseif strcmpi(symbol,'USDJPY')
-        exportformat = '%s\t%s\t%3s\t%d\t%4.3f\t%4.3f\t%s\t%s\t%s\t%4.4f\n';
+        exportformat = '%s\t%s\t%3s\t%d\t%4.3f\t%4.3f\t%4.3f\t%s\t%s\t%s\t%4.4f\n';
     else
-        exportformat = '%s\t%s\t%3s\t%d\t%4.5f\t%4.5f\t%s\t%s\t%s\t%4.4f\n';
+        exportformat = '%s\t%s\t%3s\t%d\t%4.5f\t%4.5f\t%4.5f\t%s\t%s\t%s\t%4.4f\n';
     end
     
     fprintf(fid,exportformat,...
@@ -52,6 +55,7 @@ function [] = exporttrade2mt4(trade,extrainfo,fn)
         cmd,...
         trade.openprice_,...
         trade.riskmanager_.pxstoploss_,...
+        trade.riskmanager_.pxtarget_,...
         datestr(trade.opendatetime1_,'yyyy.mm.dd HH:MM'),...
         trade.status_,...
         trade.opensignal_.mode_,...
