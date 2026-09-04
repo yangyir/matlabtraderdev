@@ -1,4 +1,5 @@
 function dateout = dateadd(datein,interval,bump,midofthemonth)
+    
     if nargin < 2
         error('dateadd:invalid input!');
     end
@@ -9,6 +10,12 @@ function dateout = dateadd(datein,interval,bump,midofthemonth)
     
     if nargin < 4
         midofthemonth = 0;
+    end
+
+    isoutputchar = false;
+    if ischar(datein)
+        isoutputchar = true;
+        datein = datenum(datein,'yyyy-mm-dd');
     end
        
     if ~ischar(interval)
@@ -63,5 +70,7 @@ function dateout = dateadd(datein,interval,bump,midofthemonth)
         dateout = businessdate(dateout,-1);
     end 
     
-    
+    if isoutputchar
+        dateout = datestr(dateout,'yyyy-mm-dd');
+    end
 end
