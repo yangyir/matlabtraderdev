@@ -1,6 +1,6 @@
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
 codes_fx = {'audusd';'eurusd';'gbpusd';'usdcad';'usdchf';'usdjpy';'xauusd'};
-freqsmt4 = {'h1';'h4'};
+freqsmt4 = {'h4'};
 count = 0;
 code = cell(100,1);
 nTotal = zeros(100,1);
