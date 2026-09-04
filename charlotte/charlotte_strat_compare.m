@@ -30,19 +30,25 @@ k2 = strat2.bstc.K(idx2);
 fprintf('%22s:\t%35s\t:','long signal special','bstc');
 charlotte_print_kelly(k1,k2);
 %breachuplvlup_tb
-idx1 = strcmpi(strat1.breachuplvlup_tb.asset,assetname);
-idx2 = strcmpi(strat2.breachuplvlup_tb.asset,assetname);
-k1 = strat1.breachuplvlup_tb.K(idx1);
-k2 = strat2.breachuplvlup_tb.K(idx2);
-fprintf('%22s:\t%35s\t:','long signal special','breachuplvlup_tb');
-charlotte_print_kelly(k1,k2);
+try
+    idx1 = strcmpi(strat1.breachuplvlup_tb.asset,assetname);
+    idx2 = strcmpi(strat2.breachuplvlup_tb.asset,assetname);
+    k1 = strat1.breachuplvlup_tb.K(idx1);
+    k2 = strat2.breachuplvlup_tb.K(idx2);
+    fprintf('%22s:\t%35s\t:','long signal special','breachuplvlup_tb');
+    charlotte_print_kelly(k1,k2);
+catch
+end
 %breachupsshighvalue_tb
-idx1 = strcmpi(strat1.breachupsshighvalue_tb.asset,assetname);
-idx2 = strcmpi(strat2.breachupsshighvalue_tb.asset,assetname);
-k1 = strat1.breachupsshighvalue_tb.K(idx1);
-k2 = strat2.breachupsshighvalue_tb.K(idx2);
-fprintf('%22s:\t%35s\t:','long signal special','breachupsshighvalue_tb');
-charlotte_print_kelly(k1,k2);
+try
+    idx1 = strcmpi(strat1.breachupsshighvalue_tb.asset,assetname);
+    idx2 = strcmpi(strat2.breachupsshighvalue_tb.asset,assetname);
+    k1 = strat1.breachupsshighvalue_tb.K(idx1); 
+    k2 = strat2.breachupsshighvalue_tb.K(idx2);
+    fprintf('%22s:\t%35s\t:','long signal special','breachupsshighvalue_tb');
+    charlotte_print_kelly(k1,k2);
+catch
+end
 %breachuplvlup_tc
 idx1 = strcmpi(strat1.breachuplvlup_tc.asset,assetname);
 idx2 = strcmpi(strat2.breachuplvlup_tc.asset,assetname);
@@ -82,19 +88,25 @@ k2 = strat2.sstc.K(idx2);
 fprintf('%22s:\t%35s\t:','short signal special','sstc');
 charlotte_print_kelly(k1,k2);
 %breachdnlvldn_tb
-idx1 = strcmpi(strat1.breachdnlvldn_tb.asset,assetname);
-idx2 = strcmpi(strat2.breachdnlvldn_tb.asset,assetname);
-k1 = strat1.breachdnlvldn_tb.K(idx1);
-k2 = strat2.breachdnlvldn_tb.K(idx2);
-fprintf('%22s:\t%35s\t:','short signal special','breachdnlvldn_tb');
-charlotte_print_kelly(k1,k2);
+try
+    idx1 = strcmpi(strat1.breachdnlvldn_tb.asset,assetname);
+    idx2 = strcmpi(strat2.breachdnlvldn_tb.asset,assetname);
+    k1 = strat1.breachdnlvldn_tb.K(idx1);
+    k2 = strat2.breachdnlvldn_tb.K(idx2);
+    fprintf('%22s:\t%35s\t:','short signal special','breachdnlvldn_tb');
+    charlotte_print_kelly(k1,k2);
+catch
+end
 %breachdnbshighivalue_tb
-idx1 = strcmpi(strat1.breachdnbshighvalue_tb.asset,assetname);
-idx2 = strcmpi(strat2.breachdnbshighvalue_tb.asset,assetname);
-k1 = strat1.breachdnbshighvalue_tb.K(idx1);
-k2 = strat2.breachdnbshighvalue_tb.K(idx2);
-fprintf('%22s:\t%35s\t:','short signal special','breachdnbshighvalue_tb');
-charlotte_print_kelly(k1,k2);
+try
+    idx1 = strcmpi(strat1.breachdnbshighvalue_tb.asset,assetname);
+    idx2 = strcmpi(strat2.breachdnbshighvalue_tb.asset,assetname);
+    k1 = strat1.breachdnbshighvalue_tb.K(idx1);
+    k2 = strat2.breachdnbshighvalue_tb.K(idx2);
+    fprintf('%22s:\t%35s\t:','short signal special','breachdnbshighvalue_tb');
+    charlotte_print_kelly(k1,k2);
+catch
+end
 %breachdnlvldn_tc
 idx1 = strcmpi(strat1.breachdnlvldn_tc.asset,assetname);
 idx2 = strcmpi(strat2.breachdnlvldn_tc.asset,assetname);
