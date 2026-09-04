@@ -33,6 +33,10 @@ function [] = setriskmanager_spiderman(obj,varargin)
         riskmanager.td13low_ = info.td13low_;
     catch
     end
+    try
+        riskmanager.atropen_ = info.atropen_;
+    catch
+    end
     
     %
     try
@@ -72,6 +76,7 @@ function [] = setriskmanager_spiderman(obj,varargin)
         if strcmpi(info.status_, 'closed')
             riskmanager.status_ = info.status_;
             riskmanager.pxstoploss_ = info.pxstoploss_;
+            riskmanager.pxstoploss2_ = info.pxstoploss2_;
             riskmanager.pxtarget_ = info.pxtarget_;
             riskmanager.closestr_ = info.closestr_;
             if ~strcmpi(info.tdlow_,'NaN')
@@ -90,7 +95,6 @@ function [] = setriskmanager_spiderman(obj,varargin)
             catch
                 riskmanager.pxstoploss_ = riskmanager.fibonacci0_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             end
-%           riskmanager.pxstoploss2_ = riskmanager.fibonacci1_ - 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             try
                 if ~strcmpi(info.pxtarget_,'NaN') && isnumeric(info.pxtarget_) && abs(info.pxtarget_+9.99)>1e-6
                     riskmanager.pxtarget_ = info.pxtarget_;
@@ -100,6 +104,14 @@ function [] = setriskmanager_spiderman(obj,varargin)
             catch
                 riskmanager.pxtarget_ = riskmanager.fibonacci1_ + 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             end
+            try
+                if ~strcmpi(info.pxstoploss2_,'NaN') && isnumeric(info.pxstoploss2_) && abs(info.pxstoploss2_+9.99)>1e-6
+                    riskmanager.pxstoploss2_ = info.pxstoploss2_;
+                end
+            catch
+                riskmanager.pxstoploss2_ = -9.99;
+            end
+            
             try
                 if ~strcmpi(info.closestr_,'NaN')
                     riskmanager.closestr_ = info.closestr_;
@@ -113,7 +125,9 @@ function [] = setriskmanager_spiderman(obj,varargin)
             if ~isempty(obj.instrument_)
                 ticksize = obj.instrument_.tick_size;
                 riskmanager.pxstoploss_ = floor(riskmanager.pxstoploss_/ticksize)*ticksize;
-%               riskmanager.pxstoploss2_ = floor(riskmanager.pxstoploss2_/ticksize)*ticksize;
+                if abs(riskmanager.pxstoploss2_+9.99)>1e-6
+                    riskmanager.pxstoploss2_ = floor(riskmanager.pxstoploss2_/ticksize)*ticksize;
+                end
                 riskmanager.pxtarget_ = ceil(riskmanager.pxtarget_/ticksize)*ticksize;
             end
         
@@ -130,6 +144,7 @@ function [] = setriskmanager_spiderman(obj,varargin)
         if strcmpi(info.status_, 'closed')
             riskmanager.status_ = info.status_;
             riskmanager.pxstoploss_ = info.pxstoploss_;
+            riskmanager.pxstoploss2_ = info.pxstoploss2_;
             riskmanager.pxtarget_ = info.pxtarget_;
             riskmanager.closestr_ = info.closestr_;
             if ~strcmpi(info.tdlow_,'NaN')
@@ -148,7 +163,6 @@ function [] = setriskmanager_spiderman(obj,varargin)
             catch
                 riskmanager.pxstoploss_ = riskmanager.fibonacci1_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             end
-    %         riskmanager.pxstoploss2_ = riskmanager.fibonacci0_ + 0.382*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
             try
                 if ~strcmpi(info.pxtarget_,'NaN') && isnumeric(info.pxtarget_) && abs(info.pxtarget_+9.99)>1e-6
                     riskmanager.pxtarget_ = info.pxtarget_;
@@ -157,6 +171,13 @@ function [] = setriskmanager_spiderman(obj,varargin)
                 end
             catch
                 riskmanager.pxtarget_ = riskmanager.fibonacci0_ - 1.618*(riskmanager.fibonacci1_-riskmanager.fibonacci0_);
+            end
+            try
+                if ~strcmpi(info.pxstoploss2_,'NaN') && isnumeric(info.pxstoploss2_) && abs(info.pxstoploss2_+9.99)>1e-6
+                    riskmanager.pxstoploss2_ = info.pxstoploss2_;
+                end
+            catch
+                riskmanager.pxstoploss2_ = -9.99;
             end
             try
                 if ~strcmpi(info.closestr_,'NaN')
@@ -171,7 +192,9 @@ function [] = setriskmanager_spiderman(obj,varargin)
             if ~isempty(obj.instrument_)
                 ticksize = obj.instrument_.tick_size;
                 riskmanager.pxstoploss_ = ceil(riskmanager.pxstoploss_/ticksize)*ticksize;
-    %             riskmanager.pxstoploss2_ = ceil(riskmanager.pxstoploss2_/ticksize)*ticksize;
+                if abs(riskmanager.pxstoploss2_+9.99)>1e-6
+                    riskmanager.pxstoploss2_ = ceil(riskmanager.pxstoploss2_/ticksize)*ticksize;
+                end
                 riskmanager.pxtarget_ = floor(riskmanager.pxtarget_/ticksize)*ticksize;
             end
 
