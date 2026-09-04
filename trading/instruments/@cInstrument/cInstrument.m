@@ -1,9 +1,9 @@
 classdef (Abstract) cInstrument < handle
     properties (Abstract)
-        code_ctp@char
-        code_wind@char
-        code_bbg@char
-        code_H5@char
+        code_ctp
+        code_wind
+        code_bbg
+        code_H5
     end
     
     

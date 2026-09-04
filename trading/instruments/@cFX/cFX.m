@@ -1,16 +1,16 @@
 % build-up cFX - yangyiran 2022/08/18
 classdef cFX < cInstrument
     properties
-        code_ctp@char
-        code_wind@char
-        code_bbg@char
-        code_H5@char
+        code_ctp
+        code_wind
+        code_bbg
+        code_H5
         
-        contract_size@double = 10000
-        tick_size@double = 0.0001
-        tick_value@double = 100
-        asset_name@char
-        exchange@char
+        contract_size = 10000
+        tick_size = 0.0001
+        tick_value = 100
+        asset_name
+        exchange
         
     end
     

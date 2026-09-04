@@ -1,27 +1,27 @@
 % initial stocks - jinntao 2018/08/17
 classdef cStock < cInstrument
     properties        
-        code_ctp@char
-        code_wind@char
-        code_bbg@char
-        code_H5@char
+        code_ctp
+        code_wind
+        code_bbg
+        code_H5
         
-        contract_size@double = 100
-        tick_size@double
-        tick_value@double
-        asset_name@char
-        exchange@char
-        ipo_date1@double
-        ipo_date2@char
+        contract_size = 100
+        tick_size
+        tick_value
+        asset_name
+        exchange
+        ipo_date1
+        ipo_date2
         
-        trading_hours@char
-        trading_break@char;      
-        holidays@char
+        trading_hours
+        trading_break;      
+        holidays
 
     end
     
     properties (GetAccess = public, Dependent = true)
-        break_interval@cell;
+        break_interval;
     end
     
     methods

@@ -1,33 +1,33 @@
 classdef cOption < cInstrument
     properties
-        code_ctp@char
-        code_wind@char
-        code_bbg@char
+        code_ctp
+        code_wind
+        code_bbg
         
-        code_H5@char
+        code_H5
         
-        code_ctp_underlier@char
-        code_wind_underlier@char
-        code_bbg_underlier@char
+        code_ctp_underlier
+        code_wind_underlier
+        code_bbg_underlier
         
-        opt_american@double
-        opt_type@char
-        opt_strike@double
-        opt_expiry_date1@double
-        opt_expiry_date2@char
+        opt_american
+        opt_type
+        opt_strike
+        opt_expiry_date1
+        opt_expiry_date2
         
-        contract_size@double
-        tick_size@double
-        tick_value@double
-        asset_name@char
-        exchange@char
-        first_trade_date1@double
-        first_trade_date2@char
-        last_trade_date1@double
-        last_trade_date2@char
+        contract_size
+        tick_size
+        tick_value
+        asset_name
+        exchange
+        first_trade_date1
+        first_trade_date2
+        last_trade_date1
+        last_trade_date2
         
-        trading_hours@char
-        trading_break@char
+        trading_hours
+        trading_break
         
         holidays = 'shanghai'
              

@@ -1,61 +1,61 @@
 classdef cFutures < cInstrument
     properties
         % instrument 
-        code_ctp@char
-        code_wind@char
-        code_bbg@char
-        code_H5@char
+        code_ctp
+        code_wind
+        code_bbg
+        code_H5
         
         
-        contract_size@double
-        tick_size@double
-        tick_value@double
-        asset_name@char
-        exchange@char
-        first_trade_date1@double
-        first_trade_date2@char
-        last_trade_date1@double
-        last_trade_date2@char
-        first_notice_date1@double
-        first_notice_date2@char
-        first_dlv_date1@double
-        first_dlv_date2@char
-        last_dlv_date1@double
-        last_dlv_date2@char
+        contract_size
+        tick_size
+        tick_value
+        asset_name
+        exchange
+        first_trade_date1
+        first_trade_date2
+        last_trade_date1
+        last_trade_date2
+        first_notice_date1
+        first_notice_date2
+        first_dlv_date1
+        first_dlv_date2
+        last_dlv_date1
+        last_dlv_date2
         
-        trading_hours@char
-        trading_break@char
+        trading_hours
+        trading_break
         
-        holidays@char = 'shanghai'
+        holidays = 'shanghai'
         
         init_margin_rate
         
     end
     
     properties (GetAccess = public, Dependent = true)
-        break_interval@cell;
+        break_interval;
 %         opening_time@char;
     end
     
     methods
-        % 强制类型转换：所有code都是char
-        function [obj] = set.code_H5(obj, vin)
-            % 强制类型转换：所有code都是char
-            if iscell(vin), vin = vin{1}; end
-            
-            cl = class(vin);
-            switch cl
-                case {'double' }
-                    % disp('强制类型转换：cInstrument.code_H5应为char');
-                    vout = num2str(vin);                    
-                case {'char'}
-                    vout = vin;
-                otherwise
-                    warning('赋值失败：ocInstrument.code_H5应为char');
-                    return;
-            end
-            obj.code_H5 = vout;
-        end
+        
+%         function [] = set.code_H5(obj, vin)
+%             
+%             if iscell(vin), vin = vin{1}; end
+%             
+%             cl = class(vin);
+%             switch cl
+%                 case {'double' }
+%                     % disp('强制类型转换：cInstrument.code_H5应为char');
+%                     vout = num2str(vin);                    
+%                 case {'char'}
+%                     vout = vin;
+%                 otherwise
+%                     warning('赋值失败：ocInstrument.code_H5应为char');
+%                     return;
+%             end
+%             obj.code_H5 = vout;
+%         end
         
         
         function break_interval = get.break_interval(obj)
