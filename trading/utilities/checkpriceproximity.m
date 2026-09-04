@@ -7,8 +7,10 @@ function proximityStatus = checkpriceproximity(varargin)
     %   .isnearsupport
     %   .bias:  'up'/'down'/'neutral'
     %   .nearestresistancelevel
+    %   .nearestresistanceidx
     %   .nearestresistancedistance
     %   .nearestsupportlevel
+    %   .nearestsupportidx
     %   .nearestsupportdistance
 
 
@@ -42,8 +44,10 @@ function proximityStatus = checkpriceproximity(varargin)
     proximityStatus.isnearresistance = false;
     proximityStatus.isnearsupport = false;
     proximityStatus.nearestresistancelevel = [];
+    proximityStatus.nearestresistanceidx = [];
     proximityStatus.nearestresistancedistance = inf;
     proximityStatus.nearestsupportlevel = [];
+    proximityStatus.nearestsupportidx = [];
     proximityStatus.nearestsupportdistance = inf;
     proximityStatus.bias = 'neutral';
 
@@ -75,6 +79,7 @@ function proximityStatus = checkpriceproximity(varargin)
                 if distATR < nearestResistanceDist
                     nearestResistanceDist = distATR;
                     proximityStatus.nearestresistancelevel = structures(s).price;
+                    proximityStatus.nearestresistanceidx = structures(s).formationidx;
                     proximityStatus.nearestresistancedistance = distATR;
                 end
             end
@@ -85,6 +90,7 @@ function proximityStatus = checkpriceproximity(varargin)
                 if distATR < nearestSupportDist
                     nearestSupportDist = distATR;
                     proximityStatus.nearestsupportlevel = structures(s).price;
+                    proximityStatus.nearestsupportidx = structures(s).formationidx;
                     proximityStatus.nearestsupportdistance = distATR;
                 end
             end
@@ -109,6 +115,7 @@ function proximityStatus = checkpriceproximity(varargin)
                 if distATR < nearestResistanceDist
                     nearestResistanceDist = distATR;
                     proximityStatus.nearestresistancelevel = clusters(c).upperbound;
+                    proximityStatus.nearestresistanceidx = clusters(c).endidx;
                     proximityStatus.nearestresistancedistance = distATR;
                 end
             end
@@ -119,6 +126,7 @@ function proximityStatus = checkpriceproximity(varargin)
                 if distATR < nearestSupportDist
                     nearestSupportDist = distATR;
                     proximityStatus.nearestsupportlevel = clusters(c).lowerbound;
+                    proximityStatus.nearestsupportidx = clusters(c).endidx;
                     proximityStatus.nearestsupportdistance = distATR;
                 end
             end
