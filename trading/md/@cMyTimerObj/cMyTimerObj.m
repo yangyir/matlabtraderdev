@@ -1,22 +1,22 @@
 classdef cMyTimerObj < handle
     properties
-        name_@char = 'timer'
-        mode_@char = 'realtime'
-        status_@char = 'sleep'
-        onerror_@char = 'stop'
+        name_ = 'timer'
+        mode_ = 'realtime' 
+        status_ = 'sleep'
+        onerror_ = 'stop'
         %
-        printflag_@logical = true
-        print_timeinterval_@double = 60   %display the relative information every minute
+        printflag_ = true
+        print_timeinterval_ = 60   %display the relative information every minute
         %
-        fileioflag_@logical = true        %save/load data from file
-        savedir_@char                     %directory to save data/information
-        loaddir_@char                     %directory to load data/information
+        fileioflag_ = true        %save/load data from file
+        savedir_ = ''                     %directory to save data/information
+        loaddir_ = ''                     %directory to load data/information
         %
-        replay_count_@double = 0
-        replay_date1_@double
-        replay_date2_@char
-        replay_time1_@double
-        replay_time2_@char
+        replay_count_ = []
+        replay_date1_= []
+        replay_date2_ = ''
+        replay_time1_ = []
+        replay_time2_ = ''
         %
         timer_                       %do not assign data variable type
         gui_                         %do not assign data variable type                   
@@ -24,28 +24,28 @@ classdef cMyTimerObj < handle
     end
     
     properties (GetAccess = public, SetAccess = private)
-        timer_interval_@double = 60  %refresh the mde every minute
+        timer_interval_ = 60  %refresh the mde every minute
     end
     
     properties (Access = private)
-        print_bucket_@double = 0
-        flag_saved_@logical = false
-        flag_loaded_@logical = false
+        print_bucket_ = 0
+        flag_saved_ = false
+        flag_loaded_ = false
     end
       
     properties (GetAccess = private, SetAccess = private)
-        mm_02_30_@double = 150   % all derivatives stop trading
-        mm_02_40_@double = 160   % timer sleeps during the night
-        mm_08_50_@double = 530   % timer wakes up in the morning
-        mm_09_00_@double = 540   % derivatives start trading a.m 
-        mm_11_30_@double = 690   % derivatives stop trading a.m
-        mm_11_31_@double = 691   % timer sleeps during the lunch break
-        mm_12_59_@double = 779   % timer wakes up after the lunch break
-        mm_13_00_@double = 780   % derivatives start trading p.m    
-        mm_15_15_@double = 915   % derivatives stop trading p.m
-        mm_15_25_@double = 925   % timer sleeps again and wait for the evening session if there is any
-        mm_20_50_@double = 1250  % timer wakes up again for evening trading 
-        mm_21_00_@double = 1260  % derivatives start trading evening 
+        mm_02_30_ = 150   % all derivatives stop trading
+        mm_02_40_ = 160   % timer sleeps during the night
+        mm_08_50_ = 530   % timer wakes up in the morning
+        mm_09_00_ = 540   % derivatives start trading a.m 
+        mm_11_30_ = 690   % derivatives stop trading a.m
+        mm_11_31_ = 691   % timer sleeps during the lunch break
+        mm_12_59_ = 779   % timer wakes up after the lunch break
+        mm_13_00_ = 780   % derivatives start trading p.m    
+        mm_15_15_ = 915   % derivatives stop trading p.m
+        mm_15_25_ = 925   % timer sleeps again and wait for the evening session if there is any
+        mm_20_50_ = 1250  % timer wakes up again for evening trading 
+        mm_21_00_ = 1260  % derivatives start trading evening 
     end
     
     %property value controls for mode_ and status_

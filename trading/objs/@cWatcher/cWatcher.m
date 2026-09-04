@@ -2,42 +2,42 @@ classdef cWatcher < handle
     %watcher class to monitor the futures.options traded in exchange in
     %China
     properties
-        singles@cell    %single underliers to watch
-        types@cell      %single underlier types, i.e. futures,option and etc
-        pairs@cell      %pairs underliers to watch (long/short pair)
-        structs@cell    %structs underliers to watch (more than 2 underliers)
+        singles = {} %@cell    %single underliers to watch
+        types = {} %@cell      %single underlier types, i.e. futures,option and etc
+        pairs = {} %@cell      %pairs underliers to watch (long/short pair)
+        structs = {} %@cell    %structs underliers to watch (more than 2 underliers)
         
-        conn@char       %data source connection, i.e. bloomberg,wind or CTP
-        ds@cDataSource
+        conn = '' %@char       %data source connection, i.e. bloomberg,wind or CTP
+        ds %@cDataSource
         %
-        qs@cell         %quotes of single
-        qp@cell         %quotes of pair
-        qt@cell         %quotes of structs
+        qs = {} %@cell         %quotes of single
+        qp = {} %@cell         %quotes of pair
+        qt = {} %@cell         %quotes of structs
         %
-        ws@cell         %weights of structs
+        ws = {} %@cell         %weights of structs
         
-        underliers@cell %option underliers
+        underliers = {} %@cell %option underliers
         
-        calcgreeks@logical = true
+        calcgreek =true %@logical = true
         
     end
     
     properties (Hidden = true)
-        singles_w@cell
-        singles_b@cell
-        singles_ctp@cell
+        singles_w = {} %@cell
+        singles_b = {} %@cell
+        singles_ctp = {} %@cell
         %
-        pairs_w@cell
-        pairs_b@cell
-        pairs_ctp@cell
+        pairs_w = {} %@cell
+        pairs_b = {} %@cell
+        pairs_ctp = {} %@cell
         %
-        structs_w@cell
-        structs_b@cell
-        structs_ctp@cell
+        structs_w = {} %@cell
+        structs_b = {} %@cell
+        structs_ctp = {} %@cell
         %
-        underliers_w@cell
-        underliers_b@cell
-        underliers_ctp@cell
+        underliers_w = {} %@cell
+        underliers_b = {} %@cell
+        underliers_ctp = {} %@cell
         
     end
     

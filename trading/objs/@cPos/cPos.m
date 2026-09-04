@@ -1,21 +1,21 @@
 classdef cPos < handle
     properties
-        code_ctp_@char
-        direction_@double
-        position_total_@double
-        position_today_@double
+        code_ctp_ = ''
+        direction_ = []
+        position_total_ = []
+        position_today_ = []
         cob_date1_ = today
-        cost_carry_@double
-        cost_open_@double
+        cost_carry_ = []
+        cost_open_ = []
         %note:yangyiran:20180817
         %property 'cost_carry_' may be removed later as it is not essential
         %for either pnl or risk management, but only a demo purpose
     end
     
     properties (Dependent)
-        instrument_@cInstrument
-        cob_date2_@char
-        is_opt_@double
+        instrument_ %@cInstrument
+        cob_date2_  %@char
+        is_opt_     %@double
     end
     
     %get methods for dependent variables

@@ -3,39 +3,39 @@ classdef cStrat < cMyTimerObj
     properties (Access = private)
 
         %both futures and options related
-        instruments_@cInstrumentArray
+        instruments_    %@cInstrumentArray
         %option related
-        underliers_@cInstrumentArray
+        underliers_     %@cInstrumentArray
         
-        calsignal_bucket_@double
-        calcsignal_@double
+        calsignal_bucket_ = 0
+        calcsignal_ = 0
         %
-        replaceconditionalsignal_@double
+        replaceconditionalsignal_   %@double
         %
-        preequity_@double
-        currentequity_@double   %number
-        currentmargin_@double   %number
-        availablefund_@double   %number
-        frozenmargin_@double    %number
+        preequity_ = 0
+        currentequity_ = 0   %number
+        currentmargin_ = 0   %number
+        availablefund_ = 0   %number
+        frozenmargin_ = 0    %number
         %
         %
-        amberline_@double       %critical line below which no new positions are allowed to open
-        redline_@double         %critical line below which all existing positions are forced to close
+        amberline_ = 0       %critical line below which no new positions are allowed to open
+        redline_ = 0         %critical line below which all existing positions are forced to close
         
     end
        
     properties (GetAccess = public, SetAccess = private)
-        calcsignal_interval_@double = 60
+        calcsignal_interval_ = 60
         %trading
-        trader_@cTrader
-        helper_@cOps
+        trader_ %@cTrader
+        helper_ %@cOps
         %
         %market data engine
-        mde_fut_@cMDEFut
-        mde_opt_@cMDEOpt
+        mde_fut_    %@cMDEFut
+        mde_opt_    %@cMDEOpt
         %
         %risk control 
-        riskcontrols_@cStratConfigArray
+        riskcontrols_   %@cStratConfigArray
         
     end
     

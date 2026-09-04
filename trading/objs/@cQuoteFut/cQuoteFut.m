@@ -17,11 +17,11 @@ classdef cQuoteFut < handle
         
         %properties relates to govtbond futures
         bond_flag = false
-        yield_last_trade@double
-        yield_bid1@double
-        yield_ask1@double
-        duration@double
-        bond_tenor@char
+        yield_last_trade
+        yield_bid1
+        yield_ask1
+        duration
+        bond_tenor
         
     end
     

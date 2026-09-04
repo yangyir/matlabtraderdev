@@ -5,34 +5,34 @@ classdef cOps < cMyTimerObj
     % and to update positions in book
     % rule: one ops can be only linked to one book
     properties (SetAccess = private, GetAccess = public)
-        book_@cBook
+        book_   %@cBook
         %
-        entrusts_@EntrustArray
-        entrustspending_@EntrustArray
-        entrustsfinished_@EntrustArray
+        entrusts_   %@EntrustArray
+        entrustspending_    %@EntrustArray
+        entrustsfinished_   %@EntrustArray
         %
-        condentrustspending_@EntrustArray
-        trades_@cTradeOpenArray
+        condentrustspending_    %@EntrustArray
+        trades_                 %@cTradeOpenArray
         
     end
     
     properties
-        stratname_@char
+        stratname_ = ''         %@char
     end
     
     properties (Access = private, Hidden = true)
         %
-        mdefut_@cMDEFut
-        mdeopt_@cMDEOpt
-        counterCTP_@CounterCTP
-        counterHSO32_@CounterHSO32
+        mdefut_         %@cMDEFut
+        mdeopt_         %@cMDEOpt
+        counterCTP_     %@CounterCTP
+        counterHSO32_   %@CounterHSO32
 %         counterRH_@cCounterRH
-        counterRH_@CounterRH
+        counterRH_      %@CounterRH
     end
     
     properties (Dependent = true)
-        countertype_@char
-        isbookcountercompatible_@logical
+        countertype_
+        isbookcountercompatible_
     end
     
     methods

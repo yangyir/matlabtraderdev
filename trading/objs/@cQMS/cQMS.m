@@ -1,8 +1,8 @@
 classdef cQMS < handle
     %class of quotes management system (QMS)
     properties
-        instruments_@cInstrumentArray
-        watcher_@cWatcher
+        instruments_ %@cInstrumentArray
+        watcher_    %@cWatcher
     end
     
     methods

@@ -1,6 +1,6 @@
 classdef cInstrumentArray < handle
     properties (Access = private)
-       list_@cell
+       list_ = {}
     end
     
     methods

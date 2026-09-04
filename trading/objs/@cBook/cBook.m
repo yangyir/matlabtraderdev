@@ -3,10 +3,10 @@ classdef cBook < handle
     % properties: trader, counter, positions
     
     properties (GetAccess = public, SetAccess = private)
-        bookname_@char
-        tradername_@char
-        countername_@char
-        positions_@cell
+        bookname_ = ''
+        tradername_ = ''
+        countername_ = ''
+        positions_ = {}
     end
     
     methods

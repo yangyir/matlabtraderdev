@@ -3,9 +3,9 @@ classdef cTrader < handle
     % rule1: a named trader can have more than one book
     % rule2: a named trader can run more than one strategy
     properties
-        name_@char
-        books_@cell
-        strats_@cell
+        name_ = ''
+        books_ = {} %@cell
+        strats_= {} %@cell
     end
     
     methods

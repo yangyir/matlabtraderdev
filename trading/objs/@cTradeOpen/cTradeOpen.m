@@ -2,37 +2,37 @@ classdef cTradeOpen < handle
     %class to define open trade position
     properties
         id_
-        bookname_@char
-        tradername_@char
-        countername_@char
-        code_@char
-        opendatetime1_@double
-        openprice_@double
-        opendirection_@double
-        openvolume_@double
-        stopdatetime1_@double
-        closedatetime1_@double
-        closeprice_@double
-        runningpnl_@double
-        closepnl_@double
-        status_@char
-        oneminb4close1_@double
-        oneminb4close2_@double = inf
+        bookname_       %@char
+        tradername_     %@char
+        countername_    %@char
+        code_           %@char
+        opendatetime1_  %@double
+        openprice_      %@double
+        opendirection_  %@double
+        openvolume_     %@double
+        stopdatetime1_  %@double
+        closedatetime1_ %@double
+        closeprice_     %@double
+        runningpnl_     %@double
+        closepnl_       %@double
+        status_                 %@char
+        oneminb4close1_         %@double
+        oneminb4close2_ = inf   %@double = inf
         %
     end
     
     properties (GetAccess = public, SetAccess = private, Dependent = true)
-        opendatetime2_@char
-        stopdatetime2_@char
-        closedatetime2_@char
-        instrument_@cInstrument
-        closestr_@char
+        opendatetime2_  %@char
+        stopdatetime2_  %@char
+        closedatetime2_ %@char
+        instrument_     %@cInstrument
+        closestr_       %@char
     end
     
     properties
         %properties with data types defined as self-defined class
-        opensignal_@cSignalInfo
-        riskmanager_@cTradeRiskManager
+        opensignal_     %@cSignalInfo
+        riskmanager_    %@cTradeRiskManager
     end
     
     methods
@@ -50,7 +50,7 @@ classdef cTradeOpen < handle
         
         function set.opendirection_(obj,direction)
             if ~isempty(direction)
-                if ~(direction == 1 || direction == -1 || direction == 2 || direction == -2)
+                if ~(direction == 1 || direction == -1 || direction == 2 || direction == -2 || direction == 3 || direction == -3)
                     error('cTrade:invalid open direction');
                 end
                 obj.opendirection_ = direction;

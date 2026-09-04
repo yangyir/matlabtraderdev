@@ -1,7 +1,7 @@
 classdef cPoint < handle
     properties
-        x@double
-        y@double
+        x = 0
+        y = 0
     end
     
     methods

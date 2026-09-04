@@ -2,20 +2,20 @@ classdef cTraderMaster < handle
     %class of a master trader who can have access to multiple trading
     %accounts and link 
     properties
-        mdefut_@cMDEFut
-        mdeopt_@cMDEOpt
-        counterfut_@CounterCTP
-        counteropt1_@CounterCTP
-        counteropt2_@CounterCTP
-        instruments_@cInstrumentArray
-        portfut_@cPortfolio
-        portopt1_@cPortfolio
-        portopt2_@cPortfolio
+        mdefut_         %@cMDEFut
+        mdeopt_         %@cMDEOpt
+        counterfut_     %@CounterCTP
+        counteropt1_    %@CounterCTP
+        counteropt2_    %@CounterCTP
+        instruments_    %@cInstrumentArray
+        portfut_        %@cPortfolio
+        portopt1_       %@cPortfolio
+        portopt2_       %@cPortfolio
         
     end
         
     properties (Hidden = true)
-        qms_@cQMS
+        qms_            %@cQMS
     end
     
     methods

@@ -1,8 +1,8 @@
 classdef cSignalInfo < handle
     
     properties
-        name_@char
-        frequency_@char
+        name_
+        frequency_
     end
     
     methods

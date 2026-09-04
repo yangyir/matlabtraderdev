@@ -8,65 +8,65 @@ classdef cMDEFut < cMyTimerObj
     %jobs:it inits the required data on 8:50am
     
     properties
-        qms_@cQMS
+        qms_                %@cQMS
         %real-time data
-        ticks_@cell
-        ticksquick_@double
-        candles_@cell
-        candle_freq_@double
-        candles4save_@cell
+        ticks_ = {}         %@cell
+        ticksquick_ = []    %@double
+        candles_ = {}       %@cell
+        candle_freq_ = []   %@double
+        candles4save_ = {}  %@cell
         %historical data,which is used for technical indicator calculation
-        hist_candles_@cell
+        hist_candles_ = {}  %@cell
         
         %William %R number of period
-        wrnperiod_@double
+        wrnperiod_ = []     %@double
         %MACD
-        macdlead_@double
-        macdlag_@double
-        macdavg_@double
+        macdlead_ = []      %@double
+        macdlag_ = []       %@double
+        macdavg_ = []       %@double
         %TDSQ
-        tdsqlag_@double
-        tdsqconsecutive_@double
+        tdsqlag_ = []           %@double
+        tdsqconsecutive_ = []   %@double
         %Williams Fractals
-        nfractals_@double
+        nfractals_ = []         %@double
         %
-        replayer_@cReplayer
-        replay_datetimevec_@double
-        replay_idx_@double
-        replay_updatetime_@logical = true
+        replayer_               %@cReplayer
+        replay_datetimevec_ = []
+        replay_idx_ = []
+        replay_updatetime_ = true
         %
-        datenum_open_@cell
-        datenum_close_@cell
+        datenum_open_ = {}
+        datenum_close_ = {}
         %
-        lastclose_@double
+        lastclose_ = []
         %
-        savetick_@logical = false
+        savetick_ = false
         %
-        showfigures_@logical = true
+        showfigures_ = true
     end
     
     properties (Hidden = true)
-        technical_indicator_autocalc_@double
-        technical_indicator_table_@cell
+        technical_indicator_autocalc_ = []
+        technical_indicator_table_ = {}
     end
     
     properties (GetAccess = public, SetAccess = private)
-        newset_@double
+        newset_ = []
     end
     
     properties (GetAccess = public, SetAccess = private, Dependent)
-        iseveningrequired_@logical = false
+        iseveningrequired_
     end
     
     properties (Access = private)
-        ticks_count_@double
-        candles_count_@double
-        candles4save_count_@double
-        categories_@double
-        num21_00_00_@double
-        num21_00_0_5_@double
-        num00_00_00_@double
-        num00_00_0_5_@double
+        ticks_count_ = []
+        candles_count_ = []
+        candles4save_count_ = []
+        categories_ = []
+        num21_00_00_
+        num21_00_0_5_
+        num00_00_00_
+        num00_00_0_5_
         
     end
     

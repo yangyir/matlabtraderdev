@@ -2,7 +2,7 @@ classdef cPortfolio < handle
     properties
        portfolio_id = 'unknown'
        %
-       pos_list@cell = {}
+       pos_list = {}
     end
     
     methods

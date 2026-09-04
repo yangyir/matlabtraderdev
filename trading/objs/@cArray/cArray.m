@@ -1,9 +1,9 @@
 classdef(Abstract) cArray < handle
     
     properties
-        latest_@double   = 0 ;       % 
-        capacity_@double = 1000;     %
-        issorted_@double = 0;        % ascend 1£¬ descend -1£¬ else 0.
+        latest_   = 0 ;       % 
+        capacity_ = 1000;     %
+        issorted_ = 0;        % ascend 1£¬ descend -1£¬ else 0.
     end
     
     properties(Abstract = true, SetAccess = public, GetAccess = public)
@@ -12,8 +12,8 @@ classdef(Abstract) cArray < handle
     
     
     properties(Hidden = true)
-        headers_@cell;
-        table_@cell;
+        headers_ = {};
+        table_ = {};
     end
     
     methods

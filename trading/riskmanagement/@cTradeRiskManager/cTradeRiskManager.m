@@ -1,14 +1,14 @@
 classdef cTradeRiskManager < handle
 %des:manage risk trade by trade rather than on aggregage positions    
     properties
-        name_@char
-        trade_@cTradeOpen
-        status_@char = 'unset'
+        name_   %@char
+        trade_  %@cTradeOpen
+        status_ %@char = 'unset'
         %
-        pxtarget_@double = -9.99
-        pxstoploss_@double = -9.99
+        pxtarget_ = -9.99  %@double = -9.99
+        pxstoploss_= -9.99  %@double = -9.99
         %
-        closestr_@char = 'none'
+        closestr_ = 'none'  %@char = 'none'
     end
     
     methods (Abstract)

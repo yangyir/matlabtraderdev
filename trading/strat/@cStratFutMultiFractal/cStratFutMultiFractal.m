@@ -1,28 +1,28 @@
 classdef cStratFutMultiFractal < cStrat
     properties
         %technical variables
-        hh_@cell                                                            %highest high
-        ll_@cell                                                            %lowest low
-        jaw_@cell                                                           %alligator's jaw
-        teeth_@cell                                                         %alligator's teeth
-        lips_@cell                                                          %alligator's lips
-        bs_@cell                                                            %TDST Buy Setup 
-        ss_@cell                                                            %TDST Sell Setup
-        bc_@cell                                                            %TDST Buy Countdown
-        sc_@cell                                                            %TDST Sell Countdown
-        lvlup_@cell                                                         %TDST Resistence,i.e.highest of a buy sequential
-        lvldn_@cell                                                         %TDST Support,i.e.lowest of a sell sequential
-        wad_@cell                                                           %Williams' acculate/distribute
+        hh_     %@cell                                                            %highest high
+        ll_     %@cell                                                            %lowest low
+        jaw_    %@cell                                                           %alligator's jaw
+        teeth_  %@cell                                                         %alligator's teeth
+        lips_   %@cell                                                          %alligator's lips
+        bs_     %@cell                                                            %TDST Buy Setup 
+        ss_     %@cell                                                            %TDST Sell Setup
+        bc_     %@cell                                                            %TDST Buy Countdown
+        sc_     %@cell                                                            %TDST Sell Countdown
+        lvlup_  %@cell                                                         %TDST Resistence,i.e.highest of a buy sequential
+        lvldn_  %@cell                                                         %TDST Support,i.e.lowest of a sell sequential
+        wad_    %@cell                                                           %Williams' acculate/distribute
         %
-        signals_@cell
+        signals_    %@cell
         %
-        targetportfolio_@double
+        targetportfolio_ = 0
         %
-        displaysignalonly_@logical = false
+        displaysignalonly_ = false
         %
-        tbl_all_intraday_@struct
+        tbl_all_intraday_   %@struct
         %
-        tbl_all_daily_@struct
+        tbl_all_daily_  %@struct
         
     end
     
