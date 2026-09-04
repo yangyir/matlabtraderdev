@@ -5,13 +5,25 @@ p.CaseSensitive = false;p.KeepUnmatched = true;
 p.addParameter('codes',{},@iscell);
 p.addParameter('frequency','',@ischar);
 p.addParameter('nfractal',2,@isnumeric);
+p.addParameter('useMT5',0,@isnumeric);
+p.addParameter('fromdates',[],@iscell);
 
 p.parse(varargin{:});
 codes = p.Results.codes;
 frequency = p.Results.frequency;
 nfractal = p.Results.nfractal;
+usemt5 = p.Results.useMT5;
+dt1 = p.Results.fromdates;
 
 ncodes = size(codes,1);
+
+if isempty(dt1)
+   dt1 = cell(ncodes,1);
+   for i = 1:ncodes
+       dt1{i} = '';
+   end
+end
+
 
 outputs = cell(ncodes,1);
 strat_indivual = cell(ncodes,1);
@@ -22,7 +34,9 @@ for i = 1:ncodes
         'usefractalupdate',0,...
         'usefibonacci',1,...
         'direction','both',...
-        'nfractal',nfractal);
+        'nfractal',nfractal,...
+        'useMT5',usemt5,...
+        'fromdate',dt1{i});
     [~,~,tbltrades{i},~,~,~,~,strat_indivual{i}] = kellydistributionsummary(outputs{i});
 
 end
