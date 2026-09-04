@@ -79,15 +79,20 @@ function [output] = fractal_signal_unconditional2(varargin)
         end
         %
         if strcmpi(op.comment,'breachup-lvlup-invalid long as close moves too high')
-            if status.istrendconfirmed
-                vlookuptbl = kellytables.breachuplvlup_tc;
-            else
-                vlookuptbl = kellytables.breachuplvlup_tb;
-            end
-            idx = strcmpi(vlookuptbl.asset,assetname);
-            kelly = vlookuptbl.K(idx);
-            wprob = vlookuptbl.W(idx);
-            if isempty(kelly)
+            try
+                if status.istrendconfirmed
+                    vlookuptbl = kellytables.breachuplvlup_tc;
+                else
+                    vlookuptbl = kellytables.breachuplvlup_tb;
+                end
+                idx = strcmpi(vlookuptbl.asset,assetname);
+                kelly = vlookuptbl.K(idx);
+                wprob = vlookuptbl.W(idx);
+                if isempty(kelly)
+                    kelly = -9.99;
+                    wprob = 0;
+                end
+            catch
                 kelly = -9.99;
                 wprob = 0;
             end
@@ -101,15 +106,20 @@ function [output] = fractal_signal_unconditional2(varargin)
         end
         %
         if strcmpi(op.comment,'breachup-sshighvalue-invalid long as close moves too high')
-            if status.istrendconfirmed
-                vlookuptbl = kellytables.breachupsshighvalue_tc;
-            else
-                vlookuptbl = kellytables.breachupsshighvalue_tb;
-            end
-            idx = strcmpi(vlookuptbl.asset,assetname);
-            kelly = vlookuptbl.K(idx);
-            wprob = vlookuptbl.W(idx);
-            if isempty(kelly)
+            try
+                if status.istrendconfirmed
+                    vlookuptbl = kellytables.breachupsshighvalue_tc;
+                else
+                    vlookuptbl = kellytables.breachupsshighvalue_tb;
+                end
+                idx = strcmpi(vlookuptbl.asset,assetname);
+                kelly = vlookuptbl.K(idx);
+                wprob = vlookuptbl.W(idx);
+                if isempty(kelly)
+                    kelly = -9.99;
+                    wprob = 0;
+                end
+            catch
                 kelly = -9.99;
                 wprob = 0;
             end
@@ -369,11 +379,16 @@ function [output] = fractal_signal_unconditional2(varargin)
         else
             if ~isempty(strfind(op.comment,'breachup-lvlup'))
                 if ~status.istrendconfirmed
-                    vlookuptbl = kellytables.breachuplvlup_tb;
-                    idx = strcmpi(vlookuptbl.asset,assetname);
-                    kelly = vlookuptbl.K(idx);
-                    wprob = vlookuptbl.W(idx);
-                    if isempty(kelly)
+                    try
+                        vlookuptbl = kellytables.breachuplvlup_tb;
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                    catch
                         kelly = -9.99;
                         wprob = 0;
                     end
@@ -410,11 +425,16 @@ function [output] = fractal_signal_unconditional2(varargin)
                 %
             elseif ~isempty(strfind(op.comment,'breachup-sshighvalue'))
                 if ~status.istrendconfirmed
-                    vlookuptbl = kellytables.breachupsshighvalue_tb;
-                    idx = strcmpi(vlookuptbl.asset,assetname);
-                    kelly = vlookuptbl.K(idx);
-                    wprob = vlookuptbl.W(idx);
-                    if isempty(kelly)
+                    try
+                        vlookuptbl = kellytables.breachupsshighvalue_tb;
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                    catch
                         kelly = -9.99;
                         wprob = 0;
                     end
@@ -588,11 +608,16 @@ function [output] = fractal_signal_unconditional2(varargin)
         else
             if ~isempty(strfind(op.comment,'breachdn-lvldn'))
                 if ~status.istrendconfirmed
-                    vlookuptbl = kellytables.breachdnlvldn_tb;
-                    idx = strcmpi(vlookuptbl.asset,assetname);
-                    kelly = vlookuptbl.K(idx);
-                    wprob = vlookuptbl.W(idx);
-                    if isempty(kelly)
+                    try
+                        vlookuptbl = kellytables.breachdnlvldn_tb;
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                    catch
                         kelly = -9.99;
                         wprob = 0;
                     end
@@ -628,11 +653,16 @@ function [output] = fractal_signal_unconditional2(varargin)
                 end
             elseif ~isempty(strfind(op.comment,'breachdn-bshighvalue'))
                 if ~status.istrendconfirmed
-                    vlookuptbl = kellytables.breachdnbshighvalue_tb;                    
-                    idx = strcmpi(vlookuptbl.asset,assetname);
-                    kelly = vlookuptbl.K(idx);
-                    wprob = vlookuptbl.W(idx);
-                    if isempty(kelly)
+                    try
+                        vlookuptbl = kellytables.breachdnbshighvalue_tb;                    
+                        idx = strcmpi(vlookuptbl.asset,assetname);
+                        kelly = vlookuptbl.K(idx);
+                        wprob = vlookuptbl.W(idx);
+                        if isempty(kelly)
+                            kelly = -9.99;
+                            wprob = 0;
+                        end
+                    catch
                         kelly = -9.99;
                         wprob = 0;
                     end
