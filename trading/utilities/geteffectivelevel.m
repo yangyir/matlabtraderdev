@@ -1,55 +1,52 @@
 function [effectiveLevel,strength,levelType,details] = geteffectivelevel(varargin)
-    % 获取当前位置的最有效结构位 (综合评分版）
+    % get the effective level for now
     %
-    % 综合考量：价格贴进度、结构强度、时效性、来源可靠度、左眼形态
+    % check：is price close、strength of strutures/clusters、timely close
+    % enough、left eye
     p = inputParser;
     p.CaseSensitive = false;p.KeepUnmatched = true;
-    p.addParameter('currentIdx',[],@isnumeric); % 当前分型所在的K线索引
-    p.addParameter('currentPrice',[],@isnumeric);   % 当前分型的价格
-    p.addParameter('fractalType','',@ischar);       % top or bottom
+    p.addParameter('currentIdx',[],@isnumeric); % current index
+    p.addParameter('px',[],@isnumeric);   % current fractal price
+    p.addParameter('atr',[],@isnumeric);
     p.addParameter('clusters',{},@isstruct);
     p.addParameter('structures',{},@isstruct);
-    p.addParameter('atr',[],@isnumeric);
-    p.addParameter('maxClusterAge',50,@isnumeric);  % 集群最大存活K线数
-    p.addParameter('maxStructureAge',100,@isnumeric);   % 结构位最大存活K线数
+    
+    p.addParameter('maxClusterAge',50,@isnumeric);  % cluster age
+    p.addParameter('maxStructureAge',100,@isnumeric);   % structure age
     p.addParameter('leftEyeScores',{},@isstruct);
     p.addParameter('leftEyeWeight',0.3,@isnumeric);
-    p.addParameter('proximityATR',0.2,@isnumeric);
+    p.addParameter('proximityATR',0.2,@isnumeric); % check the distance between current price and the strcuture/fractal level
     p.parse(varargin{:});
     currentIdx = p.Results.currentIdx;
-    currentprice = p.Results.currentPrice;
-    fractalType = p.Results.fractalType;
-%     px = p.Results.px;
-%     topF = p.Results.topF;
-%     botF = p.Results.botF;
+    px = p.Results.px;
+    atr = p.Results.atr;
     clusters = p.Results.clusters;
     structures = p.Results.structures;
-    atr = p.Results.atr;
     maxClusterAge = p.Results.maxClusterAge;
     maxStructureAge = p.Results.maxStructureAge;
     leftEyeScores = p.Results.leftEyeScores;
     letfEyeWeight = p.Results.leftEyeWeight;
-    proximityATR = p.Results.proximityATR;  % 贴近阈值 （ATR倍数，默认0.2）
+    proximityATR = p.Results.proximityATR;
     
-%     H = px(:,3);L = px(:,4);
     
-    % 首先检查拒绝结构位 （优先级最高）
     currentATR = atr(currentIdx);
     proximityThreshold = currentATR * proximityATR;
+
+    C = px(:,5);    % close price
     
-    % 初始化输出
+    % init outputs
     effectiveLevel = [];
     strength = 0;
     levelType = '';
     details = struct();
     
-    % 收集所有候选结构位
+    % collect all candidates
     candidates = struct('level',{},'strength',{},'type',{},...
         'source',{},'leftEyeBonus',{},'totalScore',{});
     
-    % 第一步：从强拒绝结构中寻找候选（优先级最高）
+    % with first priority, check the strutures first
     for s = 1:length(structures)
-        % 必须处于活跃状态
+        % it has to be active
         if ~structures(s).isactive
             continue;
         end
@@ -58,8 +55,8 @@ function [effectiveLevel,strength,levelType,details] = geteffectivelevel(varargi
             continue;
         end
         
-        % 时效性检查
-        if currentIdx - structures(s).formationidx > maxStructureAge;
+        % within structure age
+        if currentIdx - structures(s).formationidx > maxStructureAge
             continue;
         end
         
