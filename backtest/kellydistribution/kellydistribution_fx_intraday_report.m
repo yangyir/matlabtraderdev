@@ -1,18 +1,22 @@
 code2check = 'XAUUSD';
-freq2check = '15m';
-replay1 = '2025-01-01';
-replay2 = '2025-11-16';
+freq2check = '4h';
+replay1 = '2026-08-20';
+replay2 = '2026-09-04';
 showLogs = true;
 doPlot = true;
-
+useMT5 = 1;
 appendix = lower(freq2mt4freq(freq2check));
-
-dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
-strat_fx_i = load([dir_,'strat_fx_',appendix,'.mat']);
-strat_fx_i = strat_fx_i.(['strat_fx_',appendix]);
+if ~useMT5
+    dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
+    strat_fx_i = load([dir_,'strat_fx_',appendix,'.mat']);
+    strat_fx_i = strat_fx_i.(['strat_fx_',appendix]);
+else
+    d = load('mt5\strat_fx_h1_mt5.mat');
+    strat_fx_i = d.strat_fx_h1_mt5;
+end
 %
 nfractal2check = charlotte_freq2nfractal(freq2check);
-[ut,ct,tbl2check_fx] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',showLogs,'doplot',doPlot,'frequency',freq2check,'nfractal',nfractal2check);
+[ut,ct,tbl2check_fx,resstruct] = charlotte_backtest_period('code',code2check,'fromdate',replay1,'todate',replay2,'kellytables',strat_fx_i,'showlogs',showLogs,'doplot',doPlot,'frequency',freq2check,'nfractal',nfractal2check,'useMT5',useMT5);
 open tbl2check_fx
 %%
 dir_ = [getenv('onedrive'),'\fractal backtest\kelly distribution\matlab\fx\'];
@@ -93,7 +97,7 @@ n = size(tblreport,1);
 nSelect = 0;
 codesSelected = cell(n,5);
 %
-kThreshold = [0.167,0.14];
+kThreshold = [0.167,0.10];
 pThreshold = [0.5,0.42];
 %
 for i = 1:n
@@ -162,8 +166,6 @@ selected = table(code,freq);
 selected = join(selected,tblreport);
 open selected;
 %% portfolio optimization
-% idx = ~strcmpi(selected.freq,'m5');
-% port = selected(idx,:);
 port = selected;
 n = size(port,1);
 names = cell(n,1);
@@ -187,7 +189,7 @@ prob = prod(outcome_mat .* p' + (1-outcome_mat) .* (1-p'), 2);
 objective = @(f) -kelly_calcgrowth(f,b,p);
 
 % constraints
-usage = 0.95;
+usage = 1.0;
 A = ones(1, n); 
 b_sum = usage;
 lb = zeros(1, n);
@@ -195,7 +197,7 @@ ub = usage*ones(1,n);
 
 % initial value
 f0 = min(1, selected.kRet / sum(selected.kRet)) * 1.0;
-f0 = usage*min(1, ones(n,1)/n);
+% f0 = usage*min(1, ones(n,1)/n);
 % f0 = selected.kRet;
 % calibration parameters
 options = optimoptions('fmincon', 'Display', 'iter', ...
@@ -207,6 +209,123 @@ optimal_growth = -fval;
 port.f_opt = f_opt;
 % port = port(port.f_opt > 0.01,:);
 open port
+
+%% Results Analysis
+% 1. The optimal asset allocation 
+fprintf('\n===== best strategy asset allocation =====\n');
+for i = 1:n
+    fprintf('%s: %.2f%% (standalone: %.2f%%)\n', ...
+        names{i}, f_opt(i)*100, port.kRet(i)*100);
+end
+fprintf('Total: %.2f%%\n', sum(f_opt)*100);
+
+% 2. calculate the max log growth rate
+[growth,W] = kelly_calcgrowth(f_opt,b,p);
+fprintf('\n');
+fprintf('expected log growth rate: %.6f\n', growth);
+
+% 3. compare different strategies
+[max_k, max_k_idx] = max(port.kRet);
+singlebest = zeros(1,n);
+singlebest(max_k_idx) = min(max_k,usage);
+strategies = {
+    'normalized', usage*min(1, port.kRet/sum(port.kRet));
+%     'equal', usage*min(1, ones(n,1)/n);
+    'kelly',f_opt;
+    'singlebest',singlebest;
+    'overbet',port.kRet;
+};
+
+fprintf('\n===== Comparision of different Strategies =====\n');
+for s = 1:size(strategies,1)
+    f_strategy = strategies{s,2};
+    
+%     if sum(f_strategy) > 0.9999
+%         f_strategy = f_strategy / sum(f_strategy)*0.9999;
+%     end
+    
+    [growth_rate, ~] = kelly_calcgrowth(f_strategy, b, p);
+    
+    allocation_str = strjoin(cellstr(num2str(f_strategy(:), '%.4f')), ', ');
+    fprintf('%12s%15.3f%12.2f%%\t[%s]\n', ...
+            strategies{s,1}, ...
+            growth_rate, ...
+            sum(f_strategy)*100, ...
+            allocation_str);
+end
+
+% Visualization
+% 1. pie chart
+close all;
+% figure('Position', [100, 100, 800, 600], 'Color', 'white');
+subplot(2,2,1);
+explode = double(f_opt == max(f_opt));
+pie(f_opt, explode, names);
+title('Optimized Asset Allocation', 'FontSize', 12);
+
+% 2. distribution of wealth
+subplot(2,2,2);
+[growth,W] = kelly_calcgrowth(f_opt,b,p);
+[growth_1,W_1] = kelly_calcgrowth(strategies{1,2},b,p);
+[unique_W, ~, idx] = unique(round(W, 8));
+[unique_W_1, ~, idx_1] = unique(round(W_1, 8));
+prob_W = accumarray(idx, prob);
+prob_W_1 = accumarray(idx_1, prob);
+[sorted_W, sort_idx] = sort(unique_W);
+[sorted_W_1, sort_idx_1] = sort(unique_W_1);
+sorted_prob = prob_W(sort_idx);
+sorted_prob_1 = prob_W_1(sort_idx_1);
+if length(sorted_W) > 252
+    histogram(sorted_W, 50, 'FaceColor', [0.2 0.6 0.9], 'Normalization', 'probability');
+else
+    bar(sorted_W, sorted_prob, 'BarWidth', 0.8, 'FaceColor', [0.2 0.6 0.9]);
+end
+hold on;
+xline(1, 'r--', 'LineWidth', 2, 'Label', 'BreakEven');
+[max_prob, max_idx] = max(sorted_prob);
+% plot(sorted_W(max_idx), max_prob, 'ro', 'MarkerSize', 10, 'LineWidth', 2);
+text(sorted_W(1), sorted_prob(1), sprintf('Worst: %.2f', sorted_W(1)), ...
+    'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+text(sorted_W(end), sorted_prob(end), sprintf('Best: %.2f', sorted_W(end)), ...
+    'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
+title('PDF of Wealth', 'FontSize', 12);
+xlabel('Log Wealth Multiplier');
+ylabel('Prob');
+grid on;
+% set(gca, 'FontSize', 10, 'YScale', 'log');
+set(gca, 'FontSize', 10);
+
+% 3. comparison of different strategies
+subplot(2,2,3);
+strategy_names = strategies(:,1);
+growth_rates = zeros(size(strategies,1),1);
+for s = 1:size(strategies,1)
+    f_s = strategies{s,2};
+    [growth_rates(s), ~] = kelly_calcgrowth(f_s, b, p);
+end
+bar(growth_rates, 'FaceColor', [0.8 0.4 0.1]);
+set(gca, 'XTickLabel', strategy_names, 'XTickLabelRotation', 45);
+title('Comparison of Different Strategies', 'FontSize', 12);
+ylabel('E[log(W)]');
+
+
+% 4. wealth distribution function
+subplot(2,2,4);
+cdf_prob = cumsum(sorted_prob);
+cdf_prob_1 = cumsum(sorted_prob_1);
+stairs(sorted_W, cdf_prob, 'LineWidth', 2, 'Color', 'b');
+hold on;
+stairs(sorted_W_1, cdf_prob_1, 'LineWidth', 2, 'Color', 'r');
+yline(0.95, 'g--', '95%Pecentile', 'LineWidth', 1.5);
+xline(1, 'r--', 'BreakEven', 'LineWidth', 1.5);
+title('CDF of Wealth', 'FontSize', 12);
+xlabel('Log Wealth Multiplier');
+ylabel('CDF');
+grid on;hold off;
+set(gca, 'FontSize', 10);
+legend('optimal','normalized');
+% set(gca, 'FontSize', 10, 'YScale', 'log');
+
 
 %%
 path_ = [getenv('APPDATA'),'\MetaQuotes\Terminal\Common\Files\Data\'];

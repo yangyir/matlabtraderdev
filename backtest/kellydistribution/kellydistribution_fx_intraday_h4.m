@@ -9,7 +9,7 @@ recalibrate = input('do you want to recalibrate the kelly criteria table? Y/N: '
 if strcmpi(recalibrate,'Y')
     output_fx_h4 = fractal_kelly_summary('codes',codes_fx,...
         'frequency','intraday-240m','usefractalupdate',0,'usefibonacci',1,'direction','both',...
-        'nfractal',nfractal_h4);
+        'nfractal',nfractal_h4,'useMT5',1);
     [~,~,tbl_fx_h4,~,~,~,~,strat_fx_h4] = kellydistributionsummary(output_fx_h4);
 else
     strat_fx_h4 = strat_fx_h4_existing;
@@ -18,11 +18,15 @@ end
 charlotte_strat_compare('strat1',strat_fx_h4_existing,'strat2',strat_fx_h4,'assetname','usdjpy');
 %%
 tbl2check_fx_h4 = cell(size(codes_fx,1),1);
+uts = cell(size(codes_fx,1),1);
 parfor i = 1:size(codes_fx,1)
-    [~,ei] = charlotte_loaddata('futcode',codes_fx{i},'frequency',freq_h4,'nfractal',nfractal_h4);
-    dt1 = datestr(ei.px(1,1),'yyyy-mm-dd');
+    [~,ei] = charlotte_loaddata('futcode',codes_fx{i},'frequency',freq_h4,'nfractal',nfractal_h4,'ustmt5',1);
+    dt1 = '2023-01-01';
     dt2 = datestr(ei.px(end,1),'yyyy-mm-dd');
-    [~,~,tbl2check_fx_h4{i}] = charlotte_backtest_period('code',codes_fx{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_fx_h4,'showlogs',false,'doplot',false,'frequency',freq_h4,'nfractal',nfractal_h4,'compulsorycheckforconditional',true);
+    [uts{i},~,tbl2check_fx_h4{i}] = charlotte_backtest_period('code',codes_fx{i},'fromdate',dt1,'todate',dt2,'kellytables',strat_fx_h4,'showlogs',false,'doplot',false,...
+        'frequency',freq_h4,'nfractal',nfractal_h4,...
+        'compulsorycheckforconditional',true,...
+        'usemt5',1);
 end
 tbl2check_fx_h4_all = tbl2check_fx_h4{1};
 for i = 2:size(codes_fx,1)
@@ -31,43 +35,37 @@ for i = 2:size(codes_fx,1)
 end
 tbl2check_fx_h4_all = sortrows(tbl2check_fx_h4_all,'opendatetime','ascend');
 %%
-statsout = cell(size(codes_fx,1)+1,1);
-for i = 0:size(codes_fx,1)
-    if i == 0
-        pnlret = tbl2check_fx_h4_all.pnlrel;
-    else
-        idxselect = strcmpi(tbl2check_fx_h4_all.code,codes_fx{i});
-        pnlret = tbl2check_fx_h4_all.pnlrel(idxselect);
-    end
-    [winp_running,r_running,kelly_running] = calcrunningkelly(pnlret);
-    Wret = winp_running(end);
-    Rret = r_running(end);
-    Kret = kelly_running(end);
-    pnlretcum = cumsum(pnlret);
-    pnlretmax = pnlretcum;
-    for j = 1:length(pnlretmax)
-        pnlretmax(j) = max(pnlretcum(1:j));
-    
-        if pnlretmax(j) < 0, pnlretmax(j) = 0;end
-    end
-    pnlretdrawdown = pnlretcum - pnlretmax;
-    pnlretdrawdownmax = min(pnlretdrawdown);
-    if i == 0
-        code_i = 'all';
-    else
-        code_i = codes_fx{i};
-    end
-    statsout{i+1} = struct('code',code_i,...
-        'nTotal',size(pnlret,1),...
-        'Pwin',Wret,...
-        'Rret',Rret,...
-        'Kret',Kret,...
-        'MaxDrawdownret',pnlretdrawdownmax);
-%
+N = zeros(size(codes_fx,1),1);
+P = N;R = N;K = N;MDD = N;%DD stands for drawdown
+WA = N;LA = N;%winavg and lossavg
+for i = 1:size(codes_fx,1)
+    stats_i = kellyratio2(tbl2check_fx_h4{i}.pnlrel);
+    N(i) = stats_i.n;
+    P(i) = stats_i.w;
+    R(i) = stats_i.r;
+    K(i) = stats_i.k;
+    MDD(i) = stats_i.maxdrawdown;
+    WA(i) = stats_i.winavg;
+    LA(i) = stats_i.lossavg;
 end
-fprintf('done with mt4 fx of %s time frame...\n',freq_h4);
+statstable_fx_h4 = table(codes_fx,N,P,R,K,MDD,WA,LA);
+%%
+charlotte_backtest_period('code','usdjpy','fromdate','2026-06-24','todate','2026-06-25','kellytables',strat_fx_h4,'showlogs',true,'doplot',true,...
+        'frequency',freq_h4,'nfractal',nfractal_h4,...
+        'compulsorycheckforconditional',true,...
+        'usemt5',1);
+
+
+
 %%
 
 save([dir_,'strat_fx_h4.mat'],'strat_fx_h4');
 save([dir_,'tbl2check_fx_h4_all.mat'],'tbl2check_fx_h4_all');
 fprintf('strat fx h4 mat-file saved...\n');
+%%
+output_fx_h4_reduced = fractal_kelly_summary('codes',codes_fx,...
+        'frequency','intraday-240m','usefractalupdate',0,'usefibonacci',1,'direction','both',...
+        'nfractal',nfractal_h4,'useMT5',1,...
+        'fromdate','2020-01-01',...
+        'todate','2024-12-31');
+[~,~,tbl_fx_h4_reduced,~,~,~,~,strat_fx_h4_reduced] = kellydistributionsummary(output_fx_h4_reduced);

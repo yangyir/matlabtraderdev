@@ -18,9 +18,12 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
     use2 = zeros(n,1);
     for i = 1:n
         if tbl_trades.direction(i) == 1
-            idx = strcmpi(struct_distributions.kelly_table_l.opensignal_unique_l,tbl_trades.opensignal{i});
-            kellygeneral(i) = struct_distributions.kelly_table_l.kelly_unique_l_sample(idx);
-            use1(i) = struct_distributions.kelly_table_l.use_unique_l(idx);
+            kellygeneral(i) = kelly_k(tbl_trades.opensignal{i},tbl_trades.code{i},struct_distributions.signal_l,struct_distributions.asset_list,struct_distributions.kelly_matrix_l);
+            if kellygeneral(i) > 0.08
+                use1(i) = 1;
+            else
+                use1(i) = 0;
+            end
             %
             if strcmpi(tbl_trades.opensignal{i},'breachup-highsc13')
                 idx2 = strcmpi(struct_distributions.breachuphighsc13.asset,tbl_trades.assetname{i});
@@ -71,9 +74,12 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
                 end
             end
         else
-            idx = strcmpi(struct_distributions.kelly_table_s.opensignal_unique_s,tbl_trades.opensignal{i});
-            kellygeneral(i) = struct_distributions.kelly_table_s.kelly_unique_s_sample(idx);
-            use1(i) = struct_distributions.kelly_table_s.use_unique_s(idx);
+            kellygeneral(i) = kelly_k(tbl_trades.opensignal{i},tbl_trades.code{i},struct_distributions.signal_s,struct_distributions.asset_list,struct_distributions.kelly_matrix_s);
+            if kellygeneral(i) > 0.08
+                use1(i) = 1;
+            else
+                use1(i) = 0;
+            end
             %
             if strcmpi(tbl_trades.opensignal{i},'breachdn-lowbc13')
                 idx2 = strcmpi(struct_distributions.breachdnlowbc13.asset,tbl_trades.assetname{i});
@@ -130,14 +136,14 @@ function [tbl_report,stats_report,tbl_byasset] = kellydistributionreport(tbl_tra
             kellyused(i) = kellyspecial(i);
             if strcmpi(tbl_trades.opensignal{i},'mediumbreach-trendconfirmed') || ...
                     strcmpi(tbl_trades.opensignal{i},'strongbreach-trendconfirmed')
-                if kellyspecial(i) >= 0.088
+                if kellyspecial(i) >= 0.08
                     use2(i) = 1;
                 else
                     kellyused(i) = kellygeneral(i);
                     use2(i) = 0;
                 end
             else
-                if kellyspecial(i) >= 0.088
+                if kellyspecial(i) >= 0.08
                     use2(i) = 1;
                 else
                     use2(i) = 0;

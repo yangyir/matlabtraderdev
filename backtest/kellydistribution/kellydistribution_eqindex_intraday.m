@@ -22,9 +22,9 @@ for j = 3:size(listing_eqindex,1)
         if ~isempty(strfind(fn_ij,'_15m')),continue;end
         if ~isempty(strfind(fn_ij,'_tick')),continue;end
         
-        if ~isempty(strfind(fn_ij,'2509')),continue;end
+%         if ~isempty(strfind(fn_ij,'2509')),continue;end
         
-        if  ~isempty(strfind(lower(fn_ij),'ic')) ||~isempty(strfind(lower(fn_ij),'im')) ||~isempty(strfind(lower(fn_ij),'ih')) ||~isempty(strfind(lower(fn_ij),'if')) 
+        if  ~isempty(strfind(lower(fn_ij),'im')) ||~isempty(strfind(lower(fn_ij),'im')) ||~isempty(strfind(lower(fn_ij),'im')) ||~isempty(strfind(lower(fn_ij),'im')) 
             ncodes = ncodes + 1;
             codes_eqindex{ncodes,1} = fn_ij(1:end-4);
         end
