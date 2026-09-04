@@ -1,39 +1,47 @@
 classdef cSpiderman < cTradeRiskManager
     properties
-        type_@char
-        hh0_@double
-        ll0_@double
-        hh1_@double
-        ll1_@double
+        type_   %@char
+        hh0_    %@double
+        ll0_    %@double
+        hh1_    %@double
+        ll1_    %@double
         %stoploss at candle level
-        pxstoploss2_@double = -9.99                                         
+        pxstoploss2_ = NaN                                        
         %TD-related
-        tdhigh_@double = NaN
-        tdlow_@double = NaN
-        td13high_@double = NaN
-        td13low_@double = NaN
+        tdhigh_ = NaN  
+        tdlow_ = NaN
+        td13high_ = NaN
+        td13low_ = NaN
         %WAD-related
-        wadopen_@double
-        cpopen_@double
+        wadopen_ = NaN
+        cpopen_ = NaN
         %long trade
-        wadhigh_@double = NaN
-        cphigh_@double = NaN
+        wadhigh_ = NaN
+        cphigh_ = NaN
         %short trade
-        wadlow_@double = NaN
-        cplow_@double = NaN
+        wadlow_ = NaN
+        cplow_ = NaN
         %
         %FIBONACCI-related
-        fibonacci0_@double = NaN
-        fibonacci1_@double = NaN
+        fibonacci0_ = NaN
+        fibonacci1_ = NaN
+        %
+        %ATR-related
+        atrpnlmax_ = 0
+        atropen_ = 0
+        % below are golden numbers
+        atrmin_ = 0.8;
+        atrmax_ = 1.8;
+        atrlambda_ = 0.5;
     end
     
     properties (Access = private)
-        bucket_count_@double = -1
+        bucket_count_ = -1
     end
     
     properties (GetAccess = public, SetAccess = private)
-        usefractalupdate_@double = 1
-        usefibonacci_@double = 1
+        usefractalupdate_ = 1
+        usefibonacci_ = 1
     end
        
     methods
@@ -50,6 +58,7 @@ classdef cSpiderman < cTradeRiskManager
         [unwindtrade] = riskmanagement_tdsq(obj,varargin)
         [unwindtrade] = riskmanagement_fractal(obj,varargin)
         [unwindtrade] = riskmanagement_fibonacci(obj,varargin)
+        [unwindtrade] = riskmanagement_atr(obj,varargin)
         [unwindflag,msg] = riskmanagementwithcandleonopen(obj,varargin)
         [] = setusefractalupdateflag(obj,flagin)
         [] = setusefibonacciflag(obj,flagin)
