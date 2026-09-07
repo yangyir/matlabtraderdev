@@ -186,6 +186,11 @@ function [] = OnNewBar_M30(obj,~,eventData)
                         else
                             fprintf('%10s:-->%s:trade:set B limit order at %7.5f...\n',[code_i,'-H4'],lastspecialtime,trade.openprice_);
                         end
+                    else
+                        if nkpassed == 8 && eispecial_i.px(end,5) >= trade.openprice_
+                            % do we need to add a position here
+                            fprintf('not decided yet...\n');
+                        end
                     end
                 else
                     if eispecial_i.px(end,3) > trade.openprice_
@@ -198,6 +203,11 @@ function [] = OnNewBar_M30(obj,~,eventData)
                             fprintf('%10s:-->%s:trade:set S limit order at %7.3f...\n',[code_i,'-H4'],lastspecialtime,trade.openprice_);
                         else
                             fprintf('%10s:-->%s:trade:set S limit order at %7.5f...\n',[code_i,'-H4'],lastspecialtime,trade.openprice_);
+                        end
+                    else
+                        if nkpassed == 8 && eispecial_i.px(end,5) <= trade.openprice_
+                            % do we need to add a position here
+                            fprintf('not decided yet...\n');
                         end
                     end
                 end
