@@ -54,6 +54,7 @@ p.addParameter('fromdate',{},@(x) validateattributes(x,{'char','numeric'},{},'',
 p.addParameter('todate',{},@(x) validateattributes(x,{'char','numeric'},{},'','fromdate'));
 p.addParameter('nfractal',[],@isnumeric);
 p.addParameter('useMT5',0,@isnumeric);
+p.addParameter('removeduplicates',1,@isnumeric);
 p.parse(varargin{:});
 checkfreq = p.Results.frequency;
 usefractalupdateflag = p.Results.usefractalupdate;
@@ -75,6 +76,7 @@ if isempty(dt1), dt1 = '';end
 if isempty(dt2), dt2 = '';end
 nfractal = p.Results.nfractal;
 usemt5 = p.Results.useMT5;
+removeduplicates = p.Results.removeduplicates;
 
 if ~isempty(strfind(checkfreq,'intraday'))
     strs = regexp(checkfreq,'-','split');
@@ -423,6 +425,89 @@ tblb_headers{1,29} = 'closedatetime';
 tbls_headers{1,29} = 'closedatetime';
 %
 %
+if removeduplicates
+    if ~isempty(tblb_data)
+        tbl_data = tblb_data;
+        openid = tbl_data(:,15);
+        closeid = tbl_data(:,20);
+        useflag = zeros(length(openid),1);
+        for i = 1:length(openid)
+            if iscell(openid)
+                lastopenid = openid{i};
+            else
+                lastopenid = openid(i);
+            end
+            if isempty(lastopenid),continue;end
+            useflag(i) = 1;
+            if iscell(closeid)
+                lastcloseid = closeid{i};
+            else
+                lastcloseid = closeid(i);
+            end
+            istart = i+1;
+            break;   
+        end
+        %
+        for i = istart:length(openid)
+            if iscell(openid)
+                lastopenid = openid{i};
+            else
+                lastopenid = openid(i);
+            end
+            if isempty(lastopenid),continue;end
+            if lastopenid >= lastcloseid
+                useflag(i) = 1;
+                if iscell(closeid)
+                    lastcloseid = closeid{i};
+                else
+                    lastcloseid = closeid(i);
+                end
+            end
+        end
+        tblb_data = tblb_data(useflag == 1,:);
+    end
+    %
+    if ~isempty(tbls_data)
+        tbl_data = tbls_data;
+        openid = tbl_data(:,15);
+        closeid = tbl_data(:,20);
+        useflag = zeros(length(openid),1);
+        for i = 1:length(openid)
+            if iscell(openid)
+                lastopenid = openid{i};
+            else
+                lastopenid = openid(i);
+            end
+            if isempty(lastopenid),continue;end
+            useflag(i) = 1;
+            if iscell(closeid)
+                lastcloseid = closeid{i};
+            else
+                lastcloseid = closeid(i);
+            end
+            istart = i+1;
+            break;   
+        end
+        %
+        for i = istart:length(openid)
+            if iscell(openid)
+                lastopenid = openid{i};
+            else
+                lastopenid = openid(i);
+            end
+            if isempty(lastopenid),continue;end
+            if lastopenid >= lastcloseid
+                useflag(i) = 1;
+                if iscell(closeid)
+                    lastcloseid = closeid{i};
+                else
+                    lastcloseid = closeid(i);
+                end
+            end
+        end
+        tbls_data = tbls_data(useflag == 1,:);
+    end
+end
 nb = size(tblb_data,1);ns = size(tbls_data,1);
 tradebidx = 0;tradesidx = 0;
 nvalidltrade = 0;nvalidstrade = 0;
