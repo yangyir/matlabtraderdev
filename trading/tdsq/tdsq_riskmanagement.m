@@ -268,6 +268,13 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.pxstoploss_ = 2*trade.riskmanager_.tdlow_ - trade.riskmanager_.tdhigh_;
                 trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
             end
+            
+            if ~isempty(trade.riskmanager_.pxstoploss2_)
+                if trade.riskmanager_.pxstoploss_ < trade.riskmanager_.pxstoploss2_ && trade.riskmanager_.pxstoploss2_ > trade.riskmanager_.tdlow_
+                    trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdlow_;
+                end
+            end
+            
         end
         if ~isnan(trade.riskmanager_.tdhigh_) && ss(end) >= 9
             if ss(end) == 9
@@ -301,6 +308,13 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.pxstoploss_ = 2*trade.riskmanager_.tdlow_ - trade.riskmanager_.tdhigh_;
                 trade.riskmanager_.closestr_ = 'tdsq:ssbreak';
             end
+            
+            if ~isempty(trade.riskmanager_.pxstoploss2_)
+                if trade.riskmanager_.pxstoploss_ < trade.riskmanager_.pxstoploss2_ && trade.riskmanager_.pxstoploss2_ > trade.riskmanager_.tdlow_
+                    trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdlow_;
+                end
+            end
+            
         end
     elseif direction == -1
         if ~isnan(trade.riskmanager_.tdhigh_)
@@ -503,6 +517,12 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
                 trade.riskmanager_.pxstoploss_ = 2*trade.riskmanager_.tdhigh_ - trade.riskmanager_.tdlow_;
                 trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
             end
+            
+            if ~isempty(trade.riskmanager_.pxstoploss2_)
+                if trade.riskmanager_.pxstoploss_ > trade.riskmanager_.pxstoploss2_ && trade.riskmanager_.pxstoploss2_ < trade.riskmanager_.tdhigh_
+                    trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_;
+                end
+            end
             %
         end
         if ~isnan(trade.riskmanager_.tdlow_) && bs(end)>=9
@@ -536,6 +556,12 @@ function [ closeflag,closestr ] = tdsq_riskmanagement( trade,extrainfo )
             if 2*trade.riskmanager_.tdhigh_ -trade.riskmanager_.tdlow_ + 2*ticksize < trade.riskmanager_.pxstoploss_
                 trade.riskmanager_.pxstoploss_ = 2*trade.riskmanager_.tdhigh_ - trade.riskmanager_.tdlow_;
                 trade.riskmanager_.closestr_ = 'tdsq:bsbreak';
+            end
+            
+            if ~isempty(trade.riskmanager_.pxstoploss2_)
+                if trade.riskmanager_.pxstoploss_ > trade.riskmanager_.pxstoploss2_ && trade.riskmanager_.pxstoploss2_ < trade.riskmanager_.tdhigh_
+                    trade.riskmanager_.pxstoploss_ = trade.riskmanager_.tdhigh_;
+                end
             end
         end
 
