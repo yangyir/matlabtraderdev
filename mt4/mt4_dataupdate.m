@@ -8,14 +8,14 @@ function [ret] = mt4_dataupdate(code)
         ismt4eqcfd = false;
     end
 
-    if ~(isfx(code) || ismt4eqcfd)
+    if ~(isfx(code) || ismt4eqcfd || strcmpi(code,'XTIUSD')) 
         ret = 0;
         fprintf('mt4_dataupdate:invalid fx code input\n');
         return
     end
     
     folder = [getenv('onedrive'),'\Documents\fx_mt4\'];
-    if isfx(code)
+    if isfx(code) || strcmpi(code,'XTIUSD')
         code = upper(code);
         nperiod = 6;
         fns = cell(nperiod,1);
@@ -35,16 +35,20 @@ function [ret] = mt4_dataupdate(code)
         fns_out{6} = [code,'_MT4_D1.mat'];
     elseif ismt4eqcfd
         code = upper(code);
-        nperiod = 3;
+        nperiod = 5;
         fns = cell(nperiod,1);
-        fns{1} = [code,'.lmx60.csv'];      %1H
-        fns{2} = [code,'.lmx240.csv'];     %4H
-        fns{3} = [code,'.lmx1440.csv'];    %DAILY
+        fns{1} = [code,'.lmx15.csv'];      %15min
+        fns{2} = [code,'.lmx30.csv'];      %15min
+        fns{3} = [code,'.lmx60.csv'];      %1H
+        fns{4} = [code,'.lmx240.csv'];     %4H
+        fns{5} = [code,'.lmx1440.csv'];    %DAILY
     
         fns_out = cell(nperiod,1);
-        fns_out{1} = [code,'_MT4_H1.mat'];
-        fns_out{2} = [code,'_MT4_H4.mat'];
-        fns_out{3} = [code,'_MT4_D1.mat'];
+        fns_out{1} = [code,'_MT4_M15.mat'];
+        fns_out{2} = [code,'_MT4_M30.mat'];
+        fns_out{3} = [code,'_MT4_H1.mat'];
+        fns_out{4} = [code,'_MT4_H4.mat'];
+        fns_out{5} = [code,'_MT4_D1.mat'];
     end
     
     for i = 1:nperiod
