@@ -1,5 +1,8 @@
 function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
 %cTHS function
+% Returns start-labelled bars; normalize iFinD end labels before filtering
+% and compression. Saved data and callers must not shift these labels again.
+% Older saved files require an explicit re-download (override=true).
     %some sanity check first
     data = [];
     if ~obj.isconnect, return;end
@@ -15,6 +18,8 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
 
     if ~isnumeric(interval), error('cTHS:intradaybar:interval must be scalar'); end
     if isempty(interval), interval = 1; end
+    sourceInterval = 1;
+    options = ['Interval:',num2str(sourceInterval),',Fill:Original'];
 
     if isa(instrument,'cFutures') || isa(instrument,'cStock')
         code_wind = instrument.code_wind;
@@ -29,7 +34,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             'todate',datenum(enddate,'yyyy-mm-dd'));
         n = size(bds,1);
         if n == 0
-            d = THS_HF(code_wind,'open;high;low;close','Fill:Original',startdate,enddate,'format:table');
+            d = THS_HF(code_wind,'open;high;low;close',options,startdate,enddate,'format:table');
             data_raw_ = [datenum(d.time,'yyyy-mm-dd HH:MM'),d.open,d.high,d.low,d.close];
         elseif n == 1
             startdate_ = datestr(bds,'yyyy-mm-dd');
@@ -38,7 +43,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             else
                 enddate_ = [datestr(bds,'yyyy-mm-dd'),' ',instrument.break_interval{end,end}];
             end
-            d = THS_HF(code_wind,'open;high;low;close','Fill:Original',startdate_,enddate_,'format:table');
+            d = THS_HF(code_wind,'open;high;low;close',options,startdate_,enddate_,'format:table');
             data_raw_ = [datenum(d.time,'yyyy-mm-dd HH:MM'),d.open,d.high,d.low,d.close];
         else
             startdate_ = datestr(bds(1),'yyyy-mm-dd');
@@ -47,7 +52,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             else
                 enddate_ = [datestr(bds(1),'yyyy-mm-dd'),' ',instrument.break_interval{end,end}];
             end
-            d = THS_HF(code_wind,'open;high;low;close','Fill:Original',startdate_,enddate_,'format:table');
+            d = THS_HF(code_wind,'open;high;low;close',options,startdate_,enddate_,'format:table');
             data_raw_ = [datenum(d.time,'yyyy-mm-dd HH:MM'),d.open,d.high,d.low,d.close];
             for i = 2:n
                 startdate_ = datestr(bds(i),'yyyy-mm-dd');
@@ -57,12 +62,15 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
                 else
                     enddate_ = [datestr(bds(i),'yyyy-mm-dd'),' ',instrument.break_interval{end,end}];
                 end
-                d = THS_HF(code_wind,'open;high;low;close','Fill:Original',startdate_,enddate_,'format:table');
+                d = THS_HF(code_wind,'open;high;low;close',options,startdate_,enddate_,'format:table');
                 tmp = data_raw_;
                 data_new_ = [datenum(d.time,'yyyy-mm-dd HH:MM'),d.open,d.high,d.low,d.close];
                 data_raw_ = [tmp;data_new_];
             end
         end
+        % Source duration, not output interval or spacing between sparse rows.
+        % Integer minutes avoid roundoff across compression boundaries.
+        data_raw_(:,1) = (round(data_raw_(:,1)*1440)-sourceInterval)/1440;
         %the columns in d contain the following:
         %numeric representation of data and time
         %open price
@@ -90,23 +98,23 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             'todate',datenum(enddate,'yyyy-mm-dd'));
         n = size(bds,1);
         if n == 0
-            d = THS_HF(code_wind,'open;high;low;close','Fill:Original',startdate,enddate,'format:table');
+            d = THS_HF(code_wind,'open;high;low;close',options,startdate,enddate,'format:table');
             data_raw_ = [datenum(d.time,'yyyy-mm-dd HH:MM'),d.open,d.high,d.low,d.close];
         elseif n == 1
             startdate_ = datestr(bds,'yyyy-mm-dd');            
             enddate_ = [datestr(bds,'yyyy-mm-dd'),' 15:00:00'];
-            d = THS_HF(code_wind,'open;high;low;close','Fill:Original',startdate_,enddate_,'format:table');
+            d = THS_HF(code_wind,'open;high;low;close',options,startdate_,enddate_,'format:table');
             data_raw_ = [datenum(d.time,'yyyy-mm-dd HH:MM'),d.open,d.high,d.low,d.close];
         else
             startdate_ = datestr(bds(1),'yyyy-mm-dd');
             enddate_ = [datestr(bds(1),'yyyy-mm-dd'),' 15:00:00'];
-            d = THS_HF(code_wind,'open;high;low;close','Fill:Original',startdate_,enddate_,'format:table');
+            d = THS_HF(code_wind,'open;high;low;close',options,startdate_,enddate_,'format:table');
             data_raw_ = [datenum(d.time,'yyyy-mm-dd HH:MM'),d.open,d.high,d.low,d.close];
             for i = 2:n
                 startdate_ = datestr(bds(i),'yyyy-mm-dd');
                 if bds(i) > today, continue;end
                 enddate_ = [datestr(bds(i),'yyyy-mm-dd'),' 15:00:00'];
-                d = THS_HF(code_wind,'open;high;low;close','Fill:Original',startdate_,enddate_,'format:table');
+                d = THS_HF(code_wind,'open;high;low;close',options,startdate_,enddate_,'format:table');
                 tmp = data_raw_;
                 data_new_ = [datenum(d.time,'yyyy-mm-dd HH:MM'),d.open,d.high,d.low,d.close];
                 data_raw_ = [tmp;data_new_];
@@ -116,6 +124,7 @@ function data = intradaybar(obj,instrument,startdate,enddate,interval,field)
             data = [];
             fprintf('cTHS:intradaybar:no data returned...\n');
         else
+            data_raw_(:,1) = (round(data_raw_(:,1)*1440)-sourceInterval)/1440;
             idx2use = ~(isnan(data_raw_(:,1)) | isnan(data_raw_(:,2)) | isnan(data_raw_(:,3)) | isnan(data_raw_(:,4)) | isnan(data_raw_(:,5)));
             data = timeseries_compress(data_raw_(idx2use,1:5),...
                 'fromdate',startdate,...
